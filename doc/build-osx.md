@@ -96,10 +96,10 @@ https://github.com/Homebrew/homebrew-core/pull/9297
 
 Use the following commands to install Qt 5.7 under MacOS Sierra using a different formula.
 
-chown root /usr/local/bin/brew
-sudo brew update
-sudo chown -R $USER /usr/local
-brew install qt@5.7
+    chown root /usr/local/bin/brew
+    sudo brew update
+    sudo chown -R $USER /usr/local
+    brew install qt@5.7
 
 Notes
 -----
