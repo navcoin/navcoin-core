@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/navcoin/.navcoin" ]; then
+	NAVCOIND_DEFAULT_DATADIR="/var/lib/navcoin/.navcoin"
+else
+	NAVCOIND_DEFAULT_DATADIR="/var/lib/navcoind"
+fi
+
+NAVCOIND_CONFIGFILE=${NAVCOIND_CONFIGFILE:-/etc/navcoin/navcoin.conf}
+NAVCOIND_PIDDIR=${NAVCOIND_PIDDIR:-/var/run/navcoind}
+NAVCOIND_PIDFILE=${NAVCOIND_PIDFILE:-${NAVCOIND_PIDDIR}/navcoind.pid}
+NAVCOIND_DATADIR=${NAVCOIND_DATADIR:-${NAVCOIND_DEFAULT_DATADIR}}
+NAVCOIND_USER=${NAVCOIND_USER:-${NAVCOIN_USER:-navcoin}}
+NAVCOIND_GROUP=${NAVCOIND_GROUP:-navcoin}
+NAVCOIND_BIN=${NAVCOIND_BIN:-/usr/bin/navcoind}
+NAVCOIND_NICE=${NAVCOIND_NICE:-${NICELEVEL:-0}}
+NAVCOIND_OPTS="${NAVCOIND_OPTS:-${NAVCOIN_OPTS}}"
+
+name="NavCoin Core Daemon"
+description="NavCoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/navcoind"
+command_args="-pid=\"${NAVCOIND_PIDFILE}\" \
+		-conf=\"${NAVCOIND_CONFIGFILE}\" \
+		-datadir=\"${NAVCOIND_DATADIR}\" \
+		-daemon \
+		${NAVCOIND_OPTS}"
+
+required_files="${NAVCOIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${NAVCOIND_USER} \
+			-N ${NAVCOIND_NICE} -w 2000"
+pidfile="${NAVCOIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${NAVCOIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${NAVCOIND_USER}:${NAVCOIND_GROUP}" \
+	"${NAVCOIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${NAVCOIND_USER}:${NAVCOIND_GROUP}" \
+	"${NAVCOIND_PIDDIR}"
+
+	checkpath -f \
+	-o ${NAVCOIND_USER}:${NAVCOIND_GROUP} \
+	-m 0660 \
+	${NAVCOIND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${NAVCOIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run navcoind."
+		eerror "The setting must appear in ${NAVCOIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"NavCoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

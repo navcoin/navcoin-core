@@ -1,0 +1,22 @@
+[Unit]
+Description=NavCoin's distributed currency daemon
+After=network.target
+
+[Service]
+User=navcoin
+Group=navcoin
+
+Type=forking
+PIDFile=/var/lib/navcoind/navcoind.pid
+ExecStart=/usr/bin/navcoind -daemon -pid=/var/lib/navcoind/navcoind.pid \
+-conf=/etc/navcoin/navcoin.conf -datadir=/var/lib/navcoind -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+/usr/bin/navcoin-cli		--	gen_context(system_u:object_r:navcoin_exec_t,s0)
+/usr/sbin/navcoind		--	gen_context(system_u:object_r:navcoin_exec_t,s0)
+/usr/lib(64)?/navcoin/navcoind		--	gen_context(system_u:object_r:navcoin_exec_t,s0)
+
+/etc/navcoin(/.*)?		gen_context(system_u:object_r:navcoin_conf_t,s0)
+/var/lib/navcoin(/.*)?		gen_context(system_u:object_r:navcoin_var_lib_t,s0)
+
+(/var)?/run/navcoind(/.*)?   gen_context(system_u:object_r:navcoin_var_run_t,s0)

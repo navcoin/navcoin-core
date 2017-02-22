@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=NavCoin
+Comment=NavCoin P2P Cryptocurrency
+Comment[fr]=NavCoin, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=NavCoin, eşten eşe kriptografik sanal para birimi
+Exec=navcoin-qt %u
+Terminal=false
+Type=Application
+Icon=navcoin128
+MimeType=x-scheme-handler/navcoin;
+Categories=Office;Finance;

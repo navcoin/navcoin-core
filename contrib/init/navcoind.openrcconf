@@ -1,0 +1,33 @@
+# /etc/conf.d/navcoind: config file for /etc/init.d/navcoind
+
+# Config file location
+#NAVCOIND_CONFIGFILE="/etc/navcoin/navcoin.conf"
+
+# What directory to write pidfile to?  (created and owned by $NAVCOIND_USER)
+#NAVCOIND_PIDDIR="/var/run/navcoind"
+
+# What filename to give the pidfile
+#NAVCOIND_PIDFILE="${NAVCOIND_PIDDIR}/navcoind.pid"
+
+# Where to write navcoind data (be mindful that the blockchain is large)
+#NAVCOIND_DATADIR="/var/lib/navcoind"
+
+# User and group to own navcoind process
+#NAVCOIND_USER="navcoin"
+#NAVCOIND_GROUP="navcoin"
+
+# Path to navcoind executable
+#NAVCOIND_BIN="/usr/bin/navcoind"
+
+# Nice value to run navcoind under
+#NAVCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+NAVCOIND_OPTS="-disablewallet"
+
+# The timeout in seconds OpenRC will wait for navcoind to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+NAVCOIND_SIGTERM_TIMEOUT=60

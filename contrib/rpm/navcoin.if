@@ -1,0 +1,157 @@
+
+## <summary>policy for navcoin</summary>
+
+
+########################################
+## <summary>
+##	Transition to navcoin.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`navcoin_domtrans',`
+	gen_require(`
+		type navcoin_t, navcoin_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, navcoin_exec_t, navcoin_t)
+')
+
+
+########################################
+## <summary>
+##	Execute navcoin server in the navcoin domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`navcoin_initrc_domtrans',`
+	gen_require(`
+		type navcoin_initrc_exec_t;
+	')
+
+	init_labeled_script_domtrans($1, navcoin_initrc_exec_t)
+')
+
+
+########################################
+## <summary>
+##	Search navcoin lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`navcoin_search_lib',`
+	gen_require(`
+		type navcoin_var_lib_t;
+	')
+
+	allow $1 navcoin_var_lib_t:dir search_dir_perms;
+	files_search_var_lib($1)
+')
+
+########################################
+## <summary>
+##	Read navcoin lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`navcoin_read_lib_files',`
+	gen_require(`
+		type navcoin_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	read_files_pattern($1, navcoin_var_lib_t, navcoin_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage navcoin lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`navcoin_manage_lib_files',`
+	gen_require(`
+		type navcoin_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_files_pattern($1, navcoin_var_lib_t, navcoin_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage navcoin lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`navcoin_manage_lib_dirs',`
+	gen_require(`
+		type navcoin_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_dirs_pattern($1, navcoin_var_lib_t, navcoin_var_lib_t)
+')
+
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	an navcoin environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`navcoin_admin',`
+	gen_require(`
+		type navcoin_t;
+		type navcoin_initrc_exec_t;
+		type navcoin_var_lib_t;
+	')
+
+	allow $1 navcoin_t:process { ptrace signal_perms };
+	ps_process_pattern($1, navcoin_t)
+
+	navcoin_initrc_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 navcoin_initrc_exec_t system_r;
+	allow $2 system_r;
+
+	files_search_var_lib($1)
+	admin_pattern($1, navcoin_var_lib_t)
+
+')
+
