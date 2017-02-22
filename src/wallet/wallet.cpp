@@ -2511,7 +2511,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
 }
 
 bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
-                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign)
+                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign, std::string strDZeel)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
@@ -2537,6 +2537,11 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     wtxNew.fTimeReceivedIsTxTime = true;
     wtxNew.nTime = GetAdjustedTime();
     wtxNew.BindWallet(this);
+
+    wtxNew.strDZeel = strDZeel;
+    if (wtxNew.strDZeel.length() > 512)
+   		wtxNew.strDZeel.resize(512);
+
     CMutableTransaction txNew;
 
     // Discourage fee sniping.

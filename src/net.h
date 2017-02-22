@@ -174,6 +174,12 @@ extern CCriticalSection cs_vAddedNodes;
 extern NodeId nLastNodeId;
 extern CCriticalSection cs_nLastNodeId;
 
+extern std::vector<std::string> vAddedAnonServers;
+extern CCriticalSection cs_vAddedAnonServers;
+
+extern std::vector<std::string> vAddedAnonHashes;
+extern CCriticalSection cs_vAddedAnonHashes;
+
 /** Subversion as sent to the P2P network in `version` messages */
 extern std::string strSubVersion;
 

@@ -333,6 +333,90 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue addanonserver(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+    if (params.size() == 2)
+        strCommand = params[1].get_str();
+    if (fHelp || params.size() != 2 ||
+        (strCommand != "add" && strCommand != "remove"))
+        throw runtime_error(
+            "addanonserver \"node\" \"add|remove\"\n"
+            "\nAttempts add or remove a node from the NAVTech server list.\n"
+            "\nArguments:\n"
+            "1. \"node\"     (string, required) The node (see getpeerinfo for nodes)\n"
+            "2. \"command\"  (string, required) 'add' to add a node to the list, 'remove' to remove a node from the list\n"
+            "\nExamples:\n"
+            + HelpExampleCli("addanonserver", "\"192.168.0.6:3000\" \"add\"")
+            + HelpExampleRpc("addanonserver", "\"192.168.0.6:3000\", \"remove\"")
+        );
+
+    string strNode = params[0].get_str();
+
+    LOCK(cs_vAddedAnonServers);
+    vector<string>::iterator it = vAddedAnonServers.begin();
+    for(; it != vAddedAnonServers.end(); it++)
+        if (strNode == *it)
+            break;
+
+    if (strCommand == "add")
+    {
+        if (it != vAddedAnonServers.end())
+            throw JSONRPCError(RPC_CLIENT_NODE_ALREADY_ADDED, "Error: NAVTech server already added");
+        vAddedAnonServers.push_back(strNode);
+    }
+    else if(strCommand == "remove")
+    {
+        if (it == vAddedAnonServers.end())
+            throw JSONRPCError(RPC_CLIENT_NODE_NOT_ADDED, "Error: NAVTech server has not been added.");
+        vAddedAnonServers.erase(it);
+    }
+
+    return NullUniValue;
+}
+
+UniValue addanonhash(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+    if (params.size() == 2)
+        strCommand = params[1].get_str();
+    if (fHelp || params.size() != 2 ||
+        (strCommand != "add" && strCommand != "remove"))
+        throw runtime_error(
+            "addanonhash \"node\" \"add|remove\"\n"
+            "\nAttempts add or remove an accepted NAVTech md5 hash.\n"
+            "\nArguments:\n"
+            "1. \"hash\"     (string, required) The md5 hash (see github.com/navcoindev/navtech for current hash value)\n"
+            "2. \"command\"  (string, required) 'add' to add a hash to the list, 'remove' to remove a hash from the list\n"
+            "\nExamples:\n"
+            + HelpExampleCli("addanonhash", "\"000c17f28eaa71f48de6d8856fc3a22f\" \"add\"")
+            + HelpExampleRpc("addanonhash", "\"000c17f28eaa71f48de6d8856fc3a22f\", \"remove\"")
+        );
+
+    string strNode = params[0].get_str();
+
+    LOCK(cs_vAddedAnonHashes);
+    vector<string>::iterator it = vAddedAnonHashes.begin();
+    for(; it != vAddedAnonHashes.end(); it++)
+        if (strNode == *it)
+            break;
+
+    if (strCommand == "add")
+    {
+        if (it != vAddedAnonHashes.end())
+            throw JSONRPCError(RPC_CLIENT_NODE_ALREADY_ADDED, "Error: NAVTech md5 hash already added");
+        vAddedAnonHashes.push_back(strNode);
+    }
+    else if(strCommand == "remove")
+    {
+        if (it == vAddedAnonHashes.end())
+            throw JSONRPCError(RPC_CLIENT_NODE_NOT_ADDED, "Error: NAVTech md5 hash has not been added.");
+        vAddedAnonHashes.erase(it);
+    }
+
+    return NullUniValue;
+}
+
 UniValue getnettotals(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 0)
@@ -578,6 +662,8 @@ static const CRPCCommand commands[] =
     { "network",            "ping",                   &ping,                   true  },
     { "network",            "getpeerinfo",            &getpeerinfo,            true  },
     { "network",            "addnode",                &addnode,                true  },
+    { "network",            "addanonserver",          &addanonserver,          true  },
+    { "network",            "addanonhash",            &addanonhash,            true  },
     { "network",            "disconnectnode",         &disconnectnode,         true  },
     { "network",            "getaddednodeinfo",       &getaddednodeinfo,       true  },
     { "network",            "getnettotals",           &getnettotals,           true  },
