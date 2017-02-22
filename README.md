@@ -1,81 +1,45 @@
-NavCoin Core integration/staging tree
-=====================================
+![alt text](https://raw.githubusercontent.com/navcoindev/navcoin-media/master/logo/logo-extended.png "Logo text 2")
 
-[![Build Status](https://travis-ci.org/navcoin/navcoin.svg?branch=master)](https://travis-ci.org/navcoin/navcoin)
+This is the working repository for NAV Coin's fork of bitcoin-core 0.13. Not all functionality is production ready, use at your own risk.
 
-https://navcoincore.org
+For more information please visit the website:
 
-What is NavCoin?
-----------------
+http://www.navcoin.org
 
-NavCoin is an experimental digital currency that enables instant payments to
-anyone, anywhere in the world. NavCoin uses peer-to-peer technology to operate
-with no central authority: managing transactions and issuing money are carried
-out collectively by the network. NavCoin Core is the name of open source
-software which enables the use of this currency.
+## Coin Specifications
 
-For more information, as well as an immediately useable, binary version of
-the NavCoin Core software, see https://navcoin.org/en/download, or read the
-[original whitepaper](https://navcoincore.org/navcoin.pdf).
+| Specification | Value |
+|:-----------|:-----------|
+| Block Spacing | `30 seconds` |
+| Stake Minimum Age | `2 hours` |
+| Stake Maximum Age | `24 hours` |
+| Stake Reward | `5% per annum` |
+| Port | `44440` |
+| RPC Port | `44444` |
 
-License
--------
+## Navtech Settings
 
-NavCoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
-information or see https://opensource.org/licenses/MIT.
+| Specification | Value |
+|:-----------|:-----------|
+| addanonserver | `95.183.52.55:3000` |
+| addanonserver | `95.183.53.184:3000` |
+| addanonserver | `95.183.52.28:3000` |
+| addanonserver | `95.183.52.29:3000` |
+| anonhash | `000c17f28eaa71f48de6d8856fc3a22f` |
 
-Development Process
--------------------
+## Social Channels
 
-The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/navcoin/navcoin/tags) are created
-regularly to indicate new official, stable release versions of NavCoin Core.
+| Site | link |
+|:-----------|:-----------|
+| Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
+| Facebook | https://www.facebook.com/NAVCoin |
+| Twitter | https://twitter.com/NavCoin |
+| Reddit | http://www.reddit.com/r/navcoin |
+| Slack | https://navcoin-sign-up.herokuapp.com |
+| Telegram | https://telegram.me/joinchat/COuj0kE7K01APpfZSq3i7Q |
 
-The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
+## Navtech Decentralization
 
-The developer [mailing list](https://lists.linuxfoundation.org/mailman/listinfo/navcoin-dev)
-should be used to discuss complicated or controversial changes before working
-on a patch set.
+We are working towards a lot of cool projects, our major upcoming milestone is the decentralisation of our Navtech Anon network. For more information please see our projects page:
 
-Developer IRC can be found on Freenode at #navcoin-core-dev.
-
-Testing
--------
-
-Testing and code review is the bottleneck for development; we get more pull
-requests than we can review and test on short notice. Please be patient and help out by testing
-other people's pull requests, and remember this is a security-critical project where any mistake might cost people
-lots of money.
-
-### Automated Testing
-
-Developers are strongly encouraged to write [unit tests](/doc/unit-tests.md) for new code, and to
-submit new unit tests for old code. Unit tests can be compiled and run
-(assuming they weren't disabled in configure) with: `make check`
-
-There are also [regression and integration tests](/qa) of the RPC interface, written
-in Python, that are run automatically on the build server.
-These tests can be run (if the [test dependencies](/qa) are installed) with: `qa/pull-tester/rpc-tests.py`
-
-The Travis CI system makes sure that every pull request is built for Windows, Linux, and OS X, and that unit/sanity tests are run automatically.
-
-### Manual Quality Assurance (QA) Testing
-
-Changes should be tested by somebody other than the developer who wrote the
-code. This is especially important for large or high-risk changes. It is useful
-to add a test plan to the pull request description if testing the changes is
-not straightforward.
-
-Translations
-------------
-
-Changes to translations as well as new translations can be submitted to
-[NavCoin Core's Transifex page](https://www.transifex.com/projects/p/navcoin/).
-
-Translations are periodically pulled from Transifex and merged into the git repository. See the
-[translation process](doc/translation_process.md) for details on how this works.
-
-**Important**: We do not accept translation changes as GitHub pull requests because the next
-pull from Transifex would automatically overwrite them again.
-
-Translators should also subscribe to the [mailing list](https://groups.google.com/forum/#!forum/navcoin-translators).
+http://www.navcoin.org/projects
