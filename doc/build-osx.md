@@ -87,6 +87,20 @@ Uncheck everything except Qt Creator during the installation process.
 9. Select LLDB as debugger (you might need to set the path to your installation)
 10. Start debugging with Qt Creator
 
+QT and Mac OS Sierra
+--------------------
+
+Installing QT through brew in MacOS Sierra could fail during compilation.
+
+https://github.com/Homebrew/homebrew-core/pull/9297
+
+Use the following commands to install Qt 5.7 under MacOS Sierra using a different formula.
+
+chown root /usr/local/bin/brew
+sudo brew update
+sudo chown -R $USER /usr/local
+brew install qt@5.7
+
 Notes
 -----
 
