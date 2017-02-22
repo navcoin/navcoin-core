@@ -630,29 +630,6 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 // Internal Staker
 //
 
-// static bool ProcessBlockFound(const CBlock* pblock, const CChainParams& chainparams)
-// {
-//     LogPrintf("%s\n", pblock->ToString());
-//     // LogPrintf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue));
-//
-//     // Found a solution
-//     {
-//         LOCK(cs_main);
-//         if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
-//             return error("NavCoinStaker: generated block is stale");
-//     }
-//
-//     // Inform about the new block
-//     GetMainSignals().BlockFound(pblock->GetHash());
-//
-//     // Process this block the same as if we had received it from another node
-//     CValidationState state;
-//     if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
-//         return error("NavCoinStaker: ProcessNewBlock, block not accepted");
-//
-//     return true;
-// }
-
 extern unsigned int nMinerSleep;
 
 void static NavCoinStaker(const CChainParams& chainparams)
@@ -855,12 +832,12 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
             wallet.mapRequestCount[hashBlock] = 0;
         }
 
-        // GetMainSignals().BlockFound(pblock->GetHash());
-        //
-        // // Process this block the same as if we had received it from another node
-        // CValidationState state;
-        // if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
-        //     return error("NavCoinStaker: ProcessNewBlock, block not accepted");
+        GetMainSignals().BlockFound(pblock->GetHash());
+
+        // Process this block the same as if we had received it from another node
+        CValidationState state;
+        if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
+            return error("NavCoinStaker: ProcessNewBlock, block not accepted");
     }
 
     return true;
