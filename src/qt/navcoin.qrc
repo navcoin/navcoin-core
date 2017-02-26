@@ -1,4 +1,4 @@
-<!DOCTYPE RCC><RCC version="1.0">
+<RCC>
     <qresource prefix="/icons">
         <file alias="navcoin">res/icons/navcoin.png</file>
         <file alias="address-book">res/icons/address-book.png</file>
@@ -39,6 +39,7 @@
         <file alias="lock_open">res/icons/lock_open.png</file>
         <file alias="key">res/icons/key.png</file>
         <file alias="filesave">res/icons/filesave.png</file>
+        <file alias="splash">res/icons/splash.png</file>
         <file alias="debugwindow">res/icons/debugwindow.png</file>
         <file alias="open">res/icons/open.png</file>
         <file alias="info">res/icons/info.png</file>
@@ -50,6 +51,19 @@
         <file alias="fontsmaller">res/icons/fontsmaller.png</file>
         <file alias="prompticon">res/icons/chevron.png</file>
         <file alias="transaction_abandoned">res/icons/transaction_abandoned.png</file>
+        <file alias="menu_logo">res/icons/logo_ns.png</file>
+        <file alias="menu_home_ns">res/icons/home_ns.png</file>
+        <file alias="menu_receive_ns">res/icons/receive_ns.png</file>
+        <file alias="menu_send_ns">res/icons/send_ns.png</file>
+        <file alias="menu_home_hover">res/icons/home_hover.png</file>
+        <file alias="menu_home_s">res/icons/home_s.png</file>
+        <file alias="menu_receive_hover">res/icons/receive_hover.png</file>
+        <file alias="menu_receive_s">res/icons/receive_s.png</file>
+        <file alias="menu_send_hover">res/icons/send_hover.png</file>
+        <file alias="menu_send_s">res/icons/send_s.png</file>
+        <file alias="menu_transaction_ns">res/icons/transaction_ns.png</file>
+        <file alias="menu_transaction_s">res/icons/transaction_s.png</file>
+        <file alias="menu_transaction_hover">res/icons/transaction_hover.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

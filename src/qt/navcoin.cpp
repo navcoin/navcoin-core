@@ -460,6 +460,9 @@ void NavCoinApplication::initializeResult(int retval)
         }
 #endif
 
+        window->setStyleSheet("QMainWindow {background: '#e8ebf0';}");
+
+
         // If -min option passed, start window minimized.
         if(GetBoolArg("-min", false))
         {

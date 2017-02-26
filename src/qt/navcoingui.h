@@ -13,10 +13,15 @@
 
 #include <QLabel>
 #include <QMainWindow>
+#include <QEvent>
+#include <QHoverEvent>
 #include <QMap>
 #include <QMenu>
 #include <QPoint>
+#include <QPushButton>
 #include <QSystemTrayIcon>
+#include <QAbstractButton>
+#include <QPainter>
 
 class ClientModel;
 class NetworkStyle;
@@ -36,6 +41,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QProgressBar;
 class QProgressDialog;
+class QAbstractButton;
 QT_END_NAMESPACE
 
 /**
@@ -111,6 +117,10 @@ private:
     QAction *openRPCConsoleAction;
     QAction *openAction;
     QAction *showHelpMessageAction;
+    QPushButton *topMenu1;
+    QPushButton *topMenu2;
+    QPushButton *topMenu3;
+    QPushButton *topMenu4;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -219,7 +229,7 @@ private Q_SLOTS:
 
     /** Show progress dialog e.g. for verifychain */
     void showProgress(const QString &title, int nProgress);
-    
+
     /** When hideTrayIcon setting is changed in OptionsModel hide or show the icon accordingly. */
     void setTrayIconVisible(bool);
 };
