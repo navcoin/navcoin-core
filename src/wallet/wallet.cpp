@@ -300,7 +300,7 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
     return true;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CTransaction& txNew, CKey& key)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key)
 {
     CBlockIndex* pindexPrev = pindexBestHeader;
     CBigNum bnTargetPerCoinDay;
@@ -445,7 +445,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int64_t nReward;
     {
         uint64_t nCoinAge;
-        if (!TransactionGetCoinAge(txNew, pindexPrev, nCoinAge))
+        CTransaction ptxNew = CTransaction(txNew);
+        if (!TransactionGetCoinAge(ptxNew, pindexPrev, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
         nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees);
@@ -523,10 +524,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int nIn = 0;
     BOOST_FOREACH(const CWalletTx* pcoin, vwtxPrev)
     {
-        CMutableTransaction pMtxNew = CMutableTransaction(txNew);
-        if (!SignSignatureNavcoin(*this, *pcoin, pMtxNew, nIn++))
+        if (!SignSignatureNavcoin(*this, *pcoin, txNew, nIn++))
             return error("CreateCoinStake : failed to sign coinstake");
-        *static_cast<CTransaction*>(&txNew) = CTransaction(pMtxNew);
     }
 
     // Limit size
@@ -1695,7 +1694,7 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         // In either case, we need to get the destination address
         CTxDestination address;
 
-        if (!ExtractDestination(txout.scriptPubKey, address) && !txout.scriptPubKey.IsUnspendable())
+        if (!ExtractDestination(txout.scriptPubKey, address))
         {
             LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
                      this->GetHash().ToString());

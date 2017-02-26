@@ -1178,14 +1178,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (tx.IsCoinStake())
         return state.DoS(100, false, REJECT_INVALID, "coinstake");
 
-    // Don't relay version 2 transactions until CSV is active, and we can be
-    // sure that such transactions will be mined (unless we're on
-    // -testnet/-regtest).
-    const CChainParams& chainparams = Params();
-    if (fRequireStandard && tx.nVersion >= 2 && VersionBitsTipState(chainparams.GetConsensus(), Consensus::DEPLOYMENT_CSV) != THRESHOLD_ACTIVE) {
-        return state.DoS(0, false, REJECT_NONSTANDARD, "premature-version2-tx");
-    }
-
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
     bool witnessEnabled = IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus());
     if (!GetBoolArg("-prematurewitness",false) && !tx.wit.IsNull() && !witnessEnabled) {
@@ -3440,8 +3432,6 @@ bool ActivateBestChain(CValidationState &state, const CChainParams& chainparams,
             if (pindexMostWork == NULL) {
                 pindexMostWork = FindMostWorkChain();
             }
-
-            // printf("%d %d %d\n",pindexMostWork->nChainWork.GetLow64(),pindexMostWork == NULL, pindexMostWork == chainActive.Tip());
 
             // Whether we have anything to do at all.
             if (pindexMostWork == NULL || pindexMostWork == chainActive.Tip())
@@ -7650,7 +7640,7 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     // Now check if proof-of-stake hash meets target protocol
     if (CBigNum(ArithToUint256(hashProofOfStake)) > bnTarget)
-        return false;
+      return false;
 
     if (fDebug && !fPrintProofOfStake)
     {
@@ -7740,16 +7730,22 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 
     CTransaction txPrev;
     uint256 hashBlock = uint256();
-    if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
-        return false;  // previous transaction not in main chain, may occur during initial download
+    if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true)){
+        LogPrintf("CheckKernel : Could not find previous transaction %s\n",prevout.hash.ToString());
+        return false;
+    }
 
-    if (mapBlockIndex.count(hashBlock) == 0)
-        return false; // unable to read block of previous transaction
+    if (mapBlockIndex.count(hashBlock) == 0){
+        LogPrintf("CheckKernel : Could not find block of previous transaction %s\n",hashBlock.ToString());
+        return false;
+    }
 
     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-    if (pblockindex->GetBlockTime() + nStakeMinAge > nTime)
-        return false; // only count coins meeting min age requirement
+    if (pblockindex->GetBlockTime() + nStakeMinAge > nTime){
+        LogPrintf("CheckKernel : CreateCoinStake selected coins which do not meet min age requirement.\n");
+        return false;
+    }
 
     if (pBlockTime)
         *pBlockTime = pblockindex->GetBlockTime();

@@ -138,6 +138,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
     // Add dummy coinbase tx as first transaction
     pblock->vtx.push_back(CTransaction());
+
     pblocktemplate->vTxFees.push_back(-1); // updated at end
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
@@ -180,18 +181,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinstakeTx.vin.resize(1);
     coinstakeTx.vin[0].prevout.SetNull();
     coinstakeTx.vout.resize(1);
-    coinstakeTx.vout[0].scriptPubKey.clear(); // = scriptPubKeyIn;
-    if (!fProofOfStake)
-        coinstakeTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    else
-        coinstakeTx.vout[0].nValue = 0;
+    coinstakeTx.vout[0].scriptPubKey.clear();
+    coinstakeTx.vout[0].nValue = 0;
     coinstakeTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
-
-    pblock->vtx[0] = CTransaction(coinstakeTx);
+    pblock->vtx[0] = coinstakeTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
-
 
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
@@ -641,7 +637,7 @@ void static NavCoinStaker(const CChainParams& chainparams)
         // due to some internal error but also if the keypool is empty.
         // In the latter case, already the pointer is NULL.
         if (!coinbaseScript || coinbaseScript->reserveScript.empty())
-            throw std::runtime_error("No coinbase script available (mining requires a wallet)");
+            throw std::runtime_error("No coinbase script available (staking requires a wallet)");
 
         while (true) {
             if (chainparams.MiningRequiresPeers()) {
@@ -735,8 +731,10 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
   std::vector<CTransaction> vtx = pblock->vtx;
   // if we are trying to sign
   //    something except proof-of-stake block template
-  if (!vtx[0].vout[0].IsEmpty())
+  if (!vtx[0].vout[0].IsEmpty()){
+      LogPrintf("SignBlock() : Trying to sign malformed proof-of-stake block template\n");
       return false;
+  }
 
   // if we are trying to sign
   //    a complete proof-of-stake block
@@ -746,11 +744,12 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
   static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
 
   CKey key;
-  CTransaction txCoinStake;
+  CMutableTransaction txCoinStake;
+  CTransaction txNew;
   int nBestHeight = pindexBestHeader->nHeight;
+
   txCoinStake.nTime = GetAdjustedTime();
   txCoinStake.nTime &= ~STAKE_TIMESTAMP_MASK;
-  // txCoinStake.nTime |= 1;
 
   int64_t nSearchTime = txCoinStake.nTime; // search to current time
 
@@ -772,19 +771,11 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
-              LogPrintf("Adding CoinStake TX: %s\n",txCoinStake.ToString());
+              *static_cast<CTransaction*>(&txNew) = CTransaction(txCoinStake);
+              pblock->vtx.insert(pblock->vtx.begin() + 1, txNew);
 
-              pblock->vtx.insert(pblock->vtx.begin() + 1, txCoinStake);
-              // pblock->vtx.push_back(txCoinStake);
-
-              pblock->hashMerkleRoot = pblock->BuildMerkleTree();
-
-              bool mutated = false;
-
-              uint256 hashMerkleRoot2 = BlockMerkleRoot(*pblock, &mutated);
-
-              if (pblock->hashMerkleRoot != hashMerkleRoot2)
-                  return error("SignBlock(): Error checking hash merkle root (mutated: %d)\n",mutated);
+              pblock->vtx[0].UpdateHash();
+              pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 
               return key.SignNav(pblock->GetHash(), pblock->vchBlockSig);
           }
