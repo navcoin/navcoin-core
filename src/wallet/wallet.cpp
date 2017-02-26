@@ -1678,6 +1678,11 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
     for (unsigned int i = 0; i < vout.size(); ++i)
     {
         const CTxOut& txout = vout[i];
+
+        // Skip special stake out
+        if (txout.scriptPubKey.empty())
+            continue;
+
         isminetype fIsMine = pwallet->IsMine(txout);
         // Only need to handle txouts if AT LEAST one of these is true:
         //   1) they debit from us (sent)
@@ -1685,8 +1690,9 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         if (nDebit > 0)
         {
             // Don't report 'change' txouts
-            if (pwallet->IsChange(txout))
-                continue;
+            // if (pwallet->IsChange(txout))
+            //     continue;
+            fIsMine = pwallet->IsMine(txout);
         }
         else if (!(fIsMine & filter))
             continue;
@@ -1696,8 +1702,8 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
 
         if (!ExtractDestination(txout.scriptPubKey, address))
         {
-            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
-                     this->GetHash().ToString());
+            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
+                     this->GetHash().ToString(),i);
             address = CNoDestination();
         }
 
