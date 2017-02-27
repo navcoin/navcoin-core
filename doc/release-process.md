@@ -20,10 +20,10 @@ Before every major release:
 Check out the source code in the following directory hierarchy.
 
     cd /path/to/your/toplevel/build
-    git clone https://github.com/navcoin-core/gitian.sigs.git
-    git clone https://github.com/navcoin-core/navcoin-detached-sigs.git
+    git clone https://github.com/bitcoin-core/gitian.sigs.git
+    git clone https://github.com/bitcoin-core/navcoin-detached-sigs.git
     git clone https://github.com/devrandom/gitian-builder.git
-    git clone https://github.com/navcoin/navcoin.git
+    git clone https://github.com/navcoindev/navcoin-core.git
 
 ### NavCoin maintainers/release engineers, update version in sources
 
@@ -62,7 +62,7 @@ Tag version (or release candidate) in git
 
 Setup Gitian descriptors:
 
-    pushd ./navcoin
+    pushd ./navcoin-core
     export SIGNER=(your Gitian key, ie bluematt, sipa, etc)
     export VERSION=(new version, e.g. 0.8.0)
     git fetch
@@ -112,17 +112,17 @@ The gbuild invocations below <b>DO NOT DO THIS</b> by default.
 ### Build and sign NavCoin Core for Linux, Windows, and OS X:
 
     pushd ./gitian-builder
-    ./bin/gbuild --memory 3000 --commit navcoin=v${VERSION} ../navcoin/contrib/gitian-descriptors/gitian-linux.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-linux --destination ../gitian.sigs/ ../navcoin/contrib/gitian-descriptors/gitian-linux.yml
+    ./bin/gbuild --memory 3000 --commit navcoin-core=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
+    ./bin/gsign --signer $SIGNER --release ${VERSION}-linux --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
     mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
 
-    ./bin/gbuild --memory 3000 --commit navcoin=v${VERSION} ../navcoin/contrib/gitian-descriptors/gitian-win.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-unsigned --destination ../gitian.sigs/ ../navcoin/contrib/gitian-descriptors/gitian-win.yml
+    ./bin/gbuild --memory 3000 --commit navcoin-core=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
+    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-unsigned --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
     mv build/out/navcoin-*-win-unsigned.tar.gz inputs/navcoin-win-unsigned.tar.gz
     mv build/out/navcoin-*.zip build/out/navcoin-*.exe ../
 
-    ./bin/gbuild --memory 3000 --commit navcoin=v${VERSION} ../navcoin/contrib/gitian-descriptors/gitian-osx.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-unsigned --destination ../gitian.sigs/ ../navcoin/contrib/gitian-descriptors/gitian-osx.yml
+    ./bin/gbuild --memory 3000 --commit navcoin-core=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
+    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-unsigned --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
     mv build/out/navcoin-*-osx-unsigned.tar.gz inputs/navcoin-osx-unsigned.tar.gz
     mv build/out/navcoin-*.tar.gz build/out/navcoin-*.dmg ../
     popd
@@ -139,14 +139,14 @@ Build output expected:
 
 Add other gitian builders keys to your gpg keyring
 
-    gpg --import navcoin/contrib/gitian-keys/*.pgp
+    gpg --import navcoin-core/contrib/gitian-keys/*.pgp
 
 Verify the signatures
 
     pushd ./gitian-builder
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-linux ../navcoin/contrib/gitian-descriptors/gitian-linux.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-unsigned ../navcoin/contrib/gitian-descriptors/gitian-win.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-unsigned ../navcoin/contrib/gitian-descriptors/gitian-osx.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-linux ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-unsigned ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-unsigned ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
     popd
 
 ### Next steps:
@@ -169,18 +169,18 @@ Wait for Windows/OS X detached signatures:
 Create (and optionally verify) the signed OS X binary:
 
     pushd ./gitian-builder
-    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin/contrib/gitian-descriptors/gitian-osx-signer.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-signed --destination ../gitian.sigs/ ../navcoin/contrib/gitian-descriptors/gitian-osx-signer.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-signed ../navcoin/contrib/gitian-descriptors/gitian-osx-signer.yml
+    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
+    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-signed --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-signed ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
     mv build/out/navcoin-osx-signed.dmg ../navcoin-${VERSION}-osx.dmg
     popd
 
 Create (and optionally verify) the signed Windows binaries:
 
     pushd ./gitian-builder
-    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin/contrib/gitian-descriptors/gitian-win-signer.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-signed --destination ../gitian.sigs/ ../navcoin/contrib/gitian-descriptors/gitian-win-signer.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-signed ../navcoin/contrib/gitian-descriptors/gitian-win-signer.yml
+    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
+    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-signed --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
+    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-signed ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
     mv build/out/navcoin-*win64-setup.exe ../navcoin-${VERSION}-win64-setup.exe
     mv build/out/navcoin-*win32-setup.exe ../navcoin-${VERSION}-win32-setup.exe
     popd
