@@ -39,6 +39,11 @@ std::string CBlock::ToString() const
     {
         s << "  " << vtx[i].ToString() << "\n";
     }
+    s << "  vMerkleTree: ";
+    for (unsigned int i = 0; i < vMerkleTree.size(); i++)
+        s << " " << vMerkleTree[i].ToString();
+    s << "\n";
+    
     return s.str();
 }
 

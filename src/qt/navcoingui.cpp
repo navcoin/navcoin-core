@@ -47,6 +47,7 @@
 #include <QMimeData>
 #include <QProgressBar>
 #include <QProgressDialog>
+#include <QPushButton>
 #include <QSettings>
 #include <QShortcut>
 #include <QStackedWidget>
@@ -117,8 +118,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     spinnerFrame(0),
     platformStyle(platformStyle)
 {
-    GUIUtil::restoreWindowGeometry("nWindow", QSize(850, 550), this);
-
+    GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 550), this);
+    setFixedSize(QSize(840, 550));
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     /* if compiled with wallet support, -disablewallet can still disable the wallet */
@@ -260,7 +261,7 @@ void NavCoinGUI::createActions()
 {
     QActionGroup *tabGroup = new QActionGroup(this);
 
-    overviewAction = new QAction(platformStyle->SingleColorIcon(":/icons/overview"), tr("&Overview"), this);
+    overviewAction = new QAction(platformStyle->SingleColorIcon(":/icons/navcoin"), tr("&Overview"), this);
     overviewAction->setStatusTip(tr("Show general overview of wallet"));
     overviewAction->setToolTip(overviewAction->statusTip());
     overviewAction->setCheckable(true);
@@ -437,14 +438,74 @@ void NavCoinGUI::createToolBars()
 {
     if(walletFrame)
     {
-        QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
-        toolbar->setMovable(false);
-        toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        toolbar->addAction(overviewAction);
-        toolbar->addAction(sendCoinsAction);
-        toolbar->addAction(receiveCoinsAction);
-        toolbar->addAction(historyAction);
-        overviewAction->setChecked(true);
+        // QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
+        // toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        // toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
+        // toolbar->setObjectName("tabs");
+        // toolbar->setStyleSheet(
+        // "QToolButton { color: #FFFFFF; font-weight:bold; margin: 0; padding: 0; background-color: #43b5eb; border: 0px; } "
+        // "QToolButton:hover { background-color: #71c7f0; border-bottom: 4px solid #43b5eb; border-left: none; } "
+        // "QToolButton:checked { background-color: #997cc5; border-bottom: 4px solid #7d59b5; border-left: none; } "
+        // "QToolButton:pressed { background-color: #997cc5; border-bottom: 4px solid #7d59b5; border-left: none; } "
+        // "#tabs { color: #ffffff; background-image: url(:/images/background) }");
+
+        QPushButton* topMenuLogo = new QPushButton(walletFrame->topMenu);
+        topMenuLogo->setFixedSize(187,94);
+        topMenuLogo->setObjectName("navLogo");
+        topMenuLogo->move(0,0);
+        topMenuLogo->setStyleSheet(
+           "#navLogo { border-image: url(:/icons/menu_logo)  0 0 0 0 stretch stretch; border: 0px; }");
+
+        topMenu1 = new QPushButton(walletFrame->topMenu);
+        topMenu1->setFixedSize(139,94);
+        topMenu1->setObjectName("topMenu1");
+        connect(topMenu1, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
+        topMenu1->move(186,0);
+        topMenu1->setStyleSheet(
+           "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+           "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+
+        topMenu2 = new QPushButton(walletFrame->topMenu);
+        topMenu2->setFixedSize(144,94);
+        topMenu2->setObjectName("topMenu2");
+        connect(topMenu2, SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
+        topMenu2->move(325,0);
+        topMenu2->setStyleSheet(
+                    "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                    "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+
+        topMenu3 = new QPushButton(walletFrame->topMenu);
+        topMenu3->setFixedSize(156,94);
+        topMenu3->setObjectName("topMenu3");
+        connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoReceiveCoinsPage()));
+        topMenu3->move(469,0);
+        topMenu3->setStyleSheet(
+                    "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                    "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+
+        topMenu4 = new QPushButton(walletFrame->topMenu);
+        topMenu4->setFixedSize(214,94);
+        topMenu4->setObjectName("topMenu4");
+        connect(topMenu4, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
+        topMenu4->move(625,0);
+        topMenu4->setStyleSheet(
+                    "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                    "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+
+        // ImageButton* navLogo2 = new ImageButton();
+        // navLogo2->setFixedSize(64,64);
+        // navLogo2->setObjectName("navLogo");
+        // navLogo2->setPixmap(pixmap);
+        //
+        // toolbar->setMovable(false);
+        // toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        // toolbar->addWidget(navLogo);
+        // toolbar->addWidget(navLogo2);
+        // toolbar->addAction(overviewAction);
+        // toolbar->addAction(sendCoinsAction);
+        // toolbar->addAction(receiveCoinsAction);
+        // toolbar->addAction(historyAction);
+        // overviewAction->setChecked(true);
     }
 }
 
@@ -478,13 +539,13 @@ void NavCoinGUI::setClientModel(ClientModel *clientModel)
         }
 #endif // ENABLE_WALLET
         unitDisplayControl->setOptionsModel(clientModel->getOptionsModel());
-        
+
         OptionsModel* optionsModel = clientModel->getOptionsModel();
         if(optionsModel)
         {
             // be aware of the tray icon disable state change reported by the OptionsModel object.
             connect(optionsModel,SIGNAL(hideTrayIconChanged(bool)),this,SLOT(setTrayIconVisible(bool)));
-        
+
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
@@ -653,23 +714,67 @@ void NavCoinGUI::openClicked()
 void NavCoinGUI::gotoOverviewPage()
 {
     overviewAction->setChecked(true);
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
 void NavCoinGUI::gotoHistoryPage()
 {
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_s)  0 0 0 0 stretch stretch; border: 0px; }");
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
 void NavCoinGUI::gotoReceiveCoinsPage()
 {
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
 void NavCoinGUI::gotoSendCoinsPage(QString addr)
 {
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }

@@ -77,6 +77,11 @@ CAmount WalletModel::getUnconfirmedBalance() const
     return wallet->GetUnconfirmedBalance();
 }
 
+CAmount WalletModel::getStake() const
+{
+    return wallet->GetStake();
+}
+
 CAmount WalletModel::getImmatureBalance() const
 {
     return wallet->GetImmatureBalance();

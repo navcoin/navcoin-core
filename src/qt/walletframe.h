@@ -7,6 +7,7 @@
 
 #include <QFrame>
 #include <QMap>
+#include <QHBoxLayout>
 
 class NavCoinGUI;
 class ClientModel;
@@ -38,6 +39,8 @@ public:
 
     void showOutOfSyncWarning(bool fShow);
 
+    QWidget *topMenu;
+
 private:
     QStackedWidget *walletStack;
     NavCoinGUI *gui;
@@ -51,6 +54,7 @@ private:
     WalletView *currentWalletView();
 
 public Q_SLOTS:
+
     /** Switch to overview (home) page */
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
@@ -78,6 +82,7 @@ public Q_SLOTS:
     void usedSendingAddresses();
     /** Show used receiving addresses */
     void usedReceivingAddresses();
+
 };
 
 #endif // NAVCOIN_QT_WALLETFRAME_H

@@ -10,6 +10,9 @@
     <height>597</height>
    </rect>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background: #eff1f4; border: 0</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QRImageWidget" name="lblQRCode">
@@ -27,6 +30,9 @@
      </property>
      <property name="toolTip">
       <string>QR Code</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -53,6 +59,9 @@
        <height>50</height>
       </size>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -71,6 +80,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="btnCopyURI">
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>Copy &amp;URI</string>
        </property>
@@ -81,6 +93,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnCopyAddress">
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>Copy &amp;Address</string>
        </property>
@@ -91,6 +106,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnSaveAs">
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;Save Image...</string>
        </property>
@@ -114,6 +132,9 @@
      </item>
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="standardButtons">
         <set>QDialogButtonBox::Close</set>
        </property>
