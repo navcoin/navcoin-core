@@ -252,11 +252,10 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++)
-                if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue)
-                vCoins.push_back(COutput(pcoin, i, nDepth,
-                                         ((IsMine(pcoin->vout[i]) & ISMINE_SPENDABLE) != ISMINE_NO) ||
-                                          ((IsMine(pcoin->vout[i]) & ISMINE_WATCH_SOLVABLE) != ISMINE_NO),
-                                         (IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO));
+                if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue){
+                    vCoins.push_back(COutput(pcoin, i, nDepth, true,
+                                           (IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO));
+                }
         }
     }
 }
@@ -301,10 +300,10 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
     return true;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CTransaction& txNew, CKey& key)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key)
 {
     CBlockIndex* pindexPrev = pindexBestHeader;
-    arith_uint256 bnTargetPerCoinDay;
+    CBigNum bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
 
     txNew.vin.clear();
@@ -402,7 +401,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 LogPrint("coinstake", "CreateCoinStake : added kernel type=%d\n", whichType);
                 fKernelFound = true;
                 break;
+
             }
+
         }
 
         if (fKernelFound)
@@ -444,7 +445,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int64_t nReward;
     {
         uint64_t nCoinAge;
-        if (!TransactionGetCoinAge(txNew, pindexPrev, nCoinAge))
+        CTransaction ptxNew = CTransaction(txNew);
+        if (!TransactionGetCoinAge(ptxNew, pindexPrev, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
         nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees);
@@ -454,7 +456,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         nCredit += nReward;
     }
 
-	if (nCredit >= StakeSplitThreshold)
+	  if (nCredit >= StakeSplitThreshold)
         txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
 
     // Inode Payments
@@ -522,10 +524,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int nIn = 0;
     BOOST_FOREACH(const CWalletTx* pcoin, vwtxPrev)
     {
-        CMutableTransaction pMtxNew = CMutableTransaction(txNew);
-        if (!SignSignature(*this, *pcoin, pMtxNew, nIn++))
+        if (!SignSignatureNavcoin(*this, *pcoin, txNew, nIn++))
             return error("CreateCoinStake : failed to sign coinstake");
-        txNew = CTransaction(pMtxNew);
     }
 
     // Limit size
@@ -1678,6 +1678,11 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
     for (unsigned int i = 0; i < vout.size(); ++i)
     {
         const CTxOut& txout = vout[i];
+
+        // Skip special stake out
+        if (txout.scriptPubKey.empty())
+            continue;
+
         isminetype fIsMine = pwallet->IsMine(txout);
         // Only need to handle txouts if AT LEAST one of these is true:
         //   1) they debit from us (sent)
@@ -1685,8 +1690,9 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         if (nDebit > 0)
         {
             // Don't report 'change' txouts
-            if (pwallet->IsChange(txout))
-                continue;
+            // if (pwallet->IsChange(txout))
+            //     continue;
+            fIsMine = pwallet->IsMine(txout);
         }
         else if (!(fIsMine & filter))
             continue;
@@ -1694,10 +1700,10 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         // In either case, we need to get the destination address
         CTxDestination address;
 
-        if (!ExtractDestination(txout.scriptPubKey, address) && !txout.scriptPubKey.IsUnspendable())
+        if (!ExtractDestination(txout.scriptPubKey, address))
         {
-            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
-                     this->GetHash().ToString());
+            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
+                     this->GetHash().ToString(),i);
             address = CNoDestination();
         }
 
@@ -2739,27 +2745,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 // Sign
                 int nIn = 0;
-                // CTransaction txNewConst(txNew);
-                // BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
-                // {
-                //     bool signSuccess;
-                //     const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
-                //     SignatureData sigdata;
-                //     if (sign)
-                //         signSuccess = ProduceSignature(TransactionSignatureCreator(this, &txNewConst, nIn, coin.first->vout[coin.second].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
-                //     else
-                //         signSuccess = ProduceSignature(DummySignatureCreator(this), scriptPubKey, sigdata);
-                //
-                //     if (!signSuccess)
-                //     {
-                //         strFailReason = _("Signing transaction failed");
-                //         return false;
-                //     } else {
-                //         UpdateTransaction(txNew, nIn, sigdata);
-                //     }
-                //
-                //     nIn++;
-                // }
+
                 BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
                   if (!SignSignatureNavcoin(*this, *coin.first, txNew, nIn++))
                     return false;

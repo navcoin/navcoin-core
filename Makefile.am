@@ -100,7 +100,7 @@ osx_volname:
 
 if BUILD_DARWIN
 $(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING)
-	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -add-qt-tr $(OSX_QT_TRANSLATIONS) -translations-dir=$(QT_TRANSLATION_DIR) -dmg -fancy $(OSX_FANCY_PLIST) -verbose 2 -volname $(OSX_VOLNAME)
+	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -add-qt-tr $(OSX_QT_TRANSLATIONS) -translations-dir=$(QT_TRANSLATION_DIR) -dmg -fancy $(OSX_FANCY_PLIST) -verbose 2 -volname $(OSX_VOLNAME) -add-resources contrib/Frameworks/libboost_filesystem-mt.dylib contrib/Frameworks/libboost_system-mt.dylib
 
 deploydir: $(OSX_DMG)
 else
