@@ -1,5 +1,5 @@
 ---
-name: "navcoin-win-0.13"
+name: "navcoin-win-4.0.0"
 enable_cache: true
 suites:
 - "trusty"

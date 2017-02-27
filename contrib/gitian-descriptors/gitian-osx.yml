@@ -1,5 +1,5 @@
 ---
-name: "navcoin-osx-0.13"
+name: "navcoin-osx-4.0.0"
 enable_cache: true
 suites:
 - "trusty"
