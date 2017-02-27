@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>850</width>
-    <height>526</height>
+    <height>577</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Send Coins</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background: #eff1f4; border: 0</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0">
    <property name="bottomMargin">
@@ -616,7 +619,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>830</width>
+        <width>826</width>
         <height>104</height>
        </rect>
       </property>
@@ -766,6 +769,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="buttonChooseFee">
+                <property name="styleSheet">
+                 <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+                </property>
                 <property name="text">
                  <string>Choose...</string>
                 </property>
@@ -805,6 +811,9 @@
            <widget class="QPushButton" name="buttonMinimizeFee">
             <property name="toolTip">
              <string>collapse fee-settings</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
             </property>
             <property name="text">
              <string>Hide</string>
@@ -1201,6 +1210,9 @@
        <property name="toolTip">
         <string>Confirm the send action</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>S&amp;end</string>
        </property>
@@ -1227,6 +1239,9 @@
        <property name="toolTip">
         <string>Clear all fields of the form.</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>Clear &amp;All</string>
        </property>
@@ -1243,6 +1258,9 @@
       <widget class="QPushButton" name="addButton">
        <property name="toolTip">
         <string>Send to multiple recipients at once</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
        </property>
        <property name="text">
         <string>Add &amp;Recipient</string>

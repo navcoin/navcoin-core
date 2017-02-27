@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #f1f1f1;</string>
+   <string notr="true">background: #eff1f4; border: 0</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -31,6 +31,9 @@
      </property>
      <property name="toolTip">
       <string>Right-click to edit address or label</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
      </property>
      <property name="tabKeyNavigation">
       <bool>false</bool>
@@ -59,11 +62,14 @@
        <property name="toolTip">
         <string>Create a new address</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;New</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../navcoin.qrc">
          <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
        </property>
        <property name="autoDefault">
@@ -76,11 +82,14 @@
        <property name="toolTip">
         <string>Copy the currently selected address to the system clipboard</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;Copy</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../navcoin.qrc">
          <normaloff>:/icons/editcopy</normaloff>:/icons/editcopy</iconset>
        </property>
        <property name="autoDefault">
@@ -93,11 +102,14 @@
        <property name="toolTip">
         <string>Delete the currently selected address from the list</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;Delete</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../navcoin.qrc">
          <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
        </property>
        <property name="autoDefault">
@@ -123,11 +135,14 @@
        <property name="toolTip">
         <string>Export the data in the current tab to a file</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;Export</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../navcoin.qrc">
          <normaloff>:/icons/export</normaloff>:/icons/export</iconset>
        </property>
        <property name="autoDefault">
@@ -143,6 +158,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>C&amp;lose</string>
        </property>
@@ -155,6 +173,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../navcoin.qrc"/>
+ </resources>
  <connections/>
 </ui>

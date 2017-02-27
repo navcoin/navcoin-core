@@ -10,6 +10,10 @@
     <height>400</height>
    </rect>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background: #eff1f4; border: 0
+</string>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <property name="spacing">
     <number>0</number>
@@ -78,6 +82,9 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QTextEdit" name="helpMessage">
+       <property name="styleSheet">
+        <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -95,6 +102,14 @@
         <bool>true</bool>
        </property>
        <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>636</width>
+          <height>106</height>
+         </rect>
+        </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QLabel" name="aboutMessage">
@@ -137,6 +152,9 @@
      </item>
      <item>
       <widget class="QDialogButtonBox" name="okButton">
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
