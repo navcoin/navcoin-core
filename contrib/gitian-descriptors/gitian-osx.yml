@@ -28,8 +28,8 @@ packages:
 - "python-setuptools"
 - "fonts-tuffy"
 remotes:
-- "url": "https://github.com/navcoin/navcoin.git"
-  "dir": "navcoin"
+- "url": "https://github.com/navcoindev/navcoin-core.git"
+  "dir": "navcoin-core"
 files:
 - "MacOSX10.11.sdk.tar.gz"
 script: |
