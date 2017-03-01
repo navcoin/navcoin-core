@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>776</width>
-    <height>420</height>
+    <height>442</height>
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
    <item>
@@ -70,7 +70,7 @@
            <string>An optional label to associate with the new receiving address.</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px; margin: 2px</string>
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -80,7 +80,7 @@
            <string>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the NavCoin network.</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px; margin: 2px</string>
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -135,7 +135,7 @@
            <string>An optional amount to request. Leave this empty or zero to not request a specific amount.</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px; margin: 2px</string>
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -149,14 +149,11 @@
               <height>0</height>
              </size>
             </property>
-            <property name="styleSheet">
-             <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
-            </property>
             <property name="text">
              <string>&amp;Request payment</string>
             </property>
             <property name="icon">
-             <iconset resource="../navcoin.qrc">
+             <iconset>
               <normaloff>:/icons/receiving_addresses</normaloff>:/icons/receiving_addresses</iconset>
             </property>
            </widget>
@@ -173,13 +170,13 @@
              <string>Clear all fields of the form.</string>
             </property>
             <property name="styleSheet">
-             <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Clear</string>
             </property>
             <property name="icon">
-             <iconset resource="../navcoin.qrc">
+             <iconset>
               <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
             </property>
             <property name="autoDefault">
@@ -261,8 +258,7 @@
          <enum>Qt::CustomContextMenu</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
+         <string notr="true"/>
         </property>
         <property name="tabKeyNavigation">
          <bool>false</bool>
@@ -283,13 +279,13 @@
            <string>Show the selected request (does the same as double clicking an entry)</string>
           </property>
           <property name="styleSheet">
-           <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Show</string>
           </property>
           <property name="icon">
-           <iconset resource="../navcoin.qrc">
+           <iconset>
             <normaloff>:/icons/edit</normaloff>:/icons/edit</iconset>
           </property>
           <property name="autoDefault">
@@ -306,13 +302,13 @@
            <string>Remove the selected entries from the list</string>
           </property>
           <property name="styleSheet">
-           <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>Remove</string>
           </property>
           <property name="icon">
-           <iconset resource="../navcoin.qrc">
+           <iconset>
             <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
           </property>
           <property name="autoDefault">
@@ -359,8 +355,6 @@
   <tabstop>showRequestButton</tabstop>
   <tabstop>removeRequestButton</tabstop>
  </tabstops>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

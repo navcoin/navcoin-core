@@ -17,7 +17,7 @@
    <bool>false</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0</string>
+   <string notr="true"/>
   </property>
   <widget class="QFrame" name="SendCoins">
    <property name="toolTip">
@@ -63,7 +63,7 @@
          <string>The NavCoin address to send the payment to</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+         <string notr="true"/>
         </property>
        </widget>
       </item>
@@ -76,7 +76,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
         </property>
         <property name="iconSize">
@@ -99,7 +99,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
         </property>
         <property name="iconSize">
@@ -122,7 +122,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
         </property>
         <property name="iconSize">
@@ -154,7 +154,7 @@
        <string>Enter a label for this address to add it to the list of used addresses</string>
       </property>
       <property name="styleSheet">
-       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+       <string notr="true"/>
       </property>
      </widget>
     </item>
@@ -176,7 +176,7 @@
       <item>
        <widget class="NavCoinAmountField" name="payAmount">
         <property name="styleSheet">
-         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+         <string notr="true"/>
         </property>
        </widget>
       </item>
@@ -208,7 +208,7 @@
        <string>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</string>
       </property>
       <property name="styleSheet">
-       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+       <string notr="true"/>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
@@ -684,7 +684,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
         </property>
        </widget>
@@ -1229,7 +1229,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
         </property>
        </widget>
@@ -1307,8 +1307,6 @@
   <tabstop>payAmount_s</tabstop>
   <tabstop>deleteButton_s</tabstop>
  </tabstops>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

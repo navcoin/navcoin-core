@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "walletframe.h"
+#include "skinize.h"
 
 #include "navcoingui.h"
 #include "walletview.h"
@@ -23,6 +24,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     QHBoxLayout *bottomLayout = new QHBoxLayout();
 
 
+
     walletFrameLayout->setSpacing(0);
     walletFrameLayout->setContentsMargins(0,0,0,0);
 
@@ -37,6 +39,8 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     topLayout->setSpacing(0);
 
     walletStack = new QStackedWidget(this);
+    walletStack->setStyleSheet(Skinize());
+
     bottomLayout->setContentsMargins(0,0,0,0);
     bottomLayout->addWidget(walletStack);
 

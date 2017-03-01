@@ -4,6 +4,7 @@
 
 #include "overviewpage.h"
 #include "ui_overviewpage.h"
+#include "skinize.h"
 
 #include "navcoinunits.h"
 #include "clientmodel.h"

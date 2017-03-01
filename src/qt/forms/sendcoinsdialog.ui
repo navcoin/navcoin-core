@@ -14,7 +14,7 @@
    <string>Send Coins</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0">
    <property name="bottomMargin">
@@ -611,6 +611,9 @@
    </item>
    <item>
     <widget class="QScrollArea" name="scrollArea">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -619,8 +622,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>826</width>
-        <height>104</height>
+        <width>824</width>
+        <height>77</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
@@ -770,7 +773,7 @@
               <item>
                <widget class="QPushButton" name="buttonChooseFee">
                 <property name="styleSheet">
-                 <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+                 <string notr="true"/>
                 </property>
                 <property name="text">
                  <string>Choose...</string>
@@ -813,7 +816,7 @@
              <string>collapse fee-settings</string>
             </property>
             <property name="styleSheet">
-             <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Hide</string>
@@ -1211,13 +1214,13 @@
         <string>Confirm the send action</string>
        </property>
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>S&amp;end</string>
        </property>
        <property name="icon">
-        <iconset resource="../navcoin.qrc">
+        <iconset>
          <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
        </property>
        <property name="autoDefault">
@@ -1240,13 +1243,13 @@
         <string>Clear all fields of the form.</string>
        </property>
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Clear &amp;All</string>
        </property>
        <property name="icon">
-        <iconset resource="../navcoin.qrc">
+        <iconset>
          <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
        </property>
        <property name="autoDefault">
@@ -1260,13 +1263,13 @@
         <string>Send to multiple recipients at once</string>
        </property>
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Add &amp;Recipient</string>
        </property>
        <property name="icon">
-        <iconset resource="../navcoin.qrc">
+        <iconset>
          <normaloff>:/icons/add</normaloff>:/icons/add</iconset>
        </property>
        <property name="autoDefault">
@@ -1343,9 +1346,7 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
  <buttongroups>
   <buttongroup name="groupFee"/>

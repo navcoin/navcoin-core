@@ -7,6 +7,7 @@
 #endif
 
 #include "navcoingui.h"
+#include "navtechinit.h"
 
 #include "chainparams.h"
 #include "clientmodel.h"
@@ -461,11 +462,6 @@ void NavCoinApplication::initializeResult(int retval)
         }
 #endif
 
-        window->setStyleSheet("*{background: '#e8ebf0', text-transform: uppercase}"
-                              ""
-                              "");
-
-
         // If -min option passed, start window minimized.
         if(GetBoolArg("-min", false))
         {
@@ -480,7 +476,8 @@ void NavCoinApplication::initializeResult(int retval)
         //specify a new font.
         int id = QFontDatabase::addApplicationFont(":/icons/robotoreg");
         QString family = QFontDatabase::applicationFontFamilies(id).at(0);
-        QFont newFont(family,13);        //set font of application
+        QFont newFont(family,12);        //set font of application
+        newFont.setStyleStrategy(QFont::PreferAntialias);
         QApplication::setFont(newFont);
 
 #ifdef ENABLE_WALLET

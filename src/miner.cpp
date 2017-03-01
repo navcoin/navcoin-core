@@ -623,7 +623,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 
 extern unsigned int nMinerSleep;
 
-void static NavCoinStaker(const CChainParams& chainparams)
+void NavCoinStaker(const CChainParams& chainparams)
 {
     LogPrintf("NavCoinStaker started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
@@ -802,9 +802,6 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
 
     //// debug print
     LogPrintf("CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());
-    LogPrintf("%s\n", pblock->ToString());
-    LogPrintf("out %s\n", FormatMoney(pblock->vtx[1].GetValueOut()));
-
 
     // Found a solution
     {

@@ -6,23 +6,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>708</width>
-    <height>394</height>
+    <width>669</width>
+    <height>510</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #e8ebf0</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="topLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item alignment="Qt::AlignLeft|Qt::AlignTop">
-        <widget class="QFrame" name="frame">
+        <widget class="QFrame" name="BG1_1">
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
          </property>
@@ -41,16 +41,13 @@
             <item>
              <widget class="QLabel" name="label_5">
               <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
+               <font/>
               </property>
               <property name="autoFillBackground">
                <bool>false</bool>
               </property>
               <property name="styleSheet">
-               <string notr="true">color: #616998; text-transform: uppercase; font-weight: bold</string>
+               <string notr="true">color: #616998; text-transform: uppercase; </string>
               </property>
               <property name="text">
                <string>Balances</string>
@@ -75,7 +72,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../navcoin.qrc">
+               <iconset>
                 <normaloff>:/icons/warning</normaloff>
                 <disabledoff>:/icons/warning</disabledoff>:/icons/warning</iconset>
               </property>
@@ -377,6 +374,13 @@
               </property>
              </widget>
             </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelPendingText">
+              <property name="text">
+               <string>Pending:</string>
+              </property>
+             </widget>
+            </item>
             <item row="2" column="3">
              <spacer name="horizontalSpacer_2">
               <property name="orientation">
@@ -390,13 +394,6 @@
               </property>
              </spacer>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="labelPendingText">
-              <property name="text">
-               <string>Pending:</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
          </layout>
@@ -405,7 +402,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QFrame" name="frame_3">
+          <widget class="QFrame" name="BG1_2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>5</horstretch>
@@ -421,32 +418,164 @@
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-           <widget class="QLabel" name="label_6">
+           <widget class="QWidget" name="horizontalLayoutWidget">
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>0</y>
-              <width>59</width>
-              <height>24</height>
+              <y>10</y>
+              <width>401</width>
+              <height>31</height>
              </rect>
             </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="autoFillBackground">
-             <bool>false</bool>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color: #616998; text-transform: uppercase; font-weight: bold</string>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="font">
+                <font/>
+               </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: #616998; text-transform: uppercase; </string>
+               </property>
+               <property name="text">
+                <string>STAKING</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QLabel" name="label">
+            <property name="geometry">
+             <rect>
+              <x>15</x>
+              <y>50</y>
+              <width>60</width>
+              <height>10</height>
+             </rect>
             </property>
             <property name="text">
-             <string>Staking</string>
+             <string>24H</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_2">
+            <property name="geometry">
+             <rect>
+              <x>15</x>
+              <y>80</y>
+              <width>60</width>
+              <height>10</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>7D</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_3">
+            <property name="geometry">
+             <rect>
+              <x>15</x>
+              <y>110</y>
+              <width>60</width>
+              <height>10</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>30D</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_7">
+            <property name="geometry">
+             <rect>
+              <x>15</x>
+              <y>140</y>
+              <width>60</width>
+              <height>10</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>TOTAL</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_8">
+            <property name="geometry">
+             <rect>
+              <x>90</x>
+              <y>50</y>
+              <width>130</width>
+              <height>10</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>0.00000000 NAV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_9">
+            <property name="geometry">
+             <rect>
+              <x>90</x>
+              <y>80</y>
+              <width>130</width>
+              <height>10</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>0.00000000 NAV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_10">
+            <property name="geometry">
+             <rect>
+              <x>90</x>
+              <y>110</y>
+              <width>130</width>
+              <height>10</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>0.00000000 NAV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_11">
+            <property name="geometry">
+             <rect>
+              <x>90</x>
+              <y>140</y>
+              <width>130</width>
+              <height>10</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>0.00000000 NAV</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -455,7 +584,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QFrame" name="frame_2">
+        <widget class="QFrame" name="BG1_3">
          <property name="styleSheet">
           <string notr="true">background: #eff1f4; border: 0</string>
          </property>
@@ -471,13 +600,10 @@
             <item>
              <widget class="QLabel" name="label_4">
               <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
+               <font/>
               </property>
               <property name="styleSheet">
-               <string notr="true">color: #616998; text-transform: uppercase; font-weight: bold</string>
+               <string notr="true">color: #616998; text-transform: uppercase; </string>
               </property>
               <property name="text">
                <string>Recent transactions</string>
@@ -502,7 +628,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="../navcoin.qrc">
+               <iconset>
                 <normaloff>:/icons/warning</normaloff>
                 <disabledoff>:/icons/warning</disabledoff>:/icons/warning</iconset>
               </property>
@@ -589,8 +715,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

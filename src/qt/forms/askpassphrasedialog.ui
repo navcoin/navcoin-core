@@ -26,8 +26,7 @@
    <string>Passphrase Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0
-</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
@@ -126,7 +125,7 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="styleSheet">
-      <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+      <string notr="true"/>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

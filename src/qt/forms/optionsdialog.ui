@@ -14,7 +14,7 @@
    <string>Options</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0</string>
+   <string notr="true"/>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabMain">
       <attribute name="title">
@@ -58,8 +58,7 @@
          <item>
           <widget class="QSpinBox" name="databaseCache">
            <property name="styleSheet">
-            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
+            <string notr="true"/>
            </property>
            <property name="frame">
             <bool>true</bool>
@@ -115,8 +114,7 @@
             <string>(0 = auto, &lt;0 = leave that many cores free)</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
+            <string notr="true"/>
            </property>
            <property name="frame">
             <bool>true</bool>
@@ -598,8 +596,7 @@
             <string>The user interface language can be set here. This setting will take effect after restarting %1.</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
+            <string notr="true"/>
            </property>
           </widget>
          </item>
@@ -626,8 +623,7 @@
             <string>Choose the default subdivision unit to show in the interface and when sending coins.</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
+            <string notr="true"/>
            </property>
           </widget>
          </item>
@@ -654,8 +650,7 @@
             <string>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
+            <string notr="true"/>
            </property>
           </widget>
          </item>
@@ -732,7 +727,7 @@
         <string>Reset all client options to default.</string>
        </property>
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>&amp;Reset Options</string>
@@ -796,7 +791,7 @@
      <item>
       <widget class="QPushButton" name="okButton">
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>&amp;OK</string>
@@ -812,7 +807,7 @@
      <item>
       <widget class="QPushButton" name="cancelButton">
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>&amp;Cancel</string>
