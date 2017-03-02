@@ -703,28 +703,6 @@ void NavCoinStaker(const CChainParams& chainparams)
     }
 }
 
-void GenerateNavCoins(bool fGenerate, int nThreads, const CChainParams& chainparams)
-{
-    static boost::thread_group* StakerThreads = NULL;
-
-    if (nThreads < 0)
-        nThreads = GetNumCores();
-
-    if (StakerThreads != NULL)
-    {
-        StakerThreads->interrupt_all();
-        delete StakerThreads;
-        StakerThreads = NULL;
-    }
-
-    if (nThreads == 0 || !fGenerate)
-        return;
-
-    StakerThreads = new boost::thread_group();
-    for (int i = 0; i < nThreads; i++)
-        StakerThreads->create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
-}
-
 #ifdef ENABLE_WALLET
 bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 {
