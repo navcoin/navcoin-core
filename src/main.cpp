@@ -7652,7 +7652,7 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     // Now check if proof-of-stake hash meets target protocol
     if (CBigNum(ArithToUint256(hashProofOfStake)) > bnTarget)
-        return error("CheckStakeKernelHash() : Hash %s does not meet target %s",hashProofOfStake.GetHex(),bnTarget.GetHex());
+        return false;
 
     if (fDebug && !fPrintProofOfStake)
     {
