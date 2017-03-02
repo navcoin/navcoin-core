@@ -9,8 +9,6 @@
 		<integer>800</integer>
 		<integer>620</integer>
 	</array>
-	<key>background_picture</key>
-	<string>background.tiff</string>
 	<key>icon_size</key>
 	<integer>96</integer>
 	<key>applications_symlink</key>

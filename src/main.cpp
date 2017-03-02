@@ -1178,14 +1178,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (tx.IsCoinStake())
         return state.DoS(100, false, REJECT_INVALID, "coinstake");
 
-    // Don't relay version 2 transactions until CSV is active, and we can be
-    // sure that such transactions will be mined (unless we're on
-    // -testnet/-regtest).
-    const CChainParams& chainparams = Params();
-    if (fRequireStandard && tx.nVersion >= 2 && VersionBitsTipState(chainparams.GetConsensus(), Consensus::DEPLOYMENT_CSV) != THRESHOLD_ACTIVE) {
-        return state.DoS(0, false, REJECT_NONSTANDARD, "premature-version2-tx");
-    }
-
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
     bool witnessEnabled = IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus());
     if (!GetBoolArg("-prematurewitness",false) && !tx.wit.IsNull() && !witnessEnabled) {
@@ -3441,8 +3433,6 @@ bool ActivateBestChain(CValidationState &state, const CChainParams& chainparams,
                 pindexMostWork = FindMostWorkChain();
             }
 
-            // printf("%d %d %d\n",pindexMostWork->nChainWork.GetLow64(),pindexMostWork == NULL, pindexMostWork == chainActive.Tip());
-
             // Whether we have anything to do at all.
             if (pindexMostWork == NULL || pindexMostWork == chainActive.Tip())
                 return true;
@@ -3762,9 +3752,9 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW)
 {
     // Check proof of work matches claimed amount
-    // CBlockIndex pblock = CBlockIndex(block);
-    // if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams) && pblock.IsProofOfWork() )
-    //     return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
+    CBlockIndex pblock = CBlockIndex(block);
+    if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams) && pblock.IsProofOfWork() )
+        return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
 
     return true;
 }
@@ -3772,7 +3762,6 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const 
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig)
 {
     // These are checks that are independent of context.
-
     if (block.fChecked)
         return true;
 
@@ -3801,7 +3790,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     {
         // Coinbase output should be empty if proof-of-stake block
         if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
-            return state.DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block"));
+            return state.DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block. proof of work not allowed."));
 
         // Second transaction must be coinstake, the rest must not be
         if (block.vtx.empty() || !block.vtx[1].IsCoinStake())
@@ -3846,7 +3835,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (nSigOps * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST)
         return state.DoS(100, false, REJECT_INVALID, "bad-blk-sigops", false, "out-of-bounds SigOpCount");
 
-    if (fCheckPOW && fCheckMerkleRoot)
+    if (fCheckMerkleRoot)
         block.fChecked = true;
 
     return true;
@@ -3959,9 +3948,6 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
 
 bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex * const pindexPrev, int64_t nAdjustedTime)
 {
-    // Check timestamp against prev
-    if (block.GetBlockTime() < pindexPrev->GetMedianTimePast())
-        return state.Invalid(false, REJECT_INVALID, "time-too-old", "block's timestamp is too early");
 
     // Check timestamp
     if (block.GetBlockTime() > nAdjustedTime + 2 * 60 * 60)
@@ -7378,7 +7364,7 @@ arith_uint256 GetProofOfStakeLimit(int nHeight)
 
 bool TransactionGetCoinAge(CTransaction& transaction  , const CBlockIndex* pindexPrev, uint64_t& nCoinAge)
 {
-    arith_uint256 bnCentSecond = 0;  // coin age in the unit of cent-seconds
+    CBigNum bnCentSecond = 0;  // coin age in the unit of cent-seconds
     nCoinAge = 0;
 
     if (transaction.IsCoinBase())
@@ -7392,9 +7378,9 @@ bool TransactionGetCoinAge(CTransaction& transaction  , const CBlockIndex* pinde
 
         if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
             continue;  // previous transaction not in main chain
+
         if (transaction.nTime < txPrev.nTime)
             return false;  // Transaction timestamp violation
-
 
         if (mapBlockIndex.count(hashBlock) == 0)
             return false; //Block not found
@@ -7405,14 +7391,16 @@ bool TransactionGetCoinAge(CTransaction& transaction  , const CBlockIndex* pinde
             continue; // only count coins meeting min age requirement
 
         int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
-        bnCentSecond += arith_uint256(nValueIn) * (transaction.nTime-txPrev.nTime) / CENT;
+        bnCentSecond += CBigNum(nValueIn) * (transaction.nTime-txPrev.nTime) / CENT;
+
 
         LogPrint("coinage", "coin age nValueIn=%d nTimeDiff=%d bnCentSecond=%s\n", nValueIn, transaction.nTime - txPrev.nTime, bnCentSecond.ToString());
     }
 
-    arith_uint256 bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
+
+    CBigNum bnCoinDay = ((bnCentSecond * CENT) / COIN) / (24 * 60 * 60);
     LogPrint("coinage", "coin age bnCoinDay=%s\n", bnCoinDay.ToString());
-    nCoinAge = bnCoinDay.GetCompact();
+    nCoinAge = bnCoinDay.getuint64();
 
     return true;
 }
@@ -7652,7 +7640,7 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     // Now check if proof-of-stake hash meets target protocol
     if (CBigNum(ArithToUint256(hashProofOfStake)) > bnTarget)
-        return false;
+      return false;
 
     if (fDebug && !fPrintProofOfStake)
     {
@@ -7742,16 +7730,22 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 
     CTransaction txPrev;
     uint256 hashBlock = uint256();
-    if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
-        return false;  // previous transaction not in main chain, may occur during initial download
+    if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true)){
+        LogPrintf("CheckKernel : Could not find previous transaction %s\n",prevout.hash.ToString());
+        return false;
+    }
 
-    if (mapBlockIndex.count(hashBlock) == 0)
-        return false; // unable to read block of previous transaction
+    if (mapBlockIndex.count(hashBlock) == 0){
+        LogPrintf("CheckKernel : Could not find block of previous transaction %s\n",hashBlock.ToString());
+        return false;
+    }
 
     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-    if (pblockindex->GetBlockTime() + nStakeMinAge > nTime)
-        return false; // only count coins meeting min age requirement
+    if (pblockindex->GetBlockTime() + nStakeMinAge > nTime){
+        LogPrintf("CheckKernel : CreateCoinStake selected coins which do not meet min age requirement.\n");
+        return false;
+    }
 
     if (pBlockTime)
         *pBlockTime = pblockindex->GetBlockTime();
@@ -7769,11 +7763,11 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
     int64_t nRewardCoinYear;
     nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
-    if(nHeight < 7 * DAILY_BLOCKCOUNT)
+    if(nHeight-1 < 7 * DAILY_BLOCKCOUNT)
         nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight < (365 * DAILY_BLOCKCOUNT))
+    else if(nHeight-1 < (365 * DAILY_BLOCKCOUNT))
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight < (730 * DAILY_BLOCKCOUNT))
+    else if(nHeight-1 < (730 * DAILY_BLOCKCOUNT))
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
     else
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
