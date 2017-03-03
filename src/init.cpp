@@ -198,6 +198,7 @@ void Shutdown()
 #ifdef ENABLE_WALLET
     if (pwalletMain)
         pwalletMain->Flush(false);
+    GenerateNavCoins(false, 0, Params(CBaseChainParams::MAIN));
 #endif
     StopNode();
     StopTorControl();
