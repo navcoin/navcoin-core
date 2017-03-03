@@ -474,10 +474,11 @@ void NavCoinApplication::initializeResult(int retval)
         Q_EMIT splashFinished(window);
 
         //specify a new font.
-        int id = QFontDatabase::addApplicationFont(":/icons/robotoreg");
+        int id = QFontDatabase::addApplicationFont(":/icons/Roboto-Medium");
         QString family = QFontDatabase::applicationFontFamilies(id).at(0);
         QFont newFont(family,12);        //set font of application
         newFont.setStyleStrategy(QFont::PreferAntialias);
+        newFont.setWeight(QFont::Bold);
         QApplication::setFont(newFont);
 
 #ifdef ENABLE_WALLET

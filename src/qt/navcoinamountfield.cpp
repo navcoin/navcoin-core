@@ -7,6 +7,7 @@
 #include "navcoinunits.h"
 #include "guiconstants.h"
 #include "qvaluecombobox.h"
+#include "skinize.h"
 
 #include <QApplication>
 #include <QAbstractSpinBox>
@@ -243,7 +244,7 @@ bool NavCoinAmountField::validate()
 void NavCoinAmountField::setValid(bool valid)
 {
     if (valid)
-        amount->setStyleSheet("");
+        amount->setStyleSheet(Skinize());
     else
         amount->setStyleSheet(STYLE_INVALID);
 }
