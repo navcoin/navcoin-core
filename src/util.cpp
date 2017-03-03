@@ -552,6 +552,59 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     ClearDatadirCache();
 }
 
+void WriteConfigFile(std::string key, std::string value)
+{
+    bool alreadyInConfigFile = false;
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+
+    if(streamConfig.good())
+    {
+
+        set<string> setOptions;
+        setOptions.insert("*");
+
+        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
+        {
+              if(it->string_key == key && it->value[0] == value)
+                  alreadyInConfigFile = true;
+        }
+
+    }
+
+    if(!alreadyInConfigFile)
+    {
+
+        boost::filesystem::ofstream outStream(GetConfigFile(), std::ios_base::app);
+
+        outStream << std::endl << key + string("=") + value;
+
+        outStream.close();
+
+    }
+
+}
+
+void RemoveConfigFile(std::string key, std::string value)
+{
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    if (!streamConfig.good())
+        return; // Nothing to remove
+
+    std::string configBuffer, line;
+    set<string> setOptions;
+    setOptions.insert("*");
+
+    while (std::getline(streamConfig, line))
+    {
+          if(line != key + "=" + value)
+              configBuffer += "\n" + line;
+    }
+
+    boost::filesystem::ofstream outStream(GetConfigFile());
+    outStream << configBuffer;
+    outStream.close();
+}
+
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {

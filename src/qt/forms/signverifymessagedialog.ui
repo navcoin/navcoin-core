@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Signatures - Sign / Verify a Message</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background: #eff1f4; border: 0</string>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -20,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabSignMessage">
       <attribute name="title">
@@ -57,6 +60,9 @@
            <property name="toolTip">
             <string>Choose previously used address</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -76,6 +82,9 @@
           <widget class="QPushButton" name="pasteButton_SM">
            <property name="toolTip">
             <string>Paste address from clipboard</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
            </property>
            <property name="text">
             <string/>
@@ -133,6 +142,9 @@
            <property name="toolTip">
             <string>Copy the current signature to the system clipboard</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -154,6 +166,9 @@
            <property name="toolTip">
             <string>Sign the message to prove you own this NavCoin address</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+           </property>
            <property name="text">
             <string>Sign &amp;Message</string>
            </property>
@@ -170,6 +185,9 @@
           <widget class="QPushButton" name="clearButton_SM">
            <property name="toolTip">
             <string>Reset all sign message fields</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
            </property>
            <property name="text">
             <string>Clear &amp;All</string>
@@ -260,12 +278,18 @@
            <property name="toolTip">
             <string>The NavCoin address the message was signed with</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="addressBookButton_VM">
            <property name="toolTip">
             <string>Choose previously used address</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
            </property>
            <property name="text">
             <string/>
@@ -285,10 +309,18 @@
         </layout>
        </item>
        <item>
-        <widget class="QPlainTextEdit" name="messageIn_VM"/>
+        <widget class="QPlainTextEdit" name="messageIn_VM">
+         <property name="styleSheet">
+          <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QValidatedLineEdit" name="signatureIn_VM"/>
+        <widget class="QValidatedLineEdit" name="signatureIn_VM">
+         <property name="styleSheet">
+          <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2_VM">
@@ -296,6 +328,9 @@
           <widget class="QPushButton" name="verifyMessageButton_VM">
            <property name="toolTip">
             <string>Verify the message to ensure it was signed with the specified NavCoin address</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
            </property>
            <property name="text">
             <string>Verify &amp;Message</string>
@@ -313,6 +348,9 @@
           <widget class="QPushButton" name="clearButton_VM">
            <property name="toolTip">
             <string>Reset all verify message fields</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
            </property>
            <property name="text">
             <string>Clear &amp;All</string>

@@ -64,6 +64,9 @@
         <file alias="menu_transaction_ns">res/icons/transaction_ns.png</file>
         <file alias="menu_transaction_s">res/icons/transaction_s.png</file>
         <file alias="menu_transaction_hover">res/icons/transaction_hover.png</file>
+        <file alias="roboto">res/fonts/roboto.ttf</file>
+        <file alias="robotoreg">res/fonts/robotoregular.ttf</file>
+        <file alias="source">res/fonts/source.ttf</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

@@ -50,6 +50,7 @@
 #include <QTimer>
 #include <QTranslator>
 #include <QSslConfiguration>
+#include <QFontDatabase>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -460,7 +461,9 @@ void NavCoinApplication::initializeResult(int retval)
         }
 #endif
 
-        window->setStyleSheet("QMainWindow {background: '#e8ebf0';}");
+        window->setStyleSheet("*{background: '#e8ebf0', text-transform: uppercase}"
+                              ""
+                              "");
 
 
         // If -min option passed, start window minimized.
@@ -473,6 +476,12 @@ void NavCoinApplication::initializeResult(int retval)
             window->show();
         }
         Q_EMIT splashFinished(window);
+
+        //specify a new font.
+        int id = QFontDatabase::addApplicationFont(":/icons/robotoreg");
+        QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+        QFont newFont(family,13);        //set font of application
+        QApplication::setFont(newFont);
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line

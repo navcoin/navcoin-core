@@ -14,7 +14,7 @@
    <string>Coin Selection</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #f1f1f1;</string>
+   <string notr="true">background: #eff1f4; border: 0</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -363,6 +363,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="styleSheet">
+           <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+          </property>
           <property name="text">
            <string>(un)select all</string>
           </property>
@@ -429,6 +432,9 @@
     <widget class="CoinControlTreeWidget" name="treeWidget">
      <property name="contextMenuPolicy">
       <enum>Qt::CustomContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
      </property>
      <property name="sortingEnabled">
       <bool>false</bool>
@@ -514,6 +520,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
