@@ -8,6 +8,7 @@
 #include "amount.h"
 
 #include <QStackedWidget>
+#include <QPushButton>
 
 class NavCoinGUI;
 class ClientModel;
@@ -98,6 +99,8 @@ public Q_SLOTS:
     void changePassphrase();
     /** Ask for passphrase to unlock wallet temporarily */
     void unlockWallet();
+    void unlockWalletStaking();
+    void lockWallet();
 
     /** Show used sending addresses */
     void usedSendingAddresses();
@@ -110,6 +113,20 @@ public Q_SLOTS:
     /** Show progress dialog e.g. for rescan */
     void showProgress(const QString &title, int nProgress);
 
+    void setStatusTitleBlocks(QString text);
+
+    void setStatusTitleConnections(QString text);
+
+    void setStatusTitle(QString text);
+
+    void showStatusTitleConnections();
+    void hideStatusTitleConnections();
+    void showStatusTitleBlocks();
+    void hideStatusTitleBlocks();
+
+    void showLockStaking(bool status);
+    void setStakingStatus(QString text);
+
 Q_SIGNALS:
     /** Signal that we want to show the main window */
     void showNormalIfMinimized();
@@ -119,6 +136,8 @@ Q_SIGNALS:
     void encryptionStatusChanged(int status);
     /** Notify that a new transaction appeared */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
+
+    friend NavCoinGUI;
 };
 
 #endif // NAVCOIN_QT_WALLETVIEW_H

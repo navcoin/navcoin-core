@@ -9,6 +9,7 @@
 #include "walletmodeltransaction.h"
 
 #include "support/allocators/secure.h"
+#include "wallet/wallet.h"
 
 #include <map>
 #include <vector>

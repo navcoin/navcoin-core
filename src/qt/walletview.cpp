@@ -185,6 +185,42 @@ void WalletView::gotoSendCoinsPage(QString addr)
         sendCoinsPage->setAddress(addr);
 }
 
+void WalletView::setStatusTitleBlocks(QString text)
+{
+    overviewPage->setStatusTitleBlocks(text);
+}
+
+void WalletView::setStatusTitleConnections(QString text)
+{
+    overviewPage->setStatusTitleConnections(text);
+}
+
+void WalletView::setStatusTitle(QString text)
+{
+    overviewPage->setStatusTitle(text);
+}
+
+void WalletView::setStakingStatus(QString text)
+{
+    overviewPage->setStakingStatus(text);
+}
+
+void WalletView::showStatusTitleConnections(){
+    overviewPage->showStatusTitleConnections();
+};
+void WalletView::hideStatusTitleConnections(){
+    overviewPage->hideStatusTitleConnections();
+};
+void WalletView::showStatusTitleBlocks(){
+    overviewPage->showStatusTitleBlocks();
+};
+void WalletView::hideStatusTitleBlocks(){
+    overviewPage->hideStatusTitleBlocks();
+};
+void WalletView::showLockStaking(bool status)
+{
+    overviewPage->showLockStaking(status);
+}
 void WalletView::gotoSignMessageTab(QString addr)
 {
     // calls show() in showTab_SM()
@@ -272,6 +308,27 @@ void WalletView::unlockWallet()
         dlg.setModel(walletModel);
         dlg.exec();
     }
+}
+
+void WalletView::unlockWalletStaking()
+{
+    if(!walletModel)
+        return;
+    // Unlock wallet when requested by wallet model
+    if (walletModel->getEncryptionStatus() == WalletModel::Locked)
+    {
+        AskPassphraseDialog dlg(AskPassphraseDialog::UnlockStaking, this);
+        dlg.setModel(walletModel);
+        dlg.exec();
+    }
+}
+
+void WalletView::lockWallet()
+{
+    if(!walletModel)
+        return;
+
+    walletModel->setWalletLocked(true);
 }
 
 void WalletView::usedSendingAddresses()
