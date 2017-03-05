@@ -234,7 +234,7 @@
             <x>-1</x>
             <y>-1</y>
             <width>282</width>
-            <height>336</height>
+            <height>346</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -565,13 +565,13 @@
               <widget class="QPushButton" name="toggleStakingButton">
                <property name="minimumSize">
                 <size>
-                 <width>16</width>
+                 <width>20</width>
                  <height>20</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>16</width>
+                 <width>20</width>
                  <height>20</height>
                 </size>
                </property>

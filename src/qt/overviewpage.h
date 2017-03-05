@@ -78,6 +78,7 @@ private Q_SLOTS:
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void unlockWalletStaking();
+    void toggleStakingButton();
 
 };
 

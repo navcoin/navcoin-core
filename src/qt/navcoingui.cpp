@@ -228,6 +228,10 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
         timerStakingIcon->start(20 * 1000);
         updateStakingStatus();
     }
+    else
+    {
+        walletFrame->setStakingStatus(tr("Staking is turned off."));
+    }
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -1387,8 +1391,12 @@ void NavCoinGUI::updateStakingStatus()
     updateWeight();
 
     if(walletFrame){
-
-        if (nLastCoinStakeSearchInterval && nWeight)
+        if (!GetBoolArg("-staking",true))
+        {
+            walletFrame->setStakingStatus(tr("Staking is turned off."));
+            walletFrame->showLockStaking(false);
+        }
+        else if (nLastCoinStakeSearchInterval && nWeight)
         {
 
             uint64_t nWeight = this->nWeight;
