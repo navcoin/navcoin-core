@@ -18,6 +18,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+extern bool fWalletUnlockStakingOnly;
+
 AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AskPassphraseDialog),
@@ -34,6 +36,8 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
     ui->passEdit1->setMaxLength(MAX_PASSPHRASE_SIZE);
     ui->passEdit2->setMaxLength(MAX_PASSPHRASE_SIZE);
     ui->passEdit3->setMaxLength(MAX_PASSPHRASE_SIZE);
+
+    ui->stakingCheckBox->setChecked(fWalletUnlockStakingOnly);
 
     // Setup Caps Lock detection.
     ui->passEdit1->installEventFilter(this);
@@ -55,6 +59,15 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
             ui->passLabel3->hide();
             ui->passEdit3->hide();
             setWindowTitle(tr("Unlock wallet"));
+            break;
+        case UnlockStaking:
+            ui->warningLabel->setText(tr("This operation needs your wallet passphrase to unlock the wallet."));
+            ui->passLabel2->hide();
+            ui->passEdit2->hide();
+            ui->passLabel3->hide();
+            ui->passEdit3->hide();
+            ui->stakingCheckBox->setChecked(true);
+            setWindowTitle(tr("Unlock wallet for staking"));
             break;
         case Decrypt:   // Ask passphrase
             ui->warningLabel->setText(tr("This operation needs your wallet passphrase to decrypt the wallet."));
@@ -151,6 +164,7 @@ void AskPassphraseDialog::accept()
             QDialog::reject(); // Cancelled
         }
         } break;
+    case UnlockStaking:
     case Unlock:
         if(!model->setWalletLocked(false, oldpass))
         {
@@ -159,6 +173,7 @@ void AskPassphraseDialog::accept()
         }
         else
         {
+            fWalletUnlockStakingOnly = ui->stakingCheckBox->isChecked();
             QDialog::accept(); // Success
         }
         break;
@@ -207,6 +222,7 @@ void AskPassphraseDialog::textChanged()
         acceptable = !ui->passEdit2->text().isEmpty() && !ui->passEdit3->text().isEmpty();
         break;
     case Unlock: // Old passphrase x1
+    case UnlockStaking:
     case Decrypt:
         acceptable = !ui->passEdit1->text().isEmpty();
         break;
