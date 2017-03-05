@@ -28,8 +28,8 @@ packages:
 - "ca-certificates"
 - "python"
 remotes:
-- "url": "https://github.com/navcoin/navcoin.git"
-  "dir": "navcoin"
+- "url": "https://github.com/navcoindev/navcoin-core.git"
+  "dir": "navcoin-core"
 files: []
 script: |
 

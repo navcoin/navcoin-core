@@ -16,6 +16,9 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background: #eff1f4; border: 0</string>
+  </property>
   <widget class="QFrame" name="SendCoins">
    <property name="toolTip">
     <string>This is a normal payment.</string>
@@ -58,6 +61,9 @@
        <widget class="QValidatedLineEdit" name="payTo">
         <property name="toolTip">
          <string>The NavCoin address to send the payment to</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
         </property>
        </widget>
       </item>
@@ -147,6 +153,9 @@
       <property name="toolTip">
        <string>Enter a label for this address to add it to the list of used addresses</string>
       </property>
+      <property name="styleSheet">
+       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+      </property>
      </widget>
     </item>
     <item row="2" column="0">
@@ -165,7 +174,11 @@
     <item row="2" column="1">
      <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0,1">
       <item>
-       <widget class="NavCoinAmountField" name="payAmount"/>
+       <widget class="NavCoinAmountField" name="payAmount">
+        <property name="styleSheet">
+         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="checkboxSubtractFeeFromAmount">
@@ -193,6 +206,9 @@
      <widget class="QLabel" name="messageTextLabel">
       <property name="toolTip">
        <string>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
@@ -224,9 +240,9 @@
       <colorrole role="Button">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>127</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -296,18 +312,18 @@
       <colorrole role="Base">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
       <colorrole role="Window">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>127</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -361,9 +377,9 @@
       <colorrole role="Button">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>127</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -433,18 +449,18 @@
       <colorrole role="Base">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
       <colorrole role="Window">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>127</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -498,9 +514,9 @@
       <colorrole role="Button">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>127</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -570,18 +586,18 @@
       <colorrole role="Base">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>127</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
       <colorrole role="Window">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>127</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -628,7 +644,7 @@
     <string>This is an unauthenticated payment request.</string>
    </property>
    <property name="autoFillBackground">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -653,7 +669,11 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="payTo_is"/>
+       <widget class="QLabel" name="payTo_is">
+        <property name="styleSheet">
+         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QToolButton" name="deleteButton_is">
@@ -683,6 +703,9 @@
     </item>
     <item row="1" column="1">
      <widget class="QLabel" name="memoTextLabel_is">
+      <property name="styleSheet">
+       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+      </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
@@ -706,6 +729,9 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
+      <property name="styleSheet">
+       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+      </property>
      </widget>
     </item>
    </layout>
@@ -726,9 +752,9 @@
       <colorrole role="Button">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>140</red>
-         <green>232</green>
-         <blue>119</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -798,18 +824,18 @@
       <colorrole role="Base">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>119</red>
-         <green>255</green>
-         <blue>233</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
       <colorrole role="Window">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>140</red>
-         <green>232</green>
-         <blue>119</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -872,9 +898,9 @@
       <colorrole role="Button">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>140</red>
-         <green>232</green>
-         <blue>119</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -944,18 +970,18 @@
       <colorrole role="Base">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>119</red>
-         <green>255</green>
-         <blue>233</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
       <colorrole role="Window">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>140</red>
-         <green>232</green>
-         <blue>119</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -1018,9 +1044,9 @@
       <colorrole role="Button">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>140</red>
-         <green>232</green>
-         <blue>119</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -1090,18 +1116,18 @@
       <colorrole role="Base">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>140</red>
-         <green>232</green>
-         <blue>119</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
       <colorrole role="Window">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
-         <red>140</red>
-         <green>232</green>
-         <blue>119</blue>
+         <red>239</red>
+         <green>241</green>
+         <blue>244</blue>
         </color>
        </brush>
       </colorrole>
@@ -1157,7 +1183,10 @@
     <string>This is an authenticated payment request.</string>
    </property>
    <property name="autoFillBackground">
-    <bool>true</bool>
+    <bool>false</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: #eff1f4; border: 0</string>
    </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
@@ -1183,6 +1212,9 @@
       </property>
       <item>
        <widget class="QLabel" name="payTo_s">
+        <property name="styleSheet">
+         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+        </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
         </property>
@@ -1216,6 +1248,9 @@
     </item>
     <item row="1" column="1">
      <widget class="QLabel" name="memoTextLabel_s">
+      <property name="styleSheet">
+       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+      </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
@@ -1239,6 +1274,9 @@
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
+      <property name="styleSheet">
+       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+      </property>
      </widget>
     </item>
    </layout>
@@ -1254,6 +1292,7 @@
    <class>NavCoinAmountField</class>
    <extends>QLineEdit</extends>
    <header>navcoinamountfield.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

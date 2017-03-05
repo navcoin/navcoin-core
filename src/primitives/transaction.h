@@ -352,7 +352,7 @@ inline void SerializeTransaction(TxType& tx, Stream& s, Operation ser_action, in
     }
     READWRITE(*const_cast<uint32_t*>(&tx.nLockTime));
     if(tx.nVersion >= 2) {
-        READWRITE(tx.strDZeel); }
+      READWRITE(*const_cast<std::string*>(&tx.strDZeel)); }
 }
 
 /** The basic transaction that is broadcasted on the network and contained in
@@ -477,10 +477,22 @@ struct CMutableTransaction
         SerializeTransaction(*this, s, ser_action, nType, nVersion);
     }
 
+    bool IsCoinBase() const
+    {
+        return (vin.size() == 1 && vin[0].prevout.IsNull());
+    }
+
+    bool IsCoinStake() const
+    {
+        // ppcoin: the coin stake transaction is marked with the first output empty
+        return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
+    }
+
     /** Compute the hash of this CMutableTransaction. This is computed on the
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.
      */
     uint256 GetHash() const;
+    std::string ToString() const;
 };
 
 /** Compute the weight of a transaction, as defined by BIP 141 */

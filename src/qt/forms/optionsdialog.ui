@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Options</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background: #eff1f4; border: 0</string>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -53,7 +56,18 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="databaseCache"/>
+          <widget class="QSpinBox" name="databaseCache">
+           <property name="styleSheet">
+            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
+</string>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::NoButtons</enum>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="databaseCacheUnitLabel">
@@ -100,6 +114,16 @@
            <property name="toolTip">
             <string>(0 = auto, &lt;0 = leave that many cores free)</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
+</string>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::NoButtons</enum>
+           </property>
           </widget>
          </item>
          <item>
@@ -142,28 +166,27 @@
          <property name="title">
           <string>Expert</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QCheckBox" name="coinControlFeatures">
-            <property name="toolTip">
-             <string>Whether to show coin control features or not.</string>
-            </property>
-            <property name="text">
-             <string>Enable coin &amp;control features</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="spendZeroConfChange">
-            <property name="toolTip">
-             <string>If you disable the spending of unconfirmed change, the change from a transaction cannot be used until that transaction has at least one confirmation. This also affects how your balance is computed.</string>
-            </property>
-            <property name="text">
-             <string>&amp;Spend unconfirmed change</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <layout class="QVBoxLayout" name="verticalLayout_2"/>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="coinControlFeatures">
+         <property name="toolTip">
+          <string>Whether to show coin control features or not.</string>
+         </property>
+         <property name="text">
+          <string>Enable coin &amp;control features</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="spendZeroConfChange">
+         <property name="toolTip">
+          <string>If you disable the spending of unconfirmed change, the change from a transaction cannot be used until that transaction has at least one confirmation. This also affects how your balance is computed.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Spend unconfirmed change</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -574,6 +597,10 @@
            <property name="toolTip">
             <string>The user interface language can be set here. This setting will take effect after restarting %1.</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
+</string>
+           </property>
           </widget>
          </item>
         </layout>
@@ -598,6 +625,10 @@
            <property name="toolTip">
             <string>Choose the default subdivision unit to show in the interface and when sending coins.</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
+</string>
+           </property>
           </widget>
          </item>
         </layout>
@@ -621,6 +652,10 @@
           <widget class="QLineEdit" name="thirdPartyTxUrls">
            <property name="toolTip">
             <string>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
+</string>
            </property>
           </widget>
          </item>
@@ -696,6 +731,9 @@
        <property name="toolTip">
         <string>Reset all client options to default.</string>
        </property>
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;Reset Options</string>
        </property>
@@ -757,6 +795,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="okButton">
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;OK</string>
        </property>
@@ -770,6 +811,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="cancelButton">
+       <property name="styleSheet">
+        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+       </property>
        <property name="text">
         <string>&amp;Cancel</string>
        </property>
