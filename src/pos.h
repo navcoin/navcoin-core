@@ -5,11 +5,12 @@
 #ifndef NAVCOIN_POS_H
 #define NAVCOIN_POS_H
 
-#include "consensus/params.h"
-#include "coins.h"
-
-#include <stdint.h>
-
 static const int STAKE_TIMESTAMP_MASK = 15;
+
+double GetDifficulty(const CBlockIndex* blockindex);
+
+double GetPoWMHashPS();
+
+double GetPoSKernelPS();
 
 #endif // NAVCOIN_POS_H
