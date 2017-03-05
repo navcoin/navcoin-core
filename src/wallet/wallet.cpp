@@ -537,6 +537,11 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     return true;
 }
 
+// optional setting to unlock wallet for staking only
+// serves to disable the trivial sendmoney when OS account compromised
+// provides no real security
+bool fWalletUnlockStakingOnly = false;
+
 bool CWallet::AddKeyPubKey(const CKey& secret, const CPubKey &pubkey)
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata

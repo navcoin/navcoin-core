@@ -39,6 +39,8 @@ extern unsigned int nTxConfirmTarget;
 extern bool bSpendZeroConfChange;
 extern bool fSendFreeTransactions;
 extern int64_t nReserveBalance;
+extern bool fWalletUnlockStakingOnly;
+
 extern int64_t nMinimumInputValue;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 100;
