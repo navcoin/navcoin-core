@@ -8,6 +8,7 @@
 #include "amount.h"
 
 #include <QWidget>
+#include <QPushButton>
 
 class ClientModel;
 class TransactionFilterProxy;
@@ -40,6 +41,20 @@ public Q_SLOTS:
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance,
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
 
+    void setStatusTitleBlocks(QString text);
+
+    void setStatusTitleConnections(QString text);
+
+    void setStatusTitle(QString text);
+
+    void showStatusTitleConnections();
+    void hideStatusTitleConnections();
+    void showStatusTitleBlocks();
+    void hideStatusTitleBlocks();
+
+    void showLockStaking(bool status);
+    void setStakingStatus(QString text);
+
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
 
@@ -62,6 +77,8 @@ private Q_SLOTS:
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
+    void unlockWalletStaking();
+
 };
 
 #endif // NAVCOIN_QT_OVERVIEWPAGE_H

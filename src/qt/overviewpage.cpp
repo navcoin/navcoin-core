@@ -15,12 +15,14 @@
 #include "transactionfilterproxy.h"
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
+#include "walletframe.h"
+#include "askpassphrasedialog.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
-#define DECORATION_SIZE 22
-#define NUM_ITEMS 5
+#define DECORATION_SIZE 11
+#define NUM_ITEMS 4
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -40,13 +42,13 @@ public:
 
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
         QRect mainRect = option.rect;
-        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
-        int xspace = DECORATION_SIZE + 8;
+        QRect decorationRect(mainRect.left(), mainRect.top()+DECORATION_SIZE+5, DECORATION_SIZE, DECORATION_SIZE);
+        int xspace = DECORATION_SIZE + 6;
         int ypad = 1;
-        int halfheight = (mainRect.height() - 2*ypad)/2;
-        QRect amountRect(mainRect.left() + 450, mainRect.top()+ypad, 150, DECORATION_SIZE);
-        QRect addressRect(mainRect.left() + 150, mainRect.top()+ypad, 250, DECORATION_SIZE);
-        QRect dateRect(mainRect.left() + xspace, mainRect.top()+ypad, 100, DECORATION_SIZE);
+        int halfheight = (mainRect.height() - 3*ypad - 4)/3 ;
+        QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight*2, 150, DECORATION_SIZE);
+        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, 250, DECORATION_SIZE);
+        QRect dateRect(mainRect.left() + xspace, mainRect.top()+ypad, 150, DECORATION_SIZE);
         icon = platformStyle->SingleColorIcon(icon);
         icon.paint(painter, decorationRect);
 
@@ -83,7 +85,7 @@ public:
         }
         else
         {
-            foreground = option.palette.color(QPalette::Text);
+            foreground = COLOR_POSITIVE;
         }
         painter->setPen(foreground);
         QString amountText = NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::separatorAlways);
@@ -91,7 +93,7 @@ public:
         {
             amountText = QString("[") + amountText + QString("]");
         }
-        painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
+        painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, amountText);
 
         painter->setPen(option.palette.color(QPalette::Text));
         painter->drawText(dateRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
@@ -101,7 +103,7 @@ public:
 
     inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        return QSize(DECORATION_SIZE, DECORATION_SIZE);
+        return QSize(DECORATION_SIZE, DECORATION_SIZE*5.2 + 4);
     }
 
     int unit;
@@ -134,10 +136,11 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
+    ui->listTransactions->setMinimumHeight(NUM_ITEMS * 3 * (DECORATION_SIZE + 2));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+    connect(ui->unlockStakingButton, SIGNAL(clicked()), this, SLOT(unlockWalletStaking()));
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
@@ -148,6 +151,12 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
     if(filter)
         Q_EMIT transactionClicked(filter->mapToSource(index));
 }
+
+void OverviewPage::showLockStaking(bool status)
+{
+    ui->unlockStakingButton->setVisible(status);
+}
+
 
 OverviewPage::~OverviewPage()
 {
@@ -183,6 +192,41 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 {
 
 }
+
+void OverviewPage::setStakingStatus(QString text)
+{
+    ui->stakingStatusLabel->setText(text);
+};
+
+
+void OverviewPage::setStatusTitleBlocks(QString text)
+{
+    ui->statusTitleBlocks->setText(text);
+}
+
+void OverviewPage::setStatusTitleConnections(QString text)
+{
+    ui->statusTitleConnections->setText(text);
+
+}
+
+void OverviewPage::setStatusTitle(QString text)
+{
+    ui->statusTitle->setText(text);
+}
+
+void OverviewPage::showStatusTitleConnections(){
+    ui->statusTitleConnections->show();
+};
+void OverviewPage::hideStatusTitleConnections(){
+    ui->statusTitleConnections->hide();
+};
+void OverviewPage::showStatusTitleBlocks(){
+    ui->statusTitleBlocks->show();
+};
+void OverviewPage::hideStatusTitleBlocks(){
+    ui->statusTitleBlocks->hide();
+};
 
 void OverviewPage::setClientModel(ClientModel *model)
 {
@@ -239,6 +283,19 @@ void OverviewPage::updateDisplayUnit()
         txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
 
         ui->listTransactions->update();
+    }
+}
+
+void OverviewPage::unlockWalletStaking()
+{
+    if(!walletModel)
+        return;
+    // Unlock wallet when requested by wallet model
+    if (walletModel->getEncryptionStatus() == WalletModel::Locked)
+    {
+        AskPassphraseDialog dlg(AskPassphraseDialog::UnlockStaking, this);
+        dlg.setModel(walletModel);
+        dlg.exec();
     }
 }
 
