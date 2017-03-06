@@ -95,6 +95,7 @@ CTransaction& CTransaction::operator=(const CTransaction &tx) {
     *const_cast<unsigned int*>(&nLockTime) = tx.nLockTime;
     *const_cast<uint256*>(&hash) = tx.hash;
     *const_cast<unsigned int*>(&nTime) = tx.nTime;
+    *const_cast<std::string*>(&strDZeel) = tx.strDZeel;
     return *this;
 }
 

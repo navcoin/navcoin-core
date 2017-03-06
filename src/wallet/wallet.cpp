@@ -2544,11 +2544,15 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     wtxNew.nTime = GetAdjustedTime();
     wtxNew.BindWallet(this);
 
-    wtxNew.strDZeel = strDZeel;
-    if (wtxNew.strDZeel.length() > 512)
-   		wtxNew.strDZeel.resize(512);
-
     CMutableTransaction txNew;
+
+    txNew.strDZeel = strDZeel;
+
+    if (strDZeel.length() > 0)
+      txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+
+    if (strDZeel.length() > 512)
+      txNew.strDZeel.resize(512);
 
     // Discourage fee sniping.
     //
