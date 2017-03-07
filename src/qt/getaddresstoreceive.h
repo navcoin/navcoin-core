@@ -27,10 +27,12 @@ private:
 
 Q_SIGNALS:
     void requestPayment();
+    void requestAddressHistory();
 
 private Q_SLOTS:
     void showRequestPayment();
     void copyToClipboard();
+    void showAddressHistory();
 };
 
 #endif // GETADDRESSTORECEIVE_H

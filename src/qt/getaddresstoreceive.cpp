@@ -19,6 +19,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
     connect(ui->copyClipboardButton,SIGNAL(clicked()),this,SLOT(copyToClipboard()));
     connect(ui->newAddressButton,SIGNAL(clicked()),this,SLOT(getNewAddress()));
+    connect(ui->requestNewAddressButton,SIGNAL(clicked()),this,SLOT(showAddressHistory()));
 }
 
 getAddressToReceive::~getAddressToReceive()
@@ -29,6 +30,11 @@ getAddressToReceive::~getAddressToReceive()
 void getAddressToReceive::showRequestPayment()
 {
     Q_EMIT requestPayment();
+}
+
+void getAddressToReceive::showAddressHistory()
+{
+    Q_EMIT requestAddressHistory();
 }
 
 void getAddressToReceive::setModel(WalletModel *model)

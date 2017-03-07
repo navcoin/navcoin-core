@@ -81,6 +81,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     // Pass through messages from transactionView
     connect(transactionView, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
     connect(requestPaymentPage, SIGNAL(requestPayment()), this, SLOT(gotoReceiveCoinsPage()));
+    connect(requestPaymentPage, SIGNAL(requestAddressHistory()), this, SLOT(requestAddressHistory()));
 }
 
 WalletView::~WalletView()
@@ -111,6 +112,11 @@ void WalletView::setClientModel(ClientModel *clientModel)
 
     overviewPage->setClientModel(clientModel);
     sendCoinsPage->setClientModel(clientModel);
+}
+
+void WalletView::requestAddressHistory()
+{
+    Q_EMIT openAddressHistory();
 }
 
 void WalletView::setWalletModel(WalletModel *walletModel)

@@ -130,6 +130,7 @@ public Q_SLOTS:
     void showLockStaking(bool status);
     void setStakingStatus(QString text);
     void setStakingStats(QString day, QString week, QString month);
+    void requestAddressHistory();
 
 Q_SIGNALS:
     /** Signal that we want to show the main window */
@@ -140,6 +141,8 @@ Q_SIGNALS:
     void encryptionStatusChanged(int status);
     /** Notify that a new transaction appeared */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
+
+    void openAddressHistory();
 
     friend NavCoinGUI;
 };

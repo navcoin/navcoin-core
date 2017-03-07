@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>821</width>
-     <height>391</height>
+     <height>401</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -27,6 +27,9 @@
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Maximum</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -231,9 +234,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="addressHistoryButton">
+       <widget class="QPushButton" name="requestNewAddressButton">
         <property name="text">
-         <string>Check history of addresses</string>
+         <string>List old addresses</string>
         </property>
        </widget>
       </item>
