@@ -25,7 +25,7 @@ TESTS = test/unitester
 GENBIN = gen/gen$(BUILD_EXEEXT)
 GEN_SRCS = gen/gen.cpp
 
-$(GENBIN): $(GEN_SRCS)
+$(GENBIN): gen/gen.cpp
 	@echo Building $@
 	$(AM_V_at)c++ -I$(top_srcdir)/include -o $@ $<
 
