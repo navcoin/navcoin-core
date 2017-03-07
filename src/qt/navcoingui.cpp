@@ -20,10 +20,14 @@
 #include "platformstyle.h"
 #include "rpcconsole.h"
 #include "utilitydialog.h"
+#include "walletmodel.h"
+#include "wallet/rpcwallet.h"
 
 #ifdef ENABLE_WALLET
 #include "walletframe.h"
 #include "walletmodel.h"
+#include "walletview.h"
+#include "wallet/wallet.h"
 #endif // ENABLE_WALLET
 
 #ifdef Q_OS_MAC
@@ -33,6 +37,8 @@
 #include "init.h"
 #include "ui_interface.h"
 #include "util.h"
+#include "pos.h"
+#include "main.h"
 
 #include <iostream>
 
@@ -56,6 +62,8 @@
 #include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QWidget>
+
 
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
@@ -84,6 +92,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     labelEncryptionIcon(0),
     labelConnectionsIcon(0),
     labelBlocksIcon(0),
+    labelStakingIcon(0),
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
@@ -116,10 +125,12 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     helpMessageDialog(0),
     prevBlocks(0),
     spinnerFrame(0),
+    unlockWalletAction(0),
+    lockWalletAction(0),
     platformStyle(platformStyle)
 {
-    GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 550), this);
-    setFixedSize(QSize(840, 550));
+    GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 557), this);
+    setFixedSize(QSize(840, 557));
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     /* if compiled with wallet support, -disablewallet can still disable the wallet */
@@ -196,10 +207,13 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->setSpacing(3);
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
     labelEncryptionIcon = new QLabel();
+    labelStakingIcon = new QLabel();
     labelConnectionsIcon = new QLabel();
     labelBlocksIcon = new QLabel();
     if(enableWallet)
     {
+        frameBlocksLayout->addStretch();
+        frameBlocksLayout->addWidget(labelStakingIcon);
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(unitDisplayControl);
         frameBlocksLayout->addStretch();
@@ -210,6 +224,18 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
+
+    if (GetBoolArg("-staking", true))
+    {
+        QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
+        connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
+        timerStakingIcon->start(150 * 1000);
+        updateStakingStatus();
+    }
+    else
+    {
+        walletFrame->setStakingStatus(tr("Staking is turned off."));
+    }
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -239,6 +265,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     // Subscribe to notifications from core
     subscribeToCoreSignals();
+
 }
 
 NavCoinGUI::~NavCoinGUI()
@@ -307,9 +334,9 @@ void NavCoinGUI::createActions()
     connect(sendCoinsMenuAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
+    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoRequestPaymentPage()));
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
+    connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoRequestPaymentPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
 #endif // ENABLE_WALLET
@@ -335,6 +362,8 @@ void NavCoinGUI::createActions()
     encryptWalletAction = new QAction(platformStyle->TextColorIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
+    unlockWalletAction = new QAction(tr("&Unlock Wallet for Staking..."), this);
+    unlockWalletAction->setToolTip(tr("Unlock wallet for Staking"));
     backupWalletAction = new QAction(platformStyle->TextColorIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(platformStyle->TextColorIcon(":/icons/key"), tr("&Change Passphrase..."), this);
@@ -375,6 +404,8 @@ void NavCoinGUI::createActions()
     if(walletFrame)
     {
         connect(encryptWalletAction, SIGNAL(triggered(bool)), walletFrame, SLOT(encryptWallet(bool)));
+        connect(unlockWalletAction, SIGNAL(triggered()), walletFrame, SLOT(unlockWalletStaking()));
+        connect(lockWalletAction, SIGNAL(triggered()), walletFrame, SLOT(lockWallet()));
         connect(backupWalletAction, SIGNAL(triggered()), walletFrame, SLOT(backupWallet()));
         connect(changePassphraseAction, SIGNAL(triggered()), walletFrame, SLOT(changePassphrase()));
         connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
@@ -418,6 +449,7 @@ void NavCoinGUI::createMenuBar()
     if(walletFrame)
     {
         settings->addAction(encryptWalletAction);
+        settings->addAction(unlockWalletAction);
         settings->addAction(changePassphraseAction);
         settings->addSeparator();
     }
@@ -477,7 +509,7 @@ void NavCoinGUI::createToolBars()
         topMenu3 = new QPushButton(walletFrame->topMenu);
         topMenu3->setFixedSize(156,94);
         topMenu3->setObjectName("topMenu3");
-        connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoReceiveCoinsPage()));
+        connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
         topMenu3->move(469,0);
         topMenu3->setStyleSheet(
                     "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
@@ -762,6 +794,23 @@ void NavCoinGUI::gotoReceiveCoinsPage()
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
+void NavCoinGUI::gotoRequestPaymentPage()
+{
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    receiveCoinsAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoRequestPaymentPage();
+}
+
 void NavCoinGUI::gotoSendCoinsPage(QString addr)
 {
     topMenu1->setStyleSheet(
@@ -803,6 +852,13 @@ void NavCoinGUI::setNumConnections(int count)
     }
     labelConnectionsIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
     labelConnectionsIcon->setToolTip(tr("%n active connection(s) to NavCoin network", "", count));
+    if(walletFrame){
+        walletFrame->setStatusTitleConnections(tr("%n active connections.","",count));
+        if(count > 0)
+            walletFrame->showStatusTitleConnections();
+        else
+            walletFrame->hideStatusTitleConnections();
+    }
 }
 
 void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header)
@@ -847,6 +903,13 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     qint64 secs = blockDate.secsTo(currentDate);
 
     tooltip = tr("Processed %n block(s) of transaction history.", "", count);
+    if(walletFrame){
+        walletFrame->setStatusTitleBlocks(tr("Last block: %n","",count));
+        if(count > 0)
+            walletFrame->showStatusTitleBlocks();
+        else
+            walletFrame->hideStatusTitleBlocks();
+    }
 
     // Set icon state: spinning if catching up, tick otherwise
     if(secs < 90*60)
@@ -861,6 +924,8 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
+        if(walletFrame)
+            walletFrame->setStatusTitle(tr("Connected to NavCoin network."));
     }
     else
     {
@@ -870,6 +935,10 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         const int DAY_IN_SECONDS = 24*60*60;
         const int WEEK_IN_SECONDS = 7*24*60*60;
         const int YEAR_IN_SECONDS = 31556952; // Average length of year in Gregorian calendar
+
+        if(walletFrame)
+            walletFrame->setStatusTitle(tr("Connecting to NavCoin network..."));
+
         if(secs < 2*DAY_IN_SECONDS)
         {
             timeBehindText = tr("%n hour(s)","",secs/HOUR_IN_SECONDS);
@@ -1090,6 +1159,18 @@ bool NavCoinGUI::handlePaymentRequest(const SendCoinsRecipient& recipient)
 
 void NavCoinGUI::setEncryptionStatus(int status)
 {
+    if(fWalletUnlockStakingOnly)
+    {
+        labelEncryptionIcon->setPixmap(QIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
+        changePassphraseAction->setEnabled(false);
+        unlockWalletAction->setVisible(false);
+        encryptWalletAction->setEnabled(false);
+        if(walletFrame)
+            walletFrame->showLockStaking(false);
+    }
+    else
+    {
     switch(status)
     {
     case WalletModel::Unencrypted:
@@ -1097,14 +1178,20 @@ void NavCoinGUI::setEncryptionStatus(int status)
         encryptWalletAction->setChecked(false);
         changePassphraseAction->setEnabled(false);
         encryptWalletAction->setEnabled(true);
+        unlockWalletAction->setVisible(false);
+        if(walletFrame)
+            walletFrame->showLockStaking(false);
         break;
     case WalletModel::Unlocked:
         labelEncryptionIcon->show();
         labelEncryptionIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
+        unlockWalletAction->setVisible(false);
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
+        if(walletFrame)
+            walletFrame->showLockStaking(false);
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->show();
@@ -1112,9 +1199,14 @@ void NavCoinGUI::setEncryptionStatus(int status)
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
+        unlockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
+        if(walletFrame)
+            walletFrame->showLockStaking(true);
         break;
     }
+    }
+    updateStakingStatus();
 }
 #endif // ENABLE_WALLET
 
@@ -1293,3 +1385,98 @@ void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
         optionsModel->setDisplayUnit(action->data());
     }
 }
+
+#ifdef ENABLE_WALLET
+
+
+void NavCoinGUI::updateWeight()
+{
+    if (!pwalletMain)
+        return;
+
+    TRY_LOCK(cs_main, lockMain);
+    if (!lockMain)
+        return;
+
+    TRY_LOCK(pwalletMain->cs_wallet, lockWallet);
+    if (!lockWallet)
+        return;
+
+    nWeight = pwalletMain->GetStakeWeight();
+}
+
+extern int64_t nLastCoinStakeSearchInterval;
+
+void NavCoinGUI::updateStakingStatus()
+{
+    updateWeight();
+
+    if(walletFrame){
+
+        if (!GetBoolArg("-staking",true))
+        {
+            walletFrame->setStakingStatus(tr("Staking is turned off."));
+            walletFrame->showLockStaking(false);
+        }
+        else if (nLastCoinStakeSearchInterval && nWeight)
+        {
+
+            uint64_t nWeight = this->nWeight;
+            uint64_t nNetworkWeight = GetPoSKernelPS();
+            int nBestHeight = pindexBestHeader->nHeight;
+
+            unsigned nEstimateTime = GetTargetSpacing(nBestHeight) * nNetworkWeight / nWeight;
+
+            QString text;
+            if (nEstimateTime > 0)
+            {
+            if (nEstimateTime < 60)
+            {
+                text = tr("Expected time to earn reward is %n second(s)", "", nEstimateTime);
+            }
+            else if (nEstimateTime < 60*60)
+            {
+                text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
+            }
+            else if (nEstimateTime < 24*60*60)
+            {
+                text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
+            }
+            else
+            {
+                text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
+            }
+            }
+
+            nWeight /= COIN;
+            nNetworkWeight /= COIN;
+
+    //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_on" : ":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            walletFrame->setStakingStatus(text);
+        }
+        else
+        {
+
+    //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_off" : ":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            if (pwalletMain && pwalletMain->IsLocked())
+                walletFrame->setStakingStatus(tr("Not staking because wallet is locked"));
+            else if (vNodes.empty())
+                walletFrame->setStakingStatus(tr("Not staking because wallet is offline"));
+            else if (IsInitialBlockDownload())
+                walletFrame->setStakingStatus(tr("Not staking because wallet is syncing"));
+            else if (!nWeight)
+                walletFrame->setStakingStatus(tr("Not staking because you don't have mature coins"));
+            else
+                walletFrame->setStakingStatus(tr("Not staking, please wait"));
+        }
+
+//        vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
+//        int nItemCounted = GetsStakeSubTotal(aRange);
+//        if(ARRAYLEN(aRange) > 32){
+//            walletFrame->setStakingStats(FormatMoney(aRange[30].Total).c_str(),FormatMoney(aRange[31].Total).c_str(),FormatMoney(aRange[32].Total).c_str());
+//        }
+    }
+
+}
+
+#endif

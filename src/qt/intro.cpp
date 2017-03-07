@@ -8,8 +8,10 @@
 
 #include "intro.h"
 #include "ui_intro.h"
+#include "skinize.h"
 
 #include "guiutil.h"
+#include "navtechinit.h"
 
 #include "util.h"
 
@@ -18,7 +20,6 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QMessageBox>
-
 #include <cmath>
 
 static const uint64_t GB_BYTES = 1000000000LL;
@@ -75,7 +76,7 @@ void FreespaceChecker::check()
     fs::path dataDir = GUIUtil::qstringToBoostPath(dataDirStr);
     uint64_t freeBytesAvailable = 0;
     int replyStatus = ST_OK;
-    QString replyMessage = tr("A new data directory will be created.");
+    QString replyMessage;
 
     /* Find first parent that exists, so that fs::space does not fail */
     fs::path parentDir = dataDir;
@@ -95,21 +96,20 @@ void FreespaceChecker::check()
         freeBytesAvailable = fs::space(parentDir).available;
         if(fs::exists(dataDir))
         {
-            if(fs::is_directory(dataDir))
+            if(!fs::is_directory(dataDir))
             {
-                QString separator = "<code>" + QDir::toNativeSeparators("/") + tr("name") + "</code>";
                 replyStatus = ST_OK;
-                replyMessage = tr("Directory already exists. Add %1 if you intend to create a new directory here.").arg(separator);
+                QString replyMessage = tr("NavCoin will try to import an old wallet.dat file.");
             } else {
                 replyStatus = ST_ERROR;
-                replyMessage = tr("Path already exists, and is not a directory.");
+                replyMessage = tr("You must choose a wallet.dat file.");
             }
         }
     } catch (const fs::filesystem_error&)
     {
         /* Parent directory does not exist or is not accessible */
         replyStatus = ST_ERROR;
-        replyMessage = tr("Cannot create data directory here.");
+        replyMessage = tr("Cannot read wallet.dat file.");
     }
     Q_EMIT reply(replyStatus, replyMessage, freeBytesAvailable);
 }
@@ -148,7 +148,7 @@ QString Intro::getDataDirectory()
 void Intro::setDataDirectory(const QString &dataDir)
 {
     ui->dataDirectory->setText(dataDir);
-    if(dataDir == getDefaultDataDirectory())
+    if(dataDir == getDefaultDataDirectory() + "/wallet.dat")
     {
         ui->dataDirDefault->setChecked(true);
         ui->dataDirectory->setEnabled(false);
@@ -182,8 +182,9 @@ void Intro::pickDataDirectory()
     {
         /* If current default data directory does not exist, let the user choose one */
         Intro intro;
-        intro.setDataDirectory(dataDir);
+        intro.setDataDirectory(dataDir + "/wallet.dat");
         intro.setWindowIcon(QIcon(":icons/navcoin"));
+        intro.setStyleSheet(Skinize());
 
         while(true)
         {
@@ -192,13 +193,20 @@ void Intro::pickDataDirectory()
                 /* Cancel clicked */
                 exit(0);
             }
-            dataDir = intro.getDataDirectory();
+            QString oldWallet = intro.getDataDirectory();
             try {
                 TryCreateDirectory(GUIUtil::qstringToBoostPath(dataDir));
+                if(oldWallet != dataDir + "/wallet.dat")
+                {
+                    //Try to copy old wallet
+                    boost::filesystem::detail::copy_file(GUIUtil::qstringToBoostPath(oldWallet),GUIUtil::qstringToBoostPath(dataDir + "/wallet.dat"),boost::filesystem::detail::none);
+                }
+                NavTechInit* setupNavTech = new NavTechInit();
+                setupNavTech->ShowNavtechIntro();
                 break;
             } catch (const fs::filesystem_error&) {
                 QMessageBox::critical(0, tr(PACKAGE_NAME),
-                    tr("Error: Specified data directory \"%1\" cannot be created.").arg(dataDir));
+                    tr("Error creating data folder.").arg(dataDir));
                 /* fall through, back to choosing screen */
             }
         }
@@ -226,21 +234,6 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
         ui->errorMessage->setStyleSheet("QLabel { color: #800000 }");
         break;
     }
-    /* Indicate number of bytes available */
-    if(status == FreespaceChecker::ST_ERROR)
-    {
-        ui->freeSpace->setText("");
-    } else {
-        QString freeString = tr("%n GB of free space available", "", bytesAvailable/GB_BYTES);
-        if(bytesAvailable < requiredSpace * GB_BYTES)
-        {
-            freeString += " " + tr("(of %n GB needed)", "", requiredSpace);
-            ui->freeSpace->setStyleSheet("QLabel { color: #800000 }");
-        } else {
-            ui->freeSpace->setStyleSheet("");
-        }
-        ui->freeSpace->setText(freeString + ".");
-    }
     /* Don't allow confirm in ERROR state */
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(status != FreespaceChecker::ST_ERROR);
 }
@@ -254,14 +247,13 @@ void Intro::on_dataDirectory_textChanged(const QString &dataDirStr)
 
 void Intro::on_ellipsisButton_clicked()
 {
-    QString dir = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(0, "Choose data directory", ui->dataDirectory->text()));
-    if(!dir.isEmpty())
-        ui->dataDirectory->setText(dir);
+    QString wallet = QDir::toNativeSeparators(QFileDialog::getOpenFileName(0, "Choose wallet file", ui->dataDirectory->text(), "Wallet (wallet.dat)"));
+    ui->dataDirectory->setText(wallet);
 }
 
 void Intro::on_dataDirDefault_clicked()
 {
-    setDataDirectory(getDefaultDataDirectory());
+    setDataDirectory(getDefaultDataDirectory() + "/wallet.dat");
 }
 
 void Intro::on_dataDirCustom_clicked()

@@ -14,7 +14,7 @@
    <string>Signatures - Sign / Verify a Message</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0</string>
+   <string notr="true"/>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabSignMessage">
       <attribute name="title">
@@ -61,13 +61,13 @@
             <string>Choose previously used address</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
            </property>
            <property name="shortcut">
@@ -84,13 +84,13 @@
             <string>Paste address from clipboard</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
            </property>
            <property name="shortcut">
@@ -143,13 +143,13 @@
             <string>Copy the current signature to the system clipboard</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/editcopy</normaloff>:/icons/editcopy</iconset>
            </property>
            <property name="autoDefault">
@@ -167,13 +167,13 @@
             <string>Sign the message to prove you own this NavCoin address</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Sign &amp;Message</string>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/edit</normaloff>:/icons/edit</iconset>
            </property>
            <property name="autoDefault">
@@ -187,13 +187,13 @@
             <string>Reset all sign message fields</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Clear &amp;All</string>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
            </property>
            <property name="autoDefault">
@@ -279,7 +279,7 @@
             <string>The NavCoin address the message was signed with</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+            <string notr="true"/>
            </property>
           </widget>
          </item>
@@ -289,13 +289,13 @@
             <string>Choose previously used address</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
            </property>
            <property name="shortcut">
@@ -311,14 +311,14 @@
        <item>
         <widget class="QPlainTextEdit" name="messageIn_VM">
          <property name="styleSheet">
-          <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+          <string notr="true"/>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QValidatedLineEdit" name="signatureIn_VM">
          <property name="styleSheet">
-          <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+          <string notr="true"/>
          </property>
         </widget>
        </item>
@@ -330,13 +330,13 @@
             <string>Verify the message to ensure it was signed with the specified NavCoin address</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Verify &amp;Message</string>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/transaction_0</normaloff>:/icons/transaction_0</iconset>
            </property>
            <property name="autoDefault">
@@ -350,13 +350,13 @@
             <string>Reset all verify message fields</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Clear &amp;All</string>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
            </property>
            <property name="autoDefault">
@@ -421,8 +421,6 @@
    <header>qvalidatedlineedit.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

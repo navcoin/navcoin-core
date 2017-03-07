@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>740</width>
-    <height>589</height>
+    <height>595</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Debug window</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0</string>
+   <string notr="true">: #eff1f4; border: 0</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -375,7 +375,7 @@
             <string>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</string>
            </property>
            <property name="styleSheet">
-            <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>&amp;Open</string>
@@ -449,7 +449,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/fontsmaller</normaloff>:/icons/fontsmaller</iconset>
            </property>
            <property name="iconSize">
@@ -484,7 +484,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/fontbigger</normaloff>:/icons/fontbigger</iconset>
            </property>
            <property name="iconSize">
@@ -522,7 +522,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
            </property>
            <property name="shortcut">
@@ -583,7 +583,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../navcoin.qrc">
+            <iconset>
              <normaloff>:/icons/prompticon</normaloff>
              <disabledoff>:/icons/prompticon</disabledoff>:/icons/prompticon</iconset>
            </property>
@@ -1597,8 +1597,6 @@
    </slots>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

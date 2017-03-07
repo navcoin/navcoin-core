@@ -22,7 +22,9 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 /* Transaction list -- unconfirmed transaction */
 #define COLOR_UNCONFIRMED QColor(128, 128, 128)
 /* Transaction list -- negative amount */
-#define COLOR_NEGATIVE QColor(255, 0, 0)
+#define COLOR_NEGATIVE QColor(173, 43, 43)
+/* Transaction list -- positive amount */
+#define COLOR_POSITIVE QColor(73, 156, 76)
 /* Transaction list -- bare address (without label) */
 #define COLOR_BAREADDRESS QColor(140, 140, 140)
 /* Transaction list -- TX status decoration - open until date */
@@ -43,7 +45,7 @@ static const int TOOLTIP_WRAP_THRESHOLD = 80;
 static const int MAX_URI_LENGTH = 255;
 
 /* QRCodeDialog -- size of exported QR Code image */
-#define QR_IMAGE_SIZE 300
+#define QR_IMAGE_SIZE 260
 
 /* Number of frames in spinner animation */
 #define SPINNER_FRAMES 36

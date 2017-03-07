@@ -24,6 +24,7 @@
 #include "util.h"
 #include "utilstrencodings.h"
 #include "hash.h"
+#include "pos.h"
 
 #include <stdint.h>
 
@@ -36,50 +37,6 @@ using namespace std;
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 
-double GetDifficulty(const CBlockIndex* blockindex)
-{
-    return 1.0;
-}
-
-double GetPoWMHashPS()
-{
-    return 0;
-}
-
-double GetPoSKernelPS()
-{
-    int nPoSInterval = 72;
-    double dStakeKernelsTriedAvg = 0;
-    int nStakesHandled = 0, nStakesTime = 0;
-
-    CBlockIndex* pindex = pindexBestHeader;
-    CBlockIndex* pindexPrevStake = NULL;
-
-    while (pindex && nStakesHandled < nPoSInterval)
-    {
-        if (pindex->IsProofOfStake())
-        {
-            if (pindexPrevStake)
-            {
-                dStakeKernelsTriedAvg += GetDifficulty(pindexPrevStake) * 4294967296.0;
-                nStakesTime += pindexPrevStake->nTime - pindex->nTime;
-                nStakesHandled++;
-            }
-            pindexPrevStake = pindex;
-        }
-
-        pindex = pindex->pprev;
-    }
-
-    double result = 0;
-
-    if (nStakesTime)
-        result = dStakeKernelsTriedAvg / nStakesTime;
-
-    result *= STAKE_TIMESTAMP_MASK + 1;
-
-    return result;
-}
 
 UniValue blockheaderToJSON(const CBlockIndex* blockindex)
 {

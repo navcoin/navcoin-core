@@ -12,6 +12,7 @@
 #include "optionsmodel.h"
 #include "overviewpage.h"
 #include "platformstyle.h"
+#include "getaddresstoreceive.h"
 #include "receivecoinsdialog.h"
 #include "sendcoinsdialog.h"
 #include "signverifymessagedialog.h"
@@ -55,6 +56,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
 
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
     sendCoinsPage = new SendCoinsDialog(platformStyle);
+    requestPaymentPage = new getAddressToReceive();
 
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
@@ -63,6 +65,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
+    addWidget(requestPaymentPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -77,6 +80,8 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     connect(sendCoinsPage, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
     // Pass through messages from transactionView
     connect(transactionView, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
+    connect(requestPaymentPage, SIGNAL(requestPayment()), this, SLOT(gotoReceiveCoinsPage()));
+    connect(requestPaymentPage, SIGNAL(requestAddressHistory()), this, SLOT(requestAddressHistory()));
 }
 
 WalletView::~WalletView()
@@ -109,6 +114,11 @@ void WalletView::setClientModel(ClientModel *clientModel)
     sendCoinsPage->setClientModel(clientModel);
 }
 
+void WalletView::requestAddressHistory()
+{
+    Q_EMIT openAddressHistory();
+}
+
 void WalletView::setWalletModel(WalletModel *walletModel)
 {
     this->walletModel = walletModel;
@@ -117,6 +127,8 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     transactionView->setModel(walletModel);
     overviewPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
+    requestPaymentPage->setModel(walletModel);
+    requestPaymentPage->getNewAddress();
     sendCoinsPage->setModel(walletModel);
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
     usedSendingAddressesPage->setModel(walletModel->getAddressTableModel());
@@ -165,6 +177,7 @@ void WalletView::processNewTransaction(const QModelIndex& parent, int start, int
 void WalletView::gotoOverviewPage()
 {
     setCurrentWidget(overviewPage);
+    overviewPage->updateStakeReportNow();
 }
 
 void WalletView::gotoHistoryPage()
@@ -177,6 +190,10 @@ void WalletView::gotoReceiveCoinsPage()
     setCurrentWidget(receiveCoinsPage);
 }
 
+void WalletView::gotoRequestPaymentPage(){
+    setCurrentWidget(requestPaymentPage);
+}
+
 void WalletView::gotoSendCoinsPage(QString addr)
 {
     setCurrentWidget(sendCoinsPage);
@@ -185,6 +202,42 @@ void WalletView::gotoSendCoinsPage(QString addr)
         sendCoinsPage->setAddress(addr);
 }
 
+void WalletView::setStatusTitleBlocks(QString text)
+{
+    overviewPage->setStatusTitleBlocks(text);
+}
+
+void WalletView::setStatusTitleConnections(QString text)
+{
+    overviewPage->setStatusTitleConnections(text);
+}
+
+void WalletView::setStatusTitle(QString text)
+{
+    overviewPage->setStatusTitle(text);
+}
+
+void WalletView::setStakingStatus(QString text)
+{
+    overviewPage->setStakingStatus(text);
+}
+
+void WalletView::showStatusTitleConnections(){
+    overviewPage->showStatusTitleConnections();
+};
+void WalletView::hideStatusTitleConnections(){
+    overviewPage->hideStatusTitleConnections();
+};
+void WalletView::showStatusTitleBlocks(){
+    overviewPage->showStatusTitleBlocks();
+};
+void WalletView::hideStatusTitleBlocks(){
+    overviewPage->hideStatusTitleBlocks();
+};
+void WalletView::showLockStaking(bool status)
+{
+    overviewPage->showLockStaking(status);
+}
 void WalletView::gotoSignMessageTab(QString addr)
 {
     // calls show() in showTab_SM()
@@ -261,6 +314,11 @@ void WalletView::changePassphrase()
     dlg.exec();
 }
 
+void WalletView::setStakingStats(QString day, QString week, QString month)
+{
+    overviewPage->setStakingStats(day,week,month);
+}
+
 void WalletView::unlockWallet()
 {
     if(!walletModel)
@@ -272,6 +330,27 @@ void WalletView::unlockWallet()
         dlg.setModel(walletModel);
         dlg.exec();
     }
+}
+
+void WalletView::unlockWalletStaking()
+{
+    if(!walletModel)
+        return;
+    // Unlock wallet when requested by wallet model
+    if (walletModel->getEncryptionStatus() == WalletModel::Locked)
+    {
+        AskPassphraseDialog dlg(AskPassphraseDialog::UnlockStaking, this);
+        dlg.setModel(walletModel);
+        dlg.exec();
+    }
+}
+
+void WalletView::lockWallet()
+{
+    if(!walletModel)
+        return;
+
+    walletModel->setWalletLocked(true);
 }
 
 void WalletView::usedSendingAddresses()

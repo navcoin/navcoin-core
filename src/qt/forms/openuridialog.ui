@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>564</width>
-    <height>131</height>
+    <height>144</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Open URI</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -36,8 +36,7 @@
      <item>
       <widget class="QValidatedLineEdit" name="uriEdit">
        <property name="styleSheet">
-        <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
+        <string notr="true"/>
        </property>
       </widget>
      </item>
@@ -47,7 +46,7 @@
         <string>Select payment request file</string>
        </property>
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string notr="true">…</string>
@@ -75,7 +74,7 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="styleSheet">
-      <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+      <string notr="true"/>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

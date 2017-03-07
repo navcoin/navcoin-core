@@ -11,8 +11,7 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0
-</string>
+   <string notr="true"/>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <property name="spacing">
@@ -56,7 +55,7 @@
         </size>
        </property>
        <property name="pixmap">
-        <pixmap resource="../navcoin.qrc">:/icons/navcoin</pixmap>
+        <pixmap>:/icons/navcoin</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -83,7 +82,7 @@
      <item>
       <widget class="QTextEdit" name="helpMessage">
        <property name="styleSheet">
-        <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
+        <string notr="true"/>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -106,8 +105,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>636</width>
-          <height>106</height>
+          <width>718</width>
+          <height>111</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -153,7 +152,7 @@
      <item>
       <widget class="QDialogButtonBox" name="okButton">
        <property name="styleSheet">
-        <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+        <string notr="true"/>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -167,9 +166,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>okButton</sender>

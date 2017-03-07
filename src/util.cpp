@@ -604,7 +604,6 @@ void RemoveConfigFile(std::string key, std::string value)
     outStream << configBuffer;
     outStream.close();
 }
-
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {

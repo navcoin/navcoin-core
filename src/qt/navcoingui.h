@@ -91,6 +91,7 @@ private:
     QLabel *labelEncryptionIcon;
     QLabel *labelConnectionsIcon;
     QLabel *labelBlocksIcon;
+    QLabel *labelStakingIcon;
     QLabel *progressBarLabel;
     QProgressBar *progressBar;
     QProgressDialog *progressDialog;
@@ -117,6 +118,8 @@ private:
     QAction *openRPCConsoleAction;
     QAction *openAction;
     QAction *showHelpMessageAction;
+    QAction *unlockWalletAction;
+    QAction *lockWalletAction;
     QPushButton *topMenu1;
     QPushButton *topMenu2;
     QPushButton *topMenu3;
@@ -131,6 +134,8 @@ private:
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
     int spinnerFrame;
+
+    uint64_t nWeight;
 
     const PlatformStyle *platformStyle;
 
@@ -152,6 +157,10 @@ private:
     void subscribeToCoreSignals();
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
+
+
+    void updateWeight();
+
 
 Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
@@ -195,6 +204,7 @@ private Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    void gotoRequestPaymentPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -203,6 +213,8 @@ private Q_SLOTS:
 
     /** Show open dialog */
     void openClicked();
+    /** Update Staking status **/
+    void updateStakingStatus();
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
     void optionsClicked();

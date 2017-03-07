@@ -105,7 +105,9 @@ QT_FORMS_UI = \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
   qt/forms/signverifymessagedialog.ui \
-  qt/forms/transactiondescdialog.ui
+  qt/forms/transactiondescdialog.ui \
+  qt/navtechinit.ui \
+  qt/getaddresstoreceive.ui
 
 QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
@@ -125,6 +127,8 @@ QT_MOC_CPP = \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
   qt/moc_macnotificationhandler.cpp \
+  qt/moc_navtechinit.cpp \
+  qt/moc_getaddresstoreceive.cpp \
   qt/moc_notificator.cpp \
   qt/moc_openuridialog.cpp \
   qt/moc_optionsdialog.cpp \
@@ -192,6 +196,8 @@ NAVCOIN_QT_H = \
   qt/intro.h \
   qt/macdockiconhandler.h \
   qt/macnotificationhandler.h \
+  qt/navtechinit.h \
+  qt/getaddresstoreceive.h \ 
   qt/networkstyle.h \
   qt/notificator.h \
   qt/openuridialog.h \
@@ -211,6 +217,7 @@ NAVCOIN_QT_H = \
   qt/sendcoinsdialog.h \
   qt/sendcoinsentry.h \
   qt/signverifymessagedialog.h \
+  qt/skinize.h \
   qt/splashscreen.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
@@ -286,6 +293,8 @@ NAVCOIN_QT_CPP = \
   qt/navcoinamountfield.cpp \
   qt/navcoingui.cpp \
   qt/navcoinunits.cpp \
+  qt/navtechinit.cpp \
+  qt/getaddresstoreceive.cpp \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
   qt/guiutil.cpp \
@@ -299,6 +308,7 @@ NAVCOIN_QT_CPP = \
   qt/qvalidatedlineedit.cpp \
   qt/qvaluecombobox.cpp \
   qt/rpcconsole.cpp \
+  qt/skinize.cpp \
   qt/splashscreen.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp

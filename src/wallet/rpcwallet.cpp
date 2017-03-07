@@ -12,6 +12,7 @@
 #include "net.h"
 #include "netbase.h"
 #include "policy/rbf.h"
+#include "pos.h"
 #include "rpc/server.h"
 #include "timedata.h"
 #include "util.h"
@@ -77,6 +78,7 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     entry.push_back(Pair("walletconflicts", conflicts));
     entry.push_back(Pair("time", wtx.GetTxTime()));
     entry.push_back(Pair("timereceived", (int64_t)wtx.nTimeReceived));
+    entry.push_back(Pair("anon-destination", wtx.strDZeel));
 
     // Add opt-in RBF status
     std::string rbfStatus = "no";
@@ -336,7 +338,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "")
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -372,9 +374,9 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 2 || params.size() > 5)
+    if (fHelp || params.size() < 2 || params.size() > 6)
         throw runtime_error(
-            "sendtoaddress \"navcoinaddress\" amount ( \"comment\" \"comment-to\" subtractfeefromamount )\n"
+            "sendtoaddress \"navcoinaddress\" amount ( \"comment\" \"comment-to\" \"anon-destination\" subtractfeefromamount )\n"
             "\nSend an amount to a given address.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -414,13 +416,18 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     if (params.size() > 3 && !params[3].isNull() && !params[3].get_str().empty())
         wtx.mapValue["to"]      = params[3].get_str();
 
+    std::string strDZeel;
+
+    if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
+        strDZeel = params[4].get_str();
+
     bool fSubtractFeeFromAmount = false;
-    if (params.size() > 4)
-        fSubtractFeeFromAmount = params[4].get_bool();
+    if (params.size() > 5)
+        fSubtractFeeFromAmount = params[5].get_bool();
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
 
     return wtx.GetHash().GetHex();
 }
@@ -2567,6 +2574,181 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
     return result;
 }
 
+// ///////////////////////////////////////////////////////////////////// ** em52
+//  new rpc added by Remy5
+
+struct StakePeriodRange_T {
+    int64_t Start;
+    int64_t End;
+    int64_t Total;
+    int Count;
+    std::string Name;
+};
+
+typedef std::vector<StakePeriodRange_T> vStakePeriodRange_T;
+
+// **em52: Get total coins staked on given period
+// inspired from CWallet::GetStake()
+// Parameter aRange = Vector with given limit date, and result
+// return int =  Number of Wallet's elements analyzed
+int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
+{
+    int nElement = 0;
+    int64_t nAmount = 0;
+
+    const CWalletTx* pcoin;
+
+    vStakePeriodRange_T::iterator vIt;
+
+    // scan the entire wallet transactions
+    for (map<uint256, CWalletTx>::const_iterator it = pwalletMain->mapWallet.begin();
+         it != pwalletMain->mapWallet.end();
+         ++it)
+    {
+        pcoin = &(*it).second;
+
+        // skip orphan block or immature
+        if  ((!pcoin->GetDepthInMainChain()) || (pcoin->GetBlocksToMaturity()>0))
+            continue;
+
+        // skip transaction other than POS block
+        if (!(pcoin->IsCoinStake()))
+            continue;
+
+        nElement++;
+
+        // use the cached amount if available
+        if (pcoin->fCreditCached && pcoin->fDebitCached)
+            nAmount = pcoin->nCreditCached - pcoin->nDebitCached;
+        else
+            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_SPENDABLE);
+
+
+        // scan the range
+        for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)
+        {
+            if (pcoin->nTime >= vIt->Start)
+            {
+                if (! vIt->End)
+                {   // Manage Special case
+                    vIt->Start = pcoin->nTime;
+                    vIt->Total = nAmount;
+                }
+                else if (pcoin->nTime <= vIt->End)
+                {
+                    vIt->Count++;
+                    vIt->Total += nAmount;
+                }
+            }
+        }
+
+    }
+
+    return nElement;
+}
+
+
+// prepare range for stake report
+vStakePeriodRange_T PrepareRangeForStakeReport()
+{
+    vStakePeriodRange_T aRange;
+    StakePeriodRange_T x;
+
+    struct tm Loc_MidNight;
+
+    int64_t n1Hour = 60*60;
+    int64_t n1Day = 24 * n1Hour;
+
+    int64_t nToday = GetTime();
+    time_t CurTime = nToday;
+
+    localtime_r(&CurTime, &Loc_MidNight);
+    Loc_MidNight.tm_hour = 0;
+    Loc_MidNight.tm_min = 0;
+    Loc_MidNight.tm_sec = 0;  // set midnight
+
+    x.Start = mktime(&Loc_MidNight);
+    x.End   = nToday;
+    x.Count = 0;
+    x.Total = 0;
+
+    // prepare last single 30 day Range
+    for(int i=0; i<30; i++)
+    {
+
+        x.Name = DateTimeStrFormat("%Y-%m-%d %H:%M:%S",x.Start);
+
+        aRange.push_back(x);
+
+        x.End    = x.Start - 1;
+        x.Start -= n1Day;
+
+    }
+
+    // prepare subtotal range of last 24H, 1 week, 30 days, 1 years
+    int GroupDays[4][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}};
+    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days" };
+
+    nToday = GetTime();
+
+    for(int i=0; i<4; i++)
+    {
+        x.Start = nToday - GroupDays[i][0] * n1Day;
+        x.End   = nToday - GroupDays[i][1] * n1Day;
+        x.Name = "Last " + sGroupName[i];
+
+        aRange.push_back(x);
+    }
+
+    // Special case. not a subtotal, but last stake
+    x.End  = 0;
+    x.Start = 0;
+    x.Name = "Latest Stake";
+    aRange.push_back(x);
+
+
+return aRange;
+}
+
+
+// getstakereport: return SubTotal of the staked coin in last 24H, 7 days, etc.. of all owns address
+UniValue getstakereport(const UniValue& params, bool fHelp)
+{
+    if ((params.size()>0) || (fHelp))
+        throw runtime_error(
+            "getstakereport\n"
+            "List last single 30 day stake subtotal and last 24h, 7, 30, 365 day subtotal.\n");
+
+    vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
+
+    // get subtotal calc
+    int64_t nTook = GetTimeMillis();
+    int nItemCounted = GetsStakeSubTotal(aRange);
+    nTook = GetTimeMillis() - nTook;
+
+    UniValue result(UniValue::VOBJ);
+
+    vStakePeriodRange_T::iterator vIt;
+
+    // report it
+    for(vIt = aRange.begin(); vIt != aRange.end(); vIt++)
+    {
+        result.push_back(Pair(vIt->Name, FormatMoney(vIt->Total).c_str()));
+    }
+
+    vIt--;
+    result.push_back(Pair("Latest Time",
+       vIt->Start ? DateTimeStrFormat("%Y-%m-%d %H:%M:%S",vIt->Start).c_str() :
+       "Never"));
+
+
+    // report element counted / time took
+    result.push_back(Pair("Stake counted", nItemCounted));
+    result.push_back(Pair("time took (ms)",  nTook ));
+
+    return  result;
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
 extern UniValue importaddress(const UniValue& params, bool fHelp);
@@ -2596,6 +2778,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true  },
     { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false },
     { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false },
+    { "wallet",             "getstakereport",           &getstakereport,           false },
     { "wallet",             "gettransaction",           &gettransaction,           false },
     { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false },
     { "wallet",             "getwalletinfo",            &getwalletinfo,            false },
