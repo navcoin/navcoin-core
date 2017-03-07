@@ -25,14 +25,6 @@ TESTS = test/unitester
 GENBIN = gen/gen$(BUILD_EXEEXT)
 GEN_SRCS = gen/gen.cpp
 
-$(GENBIN): gen/gen.cpp
-	@echo Building $@
-	$(AM_V_at)c++ -I$(top_srcdir)/include -o $@ $<
-
-gen: lib/univalue_escapes.h $(GENBIN)
-	@echo Updating $<
-	$(AM_V_at)$(GENBIN) > lib/univalue_escapes.h
-
 noinst_PROGRAMS = $(TESTS)
 
 TEST_DATA_DIR=test
