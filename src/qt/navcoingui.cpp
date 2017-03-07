@@ -225,7 +225,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     {
         QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
         connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
-        timerStakingIcon->start(20 * 1000);
+        timerStakingIcon->start(150 * 1000);
         updateStakingStatus();
     }
     else
@@ -330,9 +330,9 @@ void NavCoinGUI::createActions()
     connect(sendCoinsMenuAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
+    connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoRequestPaymentPage()));
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
+    connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoRequestPaymentPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
 #endif // ENABLE_WALLET
@@ -505,7 +505,7 @@ void NavCoinGUI::createToolBars()
         topMenu3 = new QPushButton(walletFrame->topMenu);
         topMenu3->setFixedSize(156,94);
         topMenu3->setObjectName("topMenu3");
-        connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoReceiveCoinsPage()));
+        connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
         topMenu3->move(469,0);
         topMenu3->setStyleSheet(
                     "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
@@ -788,6 +788,23 @@ void NavCoinGUI::gotoReceiveCoinsPage()
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
+}
+
+void NavCoinGUI::gotoRequestPaymentPage()
+{
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    receiveCoinsAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoRequestPaymentPage();
 }
 
 void NavCoinGUI::gotoSendCoinsPage(QString addr)
@@ -1391,6 +1408,8 @@ void NavCoinGUI::updateStakingStatus()
     updateWeight();
 
     if(walletFrame){
+
+
         if (!GetBoolArg("-staking",true))
         {
             walletFrame->setStakingStatus(tr("Staking is turned off."));
@@ -1447,6 +1466,12 @@ void NavCoinGUI::updateStakingStatus()
             else
                 walletFrame->setStakingStatus(tr("Not staking"));
         }
+
+//        vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
+//        int nItemCounted = GetsStakeSubTotal(aRange);
+//        if(ARRAYLEN(aRange) > 32){
+//            walletFrame->setStakingStats(FormatMoney(aRange[30].Total).c_str(),FormatMoney(aRange[31].Total).c_str(),FormatMoney(aRange[32].Total).c_str());
+//        }
     }
 
 }

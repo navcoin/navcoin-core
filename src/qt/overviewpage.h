@@ -54,6 +54,7 @@ public Q_SLOTS:
 
     void showLockStaking(bool status);
     void setStakingStatus(QString text);
+    void setStakingStats(QString day, QString week, QString month);
 
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);

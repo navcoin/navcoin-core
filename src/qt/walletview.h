@@ -20,6 +20,7 @@ class SendCoinsRecipient;
 class TransactionView;
 class WalletModel;
 class AddressBookPage;
+class getAddressToReceive;
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -63,6 +64,7 @@ private:
     QWidget *transactionsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
+    getAddressToReceive *requestPaymentPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
 
@@ -80,6 +82,7 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    void gotoRequestPaymentPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -126,6 +129,7 @@ public Q_SLOTS:
 
     void showLockStaking(bool status);
     void setStakingStatus(QString text);
+    void setStakingStats(QString day, QString week, QString month);
 
 Q_SIGNALS:
     /** Signal that we want to show the main window */
