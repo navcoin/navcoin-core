@@ -133,10 +133,9 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
       UniValue parsedResponse = this->ParseJSONResponse(readBuffer);
       UniValue type = find_value(parsedResponse, "type");
       UniValue data = find_value(parsedResponse, "data").get_obj();
-      UniValue hash = find_value(data, "md5");
 
-      if (type.get_str() != "SUCCESS" || !this->CheckHash(hash.get_str())) {
-          LogPrintf("Server retured bad response or hash not matched %s:%s\n", anonServers[randIndex].address, anonServers[randIndex].port);
+      if (type.get_str() != "SUCCESS") {
+          LogPrintf("Server retured bad response %s:%s\n", anonServers[randIndex].address, anonServers[randIndex].port);
           anonServers.erase(anonServers.begin()+randIndex);
           return this->FindAnonServer(anonServers, nValue);
       }
@@ -182,24 +181,6 @@ UniValue Navtech::ParseJSONResponse(string readBuffer) {
   } catch (const std::exception& e) {
     throw runtime_error("ParseJSONResponse exception");
   }
-}
-
-bool Navtech::CheckHash(string hash) {
-  bool hashMatched = false;
-
-  for (size_t i = 0; i < mapMultiArgs["-anonhash"].size(); i++) {
-      if (mapMultiArgs["-anonhash"][i] == hash) {
-          hashMatched = true;
-      }
-  }
-
-  for (size_t i = 0; i < vAddedAnonHashes.size(); i++) {
-      if (vAddedAnonHashes[i] == hash) {
-          hashMatched = true;
-      }
-  }
-
-  return hashMatched;
 }
 
 string Navtech::EncryptAddress(string address, string pubKeyStr) {

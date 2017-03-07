@@ -36,7 +36,6 @@ private:
     std::vector<anonServer> GetAnonServers();
     UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue);
     UniValue ParseJSONResponse(std::string readBuffer);
-    bool CheckHash(std::string hash);
     std::string EncryptAddress(std::string address, std::string pubKeyStr);
     int PublicEncrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted);
     RSA * CreateRSA(unsigned char * key, int isPublic);

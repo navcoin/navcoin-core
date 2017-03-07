@@ -824,7 +824,7 @@ else
 fi
 
 dnl univalue check
-AC_CHECK_LIB([curl],         [main],SSL_LIBS+=-lcurl, AC_MSG_ERROR(libcurl missing))
+
 if test x$system_univalue != xno ; then
   found_univalue=no
   if test x$use_pkgconfig = xyes; then
