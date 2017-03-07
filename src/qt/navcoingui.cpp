@@ -20,6 +20,8 @@
 #include "platformstyle.h"
 #include "rpcconsole.h"
 #include "utilitydialog.h"
+#include "walletmodel.h"
+#include "wallet/rpcwallet.h"
 
 #ifdef ENABLE_WALLET
 #include "walletframe.h"
@@ -60,6 +62,8 @@
 #include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QWidget>
+
 
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
@@ -1409,7 +1413,6 @@ void NavCoinGUI::updateStakingStatus()
 
     if(walletFrame){
 
-
         if (!GetBoolArg("-staking",true))
         {
             walletFrame->setStakingStatus(tr("Staking is turned off."));
@@ -1464,7 +1467,7 @@ void NavCoinGUI::updateStakingStatus()
             else if (!nWeight)
                 walletFrame->setStakingStatus(tr("Not staking because you don't have mature coins"));
             else
-                walletFrame->setStakingStatus(tr("Not staking"));
+                walletFrame->setStakingStatus(tr("Not staking, please wait"));
         }
 
 //        vStakePeriodRange_T aRange = PrepareRangeForStakeReport();

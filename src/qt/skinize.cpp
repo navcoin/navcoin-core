@@ -14,6 +14,7 @@ QString Skinize()
            "#frameFee { background: #eff1f4; border-radius: 2px; }"
            "#frame { background: #eff1f4; border-radius: 2px; }"
            "#frame2 { background: #eff1f4; border-radius: 2px; }"
+
            "#frameReceivingAddress { background: #eff1f4; border-radius: 2px; }"
            "QPushButton {  background: rgba(255,255,255,0.1); border: 1px solid #a9adc4; border-radius: 3px; padding: 6px; margin: 3px; text-transform: uppercase; color: #616998; font-weight: bold }"
            "QLineEdit { background: #fff; border-radius: 4px; border: 1px solid #7d7d7d; padding:5px }"

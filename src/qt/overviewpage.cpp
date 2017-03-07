@@ -159,6 +159,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
+    updateStakeReportNow();
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -301,6 +302,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(),
                    model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance());
         connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
+        connect(model, SIGNAL(balanceChanged(qint64, qint64, qint64, qint64)), this, SLOT(updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
@@ -349,4 +351,70 @@ void OverviewPage::updateAlerts(const QString &warnings)
 void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
+}
+
+using namespace boost;
+using namespace std;
+
+struct StakePeriodRange_T {
+    int64_t Start;
+    int64_t End;
+    int64_t Total;
+    int Count;
+    string Name;
+};
+
+typedef vector<StakePeriodRange_T> vStakePeriodRange_T;
+
+extern vStakePeriodRange_T PrepareRangeForStakeReport();
+extern int GetsStakeSubTotal(vStakePeriodRange_T& aRange);
+
+void OverviewPage::updateStakeReport(bool fImmediate=false)
+{
+    static vStakePeriodRange_T aRange;
+    int nItemCounted=0;
+
+    if (fImmediate) nLastReportUpdate = 0;
+
+    if (this->isHidden())
+        return;
+
+    int64_t nTook = GetTimeMillis();
+
+    // Skip report recalc if not immediate or before 5 minutes from last
+    if (GetTime() - nLastReportUpdate > 300)
+    {
+
+        aRange = PrepareRangeForStakeReport();
+
+        // get subtotal calc
+        nItemCounted = GetsStakeSubTotal(aRange);
+
+        nLastReportUpdate = GetTime();
+
+        nTook = GetTimeMillis() - nTook;
+
+    }
+
+    int64_t nTook2 = GetTimeMillis();
+
+    int i=30;
+
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
+
+    ui->label24hStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
+    ui->label7dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
+    ui->label30dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
+
+}
+
+
+void OverviewPage::updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64)
+{
+    OverviewPage::updateStakeReportNow();
+}
+
+void OverviewPage::updateStakeReportNow()
+{
+    updateStakeReport(true);
 }

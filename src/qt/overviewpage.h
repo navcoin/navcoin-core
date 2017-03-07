@@ -55,6 +55,9 @@ public Q_SLOTS:
     void showLockStaking(bool status);
     void setStakingStatus(QString text);
     void setStakingStats(QString day, QString week, QString month);
+    void updateStakeReportNow();
+    void updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64);
+
 
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
@@ -72,6 +75,8 @@ private:
 
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
+    qint64 nLastReportUpdate;
+    void updateStakeReport(bool fImmediate);
 
 private Q_SLOTS:
     void updateDisplayUnit();
