@@ -552,7 +552,6 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     ClearDatadirCache();
 }
 
-
 void WriteConfigFile(std::string key, std::string value)
 {
     bool alreadyInConfigFile = false;
@@ -605,7 +604,6 @@ void RemoveConfigFile(std::string key, std::string value)
     outStream << configBuffer;
     outStream.close();
 }
-
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {
