@@ -239,6 +239,14 @@ void OptionsDialog::on_okButton_clicked()
     updateDefaultProxyNets();
 }
 
+void OptionsDialog::on_openNavCoinConfButton_clicked()
+{
+      QMessageBox::information(this, tr("Configuration options"),
+            tr("The configuration is used to specify advanced user options less any command-line or Qt options. "
+            "Any command-line options will override this configuration file."));
+      GUIUtil::openNavCoinConf();
+ }
+
 void OptionsDialog::on_cancelButton_clicked()
 {
     reject();
