@@ -41,6 +41,13 @@ To create a tarball suitable for Gitian input, mount the dmg in OS X, then creat
   $ tar -C /Volumes/Xcode/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/ -czf MacOSX10.11.sdk.tar.gz MacOSX10.11.sdk
 ```
 
+Alternatively you can download the SDK from `phracker` github, and create a tar.gz file
+using the following commands:
+```
+wget https://github.com/phracker/MacOSX-SDKs/releases/download/MacOSX10.11.sdk/MacOSX10.11.sdk.tar.xz
+tar xvf MacOSX10.11.sdk.tar.xz 
+tar -czf MacOSX10.11.sdk.tar.gz MacOSX10.11.sdk
+```
 The Gitian descriptors build 2 sets of files: Linux tools, then Apple binaries
 which are created using these tools. The build process has been designed to
 avoid including the SDK's files in Gitian's outputs. All interim tarballs are

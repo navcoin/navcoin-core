@@ -16,7 +16,7 @@ Then install [Homebrew](http://brew.sh).
 Dependencies
 ----------------------
 
-    brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config protobuf --c++11 qt5 libevent
+    brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/versions/protobuf260 --c++11 qt5 libevent
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
@@ -86,6 +86,20 @@ Uncheck everything except Qt Creator during the installation process.
 8. Select the default "Desktop" kit and select "Clang (x86 64bit in /usr/bin)" as compiler
 9. Select LLDB as debugger (you might need to set the path to your installation)
 10. Start debugging with Qt Creator
+
+QT and Mac OS Sierra
+--------------------
+
+Installing QT through brew in MacOS Sierra could fail during compilation.
+
+https://github.com/Homebrew/homebrew-core/pull/9297
+
+Use the following commands to install Qt 5.7 under MacOS Sierra using a different formula.
+
+    chown root /usr/local/bin/brew
+    sudo brew update
+    sudo chown -R $USER /usr/local
+    brew install qt@5.7
 
 Notes
 -----
