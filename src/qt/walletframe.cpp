@@ -80,6 +80,8 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
 
     // Ensure a walletView is able to show the main window
     connect(walletView, SIGNAL(showNormalIfMinimized()), gui, SLOT(showNormalIfMinimized()));
+    connect(walletView, SIGNAL(openAddressHistory()), this, SLOT(usedReceivingAddresses()));
+
 
     return true;
 }
@@ -158,6 +160,13 @@ void WalletFrame::setStatusTitleConnections(QString text)
         i.value()->setStatusTitleConnections(text);
 }
 
+void WalletFrame::setStakingStats(QString day, QString week, QString month)
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->setStakingStats(day,week,month);
+}
+
 void WalletFrame::showStatusTitleConnections()
 {
     QMap<QString, WalletView*>::const_iterator i;
@@ -212,6 +221,13 @@ void WalletFrame::gotoReceiveCoinsPage()
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoReceiveCoinsPage();
+}
+
+void WalletFrame::gotoRequestPaymentPage()
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoRequestPaymentPage();
 }
 
 void WalletFrame::gotoSendCoinsPage(QString addr)

@@ -65,11 +65,14 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    void gotoRequestPaymentPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
+
+
 
     /** Encrypt the wallet */
     void encryptWallet(bool status);
@@ -96,6 +99,7 @@ public Q_SLOTS:
     void showLockStaking(bool status);
 
     void setStakingStatus(QString text);
+    void setStakingStats(QString day, QString week, QString month);
 
     /** Show used sending addresses */
     void usedSendingAddresses();

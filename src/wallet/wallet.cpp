@@ -1422,9 +1422,20 @@ void CWallet::MarkConflicted(const uint256& hashBlock, const uint256& hashTx)
     }
 }
 
-void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, const CBlock* pblock)
+void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, const CBlock* pblock, bool fConnect)
 {
     LOCK2(cs_main, cs_wallet);
+
+    if (!fConnect)
+    {
+        // wallets need to refund inputs when disconnecting coinstake
+        if (tx.IsCoinStake())
+        {
+            if (IsFromMe(tx))
+                AbandonTransaction(tx.hash);
+        }
+        return;
+    }
 
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
         return; // Not one of ours
