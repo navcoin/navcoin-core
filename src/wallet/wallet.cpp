@@ -2812,6 +2812,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     return false;
                 }
 
+                LogPrintf("fee es %llud necesitamos %llud\n",nFeeRet,nFeeNeeded);
+
                 if (nFeeRet >= nFeeNeeded)
                     break; // Done, enough fee included.
 
