@@ -291,6 +291,17 @@ void copyEntryData(QAbstractItemView *view, int column, int role)
     }
 }
 
+void openNavCoinConf()
+{
+     boost::filesystem::path pathConfig = GetConfigFile();
+
+     /* Create the file */
+     std::fstream fs(pathConfig.c_str(), std::fstream::app);
+     fs.close();
+     /* Open bitcoin.conf with the associated application */
+     QDesktopServices::openUrl(QUrl::fromLocalFile(pathConfig.c_str()));
+}
+
 QString getEntryData(QAbstractItemView *view, int column, int role)
 {
     if(!view || !view->selectionModel())
