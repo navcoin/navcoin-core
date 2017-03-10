@@ -457,9 +457,9 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
 
 UniValue createrawtransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 2 || params.size() > 3)
+    if (fHelp || params.size() < 2 || params.size() > 4)
         throw runtime_error(
-            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} ( locktime )\n"
+            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] ( locktime )\n"
             "\nCreate a transaction spending the given inputs and creating new outputs.\n"
             "Outputs can be addresses or data.\n"
             "Returns hex-encoded raw transaction.\n"
@@ -482,7 +482,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             "      \"data\": \"hex\",     (string, required) The key is \"data\", the value is hex encoded data\n"
             "      ...\n"
             "    }\n"
-            "3. locktime                (numeric, optional, default=0) Raw locktime. Non-0 value also locktime-activates inputs\n"
+            "3. \"anon-destination\"  (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "4. locktime                (numeric, optional, default=0) Raw locktime. Non-0 value also locktime-activates inputs\n"
             "\nResult:\n"
             "\"transaction\"            (string) hex string of the transaction\n"
 
@@ -493,7 +494,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"data\\\":\\\"00010203\\\"}\"")
         );
 
-    RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VNUM), true);
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VSTR)(UniValue::VNUM), true);
     if (params[0].isNull() || params[1].isNull())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 and 2 must be non-null");
 
@@ -502,8 +503,13 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
     CMutableTransaction rawTx;
 
-    if (params.size() > 2 && !params[2].isNull()) {
-        int64_t nLockTime = params[2].get_int64();
+    if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty()) {
+      rawTx.strDZeel = params[2].get_str();
+      rawTx.nVersion = CTransaction::TXDZEEL_VERSION;
+    }
+
+    if (params.size() > 3 && !params[3].isNull()) {
+        int64_t nLockTime = params[3].get_int64();
         if (nLockTime < 0 || nLockTime > std::numeric_limits<uint32_t>::max())
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, locktime out of range");
         rawTx.nLockTime = nLockTime;
@@ -538,6 +544,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
         rawTx.vin.push_back(in);
     }
+
+    cout << "rawTx.ToString() " << rawTx.ToString() << "\n";
 
     set<CNavCoinAddress> setAddress;
     vector<string> addrList = sendTo.getKeys();

@@ -102,6 +102,9 @@ CCriticalSection cs_vOneShots;
 std::vector<std::string> vAddedNodes;
 CCriticalSection cs_vAddedNodes;
 
+std::vector<std::string> vAddedAnonServers;
+CCriticalSection cs_vAddedAnonServers;
+
 NodeId nLastNodeId = 0;
 CCriticalSection cs_nLastNodeId;
 
