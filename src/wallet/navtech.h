@@ -31,7 +31,7 @@ struct navtechData {
 class Navtech
 {
 public:
-    navtechData CreateAnonTransaction(std::string address, CAmount nValue);
+    UniValue CreateAnonTransaction(std::string address, CAmount nValue = -1);
 private:
     std::vector<anonServer> GetAnonServers();
     UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue);

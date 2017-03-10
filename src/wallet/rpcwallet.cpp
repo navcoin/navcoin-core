@@ -475,9 +475,9 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     if (nAmount <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
 
-    navtechData navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount);
+    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount);
+    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
 
-    CNavCoinAddress serverNavAddress(navtechData.serverNavAddress);
     if (!serverNavAddress.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
 
@@ -494,9 +494,43 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(serverNavAddress.Get(), nAmount, fSubtractFeeFromAmount, wtx, navtechData.anonDestination);
+    SendMoney(serverNavAddress.Get(), nAmount, fSubtractFeeFromAmount, wtx, find_value(navtechData, "anondestination").get_str());
 
     return wtx.GetHash().GetHex();
+}
+
+UniValue getanondestination(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getanondestination \"navcoinaddress\"\n"
+            "\nGet the the encrypted anon destination and address to send to.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
+            "\nResult:\n"
+            "\"anondestination\"  (string) The encrypted information to attach to the transaction.\n"
+            "\"anonaddress\"  (string) The nav coin address to send the anon transaction to.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getanondestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address(params[0].get_str());
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
+    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str());
+
+    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
+    if (!serverNavAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
+
+    return navtechData;
 }
 
 
@@ -2694,6 +2728,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                 &sendmany,                 false },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
+    { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
     { "wallet",             "settxfee",                 &settxfee,                 true  },
     { "wallet",             "signmessage",              &signmessage,              true  },

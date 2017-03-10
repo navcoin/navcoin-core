@@ -26,7 +26,7 @@ static size_t CurlWriteResponse(void *contents, size_t size, size_t nmemb, void 
   return size * nmemb;
 }
 
-navtechData Navtech::CreateAnonTransaction(string address, CAmount nValue) {
+UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
 
   vector<anonServer> anonServers = this->GetAnonServers();
   UniValue serverData = this->FindAnonServer(anonServers, nValue);
@@ -38,9 +38,10 @@ navtechData Navtech::CreateAnonTransaction(string address, CAmount nValue) {
     UniValue addresses = find_value(serverData, "nav_addresses");
     UniValue addrArray = addresses.get_array();
 
-    navtechData navtechData;
-    navtechData.serverNavAddress = addrArray[0].get_str();
-    navtechData.anonDestination = encryptedAddress;
+    UniValue navtechData;
+    navtechData.setObject();
+    navtechData.pushKV("anondestination", encryptedAddress);
+    navtechData.pushKV("anonaddress", addrArray[0].get_str());
     return navtechData;
   } else {
     throw runtime_error("Unable to send NAVTech transaction, please try again");
@@ -139,21 +140,27 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
           anonServers.erase(anonServers.begin()+randIndex);
           return this->FindAnonServer(anonServers, nValue);
       }
+      if (nValue != -1) {
+        UniValue maxAmount = find_value(data, "max_amount");
+        UniValue minAmount = find_value(data, "min_amount");
+        int satoshiFactor = 100000000;
 
-      UniValue maxAmount = find_value(data, "max_amount");
-      UniValue minAmount = find_value(data, "min_amount");
-      int satoshiFactor = 100000000;
-
-      if (nValue/satoshiFactor > maxAmount.get_int() || nValue/satoshiFactor < minAmount.get_int()) {
-        LogPrintf("Transaction amount outside of specified range min_amount=%i max_amount=%i value=%i\n", minAmount.get_int(), maxAmount.get_int(), nValue/satoshiFactor);
-        anonServers.erase(anonServers.begin()+randIndex);
+        if (nValue/satoshiFactor > maxAmount.get_int() || nValue/satoshiFactor < minAmount.get_int()) {
+          LogPrintf("Transaction amount outside of specified range min_amount=%i max_amount=%i value=%i\n", minAmount.get_int(), maxAmount.get_int(), nValue/satoshiFactor);
+          anonServers.erase(anonServers.begin()+randIndex);
+          curl_easy_cleanup(curl);
+          curl_global_cleanup();
+          return this->FindAnonServer(anonServers, nValue);
+        }
         curl_easy_cleanup(curl);
         curl_global_cleanup();
-        return this->FindAnonServer(anonServers, nValue);
+        return data;
+      } else {
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+        return data;
       }
-      curl_easy_cleanup(curl);
-      curl_global_cleanup();
-      return data;
+
     }
   } else {
     curl_easy_cleanup(curl);
