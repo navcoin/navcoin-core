@@ -494,7 +494,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"data\\\":\\\"00010203\\\"}\"")
         );
 
-    RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VNUM), true);
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VSTR)(UniValue::VNUM), true);
     if (params[0].isNull() || params[1].isNull())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 and 2 must be non-null");
 
@@ -503,8 +503,10 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
     CMutableTransaction rawTx;
 
-    if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty())
-        rawTx.strDZeel = params[2].get_str();
+    if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty()) {
+      rawTx.strDZeel = params[2].get_str();
+      rawTx.nVersion = CTransaction::TXDZEEL_VERSION;
+    }
 
     if (params.size() > 3 && !params[3].isNull()) {
         int64_t nLockTime = params[3].get_int64();
@@ -542,6 +544,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
         rawTx.vin.push_back(in);
     }
+
+    cout << "rawTx.ToString() " << rawTx.ToString() << "\n";
 
     set<CNavCoinAddress> setAddress;
     vector<string> addrList = sendTo.getKeys();
