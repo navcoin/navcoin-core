@@ -271,6 +271,8 @@ RES_ICONS = \
   qt/res/icons/lock_open.png \
   qt/res/icons/open.png \
   qt/res/icons/overview.png \
+  qt/res/icons/power.png \
+  qt/res/icons/power_off.png \
   qt/res/icons/quit.png \
   qt/res/icons/receive.png \
   qt/res/icons/remove.png \
