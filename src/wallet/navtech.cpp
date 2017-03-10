@@ -42,6 +42,7 @@ UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
     navtechData.setObject();
     navtechData.pushKV("anondestination", encryptedAddress);
     navtechData.pushKV("anonaddress", addrArray[0].get_str());
+    navtechData.pushKV("anonfee", find_value(serverData, "transaction_fee"));
     return navtechData;
   } else {
     throw runtime_error("Unable to send NAVTech transaction, please try again");
