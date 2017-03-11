@@ -38,7 +38,10 @@ void navtechsetup::addNavtechServer()
 {
     QString serverToAdd = ui->addServerText->text();
 
-    serverToAdd.remove(QRegExp("[^a-zA-Z\\d\\s:\.]"));
+    if(serverToAdd == "")
+        return;
+
+    serverToAdd = serverToAdd.remove(' ').remove('\n').remove('\r').remove('\t');
 
     LOCK(cs_vAddedAnonServers);
     std::vector<std::string>::iterator it = vAddedAnonServers.begin();
@@ -73,6 +76,9 @@ void navtechsetup::reloadNavtechServers()
 void navtechsetup::removeNavtechServer()
 {
     QString serverToRemove = ui->serversListWidget->currentItem()->text();
+
+    if(serverToRemove == "")
+        return;
 
     QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Remove Navtech server"),
         tr("You are about to remove the following Navtech server: ") + "<br><br>" + serverToRemove + "<br><br>" + tr("Are you sure?"),
