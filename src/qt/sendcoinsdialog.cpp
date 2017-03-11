@@ -415,7 +415,7 @@ void SendCoinsDialog::clear()
 void SendCoinsDialog::showNavTechDialog()
 {
     NavTechInit* setupNavTech = new NavTechInit();
-    setupNavTech->ShowNavtechIntro();
+    setupNavTech->ShowNavtechIntro(false);
 }
 
 void SendCoinsDialog::reject()

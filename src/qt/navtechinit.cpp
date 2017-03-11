@@ -1,5 +1,6 @@
 #include "navtechinit.h"
 #include "ui_navtechinit.h"
+#include "net.h"
 #include "util.h"
 #include "skinize.h"
 
@@ -21,7 +22,7 @@ NavTechInit::~NavTechInit()
     delete ui;
 }
 
-void NavTechInit::ShowNavtechIntro()
+void NavTechInit::ShowNavtechIntro(bool exitAfter)
 {
     NavTechInit navtechinit;
     navtechinit.setWindowIcon(QIcon(":icons/navcoin"));
@@ -29,7 +30,10 @@ void NavTechInit::ShowNavtechIntro()
 
     if(!navtechinit.exec())
     {
-        exit(0);
+        if(exitAfter)
+            exit(0);
+        else
+            return;
     }
 
     QString ServersToAdd = navtechinit.GetServers();
@@ -39,7 +43,11 @@ void NavTechInit::ShowNavtechIntro()
         QString Server = ss.at(i);
         QString strippedServer = Server.remove(' ');
         if(strippedServer != "")
+        {
             WriteConfigFile("addanonserver",strippedServer.toStdString());
+            vAddedAnonServers.push_back(strippedServer.toStdString());
+
+        }
     }
 }
 
