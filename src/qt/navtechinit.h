@@ -15,7 +15,7 @@ public:
     explicit NavTechInit(QWidget *parent = 0);
     ~NavTechInit();
     QString GetServers();
-    void ShowNavtechIntro();
+    void ShowNavtechIntro(bool exitAfter = true);
 
 private:
     Ui::NavTechInit *ui;

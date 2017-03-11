@@ -599,8 +599,8 @@ void RemoveConfigFile(std::string key, std::string value)
 
     while (std::getline(streamConfig, line))
     {
-          if(line != key + "=" + value)
-              configBuffer += "\n" + line;
+          if(line != key + "=" + value && line != "")
+              configBuffer += line + "\n";
     }
 
     boost::filesystem::ofstream outStream(GetConfigFile());

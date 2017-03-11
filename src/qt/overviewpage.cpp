@@ -23,8 +23,8 @@
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
-#define DECORATION_SIZE 11
-#define NUM_ITEMS 4
+#define DECORATION_SIZE 17
+#define NUM_ITEMS 5
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -44,12 +44,12 @@ public:
 
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
         QRect mainRect = option.rect;
-        QRect decorationRect(mainRect.left(), mainRect.top()+DECORATION_SIZE+5, DECORATION_SIZE, DECORATION_SIZE);
+        QRect decorationRect(mainRect.left(), mainRect.top()+DECORATION_SIZE, DECORATION_SIZE, DECORATION_SIZE);
         int xspace = DECORATION_SIZE + 6;
         int ypad = 1;
         int halfheight = (mainRect.height() - 3*ypad - 4)/3 ;
         QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight*2, 150, DECORATION_SIZE);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, 250, DECORATION_SIZE);
+        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, 300, DECORATION_SIZE);
         QRect dateRect(mainRect.left() + xspace, mainRect.top()+ypad, 150, DECORATION_SIZE);
         icon = platformStyle->SingleColorIcon(icon);
         icon.paint(painter, decorationRect);
@@ -105,7 +105,7 @@ public:
 
     inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        return QSize(DECORATION_SIZE, DECORATION_SIZE*5.2 + 4);
+        return QSize(DECORATION_SIZE, DECORATION_SIZE*2.8 + 4);
     }
 
     int unit;

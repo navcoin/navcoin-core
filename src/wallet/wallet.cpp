@@ -1434,11 +1434,19 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
             if (IsFromMe(tx))
                 AbandonTransaction(tx.hash);
         }
+<<<<<<< HEAD
         return;
     }
 
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
         return; // Not one of ours
+=======
+    }
+
+    if(fConnect)
+        if (!AddToWalletIfInvolvingMe(tx, pblock, true))
+            return; // Not one of ours
+>>>>>>> #3-improve-gui
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be
@@ -2533,7 +2541,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
 }
 
 bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
-                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign)
+                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign, std::string strDZeel)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
@@ -2559,7 +2567,16 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     wtxNew.fTimeReceivedIsTxTime = true;
     wtxNew.nTime = GetAdjustedTime();
     wtxNew.BindWallet(this);
+
     CMutableTransaction txNew;
+
+    txNew.strDZeel = strDZeel;
+
+    if (strDZeel.length() > 0)
+      txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+
+    if (strDZeel.length() > 512)
+      txNew.strDZeel.resize(512);
 
     // Discourage fee sniping.
     //
