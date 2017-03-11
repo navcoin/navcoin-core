@@ -121,11 +121,14 @@
         <property name="toolTip">
          <string>Choose previously used address</string>
         </property>
+        <property name="styleSheet">
+         <string notr="true">border:0;background:transparent</string>
+        </property>
         <property name="text">
          <string/>
         </property>
         <property name="icon">
-         <iconset>
+         <iconset resource="../navcoin.qrc">
           <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
         </property>
         <property name="iconSize">
@@ -759,7 +762,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset>
+         <iconset resource="../navcoin.qrc">
           <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
         </property>
        </widget>
@@ -1304,7 +1307,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset>
+         <iconset resource="../navcoin.qrc">
           <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
         </property>
        </widget>
@@ -1379,6 +1382,8 @@
   <tabstop>payAmount_s</tabstop>
   <tabstop>deleteButton_s</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../navcoin.qrc"/>
+ </resources>
  <connections/>
 </ui>

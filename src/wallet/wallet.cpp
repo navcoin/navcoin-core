@@ -1436,8 +1436,9 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
         }
     }
 
-    if (!AddToWalletIfInvolvingMe(tx, pblock, true))
-        return; // Not one of ours
+    if(fConnect)
+        if (!AddToWalletIfInvolvingMe(tx, pblock, true))
+            return; // Not one of ours
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be

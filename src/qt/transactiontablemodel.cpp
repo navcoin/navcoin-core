@@ -574,7 +574,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         }
         break;
     case Qt::ToolTipRole:
-        return formatTooltip(rec);
+        return ""; //formatTooltip(rec);
     case Qt::TextAlignmentRole:
         return column_alignments[index.column()];
     case Qt::ForegroundRole:

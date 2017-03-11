@@ -69,7 +69,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>133</width>
+           <width>100</width>
            <height>20</height>
           </size>
          </property>
@@ -407,28 +407,6 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QPushButton" name="toggleStakingButton">
-               <property name="minimumSize">
-                <size>
-                 <width>25</width>
-                 <height>25</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>22</width>
-                 <height>22</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 0</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QLabel" name="label_11">
                <property name="font">
                 <font>
@@ -463,16 +441,38 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="unlockStakingButton">
+              <widget class="QPushButton" name="toggleStakingButton">
                <property name="minimumSize">
                 <size>
-                 <width>19</width>
+                 <width>25</width>
                  <height>25</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>19</width>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">border: 0</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="unlockStakingButton">
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>25</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>25</width>
                  <height>25</height>
                 </size>
                </property>
@@ -847,7 +847,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>123</width>
+           <width>100</width>
            <height>20</height>
           </size>
          </property>
