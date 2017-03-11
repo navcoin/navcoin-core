@@ -1434,7 +1434,6 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
             if (IsFromMe(tx))
                 AbandonTransaction(tx.hash);
         }
-        return;
     }
 
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
