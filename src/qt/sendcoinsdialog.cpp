@@ -14,6 +14,11 @@
 #include "platformstyle.h"
 #include "sendcoinsentry.h"
 #include "walletmodel.h"
+#include "wallet/navtech.h"
+#include "net.h"
+#include "util.h"
+#include "utilstrencodings.h"
+#include "navtechinit.h"
 
 #include "base58.h"
 #include "coincontrol.h"
@@ -21,6 +26,8 @@
 #include "ui_interface.h"
 #include "txmempool.h"
 #include "wallet/wallet.h"
+
+#include <stdexcept>
 
 #include <QMessageBox>
 #include <QScrollBar>
@@ -53,6 +60,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
 
     // Coin Control
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
+    connect(ui->noNavtechButton, SIGNAL(clicked()), this, SLOT(showNavTechDialog()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
 
@@ -110,6 +118,17 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     ui->customFee->setValue(settings.value("nTransactionFee").toLongLong());
     ui->checkBoxMinimumFee->setChecked(settings.value("fPayOnlyMinFee").toBool());
     minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
+
+    checkNavtechServers();
+}
+
+void SendCoinsDialog::checkNavtechServers()
+{
+    bool shouldShowWarning = vAddedAnonServers.size() < 1 && mapMultiArgs["-addanonserver"].size() < 1;
+
+    ui->noNavtechLabel->setVisible(shouldShowWarning);
+    ui->anonsendCheckbox->setVisible(!shouldShowWarning);
+    ui->anonsendCheckbox->setChecked(!shouldShowWarning);
 }
 
 void SendCoinsDialog::setClientModel(ClientModel *clientModel)
@@ -199,7 +218,42 @@ void SendCoinsDialog::on_sendButton_clicked()
         {
             if(entry->validate())
             {
-                recipients.append(entry->getValue());
+                SendCoinsRecipient recipient = entry->getValue();
+                if(ui->anonsendCheckbox->checkState() != 0) {
+                    try
+                    {
+                        Navtech navtech;
+
+                        UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount);
+
+                        CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
+                        if (!serverNavAddress.IsValid())
+                        {
+                            QMessageBox::warning(this, tr("Anonymous transaction"),
+                                                 "<qt>" +
+                                                 tr("Invalid Navcoin address provided by NAVTech server")+"</qt>");
+                            valid = false;
+                        }
+
+                        recipient.destaddress = QString::fromStdString(find_value(navtechData, "anonaddress").get_str());
+                        recipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
+                        recipient.anonfee = recipient.amount * (find_value(navtechData, "anonfee").get_real() / 100);
+                        recipient.isanon = true;
+                    }
+                    catch(const std::runtime_error &e)
+                    {
+                        QMessageBox::warning(this, tr("Anonymous transaction"),
+                                             "<qt>" +
+                                             tr(e.what())+"</qt>");
+                        valid = false;
+                    }
+                }
+                else
+                {
+                    recipient.isanon = false;
+                }
+
+                recipients.append(recipient);
             }
             else
             {
@@ -213,6 +267,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
+
     fNewRecipientAllowed = false;
     WalletModel::UnlockContext ctx(model->requestUnlock());
     if(!ctx.isValid())
@@ -224,6 +279,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // prepare transaction for getting txFee earlier
     WalletModelTransaction currentTransaction(recipients);
+
     WalletModel::SendCoinsReturn prepareStatus;
     if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
         prepareStatus = model->prepareTransaction(currentTransaction, CoinControlDialog::coinControl);
@@ -240,6 +296,9 @@ void SendCoinsDialog::on_sendButton_clicked()
     }
 
     CAmount txFee = currentTransaction.getTransactionFee();
+    CAmount anonfee;
+
+    QString questionString = tr("Are you sure you want to send?");
 
     // Format confirmation message
     QStringList formatted;
@@ -272,30 +331,39 @@ void SendCoinsDialog::on_sendButton_clicked()
         }
         else // unauthenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg(amount, address);
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Anon transaction :" : "") +amount, address);
         }
 
         formatted.append(recipientElement);
+
+        questionString.append("<br /><br />%1");
+
+        anonfee = rcp.isanon && !rcp.fSubtractFeeFromAmount ? rcp.anonfee : 0;
+
+        if(txFee + anonfee > 0)
+        {
+            // append fee string if a fee is required
+            questionString.append("<hr /><span style='color:#aa0000;'>");
+            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee + anonfee));
+            questionString.append("</span> ");
+            questionString.append(tr("added as transaction fee"));
+            if(rcp.fSubtractFeeFromAmount)
+            {
+                questionString.append(tr("The following fee will be deducted by the Navtech servers:"));
+                questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), anonfee));
+            }
+
+
+            // append transaction size
+            questionString.append(" (" + QString::number((double)currentTransaction.getTransactionSize() / 1000) + " kB)");
+        }
     }
 
-    QString questionString = tr("Are you sure you want to send?");
-    questionString.append("<br /><br />%1");
 
-    if(txFee > 0)
-    {
-        // append fee string if a fee is required
-        questionString.append("<hr /><span style='color:#aa0000;'>");
-        questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
-        questionString.append("</span> ");
-        questionString.append(tr("added as transaction fee"));
-
-        // append transaction size
-        questionString.append(" (" + QString::number((double)currentTransaction.getTransactionSize() / 1000) + " kB)");
-    }
 
     // add total amount in all subdivision units
     questionString.append("<hr />");
-    CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee;
+    CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee + anonfee;
     QStringList alternativeUnits;
     Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
     {
@@ -342,6 +410,12 @@ void SendCoinsDialog::clear()
     addEntry();
 
     updateTabsAndLabels();
+}
+
+void SendCoinsDialog::showNavTechDialog()
+{
+    NavTechInit* setupNavTech = new NavTechInit();
+    setupNavTech->ShowNavtechIntro();
 }
 
 void SendCoinsDialog::reject()
@@ -538,10 +612,18 @@ void SendCoinsDialog::minimizeFeeSection(bool fMinimize)
     ui->buttonMinimizeFee->setVisible(!fMinimize);
     ui->frameFeeSelection->setVisible(!fMinimize);
     ui->sendButton       ->setVisible(fMinimize);
-    ui->checkBox         ->setVisible(fMinimize);
     ui->label            ->setVisible(fMinimize);
     ui->labelBalance     ->setVisible(fMinimize);
+    ui->noNavtechButton  ->setVisible(fMinimize);
     ui->horizontalLayoutSmartFee->setContentsMargins(0, (fMinimize ? 0 : 6), 0, 0);
+
+    if(fMinimize)
+        checkNavtechServers();
+    else
+        ui->noNavtechLabel  ->setVisible(false);
+        ui->anonsendCheckbox->setVisible(false);
+
+
     fFeeMinimized = fMinimize;
 }
 

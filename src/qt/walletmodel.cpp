@@ -209,6 +209,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
     QSet<QString> setAddress; // Used to detect duplicates
     int nAddresses = 0;
 
+    QString anondestination;
+
     // Pre-check input data for validity
     Q_FOREACH(const SendCoinsRecipient &rcp, recipients)
     {
@@ -249,11 +251,14 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             setAddress.insert(rcp.address);
             ++nAddresses;
 
-            CScript scriptPubKey = GetScriptForDestination(CNavCoinAddress(rcp.address.toStdString()).Get());
-            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
+            CScript scriptPubKey = GetScriptForDestination(CNavCoinAddress(rcp.isanon ? rcp.destaddress.toStdString() : rcp.address.toStdString()).Get());
+            CRecipient recipient = {scriptPubKey, !rcp.fSubtractFeeFromAmount && rcp.isanon ? rcp.amount + rcp.anonfee: rcp.amount, rcp.fSubtractFeeFromAmount};
             vecSend.push_back(recipient);
 
-            total += rcp.amount;
+            if(rcp.isanon)
+                anondestination = rcp.anondestination;
+
+            total += !rcp.fSubtractFeeFromAmount && rcp.isanon ? rcp.amount + rcp.anonfee: rcp.amount;
         }
     }
     if(setAddress.size() != nAddresses)
@@ -279,7 +284,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
         CWalletTx *newTx = transaction.getTransaction();
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
-        bool fCreated = wallet->CreateTransaction(vecSend, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl);
+        bool fCreated = wallet->CreateTransaction(vecSend, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true, anondestination.toStdString());
         transaction.setTransactionFee(nFeeRequired);
         if (fSubtractFeeFromAmount && fCreated)
             transaction.reassignAmounts(nChangePosRet);

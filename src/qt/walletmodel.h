@@ -48,10 +48,15 @@ public:
     // payment requests, we can abuse it for displaying an address list.
     // Todo: This is a hack, should be replaced with a cleaner solution!
     QString address;
+    QString plainaddress;
     QString label;
     CAmount amount;
     // If from a payment request, this is used for storing the memo
     QString message;
+    QString anondestination;
+    QString destaddress;
+    CAmount anonfee;
+    bool isanon;
 
     // If from a payment request, paymentRequest.IsInitialized() will be true
     PaymentRequestPlus paymentRequest;
