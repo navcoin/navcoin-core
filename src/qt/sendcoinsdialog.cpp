@@ -16,9 +16,11 @@
 #include "walletmodel.h"
 #include "wallet/navtech.h"
 #include "net.h"
+#include "skinize.h"
 #include "util.h"
 #include "utilstrencodings.h"
 #include "navtechinit.h"
+#include "navtechsetup.h"
 
 #include "base58.h"
 #include "coincontrol.h"
@@ -414,8 +416,13 @@ void SendCoinsDialog::clear()
 
 void SendCoinsDialog::showNavTechDialog()
 {
-    NavTechInit* setupNavTech = new NavTechInit();
-    setupNavTech->ShowNavtechIntro(false);
+    navtechsetup* setupNavTech = new navtechsetup();
+    setupNavTech->setWindowIcon(QIcon(":icons/navcoin"));
+    setupNavTech->setStyleSheet(Skinize());
+
+    setupNavTech->exec();
+
+    checkNavtechServers();
 }
 
 void SendCoinsDialog::reject()
