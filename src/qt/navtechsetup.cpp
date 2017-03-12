@@ -161,7 +161,7 @@ void navtechsetup::getinfoNavtechServer()
 
             if (type != "SUCCESS") {
                 QMessageBox::critical(this, windowTitle(),
-                    tr("Could not connect to the server."),
+                    tr("Could not connect to the server.") + "<br><br>" + rawReply.toUtf8(),
                     QMessageBox::Ok, QMessageBox::Ok);
             }
 

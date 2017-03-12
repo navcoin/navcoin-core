@@ -240,60 +240,78 @@ NAVCOIN_QT_H = \
   qt/winshutdownmonitor.h
 
 RES_ICONS = \
-  qt/res/icons/add.png \
-  qt/res/icons/address-book.png \
-  qt/res/icons/about.png \
-  qt/res/icons/about_qt.png \
-  qt/res/icons/navcoin.ico \
-  qt/res/icons/navcoin_testnet.ico \
   qt/res/icons/navcoin.png \
-  qt/res/icons/chevron.png \
-  qt/res/icons/clock1.png \
-  qt/res/icons/clock2.png \
-  qt/res/icons/clock3.png \
-  qt/res/icons/clock4.png \
-  qt/res/icons/clock5.png \
-  qt/res/icons/configure.png \
+  qt/res/icons/address-book.png \
+  qt/res/icons/quit.png \
+  qt/res/icons/send.png \
   qt/res/icons/connect0.png \
   qt/res/icons/connect1.png \
   qt/res/icons/connect2.png \
   qt/res/icons/connect3.png \
   qt/res/icons/connect4.png \
-  qt/res/icons/debugwindow.png \
-  qt/res/icons/edit.png \
-  qt/res/icons/editcopy.png \
-  qt/res/icons/editpaste.png \
-  qt/res/icons/export.png \
-  qt/res/icons/eye.png \
-  qt/res/icons/eye_minus.png \
-  qt/res/icons/eye_plus.png \
-  qt/res/icons/filesave.png \
-  qt/res/icons/fontbigger.png \
-  qt/res/icons/fontsmaller.png \
-  qt/res/icons/history.png \
-  qt/res/icons/info.png \
-  qt/res/icons/key.png \
-  qt/res/icons/lock_closed.png \
-  qt/res/icons/lock_open.png \
-  qt/res/icons/open.png \
-  qt/res/icons/overview.png \
-  qt/res/icons/power.png \
-  qt/res/icons/power_off.png \
-  qt/res/icons/quit.png \
-  qt/res/icons/receive.png \
-  qt/res/icons/remove.png \
-  qt/res/icons/send.png \
-  qt/res/icons/synced.png \
   qt/res/icons/transaction0.png \
   qt/res/icons/transaction2.png \
   qt/res/icons/transaction_conflicted.png \
-  qt/res/icons/tx_inout.png \
+  qt/res/icons/clock1.png \
+  qt/res/icons/clock2.png \
+  qt/res/icons/clock3.png \
+  qt/res/icons/clock4.png \
+  qt/res/icons/clock5.png \
+  qt/res/icons/eye.png \
+  qt/res/icons/eye_minus.png \
+  qt/res/icons/eye_plus.png \
+  qt/res/icons/configure.png \
+  qt/res/icons/receive.png \
+  qt/res/icons/editpaste.png \
+  qt/res/icons/editcopy.png \
+  qt/res/icons/add.png \
+  qt/res/icons/edit.png \
+  qt/res/icons/history.png \
+  qt/res/icons/overview.png \
+  qt/res/icons/export.png \
+  qt/res/icons/synced.png \
+  qt/res/icons/remove.png \
+  qt/res/icons/tx_mined.png \
   qt/res/icons/tx_input.png \
   qt/res/icons/tx_output.png \
-  qt/res/icons/tx_mined.png \
-  qt/res/icons/warning.png \
+  qt/res/icons/tx_inout.png \
+  qt/res/icons/lock_closed.png \
+  qt/res/icons/lock_open.png \
+  qt/res/icons/key.png \
+  qt/res/icons/filesave.png \
+  qt/res/icons/splash.png \
+  qt/res/icons/debugwindow.png \
+  qt/res/icons/open.png \
+  qt/res/icons/info.png \
+  qt/res/icons/about.png \
+  qt/res/icons/about_qt.png \
   qt/res/icons/verify.png \
-  qt/res/icons/transaction_abandoned.png
+  qt/res/icons/warning.png \
+  qt/res/icons/fontbigger.png \
+  qt/res/icons/fontsmaller.png \
+  qt/res/icons/chevron.png \
+  qt/res/icons/transaction_abandoned.png \
+  qt/res/icons/logo_ns.png \
+  qt/res/icons/home_ns.png \
+  qt/res/icons/receive_ns.png \
+  qt/res/icons/send_ns.png \
+  qt/res/icons/home_hover.png \
+  qt/res/icons/home_s.png \
+  qt/res/icons/receive_hover.png \
+  qt/res/icons/receive_s.png \
+  qt/res/icons/send_hover.png \
+  qt/res/icons/send_s.png \
+  qt/res/icons/transaction_ns.png \
+  qt/res/icons/transaction_s.png \
+  qt/res/icons/transaction_hover.png \
+  qt/res/fonts/roboto.ttf \
+  qt/res/fonts/robotoregular.ttf \
+  qt/res/fonts/source.ttf \
+  qt/res/fonts/Roboto-Black.ttf \
+  qt/res/fonts/Roboto-Bold.ttf \
+  qt/res/fonts/Roboto-Medium.ttf \
+  qt/res/icons/power_off.png \
+  qt/res/icons/power.png
 
 NAVCOIN_QT_CPP = \
   qt/bantablemodel.cpp \

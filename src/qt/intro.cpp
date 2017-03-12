@@ -201,6 +201,7 @@ void Intro::pickDataDirectory()
                     //Try to copy old wallet
                     boost::filesystem::detail::copy_file(GUIUtil::qstringToBoostPath(oldWallet),GUIUtil::qstringToBoostPath(dataDir + "/wallet.dat"),boost::filesystem::detail::none);
                 }
+                SoftSetArg("-zapwallettxes","2");
                 NavTechInit* setupNavTech = new NavTechInit();
                 setupNavTech->ShowNavtechIntro();
                 break;
