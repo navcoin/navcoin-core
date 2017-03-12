@@ -239,7 +239,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
                         recipient.destaddress = QString::fromStdString(find_value(navtechData, "anonaddress").get_str());
                         recipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
-                        recipient.anonfee = recipient.amount * (find_value(navtechData, "anonfee").get_real() / 100);
+                        recipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_int() / 100);
                         recipient.isanon = true;
                     }
                     catch(const std::runtime_error &e)
