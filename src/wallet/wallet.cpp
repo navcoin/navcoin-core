@@ -1434,19 +1434,11 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
             if (IsFromMe(tx))
                 AbandonTransaction(tx.hash);
         }
-<<<<<<< HEAD
-        return;
-    }
-
-    if (!AddToWalletIfInvolvingMe(tx, pblock, true))
-        return; // Not one of ours
-=======
     }
 
     if(fConnect)
         if (!AddToWalletIfInvolvingMe(tx, pblock, true))
             return; // Not one of ours
->>>>>>> #3-improve-gui
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be
