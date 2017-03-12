@@ -39,12 +39,18 @@
      <number>15</number>
     </property>
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="topLabel">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
       </property>
       <property name="maximumSize">
        <size>
@@ -53,7 +59,10 @@
        </size>
       </property>
       <property name="text">
-       <string>List of Navtech Servers:</string>
+       <string>Choose which servers your Nav Coin wallet will use for sending anonymous transactions.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -110,6 +119,13 @@
        <widget class="QPushButton" name="addNewButton">
         <property name="text">
          <string>Add new</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="saveButton">
+        <property name="text">
+         <string>Save</string>
         </property>
        </widget>
       </item>

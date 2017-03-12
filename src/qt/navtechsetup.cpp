@@ -2,6 +2,7 @@
 #include "navtechitem.h"
 #include "ui_navtechsetup.h"
 #include "net.h"
+#include "skinize.h"
 #include "util.h"
 
 #include <QVBoxLayout>
@@ -19,12 +20,15 @@ navtechsetup::navtechsetup(QWidget *parent) :
     ui->getInfoButton->setVisible(false);
     ui->removeButton->setVisible(false);
 
+    ui->saveButton->setVisible(false);
+
     this->setWindowTitle("Navtech");
 
     connect(ui->addNewButton,SIGNAL(clicked()),this,SLOT(addNavtechServer()));
     connect(ui->getInfoButton,SIGNAL(clicked()),this,SLOT(getinfoNavtechServer()));
     connect(ui->removeButton,SIGNAL(clicked()),this,SLOT(removeNavtechServer()));
     connect(ui->serversListWidget,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(showButtons()));
+    connect(ui->saveButton,SIGNAL(clicked()),this,SLOT(close()));
 
     reloadNavtechServers();
 }
@@ -71,6 +75,16 @@ void navtechsetup::reloadNavtechServers()
     BOOST_FOREACH(std::string vAddedAnonServer, vAddedAnonServers) {
         ui->serversListWidget->addItem(QString::fromStdString(vAddedAnonServer));
     }
+}
+
+void navtechsetup::showNavtechIntro()
+{
+    setWindowIcon(QIcon(":icons/navcoin"));
+    setStyleSheet(Skinize());
+
+    ui->saveButton->setVisible(true);
+
+    exec();
 }
 
 void navtechsetup::removeNavtechServer()

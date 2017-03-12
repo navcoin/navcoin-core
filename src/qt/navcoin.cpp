@@ -7,7 +7,7 @@
 #endif
 
 #include "navcoingui.h"
-#include "navtechinit.h"
+#include "navtechsetup.h"
 
 #include "chainparams.h"
 #include "clientmodel.h"
@@ -604,6 +604,12 @@ int main(int argc, char *argv[])
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
                               QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
         return false;
+    }
+
+    if(GetArg("-firstrun","0") == "1")
+    {
+        navtechsetup* setupNavTech = new navtechsetup();
+        setupNavTech->showNavtechIntro();
     }
 
     /// 7. Determine network (and switch to network specific options)
