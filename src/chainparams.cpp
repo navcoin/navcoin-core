@@ -148,6 +148,10 @@ public:
       	vSeeds.clear();
 
         vSeeds.push_back(CDNSSeedData("supernode.navcoin.org", "95.183.51.56"));
+        vSeeds.push_back(CDNSSeedData("navtech1.navcoin.org", "95.183.52.55"));
+        vSeeds.push_back(CDNSSeedData("navtech2.navcoin.org", "95.183.52.28"));
+        vSeeds.push_back(CDNSSeedData("navtech3.navcoin.org", "95.183.52.29"));
+        vSeeds.push_back(CDNSSeedData("navtech4.navcoin.org", "95.183.53.184"));
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
