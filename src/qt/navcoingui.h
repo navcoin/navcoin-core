@@ -104,6 +104,7 @@ private:
     QAction *sendCoinsMenuAction;
     QAction *usedSendingAddressesAction;
     QAction *usedReceivingAddressesAction;
+    QAction *repairWalletAction;
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
@@ -215,6 +216,9 @@ private Q_SLOTS:
     void openClicked();
     /** Update Staking status **/
     void updateStakingStatus();
+
+    /** Repairs wallet **/
+    void repairWallet();
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
     void optionsClicked();

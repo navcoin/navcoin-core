@@ -104,6 +104,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     sendCoinsMenuAction(0),
     usedSendingAddressesAction(0),
     usedReceivingAddressesAction(0),
+    repairWalletAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -235,6 +236,16 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     else
     {
         walletFrame->setStakingStatus(tr("Staking is turned off."));
+    }
+
+    if (GetArg("-zapwallettxes",0) == 2 && GetArg("-repairwallet",0) == 1)
+    {
+        RemoveConfigFile("zapwallettxes","2");
+        RemoveConfigFile("repairwallet","1");
+
+        QMessageBox::information(this, tr("Repair wallet"),
+            tr("Wallet has been repaired."),
+            QMessageBox::Ok, QMessageBox::Ok);
     }
 
     // Progress bar and label for blocks download
@@ -382,6 +393,8 @@ void NavCoinGUI::createActions()
     usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
     usedReceivingAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("&Receiving addresses..."), this);
     usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
+    repairWalletAction = new QAction(tr("&Repair wallet"), this);
+    repairWalletAction->setToolTip(tr("Repair wallet transactions"));
 
     openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
@@ -412,6 +425,7 @@ void NavCoinGUI::createActions()
         connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
         connect(usedSendingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedSendingAddresses()));
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
+        connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -441,6 +455,8 @@ void NavCoinGUI::createMenuBar()
         file->addSeparator();
         file->addAction(usedSendingAddressesAction);
         file->addAction(usedReceivingAddressesAction);
+        file->addSeparator();
+        file->addAction(repairWalletAction);
         file->addSeparator();
     }
     file->addAction(quitAction);
@@ -615,6 +631,21 @@ void NavCoinGUI::removeAllWallets()
     setWalletActionsEnabled(false);
     walletFrame->removeAllWallets();
 }
+
+void NavCoinGUI::repairWallet()
+{
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Repair wallet"),
+        tr("Client restart required to repair the wallet.") + "<br><br>" + tr("Client will be shut down. Do you want to proceed?"),
+        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if(btnRetVal == QMessageBox::Cancel)
+        return;
+
+    WriteConfigFile("zapwallettxes","2");
+    WriteConfigFile("repairwallet","1");
+
+    QApplication::quit();
+}
 #endif // ENABLE_WALLET
 
 void NavCoinGUI::setWalletActionsEnabled(bool enabled)
@@ -632,6 +663,7 @@ void NavCoinGUI::setWalletActionsEnabled(bool enabled)
     verifyMessageAction->setEnabled(enabled);
     usedSendingAddressesAction->setEnabled(enabled);
     usedReceivingAddressesAction->setEnabled(enabled);
+    repairWalletAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
 }
 
