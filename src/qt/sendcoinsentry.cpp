@@ -62,12 +62,6 @@ void SendCoinsEntry::updateAddressBook()
     ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
 }
 
-void SendCoinsEntry::on_pasteButton_clicked()
-{
-    // Paste text from clipboard into recipient field
-    ui->payTo->setText(QApplication::clipboard()->text());
-}
-
 void SendCoinsEntry::on_addressBookButton_clicked()
 {
     if(!model)

@@ -126,12 +126,12 @@ void navtechsetup::getinfoNavtechServer()
 
     QSslSocket *socket = new QSslSocket(this);
     socket->setPeerVerifyMode(socket->VerifyNone);
-    socket->connectToHostEncrypted(server.at(0), server.at(1).toInt());
+    socket->connectToHostEncrypted(server.at(0), server.at(0).toInt());
 
     if(!socket->waitForEncrypted())
     {
         QMessageBox::critical(this, windowTitle(),
-            tr("Could not connect to the server."),
+            tr("Could not stablish a connection to the server %1.").arg(server.at(0)),
             QMessageBox::Ok, QMessageBox::Ok);
     }
     else
@@ -146,12 +146,6 @@ void navtechsetup::getinfoNavtechServer()
         socket->write(reqString.toUtf8());
 
         while (socket->waitForReadyRead()){
-
-            while(socket->canReadLine()){
-                //read all the lines
-                QString line = socket->readLine();
-            }
-
             QString rawReply = socket->readAll();
 
             QJsonDocument jsonDoc =  QJsonDocument::fromJson(rawReply.toUtf8());
@@ -161,19 +155,18 @@ void navtechsetup::getinfoNavtechServer()
 
             if (type != "SUCCESS") {
                 QMessageBox::critical(this, windowTitle(),
-                    tr("Could not connect to the server.") + "<br><br>" + rawReply.toUtf8(),
+                    tr("Could not connect to the server.") + "<br><br>" + type + "<br><br>" + rawReply.toUtf8(),
+                    QMessageBox::Ok, QMessageBox::Ok);
+            } else {
+                QJsonObject jsonData = jsonObject["data"].toObject();
+                QString minAmount = jsonData["min_amount"].toString();
+                QString maxAmount = jsonData["max_amount"].toString();
+                QString txFee = jsonData["transaction_fee"].toString();
+
+                QMessageBox::critical(this, windowTitle(),
+                    tr("Navtech server") + "<br><br>" + tr("Address: ") + server.at(0) + "<br>" + tr("Min amount: ") + minAmount + " <br>" + tr("Max amount: ") + maxAmount + "<br>" + tr("Tx fee: ") + txFee,
                     QMessageBox::Ok, QMessageBox::Ok);
             }
-
-            QJsonObject jsonData = jsonObject["data"].toObject();
-            QString minAmount = jsonData["min_amount"].toString();
-            QString maxAmount = jsonData["max_amount"].toString();
-            QString txFee = jsonData["transaction_fee"].toString();
-
-            QMessageBox::critical(this, windowTitle(),
-                tr("Navtech server") + "<br><br>" + tr("Address: ") + server.at(0) + "<br>" + tr("Min amount: ") + minAmount + " <br>" + tr("Max amount: ") + maxAmount + "<br>" + tr("Tx fee: ") + txFee,
-                QMessageBox::Ok, QMessageBox::Ok);
         }
     }
-
 }

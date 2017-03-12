@@ -302,7 +302,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(),
                    model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance());
         connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
-        connect(model, SIGNAL(balanceChanged(qint64, qint64, qint64, qint64)), this, SLOT(updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64)));
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount,CAmount,CAmount)), this, SLOT(updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount,CAmount,CAmount)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
@@ -409,7 +409,7 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
 }
 
 
-void OverviewPage::updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64)
+void OverviewPage::updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64,qint64, qint64)
 {
     OverviewPage::updateStakeReportNow();
 }

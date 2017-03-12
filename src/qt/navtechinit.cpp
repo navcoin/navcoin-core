@@ -45,8 +45,6 @@ void NavTechInit::ShowNavtechIntro(bool exitAfter)
         if(strippedServer != "")
         {
             WriteConfigFile("addanonserver",strippedServer.toStdString());
-            vAddedAnonServers.push_back(strippedServer.toStdString());
-
         }
     }
 }
