@@ -5,12 +5,17 @@
 #include "skinize.h"
 #include "util.h"
 
+#include <curl/curl.h>
+
 #include <QVBoxLayout>
 #include <QListWidgetItem>
 #include <QListWidget>
 #include <QMessageBox>
 #include <QtNetwork>
 #include <QWidget>
+
+CURL *curl;
+CURLcode res;
 
 navtechsetup::navtechsetup(QWidget *parent) :
     QDialog(parent),
@@ -126,6 +131,11 @@ void navtechsetup::showButtons()
     ui->removeButton->setVisible(true);
 }
 
+static size_t CurlWriteResponse(void *contents, size_t size, size_t nmemb, void *userp) {
+  ((std::string*)userp)->append((char*)contents, size * nmemb);
+  return size * nmemb;
+}
+
 void navtechsetup::getinfoNavtechServer()
 {
     QString serverToCheck = ui->serversListWidget->currentItem()->text();
@@ -138,49 +148,58 @@ void navtechsetup::getinfoNavtechServer()
     if(server.length() != 2)
         return;
 
-    QSslSocket *socket = new QSslSocket(this);
-    socket->setPeerVerifyMode(socket->VerifyNone);
-    socket->connectToHostEncrypted(server.at(0), server.at(0).toInt());
+    std::string readBuffer;
 
-    if(!socket->waitForEncrypted())
-    {
-        QMessageBox::critical(this, windowTitle(),
-            tr("Could not stablish a connection to the server %1.").arg(server.at(0)),
-            QMessageBox::Ok, QMessageBox::Ok);
-    }
-    else
-    {
-        QString reqString = QString("POST /api/check-node HTTP/1.1\r\n" \
-                            "Host: %1\r\n" \
-                            "Content-Type: application/x-www-form-urlencoded\r\n" \
-                            "Content-Length: 15\r\n" \
-                            "Connection: Close\r\n\r\n" \
-                            "num_addresses=0\r\n").arg(server.at(0));
+    curl_global_init(CURL_GLOBAL_ALL);
+    curl = curl_easy_init();
 
-        socket->write(reqString.toUtf8());
+    if (curl) {
 
-        while (socket->waitForReadyRead()){
-            QString rawReply = socket->readAll();
+      std::string serverURL = "https://" + server.at(0).toStdString() + ":" + server.at(1).toStdString() + "/api/check-node";
 
-            QJsonDocument jsonDoc =  QJsonDocument::fromJson(rawReply.toUtf8());
-            QJsonObject jsonObject = jsonDoc.object();
+      curl_easy_setopt(curl, CURLOPT_URL, serverURL.c_str());
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "num_addresses=0");
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteResponse);
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+      curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+      curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
-            QString type = jsonObject["type"].toString();
+      res = curl_easy_perform(curl);
 
-            if (type != "SUCCESS") {
-                QMessageBox::critical(this, windowTitle(),
-                    tr("Could not connect to the server.") + "<br><br>" + type + "<br><br>" + rawReply.toUtf8(),
-                    QMessageBox::Ok, QMessageBox::Ok);
-            } else {
-                QJsonObject jsonData = jsonObject["data"].toObject();
-                QString minAmount = jsonData["min_amount"].toString();
-                QString maxAmount = jsonData["max_amount"].toString();
-                QString txFee = jsonData["transaction_fee"].toString();
+      if (res != CURLE_OK) {
+          QMessageBox::critical(this, windowTitle(),
+              tr("Could not stablish a connection to the server %1.").arg(server.at(0)),
+              QMessageBox::Ok, QMessageBox::Ok);
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+      } else {
+          QJsonDocument jsonDoc =  QJsonDocument::fromJson(QString::fromStdString(readBuffer).toUtf8());
+          QJsonObject jsonObject = jsonDoc.object();
 
-                QMessageBox::critical(this, windowTitle(),
-                    tr("Navtech server") + "<br><br>" + tr("Address: ") + server.at(0) + "<br>" + tr("Min amount: ") + minAmount + " <br>" + tr("Max amount: ") + maxAmount + "<br>" + tr("Tx fee: ") + txFee,
-                    QMessageBox::Ok, QMessageBox::Ok);
-            }
+          QString type = jsonObject["type"].toString();
+
+          if (type != "SUCCESS") {
+            QMessageBox::critical(this, windowTitle(),
+                tr("Could not connect to the server.") + "<br><br>" + type + "<br><br>" + QString::fromStdString(readBuffer),
+                QMessageBox::Ok, QMessageBox::Ok);
+          } else {
+            QJsonObject jsonData = jsonObject["data"].toObject();
+            QString minAmount = jsonData["min_amount"].toString();
+            QString maxAmount = jsonData["max_amount"].toString();
+            QString txFee = jsonData["transaction_fee"].toString();
+
+            QMessageBox::critical(this, windowTitle(),
+                tr("Navtech server") + "<br><br>" +  tr("Address: ") + server.at(0) + "<br>" + tr("Min amount: ") + minAmount + " <br>" + tr("Max amount: ") + maxAmount + "<br>" + tr("Tx fee: ") + txFee,
+                QMessageBox::Ok, QMessageBox::Ok);
+          }
+          curl_easy_cleanup(curl);
+          curl_global_cleanup();
         }
+      } else {
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+        QMessageBox::critical(this, windowTitle(),
+          tr("Could not stablish a connection to the server %1.").arg(server.at(0)),
+          QMessageBox::Ok, QMessageBox::Ok);
     }
 }
