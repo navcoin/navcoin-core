@@ -6,7 +6,7 @@ $(package)_sha256_hash=64f9b7ec82372edb8eaeded0a9cfa62334d8f98abc65487da01188259
 $(package)_dependencies=openssl
 
 define $(package)_set_vars
-  $(package)_config_opts=--with-ssl=$(host_prefix)/etc/openssl
+  $(package)_config_opts=--with-ssl=$(host_prefix)
 endef
 
 define $(package)_config_cmds
