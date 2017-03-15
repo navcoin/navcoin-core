@@ -7,6 +7,8 @@ $(package)_dependencies=openssl
 
 define $(package)_set_vars
   $(package)_config_opts=--with-ssl=$(host_prefix) --with-random=/dev/urandom
+  $(package)_config_opts_x86_64_mingw32=mingw64
+  $(package)_config_opts_i686_mingw32=mingw
 endef
 
 define $(package)_config_cmds
