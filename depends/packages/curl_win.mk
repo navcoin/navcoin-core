@@ -1,8 +1,8 @@
 package=curl_win
-$(package)_version=7_48_0
+$(package)_version=7_38_0
 $(package)_download_path=https://github.com/curl/curl/archive/
 $(package)_file_name=curl-$($(package)_version).tar.gz
-$(package)_sha256_hash=d248f3f9288ae20b8a7e462cb1909a6e67ad5c585040bca64fa2a71d993f3b1b
+$(package)_sha256_hash=2472ff2465216de7b57396868d1d61a25862ee501ae8cedcb2f5ad4130a7932b
 $(package)_dependencies=openssl
 
 define $(package)_set_vars
