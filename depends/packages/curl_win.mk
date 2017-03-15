@@ -1,5 +1,5 @@
 package=curl_win
-$(package)_version=7.48.0
+$(package)_version=7_48_0
 $(package)_download_path=https://github.com/curl/curl/archive/
 $(package)_file_name=curl-$($(package)_version).tar.gz
 $(package)_sha256_hash=64f9b7ec82372edb8eaeded0a9cfa62334d8f98abc65487da01188259392911d
