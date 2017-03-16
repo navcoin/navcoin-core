@@ -198,6 +198,7 @@ NAVCOIN_QT_H = \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/intro.h \
+  qt/listview.h \
   qt/macdockiconhandler.h \
   qt/macnotificationhandler.h \
   qt/navtechinit.h \
@@ -241,6 +242,7 @@ NAVCOIN_QT_H = \
 
 RES_ICONS = \
   qt/res/icons/navcoin.png \
+  qt/res/icons/ghost.png \
   qt/res/icons/address-book.png \
   qt/res/icons/quit.png \
   qt/res/icons/send.png \

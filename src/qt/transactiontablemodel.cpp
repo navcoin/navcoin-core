@@ -380,6 +380,8 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Payment to yourself");
     case TransactionRecord::Generated:
         return tr("Staked");
+    case TransactionRecord::AnonTx:
+        return tr("Anonymous send");
     default:
         return QString();
     }
@@ -389,6 +391,8 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
 {
     switch(wtx->type)
     {
+    case TransactionRecord::AnonTx:
+        return QIcon(":/icons/ghost");
     case TransactionRecord::Generated:
         return QIcon(":/icons/tx_mined");
     case TransactionRecord::RecvWithAddress:
@@ -412,6 +416,8 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
 
     switch(wtx->type)
     {
+    case TransactionRecord::AnonTx:
+        return "Anon transaction";
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
@@ -431,6 +437,8 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     // Show addresses without label in a less visible color
     switch(wtx->type)
     {
+    case TransactionRecord::SendToOther:
+        return COLOR_ANON;
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:

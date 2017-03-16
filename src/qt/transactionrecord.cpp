@@ -91,6 +91,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit;
                     hashPrev = hash;
                 }
+                if(wtx.strDZeel != "")
+                {
+                    sub.type = TransactionRecord::AnonTx;
+                }
 
                 parts.append(sub);
             }

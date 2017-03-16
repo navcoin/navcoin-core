@@ -9,6 +9,8 @@
 
 #include <QWidget>
 #include <QPushButton>
+#include <QListView>
+#include <QPainter>
 
 class ClientModel;
 class TransactionFilterProxy;

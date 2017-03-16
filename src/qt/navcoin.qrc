@@ -72,6 +72,7 @@
         <file alias="Roboto-Medium">res/fonts/Roboto-Medium.ttf</file>
         <file alias="power_off">res/icons/power_off.png</file>
         <file alias="power_on">res/icons/power.png</file>
+        <file alias="ghost">res/icons/ghost.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

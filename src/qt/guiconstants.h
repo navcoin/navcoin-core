@@ -27,6 +27,8 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 #define COLOR_POSITIVE QColor(73, 156, 76)
 /* Transaction list -- bare address (without label) */
 #define COLOR_BAREADDRESS QColor(140, 140, 140)
+/* Transaction list -- anon transaction */
+#define COLOR_ANON QColor(245, 166, 35)
 /* Transaction list -- TX status decoration - open until date */
 #define COLOR_TX_STATUS_OPENUNTILDATE QColor(64, 64, 255)
 /* Transaction list -- TX status decoration - offline */

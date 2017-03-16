@@ -851,7 +851,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QListView" name="listTransactions">
+              <widget class="ListView" name="listTransactions">
                <property name="styleSheet">
                 <string notr="true">background: transparent</string>
                </property>
