@@ -9,3 +9,15 @@
        AC_TRY_LINK([#include <windef.h>
                     #include <wingdi.h>],
                     [GdiFlush();],
+--- old/configure	2017-03-16 06:34:00.292000000 +0100
++++ new/configure	2017-03-16 06:34:39.192000000 +0100
+@@ -21647,7 +21647,7 @@
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gdi32" >&5
+ $as_echo_n "checking for gdi32... " >&6; }
+       my_ac_save_LIBS=$LIBS
+-      LIBS="-lgdi32 $LIBS"
++      LIBS="$LIBS -lgdi32"
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <windef.h>
+
