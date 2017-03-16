@@ -874,9 +874,13 @@ void SetThreadPriority(int nPriority)
 {
     // It's unclear if it's even possible to change thread priorities on Linux,
     // but we really and truly need it for the generation threads.
+#ifdef WIN32
+    SetThreadPriority(0, nPriority);
+#else
 #ifdef PRIO_THREAD
     setpriority(PRIO_THREAD, 0, nPriority);
 #else
     setpriority(PRIO_PROCESS, 0, nPriority);
+#endif
 #endif
 }
