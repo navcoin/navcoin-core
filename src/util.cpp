@@ -23,6 +23,12 @@
 #include <pthread_np.h>
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#include <stdint.h>
+#include <process.h>
+#endif
+
 #ifndef WIN32
 // for posix_fallocate
 #ifdef __linux__
