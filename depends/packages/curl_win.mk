@@ -4,6 +4,11 @@ $(package)_download_path=https://github.com/curl/curl/releases/download/curl-7_4
 $(package)_file_name=curl-$($(package)_version).tar.gz
 $(package)_sha256_hash=d01212ee29110799db969be31eeab902f50eca00d52fb8fb44630d08964762be
 $(package)_dependencies=openssl
+$(package)_patches=fix_lib_order.patch
+
+define $(package)_preprocess_cmds
+  patch -p1 < $($(package)_patch_dir)/fix_lib_order.patch
+endef
 
 define $(package)_set_vars
   $(package)_config_opts=--with-ssl=$(host_prefix) --with-random=/dev/urandom
