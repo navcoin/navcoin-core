@@ -388,7 +388,7 @@ NAVCOIN_RC = qt/res/navcoin-qt-res.rc
 NAVCOIN_QT_INCLUDES = -I$(builddir)/qt -I$(srcdir)/qt -I$(srcdir)/qt/forms \
   -I$(builddir)/qt/forms -DQT_NO_KEYWORDS
 
-qt_libnavcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(CURL_FLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
+qt_libnavcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
   $(QT_INCLUDES) $(QT_DBUS_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
 qt_libnavcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
@@ -412,7 +412,7 @@ $(QT_MOC): $(PROTOBUF_H)
 $(QT_MOC_CPP): $(PROTOBUF_H)
 
 # navcoin-qt binary #
-qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
+qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(CURL_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
   $(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
 qt_navcoin_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
