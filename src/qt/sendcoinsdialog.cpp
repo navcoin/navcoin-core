@@ -213,54 +213,55 @@ void SendCoinsDialog::on_sendButton_clicked()
     QList<SendCoinsRecipient> recipients;
     bool valid = true;
 
-    for(int i = 0; i < ui->entries->count(); ++i)
+
+    SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
+    if(entry)
     {
-        SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-        if(entry)
+        if(entry->validate())
         {
-            if(entry->validate())
-            {
-                SendCoinsRecipient recipient = entry->getValue();
-                if(ui->anonsendCheckbox->checkState() != 0) {
-                    try
-                    {
-                        Navtech navtech;
+            SendCoinsRecipient recipient = entry->getValue();
+            if(ui->anonsendCheckbox->checkState() != 0) {
+                try
+                {
+                    Navtech navtech;
 
-                        UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount);
+                    UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount);
 
-                        CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
-                        if (!serverNavAddress.IsValid())
-                        {
-                            QMessageBox::warning(this, tr("Anonymous transaction"),
-                                                 "<qt>" +
-                                                 tr("Invalid Navcoin address provided by NAVTech server")+"</qt>");
-                            valid = false;
-                        }
-
-                        recipient.destaddress = QString::fromStdString(find_value(navtechData, "anonaddress").get_str());
-                        recipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
-                        recipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
-                        recipient.isanon = true;
-                    }
-                    catch(const std::runtime_error &e)
+                    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
+                    if (!serverNavAddress.IsValid())
                     {
                         QMessageBox::warning(this, tr("Anonymous transaction"),
-                                             "<qt>Something went wrong:<br/><br/>" +
-                                             tr(e.what())+"</qt>");
+                                             "<qt>" +
+                                             tr("Invalid Navcoin address provided by NAVTech server")+"</qt>");
                         valid = false;
                     }
-                }
-                else
-                {
-                    recipient.isanon = false;
-                }
 
-                recipients.append(recipient);
+                    recipient.destaddress = QString::fromStdString(find_value(navtechData, "anonaddress").get_str());
+                    recipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
+                    if(!find_value(navtechData, "anonfee").isNull())
+                        recipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
+                    else
+                        valid = false;
+                    recipient.isanon = true;
+                }
+                catch(const std::runtime_error &e)
+                {
+                    QMessageBox::warning(this, tr("Anonymous transaction"),
+                                         "<qt>Something went wrong:<br/><br/>" +
+                                         tr(e.what())+"</qt>");
+                    valid = false;
+                }
             }
             else
             {
-                valid = false;
+                recipient.isanon = false;
             }
+
+            recipients.append(recipient);
+        }
+        else
+        {
+            valid = false;
         }
     }
 
