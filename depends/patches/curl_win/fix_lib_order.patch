@@ -20,4 +20,14 @@
        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
  #include <windef.h>
-
+--- old/Makefile.am	2015-06-11 19:50:43.000000000 +0200
++++ new/Makefile.am	2017-03-19 00:35:23.656000000 +0100
+@@ -54,7 +54,7 @@
+ include Makefile.inc
+ 
+ # This might hold -Werror
+-CFLAGS += @CURL_CFLAG_EXTRAS@
++CFLAGS += @CURL_CFLAG_EXTRAS@ -DBUILDING_LIBCURL
+ 
+ # Prevent LIBS from being used for all link targets
+ LIBS = $(BLANK_AT_MAKETIME)
