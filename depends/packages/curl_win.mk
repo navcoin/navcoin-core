@@ -1,4 +1,4 @@
-package=curl_win
+package=curl
 $(package)_version=7.44.0
 $(package)_download_path=https://github.com/curl/curl/releases/download/curl-7_44_0/
 $(package)_file_name=curl-$($(package)_version).tar.gz
