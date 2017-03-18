@@ -11,6 +11,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_set_vars
+  $(package)_config_env=CURL_CFLAG_EXTRAS="-DBUILDING_LIBCURL" 
   $(package)_config_opts=--with-ssl=$(host_prefix) --with-random=/dev/urandom
   $(package)_config_opts_x86_64_mingw32=mingw64
   $(package)_config_opts_i686_mingw32=mingw32
