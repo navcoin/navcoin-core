@@ -13,8 +13,8 @@ endef
 define $(package)_set_vars
   $(package)_config_env=CURL_CFLAG_EXTRAS="-DBUILDING_LIBCURL" 
   $(package)_config_opts=--with-ssl=$(host_prefix) --with-random=/dev/urandom
-  $(package)_config_opts_x86_64_mingw32=mingw64
-  $(package)_config_opts_i686_mingw32=mingw32
+  $(package)_config_opts_x86_64_mingw32=mingw64 --target=x86_64-w64 --host=x86_64-w64 --build=x86_64_linux
+  $(package)_config_opts_i686_mingw32=mingw32 --target=i686-w64 --host=i686-w64 --build=x86_64_linux
 endef
 
 define $(package)_config_cmds
