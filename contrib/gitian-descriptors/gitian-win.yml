@@ -142,7 +142,10 @@ script: |
     tar --strip-components=1 -xf ../$SOURCEDIST
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}"
-    CURL_INCLUDES="-DCURL_STATICLIB $(pkg-config --libs --cflags --static libcurl)" make ${MAKEOPTS}
+    echo ${PKG_CONFIG_PATH} 
+    echo `ls ${PKG_CONFIG_PATH}`
+    echo `ls /lib`
+    CURL_INCLUDES="-DCURL_STATICLIB -L/lib -lcurl -lz -lssl" make ${MAKEOPTS}
     make ${MAKEOPTS} -C src check-security
     make deploy
     make install DESTDIR=${INSTALLPATH}
