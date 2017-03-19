@@ -12,7 +12,7 @@ qt_i686_linux_packages:=$(qt_x86_64_linux_packages)
 qt_darwin_packages=qt
 qt_mingw32_packages=qt
 
-mingw32_packages=curl_win
+mingw32_packages=curl
 
 wallet_packages=bdb
 
