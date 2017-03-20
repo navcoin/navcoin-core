@@ -4,6 +4,7 @@
 #include "net.h"
 #include "skinize.h"
 #include "util.h"
+#include "wallet/navtech.h"
 
 #include <curl/curl.h>
 
@@ -13,9 +14,6 @@
 #include <QMessageBox>
 #include <QtNetwork>
 #include <QWidget>
-
-CURL *curl;
-CURLcode res;
 
 navtechsetup::navtechsetup(QWidget *parent) :
     QDialog(parent),

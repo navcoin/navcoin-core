@@ -7,16 +7,12 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <curl/curl.h>
 #include "rpc/server.h"
 #include <stdio.h>
 #include <iterator>
 #include <openssl/aes.h>
 
 using namespace std;
-
-CURL *curl;
-CURLcode res;
 
 int padding = RSA_PKCS1_PADDING;
 int encResultLength = 344;
