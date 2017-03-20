@@ -4,9 +4,6 @@
 #include "net.h"
 #include "skinize.h"
 #include "util.h"
-#include "wallet/navtech.h"
-
-#include <curl/curl.h>
 
 #include <QVBoxLayout>
 #include <QListWidgetItem>

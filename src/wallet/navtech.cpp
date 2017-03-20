@@ -5,7 +5,6 @@
 
 #include <stdexcept>
 #include <algorithm>
-#include <iostream>
 #include <sstream>
 #include "rpc/server.h"
 #include <stdio.h>

@@ -14,7 +14,6 @@
 #include "platformstyle.h"
 #include "sendcoinsentry.h"
 #include "walletmodel.h"
-#include "wallet/navtech.h"
 #include "net.h"
 #include "skinize.h"
 #include "util.h"
