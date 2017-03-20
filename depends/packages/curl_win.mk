@@ -1,8 +1,8 @@
-package=curl_win
-$(package)_version=7.44.0
-$(package)_download_path=https://github.com/curl/curl/releases/download/curl-7_44_0/
+package=curl
+$(package)_version=7.53.1
+$(package)_download_path=https://curl.haxx.se/download/
 $(package)_file_name=curl-$($(package)_version).tar.gz
-$(package)_sha256_hash=d01212ee29110799db969be31eeab902f50eca00d52fb8fb44630d08964762be
+$(package)_sha256_hash=64f9b7ec82372edb8eaeded0a9cfa62334d8f98abc65487da01188259392911d
 $(package)_dependencies=openssl
 $(package)_patches=fix_lib_order.patch
 
@@ -11,9 +11,10 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_set_vars
-  $(package)_config_opts=--with-ssl=$(host_prefix) --with-random=/dev/urandom
-  $(package)_config_opts_x86_64_mingw32=mingw64 --enable-static --disable-shared 
-  $(package)_config_opts_i686_mingw32=mingw32 --enable-static --disable-shared 
+  $(package)_config_env=CURL_CFLAG_EXTRAS="-DBUILDING_LIBCURL" 
+  $(package)_config_opts=--with-ssl=$(host_prefix) --with-random=/dev/urandom --enable-static --disable-shared
+  $(package)_config_opts_x86_64_mingw32=mingw64 --target=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 --build=x86_64-unknown-linux-gnu
+  $(package)_config_opts_i686_mingw32=mingw32 --target=i686-w64-mingw32 --host=i686-w64-mingw32 --build=x86_64-unknown-linux-gnu
 endef
 
 define $(package)_config_cmds
