@@ -145,6 +145,7 @@ script: |
     echo ${PKG_CONFIG_PATH} 
     echo `ls ${PKG_CONFIG_PATH}`
     echo `ls /lib`
+    echo `find /|grep libcurl`
     CURL_INCLUDES="-DCURL_STATICLIB -L/lib -lcurl -lz -lssl" make ${MAKEOPTS}
     make ${MAKEOPTS} -C src check-security
     make deploy
