@@ -142,7 +142,7 @@ script: |
     tar --strip-components=1 -xf ../$SOURCEDIST
 
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}"
-    export PKG_CONFIG_PATH=/lib/pkgconfig/
+    export PKG_CONFIG_PATH=${BASEPREFIX}/${i}/lib/pkgconfig/
     echo ${PKG_CONFIG_PATH} 
     echo `ls ${PKG_CONFIG_PATH}`
     echo `ls ${BASEPREFIX}/${i}/lib`
