@@ -549,6 +549,13 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         // Don't overwrite existing settings so command line settings override navcoin.conf
         string strKey = string("-") + it->string_key;
         string strValue = it->value[0];
+
+        if(strKey == "-addanonserver")
+        {
+            vAddedAnonServers.push_back(strValue);
+            continue;
+        }
+
         InterpretNegativeSetting(strKey, strValue);
         if (mapSettingsRet.count(strKey) == 0)
             mapSettingsRet[strKey] = strValue;

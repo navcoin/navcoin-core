@@ -15,6 +15,7 @@
 #endif
 
 #include "compat.h"
+#include "net.h"
 #include "tinyformat.h"
 #include "utiltime.h"
 
