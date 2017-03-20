@@ -3,8 +3,6 @@
 
 #include "wallet/navtech.h"
 
-#include <curl/curl.h>
-
 #include <QDialog>
 #include <QVBoxLayout>
 

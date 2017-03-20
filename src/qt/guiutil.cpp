@@ -299,7 +299,7 @@ void openNavCoinConf()
      std::fstream fs(pathConfig.c_str(), std::ios_base::app);
      fs.close();
 
-     /* Open bitcoin.conf with the associated application */
+     /* Open navcoin.conf with the associated application */
      QDesktopServices::openUrl(QUrl::fromLocalFile(pathConfig.c_str()));
 }
 
