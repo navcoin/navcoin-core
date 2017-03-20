@@ -10,6 +10,7 @@
 #include "util.h"
 
 #include "chainparamsbase.h"
+#include "net.h"
 #include "random.h"
 #include "serialize.h"
 #include "sync.h"
@@ -107,6 +108,9 @@ using namespace std;
 
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
+
+std::vector<std::string> vAddedAnonServers;
+CCriticalSection cs_vAddedAnonServers;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;

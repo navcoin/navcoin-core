@@ -27,8 +27,8 @@ static size_t CurlWriteResponse(void *contents, size_t size, size_t nmemb, void 
   return size * nmemb;
 }
 
-CURL *curl;
-CURLcode res;
+extern CURL *curl;
+extern CURLcode res;
 
 struct anonServer {
     std::string address;

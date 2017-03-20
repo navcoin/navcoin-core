@@ -13,6 +13,9 @@
 
 using namespace std;
 
+CURL *curl;
+CURLcode res;
+
 UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
 
   vector<anonServer> anonServers = this->GetAnonServers();
