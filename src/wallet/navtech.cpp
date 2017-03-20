@@ -16,6 +16,9 @@ using namespace std;
 CURL *curl;
 CURLcode res;
 
+int padding = RSA_PKCS1_PADDING;
+int encResultLength = 344;
+
 UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
 
   vector<anonServer> anonServers = this->GetAnonServers();
