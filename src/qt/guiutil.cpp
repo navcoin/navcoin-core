@@ -291,18 +291,6 @@ void copyEntryData(QAbstractItemView *view, int column, int role)
     }
 }
 
-void openNavCoinConf()
-{
-     boost::filesystem::path pathConfig = GetConfigFile();
-
-     /* Create the file */
-     std::fstream fs(pathConfig.c_str(), std::ios_base::app);
-     fs.close();
-
-     /* Open navcoin.conf with the associated application */
-     QDesktopServices::openUrl(QUrl::fromLocalFile(pathConfig.c_str()));
-}
-
 QString getEntryData(QAbstractItemView *view, int column, int role)
 {
     if(!view || !view->selectionModel())
@@ -436,6 +424,15 @@ void openDebugLogfile()
     /* Open debug.log with the associated application */
     if (boost::filesystem::exists(pathDebug))
         QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathDebug)));
+}
+
+void openNavCoinConf()
+{
+     boost::filesystem::path pathConfig = GetConfigFile();
+
+     /* Open navcoin.conf with the associated application */
+     if (boost::filesystem::exists(pathConfig))
+         QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathConfig)));
 }
 
 void SubstituteFonts(const QString& language)
