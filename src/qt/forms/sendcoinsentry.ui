@@ -85,7 +85,7 @@
      <widget class="QLabel" name="labellLabel">
       <property name="font">
        <font>
-        <pointsize>14</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -128,7 +128,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
         </property>
         <property name="iconSize">
@@ -164,7 +164,7 @@
      <widget class="QLabel" name="messageLabel">
       <property name="font">
        <font>
-        <pointsize>14</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -181,7 +181,7 @@
      <widget class="QLabel" name="amountLabel">
       <property name="font">
        <font>
-        <pointsize>14</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -225,7 +225,7 @@
      <widget class="QLabel" name="payToLabel">
       <property name="font">
        <font>
-        <pointsize>14</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -762,7 +762,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
         </property>
        </widget>
@@ -1307,7 +1307,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../navcoin.qrc">
+         <iconset>
           <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
         </property>
        </widget>
@@ -1382,8 +1382,6 @@
   <tabstop>payAmount_s</tabstop>
   <tabstop>deleteButton_s</tabstop>
  </tabstops>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

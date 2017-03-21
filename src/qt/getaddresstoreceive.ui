@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>821</width>
-     <height>462</height>
+     <height>482</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -30,32 +30,6 @@
       </property>
       <property name="sizeType">
        <enum>QSizePolicy::Maximum</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <spacer name="verticalSpacer_5">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <spacer name="verticalSpacer_6">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -286,10 +260,13 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::MinimumExpanding</enum>
+      </property>
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>40</height>
+        <height>30</height>
        </size>
       </property>
      </spacer>

@@ -261,7 +261,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     QString curStyle = QApplication::style()->metaObject()->className();
     if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
     {
-        progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 7px; margin: 0px; }");
+        progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 0px solid grey; border-radius: 10px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 10px; margin: 0px; }");
     }
 
     statusBar()->addWidget(progressBarLabel);

@@ -46,10 +46,10 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     hlayout->setContentsMargins(0,0,0,0);
 
     if (platformStyle->getUseExtraSpacing()) {
-        hlayout->setSpacing(5);
+        hlayout->setSpacing(10);
         hlayout->addSpacing(26);
     } else {
-        hlayout->setSpacing(0);
+        hlayout->setSpacing(5);
         hlayout->addSpacing(23);
     }
 

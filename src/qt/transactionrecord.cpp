@@ -163,6 +163,11 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.address = mapValue["to"];
                 }
 
+                if(wtx.strDZeel != "")
+                {
+                    sub.type = TransactionRecord::AnonTx;
+                }
+
                 CAmount nValue = txout.nValue;
                 /* Add fee to first output */
                 if (nTxFee > 0)

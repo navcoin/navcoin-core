@@ -251,6 +251,7 @@
                  </property>
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -267,6 +268,7 @@
                 <widget class="QLabel" name="labelBalance">
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -301,6 +303,7 @@
                  </property>
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -317,6 +320,7 @@
                 <widget class="QLabel" name="labelUnconfirmed">
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -351,6 +355,7 @@
                  </property>
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -367,6 +372,7 @@
                 <widget class="QLabel" name="labelImmature">
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -401,6 +407,7 @@
                  </property>
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -417,6 +424,7 @@
                 <widget class="QLabel" name="labelTotal">
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -591,6 +599,7 @@
                  </property>
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -607,6 +616,7 @@
                 <widget class="QLabel" name="label24hStakingStats">
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                    <kerning>false</kerning>
@@ -642,6 +652,7 @@
                  </property>
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                    <kerning>false</kerning>
@@ -659,6 +670,7 @@
                 <widget class="QLabel" name="label7dStakingStats">
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                    <kerning>false</kerning>
@@ -694,6 +706,7 @@
                  </property>
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                    <kerning>false</kerning>
@@ -711,6 +724,7 @@
                 <widget class="QLabel" name="label30dStakingStats">
                  <property name="font">
                   <font>
+                   <pointsize>11</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                    <kerning>false</kerning>
