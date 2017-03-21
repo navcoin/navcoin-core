@@ -1058,7 +1058,7 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>14</pointsize>
+           <pointsize>12</pointsize>
           </font>
          </property>
          <property name="styleSheet">
@@ -1082,7 +1082,7 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>13</pointsize>
+           <pointsize>12</pointsize>
           </font>
          </property>
          <property name="visible">
@@ -1106,7 +1106,7 @@
          </property>
          <property name="font">
           <font>
-           <pointsize>13</pointsize>
+           <pointsize>12</pointsize>
           </font>
          </property>
          <property name="visible">
