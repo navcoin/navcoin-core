@@ -116,7 +116,7 @@
             <x>-1</x>
             <y>-1</y>
             <width>282</width>
-            <height>352</height>
+            <height>436</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -151,6 +151,8 @@
                <property name="font">
                 <font>
                  <pointsize>-1</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
                 </font>
                </property>
                <property name="styleSheet">
@@ -238,7 +240,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>70</width>
-                   <height>0</height>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
                   </size>
                  </property>
                  <property name="font">
@@ -282,7 +290,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>70</width>
-                   <height>0</height>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
                   </size>
                  </property>
                  <property name="font">
@@ -326,7 +340,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>70</width>
-                   <height>0</height>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
                   </size>
                  </property>
                  <property name="font">
@@ -370,7 +390,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>70</width>
-                   <height>0</height>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
                   </size>
                  </property>
                  <property name="font">
@@ -446,6 +472,8 @@
                <property name="font">
                 <font>
                  <pointsize>-1</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
                 </font>
                </property>
                <property name="styleSheet">
@@ -552,7 +580,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>70</width>
-                   <height>0</height>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
                   </size>
                  </property>
                  <property name="font">
@@ -597,7 +631,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>70</width>
-                   <height>0</height>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
                   </size>
                  </property>
                  <property name="font">
@@ -643,7 +683,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>70</width>
-                   <height>0</height>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
                   </size>
                  </property>
                  <property name="font">
@@ -827,6 +873,8 @@
                <property name="font">
                 <font>
                  <pointsize>-1</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
                 </font>
                </property>
                <property name="styleSheet">
@@ -856,7 +904,7 @@
              <item>
               <widget class="ListView" name="listTransactions" native="true">
                <property name="styleSheet">
-                <string notr="true">background: transparent</string>
+                <string notr="true">background: transparent;border:0</string>
                </property>
               </widget>
              </item>
