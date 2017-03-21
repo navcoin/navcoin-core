@@ -199,7 +199,7 @@ void Intro::pickDataDirectory()
                 if(oldWallet != dataDir + QDir::separator() + "wallet.dat")
                 {
                     //Try to copy old wallet
-                    boost::filesystem::detail::copy_file(GUIUtil::qstringToBoostPath(oldWallet),GUIUtil::qstringToBoostPath(dataDir + "/wallet.dat"),boost::filesystem::detail::none);
+                    boost::filesystem::detail::copy_file(GUIUtil::qstringToBoostPath(oldWallet),GUIUtil::qstringToBoostPath(dataDir + QDir::separator() + "wallet.dat"),boost::filesystem::detail::none);
                     SoftSetArg("-zapwallettxes","2");
                 }
                 WriteConfigFile("addanonserver", "95.183.52.55:3000");
