@@ -2056,7 +2056,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 
             // If prev is coinbase, check that it's matured
             if (coins->IsCoinBase() || coins->IsCoinStake()) {
-                if (nSpendHeight - coins->nHeight < COINBASE_MATURITY)
+                if (nSpendHeight - coins->nHeight < COINBASE_MATURITY && nSpendHeight - coins->nHeight > 0)
                     return state.Invalid(false,
                         REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
                         strprintf("tried to spend %s at depth %d", coins->IsCoinBase()?"coinbase":"coinstake",nSpendHeight - coins->nHeight));
@@ -2831,7 +2831,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
     if (block.IsProofOfStake())
     {
-
         // ppcoin: coin stake tx earns reward instead of paying fee
         uint64_t nCoinAge;
         if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), pindex->pprev, nCoinAge))
