@@ -16,7 +16,7 @@ QString Skinize()
            "#frame2 { background: #eff1f4; border-radius: 2px; }"
            "#noNavtechLabel { background: #f4eb99; padding: 5px; border-radius: 5px}"
            "#frameReceivingAddress { background: #eff1f4; border-radius: 2px; }"
-           "QPushButton {  background: rgba(255,255,255,0.1); border: 1px solid #a9adc4; border-radius: 3px; padding: 6px; margin: 3px; text-transform: uppercase; color: #616998; font-size: 10px; font-weight: bold }"
+           "QPushButton {  background: rgba(255,255,255,0.3); border: 1px solid #a9adc4; border-radius: 3px; padding: 6px; margin: 3px; text-transform: uppercase; color: #616998; font-size: 11px; font-weight: bold }"
            "QLineEdit { background: #fff; border-radius: 4px; border: 1px solid #7d7d7d; padding:5px }"
            "#unlockStakingButton { border-image: url(:/icons/lock_closed)  0 0 0 0 stretch stretch; border: 0px; }"
            "QLabel { color: #616998 }"

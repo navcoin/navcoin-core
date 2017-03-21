@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
-    <height>514</height>
+    <width>852</width>
+    <height>490</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>821</width>
-     <height>502</height>
+     <height>471</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -56,6 +56,11 @@
       </item>
       <item>
        <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>Use the following address to receive NavCoins:</string>
         </property>
@@ -266,7 +271,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>60</height>
+        <height>80</height>
        </size>
       </property>
      </spacer>

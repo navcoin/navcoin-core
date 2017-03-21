@@ -684,6 +684,11 @@
            <height>0</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="toolTip">
           <string>Confirm the send action</string>
          </property>
@@ -737,6 +742,11 @@
        </item>
        <item>
         <widget class="QLabel" name="noNavtechLabel">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
@@ -747,6 +757,11 @@
        </item>
        <item>
         <widget class="QCheckBox" name="anonsendCheckbox">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Anonymous send</string>
          </property>
@@ -848,6 +863,11 @@
           </property>
           <item>
            <widget class="QPushButton" name="noNavtechButton">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Manage Navtech servers</string>
             </property>
@@ -874,6 +894,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Balance:</string>
             </property>
@@ -886,6 +911,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
             </property>
             <property name="cursor">
              <cursorShape>IBeamCursor</cursorShape>

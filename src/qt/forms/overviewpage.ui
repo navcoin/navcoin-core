@@ -151,8 +151,6 @@
                <property name="font">
                 <font>
                  <pointsize>-1</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
                 </font>
                </property>
                <property name="styleSheet">
@@ -223,6 +221,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
               <layout class="QFormLayout" name="formLayout">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetNoConstraint</enum>
+               </property>
                <property name="labelAlignment">
                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                </property>
@@ -251,9 +252,10 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -262,15 +264,19 @@
                  <property name="text">
                   <string>Available:</string>
                  </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="1">
                 <widget class="QLabel" name="labelBalance">
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -278,6 +284,9 @@
                  </property>
                  <property name="text">
                   <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -303,9 +312,10 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -314,15 +324,19 @@
                  <property name="text">
                   <string>Pending:</string>
                  </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="1">
                 <widget class="QLabel" name="labelUnconfirmed">
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -330,6 +344,9 @@
                  </property>
                  <property name="text">
                   <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -355,9 +372,10 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -366,15 +384,19 @@
                  <property name="text">
                   <string>Immature</string>
                  </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
                <item row="3" column="1">
                 <widget class="QLabel" name="labelImmature">
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -382,6 +404,9 @@
                  </property>
                  <property name="text">
                   <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -407,9 +432,10 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -418,15 +444,19 @@
                  <property name="text">
                   <string>Total</string>
                  </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
                <item row="4" column="1">
                 <widget class="QLabel" name="labelTotal">
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -434,6 +464,9 @@
                  </property>
                  <property name="text">
                   <string>labelTotal</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -480,8 +513,6 @@
                <property name="font">
                 <font>
                  <pointsize>-1</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
                 </font>
                </property>
                <property name="styleSheet">
@@ -515,14 +546,14 @@
               <widget class="QPushButton" name="toggleStakingButton">
                <property name="minimumSize">
                 <size>
-                 <width>25</width>
-                 <height>25</height>
+                 <width>26</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>25</width>
-                 <height>25</height>
+                 <width>26</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -537,14 +568,14 @@
               <widget class="QPushButton" name="unlockStakingButton">
                <property name="minimumSize">
                 <size>
-                 <width>25</width>
-                 <height>25</height>
+                 <width>26</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>25</width>
-                 <height>25</height>
+                 <width>26</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -599,9 +630,10 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                   </font>
                  </property>
                  <property name="styleSheet">
@@ -610,15 +642,19 @@
                  <property name="text">
                   <string>24H:</string>
                  </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="1">
                 <widget class="QLabel" name="label24hStakingStats">
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                    <kerning>false</kerning>
                   </font>
                  </property>
@@ -627,6 +663,9 @@
                  </property>
                  <property name="text">
                   <string>87 312.312 123 NAV</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -652,9 +691,10 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                    <kerning>false</kerning>
                   </font>
                  </property>
@@ -664,15 +704,19 @@
                  <property name="text">
                   <string>7D</string>
                  </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
                <item row="2" column="1">
                 <widget class="QLabel" name="label7dStakingStats">
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                    <kerning>false</kerning>
                   </font>
                  </property>
@@ -681,6 +725,9 @@
                  </property>
                  <property name="text">
                   <string>1 312.312 NAV</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -706,9 +753,10 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                    <kerning>false</kerning>
                   </font>
                  </property>
@@ -718,15 +766,19 @@
                  <property name="text">
                   <string>30D</string>
                  </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
                 </widget>
                </item>
                <item row="3" column="1">
                 <widget class="QLabel" name="label30dStakingStats">
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
-                   <weight>75</weight>
-                   <bold>true</bold>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
                    <kerning>false</kerning>
                   </font>
                  </property>
@@ -735,6 +787,9 @@
                  </property>
                  <property name="text">
                   <string>132 431.41 NAV</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -884,11 +939,21 @@
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
               <widget class="QLabel" name="label_12">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>19</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <pointsize>-1</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
                 </font>
                </property>
                <property name="styleSheet">
