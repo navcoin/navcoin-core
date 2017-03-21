@@ -99,7 +99,7 @@ void FreespaceChecker::check()
             if(!fs::is_directory(dataDir))
             {
                 replyStatus = ST_OK;
-                QString replyMessage = tr("NavCoin will try to import an old wallet.dat file.");
+                replyMessage = tr("NavCoin will try to import an old wallet.dat file.");
             } else {
                 replyStatus = ST_ERROR;
                 replyMessage = tr("You must choose a wallet.dat file.");
@@ -239,14 +239,12 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
         ui->errorMessage->setStyleSheet("QLabel { color: #800000 }");
         break;
     }
-    /* Don't allow confirm in ERROR state */
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(status != FreespaceChecker::ST_ERROR);
 }
 
 void Intro::on_dataDirectory_textChanged(const QString &dataDirStr)
 {
     /* Disable OK button until check result comes in */
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     checkPath(dataDirStr);
 }
 
