@@ -476,7 +476,7 @@ void NavCoinApplication::initializeResult(int retval)
         //specify a new font.
         int id = QFontDatabase::addApplicationFont(":/icons/Roboto-Medium");
         QString family = QFontDatabase::applicationFontFamilies(id).at(0);
-        QFont newFont(family,12);        //set font of application
+        QFont newFont(family,10);        //set font of application
         newFont.setStyleStrategy(QFont::PreferAntialias);
         QApplication::setFont(newFont);
 

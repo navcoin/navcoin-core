@@ -148,7 +148,7 @@ QString Intro::getDataDirectory()
 void Intro::setDataDirectory(const QString &dataDir)
 {
     ui->dataDirectory->setText(dataDir);
-    if(dataDir == getDefaultDataDirectory() + "/wallet.dat")
+    if(dataDir == getDefaultDataDirectory() + QDir::separator() + "wallet.dat")
     {
         ui->dataDirDefault->setChecked(true);
         ui->dataDirectory->setEnabled(false);
@@ -182,7 +182,7 @@ void Intro::pickDataDirectory()
     {
         /* If current default data directory does not exist, let the user choose one */
         Intro intro;
-        intro.setDataDirectory(dataDir + "/wallet.dat");
+        intro.setDataDirectory(dataDir + QDir::separator() + "wallet.dat");
         intro.setWindowIcon(QIcon(":icons/navcoin"));
         intro.setStyleSheet(Skinize());
 
@@ -196,7 +196,7 @@ void Intro::pickDataDirectory()
             QString oldWallet = intro.getDataDirectory();
             try {
                 TryCreateDirectory(GUIUtil::qstringToBoostPath(dataDir));
-                if(oldWallet != dataDir + "/wallet.dat")
+                if(oldWallet != dataDir + QDir::separator() + "wallet.dat")
                 {
                     //Try to copy old wallet
                     boost::filesystem::detail::copy_file(GUIUtil::qstringToBoostPath(oldWallet),GUIUtil::qstringToBoostPath(dataDir + "/wallet.dat"),boost::filesystem::detail::none);
@@ -258,7 +258,7 @@ void Intro::on_ellipsisButton_clicked()
 
 void Intro::on_dataDirDefault_clicked()
 {
-    setDataDirectory(getDefaultDataDirectory() + "/wallet.dat");
+    setDataDirectory(getDefaultDataDirectory() + QDir::separator() + "wallet.dat");
 }
 
 void Intro::on_dataDirCustom_clicked()
