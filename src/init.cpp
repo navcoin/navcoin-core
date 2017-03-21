@@ -486,8 +486,8 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/navcoin/navcoin>";
-    const std::string URL_WEBSITE = "<https://navcoincore.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/navcoindev/navcoin-core>";
+    const std::string URL_WEBSITE = "<https://navcoin.org>";
     // todo: remove urls from translations on next change
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2009, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +

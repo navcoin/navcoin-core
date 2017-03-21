@@ -907,24 +907,29 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
             if (header) {
                 return;
             }
-            progressBarLabel->setText(tr("Synchronizing with network..."));
+            if(walletFrame)
+                walletFrame->setStatusTitle(tr("Synchronizing with network..."));
             break;
         case BLOCK_SOURCE_DISK:
             if (header) {
-                progressBarLabel->setText(tr("Indexing blocks on disk..."));
+                if(walletFrame)
+                    walletFrame->setStatusTitle(tr("Indexing blocks on disk..."));
             } else {
-                progressBarLabel->setText(tr("Processing blocks on disk..."));
+                if(walletFrame)
+                    walletFrame->setStatusTitle(tr("Processing blocks on disk..."));
             }
             break;
         case BLOCK_SOURCE_REINDEX:
-            progressBarLabel->setText(tr("Reindexing blocks on disk..."));
+            if(walletFrame)
+                walletFrame->setStatusTitle(tr("Reindexing blocks on disk..."));
             break;
         case BLOCK_SOURCE_NONE:
             if (header) {
                 return;
             }
             // Case: not Importing, not Reindexing and no network connection
-            progressBarLabel->setText(tr("No block source available..."));
+            if(walletFrame)
+                walletFrame->setStatusTitle(tr("No block source available..."));
             break;
     }
 
@@ -989,7 +994,7 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
             timeBehindText = tr("%1 and %2").arg(tr("%n year(s)", "", years)).arg(tr("%n week(s)","", remainder/WEEK_IN_SECONDS));
         }
 
-        progressBarLabel->setVisible(true);
+        progressBarLabel->setVisible(false);
         progressBar->setFormat(tr("%1 behind").arg(timeBehindText));
         progressBar->setMaximum(1000000000);
         progressBar->setValue(nVerificationProgress * 1000000000.0 + 0.5);
