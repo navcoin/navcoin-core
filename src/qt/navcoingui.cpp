@@ -130,8 +130,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     lockWalletAction(0),
     platformStyle(platformStyle)
 {
-    GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 557), this);
-    setFixedSize(QSize(840, 557));
+    GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
+    setFixedSize(QSize(840, 600));
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     /* if compiled with wallet support, -disablewallet can still disable the wallet */

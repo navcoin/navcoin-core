@@ -57,7 +57,7 @@
        <number>6</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayoutCoinControl" stretch="0,0,0,0">
+       <layout class="QVBoxLayout" name="verticalLayoutCoinControl" stretch="0,0,0">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -67,35 +67,6 @@
         <property name="topMargin">
          <number>10</number>
         </property>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayoutCoinControl1">
-          <property name="bottomMargin">
-           <number>15</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="labelCoinControlFeatures">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">font-weight:bold;</string>
-            </property>
-            <property name="text">
-             <string>Coin Control Features</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayoutCoinControl2" stretch="0,0,0,0">
           <property name="spacing">
@@ -723,7 +694,7 @@
           <string>S&amp;end</string>
          </property>
          <property name="icon">
-          <iconset resource="../navcoin.qrc">
+          <iconset>
            <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
          </property>
          <property name="autoDefault">
@@ -823,7 +794,7 @@
    <item>
     <widget class="QFrame" name="frameFee">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -831,7 +802,7 @@
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>16777215</height>
+       <height>40</height>
       </size>
      </property>
      <property name="frameShape">
@@ -1352,9 +1323,7 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
  <buttongroups>
   <buttongroup name="groupCustomFee"/>

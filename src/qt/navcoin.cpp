@@ -478,7 +478,6 @@ void NavCoinApplication::initializeResult(int retval)
         QString family = QFontDatabase::applicationFontFamilies(id).at(0);
         QFont newFont(family,12);        //set font of application
         newFont.setStyleStrategy(QFont::PreferAntialias);
-        newFont.setWeight(QFont::Bold);
         QApplication::setFont(newFont);
 
 #ifdef ENABLE_WALLET
