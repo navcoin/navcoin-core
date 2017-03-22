@@ -119,7 +119,7 @@
       <item>
        <widget class="QToolButton" name="addressBookButton">
         <property name="toolTip">
-         <string>Choose previously used address</string>
+         <string notr="true"/>
         </property>
         <property name="styleSheet">
          <string notr="true">border:0;background:transparent</string>
