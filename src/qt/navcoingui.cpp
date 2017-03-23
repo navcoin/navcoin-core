@@ -6,8 +6,8 @@
 #include "config/navcoin-config.h"
 #endif
 
+#include "main.h"
 #include "navcoingui.h"
-
 #include "navcoinunits.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
@@ -1440,8 +1440,6 @@ void NavCoinGUI::updateWeight()
 
     nWeight = pwalletMain->GetStakeWeight();
 }
-
-extern int64_t nLastCoinStakeSearchInterval;
 
 void NavCoinGUI::updateStakingStatus()
 {

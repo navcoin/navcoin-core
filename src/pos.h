@@ -13,4 +13,6 @@ double GetPoWMHashPS();
 
 double GetPoSKernelPS();
 
+extern uint64_t nLastCoinStakeSearchInterval;
+
 #endif // NAVCOIN_POS_H
