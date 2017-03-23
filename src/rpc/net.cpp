@@ -663,10 +663,35 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     return obj;
 }
 
+UniValue getstakesubsidy(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getstakesubsidy <hex string>\n"
+            "Returns proof-of-stake subsidy value for the specified coinstake.");
+
+    vector<unsigned char> txData(ParseHex(params[0].get_str()));
+    CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+    CTransaction tx;
+    try {
+        ssData >> tx;
+    }
+    catch (std::exception &e) {
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "NAV decode failed");
+    }
+
+    uint64_t nCoinAge;
+    if (!TransactionGetCoinAge(tx, pindexBestHeader, nCoinAge))
+        throw JSONRPCError(RPC_MISC_ERROR, "GetCoinAge failed");
+
+    return (uint64_t)GetProofOfStakeReward(pindexBestHeader->nHeight, nCoinAge, 0);
+}
+
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         okSafeMode
   //  --------------------- ------------------------  -----------------------  ----------
     { "network",            "getconnectioncount",     &getconnectioncount,     true  },
+    { "network",            "getstakesubsidy",        &getstakesubsidy,        true  },
     { "network",            "getstakinginfo",         &getstakinginfo,         true  },
     { "network",            "ping",                   &ping,                   true  },
     { "network",            "getpeerinfo",            &getpeerinfo,            true  },
