@@ -26,7 +26,7 @@ public Q_SLOTS:
     void addNavtechServer();
     void removeNavtechServer();
     void getinfoNavtechServer();
-    void showButtons();
+    void showButtons(bool show=true);
     void showNavtechIntro();
 
 };

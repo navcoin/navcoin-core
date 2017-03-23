@@ -117,13 +117,14 @@ void navtechsetup::removeNavtechServer()
           QMessageBox::Ok, QMessageBox::Ok);
     }
 
+    showButtons(false);
     reloadNavtechServers();
 }
 
-void navtechsetup::showButtons()
+void navtechsetup::showButtons(bool show)
 {
-    ui->getInfoButton->setVisible(true);
-    ui->removeButton->setVisible(true);
+    ui->getInfoButton->setVisible(show);
+    ui->removeButton->setVisible(show);
 }
 
 void navtechsetup::getinfoNavtechServer()
