@@ -202,7 +202,7 @@ extern CBlockIndex *pindexBestHeader;
 extern unsigned int nStakeMinAge;
 
 /** Minimum disk space required - used in CheckDiskSpace() */
-static const uint64_t nMinDiskSpace = 52428800;
+static const uint64_t nMinDiskSpace = 26218800;
 
 /** Pruning-related variables and constants */
 /** True if any block files have ever been pruned. */
