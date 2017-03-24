@@ -44,6 +44,7 @@ class Navtech
 {
 public:
     UniValue CreateAnonTransaction(std::string address, CAmount nValue = -1);
+    UniValue GetServerInfo(std::string server);
 private:
     std::vector<anonServer> GetAnonServers();
     UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue);

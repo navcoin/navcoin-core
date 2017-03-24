@@ -291,3 +291,49 @@ bool Navtech::TestEncryption(string encrypted, UniValue serverData) {
   curl_global_cleanup();
   throw runtime_error("TestEncryption End of Function");
 }
+
+UniValue Navtech::GetServerInfo(std::string server) {
+  curl_global_init(CURL_GLOBAL_ALL);
+  curl = curl_easy_init();
+  string readBuffer;
+
+  if (curl) {
+
+    string serverURL = "https://" + server + "/api/check-node";
+
+    curl_easy_setopt(curl, CURLOPT_URL, serverURL.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "num_addresses=1");
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteResponse);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
+    res = curl_easy_perform(curl);
+
+    if (res != CURLE_OK) {
+      throw runtime_error("CURL failed to contact server\n");
+      curl_easy_cleanup(curl);
+      curl_global_cleanup();
+    } else {
+      UniValue parsedResponse = this->ParseJSONResponse(readBuffer);
+      UniValue type = find_value(parsedResponse, "type");
+      UniValue data = find_value(parsedResponse, "data").get_obj();
+
+      if (type.get_str() != "SUCCESS") {
+          throw runtime_error("Server returned bad response\n");
+      }
+      UniValue navtechData;
+      navtechData.setObject();
+      navtechData.pushKV("min_amount", find_value(data, "min_amount"));
+      navtechData.pushKV("max_amount", find_value(data, "max_amount"));
+      navtechData.pushKV("transaction_fee", find_value(data, "transaction_fee"));
+      curl_easy_cleanup(curl);
+      curl_global_cleanup();
+      return navtechData;
+    }
+  } else {
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
+    throw runtime_error("CURL unavailable");
+  }
+}

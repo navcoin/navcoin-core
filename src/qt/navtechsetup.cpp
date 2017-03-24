@@ -139,58 +139,18 @@ void navtechsetup::getinfoNavtechServer()
     if(server.length() != 2)
         return;
 
-    std::string readBuffer;
+    try {
+        Navtech *navtech = new Navtech();
+        UniValue data = navtech->GetServerInfo(serverToCheck.toStdString());
 
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
-
-    if (curl) {
-
-      std::string serverURL = "https://" + server.at(0).toStdString() + ":" + server.at(1).toStdString() + "/api/check-node";
-
-      curl_easy_setopt(curl, CURLOPT_URL, serverURL.c_str());
-      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "num_addresses=0");
-      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteResponse);
-      curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-      curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-      curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-
-      res = curl_easy_perform(curl);
-
-      if (res != CURLE_OK) {
-          QMessageBox::critical(this, windowTitle(),
-              tr("Could not stablish a connection to the server %1.").arg(server.at(0)),
-              QMessageBox::Ok, QMessageBox::Ok);
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-      } else {
-          QJsonDocument jsonDoc =  QJsonDocument::fromJson(QString::fromStdString(readBuffer).toUtf8());
-          QJsonObject jsonObject = jsonDoc.object();
-
-          QString type = jsonObject["type"].toString();
-
-          if (type != "SUCCESS") {
-            QMessageBox::critical(this, windowTitle(),
-                tr("Could not connect to the server.") + "<br><br>" + type + "<br><br>" + QString::fromStdString(readBuffer),
-                QMessageBox::Ok, QMessageBox::Ok);
-          } else {
-            QJsonObject jsonData = jsonObject["data"].toObject();
-            QString minAmount = jsonData["min_amount"].toString();
-            QString maxAmount = jsonData["max_amount"].toString();
-            QString txFee = jsonData["transaction_fee"].toString();
-
-            QMessageBox::critical(this, windowTitle(),
-                tr("Navtech server") + "<br><br>" +  tr("Address: ") + server.at(0) + "<br>" + tr("Min amount: ") + minAmount + " <br>" + tr("Max amount: ") + maxAmount + "<br>" + tr("Tx fee: ") + txFee,
-                QMessageBox::Ok, QMessageBox::Ok);
-          }
-          curl_easy_cleanup(curl);
-          curl_global_cleanup();
-        }
-      } else {
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-        QMessageBox::critical(this, windowTitle(),
-          tr("Could not stablish a connection to the server %1.").arg(server.at(0)),
-          QMessageBox::Ok, QMessageBox::Ok);
+        QMessageBox::information(this, windowTitle(),
+            tr("Navtech server") + "<br><br>" +  tr("Address: ") + serverToCheck + "<br>" + tr("Min amount: ") + QString::number(data["min_amount"].get_real()) + " <br>" + tr("Max amount: ") + QString::number(data["max_amount"].get_real()) + "<br>" + tr("Tx fee: ") + QString::number(data["transaction_fee"].get_real()) + "%",
+            QMessageBox::Ok, QMessageBox::Ok);
+    }
+    catch(const std::runtime_error &e)
+    {
+        QMessageBox::warning(this, tr("Navtech server"),
+                             "<qt>Could not get info:<br/><br/>" +
+                             tr(e.what())+"</qt>");
     }
 }
