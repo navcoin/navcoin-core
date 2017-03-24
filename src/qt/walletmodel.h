@@ -56,6 +56,7 @@ public:
     QString anondestination;
     QString destaddress;
     CAmount anonfee;
+    double transaction_fee;
     bool isanon;
 
     // If from a payment request, paymentRequest.IsInitialized() will be true

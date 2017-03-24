@@ -233,9 +233,10 @@ void SendCoinsDialog::on_sendButton_clicked()
 
                     recipient.destaddress = QString::fromStdString(find_value(navtechData, "anonaddress").get_str());
                     recipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
-                    if(!find_value(navtechData, "anonfee").isNull())
+                    if(!find_value(navtechData, "anonfee").isNull()){
                         recipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
-                    else
+                        recipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
+                    }else
                         valid = false;
                     recipient.isanon = true;
                 }
@@ -345,15 +346,24 @@ void SendCoinsDialog::on_sendButton_clicked()
             questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee + anonfee));
             questionString.append("</span> ");
             questionString.append(tr("added as transaction fee"));
-            if(rcp.fSubtractFeeFromAmount)
-            {
-                questionString.append(tr("The following fee will be deducted by the Navtech servers:"));
-                questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), anonfee));
-            }
 
 
             // append transaction size
             questionString.append(" (" + QString::number((double)currentTransaction.getTransactionSize() / 1000) + " kB)");
+
+            if(rcp.fSubtractFeeFromAmount && anonfee > 0)
+            {
+                questionString.append("<br>" + tr("The following fee will be deducted") + ":");
+                questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), anonfee));
+            }
+
+            if(rcp.isanon){
+                questionString.append("<br>" + tr("Navtech server fee: ") + QString::number(rcp.transaction_fee) + "% "+ tr(rcp.fSubtractFeeFromAmount ? "" : "(already included)") + "<br>");
+                if(rcp.fSubtractFeeFromAmount)
+                    questionString.append("<span style='color:#aa0000;'>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount * ((rcp.transaction_fee/100))) + "</span> " + tr("will be deducted as Navtech fee.") + "<br>");
+
+            }
+
         }
     }
 
