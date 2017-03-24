@@ -231,6 +231,7 @@ private:
     CAmount cachedWatchOnlyBalance;
     CAmount cachedWatchUnconfBalance;
     CAmount cachedWatchImmatureBalance;
+    CAmount cachedStakingBalance;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
 

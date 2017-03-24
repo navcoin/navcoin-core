@@ -382,7 +382,7 @@
                   <string notr="true">color: #727272</string>
                  </property>
                  <property name="text">
-                  <string>Immature</string>
+                  <string>Staking</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
