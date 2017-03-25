@@ -38,7 +38,7 @@ UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
     navtechData.pushKV("anonfee", find_value(serverData, "transaction_fee"));
     return navtechData;
   } else {
-    throw runtime_error("Unable to send NAVTech transaction, please try again");
+    throw runtime_error("Unable to send NAVTech transaction, please try again.");
   }
 
 }
@@ -48,7 +48,7 @@ vector<anonServer> Navtech::GetAnonServers() {
   vector<anonServer> returnServers;
 
   if (vAddedAnonServers.size() < 1 && mapMultiArgs["-addanonserver"].size() < 1) {
-      throw runtime_error("You must have at least one NAVTech server added to your conf file or by rpc command");
+      throw runtime_error("You must have at least one NAVTech server added to your conf file or by rpc command.");
       return returnServers;
   }
 
@@ -86,7 +86,7 @@ vector<anonServer> Navtech::GetAnonServers() {
   }
 
   if (returnServers.size() < 1) {
-      throw runtime_error("The anon servers you have added are invalid");
+      throw runtime_error("Please, add some valid NAVTech server to send private payments.");
       return returnServers;
   }
 
@@ -95,7 +95,7 @@ vector<anonServer> Navtech::GetAnonServers() {
 
 UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue) {
   if (anonServers.size() < 1) {
-      throw runtime_error("Tried all available servers");
+      throw runtime_error("None of your configured NAVTech nodes are available right now.");
   }
 
   int randIndex = rand() % anonServers.size();
@@ -127,34 +127,39 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
     } else {
       UniValue parsedResponse = this->ParseJSONResponse(readBuffer);
       UniValue type = find_value(parsedResponse, "type");
-      UniValue data = find_value(parsedResponse, "data").get_obj();
+      UniValue data_obj = find_value(parsedResponse, "data");
 
-      if (type.get_str() != "SUCCESS") {
+      if (!data_obj.isObject()) {
+        anonServers.erase(anonServers.begin()+randIndex);
+        return this->FindAnonServer(anonServers, nValue);
+      } else {
+        UniValue data = data_obj.get_obj();
+        if (type.get_str() != "SUCCESS") {
           LogPrintf("Server retured bad response %s:%s\n", anonServers[randIndex].address, anonServers[randIndex].port);
           anonServers.erase(anonServers.begin()+randIndex);
           return this->FindAnonServer(anonServers, nValue);
-      }
-      if (nValue != -1) {
-        UniValue maxAmount = find_value(data, "max_amount");
-        UniValue minAmount = find_value(data, "min_amount");
-        int satoshiFactor = 100000000;
+        }
+        if (nValue != -1) {
+          UniValue maxAmount = find_value(data, "max_amount");
+          UniValue minAmount = find_value(data, "min_amount");
+          int satoshiFactor = 100000000;
 
-        if (nValue/satoshiFactor > maxAmount.get_int() || nValue/satoshiFactor < minAmount.get_int()) {
-          LogPrintf("Transaction amount outside of specified range min_amount=%i max_amount=%i value=%i\n", minAmount.get_int(), maxAmount.get_int(), nValue/satoshiFactor);
-          anonServers.erase(anonServers.begin()+randIndex);
+          if (nValue/satoshiFactor > maxAmount.get_int() || nValue/satoshiFactor < minAmount.get_int()) {
+            LogPrintf("Transaction amount outside of specified range min_amount=%i max_amount=%i value=%i\n", minAmount.get_int(), maxAmount.get_int(), nValue/satoshiFactor);
+            anonServers.erase(anonServers.begin()+randIndex);
+            curl_easy_cleanup(curl);
+            curl_global_cleanup();
+            return this->FindAnonServer(anonServers, nValue);
+          }
           curl_easy_cleanup(curl);
           curl_global_cleanup();
-          return this->FindAnonServer(anonServers, nValue);
+          return data;
+        } else {
+          curl_easy_cleanup(curl);
+          curl_global_cleanup();
+          return data;
         }
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-        return data;
-      } else {
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-        return data;
       }
-
     }
   } else {
     curl_easy_cleanup(curl);
@@ -253,7 +258,6 @@ bool Navtech::TestEncryption(string encrypted, UniValue serverData) {
   curl = curl_easy_init();
 
   if (curl) {
-
     string serverURL = "https://" + server.get_str() + ":" + to_string(port.get_int()) + "/api/test-decryption";
 
     char* escapedEncrypted = curl_easy_escape(curl, encrypted.c_str(), 0);
@@ -317,19 +321,26 @@ UniValue Navtech::GetServerInfo(std::string server) {
     } else {
       UniValue parsedResponse = this->ParseJSONResponse(readBuffer);
       UniValue type = find_value(parsedResponse, "type");
-      UniValue data = find_value(parsedResponse, "data").get_obj();
 
-      if (type.get_str() != "SUCCESS") {
+      UniValue data_obj = find_value(parsedResponse, "data");
+
+      if (!data_obj.isObject()) {
+        throw runtime_error("Server not available.");
+      } else {
+        UniValue data = data_obj.get_obj();
+
+        if (type.get_str() != "SUCCESS") {
           throw runtime_error("Server returned bad response\n");
+        }
+        UniValue navtechData;
+        navtechData.setObject();
+        navtechData.pushKV("min_amount", find_value(data, "min_amount"));
+        navtechData.pushKV("max_amount", find_value(data, "max_amount"));
+        navtechData.pushKV("transaction_fee", find_value(data, "transaction_fee"));
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+        return navtechData;
       }
-      UniValue navtechData;
-      navtechData.setObject();
-      navtechData.pushKV("min_amount", find_value(data, "min_amount"));
-      navtechData.pushKV("max_amount", find_value(data, "max_amount"));
-      navtechData.pushKV("transaction_fee", find_value(data, "transaction_fee"));
-      curl_easy_cleanup(curl);
-      curl_global_cleanup();
-      return navtechData;
     }
   } else {
     curl_easy_cleanup(curl);

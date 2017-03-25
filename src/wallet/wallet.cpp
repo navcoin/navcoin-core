@@ -1432,7 +1432,14 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
         if (tx.IsCoinStake())
         {
             if (IsFromMe(tx))
-                AbandonTransaction(tx.hash);
+            {
+                LogPrintf("SyncTransaction : Refunding inputs of orphan tx %s\n",tx.ToString());
+                BOOST_FOREACH(const CTxIn& txin, tx.vin)
+                {
+                    if (mapWallet.count(txin.prevout.hash))
+                        mapWallet[txin.prevout.hash].MarkDirty();
+                }
+            }
         }
     }
 
