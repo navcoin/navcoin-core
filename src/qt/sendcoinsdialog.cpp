@@ -242,10 +242,35 @@ void SendCoinsDialog::on_sendButton_clicked()
                 }
                 catch(const std::runtime_error &e)
                 {
-                    QMessageBox::warning(this, tr("Anonymous transaction"),
-                                         "<qt>Something went wrong:<br/><br/>" +
-                                         tr(e.what())+"</qt>");
-                    valid = false;
+                    QMessageBox msgBox;
+                    msgBox.setText(tr("Something went wrong:"));
+                    msgBox.setInformativeText(tr(e.what()));
+                    QAbstractButton *myYesButton = msgBox.addButton(tr("Do a normal transaction"), QMessageBox::YesRole);
+                    QAbstractButton *myNoButton = msgBox.addButton(trUtf8("Abort"), QMessageBox::NoRole);
+                    msgBox.setIcon(QMessageBox::Question);
+                    msgBox.exec();
+
+                    if(msgBox.clickedButton() == myYesButton)
+                    {
+                        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Switch to normal transaction"),
+                            tr("Are you sure you want to do a normal transaction instead of a private payment?<br><br>Details of the payment would be publicly exposed on the blockchain."),
+                            QMessageBox::Yes|QMessageBox::Cancel,
+                            QMessageBox::Cancel);
+
+                        if(retval == QMessageBox::Yes)
+                        {
+                            recipient.isanon = false;
+                            valid = true;
+                        }
+                        else
+                        {
+                            valid = false;
+                        }
+                    }
+                    else
+                    {
+                        valid = false;
+                    }
                 }
             }
             else
