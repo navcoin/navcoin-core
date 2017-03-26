@@ -663,6 +663,17 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     return obj;
 }
 
+UniValue listanonservers(const UniValue& params, bool fHelp)
+{
+  UniValue obj(UniValue::VARR);
+
+  BOOST_FOREACH(string vAddedAnonServer, vAddedAnonServers) {
+      obj.push_back(vAddedAnonServer);
+  }
+
+  return obj;
+}
+
 UniValue getstakesubsidy(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -703,6 +714,7 @@ static const CRPCCommand commands[] =
     { "network",            "getnetworkinfo",         &getnetworkinfo,         true  },
     { "network",            "setban",                 &setban,                 true  },
     { "network",            "listbanned",             &listbanned,             true  },
+    { "network",            "listanonservers",        &listanonservers,        true  },
     { "network",            "clearbanned",            &clearbanned,            true  },
 };
 
