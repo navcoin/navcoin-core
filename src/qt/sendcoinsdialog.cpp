@@ -78,6 +78,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     connect(clipboardPriorityAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardPriority()));
     connect(clipboardLowOutputAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardLowOutput()));
     connect(clipboardChangeAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardChange()));
+    connect(ui->anonsendCheckbox, SIGNAL(clicked()), this, SLOT(anonsendCheckboxClick()));
     ui->labelCoinControlQuantity->addAction(clipboardQuantityAction);
     ui->labelCoinControlAmount->addAction(clipboardAmountAction);
     ui->labelCoinControlFee->addAction(clipboardFeeAction);
@@ -105,6 +106,8 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
         settings.setValue("nTransactionFee", (qint64)DEFAULT_TRANSACTION_FEE);
     if (!settings.contains("fPayOnlyMinFee"))
         settings.setValue("fPayOnlyMinFee", false);
+    if (!settings.contains("fAnonSend"))
+      settings.setValue("fAnonSend", false);
     ui->groupFee->setId(ui->radioSmartFee, 0);
     ui->groupFee->setId(ui->radioCustomFee, 1);
     ui->groupFee->button((int)std::max(0, std::min(1, settings.value("nFeeRadio").toInt())))->setChecked(true);
@@ -115,17 +118,26 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     ui->customFee->setValue(settings.value("nTransactionFee").toLongLong());
     ui->checkBoxMinimumFee->setChecked(settings.value("fPayOnlyMinFee").toBool());
     minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
+    ui->anonsendCheckbox->setChecked(settings.value("fAnonSend").toBool());
 
     checkNavtechServers();
 }
 
+void SendCoinsDialog::anonsendCheckboxClick()
+{
+    QSettings settings;
+
+    settings.setValue("fAnonSend", ui->anonsendCheckbox->isChecked());
+}
+
 void SendCoinsDialog::checkNavtechServers()
 {
-    bool shouldShowWarning = vAddedAnonServers.size() < 1 && mapMultiArgs["-addanonserver"].size() < 1;
+    bool notEnoughServers = vAddedAnonServers.size() < 1 && mapMultiArgs["-addanonserver"].size() < 1;
 
-    ui->noNavtechLabel->setVisible(shouldShowWarning);
-    ui->anonsendCheckbox->setVisible(!shouldShowWarning);
-    ui->anonsendCheckbox->setChecked(!shouldShowWarning);
+    ui->noNavtechLabel->setVisible(notEnoughServers);
+    ui->anonsendCheckbox->setVisible(!notEnoughServers);
+    if(notEnoughServers)
+      ui->anonsendCheckbox->setChecked(false);
 }
 
 void SendCoinsDialog::setClientModel(ClientModel *clientModel)

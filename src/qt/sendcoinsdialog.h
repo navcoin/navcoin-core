@@ -58,6 +58,7 @@ public Q_SLOTS:
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
     void checkNavtechServers();
     void showNavTechDialog();
+    void anonsendCheckboxClick();
 
 private:
     Ui::SendCoinsDialog *ui;
