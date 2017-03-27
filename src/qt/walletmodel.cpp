@@ -409,6 +409,10 @@ WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
     {
         return Unencrypted;
     }
+    else if(!wallet->IsLocked())
+    {
+        return Unlocked;
+    }
     else if(wallet->IsLocked())
     {
         return Locked;
