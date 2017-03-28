@@ -1433,7 +1433,22 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
         {
             if (IsFromMe(tx))
             {
+                // Do not flush the wallet here for performance reasons
+                CWalletDB walletdb(strWalletFile, "r+", false);
+
+                if (mapWallet.count(tx.hash))
+                {
+                    CWalletTx& wtx = mapWallet[tx.hash];
+                    wtx.MarkDirty();
+                    walletdb.WriteTx(wtx);
+                }
+                else
+                {
+                    LogPrintf("SyncTransaction : Warning: Could not find %s in wallet. Trying to refund someone else's tx?", tx.hash.ToString());
+                }
+
                 LogPrintf("SyncTransaction : Refunding inputs of orphan tx %s\n",tx.ToString());
+
                 BOOST_FOREACH(const CTxIn& txin, tx.vin)
                 {
                     if (mapWallet.count(txin.prevout.hash))
