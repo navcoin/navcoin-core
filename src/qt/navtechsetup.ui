@@ -59,7 +59,7 @@
        </size>
       </property>
       <property name="text">
-       <string>Choose which servers your Nav Coin wallet will use for sending anonymous transactions.</string>
+       <string>List of Navtech servers currently configured in your wallet to process private payments:</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -76,6 +76,13 @@
       </property>
       <property name="verticalScrollMode">
        <enum>QAbstractItemView::ScrollPerItem</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>When performing a private payment, a random server from this list will be used.</string>
       </property>
      </widget>
     </item>

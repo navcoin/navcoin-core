@@ -531,7 +531,7 @@ void NavCoinGUI::createToolBars()
                     "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
         topMenu4 = new QPushButton(walletFrame->topMenu);
-        topMenu4->setFixedSize(214,94);
+        topMenu4->setFixedSize(215,94);
         topMenu4->setObjectName("topMenu4");
         connect(topMenu4, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
         topMenu4->move(625,0);

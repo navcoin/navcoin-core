@@ -437,7 +437,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     // Show addresses without label in a less visible color
     switch(wtx->type)
     {
-    case TransactionRecord::SendToOther:
+    case TransactionRecord::AnonTx:
         return COLOR_ANON;
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
@@ -452,7 +452,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     default:
         break;
     }
-    return QVariant();
+    return COLOR_BAREADDRESS;
 }
 
 QString TransactionTableModel::formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed, NavCoinUnits::SeparatorStyle separators) const

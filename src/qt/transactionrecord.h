@@ -38,7 +38,6 @@ public:
         Immature,           /**< Mined but waiting for maturity */
         MaturesWarning,     /**< Transaction will likely not mature because no nodes have confirmed */
         NotAccepted,        /**< Mined but not accepted */
-        AnonTx              /** Anonymous transaction, does not show address */
     };
 
     /// Transaction counts towards available balance
