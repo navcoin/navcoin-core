@@ -73,6 +73,12 @@
     </item>
     <item row="3" column="2">
      <widget class="QLineEdit" name="addAsLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="toolTip">
        <string>Enter a label for this address to add it to the list of used addresses</string>
       </property>
@@ -108,6 +114,12 @@
       </property>
       <item>
        <widget class="QValidatedLineEdit" name="payTo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string>The NavCoin address to send the payment to</string>
         </property>
@@ -201,6 +213,12 @@
      <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0">
       <item>
        <widget class="NavCoinAmountField" name="payAmount">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="styleSheet">
          <string notr="true"/>
         </property>
