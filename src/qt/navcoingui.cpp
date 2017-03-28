@@ -1462,13 +1462,9 @@ void NavCoinGUI::updateStakingStatus()
             unsigned nEstimateTime = GetTargetSpacing(nBestHeight) * nNetworkWeight / nWeight;
 
             QString text;
-            if (nEstimateTime > 0)
+            if (nEstimateTime > 60)
             {
-            if (nEstimateTime < 60)
-            {
-                text = tr("Expected time to earn reward is %n second(s)", "", nEstimateTime);
-            }
-            else if (nEstimateTime < 60*60)
+            if (nEstimateTime < 60*60)
             {
                 text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
             }
