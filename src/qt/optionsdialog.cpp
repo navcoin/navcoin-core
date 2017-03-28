@@ -111,7 +111,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         }
     }
 #if QT_VERSION >= 0x040700
-    ui->thirdPartyTxUrls->setPlaceholderText("https://example.com/tx/%s");
+    ui->thirdPartyTxUrls->setPlaceholderText("https://chainz.cryptoid.info/nav/tx.dws?%s.htm");
 #endif
 
     ui->unit->setModel(new NavCoinUnits(this));
