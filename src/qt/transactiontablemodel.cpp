@@ -360,7 +360,9 @@ QString TransactionTableModel::lookupAddress(const std::string &address, bool to
     }
     if(label.isEmpty() || tooltip)
     {
-        description += QString(" (") + QString::fromStdString(address) + QString(")");
+        if(!label.isEmpty())
+          description += QString(" ");
+        description += QString("(") + QString::fromStdString(address) + QString(")");
     }
     return description;
 }
@@ -417,7 +419,7 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     switch(wtx->type)
     {
     case TransactionRecord::AnonTx:
-        return "Anon transaction";
+        return "Private Payment";
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
@@ -438,21 +440,21 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     switch(wtx->type)
     {
     case TransactionRecord::AnonTx:
-        return COLOR_ANON;
+        return QVariant();
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:
         {
         QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
         if(label.isEmpty())
-            return COLOR_BAREADDRESS;
+            return QVariant();
         } break;
     case TransactionRecord::SendToSelf:
-        return COLOR_BAREADDRESS;
+        return QVariant();
     default:
         break;
     }
-    return COLOR_BAREADDRESS;
+    return QVariant();
 }
 
 QString TransactionTableModel::formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed, NavCoinUnits::SeparatorStyle separators) const

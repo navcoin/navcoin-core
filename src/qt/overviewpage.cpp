@@ -48,9 +48,9 @@ public:
         int xspace = DECORATION_SIZE + 6;
         int ypad = 1;
         int halfheight = (mainRect.height() - 3*ypad - 4)/3 ;
-        QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight*2, 150, DECORATION_SIZE);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, 300, DECORATION_SIZE);
-        QRect dateRect(mainRect.left() + xspace, mainRect.top()+ypad, 150, DECORATION_SIZE);
+        QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, 150, DECORATION_SIZE);
+        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad, 300, DECORATION_SIZE);
+        QRect dateRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight*2, 150, DECORATION_SIZE);
         icon = platformStyle->SingleColorIcon(icon);
         icon.paint(painter, decorationRect);
 
@@ -60,13 +60,8 @@ public:
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
-        if(value.canConvert<QBrush>())
-        {
-            QBrush brush = qvariant_cast<QBrush>(value);
-            foreground = brush.color();
-        }
 
-        painter->setPen(foreground);
+        painter->setPen(QColor(60,60,60));
         QRect boundingRect;
         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address, &boundingRect);
 
@@ -97,7 +92,7 @@ public:
         }
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, amountText);
 
-        painter->setPen(option.palette.color(QPalette::Text));
+        painter->setPen(COLOR_BAREADDRESS);
         painter->drawText(dateRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
@@ -105,7 +100,7 @@ public:
 
     inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        return QSize(DECORATION_SIZE, DECORATION_SIZE*2.8 + 4);
+        return QSize(DECORATION_SIZE, DECORATION_SIZE*2.9 + 4);
     }
 
     int unit;
