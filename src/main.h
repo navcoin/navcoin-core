@@ -201,6 +201,8 @@ extern CBlockIndex *pindexBestHeader;
 
 extern unsigned int nStakeMinAge;
 
+extern int lastPOWBlock;
+
 /** Minimum disk space required - used in CheckDiskSpace() */
 static const uint64_t nMinDiskSpace = 26218800;
 

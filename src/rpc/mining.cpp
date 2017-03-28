@@ -98,6 +98,10 @@ UniValue getnetworkhashps(const UniValue& params, bool fHelp)
 
 UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript)
 {
+
+    if (pindexBestHeader->nHeight >= lastPOWBlock)
+      throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+
     static const int nInnerLoopCount = 0x10000;
     int nHeightStart = 0;
     int nHeightEnd = 0;
@@ -162,6 +166,9 @@ UniValue generate(const UniValue& params, bool fHelp)
             + HelpExampleCli("generate", "11")
         );
 
+    if (pindexBestHeader->nHeight >= lastPOWBlock)
+      throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+
     int nGenerate = params[0].get_int();
     uint64_t nMaxTries = 1000000;
     if (params.size() > 1) {
@@ -198,6 +205,9 @@ UniValue generatetoaddress(const UniValue& params, bool fHelp)
             "\nGenerate 11 blocks to myaddress\n"
             + HelpExampleCli("generatetoaddress", "11 \"myaddress\"")
         );
+
+    if (pindexBestHeader->nHeight >= lastPOWBlock)
+      throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     int nGenerate = params[0].get_int();
     uint64_t nMaxTries = 1000000;
@@ -237,6 +247,9 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
             + HelpExampleCli("getmininginfo", "")
             + HelpExampleRpc("getmininginfo", "")
         );
+
+    if (pindexBestHeader->nHeight >= lastPOWBlock)
+      throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
 
     LOCK(cs_main);
@@ -388,6 +401,9 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             + HelpExampleCli("getblocktemplate", "")
             + HelpExampleRpc("getblocktemplate", "")
          );
+
+    if (pindexBestHeader->nHeight >= lastPOWBlock)
+      throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     LOCK(cs_main);
 
@@ -722,6 +738,9 @@ UniValue submitblock(const UniValue& params, bool fHelp)
             + HelpExampleCli("submitblock", "\"mydata\"")
             + HelpExampleRpc("submitblock", "\"mydata\"")
         );
+
+    if (pindexBestHeader->nHeight >= lastPOWBlock)
+      throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     CBlock block;
     if (!DecodeHexBlk(block, params[0].get_str()))

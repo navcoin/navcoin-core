@@ -2545,7 +2545,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (block.IsProofOfStake())
     {
         arith_uint256 targetProofOfStake;
-        // Signature will be checked in CheckInputs(), we can avoid it here (fCHeckSignature = false)
+        // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
         if (!CheckProofOfStake(pindex->pprev, block.vtx[1], block.nBits, hashProof, targetProofOfStake, NULL, false))
         {
               return state.DoS(1,error("ContextualCheckBlock() : check proof-of-stake failed for block %s", block.GetHash().GetHex()), REJECT_INVALID, "bad-proof-of-stake");
@@ -3971,6 +3971,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     if (VersionBitsState(pindexPrev, consensusParams, Consensus::DEPLOYMENT_CSV, versionbitscache) == THRESHOLD_ACTIVE) {
         nLockTimeFlags |= LOCKTIME_MEDIAN_TIME_PAST;
     }
+
+    if (block.IsProofOfWork() && nHeight > lastPOWBlock)
+        return state.DoS(10, false, REJECT_INVALID, "check-pow-height", "pow-mined blocks not allowed");
 
     // Check CheckCoinStakeTimestamp
     if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(nHeight, block.GetBlockTime(), (int64_t)block.vtx[1].nTime))
