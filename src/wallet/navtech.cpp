@@ -315,7 +315,7 @@ UniValue Navtech::GetServerInfo(std::string server) {
     res = curl_easy_perform(curl);
 
     if (res != CURLE_OK) {
-      throw runtime_error("CURL failed to contact server\n");
+      throw runtime_error("CURL failed to contact server");
       curl_easy_cleanup(curl);
       curl_global_cleanup();
     } else {
@@ -330,7 +330,7 @@ UniValue Navtech::GetServerInfo(std::string server) {
         UniValue data = data_obj.get_obj();
 
         if (type.get_str() != "SUCCESS") {
-          throw runtime_error("Server returned bad response\n");
+          throw runtime_error("Server returned bad response");
         }
         UniValue navtechData;
         navtechData.setObject();

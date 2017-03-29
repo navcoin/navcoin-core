@@ -237,7 +237,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                     CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
                     if (!serverNavAddress.IsValid())
                     {
-                        QMessageBox::warning(this, tr("Anonymous transaction"),
+                        QMessageBox::warning(this, tr("Private payment"),
                                              "<qt>" +
                                              tr("Invalid Navcoin address provided by NAVTech server")+"</qt>");
                         valid = false;
@@ -265,7 +265,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                     if(msgBox.clickedButton() == myYesButton)
                     {
                         QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Switch to normal transaction"),
-                            tr("Are you sure you want to do a normal transaction instead of a private payment?<br><br>Details of the payment would be publicly exposed on the blockchain."),
+                            tr("Are you sure you want to do a normal transaction instead of a private payment?") + QString("<br><br>") + tr("Details of the payment would be publicly exposed on the blockchain."),
                             QMessageBox::Yes|QMessageBox::Cancel,
                             QMessageBox::Cancel);
 
@@ -353,21 +353,21 @@ void SendCoinsDialog::on_sendButton_clicked()
         {
             if(rcp.label.length() > 0) // label with address
             {
-                recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.label));
+                recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, GUIUtil::HtmlEscape(rcp.label));
                 recipientElement.append(QString(" (%1)").arg(address));
             }
             else // just address
             {
-                recipientElement = tr("%1 to %2").arg(amount, address);
+                recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, address);
             }
         }
         else if(!rcp.authenticatedMerchant.isEmpty()) // authenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
         }
         else // unauthenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Anon transaction :" : "") +amount, address);
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, address);
         }
 
         formatted.append(recipientElement);
@@ -395,7 +395,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             }
 
             if(rcp.isanon){
-                questionString.append("<br>" + tr("Navtech server fee: ") + QString::number(rcp.transaction_fee) + "% "+ tr(rcp.fSubtractFeeFromAmount ? "" : "(already included)") + "<br>");
+                questionString.append("<br>" + tr("Navtech server fee:") +QString(" ")+ QString::number(rcp.transaction_fee) + "% "+ tr(rcp.fSubtractFeeFromAmount ? "" : "(already included)") + "<br>");
                 if(rcp.fSubtractFeeFromAmount)
                     questionString.append("<span style='color:#aa0000;'>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount * ((rcp.transaction_fee/100))) + "</span> " + tr("will be deducted as Navtech fee.") + "<br>");
 
