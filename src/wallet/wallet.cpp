@@ -1447,7 +1447,7 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
                     LogPrintf("SyncTransaction : Warning: Could not find %s in wallet. Trying to refund someone else's tx?", tx.hash.ToString());
                 }
 
-                LogPrintf("SyncTransaction : Refunding inputs of orphan tx %s\n",tx.ToString());
+                LogPrintf("SyncTransaction : Refunding inputs of orphan tx %s\n",tx.hash.ToString());
 
                 BOOST_FOREACH(const CTxIn& txin, tx.vin)
                 {
@@ -1458,17 +1458,27 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
         }
     }
 
+    bool isMine = true;
+
     if(fConnect)
         if (!AddToWalletIfInvolvingMe(tx, pblock, true))
-            return; // Not one of ours
+            isMine = false; // Not one of ours
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be
     // recomputed, also:
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+
+    if(isMine == true)
+        BOOST_FOREACH(const CTxIn& txin, tx.vin)
+        {
+            if (mapWallet.count(txin.prevout.hash))
+                mapWallet[txin.prevout.hash].MarkDirty();
+        }
+
+    if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
     {
-        if (mapWallet.count(txin.prevout.hash))
-            mapWallet[txin.prevout.hash].MarkDirty();
+        LogPrintf("SyncTransaction : Abandoning tx %s\n",tx.hash.ToString());
+        AbandonTransaction(tx.hash);
     }
 }
 
