@@ -1460,9 +1460,8 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
 
     bool isMine = true;
 
-    if(fConnect)
-        if (!AddToWalletIfInvolvingMe(tx, pblock, true))
-            isMine = false; // Not one of ours
+    if (!AddToWalletIfInvolvingMe(tx, pblock, true))
+        isMine = false; // Not one of ours
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be
@@ -1673,7 +1672,7 @@ int CWalletTx::GetRequestCount() const
     int nRequests = -1;
     {
         LOCK(pwallet->cs_wallet);
-        if (IsCoinBase())
+        if (IsCoinBase() || IsCoinStake())
         {
             // Generated block
             if (!hashUnset())
@@ -1884,7 +1883,7 @@ void CWallet::ReacceptWalletTransactions()
 bool CWalletTx::RelayWalletTransaction()
 {
     assert(pwallet->GetBroadcastTransactions());
-    if (!IsCoinBase())
+    if (!(IsCoinBase() || IsCoinStake()))
     {
         if (GetDepthInMainChain() == 0 && !isAbandoned() && InMempool()) {
             LogPrintf("Relaying wtx %s\n", GetHash().ToString());
