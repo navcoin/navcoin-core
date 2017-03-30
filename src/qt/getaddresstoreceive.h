@@ -19,6 +19,7 @@ public:
 
 public Q_SLOTS:
     void getNewAddress();
+    void showQR();
 
 private:
     Ui::getAddressToReceive *ui;

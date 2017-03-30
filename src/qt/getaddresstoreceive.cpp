@@ -1,10 +1,15 @@
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "walletmodel.h"
+#include "wallet/wallet.h"
 #include "addresstablemodel.h"
 
 #include "getaddresstoreceive.h"
 #include "ui_getaddresstoreceive.h"
+
+#include <boost/foreach.hpp>
+
+#include <QSettings>
 
 #ifdef USE_QRCODE
 #include <qrencode.h>
@@ -15,6 +20,22 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     ui(new Ui::getAddressToReceive)
 {
     ui->setupUi(this);
+
+    QSettings settings;
+
+    if(!settings.contains("lastAddress"))
+    {
+        BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
+        {
+            const CNavCoinAddress& last_address = item.first;
+            address = QString::fromStdString(last_address.ToString());
+        }
+        settings.setValue("lastAddress",address);
+    }
+    else
+    {
+        address = settings.value("lastAddress","").toString();
+    }
 
     connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
     connect(ui->copyClipboardButton,SIGNAL(clicked()),this,SLOT(copyToClipboard()));
@@ -49,8 +70,15 @@ void getAddressToReceive::copyToClipboard()
 
 void getAddressToReceive::getNewAddress()
 {
-    address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, "", "");
+    QSettings settings;
 
+    address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, "", "");
+    settings.setValue("lastAddress",address);
+    showQR();
+}
+
+void getAddressToReceive::showQR()
+{
 #ifdef USE_QRCODE
     QString uri = "navcoin:" + address;
     ui->lblQRCode->setText("");
