@@ -552,23 +552,17 @@ void SendCoinsDialog::setAddress(const QString &address)
 
 void SendCoinsDialog::pasteEntry(const SendCoinsRecipient &rv)
 {
+    SendCoinsEntry *entry = 0;
+
     if(!fNewRecipientAllowed)
         return;
 
-    SendCoinsEntry *entry = 0;
-    // Replace the first entry if it is still unused
-    if(ui->entries->count() == 1)
+    while(ui->entries->count())
     {
-        SendCoinsEntry *first = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
-        if(first->isClear())
-        {
-            entry = first;
-        }
+        ui->entries->takeAt(0)->widget()->deleteLater();
     }
-    if(!entry)
-    {
-        entry = addEntry();
-    }
+
+    entry = addEntry();
 
     entry->setValue(rv);
     updateTabsAndLabels();
