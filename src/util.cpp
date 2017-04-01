@@ -7,6 +7,12 @@
 #include "config/navcoin-config.h"
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#include <stdint.h>
+#include <process.h>
+#endif
+
 #include "util.h"
 
 #include "chainparamsbase.h"
@@ -22,12 +28,6 @@
 #if (defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__))
 #include <pthread.h>
 #include <pthread_np.h>
-#endif
-
-#ifdef WIN32
-#include <windows.h>
-#include <stdint.h>
-#include <process.h>
 #endif
 
 #ifndef WIN32
