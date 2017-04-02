@@ -7,12 +7,6 @@
 #include "config/navcoin-config.h"
 #endif
 
-#ifdef WIN32
-#include <windows.h>
-#include <stdint.h>
-#include <process.h>
-#endif
-
 #include "util.h"
 
 #include "chainparamsbase.h"
