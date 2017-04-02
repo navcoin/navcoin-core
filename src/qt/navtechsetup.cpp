@@ -1,5 +1,3 @@
-#include <curl/curl.h>
-
 #include "navtechsetup.h"
 #include "navtechitem.h"
 #include "ui_navtechsetup.h"
