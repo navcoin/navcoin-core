@@ -198,7 +198,6 @@ void Shutdown()
 #ifdef ENABLE_WALLET
     if (pwalletMain)
         pwalletMain->Flush(false);
-    GenerateNavCoins(false, 0, Params(CBaseChainParams::MAIN));
 #endif
     StopNode();
     StopTorControl();
@@ -487,8 +486,8 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/navcoin/navcoin>";
-    const std::string URL_WEBSITE = "<https://navcoincore.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/navcoindev/navcoin-core>";
+    const std::string URL_WEBSITE = "<https://navcoin.org>";
     // todo: remove urls from translations on next change
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2009, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
@@ -1498,7 +1497,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
 #ifdef ENABLE_WALLET
     // Generate coins in the background
-    GenerateNavCoins(GetBoolArg("-staking", true), GetArg("-genproclimit", DEFAULT_GENERATE_THREADS), chainparams);
+    if(GetBoolArg("-staking", true))
+        threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
 #endif
 
     uiInterface.InitMessage(_("Done loading"));

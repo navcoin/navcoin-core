@@ -39,7 +39,7 @@
 #define ENABLE_WALLET 1
 
 /* Define to 1 to enable ZMQ functions */
-#define ENABLE_ZMQ 0
+#define ENABLE_ZMQ 1
 
 /* parameter and return value type for __fdelt_chk */
 /* #undef FDELT_TYPE */
@@ -66,7 +66,7 @@
 /* #undef HAVE_BOOST_UNIT_TEST_FRAMEWORK */
 
 /* Define to 1 if you have the <byteswap.h> header file. */
-/* #undef HAVE_BYTESWAP_H */
+#define HAVE_BYTESWAP_H 1
 
 /* Define this symbol if the consensus lib has been built */
 #define HAVE_CONSENSUS_LIB 1
@@ -76,63 +76,63 @@
 
 /* Define to 1 if you have the declaration of `be16toh', and to 0 if you
    don't. */
-#define HAVE_DECL_BE16TOH 0
+#define HAVE_DECL_BE16TOH 1
 
 /* Define to 1 if you have the declaration of `be32toh', and to 0 if you
    don't. */
-#define HAVE_DECL_BE32TOH 0
+#define HAVE_DECL_BE32TOH 1
 
 /* Define to 1 if you have the declaration of `be64toh', and to 0 if you
    don't. */
-#define HAVE_DECL_BE64TOH 0
+#define HAVE_DECL_BE64TOH 1
 
 /* Define to 1 if you have the declaration of `bswap_16', and to 0 if you
    don't. */
-#define HAVE_DECL_BSWAP_16 0
+#define HAVE_DECL_BSWAP_16 1
 
 /* Define to 1 if you have the declaration of `bswap_32', and to 0 if you
    don't. */
-#define HAVE_DECL_BSWAP_32 0
+#define HAVE_DECL_BSWAP_32 1
 
 /* Define to 1 if you have the declaration of `bswap_64', and to 0 if you
    don't. */
-#define HAVE_DECL_BSWAP_64 0
+#define HAVE_DECL_BSWAP_64 1
 
 /* Define to 1 if you have the declaration of `htobe16', and to 0 if you
    don't. */
-#define HAVE_DECL_HTOBE16 0
+#define HAVE_DECL_HTOBE16 1
 
 /* Define to 1 if you have the declaration of `htobe32', and to 0 if you
    don't. */
-#define HAVE_DECL_HTOBE32 0
+#define HAVE_DECL_HTOBE32 1
 
 /* Define to 1 if you have the declaration of `htobe64', and to 0 if you
    don't. */
-#define HAVE_DECL_HTOBE64 0
+#define HAVE_DECL_HTOBE64 1
 
 /* Define to 1 if you have the declaration of `htole16', and to 0 if you
    don't. */
-#define HAVE_DECL_HTOLE16 0
+#define HAVE_DECL_HTOLE16 1
 
 /* Define to 1 if you have the declaration of `htole32', and to 0 if you
    don't. */
-#define HAVE_DECL_HTOLE32 0
+#define HAVE_DECL_HTOLE32 1
 
 /* Define to 1 if you have the declaration of `htole64', and to 0 if you
    don't. */
-#define HAVE_DECL_HTOLE64 0
+#define HAVE_DECL_HTOLE64 1
 
 /* Define to 1 if you have the declaration of `le16toh', and to 0 if you
    don't. */
-#define HAVE_DECL_LE16TOH 0
+#define HAVE_DECL_LE16TOH 1
 
 /* Define to 1 if you have the declaration of `le32toh', and to 0 if you
    don't. */
-#define HAVE_DECL_LE32TOH 0
+#define HAVE_DECL_LE32TOH 1
 
 /* Define to 1 if you have the declaration of `le64toh', and to 0 if you
    don't. */
-#define HAVE_DECL_LE64TOH 0
+#define HAVE_DECL_LE64TOH 1
 
 /* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
    don't. */
@@ -146,7 +146,7 @@
 #define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <endian.h> header file. */
-/* #undef HAVE_ENDIAN_H */
+#define HAVE_ENDIAN_H 1
 
 /* Define to 1 if the system has the `dllexport' function attribute */
 /* #undef HAVE_FUNC_ATTRIBUTE_DLLEXPORT */
@@ -155,10 +155,10 @@
 /* #undef HAVE_FUNC_ATTRIBUTE_DLLIMPORT */
 
 /* Define to 1 if the system has the `visibility' function attribute */
-/* #undef HAVE_FUNC_ATTRIBUTE_VISIBILITY */
+#define HAVE_FUNC_ATTRIBUTE_VISIBILITY 1
 
 /* Define this symbol if you have getaddrinfo_a */
-/* #undef HAVE_GETADDRINFO_A */
+#define HAVE_GETADDRINFO_A 1
 
 /* Define this symbol if you have inet_pton */
 #define HAVE_INET_PTON 1
@@ -257,7 +257,7 @@
 #define HAVE_MINIUPNPC_UPNPERRORS_H 1
 
 /* Define this symbol if you have MSG_NOSIGNAL */
-/* #undef HAVE_MSG_NOSIGNAL */
+#define HAVE_MSG_NOSIGNAL 1
 
 /* Define if you have POSIX threads libraries and header files. */
 #define HAVE_PTHREAD 1
@@ -287,7 +287,7 @@
 /* #undef HAVE_SYS_ENDIAN_H */
 
 /* Define to 1 if you have the <sys/prctl.h> header file. */
-/* #undef HAVE_SYS_PRCTL_H */
+#define HAVE_SYS_PRCTL_H 1
 
 /* Define to 1 if you have the <sys/select.h> header file. */
 #define HAVE_SYS_SELECT_H 1
@@ -351,13 +351,13 @@
 #define STDC_HEADERS 1
 
 /* Define to 1 if strerror_r returns char *. */
-/* #undef STRERROR_R_CHAR_P */
+#define STRERROR_R_CHAR_P 1
 
 /* Define if dbus support should be compiled in */
-/* #undef USE_DBUS */
+#define USE_DBUS 1
 
 /* Define if QR support should be compiled in */
-/* #undef USE_QRCODE */
+#define USE_QRCODE 1
 
 /* UPnP support not compiled if undefined, otherwise value (0 or 1) determines
    default state */

@@ -16,6 +16,7 @@
 #include "util.h"
 #include "utilstrencodings.h"
 #include "version.h"
+#include "wallet/wallet.h"
 
 #include <boost/foreach.hpp>
 
@@ -333,6 +334,62 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue addanonserver(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+    if (params.size() >= 2)
+        strCommand = params[1].get_str();
+    if (fHelp || params.size() > 3 ||
+        (strCommand != "add" && strCommand != "remove"))
+        throw runtime_error(
+            "addanonserver \"node\" \"add|remove\"\n"
+            "\nAttempts add or remove a node from the NAVTech server list.\n"
+            "\nArguments:\n"
+            "1. \"node\"     (string, required) The node (see getpeerinfo for nodes)\n"
+            "2. \"command\"  (string, required) 'add' to add a node to the list, 'remove' to remove a node from the list\n"
+            "3. save  (boolean, optional) add or remove the given node to your config file\n"
+            "\nExamples:\n"
+            + HelpExampleCli("addanonserver", "\"192.168.0.6:3000\" \"add\"")
+            + HelpExampleCli("addanonserver", "\"192.168.0.6:3000\" \"add\" true")
+            + HelpExampleRpc("addanonserver", "\"192.168.0.6:3000\", \"remove\"")
+            + HelpExampleRpc("addanonserver", "\"192.168.0.6:3000\", \"remove\", true")
+        );
+
+    string strNode = params[0].get_str();
+
+    LOCK(cs_vAddedAnonServers);
+    vector<string>::iterator it = vAddedAnonServers.begin();
+    for(; it != vAddedAnonServers.end(); it++)
+        if (strNode == *it)
+            break;
+
+    if (strCommand == "add")
+    {
+      if (params.size() == 3 && params[2].get_str() == "true") {
+        WriteConfigFile("addanonserver", strNode);
+        if (it == vAddedAnonServers.end())
+          vAddedAnonServers.push_back(strNode);
+      } else {
+        if (it != vAddedAnonServers.end())
+          throw JSONRPCError(RPC_CLIENT_NODE_ALREADY_ADDED, "Error: NAVTech server already added");
+        vAddedAnonServers.push_back(strNode);
+      }
+    }
+    else if(strCommand == "remove")
+    {
+      if (params.size() == 3 && params[2].get_str() == "true") {
+        RemoveConfigFile("addanonserver", strNode);
+        if (it != vAddedAnonServers.end())
+          vAddedAnonServers.erase(it);
+      } else {
+        if (it == vAddedAnonServers.end())
+          throw JSONRPCError(RPC_CLIENT_NODE_NOT_ADDED, "Error: NAVTech server has not been added.");
+        vAddedAnonServers.erase(it);
+      }
+    }
+    return NullUniValue;
+}
+
 UniValue getnettotals(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 0)
@@ -571,19 +628,93 @@ UniValue clearbanned(const UniValue& params, bool fHelp)
     return NullUniValue;
 }
 
+UniValue getstakinginfo(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "getstakinginfo\n"
+            "Returns an object containing staking-related information.");
+
+    uint64_t nWeight = 0;
+    if (pwalletMain)
+        nWeight = pwalletMain->GetStakeWeight();
+
+    uint64_t nNetworkWeight = GetPoSKernelPS();
+    bool staking = nLastCoinStakeSearchInterval && nWeight;
+    uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
+
+    UniValue obj(UniValue::VOBJ);
+
+    obj.push_back(Pair("enabled", GetBoolArg("-staking", true)));
+    obj.push_back(Pair("staking", staking));
+    obj.push_back(Pair("errors", GetWarnings("statusbar")));
+
+    obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
+    obj.push_back(Pair("currentblocktx", (uint64_t)nLastBlockTx));
+
+    obj.push_back(Pair("difficulty", GetDifficulty(GetLastBlockIndex(pindexBestHeader, true))));
+    obj.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
+
+    obj.push_back(Pair("weight", (uint64_t)nWeight));
+    obj.push_back(Pair("netstakeweight", (uint64_t)nNetworkWeight));
+
+    obj.push_back(Pair("expectedtime", nExpectedTime));
+
+    return obj;
+}
+
+UniValue listanonservers(const UniValue& params, bool fHelp)
+{
+  UniValue obj(UniValue::VARR);
+
+  BOOST_FOREACH(string vAddedAnonServer, vAddedAnonServers) {
+      obj.push_back(vAddedAnonServer);
+  }
+
+  return obj;
+}
+
+UniValue getstakesubsidy(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getstakesubsidy <hex string>\n"
+            "Returns proof-of-stake subsidy value for the specified coinstake.");
+
+    vector<unsigned char> txData(ParseHex(params[0].get_str()));
+    CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+    CTransaction tx;
+    try {
+        ssData >> tx;
+    }
+    catch (std::exception &e) {
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "NAV decode failed");
+    }
+
+    uint64_t nCoinAge;
+    if (!TransactionGetCoinAge(tx, pindexBestHeader, nCoinAge))
+        throw JSONRPCError(RPC_MISC_ERROR, "GetCoinAge failed");
+
+    return (uint64_t)GetProofOfStakeReward(pindexBestHeader->nHeight, nCoinAge, 0);
+}
+
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         okSafeMode
   //  --------------------- ------------------------  -----------------------  ----------
     { "network",            "getconnectioncount",     &getconnectioncount,     true  },
+    { "network",            "getstakesubsidy",        &getstakesubsidy,        true  },
+    { "network",            "getstakinginfo",         &getstakinginfo,         true  },
     { "network",            "ping",                   &ping,                   true  },
     { "network",            "getpeerinfo",            &getpeerinfo,            true  },
     { "network",            "addnode",                &addnode,                true  },
+    { "network",            "addanonserver",          &addanonserver,          true  },
     { "network",            "disconnectnode",         &disconnectnode,         true  },
     { "network",            "getaddednodeinfo",       &getaddednodeinfo,       true  },
     { "network",            "getnettotals",           &getnettotals,           true  },
     { "network",            "getnetworkinfo",         &getnetworkinfo,         true  },
     { "network",            "setban",                 &setban,                 true  },
     { "network",            "listbanned",             &listbanned,             true  },
+    { "network",            "listanonservers",        &listanonservers,        true  },
     { "network",            "clearbanned",            &clearbanned,            true  },
 };
 

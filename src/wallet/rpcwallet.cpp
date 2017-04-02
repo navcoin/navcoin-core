@@ -12,12 +12,14 @@
 #include "net.h"
 #include "netbase.h"
 #include "policy/rbf.h"
+#include "pos.h"
 #include "rpc/server.h"
 #include "timedata.h"
 #include "util.h"
 #include "utilmoneystr.h"
 #include "wallet.h"
 #include "walletdb.h"
+#include "navtech.h"
 
 #include <stdint.h>
 
@@ -29,6 +31,7 @@ using namespace std;
 
 int64_t nWalletUnlockTime;
 static CCriticalSection cs_nWalletUnlockTime;
+Navtech navtech;
 
 std::string HelpRequiringPassphrase()
 {
@@ -53,6 +56,8 @@ void EnsureWalletIsUnlocked()
 {
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+    if (fWalletUnlockStakingOnly)
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Wallet is unlocked for staking only.");
 }
 
 void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
@@ -77,7 +82,7 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     entry.push_back(Pair("walletconflicts", conflicts));
     entry.push_back(Pair("time", wtx.GetTxTime()));
     entry.push_back(Pair("timereceived", (int64_t)wtx.nTimeReceived));
-
+    entry.push_back(Pair("anon-destination", wtx.strDZeel));
     // Add opt-in RBF status
     std::string rbfStatus = "no";
     if (confirms <= 0) {
@@ -336,7 +341,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "")
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -358,7 +363,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -372,9 +377,9 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 2 || params.size() > 5)
+    if (fHelp || params.size() < 2 || params.size() > 6)
         throw runtime_error(
-            "sendtoaddress \"navcoinaddress\" amount ( \"comment\" \"comment-to\" subtractfeefromamount )\n"
+            "sendtoaddress \"navcoinaddress\" amount ( \"comment\" \"comment-to\" \"anon-destination\" subtractfeefromamount )\n"
             "\nSend an amount to a given address.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -385,7 +390,8 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
             "                             to which you're sending the transaction. This is not part of the \n"
             "                             transaction, just kept in your wallet.\n"
-            "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+            "5. \"anon-destination\"  (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "6. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
             "                             The recipient will receive less navcoins than you enter in the amount field.\n"
             "\nResult:\n"
             "\"transactionid\"  (string) The transaction id.\n"
@@ -412,18 +418,129 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty())
         wtx.mapValue["comment"] = params[2].get_str();
     if (params.size() > 3 && !params[3].isNull() && !params[3].get_str().empty())
-        wtx.mapValue["to"]      = params[3].get_str();
+        wtx.mapValue["to"] = params[3].get_str();
+
+    std::string strDZeel;
+
+    if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
+        strDZeel = params[4].get_str();
 
     bool fSubtractFeeFromAmount = false;
-    if (params.size() > 4)
-        fSubtractFeeFromAmount = params[4].get_bool();
+    if (params.size() > 5)
+        fSubtractFeeFromAmount = params[5].get_bool();
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
 
     return wtx.GetHash().GetHex();
 }
+
+UniValue anonsend(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 2 || params.size() > 5)
+        throw runtime_error(
+            "anonsend \"navcoinaddress\" amount ( \"comment\" \"comment-to\" subtractfeefromamount )\n"
+            "\nSend an amount to a given address anonymously.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
+            "2. \"amount\"      (numeric or string, required) The amount in " + CURRENCY_UNIT + " to send. eg 0.1\n"
+            "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
+            "                             This is not part of the transaction, just kept in your wallet.\n"
+            "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
+            "                             to which you're sending the transaction. This is not part of the \n"
+            "                             transaction, just kept in your wallet.\n"
+            "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+            "                             The recipient will receive less navcoins than you enter in the amount field.\n"
+            "\nResult:\n"
+            "\"transactionid\"  (string) The transaction id.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
+            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true")
+            + HelpExampleRpc("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
+        );
+
+
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address(params[0].get_str());
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
+    // Amount
+    CAmount nAmount = AmountFromValue(params[1]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount);
+    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
+
+    if (!serverNavAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
+
+    // Wallet comments
+    CWalletTx wtx;
+    if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty())
+        wtx.mapValue["comment"] = params[2].get_str();
+    if (params.size() > 3 && !params[3].isNull() && !params[3].get_str().empty())
+        wtx.mapValue["to"]      = params[3].get_str();
+
+    std::string strDZeel;
+
+    if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
+        strDZeel = params[4].get_str();
+
+    bool fSubtractFeeFromAmount = false;
+    if (params.size() > 5)
+        fSubtractFeeFromAmount = params[5].get_bool();
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(serverNavAddress.Get(), nAmount, fSubtractFeeFromAmount, wtx, find_value(navtechData, "anondestination").get_str());
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue getanondestination(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getanondestination \"navcoinaddress\"\n"
+            "\nGet the the encrypted anon destination and address to send to.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
+            "\nResult:\n"
+            "\"anondestination\"  (string) The encrypted information to attach to the transaction.\n"
+            "\"anonaddress\"  (string) The nav coin address to send the anon transaction to.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getanondestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address(params[0].get_str());
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
+    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str());
+
+    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
+    if (!serverNavAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
+
+    return navtechData;
+}
+
 
 UniValue listaddressgroupings(const UniValue& params, bool fHelp)
 {
@@ -1896,14 +2013,15 @@ UniValue walletpassphrase(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (pwalletMain->IsCrypted() && (fHelp || params.size() != 2))
+    if (pwalletMain->IsCrypted() && (fHelp || params.size() < 2))
         throw runtime_error(
-            "walletpassphrase \"passphrase\" timeout\n"
+            "walletpassphrase \"passphrase\" timeout [stakingonly]\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
             "This is needed prior to performing transactions related to private keys such as sending navcoins\n"
             "\nArguments:\n"
             "1. \"passphrase\"     (string, required) The wallet passphrase\n"
             "2. timeout            (numeric, required) The time to keep the decryption key in seconds.\n"
+            "3. stakingonly        (bool, optional) If it is true sending functions are disabled.\n"
             "\nNote:\n"
             "Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock\n"
             "time that overrides the old one.\n"
@@ -1946,6 +2064,11 @@ UniValue walletpassphrase(const UniValue& params, bool fHelp)
     LOCK(cs_nWalletUnlockTime);
     nWalletUnlockTime = GetTime() + nSleepTime;
     RPCRunLater("lockwallet", boost::bind(LockWallet, pwalletMain), nSleepTime);
+
+    if (params.size() > 2)
+        fWalletUnlockStakingOnly = params[2].get_bool();
+    else
+        fWalletUnlockStakingOnly = false;
 
     return NullUniValue;
 }
@@ -2567,6 +2690,181 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
     return result;
 }
 
+// ///////////////////////////////////////////////////////////////////// ** em52
+//  new rpc added by Remy5
+
+struct StakePeriodRange_T {
+    int64_t Start;
+    int64_t End;
+    int64_t Total;
+    int Count;
+    std::string Name;
+};
+
+typedef std::vector<StakePeriodRange_T> vStakePeriodRange_T;
+
+// **em52: Get total coins staked on given period
+// inspired from CWallet::GetStake()
+// Parameter aRange = Vector with given limit date, and result
+// return int =  Number of Wallet's elements analyzed
+int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
+{
+    int nElement = 0;
+    int64_t nAmount = 0;
+
+    const CWalletTx* pcoin;
+
+    vStakePeriodRange_T::iterator vIt;
+
+    // scan the entire wallet transactions
+    for (map<uint256, CWalletTx>::const_iterator it = pwalletMain->mapWallet.begin();
+         it != pwalletMain->mapWallet.end();
+         ++it)
+    {
+        pcoin = &(*it).second;
+
+        // skip orphan block or immature
+        if  ((!pcoin->GetDepthInMainChain()) || (pcoin->GetBlocksToMaturity()>0))
+            continue;
+
+        // skip transaction other than POS block
+        if (!(pcoin->IsCoinStake()))
+            continue;
+
+        nElement++;
+
+        // use the cached amount if available
+        if (pcoin->fCreditCached && pcoin->fDebitCached)
+            nAmount = pcoin->nCreditCached - pcoin->nDebitCached;
+        else
+            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_SPENDABLE);
+
+
+        // scan the range
+        for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)
+        {
+            if (pcoin->nTime >= vIt->Start)
+            {
+                if (! vIt->End)
+                {   // Manage Special case
+                    vIt->Start = pcoin->nTime;
+                    vIt->Total = nAmount;
+                }
+                else if (pcoin->nTime <= vIt->End)
+                {
+                    vIt->Count++;
+                    vIt->Total += nAmount;
+                }
+            }
+        }
+
+    }
+
+    return nElement;
+}
+
+
+// prepare range for stake report
+vStakePeriodRange_T PrepareRangeForStakeReport()
+{
+    vStakePeriodRange_T aRange;
+    StakePeriodRange_T x;
+
+    struct tm Loc_MidNight;
+
+    int64_t n1Hour = 60*60;
+    int64_t n1Day = 24 * n1Hour;
+
+    int64_t nToday = GetTime();
+    time_t CurTime = nToday;
+
+    localtime_r(&CurTime, &Loc_MidNight);
+    Loc_MidNight.tm_hour = 0;
+    Loc_MidNight.tm_min = 0;
+    Loc_MidNight.tm_sec = 0;  // set midnight
+
+    x.Start = mktime(&Loc_MidNight);
+    x.End   = nToday;
+    x.Count = 0;
+    x.Total = 0;
+
+    // prepare last single 30 day Range
+    for(int i=0; i<30; i++)
+    {
+
+        x.Name = DateTimeStrFormat("%Y-%m-%d %H:%M:%S",x.Start);
+
+        aRange.push_back(x);
+
+        x.End    = x.Start - 1;
+        x.Start -= n1Day;
+
+    }
+
+    // prepare subtotal range of last 24H, 1 week, 30 days, 1 years
+    int GroupDays[4][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}};
+    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days" };
+
+    nToday = GetTime();
+
+    for(int i=0; i<4; i++)
+    {
+        x.Start = nToday - GroupDays[i][0] * n1Day;
+        x.End   = nToday - GroupDays[i][1] * n1Day;
+        x.Name = "Last " + sGroupName[i];
+
+        aRange.push_back(x);
+    }
+
+    // Special case. not a subtotal, but last stake
+    x.End  = 0;
+    x.Start = 0;
+    x.Name = "Latest Stake";
+    aRange.push_back(x);
+
+
+return aRange;
+}
+
+
+// getstakereport: return SubTotal of the staked coin in last 24H, 7 days, etc.. of all owns address
+UniValue getstakereport(const UniValue& params, bool fHelp)
+{
+    if ((params.size()>0) || (fHelp))
+        throw runtime_error(
+            "getstakereport\n"
+            "List last single 30 day stake subtotal and last 24h, 7, 30, 365 day subtotal.\n");
+
+    vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
+
+    // get subtotal calc
+    int64_t nTook = GetTimeMillis();
+    int nItemCounted = GetsStakeSubTotal(aRange);
+    nTook = GetTimeMillis() - nTook;
+
+    UniValue result(UniValue::VOBJ);
+
+    vStakePeriodRange_T::iterator vIt;
+
+    // report it
+    for(vIt = aRange.begin(); vIt != aRange.end(); vIt++)
+    {
+        result.push_back(Pair(vIt->Name, FormatMoney(vIt->Total).c_str()));
+    }
+
+    vIt--;
+    result.push_back(Pair("Latest Time",
+       vIt->Start ? DateTimeStrFormat("%Y-%m-%d %H:%M:%S",vIt->Start).c_str() :
+       "Never"));
+
+
+    // report element counted / time took
+    result.push_back(Pair("Stake counted", nItemCounted));
+    result.push_back(Pair("time took (ms)",  nTook ));
+
+    return  result;
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
 extern UniValue importaddress(const UniValue& params, bool fHelp);
@@ -2596,6 +2894,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true  },
     { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false },
     { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false },
+    { "wallet",             "getstakereport",           &getstakereport,           false },
     { "wallet",             "gettransaction",           &gettransaction,           false },
     { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false },
     { "wallet",             "getwalletinfo",            &getwalletinfo,            false },
@@ -2618,6 +2917,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendfrom",                 &sendfrom,                 false },
     { "wallet",             "sendmany",                 &sendmany,                 false },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
+    { "wallet",             "anonsend",                 &anonsend,                 false },
+    { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
     { "wallet",             "settxfee",                 &settxfee,                 true  },
     { "wallet",             "signmessage",              &signmessage,              true  },

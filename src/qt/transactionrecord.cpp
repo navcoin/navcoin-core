@@ -91,6 +91,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit;
                     hashPrev = hash;
                 }
+                if(wtx.strDZeel != "")
+                {
+                    sub.type = TransactionRecord::AnonTx;
+                }
 
                 parts.append(sub);
             }
@@ -157,6 +161,11 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     // Sent to IP, or other non-address transaction like OP_EVAL
                     sub.type = TransactionRecord::SendToOther;
                     sub.address = mapValue["to"];
+                }
+
+                if(wtx.strDZeel != "")
+                {
+                    sub.type = TransactionRecord::AnonTx;
                 }
 
                 CAmount nValue = txout.nValue;

@@ -62,6 +62,7 @@ b'libm.so.6', # math library
 b'librt.so.1', # real-time (clock)
 b'ld-linux-x86-64.so.2', # 64-bit dynamic linker
 b'ld-linux.so.2', # 32-bit dynamic linker
+b'libcurl.so.4', # libcurl  
 # navcoin-qt only
 b'libX11-xcb.so.1', # part of X11
 b'libX11.so.6', # part of X11

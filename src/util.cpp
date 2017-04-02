@@ -10,6 +10,7 @@
 #include "util.h"
 
 #include "chainparamsbase.h"
+#include "net.h"
 #include "random.h"
 #include "serialize.h"
 #include "sync.h"
@@ -101,6 +102,9 @@ using namespace std;
 
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
+
+std::vector<std::string> vAddedAnonServers;
+CCriticalSection cs_vAddedAnonServers;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -543,6 +547,13 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         // Don't overwrite existing settings so command line settings override navcoin.conf
         string strKey = string("-") + it->string_key;
         string strValue = it->value[0];
+
+        if(strKey == "-addanonserver")
+        {
+            vAddedAnonServers.push_back(strValue);
+            continue;
+        }
+
         InterpretNegativeSetting(strKey, strValue);
         if (mapSettingsRet.count(strKey) == 0)
             mapSettingsRet[strKey] = strValue;
@@ -596,15 +607,14 @@ void RemoveConfigFile(std::string key, std::string value)
 
     while (std::getline(streamConfig, line))
     {
-          if(line != key + "=" + value)
-              configBuffer += "\n" + line;
+          if(line != key + "=" + value && line != "")
+              configBuffer += line + "\n";
     }
 
     boost::filesystem::ofstream outStream(GetConfigFile());
     outStream << configBuffer;
     outStream.close();
 }
-
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {
@@ -869,9 +879,13 @@ void SetThreadPriority(int nPriority)
 {
     // It's unclear if it's even possible to change thread priorities on Linux,
     // but we really and truly need it for the generation threads.
+#ifdef WIN32
+    SetThreadPriority(GetCurrentThread(), nPriority);
+#else
 #ifdef PRIO_THREAD
     setpriority(PRIO_THREAD, 0, nPriority);
 #else
     setpriority(PRIO_PROCESS, 0, nPriority);
+#endif
 #endif
 }

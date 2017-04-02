@@ -8,6 +8,8 @@
 #include <QFrame>
 #include <QMap>
 #include <QHBoxLayout>
+#include <QPushButton>
+
 
 class NavCoinGUI;
 class ClientModel;
@@ -38,6 +40,7 @@ public:
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 
     void showOutOfSyncWarning(bool fShow);
+    WalletView *currentWalletView();
 
     QWidget *topMenu;
 
@@ -51,7 +54,6 @@ private:
 
     const PlatformStyle *platformStyle;
 
-    WalletView *currentWalletView();
 
 public Q_SLOTS:
 
@@ -63,11 +65,14 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    void gotoRequestPaymentPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
+
+
 
     /** Encrypt the wallet */
     void encryptWallet(bool status);
@@ -77,6 +82,24 @@ public Q_SLOTS:
     void changePassphrase();
     /** Ask for passphrase to unlock wallet temporarily */
     void unlockWallet();
+    void unlockWalletStaking();
+    void lockWallet();
+
+    void setStatusTitleBlocks(QString text);
+
+    void setStatusTitleConnections(QString text);
+
+    void setStatusTitle(QString text);
+
+    void showStatusTitleConnections();
+    void hideStatusTitleConnections();
+    void showStatusTitleBlocks();
+    void hideStatusTitleBlocks();
+
+    void showLockStaking(bool status);
+
+    void setStakingStatus(QString text);
+    void setStakingStats(QString day, QString week, QString month);
 
     /** Show used sending addresses */
     void usedSendingAddresses();

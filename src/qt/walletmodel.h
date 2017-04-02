@@ -9,6 +9,7 @@
 #include "walletmodeltransaction.h"
 
 #include "support/allocators/secure.h"
+#include "wallet/wallet.h"
 
 #include <map>
 #include <vector>
@@ -47,10 +48,16 @@ public:
     // payment requests, we can abuse it for displaying an address list.
     // Todo: This is a hack, should be replaced with a cleaner solution!
     QString address;
+    QString plainaddress;
     QString label;
     CAmount amount;
     // If from a payment request, this is used for storing the memo
     QString message;
+    QString anondestination;
+    QString destaddress;
+    CAmount anonfee;
+    double transaction_fee;
+    bool isanon;
 
     // If from a payment request, paymentRequest.IsInitialized() will be true
     PaymentRequestPlus paymentRequest;
@@ -224,6 +231,7 @@ private:
     CAmount cachedWatchOnlyBalance;
     CAmount cachedWatchUnconfBalance;
     CAmount cachedWatchImmatureBalance;
+    CAmount cachedStakingBalance;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
 

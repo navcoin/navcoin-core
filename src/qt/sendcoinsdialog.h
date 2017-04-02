@@ -56,6 +56,9 @@ public Q_SLOTS:
     void updateTabsAndLabels();
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance,
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
+    void checkNavtechServers();
+    void showNavTechDialog();
+    void anonsendCheckboxClick();
 
 private:
     Ui::SendCoinsDialog *ui;

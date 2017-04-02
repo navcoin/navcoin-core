@@ -138,13 +138,6 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a"));
         assert(genesis.hashMerkleRoot == uint256S("0xc507eec6ccabfd5432d764afceafba42d2d946594b8a60570cb2358a7392c61a"));
 
-        /*vSeeds.push_back(CDNSSeedData("navcoin.sipa.be", "seed.navcoin.sipa.be", true)); // Pieter Wuille
-        vSeeds.push_back(CDNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
-        vSeeds.push_back(CDNSSeedData("dashjr.org", "dnsseed.navcoin.dashjr.org")); // Luke Dashjr
-        vSeeds.push_back(CDNSSeedData("navcoinstats.com", "seed.navcoinstats.com")); // Christian Decker
-        vSeeds.push_back(CDNSSeedData("xf2.org", "bitseed.xf2.org")); // Jeff Garzik
-        vSeeds.push_back(CDNSSeedData("navcoin.jonasschnelli.ch", "seed.navcoin.jonasschnelli.ch")); // Jonas Schnelli*/
-
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,53);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,150);
@@ -155,6 +148,10 @@ public:
       	vSeeds.clear();
 
         vSeeds.push_back(CDNSSeedData("supernode.navcoin.org", "95.183.51.56"));
+        vSeeds.push_back(CDNSSeedData("navtech1.navcoin.org", "95.183.52.55"));
+        vSeeds.push_back(CDNSSeedData("navtech2.navcoin.org", "95.183.52.28"));
+        vSeeds.push_back(CDNSSeedData("navtech3.navcoin.org", "95.183.52.29"));
+        vSeeds.push_back(CDNSSeedData("navtech4.navcoin.org", "95.183.53.184"));
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 

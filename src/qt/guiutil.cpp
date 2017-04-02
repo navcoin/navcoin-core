@@ -426,6 +426,15 @@ void openDebugLogfile()
         QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathDebug)));
 }
 
+void openNavCoinConf()
+{
+     boost::filesystem::path pathConfig = GetConfigFile();
+
+     /* Open navcoin.conf with the associated application */
+     if (boost::filesystem::exists(pathConfig))
+         QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathConfig)));
+}
+
 void SubstituteFonts(const QString& language)
 {
 #if defined(Q_OS_MAC)

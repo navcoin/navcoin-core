@@ -105,7 +105,11 @@ QT_FORMS_UI = \
   qt/forms/sendcoinsdialog.ui \
   qt/forms/sendcoinsentry.ui \
   qt/forms/signverifymessagedialog.ui \
-  qt/forms/transactiondescdialog.ui
+  qt/forms/transactiondescdialog.ui \
+  qt/navtechinit.ui \
+  qt/navtechitem.ui \
+  qt/navtechsetup.ui \
+  qt/getaddresstoreceive.ui
 
 QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
@@ -125,6 +129,10 @@ QT_MOC_CPP = \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
   qt/moc_macnotificationhandler.cpp \
+  qt/moc_navtechinit.cpp \
+  qt/moc_navtechsetup.cpp \
+  qt/moc_navtechitem.cpp \
+  qt/moc_getaddresstoreceive.cpp \
   qt/moc_notificator.cpp \
   qt/moc_openuridialog.cpp \
   qt/moc_optionsdialog.cpp \
@@ -190,8 +198,13 @@ NAVCOIN_QT_H = \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/intro.h \
+  qt/listview.h \
   qt/macdockiconhandler.h \
   qt/macnotificationhandler.h \
+  qt/navtechinit.h \
+  qt/navtechitem.h \
+  qt/navtechsetup.h \
+  qt/getaddresstoreceive.h \
   qt/networkstyle.h \
   qt/notificator.h \
   qt/openuridialog.h \
@@ -211,6 +224,7 @@ NAVCOIN_QT_H = \
   qt/sendcoinsdialog.h \
   qt/sendcoinsentry.h \
   qt/signverifymessagedialog.h \
+  qt/skinize.h \
   qt/splashscreen.h \
   qt/trafficgraphwidget.h \
   qt/transactiondesc.h \
@@ -227,58 +241,81 @@ NAVCOIN_QT_H = \
   qt/winshutdownmonitor.h
 
 RES_ICONS = \
-  qt/res/icons/add.png \
-  qt/res/icons/address-book.png \
-  qt/res/icons/about.png \
-  qt/res/icons/about_qt.png \
+  qt/res/icons/navcoin.png \
   qt/res/icons/navcoin.ico \
   qt/res/icons/navcoin_testnet.ico \
-  qt/res/icons/navcoin.png \
-  qt/res/icons/chevron.png \
-  qt/res/icons/clock1.png \
-  qt/res/icons/clock2.png \
-  qt/res/icons/clock3.png \
-  qt/res/icons/clock4.png \
-  qt/res/icons/clock5.png \
-  qt/res/icons/configure.png \
+  qt/res/icons/ghost.png \
+  qt/res/icons/address-book.png \
+  qt/res/icons/quit.png \
+  qt/res/icons/send.png \
   qt/res/icons/connect0.png \
   qt/res/icons/connect1.png \
   qt/res/icons/connect2.png \
   qt/res/icons/connect3.png \
   qt/res/icons/connect4.png \
-  qt/res/icons/debugwindow.png \
-  qt/res/icons/edit.png \
-  qt/res/icons/editcopy.png \
-  qt/res/icons/editpaste.png \
-  qt/res/icons/export.png \
-  qt/res/icons/eye.png \
-  qt/res/icons/eye_minus.png \
-  qt/res/icons/eye_plus.png \
-  qt/res/icons/filesave.png \
-  qt/res/icons/fontbigger.png \
-  qt/res/icons/fontsmaller.png \
-  qt/res/icons/history.png \
-  qt/res/icons/info.png \
-  qt/res/icons/key.png \
-  qt/res/icons/lock_closed.png \
-  qt/res/icons/lock_open.png \
-  qt/res/icons/open.png \
-  qt/res/icons/overview.png \
-  qt/res/icons/quit.png \
-  qt/res/icons/receive.png \
-  qt/res/icons/remove.png \
-  qt/res/icons/send.png \
-  qt/res/icons/synced.png \
   qt/res/icons/transaction0.png \
   qt/res/icons/transaction2.png \
   qt/res/icons/transaction_conflicted.png \
-  qt/res/icons/tx_inout.png \
+  qt/res/icons/clock1.png \
+  qt/res/icons/clock2.png \
+  qt/res/icons/clock3.png \
+  qt/res/icons/clock4.png \
+  qt/res/icons/clock5.png \
+  qt/res/icons/eye.png \
+  qt/res/icons/eye_minus.png \
+  qt/res/icons/eye_plus.png \
+  qt/res/icons/configure.png \
+  qt/res/icons/receive.png \
+  qt/res/icons/editpaste.png \
+  qt/res/icons/editcopy.png \
+  qt/res/icons/add.png \
+  qt/res/icons/edit.png \
+  qt/res/icons/history.png \
+  qt/res/icons/overview.png \
+  qt/res/icons/export.png \
+  qt/res/icons/synced.png \
+  qt/res/icons/remove.png \
+  qt/res/icons/tx_mined.png \
   qt/res/icons/tx_input.png \
   qt/res/icons/tx_output.png \
-  qt/res/icons/tx_mined.png \
-  qt/res/icons/warning.png \
+  qt/res/icons/tx_inout.png \
+  qt/res/icons/lock_closed.png \
+  qt/res/icons/lock_open.png \
+  qt/res/icons/key.png \
+  qt/res/icons/filesave.png \
+  qt/res/icons/splash.png \
+  qt/res/icons/debugwindow.png \
+  qt/res/icons/open.png \
+  qt/res/icons/info.png \
+  qt/res/icons/about.png \
+  qt/res/icons/about_qt.png \
   qt/res/icons/verify.png \
-  qt/res/icons/transaction_abandoned.png
+  qt/res/icons/warning.png \
+  qt/res/icons/fontbigger.png \
+  qt/res/icons/fontsmaller.png \
+  qt/res/icons/chevron.png \
+  qt/res/icons/transaction_abandoned.png \
+  qt/res/icons/logo_ns.png \
+  qt/res/icons/home_ns.png \
+  qt/res/icons/receive_ns.png \
+  qt/res/icons/send_ns.png \
+  qt/res/icons/home_hover.png \
+  qt/res/icons/home_s.png \
+  qt/res/icons/receive_hover.png \
+  qt/res/icons/receive_s.png \
+  qt/res/icons/send_hover.png \
+  qt/res/icons/send_s.png \
+  qt/res/icons/transaction_ns.png \
+  qt/res/icons/transaction_s.png \
+  qt/res/icons/transaction_hover.png \
+  qt/res/fonts/roboto.ttf \
+  qt/res/fonts/robotoregular.ttf \
+  qt/res/fonts/source.ttf \
+  qt/res/fonts/Roboto-Black.ttf \
+  qt/res/fonts/Roboto-Bold.ttf \
+  qt/res/fonts/Roboto-Medium.ttf \
+  qt/res/icons/power_off.png \
+  qt/res/icons/power.png
 
 NAVCOIN_QT_CPP = \
   qt/bantablemodel.cpp \
@@ -286,6 +323,10 @@ NAVCOIN_QT_CPP = \
   qt/navcoinamountfield.cpp \
   qt/navcoingui.cpp \
   qt/navcoinunits.cpp \
+  qt/navtechinit.cpp \
+  qt/navtechitem.cpp \
+  qt/navtechsetup.cpp \
+  qt/getaddresstoreceive.cpp \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
   qt/guiutil.cpp \
@@ -299,6 +340,7 @@ NAVCOIN_QT_CPP = \
   qt/qvalidatedlineedit.cpp \
   qt/qvaluecombobox.cpp \
   qt/rpcconsole.cpp \
+  qt/skinize.cpp \
   qt/splashscreen.cpp \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp
@@ -370,7 +412,7 @@ $(QT_MOC): $(PROTOBUF_H)
 $(QT_MOC_CPP): $(PROTOBUF_H)
 
 # navcoin-qt binary #
-qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
+qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(CURL_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
   $(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
 qt_navcoin_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
@@ -389,7 +431,7 @@ if ENABLE_ZMQ
 qt_navcoin_qt_LDADD += $(LIBNAVCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 qt_navcoin_qt_LDADD += $(LIBNAVCOIN_CLI) $(LIBNAVCOIN_COMMON) $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_CONSENSUS) $(LIBNAVCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
-  $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
+  $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
   $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
 qt_navcoin_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 qt_navcoin_qt_LIBTOOLFLAGS = --tag CXX

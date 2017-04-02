@@ -623,7 +623,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 
 extern unsigned int nMinerSleep;
 
-void static NavCoinStaker(const CChainParams& chainparams)
+void NavCoinStaker(const CChainParams& chainparams)
 {
     LogPrintf("NavCoinStaker started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
@@ -703,28 +703,6 @@ void static NavCoinStaker(const CChainParams& chainparams)
     }
 }
 
-void GenerateNavCoins(bool fGenerate, int nThreads, const CChainParams& chainparams)
-{
-    static boost::thread_group* StakerThreads = NULL;
-
-    if (nThreads < 0)
-        nThreads = GetNumCores();
-
-    if (StakerThreads != NULL)
-    {
-        StakerThreads->interrupt_all();
-        delete StakerThreads;
-        StakerThreads = NULL;
-    }
-
-    if (nThreads == 0 || !fGenerate)
-        return;
-
-    StakerThreads = new boost::thread_group();
-    for (int i = 0; i < nThreads; i++)
-        StakerThreads->create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
-}
-
 #ifdef ENABLE_WALLET
 bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 {
@@ -802,9 +780,6 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
 
     //// debug print
     LogPrintf("CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());
-    LogPrintf("%s\n", pblock->ToString());
-    LogPrintf("out %s\n", FormatMoney(pblock->vtx[1].GetValueOut()));
-
 
     // Found a solution
     {

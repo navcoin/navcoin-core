@@ -24,8 +24,6 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     ui->setupUi(this);
 
     ui->addressBookButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->pasteButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
-    ui->deleteButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
     ui->deleteButton_is->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
     ui->deleteButton_s->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
 
@@ -45,9 +43,12 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     // Connect signals
     connect(ui->payAmount, SIGNAL(valueChanged()), this, SIGNAL(payAmountChanged()));
     connect(ui->checkboxSubtractFeeFromAmount, SIGNAL(toggled(bool)), this, SIGNAL(subtractFeeFromAmountChanged()));
-    connect(ui->deleteButton, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->deleteButton_is, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
+    connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
+
+    ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
+    ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
 }
 
 SendCoinsEntry::~SendCoinsEntry()
@@ -55,10 +56,10 @@ SendCoinsEntry::~SendCoinsEntry()
     delete ui;
 }
 
-void SendCoinsEntry::on_pasteButton_clicked()
+void SendCoinsEntry::updateAddressBook()
 {
-    // Paste text from clipboard into recipient field
-    ui->payTo->setText(QApplication::clipboard()->text());
+    ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
+    ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
 }
 
 void SendCoinsEntry::on_addressBookButton_clicked()
@@ -179,9 +180,7 @@ QWidget *SendCoinsEntry::setupTabChain(QWidget *prev)
     QWidget *w = ui->payAmount->setupTabChain(ui->addAsLabel);
     QWidget::setTabOrder(w, ui->checkboxSubtractFeeFromAmount);
     QWidget::setTabOrder(ui->checkboxSubtractFeeFromAmount, ui->addressBookButton);
-    QWidget::setTabOrder(ui->addressBookButton, ui->pasteButton);
-    QWidget::setTabOrder(ui->pasteButton, ui->deleteButton);
-    return ui->deleteButton;
+    return ui->addressBookButton;
 }
 
 void SendCoinsEntry::setValue(const SendCoinsRecipient &value)

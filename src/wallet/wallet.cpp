@@ -537,6 +537,11 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     return true;
 }
 
+// optional setting to unlock wallet for staking only
+// serves to disable the trivial sendmoney when OS account compromised
+// provides no real security
+bool fWalletUnlockStakingOnly = false;
+
 bool CWallet::AddKeyPubKey(const CKey& secret, const CPubKey &pubkey)
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata
@@ -1417,20 +1422,62 @@ void CWallet::MarkConflicted(const uint256& hashBlock, const uint256& hashTx)
     }
 }
 
-void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, const CBlock* pblock)
+void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, const CBlock* pblock, bool fConnect)
 {
     LOCK2(cs_main, cs_wallet);
 
+    if (!fConnect)
+    {
+        // wallets need to refund inputs when disconnecting coinstake
+        if (tx.IsCoinStake())
+        {
+            if (IsFromMe(tx))
+            {
+                // Do not flush the wallet here for performance reasons
+                CWalletDB walletdb(strWalletFile, "r+", false);
+
+                if (mapWallet.count(tx.hash))
+                {
+                    CWalletTx& wtx = mapWallet[tx.hash];
+                    wtx.MarkDirty();
+                    walletdb.WriteTx(wtx);
+                }
+                else
+                {
+                    LogPrintf("SyncTransaction : Warning: Could not find %s in wallet. Trying to refund someone else's tx?", tx.hash.ToString());
+                }
+
+                LogPrintf("SyncTransaction : Refunding inputs of orphan tx %s\n",tx.hash.ToString());
+
+                BOOST_FOREACH(const CTxIn& txin, tx.vin)
+                {
+                    if (mapWallet.count(txin.prevout.hash))
+                        mapWallet[txin.prevout.hash].MarkDirty();
+                }
+            }
+        }
+    }
+
+    bool isMine = true;
+
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
-        return; // Not one of ours
+        isMine = false; // Not one of ours
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be
     // recomputed, also:
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+
+    if(isMine == true)
+        BOOST_FOREACH(const CTxIn& txin, tx.vin)
+        {
+            if (mapWallet.count(txin.prevout.hash))
+                mapWallet[txin.prevout.hash].MarkDirty();
+        }
+
+    if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
     {
-        if (mapWallet.count(txin.prevout.hash))
-            mapWallet[txin.prevout.hash].MarkDirty();
+        LogPrintf("SyncTransaction : Abandoning tx %s\n",tx.hash.ToString());
+        AbandonTransaction(tx.hash);
     }
 }
 
@@ -1625,7 +1672,7 @@ int CWalletTx::GetRequestCount() const
     int nRequests = -1;
     {
         LOCK(pwallet->cs_wallet);
-        if (IsCoinBase())
+        if (IsCoinBase() || IsCoinStake())
         {
             // Generated block
             if (!hashUnset())
@@ -1836,7 +1883,7 @@ void CWallet::ReacceptWalletTransactions()
 bool CWalletTx::RelayWalletTransaction()
 {
     assert(pwallet->GetBroadcastTransactions());
-    if (!IsCoinBase())
+    if (!(IsCoinBase() || IsCoinStake()))
     {
         if (GetDepthInMainChain() == 0 && !isAbandoned() && InMempool()) {
             LogPrintf("Relaying wtx %s\n", GetHash().ToString());
@@ -2517,7 +2564,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
 }
 
 bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
-                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign)
+                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign, std::string strDZeel)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
@@ -2543,7 +2590,16 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     wtxNew.fTimeReceivedIsTxTime = true;
     wtxNew.nTime = GetAdjustedTime();
     wtxNew.BindWallet(this);
+
     CMutableTransaction txNew;
+
+    txNew.strDZeel = strDZeel;
+
+    if (strDZeel.length() > 0)
+      txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+
+    if (strDZeel.length() > 512)
+      txNew.strDZeel.resize(512);
 
     // Discourage fee sniping.
     //
@@ -2782,6 +2838,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 }
 
                 CAmount nFeeNeeded = GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
+
+                nFeeNeeded = nFeeNeeded > 10000 ? nFeeNeeded : 10000;
+
                 if (coinControl && nFeeNeeded > 0 && coinControl->nMinimumTotalFee > nFeeNeeded) {
                     nFeeNeeded = coinControl->nMinimumTotalFee;
                 }
@@ -2880,22 +2939,22 @@ CAmount CWallet::GetRequiredFee(unsigned int nTxBytes)
 
 CAmount CWallet::GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool)
 {
-    // // payTxFee is user-set "I want to pay this much"
-    // CAmount nFeeNeeded = payTxFee.GetFee(nTxBytes);
-    // // User didn't set: use -txconfirmtarget to estimate...
-    // if (nFeeNeeded == 0) {
-    //     int estimateFoundTarget = nConfirmTarget;
-    //     nFeeNeeded = pool.estimateSmartFee(nConfirmTarget, &estimateFoundTarget).GetFee(nTxBytes);
-    //     // ... unless we don't have enough mempool data for estimatefee, then use fallbackFee
-    //     if (nFeeNeeded == 0)
-    //         nFeeNeeded = fallbackFee.GetFee(nTxBytes);
-    // }
-    // // prevent user from paying a fee below minRelayTxFee or minTxFee
-    // nFeeNeeded = std::max(nFeeNeeded, GetRequiredFee(nTxBytes));
-    // // But always obey the maximum
-    // if (nFeeNeeded > maxTxFee)
-    //     nFeeNeeded = maxTxFee;
-    return 10000;
+     // payTxFee is user-set "I want to pay this much"
+     CAmount nFeeNeeded = payTxFee.GetFee(nTxBytes);
+     // User didn't set: use -txconfirmtarget to estimate...
+     if (nFeeNeeded == 0) {
+         int estimateFoundTarget = nConfirmTarget;
+         nFeeNeeded = pool.estimateSmartFee(nConfirmTarget, &estimateFoundTarget).GetFee(nTxBytes);
+         // ... unless we don't have enough mempool data for estimatefee, then use fallbackFee
+         if (nFeeNeeded == 0)
+             nFeeNeeded = fallbackFee.GetFee(nTxBytes);
+     }
+     // prevent user from paying a fee below minRelayTxFee or minTxFee
+     nFeeNeeded = std::max(nFeeNeeded, GetRequiredFee(nTxBytes));
+     // But always obey the maximum
+     if (nFeeNeeded > maxTxFee)
+         nFeeNeeded = maxTxFee;
+    return nFeeNeeded;
 }
 
 
@@ -3820,7 +3879,7 @@ bool CWallet::ParameterInteraction()
             return InitError(AmountErrMsg("paytxfee", mapArgs["-paytxfee"]));
         if (nFeePerK > HIGH_TX_FEE_PER_KB)
             InitWarning(_("-paytxfee is set very high! This is the transaction fee you will pay if you send a transaction."));
-        payTxFee = CFeeRate(nFeePerK, 1000);
+        payTxFee = CFeeRate(nFeePerK, 10000);
         if (payTxFee < ::minRelayTxFee)
         {
             return InitError(strprintf(_("Invalid amount for -paytxfee=<amount>: '%s' (must be at least %s)"),

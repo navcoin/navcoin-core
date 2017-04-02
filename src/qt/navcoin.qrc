@@ -67,6 +67,12 @@
         <file alias="roboto">res/fonts/roboto.ttf</file>
         <file alias="robotoreg">res/fonts/robotoregular.ttf</file>
         <file alias="source">res/fonts/source.ttf</file>
+        <file alias="Roboto-Black">res/fonts/Roboto-Black.ttf</file>
+        <file alias="Roboto-Bold">res/fonts/Roboto-Bold.ttf</file>
+        <file alias="Roboto-Medium">res/fonts/Roboto-Medium.ttf</file>
+        <file alias="power_off">res/icons/power_off.png</file>
+        <file alias="power_on">res/icons/power.png</file>
+        <file alias="ghost">res/icons/ghost.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

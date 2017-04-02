@@ -111,7 +111,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         }
     }
 #if QT_VERSION >= 0x040700
-    ui->thirdPartyTxUrls->setPlaceholderText("https://example.com/tx/%s");
+    ui->thirdPartyTxUrls->setPlaceholderText("https://chainz.cryptoid.info/nav/tx.dws?%s.htm");
 #endif
 
     ui->unit->setModel(new NavCoinUnits(this));
@@ -238,6 +238,14 @@ void OptionsDialog::on_okButton_clicked()
     accept();
     updateDefaultProxyNets();
 }
+
+void OptionsDialog::on_openNavCoinConfButton_clicked()
+{
+      QMessageBox::information(this, tr("Configuration options"),
+            tr("The configuration is used to specify advanced user options less any command-line or Qt options. "
+            "Any command-line options will override this configuration file."));
+      GUIUtil::openNavCoinConf();
+ }
 
 void OptionsDialog::on_cancelButton_clicked()
 {

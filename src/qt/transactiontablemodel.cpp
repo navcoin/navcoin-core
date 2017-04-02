@@ -360,7 +360,9 @@ QString TransactionTableModel::lookupAddress(const std::string &address, bool to
     }
     if(label.isEmpty() || tooltip)
     {
-        description += QString(" (") + QString::fromStdString(address) + QString(")");
+        if(!label.isEmpty())
+          description += QString(" ");
+        description += QString("(") + QString::fromStdString(address) + QString(")");
     }
     return description;
 }
@@ -369,6 +371,8 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
 {
     switch(wtx->type)
     {
+    case TransactionRecord::AnonTx:
+        return tr("Anonymous send");
     case TransactionRecord::RecvWithAddress:
         return tr("Received with");
     case TransactionRecord::RecvFromOther:
@@ -389,6 +393,8 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
 {
     switch(wtx->type)
     {
+    case TransactionRecord::AnonTx:
+        return QIcon(":/icons/ghost");
     case TransactionRecord::Generated:
         return QIcon(":/icons/tx_mined");
     case TransactionRecord::RecvWithAddress:
@@ -412,6 +418,8 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
 
     switch(wtx->type)
     {
+    case TransactionRecord::AnonTx:
+        return "Private Payment";
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
@@ -431,16 +439,18 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     // Show addresses without label in a less visible color
     switch(wtx->type)
     {
+    case TransactionRecord::AnonTx:
+        return QVariant();
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:
         {
         QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
         if(label.isEmpty())
-            return COLOR_BAREADDRESS;
+            return QVariant();
         } break;
     case TransactionRecord::SendToSelf:
-        return COLOR_BAREADDRESS;
+        return QVariant();
     default:
         break;
     }
@@ -574,7 +584,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         }
         break;
     case Qt::ToolTipRole:
-        return formatTooltip(rec);
+        return ""; //formatTooltip(rec);
     case Qt::TextAlignmentRole:
         return column_alignments[index.column()];
     case Qt::ForegroundRole:

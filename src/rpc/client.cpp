@@ -34,7 +34,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getnetworkhashps", 0 },
     { "getnetworkhashps", 1 },
     { "sendtoaddress", 1 },
-    { "sendtoaddress", 4 },
+    { "sendtoaddress", 5 },
+    { "anonsend", 1 },
+    { "anonsend", 4 },
     { "settxfee", 0 },
     { "getreceivedbyaddress", 1 },
     { "getreceivedbyaccount", 1 },
@@ -57,6 +59,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "listaccounts", 0 },
     { "listaccounts", 1 },
     { "walletpassphrase", 1 },
+    { "walletpassphrase", 2 },
     { "getblocktemplate", 0 },
     { "listsinceblock", 1 },
     { "listsinceblock", 2 },
@@ -76,7 +79,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getrawtransaction", 1 },
     { "createrawtransaction", 0 },
     { "createrawtransaction", 1 },
-    { "createrawtransaction", 2 },
+    { "createrawtransaction", 3 },
     { "signrawtransaction", 1 },
     { "signrawtransaction", 2 },
     { "sendrawtransaction", 1 },
@@ -147,6 +150,7 @@ static CRPCConvertTable rpcCvtTable;
 UniValue ParseNonRFCJSONValue(const std::string& strVal)
 {
     UniValue jVal;
+
     if (!jVal.read(std::string("[")+strVal+std::string("]")) ||
         !jVal.isArray() || jVal.size()!=1)
         throw runtime_error(string("Error parsing JSON:")+strVal);

@@ -2055,11 +2055,11 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
             assert(coins);
 
             // If prev is coinbase, check that it's matured
-            if (coins->IsCoinBase() || coins->IsCoinStake()) {
-                if (nSpendHeight - coins->nHeight < COINBASE_MATURITY)
+            if (coins->IsCoinBase()) {
+                if (nSpendHeight - coins->nHeight < COINBASE_MATURITY && nSpendHeight - coins->nHeight > 0)
                     return state.Invalid(false,
                         REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
-                        strprintf("tried to spend %s at depth %d", coins->IsCoinBase()?"coinbase":"coinstake",nSpendHeight - coins->nHeight));
+                        strprintf("tried to spend coinbase at depth %d", nSpendHeight - coins->nHeight));
             }
 
             // Check for negative or overflow input values
@@ -2545,7 +2545,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (block.IsProofOfStake())
     {
         arith_uint256 targetProofOfStake;
-        // Signature will be checked in CheckInputs(), we can avoid it here (fCHeckSignature = false)
+        // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
         if (!CheckProofOfStake(pindex->pprev, block.vtx[1], block.nBits, hashProof, targetProofOfStake, NULL, false))
         {
               return state.DoS(1,error("ContextualCheckBlock() : check proof-of-stake failed for block %s", block.GetHash().GetHex()), REJECT_INVALID, "bad-proof-of-stake");
@@ -2831,7 +2831,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
     if (block.IsProofOfStake())
     {
-
         // ppcoin: coin stake tx earns reward instead of paying fee
         uint64_t nCoinAge;
         if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), pindex->pprev, nCoinAge))
@@ -3168,7 +3167,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
     BOOST_FOREACH(const CTransaction &tx, block.vtx) {
-        SyncWithWallets(tx, pindexDelete->pprev, NULL);
+        SyncWithWallets(tx, pindexDelete->pprev, NULL, false);
     }
     return true;
 }
@@ -3972,6 +3971,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     if (VersionBitsState(pindexPrev, consensusParams, Consensus::DEPLOYMENT_CSV, versionbitscache) == THRESHOLD_ACTIVE) {
         nLockTimeFlags |= LOCKTIME_MEDIAN_TIME_PAST;
     }
+
+    if (block.IsProofOfWork() && nHeight > lastPOWBlock)
+        return state.DoS(10, false, REJECT_INVALID, "check-pow-height", "pow-mined blocks not allowed");
 
     // Check CheckCoinStakeTimestamp
     if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(nHeight, block.GetBlockTime(), (int64_t)block.vtx[1].nTime))

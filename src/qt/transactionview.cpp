@@ -43,13 +43,13 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     setContentsMargins(0,0,0,0);
 
     QHBoxLayout *hlayout = new QHBoxLayout();
-    hlayout->setContentsMargins(0,0,0,0);
+    hlayout->setContentsMargins(0,0,0,6);
 
     if (platformStyle->getUseExtraSpacing()) {
-        hlayout->setSpacing(5);
+        hlayout->setSpacing(10);
         hlayout->addSpacing(26);
     } else {
-        hlayout->setSpacing(0);
+        hlayout->setSpacing(5);
         hlayout->addSpacing(23);
     }
 
@@ -104,9 +104,9 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     amountWidget->setPlaceholderText(tr("Min amount"));
 #endif
     if (platformStyle->getUseExtraSpacing()) {
-        amountWidget->setFixedWidth(97);
+        amountWidget->setFixedWidth(115);
     } else {
-        amountWidget->setFixedWidth(100);
+        amountWidget->setFixedWidth(120);
     }
     amountWidget->setValidator(new QDoubleValidator(0, 1e20, 8, this));
     hlayout->addWidget(amountWidget);

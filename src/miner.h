@@ -214,9 +214,9 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 
 // NAVCoin - Mining/Staking thread
-void GenerateNavCoins(bool fGenerate, int nThreads, const CChainParams& chainparams);
 bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees);
 /** Check mined proof-of-stake block */
 bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams);
+void NavCoinStaker(const CChainParams& chainparams);
 
 #endif // NAVCOIN_MINER_H

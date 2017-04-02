@@ -7,15 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>674</width>
-    <height>363</height>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Welcome</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #eff1f4; border: 0
-</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -50,7 +49,7 @@
    <item>
     <widget class="QLabel" name="storageLabel">
      <property name="text">
-      <string>As this is the first time the program is launched, you can choose where %1 will store its data.</string>
+      <string>As this is the first time %1 is launched, there are still a few setup steps which need to be accomplished.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -60,7 +59,7 @@
    <item>
     <widget class="QLabel" name="sizeWarningLabel">
      <property name="text">
-      <string>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</string>
+      <string>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -70,14 +69,14 @@
    <item>
     <widget class="QRadioButton" name="dataDirDefault">
      <property name="text">
-      <string>Use the default data directory</string>
+      <string>Create a new wallet.</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QRadioButton" name="dataDirCustom">
      <property name="text">
-      <string>Use a custom data directory:</string>
+      <string>Import an old 3.x wallet:</string>
      </property>
     </widget>
    </item>
@@ -145,22 +144,6 @@
         </layout>
        </item>
        <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>5</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QLabel" name="freeSpace">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -200,6 +183,12 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>1</height>
+          </size>
+         </property>
          <property name="textFormat">
           <enum>Qt::RichText</enum>
          </property>
@@ -213,22 +202,9 @@
     </layout>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="styleSheet">
-      <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
+      <string notr="true"/>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
