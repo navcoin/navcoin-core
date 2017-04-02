@@ -15,6 +15,7 @@
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include <stdio.h>
+#include <compat.h>
 #include <curl/curl.h>
 
 #include "script/standard.h"
