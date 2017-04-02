@@ -1,3 +1,5 @@
+#include <curl/curl.h>
+
 #include "navtech.h"
 #include "net.h"
 #include "util.h"
