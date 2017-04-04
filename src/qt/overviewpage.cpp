@@ -139,19 +139,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
     connect(ui->unlockStakingButton, SIGNAL(clicked()), this, SLOT(unlockWalletStaking()));
 
-    if (GetBoolArg("-staking", true))
-    {
-        ui->toggleStakingButton->setStyleSheet("border-image: url(:/icons/power_on)  0 0 0 0 stretch stretch; border: 0px; } ");
-    }
-    else
-    {
-        ui->toggleStakingButton->setStyleSheet("border-image: url(:/icons/power_off)  0 0 0 0 stretch stretch; border: 0px; } ");
-    }
-
-    ui->toggleStakingButton->setVisible(true);
-    connect(ui->toggleStakingButton, SIGNAL(clicked()), this, SLOT(toggleStakingButton()));
-
-
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     updateStakeReportNow();
@@ -166,26 +153,6 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
 void OverviewPage::showLockStaking(bool status)
 {
     ui->unlockStakingButton->setVisible(status);
-}
-
-void OverviewPage::toggleStakingButton()
-{
-    bool deactivate = false;
-    if (GetBoolArg("-staking", true))
-    {
-        deactivate = true;
-    }
-    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Toggle staking"),
-        tr("Client restart required to ") + (deactivate?tr("deactivate"):tr("activate")) + tr(" staking.") + "<br><br>" + tr("Client will be shut down. Do you want to proceed?"),
-        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
-
-    if(btnRetVal == QMessageBox::Cancel)
-        return;
-
-    RemoveConfigFile("staking",deactivate?"1":"0");
-    WriteConfigFile("staking",deactivate?"0":"1");
-
-    QApplication::quit();
 }
 
 OverviewPage::~OverviewPage()
