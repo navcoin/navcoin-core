@@ -121,6 +121,7 @@ private:
     QAction *showHelpMessageAction;
     QAction *unlockWalletAction;
     QAction *lockWalletAction;
+    QAction *toggleStakingAction;
     QPushButton *topMenu1;
     QPushButton *topMenu2;
     QPushButton *topMenu3;
@@ -219,6 +220,7 @@ private Q_SLOTS:
 
     /** Repairs wallet **/
     void repairWallet();
+
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
     void optionsClicked();
@@ -230,6 +232,8 @@ private Q_SLOTS:
     void showDebugWindowActivateConsole();
     /** Show help message dialog */
     void showHelpMessageClicked();
+    /** Toggle Staking **/
+    void toggleStaking();
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
