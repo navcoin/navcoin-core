@@ -3818,7 +3818,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
     // Check proof-of-stake block signature
     if (fCheckSig && !CheckBlockSignature(block))
-        return state.DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
+        return error("CheckBlock() : bad proof-of-stake block signature");
 
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
