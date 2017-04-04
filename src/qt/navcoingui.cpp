@@ -1482,7 +1482,7 @@ void NavCoinGUI::updateStakingStatus()
             nNetworkWeight /= COIN;
 
     //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_on" : ":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-            walletFrame->setStakingStatus(text);
+            walletFrame->setStakingStatus(text!=""?text:tr("You are staking"));
         }
         else
         {
