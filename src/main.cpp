@@ -2548,7 +2548,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
         if (!CheckProofOfStake(pindex->pprev, block.vtx[1], block.nBits, hashProof, targetProofOfStake, NULL, false))
         {
-              return state.DoS(1,error("ContextualCheckBlock() : check proof-of-stake failed for block %s", block.GetHash().GetHex()), REJECT_INVALID, "bad-proof-of-stake");
+              return error("ContextualCheckBlock() : check proof-of-stake failed for block %s", block.GetHash().GetHex());
         }
     }
 
