@@ -5,6 +5,8 @@
 #ifndef NAVCOIN_WALLET_NAVTECH_H
 #define NAVCOIN_WALLET_NAVTECH_H
 
+#include "compat.h"
+
 #include <vector>
 #include <string>
 #include <univalue.h>
