@@ -1318,7 +1318,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         bool fSpendsCoinbase = false;
         BOOST_FOREACH(const CTxIn &txin, tx.vin) {
             const CCoins *coins = view.AccessCoins(txin.prevout.hash);
-            if (coins->IsCoinBase()) {
+            if (coins->IsCoinBase() || coins->IsCoinStake()) {
                 fSpendsCoinbase = true;
                 break;
             }
@@ -2045,7 +2045,6 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
         // for an attacker to attempt to split the network.
         if (!inputs.HaveInputs(tx))
             return state.Invalid(false, 0, "", "Inputs unavailable");
-
         CAmount nValueIn = 0;
         CAmount nFees = 0;
         for (unsigned int i = 0; i < tx.vin.size(); i++)
@@ -3819,7 +3818,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // Check proof-of-stake block signature
     if (fCheckSig && !CheckBlockSignature(block))
     {
-        LogPrintf("%s\n",block.ToString());
         return error("CheckBlock() : bad proof-of-stake block signature");
     }
 
@@ -3847,7 +3845,6 @@ bool CheckBlockSignature(const CBlock& block)
 {
     if (block.IsProofOfWork())
     {
-        LogPrintf("CheckBlockSignature: Bad POW Block\n");
         return block.vchBlockSig.empty();
     }
 
