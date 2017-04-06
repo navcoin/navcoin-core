@@ -3862,7 +3862,7 @@ bool CheckBlockSignature(const CBlock& block)
 
     const CTxOut& txout = block.vtx[1].vout[1];
 
-    if (!SolverNavcoin(txout.scriptPubKey, whichType, vSolutions))
+    if (!Solver(txout.scriptPubKey, whichType, vSolutions))
     {
         LogPrintf("CheckBlockSignature: Bad Block - wrong signature\n");
         return false;
