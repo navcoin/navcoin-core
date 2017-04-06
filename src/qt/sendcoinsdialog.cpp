@@ -258,7 +258,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                     msgBox.setText(tr("Something went wrong:"));
                     msgBox.setInformativeText(tr(e.what()));
                     QAbstractButton *myYesButton = msgBox.addButton(tr("Do a normal transaction"), QMessageBox::YesRole);
-                    QAbstractButton *myNoButton = msgBox.addButton(trUtf8("Abort"), QMessageBox::NoRole);
+                    msgBox.addButton(trUtf8("Abort"), QMessageBox::NoRole);
                     msgBox.setIcon(QMessageBox::Question);
                     msgBox.exec();
 
@@ -669,17 +669,6 @@ void SendCoinsDialog::minimizeFeeSection(bool fMinimize)
 
 
     fFeeMinimized = fMinimize;
-}
-
-void SendCoinsDialog::on_buttonChooseFee_clicked()
-{
-    minimizeFeeSection(false);
-}
-
-void SendCoinsDialog::on_buttonMinimizeFee_clicked()
-{
-    updateFeeMinimizedLabel();
-    minimizeFeeSection(true);
 }
 
 void SendCoinsDialog::setMinimumFee()

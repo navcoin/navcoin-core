@@ -21,6 +21,7 @@ class CTxInUndo
 public:
     CTxOut txout;         // the txout data before being spent
     bool fCoinBase;       // if the outpoint was the last unspent: whether it belonged to a coinbase
+    bool fCoinStake;      // if the outpoint was the last unspent: whether it belonged to a coinstake
     unsigned int nHeight; // if the outpoint was the last unspent: its height
     int nVersion;         // if the outpoint was the last unspent: its version
 
