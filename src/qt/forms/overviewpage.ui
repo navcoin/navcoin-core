@@ -543,28 +543,6 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="toggleStakingButton">
-               <property name="minimumSize">
-                <size>
-                 <width>26</width>
-                 <height>26</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>26</width>
-                 <height>26</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">border: 0</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QPushButton" name="unlockStakingButton">
                <property name="minimumSize">
                 <size>
