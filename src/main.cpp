@@ -2055,11 +2055,11 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
             assert(coins);
 
             // If prev is coinbase, check that it's matured
-            if (coins->IsCoinBase()) {
+            if (coins->IsCoinBase() || coins->IsCoinStake()) {
                 if (nSpendHeight - coins->nHeight < COINBASE_MATURITY && nSpendHeight - coins->nHeight > 0)
                     return state.Invalid(false,
                         REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
-                        strprintf("tried to spend coinbase at depth %d", nSpendHeight - coins->nHeight));
+                        strprintf("tried to spend %s at depth %d", coins->IsCoinBase() ?"coinbase":"coinstake",nSpendHeight - coins->nHeight));
             }
 
             // Check for negative or overflow input values
@@ -3818,7 +3818,10 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
     // Check proof-of-stake block signature
     if (fCheckSig && !CheckBlockSignature(block))
+    {
+        LogPrintf("%s\n",block.ToString());
         return error("CheckBlock() : bad proof-of-stake block signature");
+    }
 
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
@@ -3843,18 +3846,27 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 bool CheckBlockSignature(const CBlock& block)
 {
     if (block.IsProofOfWork())
+    {
+        LogPrintf("CheckBlockSignature: Bad POW Block\n");
         return block.vchBlockSig.empty();
+    }
 
     if (block.vchBlockSig.empty())
+    {
+        LogPrintf("CheckBlockSignature: Bad Block - vchBlockSig empty\n");
         return false;
+    }
 
     vector<std::vector<unsigned char>> vSolutions;
     txnouttype whichType;
 
     const CTxOut& txout = block.vtx[1].vout[1];
 
-    if (!Solver(txout.scriptPubKey, whichType, vSolutions))
+    if (!SolverNavcoin(txout.scriptPubKey, whichType, vSolutions))
+    {
+        LogPrintf("CheckBlockSignature: Bad Block - wrong signature\n");
         return false;
+    }
 
     if (whichType == TX_PUBKEY)
     {
@@ -3863,6 +3875,7 @@ bool CheckBlockSignature(const CBlock& block)
         return CPubKey(vchPubKey).Verify(block.GetHash(), block.vchBlockSig);
     }
 
+    LogPrintf("CheckBlockSignature: Unknown type\n");
     return false;
 }
 
@@ -6209,7 +6222,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         ReadStatus status = partialBlock.FillBlock(block, resp.txn);
         if (status == READ_STATUS_INVALID) {
             MarkBlockAsReceived(resp.blockhash); // Reset in-flight state in case of whitelist
-            Misbehaving(pfrom->GetId(), 100);
             LogPrintf("Peer %d sent us invalid compact block/non-matching block transactions\n", pfrom->id);
             return true;
         } else if (status == READ_STATUS_FAILED) {
