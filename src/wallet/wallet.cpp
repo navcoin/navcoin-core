@@ -1319,6 +1319,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
     assert(mapWallet.count(hashTx));
     CWalletTx& origtx = mapWallet[hashTx];
     if (origtx.GetDepthInMainChain() > 0 || origtx.InMempool()) {
+        LogPrintf("AbandonTransaction : Could not abandon transaction.%s%s",origtx.InMempool()?" Tx in Mempool":"",origtx.GetDepthInMainChain() > 0?" Tx already confirmed":"");
         return false;
     }
 
