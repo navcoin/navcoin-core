@@ -2731,6 +2731,9 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         if (!(pcoin->IsCoinStake()))
             continue;
 
+        if(pcoin->isAbandoned())
+            continue;
+
         nElement++;
 
         // use the cached amount if available
