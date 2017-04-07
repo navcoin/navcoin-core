@@ -25,12 +25,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
 
     if(!settings.contains("lastAddress"))
     {
-        BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
-        {
-            const CNavCoinAddress& last_address = item.first;
-            address = QString::fromStdString(last_address.ToString());
-        }
-        settings.setValue("lastAddress",address);
+        getNewAddress();
     }
     else
     {
