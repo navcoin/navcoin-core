@@ -1,13 +1,16 @@
+#include "addresstablemodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "walletmodel.h"
+
 #include "wallet/wallet.h"
-#include "addresstablemodel.h"
 
 #include "getaddresstoreceive.h"
 #include "ui_getaddresstoreceive.h"
 
 #include <boost/foreach.hpp>
+
+#include <stdint.h>
 
 #include <QSettings>
 
@@ -21,15 +24,16 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QSettings settings;
-
-    if(!settings.contains("lastAddress"))
+    LOCK(pwalletMain->cs_wallet);
+    BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
     {
-        getNewAddress();
-    }
-    else
-    {
-        address = settings.value("lastAddress","").toString();
+        const CNavCoinAddress& addressbook = item.first;
+        bool fMine = IsMine(*pwalletMain, addressbook.Get());
+        if(fMine)
+        {
+          address = QString::fromStdString(addressbook.ToString());
+          break;
+        }
     }
 
     connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
@@ -65,10 +69,7 @@ void getAddressToReceive::copyToClipboard()
 
 void getAddressToReceive::getNewAddress()
 {
-    QSettings settings;
-
     address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, "", "");
-    settings.setValue("lastAddress",address);
     showQR();
 }
 
