@@ -86,13 +86,13 @@
          <property name="minimumSize">
           <size>
            <width>272</width>
-           <height>316</height>
+           <height>350</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>272</width>
-           <height>316</height>
+           <height>350</height>
           </size>
          </property>
          <property name="baseSize">
@@ -382,7 +382,7 @@
                   <string notr="true">color: #727272</string>
                  </property>
                  <property name="text">
-                  <string>Staking</string>
+                  <string>Immature</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -464,6 +464,66 @@
                  </property>
                  <property name="text">
                   <string>labelTotal</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLabel" name="labelStaking">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">color: #727272</string>
+                 </property>
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="labelStakingText">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>17</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                   <stylestrategy>PreferAntialias</stylestrategy>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">color: #727272</string>
+                 </property>
+                 <property name="text">
+                  <string>Staking</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -870,13 +930,13 @@
          <property name="minimumSize">
           <size>
            <width>272</width>
-           <height>316</height>
+           <height>350</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>272</width>
-           <height>316</height>
+           <height>350</height>
           </size>
          </property>
          <property name="baseSize">
