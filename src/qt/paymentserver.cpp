@@ -325,8 +325,7 @@ PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
 
         if (!uriServer->listen(name)) {
             // constructor is called early in init, so don't use "Q_EMIT message()" here
-            QMessageBox::critical(0, tr("Payment request error"),
-                tr("Cannot start navcoin: click-to-pay handler"));
+            LogPrintf("Cannot start navcoin: click-to-pay handler\n");
         }
         else {
             connect(uriServer, SIGNAL(newConnection()), this, SLOT(handleURIConnection()));
