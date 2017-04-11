@@ -182,21 +182,21 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelUnconfirmed->setText(NavCoinUnits::formatWithUnit(unit, unconfirmedBalance, false, NavCoinUnits::separatorAlways));
     ui->labelStaking->setText(NavCoinUnits::formatWithUnit(unit, stakingBalance, false, NavCoinUnits::separatorAlways));
     ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, immatureBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, balance + unconfirmedBalance + stakingBalance + immatureBalance, false, NavCoinUnits::separatorAlways));
+    ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, balance + unconfirmedBalance + stakingBalance, false, NavCoinUnits::separatorAlways));
 
-    bool showStaking = immatureBalance != 0;
+    bool showStaking = stakingBalance != 0;
 
     ui->labelStaking->setVisible(showStaking);
     ui->labelStakingText->setVisible(showStaking);
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
-    bool showImmature = immatureBalance != 0;
+    bool showImmature = false;
     bool showWatchOnlyImmature = watchImmatureBalance != 0;
 
     // for symmetry reasons also show immature label when the watch-only one is shown
-    ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
-    ui->labelImmatureText->setVisible(showImmature || showWatchOnlyImmature);
+    ui->labelImmature->setVisible(false);
+    ui->labelImmatureText->setVisible(false);
 }
 
 // show/hide watch-only labels
