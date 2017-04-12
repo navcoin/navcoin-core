@@ -2727,6 +2727,10 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         if  ((!pcoin->GetDepthInMainChain()) || (pcoin->GetBlocksToMaturity()>0))
             continue;
 
+        // skip abandoned transactions
+        if(pcoin->isAbandoned())
+            continue;
+
         // skip transaction other than POS block
         if (!(pcoin->IsCoinStake()))
             continue;

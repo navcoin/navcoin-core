@@ -363,6 +363,16 @@ void NavCoinGUI::createActions()
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoRequestPaymentPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
+    if (GetBoolArg("-staking", true))
+    {
+      toggleStakingAction = new QAction(tr("Turn Off &Staking"), this);
+      toggleStakingAction->setStatusTip(tr("Turn Off Staking"));
+    }
+    else
+    {
+      toggleStakingAction = new QAction(tr("Turn On &Staking"), this);
+      toggleStakingAction->setStatusTip(tr("Turn On Staking"));
+    }
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->TextColorIcon(":/icons/quit"), tr("E&xit"), this);
@@ -392,6 +402,7 @@ void NavCoinGUI::createActions()
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(platformStyle->TextColorIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
+
     signMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/edit"), tr("Sign &message..."), this);
     signMessageAction->setStatusTip(tr("Sign messages with your NavCoin addresses to prove you own them"));
     verifyMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/verify"), tr("&Verify message..."), this);
@@ -433,6 +444,7 @@ void NavCoinGUI::createActions()
         connect(unlockWalletAction, SIGNAL(triggered()), walletFrame, SLOT(unlockWalletStaking()));
         connect(backupWalletAction, SIGNAL(triggered()), walletFrame, SLOT(backupWallet()));
         connect(changePassphraseAction, SIGNAL(triggered()), walletFrame, SLOT(changePassphrase()));
+        connect(toggleStakingAction, SIGNAL(triggered()), this, SLOT(toggleStaking()));
         connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
         connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
         connect(usedSendingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedSendingAddresses()));
@@ -1473,6 +1485,26 @@ void NavCoinGUI::updateWeight()
         return;
 
     nWeight = pwalletMain->GetStakeWeight();
+}
+
+void NavCoinGUI::toggleStaking()
+{
+    bool deactivate = false;
+    if (GetBoolArg("-staking", true))
+    {
+        deactivate = true;
+    }
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Toggle staking"),
+        tr("Client restart required to ") + (deactivate?tr("deactivate"):tr("activate")) + tr(" staking.") + "<br><br>" + tr("Client will be shut down. Do you want to proceed?"),
+        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if(btnRetVal == QMessageBox::Cancel)
+        return;
+
+    RemoveConfigFile("staking",deactivate?"1":"0");
+    WriteConfigFile("staking",deactivate?"0":"1");
+
+    QApplication::quit();
 }
 
 void NavCoinGUI::updateStakingStatus()

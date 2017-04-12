@@ -36,3 +36,8 @@ univalue/lib
 wallet
 wallet/test
 zmq
+qt/locale
+leveldb/doc/bench
+leveldb/issues
+univalue/test
+univalue/gen

@@ -7,7 +7,6 @@
 #endif
 
 #include "navcoingui.h"
-#include "navtechsetup.h"
 
 #include "chainparams.h"
 #include "clientmodel.h"
@@ -20,6 +19,7 @@
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "winshutdownmonitor.h"
+#include "navtechsetup.h"
 
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
