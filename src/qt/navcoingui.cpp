@@ -336,6 +336,18 @@ void NavCoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
+    if (GetBoolArg("-staking", true))
+    {
+      toggleStakingAction = new QAction(tr("Turn Off &Staking"), this);
+      toggleStakingAction->setStatusTip(tr("Turn Off Staking"));
+    }
+    else
+    {
+      toggleStakingAction = new QAction(tr("Turn On &Staking"), this);
+      toggleStakingAction->setStatusTip(tr("Turn On Staking"));
+    }
+
+    connect(toggleStakingAction, SIGNAL(triggered()), this, SLOT(toggleStaking()));
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -1434,6 +1446,26 @@ void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
     {
         optionsModel->setDisplayUnit(action->data());
     }
+}
+
+void NavCoinGUI::toggleStaking()
+{
+    bool deactivate = false;
+    if (GetBoolArg("-staking", true))
+    {
+        deactivate = true;
+    }
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Toggle staking"),
+        tr("Client restart required to ") + (deactivate?tr("deactivate"):tr("activate")) + tr(" staking.") + "<br><br>" + tr("Client will be shut down and should be started again. Do you want to proceed?"),
+        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if(btnRetVal == QMessageBox::Cancel)
+        return;
+
+    RemoveConfigFile("staking",deactivate?"1":"0");
+    WriteConfigFile("staking",deactivate?"0":"1");
+
+    QApplication::quit();
 }
 
 #ifdef ENABLE_WALLET
