@@ -1477,8 +1477,10 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
 
     if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
     {
-        LogPrintf("SyncTransaction : Abandoning tx %s\n",tx.hash.ToString());
         AbandonTransaction(tx.hash);
+        CWalletDB walletdb(strWalletFile, "r+", false);
+        LogPrintf("SyncTransaction : Removing tx %s from wallet\n",tx.hash.ToString());
+        walletdb.EraseTx(tx.hash);
     }
 }
 
