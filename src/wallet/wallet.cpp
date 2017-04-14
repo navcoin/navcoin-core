@@ -1481,7 +1481,7 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
         LogPrintf("SyncTransaction : Removing tx %s from mapTxSpends\n",tx.hash.ToString());
         BOOST_FOREACH(const CTxIn& txin, tx.vin)
         {
-            pwallet->mapTxSpends.erase(make_pair(txin.prevout,tx.hash));
+            >mapTxSpends.erase(make_pair(txin.prevout,tx.hash));
         }
     }
 }
