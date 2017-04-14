@@ -1478,9 +1478,11 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
     if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
     {
         AbandonTransaction(tx.hash);
-        CWalletDB walletdb(strWalletFile, "r+", false);
-        LogPrintf("SyncTransaction : Removing tx %s from wallet\n",tx.hash.ToString());
-        walletdb.EraseTx(tx.hash);
+        LogPrintf("SyncTransaction : Removing tx %s from mapTxSpends\n",tx.hash.ToString());
+        BOOST_FOREACH(const CTxIn& txin, tx.vin)
+        {
+            pwallet-mapTxSpends.erase(make_pair(txin.prevout.n, txin.prevout.hash));
+        }
     }
 }
 
