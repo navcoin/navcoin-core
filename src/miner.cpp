@@ -146,7 +146,19 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     CBlockIndex* pindexPrev = chainActive.Tip();
     nHeight = pindexPrev->nHeight + 1;
 
+    // Decide whether to include witness transactions
+    // This is only needed in case the witness softfork activation is reverted
+    // (which would require a very deep reorganization) or when
+    // -promiscuousmempoolflags is used.
+    // TODO: replace this with a call to main to assess validity of a mempool
+    // transaction (which in most cases can be a no-op).
+    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
+
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+
+    if(!fIncludeWitness && !GetBoolArg("-votewitness",false))
+      pblock->nVersion &= ~chainparams.GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit;
+
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     // if (chainparams.MineBlocksOnDemand())
@@ -160,13 +172,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                        ? nMedianTimePast
                        : pblock->GetBlockTime();
 
-    // Decide whether to include witness transactions
-    // This is only needed in case the witness softfork activation is reverted
-    // (which would require a very deep reorganization) or when
-    // -promiscuousmempoolflags is used.
-    // TODO: replace this with a call to main to assess validity of a mempool
-    // transaction (which in most cases can be a no-op).
-    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
     addPriorityTxs(fProofOfStake, pblock->vtx[0].nTime);
     addPackageTxs();
