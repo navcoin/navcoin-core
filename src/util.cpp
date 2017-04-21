@@ -595,7 +595,7 @@ void WriteConfigFile(std::string key, std::string value)
 
 }
 
-void ExistsKeyInConfigFile(std::string key)
+bool ExistsKeyInConfigFile(std::string key)
 {
 
     boost::filesystem::ifstream streamConfig(GetConfigFile());
