@@ -595,6 +595,29 @@ void WriteConfigFile(std::string key, std::string value)
 
 }
 
+void ExistsKeyInConfigFile(std::string key)
+{
+
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+
+    if(streamConfig.good())
+    {
+
+        set<string> setOptions;
+        setOptions.insert("*");
+
+        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
+        {
+              if(it->string_key == key)
+                  return true;
+        }
+
+    }
+
+    return false;
+
+}
+
 void RemoveConfigFile(std::string key, std::string value)
 {
     boost::filesystem::ifstream streamConfig(GetConfigFile());

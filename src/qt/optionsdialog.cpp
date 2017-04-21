@@ -73,7 +73,6 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         pindexBestHeader->GetMedianTimePast() < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
         !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus());
 
-
     ui->voteSegWit->setVisible(showWitness);
 
     /* Window elements init */
