@@ -3788,7 +3788,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (block.IsProofOfStake())
     {
         // Coinbase output should be empty if proof-of-stake block
-        if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
+        if ((block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty()) && block.nHeight > lastPOWBlock)
             return state.DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block. proof of work not allowed."));
 
         // Second transaction must be coinstake, the rest must not be
