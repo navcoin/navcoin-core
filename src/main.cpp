@@ -2763,6 +2763,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (!tx.IsCoinBase())
         {
+            int64_t nStakeReward;
+
             if (!tx.IsCoinStake())
               nFees += view.GetValueIn(tx) - tx.GetValueOut();
             if (tx.IsCoinStake())
@@ -3788,7 +3790,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (block.IsProofOfStake())
     {
         // Coinbase output should be empty if proof-of-stake block
-        if ((block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty()) && block.nHeight > lastPOWBlock)
+        if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
             return state.DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block. proof of work not allowed."));
 
         // Second transaction must be coinstake, the rest must not be
