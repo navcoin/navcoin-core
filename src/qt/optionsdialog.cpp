@@ -70,7 +70,9 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->voteSegWit->setChecked(GetBoolArg("-votewitness",false));
 
     bool showWitness = pindexBestHeader->GetMedianTimePast() > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
-        pindexBestHeader->GetMedianTimePast() < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout;
+        pindexBestHeader->GetMedianTimePast() < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
+        !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus());
+
 
     ui->voteSegWit->setVisible(showWitness);
 
