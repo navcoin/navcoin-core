@@ -34,6 +34,7 @@
 #include "macdockiconhandler.h"
 #endif
 
+#include "chainparams.h"
 #include "init.h"
 #include "ui_interface.h"
 #include "util.h"
@@ -906,6 +907,8 @@ void NavCoinGUI::setNumConnections(int count)
     }
 }
 
+bool showingVotingDialog = false;
+
 void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header)
 {
     if(!clientModel)
@@ -959,7 +962,10 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
             walletFrame->showStatusTitleBlocks();
         else
             walletFrame->hideStatusTitleBlocks();
+
     }
+
+    showVotingDialog();
 
     // Set icon state: spinning if catching up, tick otherwise
     if(secs < 90*60)
@@ -1041,6 +1047,49 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     labelBlocksIcon->setToolTip(tooltip);
     progressBarLabel->setToolTip(tooltip);
     progressBar->setToolTip(tooltip);
+}
+
+void NavCoinGUI::showVotingDialog()
+{
+
+  if(showingVotingDialog)
+    return;
+
+  showingVotingDialog = true;
+
+  bool showWitness = pindexBestHeader->nTime > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
+      pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
+      !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()) &&
+      !ExistsKeyInConfigFile("votewitness") &&
+      GetBoolArg("-staking",true);
+
+  bool vote = false;
+
+  if(showWitness)
+  {
+
+    QMessageBox msgBox;
+    msgBox.setText(tr("Vote for Segregated Witness"));
+    msgBox.setInformativeText(tr(""));
+    QAbstractButton *myYesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
+    msgBox.addButton(trUtf8("No"), QMessageBox::NoRole);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.exec();
+
+    if(msgBox.clickedButton() == myYesButton)
+    {
+        vote = true;
+    }
+
+    SoftSetBoolArg("-votewitness", vote);
+
+    RemoveConfigFile("votewitness",vote?"0":"1");
+    WriteConfigFile("votewitness",vote?"1":"0");
+
+  }
+
+  showingVotingDialog = false;
+
 }
 
 void NavCoinGUI::message(const QString &title, const QString &message, unsigned int style, bool *ret)
