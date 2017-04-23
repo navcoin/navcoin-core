@@ -286,6 +286,13 @@ void WalletFrame::unlockWalletStaking()
         walletView->unlockWalletStaking();
 }
 
+void WalletFrame::importPrivateKey()
+{
+    WalletView *walletView = currentWalletView();
+    if(walletView)
+        walletView->importPrivateKey();
+}
+
 void WalletFrame::lockWallet()
 {
     WalletView *walletView = currentWalletView();

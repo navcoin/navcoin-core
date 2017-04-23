@@ -47,7 +47,9 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDesktopWidget>
+#include <QDir>
 #include <QDragEnterEvent>
+#include <QInputDialog>
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -106,6 +108,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     usedSendingAddressesAction(0),
     usedReceivingAddressesAction(0),
     repairWalletAction(0),
+    importPrivateKeyAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -410,6 +413,9 @@ void NavCoinGUI::createActions()
     repairWalletAction = new QAction(tr("&Repair wallet"), this);
     repairWalletAction->setToolTip(tr("Repair wallet transactions"));
 
+    importPrivateKeyAction = new QAction(tr("&Import private key"), this);
+    importPrivateKeyAction->setToolTip(tr("Import private key"));
+
     openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
 
@@ -439,6 +445,7 @@ void NavCoinGUI::createActions()
         connect(usedSendingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedSendingAddresses()));
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
+        connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -471,6 +478,8 @@ void NavCoinGUI::createMenuBar()
         file->addSeparator();
         file->addAction(repairWalletAction);
         file->addSeparator();
+        file->addAction(importPrivateKeyAction);
+
     }
     file->addAction(quitAction);
 
@@ -660,6 +669,7 @@ void NavCoinGUI::repairWallet()
 
     QApplication::quit();
 }
+
 #endif // ENABLE_WALLET
 
 void NavCoinGUI::setWalletActionsEnabled(bool enabled)
@@ -678,6 +688,7 @@ void NavCoinGUI::setWalletActionsEnabled(bool enabled)
     usedSendingAddressesAction->setEnabled(enabled);
     usedReceivingAddressesAction->setEnabled(enabled);
     repairWalletAction->setEnabled(enabled);
+    importPrivateKeyAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
 }
 
