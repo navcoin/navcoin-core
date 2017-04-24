@@ -36,6 +36,7 @@
 
 #include "chainparams.h"
 #include "init.h"
+#include "miner.h"
 #include "ui_interface.h"
 #include "util.h"
 #include "pos.h"
@@ -1092,7 +1093,7 @@ void NavCoinGUI::showVotingDialog()
         vote = true;
     }
 
-    SoftSetBoolArg("-votewitness", vote);
+    fVoteWitness = vote;
 
     RemoveConfigFile("votewitness",vote?"0":"1");
     WriteConfigFile("votewitness",vote?"1":"0");

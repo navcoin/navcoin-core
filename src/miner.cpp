@@ -157,7 +157,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
 
-    if(!fIncludeWitness && !GetBoolArg("-votewitness",false))
+    if(!fIncludeWitness && !fVoteWitness)
       pblock->nVersion &= ~VersionBitsMask(chainparams.GetConsensus(), (Consensus::DeploymentPos)Consensus::DEPLOYMENT_SEGWIT);
 
     // -regtest only: allow overriding block.nVersion with

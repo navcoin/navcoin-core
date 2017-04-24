@@ -28,6 +28,8 @@ namespace Consensus { struct Params; };
 static const bool DEFAULT_PRINTPRIORITY = false;
 static const int DEFAULT_GENERATE_THREADS = 1;
 
+bool fVoteWitness = false;
+
 struct CBlockTemplate
 {
     CBlock block;

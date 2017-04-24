@@ -10,6 +10,7 @@
 #include "util.h"
 
 #include "chainparamsbase.h"
+#include "miner.h"
 #include "net.h"
 #include "random.h"
 #include "serialize.h"
@@ -551,6 +552,12 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         if(strKey == "-addanonserver")
         {
             vAddedAnonServers.push_back(strValue);
+            continue;
+        }
+
+        if(strKey == "-votewitness")
+        {
+            fVoteWitness = InterpretBool(strValue);
             continue;
         }
 

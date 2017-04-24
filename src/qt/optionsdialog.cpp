@@ -15,6 +15,7 @@
 
 #include "chainparams.h"
 #include "main.h" // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
+#include "miner.h"
 #include "netbase.h"
 #include "txdb.h" // for -dbcache defaults
 
@@ -65,9 +66,9 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyIpTor, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyPortTor, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
-    connect(ui->voteSegWit, SIGNAL(toggled(bool)), this, SLOT(voteSegWit(bool)));
+    connect(ui->voteSegWit, SIGNAL(clicked(bool)), this, SLOT(voteSegWit()));
 
-    ui->voteSegWit->setChecked(GetBoolArg("-votewitness",false));
+    ui->voteSegWit->setChecked(fVoteWitness);
 
     bool showWitness = pindexBestHeader->nTime > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
         pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
@@ -298,12 +299,11 @@ void OptionsDialog::clearStatusLabel()
     ui->statusLabel->clear();
 }
 
-void OptionsDialog::voteSegWit(bool state)
+void OptionsDialog::voteSegWit()
 {
-    SoftSetBoolArg("-votewitness", state);
-
-    RemoveConfigFile("votewitness",state?"0":"1");
-    WriteConfigFile("votewitness",state?"1":"0");
+    fVoteWitness = !fVoteWitness;
+    RemoveConfigFile("votewitness",fVoteWitness?"0":"1");
+    WriteConfigFile("votewitness",fVoteWitness?"1":"0");
 }
 
 void OptionsDialog::updateProxyValidationState()
