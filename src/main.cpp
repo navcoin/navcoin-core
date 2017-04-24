@@ -511,31 +511,31 @@ void UpdateBlockAvailability(NodeId nodeid, const uint256 &hash) {
     }
 }
 
-void MaybeSetPeerAsAnnouncingHeaderAndIDs(const CNodeState* nodestate, CNode* pfrom) {
-    if (nLocalServices & NODE_WITNESS) {
-        // Don't ever request compact blocks when segwit is enabled.
-        return;
-    }
-    if (nodestate->fProvidesHeaderAndIDs) {
-        BOOST_FOREACH(const NodeId nodeid, lNodesAnnouncingHeaderAndIDs)
-            if (nodeid == pfrom->GetId())
-                return;
-        bool fAnnounceUsingCMPCTBLOCK = false;
-        uint64_t nCMPCTBLOCKVersion = 1;
-        if (lNodesAnnouncingHeaderAndIDs.size() >= 3) {
-            // As per BIP152, we only get 3 of our peers to announce
-            // blocks using compact encodings.
-            CNode* pnodeStop = FindNode(lNodesAnnouncingHeaderAndIDs.front());
-            if (pnodeStop) {
-                pnodeStop->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
-                lNodesAnnouncingHeaderAndIDs.pop_front();
-            }
-        }
-        fAnnounceUsingCMPCTBLOCK = true;
-        pfrom->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
-        lNodesAnnouncingHeaderAndIDs.push_back(pfrom->GetId());
-    }
-}
+//void MaybeSetPeerAsAnnouncingHeaderAndIDs(const CNodeState* nodestate, CNode* pfrom) {
+//    if (nLocalServices & NODE_WITNESS) {
+//        // Don't ever request compact blocks when segwit is enabled.
+//        return;
+//    }
+//    if (nodestate->fProvidesHeaderAndIDs) {
+//        BOOST_FOREACH(const NodeId nodeid, lNodesAnnouncingHeaderAndIDs)
+//            if (nodeid == pfrom->GetId())
+//                return;
+//        bool fAnnounceUsingCMPCTBLOCK = false;
+//        uint64_t nCMPCTBLOCKVersion = 1;
+//        if (lNodesAnnouncingHeaderAndIDs.size() >= 3) {
+//            // As per BIP152, we only get 3 of our peers to announce
+//            // blocks using compact encodings.
+//            CNode* pnodeStop = FindNode(lNodesAnnouncingHeaderAndIDs.front());
+//            if (pnodeStop) {
+//                pnodeStop->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
+//                lNodesAnnouncingHeaderAndIDs.pop_front();
+//            }
+//        }
+//        fAnnounceUsingCMPCTBLOCK = true;
+//        pfrom->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
+//        lNodesAnnouncingHeaderAndIDs.push_back(pfrom->GetId());
+//    }
+//}
 
 // Requires cs_main
 bool CanDirectFetch(const Consensus::Params &consensusParams)
@@ -2088,7 +2088,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks, int64_t nStakeReward)
 {
     if (!tx.IsCoinBase())
     {
@@ -2763,7 +2763,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (!tx.IsCoinBase())
         {
-            int64_t nStakeReward;
+            int64_t nStakeReward = 0;
 
             if (!tx.IsCoinStake())
               nFees += view.GetValueIn(tx) - tx.GetValueOut();
@@ -2772,7 +2772,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, nScriptCheckThreads ? &vChecks : NULL))
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, nScriptCheckThreads ? &vChecks : NULL, nStakeReward))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
@@ -5418,6 +5418,15 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         uint64_t nNonce = 1;
         uint64_t nServiceInt;
         vRecv >> pfrom->nVersion >> nServiceInt >> nTime >> addrMe;
+
+        if(pfrom->nVersion < 70015)
+        {
+            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("You are using an old version of NavCoin, please update."));
+            LOCK(cs_main);
+            Misbehaving(pfrom->GetId(), 1);
+            return false;
+        }
+
         pfrom->nServices = ServiceFlags(nServiceInt);
         if (!pfrom->fInbound)
         {
