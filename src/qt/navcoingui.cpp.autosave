@@ -1082,7 +1082,9 @@ void NavCoinGUI::showVotingDialog()
 
     QMessageBox msgBox;
     msgBox.setText(tr("Vote for Segregated Witness"));
-    msgBox.setInformativeText(tr(""));
+    msgBox.setInformativeText(tr("The Nav Coin Network is currently voting on activating Segregated Witness. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. 
+                                 
+                                 For more information on Segregated Witness, please visit <a http://segregatedwitness.com</a><br><br>Would you like the Nav Coin Network to activate Segregated Witness?"));
     QAbstractButton *myYesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
     msgBox.addButton(trUtf8("No"), QMessageBox::NoRole);
     msgBox.setIcon(QMessageBox::Question);

@@ -247,6 +247,7 @@ private:
 #endif
     int returnValue;
     const PlatformStyle *platformStyle;
+    std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
 };
@@ -369,7 +370,6 @@ void NavCoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
     SplashScreen *splash = new SplashScreen(0, networkStyle);
     // We don't hold a direct pointer to the splash screen after creation, so use
     // Qt::WA_DeleteOnClose to make sure that the window will be deleted eventually.
-    splash->setAttribute(Qt::WA_DeleteOnClose);
     splash->show();
     connect(this, SIGNAL(splashFinished(QWidget*)), splash, SLOT(slotFinish(QWidget*)));
     connect(this, SIGNAL(requestedShutdown()), splash, SLOT(close()));
