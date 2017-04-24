@@ -5427,6 +5427,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             return false;
         }
 
+        if(pfrom->nVersion < 70016 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("Segregated Witness has been enabled and you are using an old version of NavCoin, please update."));
+            LOCK(cs_main);
+            Misbehaving(pfrom->GetId(), 1);
+            return false;
+        }
+
         pfrom->nServices = ServiceFlags(nServiceInt);
         if (!pfrom->fInbound)
         {
