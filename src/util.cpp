@@ -10,6 +10,7 @@
 #include "util.h"
 
 #include "chainparamsbase.h"
+#include "main.h"
 #include "miner.h"
 #include "net.h"
 #include "random.h"
