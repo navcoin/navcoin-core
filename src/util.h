@@ -179,7 +179,7 @@ bool GetBoolArg(const std::string& strArg, bool fDefault);
  * @param strValue Value (e.g. "1")
  * @return true if argument gets set, false if it already had a value
  */
-bool SoftSetArg(const std::string& strArg, const std::string& strValue);
+bool SoftSetArg(const std::string& strArg, const std::string& strValue, bool force=false);
 
 /**
  * Set a boolean argument if it doesn't already have a value

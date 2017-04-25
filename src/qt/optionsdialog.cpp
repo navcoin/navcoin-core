@@ -68,7 +68,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
     connect(ui->voteSegWit, SIGNAL(clicked(bool)), this, SLOT(voteSegWit()));
 
-    ui->voteSegWit->setChecked(fVoteWitness);
+    ui->voteSegWit->setChecked(GetBoolArg("-votewitness",false));
 
     bool showWitness = pindexBestHeader->nTime > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
         pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
@@ -301,7 +301,8 @@ void OptionsDialog::clearStatusLabel()
 
 void OptionsDialog::voteSegWit()
 {
-    fVoteWitness = !fVoteWitness;
+    bool fVoteWitness = !GetBoolArg("-votewitness",false);
+    SoftSetArg("-votewitness",fVoteWitness?"1":"0",true);
     RemoveConfigFile("votewitness",fVoteWitness?"0":"1");
     WriteConfigFile("votewitness",fVoteWitness?"1":"0");
 }

@@ -1093,7 +1093,7 @@ void NavCoinGUI::showVotingDialog()
         vote = true;
     }
 
-    fVoteWitness = vote;
+    SoftSetArg("-votewitness",vote?"1":"0",true);
 
     RemoveConfigFile("votewitness",vote?"0":"1");
     WriteConfigFile("votewitness",vote?"1":"0");

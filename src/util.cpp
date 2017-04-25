@@ -404,9 +404,9 @@ bool GetBoolArg(const std::string& strArg, bool fDefault)
     return fDefault;
 }
 
-bool SoftSetArg(const std::string& strArg, const std::string& strValue)
+bool SoftSetArg(const std::string& strArg, const std::string& strValue, bool force)
 {
-    if (mapArgs.count(strArg))
+    if (mapArgs.count(strArg) && !force)
         return false;
     mapArgs[strArg] = strValue;
     return true;
@@ -558,8 +558,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 
         if(strKey == "-votewitness")
         {
-            fVoteWitness = InterpretBool(strValue);
-            continue;
+            mapArgs[strKey] = strValue;
         }
 
         InterpretNegativeSetting(strKey, strValue);
