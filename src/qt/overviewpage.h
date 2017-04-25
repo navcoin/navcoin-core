@@ -59,6 +59,7 @@ public Q_SLOTS:
     void setStakingStats(QString day, QString week, QString month);
     void updateStakeReportNow();
     void updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64, qint64,qint64, qint64);
+    void setVotingStatus(QString text);
 
 
 Q_SIGNALS:

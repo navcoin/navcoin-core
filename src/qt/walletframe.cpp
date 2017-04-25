@@ -209,6 +209,13 @@ void WalletFrame::showLockStaking(bool status)
         i.value()->showLockStaking(status);
 }
 
+void WalletFrame::setVotingStatus(QString text)
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->setVotingStatus(text);
+}
+
 void WalletFrame::gotoHistoryPage()
 {
     QMap<QString, WalletView*>::const_iterator i;

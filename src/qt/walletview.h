@@ -123,6 +123,8 @@ public Q_SLOTS:
 
     void setStatusTitle(QString text);
 
+    void setVotingStatus(QString text);
+
     void showStatusTitleConnections();
     void hideStatusTitleConnections();
     void showStatusTitleBlocks();

@@ -102,6 +102,8 @@ public Q_SLOTS:
     void setStakingStatus(QString text);
     void setStakingStats(QString day, QString week, QString month);
 
+    void setVotingStatus(QString text);
+
     /** Show used sending addresses */
     void usedSendingAddresses();
     /** Show used receiving addresses */

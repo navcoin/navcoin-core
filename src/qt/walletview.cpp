@@ -217,6 +217,11 @@ void WalletView::setStatusTitle(QString text)
     overviewPage->setStatusTitle(text);
 }
 
+void WalletView::setVotingStatus(QString text)
+{
+    overviewPage->setVotingStatus(text);
+}
+
 void WalletView::setStakingStatus(QString text)
 {
     overviewPage->setStakingStatus(text);
