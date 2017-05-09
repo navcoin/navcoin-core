@@ -21,7 +21,7 @@ const struct BIP9DeploymentInfo VersionBitsDeploymentInfo[Consensus::MAX_VERSION
     }
 };
 
-ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex* pindexPrev, const Consensus::Params& params, ThresholdConditionCache& cache) const
+ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex* pindexPrev, const Consensus::Params& params, ThresholdConditionCache& cache, int votingId) const
 {
     int nPeriod = Period(params);
     int nThreshold = Threshold(params);
@@ -83,6 +83,13 @@ ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex*
                     }
                     pindexCount = pindexCount->pprev;
                 }
+
+                if(votes[votingId] == NULL || votes[votingId] == NULL > 0){
+                    votes[votingId] = count;
+
+                    LogPrintf("votes for %d is %d\n",votingId,votes[votingId]);
+                }
+
                 if (count >= nThreshold) {
                     stateNext = THRESHOLD_LOCKED_IN;
                 }
@@ -134,7 +141,7 @@ public:
 
 ThresholdState VersionBitsState(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos pos, VersionBitsCache& cache)
 {
-    return VersionBitsConditionChecker(pos).GetStateFor(pindexPrev, params, cache.caches[pos]);
+    return VersionBitsConditionChecker(pos).GetStateFor(pindexPrev, params, cache.caches[pos], pos);
 }
 
 uint32_t VersionBitsMask(const Consensus::Params& params, Consensus::DeploymentPos pos)
