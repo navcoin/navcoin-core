@@ -32,6 +32,8 @@
 
 #include <boost/thread/thread.hpp> // boost::thread::interrupt
 
+double votes[Consensus::MAX_VERSION_BITS_DEPLOYMENTS];
+
 using namespace std;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
