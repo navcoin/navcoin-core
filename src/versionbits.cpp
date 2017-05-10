@@ -86,8 +86,6 @@ ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex*
 
                 if(votes[votingId] == NULL || votes[votingId] == NULL > 0){
                     votes[votingId] = count;
-
-                    LogPrintf("votes for %d is %d\n",votingId,votes[votingId]);
                 }
 
                 if (count >= nThreshold) {

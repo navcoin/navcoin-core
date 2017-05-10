@@ -1051,8 +1051,6 @@ static UniValue BIP9SoftForkDesc(const Consensus::Params& consensusParams, Conse
     rv.push_back(Pair("timeout", consensusParams.vDeployments[id].nTimeout));
 
     rv.push_back(Pair("yes_count", votes[id]));
-    LogPrintf("votes for %d is %d\n",id,votes[id]);
-
 
     return rv;
 }
