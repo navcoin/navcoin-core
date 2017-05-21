@@ -1544,21 +1544,21 @@ void NavCoinGUI::updateStakingStatus()
 
         if(Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout && pindexBestHeader != NULL){
 
-          QString witnessLabel;
+//          QString witnessLabel;
 
-          bool showWitness = pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout;
-          bool witnessEnabled = IsWitnessEnabled(pindexBestHeader, Params().GetConsensus());
+//          bool showWitness = pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout;
+//          bool witnessEnabled = IsWitnessEnabled(pindexBestHeader, Params().GetConsensus());
 
-          if(pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
-            witnessLabel = tr("SegWit voting starts at 00:00 01/05/17");
-          else if (witnessEnabled)
-            witnessLabel = tr("Segregated Witness has been activated. Spread the word!");
-          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
-            witnessLabel = tr("Please, start staking to vote.");
-          else if (showWitness)
-            witnessLabel = tr("Your vote is %1.").arg(GetBoolArg("-votewitness",false) ? "YES" : "NO");
+//          if(pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
+//            witnessLabel = tr("SegWit voting starts at 00:00 01/05/17");
+//          else if (witnessEnabled)
+//            witnessLabel = tr("Segregated Witness has been activated. Spread the word!");
+//          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
+//            witnessLabel = tr("Please, start staking to vote.");
+//          else if (showWitness)
+//            witnessLabel = tr("Your vote is %1.").arg(GetBoolArg("-votewitness",false) ? "YES" : "NO");
 
-          walletFrame->setVotingStatus(witnessLabel);
+//          walletFrame->setVotingStatus(witnessLabel);
         }
 
         if (!GetBoolArg("-staking",true))

@@ -75,7 +75,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()) &&
         GetBoolArg("-staking",true);
 
-    ui->voteSegWit->setVisible(showWitness);
+    ui->voteSegWit->setVisible(false);
 
     /* Window elements init */
 #ifdef Q_OS_MAC
