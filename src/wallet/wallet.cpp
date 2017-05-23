@@ -2808,7 +2808,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 int nIn = 0;
 
                 BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
-                  if (!SignSignatureNavcoin(*this, *coin.first, txNew, nIn++))
+                  if (!SignSignature(*this, *coin.first, txNew, nIn++))
                     return false;
 
                 unsigned int nBytes = GetVirtualTransactionSize(txNew);
