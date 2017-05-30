@@ -45,11 +45,11 @@ class Navtech
 public:
     UniValue CreateAnonTransaction(std::string address, CAmount nValue = -1);
     UniValue GetServerInfo(std::string server);
+    std::string EncryptAddress(std::string address, std::string pubKeyStr);
 private:
     std::vector<anonServer> GetAnonServers();
     UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue);
     UniValue ParseJSONResponse(std::string readBuffer);
-    std::string EncryptAddress(std::string address, std::string pubKeyStr);
     int PublicEncrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted);
     RSA * CreateRSA(unsigned char * key, int isPublic);
     bool TestEncryption(std::string encrypted, UniValue serverData);

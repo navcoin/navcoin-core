@@ -62,6 +62,7 @@
 #include <openssl/pem.h>
 #include <openssl/aes.h>
 
+
 #if ENABLE_ZMQ
 #include "zmq/zmqnotificationinterface.h"
 #endif
@@ -806,7 +807,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     RSA *rsa = RSA_generate_key(2048, 3, 0, 0);
 
-    /* To get the C-string PEM form: */
+    /* Create Private Key */
     BIO *biopriv = BIO_new(BIO_s_mem());
     PEM_write_bio_RSAPrivateKey(biopriv, rsa, NULL, NULL, 0, NULL, NULL);
 
@@ -814,9 +815,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     sPrivKey = static_cast<char*>(calloc(keylen_priv+1, 1)); /* Null-terminate */
     BIO_read(biopriv, sPrivKey, keylen_priv);
 
-    /* To get the C-string PEM form: */
+
+    /* Create Public Key */
     BIO *bio_pub = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSAPublicKey(bio_pub, rsa);
+    PEM_write_bio_RSA_PUBKEY(bio_pub, rsa);
 
     keylen_pub = BIO_pending(bio_pub);
     sPubKey = static_cast<char*>(calloc(keylen_pub+1, 1)); /* Null-terminate */

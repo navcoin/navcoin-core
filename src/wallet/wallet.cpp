@@ -15,6 +15,7 @@
 #include "keystore.h"
 #include "main.h"
 #include "net.h"
+#include "navtech.h"
 #include "policy/policy.h"
 #include "primitives/block.h"
 #include "primitives/transaction.h"
@@ -2571,6 +2572,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
 bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign, std::string strDZeel)
 {
+    Navtech navtech;
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
     unsigned int nSubtractFeeFromAmount = 0;
@@ -2596,11 +2598,18 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     wtxNew.nTime = GetAdjustedTime();
     wtxNew.BindWallet(this);
 
+    long rValue = wtxNew.nTime + (rand() % 1<<5);
+
+    int length = snprintf( NULL, 0, "%ld", rValue );
+
+    char s[length + 1];
+    snprintf( s, length + 1, "%ld", rValue );
+
     CMutableTransaction txNew;
 
-    txNew.strDZeel = strDZeel;
+    txNew.strDZeel = strDZeel.length() > 0 ? strDZeel : navtech.EncryptAddress(s,sPubKey);
 
-    if (strDZeel.length() > 0)
+    if (txNew.strDZeel.length() > 0)
       txNew.nVersion = CTransaction::TXDZEEL_VERSION;
 
     if (strDZeel.length() > 512)

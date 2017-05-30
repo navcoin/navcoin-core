@@ -215,6 +215,8 @@ string Navtech::EncryptAddress(string address, string pubKeyStr) {
 int Navtech::PublicEncrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted)
 {
     RSA * rsa = this->CreateRSA(key,1);
+    if(rsa == NULL || rsa == 0)
+      return -1;
     int result = RSA_public_encrypt(data_len, data, encrypted, rsa,padding);
     return result;
 }
@@ -226,22 +228,20 @@ RSA * Navtech::CreateRSA(unsigned char * key,int isPublic)
     keybio = BIO_new_mem_buf(key, -1);
     if (keybio==NULL)
     {
-        // printf( "Failed to create key BIO\n");
+        LogPrintf("Failed to create key BIO\n");
         return 0;
     }
     if(isPublic)
     {
         rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
-        // printf( "Created RSA from Public Key\n");
     }
     else
     {
         rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
-        // printf( "Created RSA from Private Key\n");
     }
     if(rsa == NULL)
     {
-        // printf( "Failed to create RSA\n");
+        LogPrintf("Failed to create RSA\n");
     }
 
     return rsa;
