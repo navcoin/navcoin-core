@@ -373,8 +373,7 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
  * instead of being performed inline.
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
-                 unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks = NULL, int64_t nStakeReward = 0,
-                 int64_t nCoinAge = 0, const CBlockIndex* pindex = NULL);
+                 unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks = NULL, int64_t nStakeReward = 0);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);
@@ -573,7 +572,7 @@ static const unsigned int REJECT_ALREADY_KNOWN = 0x101;
 /** Transaction conflicts with a transaction already known */
 static const unsigned int REJECT_CONFLICT = 0x102;
 
-bool TransactionGetCoinAge(CTransaction& transaction, const CBlockIndex* pindexPrev, uint64_t& nCoinAge);
+bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge);
 
 
 // MODIFIER_INTERVAL: time to elapse before new modifier is computed
