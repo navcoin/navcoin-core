@@ -36,6 +36,8 @@
 #include <vector>
 
 #include <boost/unordered_map.hpp>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
 
 #define START_INODE_PAYMENTS_TESTNET 1429456427
 #define START_INODE_PAYMENTS 1429456427
@@ -371,7 +373,8 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
  * instead of being performed inline.
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
-                 unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks = NULL, int64_t nStakeReward = 0);
+                 unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks = NULL, int64_t nStakeReward = 0,
+                 int64_t nCoinAge = 0, const CBlockIndex* pindex = NULL);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);

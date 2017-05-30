@@ -58,6 +58,9 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/aes.h>
 
 #if ENABLE_ZMQ
 #include "zmq/zmqnotificationinterface.h"
@@ -798,6 +801,19 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (!SetupNetworking())
         return InitError("Initializing networking failed");
+
+    int keylen;
+    char *pem_key;
+
+    RSA *rsa = RSA_generate_key(2048, 3, 0, 0);
+
+    /* To get the C-string PEM form: */
+    BIO *bio = BIO_new(BIO_s_mem());
+    PEM_write_bio_RSAPrivateKey(bio, rsa, NULL, NULL, 0, NULL, NULL);
+
+    keylen = BIO_pending(bio);
+    pem_key = static_cast<char*>(calloc(keylen+1, 1)); /* Null-terminate */
+    BIO_read(bio, pem_key, keylen);
 
 #ifndef WIN32
     if (GetBoolArg("-sysperms", false)) {
