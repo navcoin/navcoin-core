@@ -802,18 +802,27 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (!SetupNetworking())
         return InitError("Initializing networking failed");
 
-    int keylen;
-    char *pem_key;
+    int keylen_pub, keylen_priv;
 
     RSA *rsa = RSA_generate_key(2048, 3, 0, 0);
 
     /* To get the C-string PEM form: */
-    BIO *bio = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSAPrivateKey(bio, rsa, NULL, NULL, 0, NULL, NULL);
+    BIO *biopriv = BIO_new(BIO_s_mem());
+    PEM_write_bio_RSAPrivateKey(biopriv, rsa, NULL, NULL, 0, NULL, NULL);
 
-    keylen = BIO_pending(bio);
-    pem_key = static_cast<char*>(calloc(keylen+1, 1)); /* Null-terminate */
-    BIO_read(bio, pem_key, keylen);
+    keylen_priv = BIO_pending(biopriv);
+    sPrivKey = static_cast<char*>(calloc(keylen_priv+1, 1)); /* Null-terminate */
+    BIO_read(biopriv, sPrivKey, keylen_priv);
+
+    /* To get the C-string PEM form: */
+    BIO *bio_pub = BIO_new(BIO_s_mem());
+    PEM_write_bio_RSAPublicKey(bio_pub, rsa);
+
+    keylen_pub = BIO_pending(bio_pub);
+    sPubKey = static_cast<char*>(calloc(keylen_pub+1, 1)); /* Null-terminate */
+    BIO_read(bio_pub, sPubKey, keylen_pub);
+
+    LogPrintf("RSA keys pair generated.\n");
 
 #ifndef WIN32
     if (GetBoolArg("-sysperms", false)) {
