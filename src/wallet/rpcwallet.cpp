@@ -443,7 +443,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2 || params.size() > 5)
         throw runtime_error(
-            "anonsend \"navcoinaddress\" amount ( \"comment\" \"comment-to\" subtractfeefromamount )\n"
+            "anonsend \"navcoinaddress\" amount ( \"comment\" \"comment-to\" )\n"
             "\nSend an amount to a given address anonymously.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -454,14 +454,12 @@ UniValue anonsend(const UniValue& params, bool fHelp)
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
             "                             to which you're sending the transaction. This is not part of the \n"
             "                             transaction, just kept in your wallet.\n"
-            "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
-            "                             The recipient will receive less navcoins than you enter in the amount field.\n"
             "\nResult:\n"
             "\"transactionid\"  (string) The transaction id.\n"
             "\nExamples:\n"
             + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true")
+            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\"")
             + HelpExampleRpc("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
         );
 
@@ -503,9 +501,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
         strDZeel = params[4].get_str();
 
-    bool fSubtractFeeFromAmount = false;
-    if (params.size() > 5)
-        fSubtractFeeFromAmount = params[5].get_bool();
+    bool fSubtractFeeFromAmount = true;
 
     EnsureWalletIsUnlocked();
 
