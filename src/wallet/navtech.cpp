@@ -34,8 +34,9 @@ UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue, int nTra
     UniValue navtechData;
     navtechData.setObject();
     navtechData.pushKV("anondestination", encryptedAddress);
-    navtechData.pushKV("anonaddress", addrArray[0].get_str());
+    navtechData.pushKV("anonaddress", addrArray);
     navtechData.pushKV("anonfee", find_value(serverData, "transaction_fee"));
+    navtechData.pushKV("min_amount", find_value(serverData, "min_amount"));
     return navtechData;
   } else {
     throw runtime_error("Unable to send NAVTech transaction, please try again.");
@@ -108,11 +109,10 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
   if (curl) {
 
     string serverURL = "https://" + anonServers[randIndex].address + ":" + anonServers[randIndex].port + "/api/check-node";
-    char *data;
-    sprintf(data,"num_addresses=%d",nTransactions);
+    string data = "num_addresses="+std::to_string(nTransactions);
 
     curl_easy_setopt(curl, CURLOPT_URL, serverURL.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteResponse);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);

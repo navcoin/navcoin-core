@@ -476,7 +476,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     if (!address.IsValid())
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
-    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount, nTransactions);
+    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount / (nTransactions * 2), nTransactions);
     std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
 
     if(serverNavAddresses.size() != nTransactions)
@@ -505,20 +505,26 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    int nAmountAlreadyProcessed = 0;
+    CAmount nAmountAlreadyProcessed = 0;
+    CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
 
     for(int i = 0; i < serverNavAddresses.size(); i++)
     {
-        int nAmountRound = 0;
-        int nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
-        if(i == serverNavAddresses.size() - 1)
+        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
+        CAmount nAmountRound = 0;
+        CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
+        CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % 4)+2);
+        if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
+        {
             nAmountRound = nAmountNotProcessed;
+            i = serverNavAddresses.size();
+        }
         else
         {
-            nAmountRound = nAmountNotProcessed / ((rand() % 4)+1);
+            nAmountRound = std::max(nAmountToSubstract,nMinAmount);
         }
+
         nAmountAlreadyProcessed += nAmountRound;
-        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
         SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, find_value(navtechData, "anondestination").get_str());
     }
 
