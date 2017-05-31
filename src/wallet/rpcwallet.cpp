@@ -470,7 +470,9 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    int nTransactions = (rand() % 4) + 2;
+    int nEntropy = GetArg("anon_entropy",4);
+
+    int nTransactions = (rand() % nEntropy) + 2;
 
     CNavCoinAddress address(params[0].get_str());
     if (!address.IsValid())
@@ -513,7 +515,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
         CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
         CAmount nAmountRound = 0;
         CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
-        CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % 4)+2);
+        CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % nEntropy)+2);
         if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
         {
             nAmountRound = nAmountNotProcessed;
