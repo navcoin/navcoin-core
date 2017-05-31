@@ -264,6 +264,8 @@ public:
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
 
+    bool fAnon;
+
     CWalletTx()
     {
         Init(NULL);
@@ -304,6 +306,7 @@ public:
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
         fChangeCached = false;
+        fAnon = false;
         nDebitCached = 0;
         nCreditCached = 0;
         nImmatureCreditCached = 0;

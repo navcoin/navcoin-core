@@ -2607,10 +2607,12 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     CMutableTransaction txNew;
 
+    txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+
     txNew.strDZeel = strDZeel.length() > 0 ? strDZeel : navtech.EncryptAddress(s,sPubKey);
 
-    if (txNew.strDZeel.length() > 0)
-      txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+    if (strDZeel.length() > 0)
+      wtxNew.fAnon = true;
 
     if (strDZeel.length() > 512)
       txNew.strDZeel.resize(512);
