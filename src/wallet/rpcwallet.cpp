@@ -465,24 +465,31 @@ UniValue anonsend(const UniValue& params, bool fHelp)
             + HelpExampleRpc("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
         );
 
-
-
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
-    CNavCoinAddress address(params[0].get_str());
-    if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
-
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
     if (nAmount <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
 
-    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount);
-    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
+    LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    if (!serverNavAddress.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
+    int nTransactions = (rand() % 4) + 2;
+
+    CNavCoinAddress address(params[0].get_str());
+    if (!address.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
+    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount, nTransactions);
+    std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
+
+    if(serverNavAddresses.size() != nTransactions)
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "NAVTech server returned a different number of addresses.");
+
+    for(int i = 0; i < serverNavAddresses.size(); i++)
+    {
+        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
+        if (!serverNavAddress.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
+    }
 
     // Wallet comments
     CWalletTx wtx;
@@ -502,7 +509,22 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(serverNavAddress.Get(), nAmount, fSubtractFeeFromAmount, wtx, find_value(navtechData, "anondestination").get_str());
+    int nAmountAlreadyProcessed = 0;
+
+    for(int i = 0; i < serverNavAddresses.size(); i++)
+    {
+        int nAmountRound = 0;
+        int nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
+        if(i == serverNavAddresses.size() - 1)
+            nAmountRound = nAmountNotProcessed;
+        else
+        {
+            nAmountRound = nAmountNotProcessed / ((rand() % 4)+1);
+        }
+        nAmountAlreadyProcessed += nAmountRound;
+        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
+        SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, find_value(navtechData, "anondestination").get_str());
+    }
 
     return wtx.GetHash().GetHex();
 }
