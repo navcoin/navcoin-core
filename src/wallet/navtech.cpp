@@ -193,6 +193,7 @@ UniValue Navtech::ParseJSONResponse(string readBuffer) {
 
 string Navtech::EncryptAddress(string address, string pubKeyStr) {
 
+  address = "{\"n\":\""+address+"\"}";
   unsigned char pubKeyChar[(int)pubKeyStr.length()+1];
   memcpy(pubKeyChar, pubKeyStr.c_str(), pubKeyStr.length());
   pubKeyChar[pubKeyStr.length()] = 0;
