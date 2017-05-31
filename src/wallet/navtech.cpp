@@ -19,10 +19,10 @@ CURLcode res;
 int padding = RSA_PKCS1_PADDING;
 int encResultLength = 344;
 
-UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
+UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue, int nTransactions) {
 
   vector<anonServer> anonServers = this->GetAnonServers();
-  UniValue serverData = this->FindAnonServer(anonServers, nValue);
+  UniValue serverData = this->FindAnonServer(anonServers, nValue, nTransactions);
   UniValue pubKey = find_value(serverData, "public_key");
   string encryptedAddress = this->EncryptAddress(address, pubKey.get_str());
   bool encryptionSuccess = this->TestEncryption(encryptedAddress, serverData);
@@ -93,7 +93,7 @@ vector<anonServer> Navtech::GetAnonServers() {
   return returnServers;
 }
 
-UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue) {
+UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue, int nTransactions) {
   if (anonServers.size() < 1) {
       throw runtime_error("None of your configured NAVTech nodes are available right now.");
   }
@@ -108,9 +108,11 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
   if (curl) {
 
     string serverURL = "https://" + anonServers[randIndex].address + ":" + anonServers[randIndex].port + "/api/check-node";
+    char *data;
+    sprintf(data,"num_addresses=%d",nTransactions);
 
     curl_easy_setopt(curl, CURLOPT_URL, serverURL.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "num_addresses=1");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteResponse);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);

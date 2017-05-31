@@ -43,12 +43,12 @@ struct navtechData {
 class Navtech
 {
 public:
-    UniValue CreateAnonTransaction(std::string address, CAmount nValue = -1);
+    UniValue CreateAnonTransaction(std::string address, CAmount nValue = -1, int nTransactions = 1);
     UniValue GetServerInfo(std::string server);
     std::string EncryptAddress(std::string address, std::string pubKeyStr);
 private:
     std::vector<anonServer> GetAnonServers();
-    UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue);
+    UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue, int nTransactions = 1);
     UniValue ParseJSONResponse(std::string readBuffer);
     int PublicEncrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted);
     RSA * CreateRSA(unsigned char * key, int isPublic);
