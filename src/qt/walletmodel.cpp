@@ -243,7 +243,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         }
         else
         {   // User-entered navcoin address / amount:
-            if(!validateAddress(rcp.address))
+            if(!validateAddress(rcp.isanon?rcp.destaddress:rcp.address))
             {
                 return InvalidAddress;
             }
@@ -251,7 +251,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             {
                 return InvalidAmount;
             }
-            setAddress.insert(rcp.address);
+            setAddress.insert(rcp.isanon?rcp.destaddress:rcp.address);
             ++nAddresses;
 
             CScript scriptPubKey = GetScriptForDestination(CNavCoinAddress(rcp.isanon ? rcp.destaddress.toStdString() : rcp.address.toStdString()).Get());

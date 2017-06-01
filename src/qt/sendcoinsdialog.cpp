@@ -220,6 +220,9 @@ void SendCoinsDialog::on_sendButton_clicked()
     QList<SendCoinsRecipient> recipients;
     bool valid = true;
 
+    int nEntropy = GetArg("anon_entropy",4);
+
+    int nTransactions = (rand() % nEntropy) + 2;
 
     SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
     if(entry)
@@ -227,30 +230,73 @@ void SendCoinsDialog::on_sendButton_clicked()
         if(entry->validate())
         {
             SendCoinsRecipient recipient = entry->getValue();
+            CAmount nAmount = recipient.amount;
             if(ui->anonsendCheckbox->checkState() != 0) {
                 try
                 {
                     Navtech navtech;
 
-                    UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount);
+                    UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount / (nTransactions * 2), nTransactions);
 
-                    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
-                    if (!serverNavAddress.IsValid())
+                    std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
+
+                    if(serverNavAddresses.size() != nTransactions)
                     {
                         QMessageBox::warning(this, tr("Private payment"),
-                                             "<qt>" +
-                                             tr("Invalid Navcoin address provided by NAVTech server")+"</qt>");
+                                         "<qt>" +
+                                         tr("NAVTech server returned a different number of addresses.")+"</qt>");
                         valid = false;
                     }
 
-                    recipient.destaddress = QString::fromStdString(find_value(navtechData, "anonaddress").get_str());
-                    recipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
-                    if(!find_value(navtechData, "anonfee").isNull()){
-                        recipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
-                        recipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
-                    }else
-                        valid = false;
-                    recipient.isanon = true;
+                    for(int i = 0; i < serverNavAddresses.size(); i++)
+                    {
+                        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
+                        if (!serverNavAddress.IsValid())
+                        {
+
+                            valid = false;
+                            break;
+                        }
+                    }
+
+                    if(valid)
+                    {
+
+                      CAmount nAmountAlreadyProcessed = 0;
+                      CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
+
+                      for(int i = 0; i < serverNavAddresses.size(); i++)
+                      {
+                          SendCoinsRecipient cRecipient = recipient;
+                          cRecipient.destaddress = QString::fromStdString(serverNavAddresses[i].get_str());
+                          CAmount nAmountRound = 0;
+                          CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
+                          CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % nEntropy)+2);
+                          if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
+                          {
+                              nAmountRound = nAmountNotProcessed;
+                              i = serverNavAddresses.size();
+                          }
+                          else
+                          {
+                              nAmountRound = std::max(nAmountToSubstract,nMinAmount);
+                          }
+
+                          nAmountAlreadyProcessed += nAmountRound;
+                          cRecipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
+                          if(!find_value(navtechData, "anonfee").isNull()){
+                              cRecipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
+                              cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
+                          }else
+                              valid = false;
+                          cRecipient.isanon = true;
+                          cRecipient.amount = nAmountRound;
+                          recipients.append(cRecipient);
+
+                      }
+
+                    }
+
                 }
                 catch(const std::runtime_error &e)
                 {
@@ -272,6 +318,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                         if(retval == QMessageBox::Yes)
                         {
                             recipient.isanon = false;
+                            recipients.append(recipient);
                             valid = true;
                         }
                         else
@@ -287,10 +334,12 @@ void SendCoinsDialog::on_sendButton_clicked()
             }
             else
             {
+
                 recipient.isanon = false;
+                recipients.append(recipient);
+
             }
 
-            recipients.append(recipient);
         }
         else
         {
@@ -402,6 +451,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             }
 
         }
+
     }
 
 
