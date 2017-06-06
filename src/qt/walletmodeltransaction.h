@@ -36,9 +36,9 @@ public:
     CReserveKey *getPossibleKeyChange();
 
     void reassignAmounts(int nChangePosRet); // needed for the subtract-fee-from-amount feature
+    QList<SendCoinsRecipient> recipients;
 
 private:
-    QList<SendCoinsRecipient> recipients;
     CWalletTx *walletTransaction;
     CReserveKey *keyChange;
     CAmount fee;

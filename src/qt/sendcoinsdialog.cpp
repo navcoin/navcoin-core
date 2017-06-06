@@ -382,41 +382,48 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     CAmount txFee = currentTransaction.getTransactionFee();
     CAmount anonfee;
+    CAmount nTotalAmount = 0;
 
     QString questionString = tr("Are you sure you want to send?");
 
-    // Format confirmation message
-    QStringList formatted;
     Q_FOREACH(const SendCoinsRecipient &rcp, currentTransaction.getRecipients())
     {
+      nTotalAmount += rcp.amount;
+    }
+
+    // Format confirmation message
+    QStringList formatted;
+    const SendCoinsRecipient &rcp = currentTransaction.recipients.first();
+    {
         // generate bold amount string
-        QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
+        QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
         amount.append("</b>");
         // generate monospace address string
         QString address = "<span style='font-family: monospace;'>" + rcp.address;
         address.append("</span>");
 
         QString recipientElement;
+        int nLength = currentTransaction.recipients.length();
 
         if (!rcp.paymentRequest.IsInitialized()) // normal payment
         {
             if(rcp.label.length() > 0) // label with address
             {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, GUIUtil::HtmlEscape(rcp.label));
+                recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "" ) +amount, GUIUtil::HtmlEscape(rcp.label));
                 recipientElement.append(QString(" (%1)").arg(address));
             }
             else // just address
             {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, address);
+                recipientElement = tr("%1 to %2").arg((rcp.isanon ?  " Private payment " : "" ) +amount, address);
             }
         }
         else if(!rcp.authenticatedMerchant.isEmpty()) // authenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "") +amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
         }
         else // unauthenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? "Private payment :" : "") +amount, address);
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "") +amount, address);
         }
 
         formatted.append(recipientElement);
@@ -446,7 +453,7 @@ void SendCoinsDialog::on_sendButton_clicked()
             if(rcp.isanon){
                 questionString.append("<br>" + tr("Navtech server fee:") +QString(" ")+ QString::number(rcp.transaction_fee) + "% "+ tr(rcp.fSubtractFeeFromAmount ? "" : "(already included)") + "<br>");
                 if(rcp.fSubtractFeeFromAmount)
-                    questionString.append("<span style='color:#aa0000;'>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount * ((rcp.transaction_fee/100))) + "</span> " + tr("will be deducted as Navtech fee.") + "<br>");
+                    questionString.append("<span style='color:#aa0000;'>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount * ((rcp.transaction_fee/100))) + "</span> " + tr("will be deducted as Navtech fee.") + "<br>");
 
             }
 
