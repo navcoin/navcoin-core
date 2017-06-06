@@ -220,7 +220,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     QList<SendCoinsRecipient> recipients;
     bool valid = true;
 
-    int nEntropy = GetArg("anon_entropy",4);
+    int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
 
     int nTransactions = (rand() % nEntropy) + 2;
 
@@ -231,12 +231,16 @@ void SendCoinsDialog::on_sendButton_clicked()
         {
             SendCoinsRecipient recipient = entry->getValue();
             CAmount nAmount = recipient.amount;
+            double nId = rand() % pindexBestHeader->GetMedianTimePast();
+
             if(ui->anonsendCheckbox->checkState() != 0) {
                 try
                 {
                     Navtech navtech;
 
                     UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount / (nTransactions * 2), nTransactions);
+
+                    UniValue pubKey = find_value(navtechData, "public_key");
 
                     std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
 
@@ -283,7 +287,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                           }
 
                           nAmountAlreadyProcessed += nAmountRound;
-                          cRecipient.anondestination = QString::fromStdString(find_value(navtechData, "anondestination").get_str());
+                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+1, nId));
                           if(!find_value(navtechData, "anonfee").isNull()){
                               cRecipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
                               cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();

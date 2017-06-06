@@ -470,7 +470,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    int nEntropy = GetArg("anon_entropy",4);
+    int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
 
     int nTransactions = (rand() % nEntropy) + 2;
 
@@ -509,6 +509,8 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     CAmount nAmountAlreadyProcessed = 0;
     CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
+    UniValue pubKey = find_value(navtechData, "public_key");
+    double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
     for(int i = 0; i < serverNavAddresses.size(); i++)
     {
@@ -527,6 +529,8 @@ UniValue anonsend(const UniValue& params, bool fHelp)
         }
 
         nAmountAlreadyProcessed += nAmountRound;
+
+        string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+1, nId);
         SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, find_value(navtechData, "anondestination").get_str());
     }
 

@@ -34,6 +34,7 @@ UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue, int nTra
     UniValue navtechData;
     navtechData.setObject();
     navtechData.pushKV("anondestination", encryptedAddress);
+    navtechData.pushKV("public_key", pubKey);
     navtechData.pushKV("anonaddress", addrArray);
     navtechData.pushKV("anonfee", find_value(serverData, "transaction_fee"));
     navtechData.pushKV("min_amount", find_value(serverData, "min_amount"));
@@ -191,9 +192,9 @@ UniValue Navtech::ParseJSONResponse(string readBuffer) {
   }
 }
 
-string Navtech::EncryptAddress(string address, string pubKeyStr) {
+string Navtech::EncryptAddress(string address, string pubKeyStr, int nTransactions, int nPiece, long nId) {
 
-  address = "{\"n\":\""+address+"\"}";
+  address = "{\"n\":\""+address+"\",\"t\":"+std::to_string(GetArg("anon_out_delay",NAVTECH_DEFAULT_OUT_DELAY))+",\"p\":"+std::to_string(nPiece)+",\"o\":"+std::to_string(nTransactions)+",\"t\":"+std::to_string(nId)+"}";
   unsigned char pubKeyChar[(int)pubKeyStr.length()+1];
   memcpy(pubKeyChar, pubKeyStr.c_str(), pubKeyStr.length());
   pubKeyChar[pubKeyStr.length()] = 0;
