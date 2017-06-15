@@ -287,7 +287,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                           }
 
                           nAmountAlreadyProcessed += nAmountRound;
-                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+1, nId));
+                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+(i==serverNavAddresses.size()?-1:1), nId));
                           if(!find_value(navtechData, "anonfee").isNull()){
                               cRecipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
                               cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
@@ -492,8 +492,14 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
+    WalletModel::SendCoinsReturn sendStatus;
+
     // now send the prepared transaction
-    WalletModel::SendCoinsReturn sendStatus = model->sendCoins(currentTransaction);
+    if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
+        sendStatus = model->sendCoins(currentTransaction, CoinControlDialog::coinControl);
+    else
+        sendStatus = model->sendCoins(currentTransaction);
+
     // process sendStatus and on error generate message shown to user
     processSendCoinsReturn(sendStatus);
 
