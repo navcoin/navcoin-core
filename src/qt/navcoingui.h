@@ -20,6 +20,7 @@
 #include <QPoint>
 #include <QPushButton>
 #include <QSystemTrayIcon>
+#include <QtNetwork>
 #include <QAbstractButton>
 #include <QPainter>
 
@@ -43,6 +44,10 @@ class QProgressBar;
 class QProgressDialog;
 class QAbstractButton;
 QT_END_NAMESPACE
+
+qint64 btcFactor;
+qint64 eurFactor;
+qint64 usdFactor;
 
 /**
   NavCoin GUI main class. This class represents the main window of the NavCoin UI. It communicates with both the client and
@@ -93,6 +98,7 @@ private:
     QLabel *labelConnectionsIcon;
     QLabel *labelBlocksIcon;
     QLabel *labelStakingIcon;
+    QLabel *labelPrice;
     QLabel *progressBarLabel;
     QProgressBar *progressBar;
     QProgressDialog *progressDialog;
@@ -220,6 +226,8 @@ private Q_SLOTS:
     void openClicked();
     /** Update Staking status **/
     void updateStakingStatus();
+    /** Fetch Price from CMC **/
+    void updatePrice();
 
     /** Repairs wallet **/
     void repairWallet();

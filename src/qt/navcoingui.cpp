@@ -67,7 +67,17 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidget>
-
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrl>
+#include <QUrlQuery>
+#include <QVariant>
+#include <QJsonValue>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QVariantMap>
+#include <QJsonArray>
 
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
@@ -97,6 +107,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     labelConnectionsIcon(0),
     labelBlocksIcon(0),
     labelStakingIcon(0),
+    labelPrice(0),
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
@@ -137,7 +148,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     platformStyle(platformStyle)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
-    setFixedSize(QSize(840, 600));
+    //setFixedSize(QSize(840, 600));
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     /* if compiled with wallet support, -disablewallet can still disable the wallet */
@@ -215,12 +226,15 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
     labelEncryptionIcon = new QLabel();
     labelStakingIcon = new QLabel();
+    labelPrice = new QLabel();
     labelConnectionsIcon = new QLabel();
     labelBlocksIcon = new QLabel();
     if(enableWallet)
     {
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelStakingIcon);
+        frameBlocksLayout->addStretch();
+        frameBlocksLayout->addWidget(labelPrice);
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(unitDisplayControl);
         frameBlocksLayout->addStretch();
@@ -231,6 +245,11 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
+
+    QTimer *timerPrice = new QTimer(labelPrice);
+    connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
+    timerPrice->start(120 * 1000);
+    updatePrice();
 
     if (GetBoolArg("-staking", true))
     {
@@ -1534,6 +1553,46 @@ void NavCoinGUI::updateWeight()
         return;
 
     nWeight = pwalletMain->GetStakeWeight();
+}
+
+void NavCoinGUI::updatePrice()
+{
+
+    // create custom temporary event loop on stack
+     QEventLoop eventLoop;
+
+    // "quit()" the event-loop, when the network request "finished()"
+    QNetworkAccessManager mgr;
+    QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+
+    // the HTTP request
+    QNetworkRequest req( QUrl( QString("http://api.coinmarketcap.com/v1/ticker/nav-coin/?convert=EUR") ) );
+    QNetworkReply *reply = mgr.get(req);
+    eventLoop.exec(); // blocks stack until "finished()" has been called
+
+    if (reply->error() == QNetworkReply::NoError) {
+
+      QString strReply = (QString)reply->readAll();
+
+      //parse json
+      QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+
+      QJsonArray jsonObj = jsonResponse.array();
+      QJsonObject jsonObj2 = jsonObj[0].toObject();
+
+      eurFactor = jsonObj2["price_eur"].toString().toFloat() * 100000000;
+      usdFactor = jsonObj2["price_usd"].toString().toFloat() * 100000000;
+      btcFactor = jsonObj2["price_btc"].toString().toFloat() * 100000000;
+
+      if(clientModel)
+        clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
+      //qDebug() << "Date:" << jsonObj["date"].toString();
+
+      delete reply;
+    } else {
+      //failure
+      delete reply;
+  }
 }
 
 void NavCoinGUI::updateStakingStatus()
