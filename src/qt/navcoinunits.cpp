@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "navcoinunits.h"
+#include "navcoingui.h"
 
 #include "primitives/transaction.h"
 
@@ -20,6 +21,9 @@ QList<NavCoinUnits::Unit> NavCoinUnits::availableUnits()
     unitlist.append(NAV);
     unitlist.append(mNAV);
     unitlist.append(uNAV);
+    unitlist.append(BTC);
+    unitlist.append(EUR);
+    unitlist.append(USD);
     return unitlist;
 }
 
@@ -30,6 +34,9 @@ bool NavCoinUnits::valid(int unit)
     case NAV:
     case mNAV:
     case uNAV:
+    case BTC:
+    case EUR:
+    case USD:
         return true;
     default:
         return false;
@@ -43,6 +50,9 @@ QString NavCoinUnits::name(int unit)
     case NAV: return QString("NAV");
     case mNAV: return QString("mNAV");
     case uNAV: return QString::fromUtf8("μNAV");
+    case BTC: return QString::fromUtf8("BTC");
+    case EUR: return QString::fromUtf8("EUR");
+    case USD: return QString::fromUtf8("USD");
     default: return QString("???");
     }
 }
@@ -54,6 +64,9 @@ QString NavCoinUnits::description(int unit)
     case NAV: return QString("NavCoins");
     case mNAV: return QString("Milli-NavCoins (1 / 1" THIN_SP_UTF8 "000)");
     case uNAV: return QString("Micro-NavCoins (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+    case BTC: return QString("BTC");
+    case EUR: return QString("Euro");
+    case USD: return QString("US Dolar");
     default: return QString("???");
     }
 }
@@ -65,6 +78,9 @@ qint64 NavCoinUnits::factor(int unit)
     case NAV:  return 100000000;
     case mNAV: return 100000;
     case uNAV: return 100;
+    case BTC:  return btcFactor;
+    case EUR:  return eurFactor;
+    case USD:  return usdFactor;
     default:   return 100000000;
     }
 }
@@ -76,6 +92,9 @@ int NavCoinUnits::decimals(int unit)
     case NAV: return 8;
     case mNAV: return 5;
     case uNAV: return 2;
+    case BTC: return 8;
+    case EUR: return 2;
+    case USD: return 2;
     default: return 0;
     }
 }
@@ -90,8 +109,16 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     qint64 coin = factor(unit);
     int num_decimals = decimals(unit);
     qint64 n_abs = (n > 0 ? n : -n);
-    qint64 quotient = n_abs / coin;
-    qint64 remainder = n_abs % coin;
+    qint64 quotient;
+    qint64 remainder;
+    if(unit > 2){
+      n_abs = n_abs * coin / 100000000;
+      quotient = n_abs / 100000000;
+      remainder = n_abs % 100000000;
+    } else {
+      quotient = n_abs / coin;
+      remainder = n_abs % coin;
+    }
     QString quotient_str = QString::number(quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 
