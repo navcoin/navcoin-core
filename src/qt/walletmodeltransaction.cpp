@@ -13,7 +13,7 @@ WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &
     keyChange(0),
     fee(0)
 {
-    walletTransaction = new CWalletTx();
+
 }
 
 WalletModelTransaction::~WalletModelTransaction()
