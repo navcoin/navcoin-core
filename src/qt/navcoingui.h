@@ -45,9 +45,9 @@ class QProgressDialog;
 class QAbstractButton;
 QT_END_NAMESPACE
 
-qint64 btcFactor;
-qint64 eurFactor;
-qint64 usdFactor;
+extern qint64 btcFactor;
+extern qint64 eurFactor;
+extern qint64 usdFactor;
 
 /**
   NavCoin GUI main class. This class represents the main window of the NavCoin UI. It communicates with both the client and
