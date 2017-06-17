@@ -9,6 +9,10 @@
 
 #include <QStringList>
 
+extern qint64 btcFactor;
+extern qint64 eurFactor;
+extern qint64 usdFactor;
+
 NavCoinUnits::NavCoinUnits(QObject *parent):
         QAbstractListModel(parent),
         unitlist(availableUnits())
