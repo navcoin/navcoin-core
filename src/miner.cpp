@@ -804,7 +804,7 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         CValidationState state;
         if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
         {
-            LogPrintf("coinstake","NavCoinStaker: ProcessNewBlock() : %s\n", pblock->ToString());
+            LogPrintf("NavCoinStaker: ProcessNewBlock() : %s\n", pblock->ToString());
             return error("NavCoinStaker: ProcessNewBlock, block not accepted");
         }
     }
