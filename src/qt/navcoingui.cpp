@@ -98,9 +98,9 @@ const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
 
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
 
-extern qint64 btcFactor;
-extern qint64 eurFactor;
-extern qint64 usdFactor;
+qint64 btcFactor;
+qint64 eurFactor;
+qint64 usdFactor;
 
 NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),

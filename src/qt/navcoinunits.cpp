@@ -3,15 +3,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "navcoinunits.h"
-#include "navcoingui.h"
 
 #include "primitives/transaction.h"
 
 #include <QStringList>
 
-extern qint64 btcFactor;
-extern qint64 eurFactor;
-extern qint64 usdFactor;
+qint64 btcFactor;
+qint64 eurFactor;
+qint64 usdFactor;
 
 NavCoinUnits::NavCoinUnits(QObject *parent):
         QAbstractListModel(parent),
