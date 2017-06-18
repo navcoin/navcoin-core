@@ -7,10 +7,7 @@
 #include "primitives/transaction.h"
 
 #include <QStringList>
-
-qint64 btcFactor;
-qint64 eurFactor;
-qint64 usdFactor;
+#include <QSettings>
 
 NavCoinUnits::NavCoinUnits(QObject *parent):
         QAbstractListModel(parent),
@@ -76,14 +73,17 @@ QString NavCoinUnits::description(int unit)
 
 qint64 NavCoinUnits::factor(int unit)
 {
+
+    QSettings settings;
+
     switch(unit)
     {
     case NAV:  return 100000000;
     case mNAV: return 100000;
     case uNAV: return 100;
-    case BTC:  return btcFactor;
-    case EUR:  return eurFactor;
-    case USD:  return usdFactor;
+    case BTC:  return settings.value("btcFactor", 100000000).toInt();
+    case EUR:  return settings.value("eurFactor", 100000000).toInt();
+    case USD:  return settings.value("usdFactor", 100000000).toInt();
     default:   return 100000000;
     }
 }

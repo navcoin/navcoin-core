@@ -98,10 +98,6 @@ const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
 
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
 
-qint64 btcFactor;
-qint64 eurFactor;
-qint64 usdFactor;
-
 NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
     clientModel(0),
@@ -1584,13 +1580,14 @@ void NavCoinGUI::updatePrice()
       QJsonArray jsonObj = jsonResponse.array();
       QJsonObject jsonObj2 = jsonObj[0].toObject();
 
-      eurFactor = jsonObj2["price_eur"].toString().toFloat() * 100000000;
-      usdFactor = jsonObj2["price_usd"].toString().toFloat() * 100000000;
-      btcFactor = jsonObj2["price_btc"].toString().toFloat() * 100000000;
+      QSettings settings;
+
+      settings.setValue("eurFactor",jsonObj2["price_eur"].toString().toFloat() * 100000000);
+      settings.setValue("usdFactor",jsonObj2["price_usd"].toString().toFloat() * 100000000);
+      settings.setValue("btcFactor",jsonObj2["price_btc"].toString().toFloat() * 100000000);
 
       if(clientModel)
         clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
-      //qDebug() << "Date:" << jsonObj["date"].toString();
 
       delete reply;
     } else {
