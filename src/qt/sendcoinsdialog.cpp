@@ -287,7 +287,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                           }
 
                           nAmountAlreadyProcessed += nAmountRound;
-                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+(i==serverNavAddresses.size()?-1:1), nId));
+                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+(i==serverNavAddresses.size()?0:1), nId));
                           if(!find_value(navtechData, "anonfee").isNull()){
                               cRecipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
                               cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();

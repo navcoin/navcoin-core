@@ -530,7 +530,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
         nAmountAlreadyProcessed += nAmountRound;
 
-        string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+(i==serverNavAddresses.size()?-1:1), nId);
+        string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+(i==serverNavAddresses.size()?0:1), nId);
         SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, encryptedAddress);
     }
 
