@@ -97,6 +97,11 @@ const CWalletTx* CWallet::GetWalletTx(const uint256& hash) const
     return &(it->second);
 }
 
+bool CWallet::IsHDEnabled() const
+{
+    return !hdChain.masterKeyID.IsNull();
+}
+
 CPubKey CWallet::GenerateNewKey()
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata

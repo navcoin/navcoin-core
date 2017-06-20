@@ -707,6 +707,9 @@ public:
         fBroadcastTransactions = false;
     }
 
+    bool IsHDEnabled() const;
+
+
     std::map<uint256, CWalletTx> mapWallet;
     std::list<CAccountingEntry> laccentries;
 
