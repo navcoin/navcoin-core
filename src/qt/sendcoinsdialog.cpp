@@ -268,6 +268,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
                       CAmount nAmountAlreadyProcessed = 0;
                       CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
+                      LogPrintf("total amount is %d\n",nAmount);
 
                       for(int i = 0; i < serverNavAddresses.size(); i++)
                       {
@@ -286,10 +287,12 @@ void SendCoinsDialog::on_sendButton_clicked()
                               nAmountRound = std::max(nAmountToSubstract,nMinAmount);
                           }
 
+                          LogPrintf("this round the amount is %d\n",nAmountRound);
+
                           nAmountAlreadyProcessed += nAmountRound;
                           cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+(i==serverNavAddresses.size()?0:1), nId));
                           if(!find_value(navtechData, "anonfee").isNull()){
-                              cRecipient.anonfee = nAmountRound * ((float)find_value(navtechData, "anonfee").get_real() / 100);
+                              cRecipient.anonfee = nAmountRound * ((float)find_value(navtechData, "anonfee").get_real() / 100.0);
                               cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
                           }else
                               valid = false;
