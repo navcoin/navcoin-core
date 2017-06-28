@@ -32,6 +32,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     topMenu->setFixedSize(850,94);
 
     topLayout->addWidget(topMenu);
+    topLayout->setAlignment(topMenu,Qt::AlignLeft);
 
     setContentsMargins(0,0,0,0);
 
