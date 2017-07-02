@@ -1582,9 +1582,9 @@ void NavCoinGUI::updatePrice()
 
       QSettings settings;
 
-      settings.setValue("eurFactor",jsonObj2["price_eur"].toString().toFloat() / 100000000);
-      settings.setValue("usdFactor",jsonObj2["price_usd"].toString().toFloat() / 100000000);
-      settings.setValue("btcFactor",jsonObj2["price_btc"].toString().toFloat() / 100000000);
+      settings.setValue("eurFactor",(1.0 / jsonObj2["price_eur"].toString().toFloat()) * 100000000);
+      settings.setValue("usdFactor",(1.0 / jsonObj2["price_usd"].toString().toFloat()) * 100000000);
+      settings.setValue("btcFactor",(1.0 / jsonObj2["price_btc"].toString().toFloat()) * 100000000);
 
       if(clientModel)
         clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());

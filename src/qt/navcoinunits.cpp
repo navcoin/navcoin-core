@@ -5,6 +5,7 @@
 #include "navcoinunits.h"
 
 #include "primitives/transaction.h"
+#include "util.h"
 
 #include <QStringList>
 #include <QSettings>
@@ -81,9 +82,9 @@ qint64 NavCoinUnits::factor(int unit)
     case NAV:  return 100000000;
     case mNAV: return 100000;
     case uNAV: return 100;
-    case BTC:  return settings.value("btcFactor", 100000000).toInt();
-    case EUR:  return settings.value("eurFactor", 100000000).toInt();
-    case USD:  return settings.value("usdFactor", 100000000).toInt();
+    case BTC:  return settings.value("btcFactor", 0).toFloat();
+    case EUR:  return settings.value("eurFactor", 0).toFloat();
+    case USD:  return settings.value("usdFactor", 0).toFloat();
     default:   return 100000000;
     }
 }
@@ -114,14 +115,9 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     qint64 n_abs = (n > 0 ? n : -n);
     qint64 quotient;
     qint64 remainder;
-    if(unit > 2){
-      n_abs = n_abs * coin / 100000000;
-      quotient = n_abs / 100000000;
-      remainder = n_abs % 100000000;
-    } else {
-      quotient = n_abs / coin;
-      remainder = n_abs % coin;
-    }
+
+    quotient = n_abs / coin;
+    remainder = n_abs % coin;
     QString quotient_str = QString::number(quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 

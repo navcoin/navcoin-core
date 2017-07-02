@@ -279,7 +279,7 @@ void NavCoinAmountField::valueDidChange()
 {
     QSettings settings;
     bool valid;
-    unit->setText(QString("%1 EUR / ").arg(value(&valid) * settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(value(&valid) * settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(value(&valid) * settings.value("btcFactor", 0).toFloat()));
+    unit->setText(QString("%1 EUR / ").arg(value(&valid) / settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(value(&valid) / settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(value(&valid) / settings.value("btcFactor", 0).toFloat()));
 }
 
 void NavCoinAmountField::setReadOnly(bool fReadOnly)
