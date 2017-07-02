@@ -28,7 +28,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     walletFrameLayout->setContentsMargins(0,0,0,0);
 
     topMenu = new QWidget();
-    //topMenu->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    topMenu->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     topMenu->setMinimumWidth(900);
     topMenu->setFixedHeight(94);
     topMenu->setObjectName("topMenu");
