@@ -71,6 +71,7 @@
         <file alias="Roboto-Bold">res/fonts/Roboto-Bold.ttf</file>
         <file alias="Roboto-Medium">res/fonts/Roboto-Medium.ttf</file>
         <file alias="ghost">res/icons/ghost.png</file>
+        <file alias="background_top">res/icons/background_top.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>
