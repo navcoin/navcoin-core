@@ -199,7 +199,7 @@
        </font>
       </property>
       <property name="text">
-       <string>A&amp;mount:</string>
+       <string>A&amp;mount (NAV):</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
