@@ -7,6 +7,8 @@
 #include "primitives/transaction.h"
 #include "util.h"
 
+#include <math.h>
+
 #include <QStringList>
 #include <QSettings>
 
@@ -97,8 +99,8 @@ int NavCoinUnits::decimals(int unit)
     case mNAV: return 5;
     case uNAV: return 2;
     case BTC: return 8;
-    case EUR: return 2;
-    case USD: return 2;
+    case EUR: return 6;
+    case USD: return 6;
     default: return 0;
     }
 }
@@ -113,12 +115,27 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     qint64 coin = factor(unit);
     int num_decimals = decimals(unit);
     qint64 n_abs = (n > 0 ? n : -n);
-    qint64 quotient;
+    double quotient;
     qint64 remainder;
 
-    quotient = n_abs / coin;
-    remainder = n_abs % coin;
-    QString quotient_str = QString::number(quotient);
+
+    if(n < coin)
+    {
+      double q;
+      double r = modf((double)n_abs / (double)coin, &q);
+      quotient = q;
+      remainder = r * (double)pow(10,num_decimals);
+    }
+    else
+    {
+      quotient = n_abs / coin;
+      double q;
+      double r = modf((double)n_abs / (double)coin, &q);
+      remainder = r * (double)pow(10,num_decimals);
+    }
+
+
+    QString quotient_str = QString::number((qint64)quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 
     // Use SI-style thin space separators as these are locale independent and can't be
@@ -133,6 +150,7 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
         quotient_str.insert(0, '-');
     else if (fPlus && n > 0)
         quotient_str.insert(0, '+');
+
     return quotient_str + QString(".") + remainder_str;
 }
 
