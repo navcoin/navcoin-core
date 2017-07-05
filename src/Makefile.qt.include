@@ -241,6 +241,7 @@ NAVCOIN_QT_H = \
   qt/winshutdownmonitor.h
 
 RES_ICONS = \
+  qt/res/icons/background_top.png \
   qt/res/icons/navcoin.png \
   qt/res/icons/navcoin.ico \
   qt/res/icons/navcoin_testnet.ico \
