@@ -22,8 +22,8 @@ QList<NavCoinUnits::Unit> NavCoinUnits::availableUnits()
 {
     QList<NavCoinUnits::Unit> unitlist;
     unitlist.append(NAV);
-    unitlist.append(mNAV);
-    unitlist.append(uNAV);
+//    unitlist.append(mNAV);
+//    unitlist.append(uNAV);
     unitlist.append(BTC);
     unitlist.append(EUR);
     unitlist.append(USD);
@@ -35,8 +35,8 @@ bool NavCoinUnits::valid(int unit)
     switch(unit)
     {
     case NAV:
-    case mNAV:
-    case uNAV:
+//    case mNAV:
+//    case uNAV:
     case BTC:
     case EUR:
     case USD:
@@ -51,8 +51,8 @@ QString NavCoinUnits::name(int unit)
     switch(unit)
     {
     case NAV: return QString("NAV");
-    case mNAV: return QString("mNAV");
-    case uNAV: return QString::fromUtf8("μNAV");
+//    case mNAV: return QString("mNAV");
+//    case uNAV: return QString::fromUtf8("μNAV");
     case BTC: return QString::fromUtf8("BTC");
     case EUR: return QString::fromUtf8("EUR");
     case USD: return QString::fromUtf8("USD");
@@ -65,8 +65,8 @@ QString NavCoinUnits::description(int unit)
     switch(unit)
     {
     case NAV: return QString("NavCoins");
-    case mNAV: return QString("Milli-NavCoins (1 / 1" THIN_SP_UTF8 "000)");
-    case uNAV: return QString("Micro-NavCoins (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+//    case mNAV: return QString("Milli-NavCoins (1 / 1" THIN_SP_UTF8 "000)");
+//    case uNAV: return QString("Micro-NavCoins (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
     case BTC: return QString("BTC");
     case EUR: return QString("Euro");
     case USD: return QString("US Dolar");
@@ -82,8 +82,8 @@ qint64 NavCoinUnits::factor(int unit)
     switch(unit)
     {
     case NAV:  return 100000000;
-    case mNAV: return 100000;
-    case uNAV: return 100;
+//    case mNAV: return 100000;
+//    case uNAV: return 100;
     case BTC:  return settings.value("btcFactor", 0).toFloat();
     case EUR:  return settings.value("eurFactor", 0).toFloat();
     case USD:  return settings.value("usdFactor", 0).toFloat();
@@ -96,8 +96,8 @@ int NavCoinUnits::decimals(int unit)
     switch(unit)
     {
     case NAV: return 8;
-    case mNAV: return 5;
-    case uNAV: return 2;
+//    case mNAV: return 5;
+//    case uNAV: return 2;
     case BTC: return 8;
     case EUR: return 6;
     case USD: return 6;
