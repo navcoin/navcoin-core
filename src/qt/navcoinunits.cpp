@@ -118,22 +118,10 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     double quotient;
     qint64 remainder;
 
-
-    if(n < coin)
-    {
-      double q;
-      double r = modf((double)n_abs / (double)coin, &q);
-      quotient = q;
-      remainder = r * (double)pow(10,num_decimals);
-    }
-    else
-    {
-      quotient = n_abs / coin;
-      double q;
-      double r = modf((double)n_abs / (double)coin, &q);
-      remainder = r * (double)pow(10,num_decimals);
-    }
-
+    double q;
+    double r = modf((double)n_abs / (double)coin, &q);
+    quotient = q;
+    remainder = r * (double)pow(10,num_decimals);
 
     QString quotient_str = QString::number((qint64)quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
