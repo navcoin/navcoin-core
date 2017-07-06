@@ -511,6 +511,15 @@ void NavCoinGUI::createMenuBar()
         settings->addAction(changePassphraseAction);
         settings->addSeparator();
         settings->addAction(toggleStakingAction);
+        settings->addSeparator();
+        QMenu* currency = settings->addMenu( tr("Currency") );
+        Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+        {
+            QAction *menuAction = new QAction(QString(NavCoinUnits::name(u)), this);
+            menuAction->setData(QVariant(u));
+            currency->addAction(menuAction);
+        }
+        connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
     }
     settings->addAction(optionsAction);
 
@@ -523,6 +532,14 @@ void NavCoinGUI::createMenuBar()
     help->addSeparator();
     help->addAction(aboutAction);
     help->addAction(aboutQtAction);
+}
+
+void NavCoinGUI::onCurrencySelection(QAction* action)
+{
+    if (action)
+    {
+        clientModel->getOptionsModel()->setDisplayUnit(action->data());
+    }
 }
 
 void NavCoinGUI::createToolBars()
