@@ -656,7 +656,7 @@ void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfir
 
     if(model && model->getOptionsModel())
     {
-        ui->labelBalance->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
+        ui->labelBalance->setText(NavCoinUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
     }
 }
 
