@@ -174,6 +174,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                        : pblock->GetBlockTime();
 
 
+    fIncludeWitness = false;
+
     addPriorityTxs(fProofOfStake, pblock->vtx[0].nTime);
     addPackageTxs();
 
