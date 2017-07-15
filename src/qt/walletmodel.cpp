@@ -293,6 +293,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
         CWalletTx *newTx;
         newTx = new CWalletTx();
+
         fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true, rcp.strDZeel);
         transaction.vTransactions.push_back(*newTx);
 

@@ -2604,18 +2604,11 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
     wtxNew.nTime = GetAdjustedTime();
     wtxNew.BindWallet(this);
 
-    long rValue = wtxNew.nTime + (rand() % 1<<5);
-
-    int length = snprintf( NULL, 0, "%ld", rValue );
-
-    char s[length + 1];
-    snprintf( s, length + 1, "%ld", rValue );
-
     CMutableTransaction txNew;
 
     txNew.nVersion = CTransaction::TXDZEEL_VERSION;
 
-    txNew.strDZeel = strDZeel.length() > 0 ? strDZeel : navtech.EncryptAddress(s,sPubKey);
+    txNew.strDZeel = strDZeel.length() > 0 ? strDZeel : navtech.EncryptAddress(std::to_string(GetAdjustedTime() + (rand() % 1<<8)),sPubKey);
 
     if (strDZeel.length() > 0)
       wtxNew.fAnon = true;

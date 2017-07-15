@@ -6,6 +6,7 @@
 
 #include "policy/policy.h"
 #include "wallet/wallet.h"
+#include "util.h"
 
 WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &recipients) :
     recipients(recipients),
@@ -73,7 +74,13 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet)
         {
             if (i == nChangePosRet)
                 i++;
-            rcp.amount = walletTransaction->vout[i].nValue;
+            Q_FOREACH(const CWalletTx wTx, vTransactions)
+            {
+                if(i == 0 || i - 1 == nChangePosRet)
+                    rcp.amount = wTx.vout[i].nValue;
+                else
+                    rcp.amount += wTx.vout[i].nValue;
+            }
             i++;
         }
     }
