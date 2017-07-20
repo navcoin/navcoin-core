@@ -394,6 +394,8 @@ void SendCoinsDialog::on_sendButton_clicked()
     Q_FOREACH(const SendCoinsRecipient &rcp, currentTransaction.getRecipients())
     {
       nTotalAmount += rcp.amount;
+      if(rcp.fSubtractFeeFromAmount && rcp.isanon)
+        nTotalAmount -= rcp.anonfee;
     }
 
     // Format confirmation message

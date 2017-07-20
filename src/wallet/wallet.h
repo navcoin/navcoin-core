@@ -125,14 +125,6 @@ public:
     StringMap destdata;
 };
 
-struct CRecipient
-{
-    CScript scriptPubKey;
-    CAmount nAmount;
-    bool fSubtractFeeFromAmount;
-    std::string strDZeel;
-};
-
 typedef std::map<std::string, std::string> mapValue_t;
 
 
@@ -471,7 +463,13 @@ public:
     std::set<uint256> GetConflicts() const;
 };
 
-
+struct CRecipient
+{
+    CScript scriptPubKey;
+    CAmount nAmount;
+    bool fSubtractFeeFromAmount;
+    std::string strDZeel;
+};
 
 
 class COutput
