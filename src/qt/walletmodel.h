@@ -55,6 +55,7 @@ public:
     QString message;
     QString anondestination;
     QString destaddress;
+    CScript scriptPubKey;
     CAmount anonfee;
     double transaction_fee;
     bool isanon;

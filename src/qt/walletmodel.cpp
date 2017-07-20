@@ -278,6 +278,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
     transaction.vecSend = vecSend;
 
+    int i = 0;
+
     Q_FOREACH(const CRecipient &rcp, vecSend)
     {
         LOCK2(cs_main, wallet->cs_wallet);
@@ -299,7 +301,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
         transaction.setTransactionFee(nFeeRequired);
         if (fSubtractFeeFromAmount && fCreated)
-            transaction.reassignAmounts(nChangePosRet);
+           transaction.reassignAmounts(nChangePosRet,newTx,i);
 
         if(!fCreated)
         {
@@ -317,6 +319,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         // belt-and-suspenders check)
         if (nFeeRequired > maxTxFee)
             return AbsurdFee;
+
+        i++;
     }
 
     return SendCoinsReturn(OK);
@@ -334,6 +338,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 
           Q_FOREACH(const CWalletTx newTx, transaction.vTransactions)
           {
+
             Q_FOREACH(const SendCoinsRecipient &rcp, transaction.getRecipients())
             {
               if (rcp.paymentRequest.IsInitialized())

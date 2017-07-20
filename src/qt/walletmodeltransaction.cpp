@@ -48,12 +48,14 @@ void WalletModelTransaction::setTransactionFee(const CAmount& newFee)
     fee = newFee;
 }
 
-void WalletModelTransaction::reassignAmounts(int nChangePosRet)
+void WalletModelTransaction::reassignAmounts(int nChangePosRet, CWalletTx* wTx, int index)
 {
-    int i = 0;
+    int i = 0, j = 0;
     for (QList<SendCoinsRecipient>::iterator it = recipients.begin(); it != recipients.end(); ++it)
     {
         SendCoinsRecipient& rcp = (*it);
+
+        if(j != index) continue;
 
         if (rcp.paymentRequest.IsInitialized())
         {
@@ -65,7 +67,7 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet)
                 if (out.amount() <= 0) continue;
                 if (i == nChangePosRet)
                     i++;
-                subtotal += walletTransaction->vout[i].nValue;
+                subtotal += wTx->vout[i].nValue;
                 i++;
             }
             rcp.amount = subtotal;
@@ -74,15 +76,12 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet)
         {
             if (i == nChangePosRet)
                 i++;
-            Q_FOREACH(const CWalletTx wTx, vTransactions)
-            {
-                if(i == 0 || i - 1 == nChangePosRet)
-                    rcp.amount = wTx.vout[i].nValue;
-                else
-                    rcp.amount += wTx.vout[i].nValue;
-            }
+
+            rcp.amount = wTx->vout[i].nValue;
+
             i++;
         }
+        j++;
     }
 }
 
