@@ -2115,18 +2115,21 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
 
                 CTransaction txPrev;
                 uint256 hashBlock = uint256();
+                int valid = 1;
 
                 if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
-                    return state.DoS(100, false, REJECT_INVALID, "no-prev-out");  // previous transaction not in main chain
+                   valid = 0;
 
                 if (mapBlockIndex.count(hashBlock) == 0)
-                    return state.DoS(100, false, REJECT_INVALID, "no-prev-block");  // previous block not found
+                   valid = 0;
 
-                CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+                if(valid){ // prev out is already checked in CheckTxInputs
+                    CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-                // ppcoin: check transaction timestamp
-                if (txPrev.nTime > tx.nTime && pblockindex->nHeight > 1294597)
-                    return state. DoS(100, false, REJECT_INVALID, "tx-timestamp-earlier-as-output");
+                    // ppcoin: check transaction timestamp
+                    if (txPrev.nTime > tx.nTime && pblockindex->nHeight > 1294597)
+                        return state.DoS(100, false, REJECT_INVALID, "tx-timestamp-earlier-as-output");
+                }
 
                 // Verify signature
                 CScriptCheck check(*coins, tx, i, flags, cacheStore);
