@@ -1604,8 +1604,6 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
 
   QSettings settings;
 
-  LogPrintf("checking ok %s %s\n",strReply.toStdString(),jsonObj2["price_eur"].toString().toStdString());
-
   settings.setValue("eurFactor",(1.0 / jsonObj2["price_eur"].toString().toFloat()) * 100000000);
   settings.setValue("usdFactor",(1.0 / jsonObj2["price_usd"].toString().toFloat()) * 100000000);
   settings.setValue("btcFactor",(1.0 / jsonObj2["price_btc"].toString().toFloat()) * 100000000);

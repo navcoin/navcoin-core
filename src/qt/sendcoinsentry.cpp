@@ -19,7 +19,8 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     QStackedWidget(parent),
     ui(new Ui::SendCoinsEntry),
     model(0),
-    platformStyle(platformStyle)
+    platformStyle(platformStyle),
+    totalAmount(0)
 {
     ui->setupUi(this);
 
@@ -46,6 +47,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->deleteButton_is, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
+    connect(ui->fullAmountBtn,  SIGNAL(clicked()), this, SLOT(useFullAmount()));
 
     ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
     ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
@@ -54,6 +56,17 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
 SendCoinsEntry::~SendCoinsEntry()
 {
     delete ui;
+}
+
+
+void SendCoinsEntry::setTotalAmount(const CAmount& amount)
+{
+    totalAmount = amount;
+}
+
+void SendCoinsEntry::useFullAmount()
+{
+    ui->payAmount->setValue(totalAmount);
 }
 
 void SendCoinsEntry::updateAddressBook()

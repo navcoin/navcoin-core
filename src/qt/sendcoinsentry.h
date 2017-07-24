@@ -45,6 +45,9 @@ public:
     QWidget *setupTabChain(QWidget *prev);
 
     void setFocus();
+    void setTotalAmount(const CAmount& amount);
+
+    CAmount totalAmount;
 
 public Q_SLOTS:
     void clear();
@@ -60,6 +63,7 @@ private Q_SLOTS:
     void on_addressBookButton_clicked();
     void updateDisplayUnit();
     void updateAddressBook();
+    void useFullAmount();
 
 private:
     SendCoinsRecipient recipient;
