@@ -1574,43 +1574,45 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
+  QNetworkAccessManager *manager = new QNetworkAccessManager();
+  QNetworkRequest request;
+  QNetworkReply *reply = NULL;
 
-    // create custom temporary event loop on stack
-     QEventLoop eventLoop;
+  QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+  config.setProtocol(QSsl::TlsV1_2);
+  request.setSslConfiguration(config);
+  request.setUrl(QUrl("https://api.coinmarketcap.com/v1/ticker/nav-coin/?convert=EUR"));
+  request.setHeader(QNetworkRequest::ServerHeader, "application/json");
+  reply = manager->get(request);
+  connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+                   SLOT(replyFinished(QNetworkReply*)));
+}
 
-    // "quit()" the event-loop, when the network request "finished()"
-    QNetworkAccessManager mgr;
-    QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+void NavCoinGUI::replyFinished(QNetworkReply *reply)
+{
 
-    // the HTTP request
-    QNetworkRequest req( QUrl( QString("http://api.coinmarketcap.com/v1/ticker/nav-coin/?convert=EUR") ) );
-    QNetworkReply *reply = mgr.get(req);
-    eventLoop.exec(); // blocks stack until "finished()" has been called
+  QString reqString = QString("GET /v1/ticker/nav-coin/?convert=EUR HTTP/1.1\r\n" \
+                              "Host: api.coinmarketcap.com\r\n\r\n");
 
-    if (reply->error() == QNetworkReply::NoError) {
+  QString strReply = reply->readAll();
 
-      QString strReply = (QString)reply->readAll();
+  //parse json
+  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
-      //parse json
-      QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+  QJsonArray jsonObj = jsonResponse.array();
+  QJsonObject jsonObj2 = jsonObj[0].toObject();
 
-      QJsonArray jsonObj = jsonResponse.array();
-      QJsonObject jsonObj2 = jsonObj[0].toObject();
+  QSettings settings;
 
-      QSettings settings;
+  LogPrintf("checking ok %s %s\n",strReply.toStdString(),jsonObj2["price_eur"].toString().toStdString());
 
-      settings.setValue("eurFactor",(1.0 / jsonObj2["price_eur"].toString().toFloat()) * 100000000);
-      settings.setValue("usdFactor",(1.0 / jsonObj2["price_usd"].toString().toFloat()) * 100000000);
-      settings.setValue("btcFactor",(1.0 / jsonObj2["price_btc"].toString().toFloat()) * 100000000);
+  settings.setValue("eurFactor",(1.0 / jsonObj2["price_eur"].toString().toFloat()) * 100000000);
+  settings.setValue("usdFactor",(1.0 / jsonObj2["price_usd"].toString().toFloat()) * 100000000);
+  settings.setValue("btcFactor",(1.0 / jsonObj2["price_btc"].toString().toFloat()) * 100000000);
 
-      if(clientModel)
-        clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
+  if(clientModel)
+    clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
 
-      delete reply;
-    } else {
-      //failure
-      delete reply;
-  }
 }
 
 void NavCoinGUI::updateStakingStatus()
