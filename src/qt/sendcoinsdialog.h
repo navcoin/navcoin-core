@@ -59,6 +59,7 @@ public Q_SLOTS:
     void checkNavtechServers();
     void showNavTechDialog();
     void anonsendCheckboxClick();
+    void useFullAmount();
 
 private:
     Ui::SendCoinsDialog *ui;
