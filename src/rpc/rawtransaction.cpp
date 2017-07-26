@@ -22,6 +22,7 @@
 #include "script/standard.h"
 #include "txmempool.h"
 #include "uint256.h"
+#include "timedata.h"
 #include "utilstrencodings.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
@@ -162,6 +163,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     entry.push_back(Pair("vsize", (int)::GetVirtualTransactionSize(tx)));
     entry.push_back(Pair("version", tx.nVersion));
     entry.push_back(Pair("locktime", (int64_t)tx.nLockTime));
+    entry.push_back(Pair("anon-destination", tx.strDZeel));
 
     UniValue vin(UniValue::VARR);
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
@@ -515,6 +517,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
         rawTx.nLockTime = nLockTime;
     }
 
+    rawTx.nTime = GetAdjustedTime();
+
     for (unsigned int idx = 0; idx < inputs.size(); idx++) {
         const UniValue& input = inputs[idx];
         const UniValue& o = input.get_obj();
@@ -544,8 +548,6 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
         rawTx.vin.push_back(in);
     }
-
-    cout << "rawTx.ToString() " << rawTx.ToString() << "\n";
 
     set<CNavCoinAddress> setAddress;
     vector<string> addrList = sendTo.getKeys();
@@ -624,6 +626,7 @@ UniValue decoderawtransaction(const UniValue& params, bool fHelp)
             "     }\n"
             "     ,...\n"
             "  ],\n"
+            "  \"anon-destination\" : \"id\",             (string) Anon destination\n"
             "}\n"
 
             "\nExamples:\n"

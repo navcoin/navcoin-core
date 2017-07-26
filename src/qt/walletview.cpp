@@ -22,10 +22,13 @@
 
 #include "ui_interface.h"
 
+#include "main.h"
+
 #include <QAction>
 #include <QActionGroup>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QInputDialog>
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -214,6 +217,11 @@ void WalletView::setStatusTitle(QString text)
     overviewPage->setStatusTitle(text);
 }
 
+void WalletView::setVotingStatus(QString text)
+{
+    overviewPage->setVotingStatus(text);
+}
+
 void WalletView::setStakingStatus(QString text)
 {
     overviewPage->setStakingStatus(text);
@@ -326,6 +334,81 @@ void WalletView::unlockWallet()
         AskPassphraseDialog dlg(AskPassphraseDialog::Unlock, this);
         dlg.setModel(walletModel);
         dlg.exec();
+    }
+}
+
+void WalletView::importPrivateKey()
+{
+    bool ok;
+    QString privKey = QInputDialog::getText(this, tr("Import Private Key"),
+                                            tr("Private Key:"), QLineEdit::Normal,
+                                            "", &ok);
+    if (ok && !privKey.isEmpty())
+    {
+      LOCK2(cs_main, pwalletMain->cs_wallet);
+
+      WalletModel::UnlockContext ctx(walletModel->requestUnlock());
+      if(!ctx.isValid())
+      {
+        // Unlock wallet was cancelled
+        return;
+      }
+
+      CNavCoinSecret vchSecret;
+      bool fGood = vchSecret.SetString(privKey.toStdString());
+
+      if (!fGood)
+      {
+          QMessageBox::critical(0, tr(PACKAGE_NAME),
+              tr("Invalid private key encoding."));
+          return;
+      }
+
+      CKey key = vchSecret.GetKey();
+      if (!key.IsValid())
+      {
+          QMessageBox::critical(0, tr(PACKAGE_NAME),
+              tr("Private key outside allowed range."));
+          return;
+      }
+
+      CPubKey pubkey = key.GetPubKey();
+      assert(key.VerifyPubKey(pubkey));
+      CKeyID vchAddress = pubkey.GetID();
+      {
+        pwalletMain->MarkDirty();
+        pwalletMain->SetAddressBook(vchAddress, "", "receive");
+
+        // Don't throw error in case a key is already there
+        if (pwalletMain->HaveKey(vchAddress))
+        {
+            QMessageBox::critical(0, tr(PACKAGE_NAME),
+                tr("Address already added."));
+            return;
+        }
+
+        pwalletMain->mapKeyMetadata[vchAddress].nCreateTime = 1;
+
+        if (!pwalletMain->AddKeyPubKey(key, pubkey))
+        {
+            QMessageBox::critical(0, tr(PACKAGE_NAME),
+                tr("Error adding key to wallet."));
+            return;
+        }
+
+        QMessageBox::information(0, tr(PACKAGE_NAME),
+            tr("NavCoin needs to scan the chain... Please, wait."));
+
+        // whenever a key is imported, we need to scan the whole chain
+        pwalletMain->nTimeFirstKey = 1; // 0 would be considered 'no value'
+        pwalletMain->ScanForWalletTransactions(chainActive.Genesis(), true);
+
+      }
+
+      QMessageBox::information(0, tr(PACKAGE_NAME),
+          tr("Private key correctly added!"));
+      return;
+
     }
 }
 

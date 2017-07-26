@@ -32,11 +32,12 @@
 
 #include <boost/thread/thread.hpp> // boost::thread::interrupt
 
+double votes[Consensus::MAX_VERSION_BITS_DEPLOYMENTS];
+
 using namespace std;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry);
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
-
 
 UniValue blockheaderToJSON(const CBlockIndex* blockindex)
 {
@@ -1034,6 +1035,8 @@ static UniValue SoftForkDesc(const std::string &name, int version, CBlockIndex* 
 static UniValue BIP9SoftForkDesc(const Consensus::Params& consensusParams, Consensus::DeploymentPos id)
 {
     UniValue rv(UniValue::VOBJ);
+    rv.push_back(Pair("id", (int)id));
+
     const ThresholdState thresholdState = VersionBitsTipState(consensusParams, id);
     switch (thresholdState) {
     case THRESHOLD_DEFINED: rv.push_back(Pair("status", "defined")); break;
@@ -1048,6 +1051,9 @@ static UniValue BIP9SoftForkDesc(const Consensus::Params& consensusParams, Conse
     }
     rv.push_back(Pair("startTime", consensusParams.vDeployments[id].nStartTime));
     rv.push_back(Pair("timeout", consensusParams.vDeployments[id].nTimeout));
+
+    rv.push_back(Pair("yes_count", votes[id]));
+
     return rv;
 }
 

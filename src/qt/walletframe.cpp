@@ -7,6 +7,7 @@
 
 #include "navcoingui.h"
 #include "walletview.h"
+#include "util.h"
 
 #include <cstdio>
 
@@ -23,15 +24,19 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     QHBoxLayout *topLayout = new QHBoxLayout();
     QHBoxLayout *bottomLayout = new QHBoxLayout();
 
-
-
     walletFrameLayout->setSpacing(0);
     walletFrameLayout->setContentsMargins(0,0,0,0);
 
-    topMenu = new QWidget;
-    topMenu->setFixedSize(850,94);
+    topMenu = new QWidget();
+    topMenu->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    topMenu->setMinimumWidth(900);
+    topMenu->setFixedHeight(94);
+    topMenu->setObjectName("topMenu");
+    topMenu->setStyleSheet(
+                "#topMenu { border-image: url(:/icons/background_top)  0 0 0 0 stretch stretch; border: 0px; }");
 
     topLayout->addWidget(topMenu);
+    topLayout->setAlignment(topMenu,Qt::AlignLeft);
 
     setContentsMargins(0,0,0,0);
 
@@ -50,8 +55,8 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
 
     walletFrameLayout->addLayout(topLayout);
     walletFrameLayout->addLayout(bottomLayout);
-}
 
+}
 
 WalletFrame::~WalletFrame()
 {
@@ -209,6 +214,13 @@ void WalletFrame::showLockStaking(bool status)
         i.value()->showLockStaking(status);
 }
 
+void WalletFrame::setVotingStatus(QString text)
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->setVotingStatus(text);
+}
+
 void WalletFrame::gotoHistoryPage()
 {
     QMap<QString, WalletView*>::const_iterator i;
@@ -284,6 +296,13 @@ void WalletFrame::unlockWalletStaking()
     WalletView *walletView = currentWalletView();
     if (walletView)
         walletView->unlockWalletStaking();
+}
+
+void WalletFrame::importPrivateKey()
+{
+    WalletView *walletView = currentWalletView();
+    if(walletView)
+        walletView->importPrivateKey();
 }
 
 void WalletFrame::lockWallet()

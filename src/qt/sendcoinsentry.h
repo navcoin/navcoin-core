@@ -46,6 +46,11 @@ public:
 
     void setFocus();
 
+    void setTotalAmount(const CAmount& amount);
+    void useFullAmount();
+
+    CAmount totalAmount;
+
 public Q_SLOTS:
     void clear();
 

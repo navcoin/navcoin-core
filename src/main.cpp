@@ -511,31 +511,31 @@ void UpdateBlockAvailability(NodeId nodeid, const uint256 &hash) {
     }
 }
 
-void MaybeSetPeerAsAnnouncingHeaderAndIDs(const CNodeState* nodestate, CNode* pfrom) {
-    if (nLocalServices & NODE_WITNESS) {
-        // Don't ever request compact blocks when segwit is enabled.
-        return;
-    }
-    if (nodestate->fProvidesHeaderAndIDs) {
-        BOOST_FOREACH(const NodeId nodeid, lNodesAnnouncingHeaderAndIDs)
-            if (nodeid == pfrom->GetId())
-                return;
-        bool fAnnounceUsingCMPCTBLOCK = false;
-        uint64_t nCMPCTBLOCKVersion = 1;
-        if (lNodesAnnouncingHeaderAndIDs.size() >= 3) {
-            // As per BIP152, we only get 3 of our peers to announce
-            // blocks using compact encodings.
-            CNode* pnodeStop = FindNode(lNodesAnnouncingHeaderAndIDs.front());
-            if (pnodeStop) {
-                pnodeStop->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
-                lNodesAnnouncingHeaderAndIDs.pop_front();
-            }
-        }
-        fAnnounceUsingCMPCTBLOCK = true;
-        pfrom->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
-        lNodesAnnouncingHeaderAndIDs.push_back(pfrom->GetId());
-    }
-}
+//void MaybeSetPeerAsAnnouncingHeaderAndIDs(const CNodeState* nodestate, CNode* pfrom) {
+//    if (nLocalServices & NODE_WITNESS) {
+//        // Don't ever request compact blocks when segwit is enabled.
+//        return;
+//    }
+//    if (nodestate->fProvidesHeaderAndIDs) {
+//        BOOST_FOREACH(const NodeId nodeid, lNodesAnnouncingHeaderAndIDs)
+//            if (nodeid == pfrom->GetId())
+//                return;
+//        bool fAnnounceUsingCMPCTBLOCK = false;
+//        uint64_t nCMPCTBLOCKVersion = 1;
+//        if (lNodesAnnouncingHeaderAndIDs.size() >= 3) {
+//            // As per BIP152, we only get 3 of our peers to announce
+//            // blocks using compact encodings.
+//            CNode* pnodeStop = FindNode(lNodesAnnouncingHeaderAndIDs.front());
+//            if (pnodeStop) {
+//                pnodeStop->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
+//                lNodesAnnouncingHeaderAndIDs.pop_front();
+//            }
+//        }
+//        fAnnounceUsingCMPCTBLOCK = true;
+//        pfrom->PushMessage(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion);
+//        lNodesAnnouncingHeaderAndIDs.push_back(pfrom->GetId());
+//    }
+//}
 
 // Requires cs_main
 bool CanDirectFetch(const Consensus::Params &consensusParams)
@@ -1166,7 +1166,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     AssertLockHeld(cs_main);
     if (pfMissingInputs)
         *pfMissingInputs = false;
-
     if (!CheckTransaction(tx, state))
         return false; // state filled in by CheckTransaction
 
@@ -2087,7 +2086,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks, int64_t nStakeReward)
 {
     if (!tx.IsCoinBase())
     {
@@ -2112,6 +2111,24 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 const COutPoint &prevout = tx.vin[i].prevout;
                 const CCoins* coins = inputs.AccessCoins(prevout.hash);
                 assert(coins);
+
+                CTransaction txPrev;
+                uint256 hashBlock = uint256();
+                int valid = 1;
+
+                if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                   valid = 0;
+
+                if (mapBlockIndex.count(hashBlock) == 0)
+                   valid = 0;
+
+                if(valid){ // prev out is already checked in CheckTxInputs
+                    CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+
+                    // ppcoin: check transaction timestamp
+                    if (txPrev.nTime > tx.nTime && pblockindex->nHeight > 1294597)
+                        return state.DoS(100, false, REJECT_INVALID, "tx-timestamp-earlier-as-output");
+                }
 
                 // Verify signature
                 CScriptCheck check(*coins, tx, i, flags, cacheStore);
@@ -2451,6 +2468,8 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
         }
     }
 
+    nVersion |= 0x20;
+
     return nVersion;
 }
 
@@ -2762,6 +2781,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (!tx.IsCoinBase())
         {
+
             if (!tx.IsCoinStake())
               nFees += view.GetValueIn(tx) - tx.GetValueOut();
             if (tx.IsCoinStake())
@@ -2769,7 +2789,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, nScriptCheckThreads ? &vChecks : NULL))
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, nScriptCheckThreads ? &vChecks : NULL, nStakeReward))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
@@ -2832,7 +2852,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     {
         // ppcoin: coin stake tx earns reward instead of paying fee
         uint64_t nCoinAge;
-        if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), pindex->pprev, nCoinAge))
+        if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), nCoinAge))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
 
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->nHeight, nCoinAge, nFees);
@@ -2942,6 +2962,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
  */
 bool static FlushStateToDisk(CValidationState &state, FlushStateMode mode) {
     const CChainParams& chainparams = Params();
+    int64_t nMempoolUsage = mempool.DynamicMemoryUsage();
     LOCK2(cs_main, cs_LastBlockFile);
     static int64_t nLastWrite = 0;
     static int64_t nLastFlush = 0;
@@ -2971,11 +2992,15 @@ bool static FlushStateToDisk(CValidationState &state, FlushStateMode mode) {
     if (nLastSetChain == 0) {
         nLastSetChain = nNow;
     }
-    size_t cacheSize = pcoinsTip->DynamicMemoryUsage();
-    // The cache is large and close to the limit, but we have time now (not in the middle of a block processing).
-    bool fCacheLarge = mode == FLUSH_STATE_PERIODIC && cacheSize * (10.0/9) > nCoinCacheUsage;
+
+    int64_t nMempoolSizeMax = GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000;
+    int64_t cacheSize = pcoinsTip->DynamicMemoryUsage() * DB_PEAK_USAGE_FACTOR;
+    int64_t nTotalSpace = nCoinCacheUsage + std::max<int64_t>(nMempoolSizeMax - nMempoolUsage, 0);
+    // The cache is large and we're within 10% and 200 MiB or 50% and 50MiB of the limit, but we have time now (not in the middle of a block processing).
+    bool fCacheLarge = mode == FLUSH_STATE_PERIODIC && cacheSize > std::min(std::max(nTotalSpace / 2, nTotalSpace - MIN_BLOCK_COINSDB_USAGE * 1024 * 1024),
+        std::max((9 * nTotalSpace) / 10, nTotalSpace - MAX_BLOCK_COINSDB_USAGE * 1024 * 1024));
     // The cache is over the limit, we have to write now.
-    bool fCacheCritical = mode == FLUSH_STATE_IF_NEEDED && cacheSize > nCoinCacheUsage;
+    bool fCacheCritical = mode == FLUSH_STATE_IF_NEEDED && cacheSize > (int64_t)nCoinCacheUsage;
     // It's been a while since we wrote the block index to disk. Do this frequently, so we don't need to redownload after a crash.
     bool fPeriodicWrite = mode == FLUSH_STATE_PERIODIC && nNow > nLastWrite + (int64_t)DATABASE_WRITE_INTERVAL * 1000000;
     // It's been very long since we flushed the cache. Do this infrequently, to optimize cache usage.
@@ -3072,7 +3097,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
         const CBlockIndex* pindex = chainActive.Tip();
         for (int bit = 0; bit < VERSIONBITS_NUM_BITS; bit++) {
             WarningBitsConditionChecker checker(bit);
-            ThresholdState state = checker.GetStateFor(pindex, chainParams.GetConsensus(), warningcache[bit]);
+            ThresholdState state = checker.GetStateFor(pindex, chainParams.GetConsensus(), warningcache[bit], bit);
             if (state == THRESHOLD_ACTIVE || state == THRESHOLD_LOCKED_IN) {
                 if (state == THRESHOLD_ACTIVE) {
                     strMiscWarning = strprintf(_("Warning: unknown new rules activated (versionbit %i)"), bit);
@@ -3787,8 +3812,9 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (block.IsProofOfStake())
     {
         // Coinbase output should be empty if proof-of-stake block
-        if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
-            return state.DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block. proof of work not allowed."));
+        for (unsigned int i = 0; i < block.vtx[0].vout.size(); i++)
+          if(block.vtx[0].vout[i].nValue > 0)
+            return state.DoS(100, error("CheckBlock() : coinbase output amount greater than 0 for proof-of-stake block. proof of work not allowed."));
 
         // Second transaction must be coinstake, the rest must not be
         if (block.vtx.empty() || !block.vtx[1].IsCoinStake())
@@ -3893,7 +3919,13 @@ static bool CheckIndexAgainstCheckpoint(const CBlockIndex* pindexPrev, CValidati
 bool IsWitnessEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_SEGWIT, versionbitscache) == THRESHOLD_ACTIVE);
+    return true; //(VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_SEGWIT, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return true; //(VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_SEGWIT, versionbitscache) == THRESHOLD_LOCKED_IN);
 }
 
 // Compute at which vout of the block's coinbase transaction the witness
@@ -5426,6 +5458,23 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         uint64_t nNonce = 1;
         uint64_t nServiceInt;
         vRecv >> pfrom->nVersion >> nServiceInt >> nTime >> addrMe;
+
+        if(pfrom->nVersion < 70015)
+        {
+            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("You are using an old version of NavCoin, please update."));
+            LOCK(cs_main);
+            Misbehaving(pfrom->GetId(), 1);
+            return false;
+        }
+
+        if(pfrom->nVersion < 70016 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("Segregated Witness has been enabled and you are using an old version of NavCoin, please update."));
+            LOCK(cs_main);
+            Misbehaving(pfrom->GetId(), 1);
+            return false;
+        }
+
         pfrom->nServices = ServiceFlags(nServiceInt);
         if (!pfrom->fInbound)
         {
@@ -7373,7 +7422,7 @@ arith_uint256 GetProofOfStakeLimit(int nHeight)
     return (bnProofOfStakeLimitV2);
 }
 
-bool TransactionGetCoinAge(CTransaction& transaction  , const CBlockIndex* pindexPrev, uint64_t& nCoinAge)
+bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge)
 {
     CBigNum bnCentSecond = 0;  // coin age in the unit of cent-seconds
     nCoinAge = 0;

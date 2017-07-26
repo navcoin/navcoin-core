@@ -36,6 +36,8 @@
 #include <vector>
 
 #include <boost/unordered_map.hpp>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
 
 #define START_INODE_PAYMENTS_TESTNET 1429456427
 #define START_INODE_PAYMENTS 1429456427
@@ -68,7 +70,7 @@ static const CAmount HIGH_TX_FEE_PER_KB = 0.01 * COIN;
 //! -maxtxfee will warn if called with a higher fee than this amount (in satoshis)
 static const CAmount HIGH_MAX_TX_FEE = 100 * HIGH_TX_FEE_PER_KB;
 /** Default for -maxorphantx, maximum number of orphan transactions kept in memory */
-static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 100;
+static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 10;
 /** Expiration time for orphan transactions in seconds */
 static const int64_t ORPHAN_TX_EXPIRE_TIME = 20 * 60;
 /** Minimum time between orphan transactions expire time checks in seconds */
@@ -371,7 +373,7 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
  * instead of being performed inline.
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
-                 unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks = NULL);
+                 unsigned int flags, bool cacheStore, std::vector<CScriptCheck> *pvChecks = NULL, int64_t nStakeReward = 0);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);
@@ -497,6 +499,7 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
 
 /** Check whether witness commitments are required for block. */
 bool IsWitnessEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);
@@ -569,7 +572,7 @@ static const unsigned int REJECT_ALREADY_KNOWN = 0x101;
 /** Transaction conflicts with a transaction already known */
 static const unsigned int REJECT_CONFLICT = 0x102;
 
-bool TransactionGetCoinAge(CTransaction& transaction, const CBlockIndex* pindexPrev, uint64_t& nCoinAge);
+bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge);
 
 
 // MODIFIER_INTERVAL: time to elapse before new modifier is computed

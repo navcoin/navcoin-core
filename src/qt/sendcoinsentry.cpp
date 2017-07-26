@@ -19,7 +19,8 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     QStackedWidget(parent),
     ui(new Ui::SendCoinsEntry),
     model(0),
-    platformStyle(platformStyle)
+    platformStyle(platformStyle),
+    totalAmount(0)
 {
     ui->setupUi(this);
 
@@ -54,6 +55,17 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
 SendCoinsEntry::~SendCoinsEntry()
 {
     delete ui;
+}
+
+
+void SendCoinsEntry::setTotalAmount(const CAmount& amount)
+{
+    totalAmount = amount;
+}
+
+void SendCoinsEntry::useFullAmount()
+{
+    ui->payAmount->setValue(totalAmount);
 }
 
 void SendCoinsEntry::updateAddressBook()

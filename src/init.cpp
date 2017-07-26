@@ -58,10 +58,16 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/aes.h>
+
 
 #if ENABLE_ZMQ
 #include "zmq/zmqnotificationinterface.h"
 #endif
+
+char *sPrivKey, *sPubKey;
 
 using namespace std;
 
@@ -798,6 +804,29 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (!SetupNetworking())
         return InitError("Initializing networking failed");
+
+    int keylen_pub, keylen_priv;
+
+    RSA *rsa = RSA_generate_key(2048, 3, 0, 0);
+
+    /* Create Private Key */
+    BIO *biopriv = BIO_new(BIO_s_mem());
+    PEM_write_bio_RSAPrivateKey(biopriv, rsa, NULL, NULL, 0, NULL, NULL);
+
+    keylen_priv = BIO_pending(biopriv);
+    sPrivKey = static_cast<char*>(calloc(keylen_priv+1, 1)); /* Null-terminate */
+    BIO_read(biopriv, sPrivKey, keylen_priv);
+
+
+    /* Create Public Key */
+    BIO *bio_pub = BIO_new(BIO_s_mem());
+    PEM_write_bio_RSA_PUBKEY(bio_pub, rsa);
+
+    keylen_pub = BIO_pending(bio_pub);
+    sPubKey = static_cast<char*>(calloc(keylen_pub+1, 1)); /* Null-terminate */
+    BIO_read(bio_pub, sPubKey, keylen_pub);
+
+    LogPrintf("RSA keys pair generated.\n");
 
 #ifndef WIN32
     if (GetBoolArg("-sysperms", false)) {

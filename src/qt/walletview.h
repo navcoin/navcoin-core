@@ -104,6 +104,7 @@ public Q_SLOTS:
     void unlockWallet();
     void unlockWalletStaking();
     void lockWallet();
+    void importPrivateKey();
 
     /** Show used sending addresses */
     void usedSendingAddresses();
@@ -121,6 +122,8 @@ public Q_SLOTS:
     void setStatusTitleConnections(QString text);
 
     void setStatusTitle(QString text);
+
+    void setVotingStatus(QString text);
 
     void showStatusTitleConnections();
     void hideStatusTitleConnections();

@@ -11,10 +11,12 @@
 #include "coincontrol.h"
 #include "consensus/consensus.h"
 #include "consensus/validation.h"
+#include "init.h"
 #include "key.h"
 #include "keystore.h"
 #include "main.h"
 #include "net.h"
+#include "navtech.h"
 #include "policy/policy.h"
 #include "primitives/block.h"
 #include "primitives/transaction.h"
@@ -93,6 +95,11 @@ const CWalletTx* CWallet::GetWalletTx(const uint256& hash) const
     if (it == mapWallet.end())
         return NULL;
     return &(it->second);
+}
+
+bool CWallet::IsHDEnabled() const
+{
+    return !hdChain.masterKeyID.IsNull();
 }
 
 CPubKey CWallet::GenerateNewKey()
@@ -254,7 +261,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
             for (unsigned int i = 0; i < pcoin->vout.size(); i++)
                 if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue){
                     vCoins.push_back(COutput(pcoin, i, nDepth, true,
-                                           (IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO));
+                                           (IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO));
                 }
         }
     }
@@ -446,7 +453,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         uint64_t nCoinAge;
         CTransaction ptxNew = CTransaction(txNew);
-        if (!TransactionGetCoinAge(ptxNew, pindexPrev, nCoinAge))
+        if (!TransactionGetCoinAge(ptxNew, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
         nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees);
@@ -1477,8 +1484,12 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
 
     if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
     {
-        LogPrintf("SyncTransaction : Abandoning tx %s\n",tx.hash.ToString());
         AbandonTransaction(tx.hash);
+        LogPrintf("SyncTransaction : Removing tx %s from mapTxSpends\n",tx.hash.ToString());
+        BOOST_FOREACH(const CTxIn& txin, tx.vin)
+        {
+            mapTxSpends.erase(txin.prevout);
+        }
     }
 }
 
@@ -2567,6 +2578,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
 bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, const CCoinControl* coinControl, bool sign, std::string strDZeel)
 {
+    Navtech navtech;
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
     unsigned int nSubtractFeeFromAmount = 0;
@@ -2594,10 +2606,12 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     CMutableTransaction txNew;
 
-    txNew.strDZeel = strDZeel;
+    txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+
+    txNew.strDZeel = strDZeel.length() > 0 ? strDZeel : navtech.EncryptAddress(std::to_string(GetAdjustedTime() + (rand() % 1<<8)),sPubKey);
 
     if (strDZeel.length() > 0)
-      txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+      wtxNew.fAnon = true;
 
     if (strDZeel.length() > 512)
       txNew.strDZeel.resize(512);
@@ -2804,7 +2818,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 int nIn = 0;
 
                 BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
-                  if (!SignSignatureNavcoin(*this, *coin.first, txNew, nIn++))
+                  if (!SignSignature(*this, *coin.first, txNew, nIn++))
                     return false;
 
                 unsigned int nBytes = GetVirtualTransactionSize(txNew);

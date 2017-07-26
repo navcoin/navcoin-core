@@ -34,7 +34,9 @@
 #include "macdockiconhandler.h"
 #endif
 
+#include "chainparams.h"
 #include "init.h"
+#include "miner.h"
 #include "ui_interface.h"
 #include "util.h"
 #include "pos.h"
@@ -46,7 +48,9 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDesktopWidget>
+#include <QDir>
 #include <QDragEnterEvent>
+#include <QInputDialog>
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -63,7 +67,17 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidget>
-
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrl>
+#include <QUrlQuery>
+#include <QVariant>
+#include <QJsonValue>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QVariantMap>
+#include <QJsonArray>
 
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
@@ -93,6 +107,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     labelConnectionsIcon(0),
     labelBlocksIcon(0),
     labelStakingIcon(0),
+    labelPrice(0),
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
@@ -105,6 +120,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     usedSendingAddressesAction(0),
     usedReceivingAddressesAction(0),
     repairWalletAction(0),
+    importPrivateKeyAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -132,7 +148,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     platformStyle(platformStyle)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
-    setFixedSize(QSize(840, 600));
+    //setFixedSize(QSize(840, 600));
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     /* if compiled with wallet support, -disablewallet can still disable the wallet */
@@ -210,12 +226,15 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
     labelEncryptionIcon = new QLabel();
     labelStakingIcon = new QLabel();
+    labelPrice = new QLabel();
     labelConnectionsIcon = new QLabel();
     labelBlocksIcon = new QLabel();
     if(enableWallet)
     {
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelStakingIcon);
+        frameBlocksLayout->addStretch();
+        frameBlocksLayout->addWidget(labelPrice);
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(unitDisplayControl);
         frameBlocksLayout->addStretch();
@@ -226,6 +245,11 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
+
+    QTimer *timerPrice = new QTimer(labelPrice);
+    connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
+    timerPrice->start(120 * 1000);
+    updatePrice();
 
     if (GetBoolArg("-staking", true))
     {
@@ -420,6 +444,9 @@ void NavCoinGUI::createActions()
     repairWalletAction = new QAction(tr("&Repair wallet"), this);
     repairWalletAction->setToolTip(tr("Repair wallet transactions"));
 
+    importPrivateKeyAction = new QAction(tr("&Import private key"), this);
+    importPrivateKeyAction->setToolTip(tr("Import private key"));
+
     openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
 
@@ -450,6 +477,7 @@ void NavCoinGUI::createActions()
         connect(usedSendingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedSendingAddresses()));
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
+        connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -482,6 +510,8 @@ void NavCoinGUI::createMenuBar()
         file->addSeparator();
         file->addAction(repairWalletAction);
         file->addSeparator();
+        file->addAction(importPrivateKeyAction);
+
     }
     file->addAction(quitAction);
 
@@ -493,6 +523,15 @@ void NavCoinGUI::createMenuBar()
         settings->addAction(changePassphraseAction);
         settings->addSeparator();
         settings->addAction(toggleStakingAction);
+        settings->addSeparator();
+        QMenu* currency = settings->addMenu( tr("Currency") );
+        Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+        {
+            QAction *menuAction = new QAction(QString(NavCoinUnits::name(u)), this);
+            menuAction->setData(QVariant(u));
+            currency->addAction(menuAction);
+        }
+        connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
     }
     settings->addAction(optionsAction);
 
@@ -505,6 +544,14 @@ void NavCoinGUI::createMenuBar()
     help->addSeparator();
     help->addAction(aboutAction);
     help->addAction(aboutQtAction);
+}
+
+void NavCoinGUI::onCurrencySelection(QAction* action)
+{
+    if (action)
+    {
+        clientModel->getOptionsModel()->setDisplayUnit(action->data());
+    }
 }
 
 void NavCoinGUI::createToolBars()
@@ -671,6 +718,7 @@ void NavCoinGUI::repairWallet()
 
     QApplication::quit();
 }
+
 #endif // ENABLE_WALLET
 
 void NavCoinGUI::setWalletActionsEnabled(bool enabled)
@@ -689,6 +737,7 @@ void NavCoinGUI::setWalletActionsEnabled(bool enabled)
     usedSendingAddressesAction->setEnabled(enabled);
     usedReceivingAddressesAction->setEnabled(enabled);
     repairWalletAction->setEnabled(enabled);
+    importPrivateKeyAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
 }
 
@@ -918,6 +967,8 @@ void NavCoinGUI::setNumConnections(int count)
     }
 }
 
+bool showingVotingDialog = false;
+
 void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header)
 {
     if(!clientModel)
@@ -971,7 +1022,10 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
             walletFrame->showStatusTitleBlocks();
         else
             walletFrame->hideStatusTitleBlocks();
+
     }
+
+    showVotingDialog();
 
     // Set icon state: spinning if catching up, tick otherwise
     if(secs < 90*60)
@@ -1053,6 +1107,49 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     labelBlocksIcon->setToolTip(tooltip);
     progressBarLabel->setToolTip(tooltip);
     progressBar->setToolTip(tooltip);
+}
+
+void NavCoinGUI::showVotingDialog()
+{
+
+  if(showingVotingDialog)
+    return;
+
+  showingVotingDialog = true;
+
+  bool showWitness = pindexBestHeader->nTime > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
+      pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
+      !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()) &&
+      !ExistsKeyInConfigFile("votewitness") &&
+      GetBoolArg("-staking",true);
+
+  bool vote = false;
+
+  if(showWitness)
+  {
+
+    QMessageBox msgBox;
+    msgBox.setText(tr("Important network notice."));
+    msgBox.setInformativeText(tr("The Nav Coin Network is currently voting on activating Segregated Witness. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. <br><br>For more information on Segregated Witness, please visit <a href=\"https://bitcoincore.org/en/2016/01/26/segwit-benefits/\">this link</a><br><br>Would you like the Nav Coin Network to activate Segregated Witness?"));
+    QAbstractButton *myYesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
+    msgBox.addButton(trUtf8("No"), QMessageBox::NoRole);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.exec();
+
+    if(msgBox.clickedButton() == myYesButton)
+    {
+        vote = true;
+    }
+
+    SoftSetArg("-votewitness",vote?"1":"0",true);
+
+    RemoveConfigFile("votewitness",vote?"0":"1");
+    WriteConfigFile("votewitness",vote?"1":"0");
+
+  }
+
+  showingVotingDialog = false;
+
 }
 
 void NavCoinGUI::message(const QString &title, const QString &message, unsigned int style, bool *ret)
@@ -1401,7 +1498,7 @@ void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
 /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
 void UnitDisplayStatusBarControl::createContextMenu()
 {
-    menu = new QMenu();
+    menu = new QMenu(this);
     Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
     {
         QAction *menuAction = new QAction(QString(NavCoinUnits::name(u)), this);
@@ -1487,24 +1584,46 @@ void NavCoinGUI::updateWeight()
     nWeight = pwalletMain->GetStakeWeight();
 }
 
-void NavCoinGUI::toggleStaking()
+
+void NavCoinGUI::updatePrice()
 {
-    bool deactivate = false;
-    if (GetBoolArg("-staking", true))
-    {
-        deactivate = true;
-    }
-    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Toggle staking"),
-        tr("Client restart required to ") + (deactivate?tr("deactivate"):tr("activate")) + tr(" staking.") + "<br><br>" + tr("Client will be shut down. Do you want to proceed?"),
-        QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+  QNetworkAccessManager *manager = new QNetworkAccessManager();
+  QNetworkRequest request;
+  QNetworkReply *reply = NULL;
 
-    if(btnRetVal == QMessageBox::Cancel)
-        return;
+  QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+  config.setProtocol(QSsl::TlsV1_2);
+  request.setSslConfiguration(config);
+  request.setUrl(QUrl("https://api.coinmarketcap.com/v1/ticker/nav-coin/?convert=EUR"));
+  request.setHeader(QNetworkRequest::ServerHeader, "application/json");
+  reply = manager->get(request);
+  connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+                   SLOT(replyFinished(QNetworkReply*)));
+}
 
-    RemoveConfigFile("staking",deactivate?"1":"0");
-    WriteConfigFile("staking",deactivate?"0":"1");
+void NavCoinGUI::replyFinished(QNetworkReply *reply)
+{
 
-    QApplication::quit();
+  QString reqString = QString("GET /v1/ticker/nav-coin/?convert=EUR HTTP/1.1\r\n" \
+                              "Host: api.coinmarketcap.com\r\n\r\n");
+
+  QString strReply = reply->readAll();
+
+  //parse json
+  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+
+  QJsonArray jsonObj = jsonResponse.array();
+  QJsonObject jsonObj2 = jsonObj[0].toObject();
+
+  QSettings settings;
+
+  settings.setValue("eurFactor",(1.0 / jsonObj2["price_eur"].toString().toFloat()) * 100000000);
+  settings.setValue("usdFactor",(1.0 / jsonObj2["price_usd"].toString().toFloat()) * 100000000);
+  settings.setValue("btcFactor",(1.0 / jsonObj2["price_btc"].toString().toFloat()) * 100000000);
+
+  if(clientModel)
+    clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
+
 }
 
 void NavCoinGUI::updateStakingStatus()
@@ -1512,6 +1631,25 @@ void NavCoinGUI::updateStakingStatus()
     updateWeight();
 
     if(walletFrame){
+
+        if(Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout && pindexBestHeader != NULL){
+
+//          QString witnessLabel;
+
+//          bool showWitness = pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout;
+//          bool witnessEnabled = IsWitnessEnabled(pindexBestHeader, Params().GetConsensus());
+
+//          if(pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
+//            witnessLabel = tr("SegWit voting starts at 00:00 01/05/17");
+//          else if (witnessEnabled)
+//            witnessLabel = tr("Segregated Witness has been activated. Spread the word!");
+//          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
+//            witnessLabel = tr("Please, start staking to vote.");
+//          else if (showWitness)
+//            witnessLabel = tr("Your vote is %1.").arg(GetBoolArg("-votewitness",false) ? "YES" : "NO");
+
+//          walletFrame->setVotingStatus(witnessLabel);
+        }
 
         if (!GetBoolArg("-staking",true))
         {

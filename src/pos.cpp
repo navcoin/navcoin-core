@@ -11,7 +11,33 @@
 
 double GetDifficulty(const CBlockIndex* blockindex)
 {
-    return 1.0;
+  // Floating point number that is a multiple of the minimum difficulty,
+  // minimum difficulty = 1.0.
+  if (blockindex == NULL)
+  {
+      if (pindexBestHeader == NULL)
+          return 1.0;
+      else
+          blockindex = GetLastBlockIndex(pindexBestHeader, false);
+  }
+
+  int nShift = (blockindex->nBits >> 24) & 0xff;
+
+  double dDiff =
+      (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
+
+  while (nShift < 29)
+  {
+      dDiff *= 256.0;
+      nShift++;
+  }
+  while (nShift > 29)
+  {
+      dDiff /= 256.0;
+      nShift--;
+  }
+
+  return dDiff;
 }
 
 double GetPoWMHashPS()

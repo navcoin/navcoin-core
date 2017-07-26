@@ -20,6 +20,7 @@
 #include <QPoint>
 #include <QPushButton>
 #include <QSystemTrayIcon>
+#include <QtNetwork>
 #include <QAbstractButton>
 #include <QPainter>
 
@@ -63,6 +64,7 @@ public:
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
     */
     void setClientModel(ClientModel *clientModel);
+    void showVotingDialog();
 
 #ifdef ENABLE_WALLET
     /** Set the wallet model.
@@ -92,6 +94,7 @@ private:
     QLabel *labelConnectionsIcon;
     QLabel *labelBlocksIcon;
     QLabel *labelStakingIcon;
+    QLabel *labelPrice;
     QLabel *progressBarLabel;
     QProgressBar *progressBar;
     QProgressDialog *progressDialog;
@@ -105,6 +108,7 @@ private:
     QAction *usedSendingAddressesAction;
     QAction *usedReceivingAddressesAction;
     QAction *repairWalletAction;
+    QAction *importPrivateKeyAction;
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
@@ -184,6 +188,7 @@ public Q_SLOTS:
        @param[in] ret       pointer to a bool that will be modified to whether Ok was clicked (modal only)
     */
     void message(const QString &title, const QString &message, unsigned int style, bool *ret = NULL);
+    void replyFinished(QNetworkReply *reply);
 
 #ifdef ENABLE_WALLET
     /** Set the encryption status as shown in the UI.
@@ -196,6 +201,7 @@ public Q_SLOTS:
 
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
+    void onCurrencySelection(QAction* action);
 #endif // ENABLE_WALLET
 
 private Q_SLOTS:
@@ -219,6 +225,8 @@ private Q_SLOTS:
     void openClicked();
     /** Update Staking status **/
     void updateStakingStatus();
+    /** Fetch Price from CMC **/
+    void updatePrice();
 
     /** Repairs wallet **/
     void repairWallet();

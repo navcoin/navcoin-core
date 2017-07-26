@@ -25,6 +25,7 @@
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
+#include "versionbits.h"
 #include "wallet/wallet.h"
 #include "kernel.h"
 
@@ -116,7 +117,7 @@ void BlockAssembler::resetBlock()
     nBlockSize = 1000;
     nBlockWeight = 4000;
     nBlockSigOpsCost = 400;
-    fIncludeWitness = false;
+    fIncludeWitness = true;
 
     // These counters do not include coinbase tx
     nBlockTx = 0;
@@ -146,7 +147,19 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     CBlockIndex* pindexPrev = chainActive.Tip();
     nHeight = pindexPrev->nHeight + 1;
 
+    // Decide whether to include witness transactions
+    // This is only needed in case the witness softfork activation is reverted
+    // (which would require a very deep reorganization) or when
+    // -promiscuousmempoolflags is used.
+    // TODO: replace this with a call to main to assess validity of a mempool
+    // transaction (which in most cases can be a no-op).
+    fIncludeWitness = true;
+
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+
+    if(!(fIncludeWitness || IsWitnessLocked(pindexPrev, chainparams.GetConsensus())) && !GetBoolArg("-votewitness",false))
+      pblock->nVersion &= ~VersionBitsMask(chainparams.GetConsensus(), (Consensus::DeploymentPos)Consensus::DEPLOYMENT_SEGWIT);
+
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     // if (chainparams.MineBlocksOnDemand())
@@ -160,13 +173,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                        ? nMedianTimePast
                        : pblock->GetBlockTime();
 
-    // Decide whether to include witness transactions
-    // This is only needed in case the witness softfork activation is reverted
-    // (which would require a very deep reorganization) or when
-    // -promiscuousmempoolflags is used.
-    // TODO: replace this with a call to main to assess validity of a mempool
-    // transaction (which in most cases can be a no-op).
-    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
+
+    fIncludeWitness = false;
 
     addPriorityTxs(fProofOfStake, pblock->vtx[0].nTime);
     addPackageTxs();
@@ -174,7 +182,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     nLastBlockTx = nBlockTx;
     nLastBlockSize = nBlockSize;
     nLastBlockWeight = nBlockWeight;
-    // LogPrint("coinstake","CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
+    //LogPrint("coinstake","CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
 
     // Create coinbase transaction.
     CMutableTransaction coinstakeTx;
@@ -195,7 +203,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
     pblock->nBits          = fProofOfStake ? GetNextTargetRequired(pindexPrev, true) : GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
     pblock->nNonce         = 0;
-    pblock->nVersion       = VERSIONBITS_LAST_OLD_BLOCK_VERSION;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
 
     if (pFees)
@@ -674,8 +681,8 @@ void NavCoinStaker(const CChainParams& chainparams)
             }
             CBlock *pblock = &pblocktemplate->block;
 
-            // LogPrint("coinstake","Running NavCoinStaker with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
-            //     ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
+            LogPrint("coinstake","Running NavCoinStaker with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
+                 ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
             //Trying to sign a block
             if (SignBlock(pblock, *pwalletMain, nFees))
@@ -798,7 +805,10 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         // Process this block the same as if we had received it from another node
         CValidationState state;
         if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
+        {
+            LogPrintf("NavCoinStaker: ProcessNewBlock() : %s\n", pblock->ToString());
             return error("NavCoinStaker: ProcessNewBlock, block not accepted");
+        }
     }
 
     return true;

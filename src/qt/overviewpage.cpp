@@ -168,6 +168,11 @@ void OverviewPage::setStakingStats(QString day, QString week, QString month)
     ui->label30dStakingStats->setText(month);
 }
 
+void OverviewPage::setVotingStatus(QString text)
+{
+    ui->votingStatusLabel->setText(text);
+}
+
 void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance)
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
