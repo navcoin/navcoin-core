@@ -6,6 +6,7 @@
 
 #include "policy/policy.h"
 #include "wallet/wallet.h"
+#include "util.h"
 
 WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &recipients) :
     recipients(recipients),
@@ -13,7 +14,7 @@ WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &
     keyChange(0),
     fee(0)
 {
-    walletTransaction = new CWalletTx();
+
 }
 
 WalletModelTransaction::~WalletModelTransaction()
@@ -47,12 +48,14 @@ void WalletModelTransaction::setTransactionFee(const CAmount& newFee)
     fee = newFee;
 }
 
-void WalletModelTransaction::reassignAmounts(int nChangePosRet)
+void WalletModelTransaction::reassignAmounts(int nChangePosRet, CWalletTx* wTx, int index)
 {
-    int i = 0;
+    int i = 0, j = 0;
     for (QList<SendCoinsRecipient>::iterator it = recipients.begin(); it != recipients.end(); ++it)
     {
         SendCoinsRecipient& rcp = (*it);
+
+        if(j != index) continue;
 
         if (rcp.paymentRequest.IsInitialized())
         {
@@ -64,7 +67,7 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet)
                 if (out.amount() <= 0) continue;
                 if (i == nChangePosRet)
                     i++;
-                subtotal += walletTransaction->vout[i].nValue;
+                subtotal += wTx->vout[i].nValue;
                 i++;
             }
             rcp.amount = subtotal;
@@ -73,9 +76,12 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet)
         {
             if (i == nChangePosRet)
                 i++;
-            rcp.amount = walletTransaction->vout[i].nValue;
+
+            rcp.amount = wTx->vout[i].nValue;
+
             i++;
         }
+        j++;
     }
 }
 

@@ -79,6 +79,8 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     connect(clipboardLowOutputAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardLowOutput()));
     connect(clipboardChangeAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardChange()));
     connect(ui->anonsendCheckbox, SIGNAL(clicked()), this, SLOT(anonsendCheckboxClick()));
+    connect(ui->fullAmountBtn,  SIGNAL(clicked()), this, SLOT(useFullAmount()));
+
     ui->labelCoinControlQuantity->addAction(clipboardQuantityAction);
     ui->labelCoinControlAmount->addAction(clipboardAmountAction);
     ui->labelCoinControlFee->addAction(clipboardFeeAction);
@@ -275,7 +277,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                           cRecipient.destaddress = QString::fromStdString(serverNavAddresses[i].get_str());
                           CAmount nAmountRound = 0;
                           CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
-                          CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % nEntropy)+2);
+                          CAmount nAmountToSubstract = ((nAmountNotProcessed / ((rand() % nEntropy)+2))/1000)*1000;
                           if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
                           {
                               nAmountRound = nAmountNotProcessed;
@@ -286,10 +288,11 @@ void SendCoinsDialog::on_sendButton_clicked()
                               nAmountRound = std::max(nAmountToSubstract,nMinAmount);
                           }
 
+
                           nAmountAlreadyProcessed += nAmountRound;
-                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+1, nId));
+                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+(i==serverNavAddresses.size()?0:1), nId));
                           if(!find_value(navtechData, "anonfee").isNull()){
-                              cRecipient.anonfee = recipient.amount * ((float)find_value(navtechData, "anonfee").get_real() / 100);
+                              cRecipient.anonfee = nAmountRound * ((float)find_value(navtechData, "anonfee").get_real() / 100.0);
                               cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
                           }else
                               valid = false;
@@ -393,6 +396,8 @@ void SendCoinsDialog::on_sendButton_clicked()
     Q_FOREACH(const SendCoinsRecipient &rcp, currentTransaction.getRecipients())
     {
       nTotalAmount += rcp.amount;
+      if(rcp.fSubtractFeeFromAmount && rcp.isanon)
+        nTotalAmount -= rcp.anonfee;
     }
 
     // Format confirmation message
@@ -492,8 +497,14 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
+    WalletModel::SendCoinsReturn sendStatus;
+
     // now send the prepared transaction
-    WalletModel::SendCoinsReturn sendStatus = model->sendCoins(currentTransaction);
+    if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
+        sendStatus = model->sendCoins(currentTransaction, CoinControlDialog::coinControl);
+    else
+        sendStatus = model->sendCoins(currentTransaction);
+
     // process sendStatus and on error generate message shown to user
     processSendCoinsReturn(sendStatus);
 
@@ -647,10 +658,31 @@ void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfir
     Q_UNUSED(watchUnconfirmedBalance);
     Q_UNUSED(watchImmatureBalance);
 
+    for(int i = 0; i < ui->entries->count(); ++i)
+    {
+        SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+        if(entry)
+        {
+            entry->setTotalAmount(balance);
+        }
+    }
+
     if(model && model->getOptionsModel())
     {
-        ui->labelBalance->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
+        ui->labelBalance->setText(NavCoinUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
     }
+}
+
+void SendCoinsDialog::useFullAmount()
+{
+  for(int i = 0; i < ui->entries->count(); ++i)
+  {
+      SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+      if(entry)
+      {
+          entry->useFullAmount();
+      }
+  }
 }
 
 void SendCoinsDialog::updateDisplayUnit()

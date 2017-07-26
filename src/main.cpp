@@ -2113,6 +2113,24 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 const CCoins* coins = inputs.AccessCoins(prevout.hash);
                 assert(coins);
 
+                CTransaction txPrev;
+                uint256 hashBlock = uint256();
+                int valid = 1;
+
+                if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                   valid = 0;
+
+                if (mapBlockIndex.count(hashBlock) == 0)
+                   valid = 0;
+
+                if(valid){ // prev out is already checked in CheckTxInputs
+                    CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+
+                    // ppcoin: check transaction timestamp
+                    if (txPrev.nTime > tx.nTime && pblockindex->nHeight > 1294597)
+                        return state.DoS(100, false, REJECT_INVALID, "tx-timestamp-earlier-as-output");
+                }
+
                 // Verify signature
                 CScriptCheck check(*coins, tx, i, flags, cacheStore);
                 if (pvChecks) {
@@ -3795,8 +3813,9 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (block.IsProofOfStake())
     {
         // Coinbase output should be empty if proof-of-stake block
-        if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
-            return state.DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block. proof of work not allowed."));
+        for (unsigned int i = 0; i < block.vtx[0].vout.size(); i++)
+          if(block.vtx[0].vout[i].nValue > 0)
+            return state.DoS(100, error("CheckBlock() : coinbase output amount greater than 0 for proof-of-stake block. proof of work not allowed."));
 
         // Second transaction must be coinstake, the rest must not be
         if (block.vtx.empty() || !block.vtx[1].IsCoinStake())

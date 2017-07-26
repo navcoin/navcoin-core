@@ -617,6 +617,4 @@ static const unsigned int MAX_STANDARD_TX_SIZE = MAX_BLOCK_SIZE_GEN/5;
 
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
-extern char *sPrivKey, *sPubKey;
-
 #endif // NAVCOIN_MAIN_H

@@ -126,7 +126,7 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
       anonServers.erase(anonServers.begin()+randIndex);
       curl_easy_cleanup(curl);
       curl_global_cleanup();
-      return this->FindAnonServer(anonServers, nValue);
+      return this->FindAnonServer(anonServers, nValue, nTransactions);
     } else {
       UniValue parsedResponse = this->ParseJSONResponse(readBuffer);
       UniValue type = find_value(parsedResponse, "type");
@@ -194,7 +194,8 @@ UniValue Navtech::ParseJSONResponse(string readBuffer) {
 
 string Navtech::EncryptAddress(string address, string pubKeyStr, int nTransactions, int nPiece, long nId) {
 
-  address = "{\"n\":\""+address+"\",\"t\":"+std::to_string(GetArg("anon_out_delay",NAVTECH_DEFAULT_OUT_DELAY))+",\"p\":"+std::to_string(nPiece)+",\"o\":"+std::to_string(nTransactions)+",\"t\":"+std::to_string(nId)+"}";
+  address = "{\"n\":\""+address+"\",\"t\":"+std::to_string(GetArg("anon_out_delay",NAVTECH_DEFAULT_OUT_DELAY))+",\"p\":"+std::to_string(nPiece)+",\"o\":"+std::to_string(nTransactions)+",\"u\":"+std::to_string(nId)+"}";
+
   unsigned char pubKeyChar[(int)pubKeyStr.length()+1];
   memcpy(pubKeyChar, pubKeyStr.c_str(), pubKeyStr.length());
   pubKeyChar[pubKeyStr.length()] = 0;

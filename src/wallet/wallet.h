@@ -125,13 +125,6 @@ public:
     StringMap destdata;
 };
 
-struct CRecipient
-{
-    CScript scriptPubKey;
-    CAmount nAmount;
-    bool fSubtractFeeFromAmount;
-};
-
 typedef std::map<std::string, std::string> mapValue_t;
 
 
@@ -470,7 +463,13 @@ public:
     std::set<uint256> GetConflicts() const;
 };
 
-
+struct CRecipient
+{
+    CScript scriptPubKey;
+    CAmount nAmount;
+    bool fSubtractFeeFromAmount;
+    std::string strDZeel;
+};
 
 
 class COutput
@@ -705,6 +704,9 @@ public:
         nTimeFirstKey = 0;
         fBroadcastTransactions = false;
     }
+
+    bool IsHDEnabled() const;
+
 
     std::map<uint256, CWalletTx> mapWallet;
     std::list<CAccountingEntry> laccentries;
