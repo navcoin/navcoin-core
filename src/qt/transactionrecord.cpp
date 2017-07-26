@@ -43,7 +43,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     std::map<std::string, std::string> mapValue = wtx.mapValue;
     std::string dzeel = "";
 
-  	if (!wtx.strDZeel.empty())
+    if (!wtx.fAnon)
   	{
   	    dzeel = wtx.strDZeel;
   	}
@@ -91,7 +91,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit;
                     hashPrev = hash;
                 }
-                if(wtx.strDZeel != "")
+                if(wtx.fAnon)
                 {
                     sub.type = TransactionRecord::AnonTx;
                 }
@@ -163,7 +163,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.address = mapValue["to"];
                 }
 
-                if(wtx.strDZeel != "")
+                if(wtx.fAnon)
                 {
                     sub.type = TransactionRecord::AnonTx;
                 }

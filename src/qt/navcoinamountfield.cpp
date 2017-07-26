@@ -13,7 +13,9 @@
 #include <QAbstractSpinBox>
 #include <QHBoxLayout>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QLineEdit>
+#include <QSettings>
 
 /** QSpinBox that uses fixed-point numbers internally and uses our own
  * formatting/parsing functions.
@@ -79,7 +81,7 @@ public:
         bool valid = false;
         CAmount val = value(&valid);
 
-        currentUnit = unit;
+        //currentUnit = unit;
 
         if(valid)
             setValue(val);
@@ -138,7 +140,7 @@ private:
     CAmount parse(const QString &text, bool *valid_out=0) const
     {
         CAmount val = 0;
-        bool valid = NavCoinUnits::parse(currentUnit, text, &val);
+        bool valid = NavCoinUnits::parse(0, text, &val);
         if(valid)
         {
             if(val < 0 || val > NavCoinUnits::maxMoney())
@@ -187,6 +189,7 @@ protected:
 
 Q_SIGNALS:
     void valueChanged();
+
 };
 
 #include "navcoinamountfield.moc"
@@ -202,8 +205,7 @@ NavCoinAmountField::NavCoinAmountField(QWidget *parent) :
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
-    unit = new QValueComboBox(this);
-    unit->setModel(new NavCoinUnits(this));
+    unit = new QLabel(this);
     layout->addWidget(unit);
     layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
@@ -215,22 +217,19 @@ NavCoinAmountField::NavCoinAmountField(QWidget *parent) :
 
     // If one if the widgets changes, the combined content changes as well
     connect(amount, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
-    connect(unit, SIGNAL(currentIndexChanged(int)), this, SLOT(unitChanged(int)));
+    connect(amount, SIGNAL(valueChanged()), this, SLOT(valueDidChange()));
 
-    // Set default based on configuration
-    unitChanged(unit->currentIndex());
 }
 
 void NavCoinAmountField::clear()
 {
     amount->clear();
-    unit->setCurrentIndex(0);
+    unit->setText("0 EUR / 0 USD / 0 BTC");
 }
 
 void NavCoinAmountField::setEnabled(bool fEnabled)
 {
     amount->setEnabled(fEnabled);
-    unit->setEnabled(fEnabled);
 }
 
 bool NavCoinAmountField::validate()
@@ -276,6 +275,13 @@ void NavCoinAmountField::setValue(const CAmount& value)
     amount->setValue(value);
 }
 
+void NavCoinAmountField::valueDidChange()
+{
+    QSettings settings;
+    bool valid;
+    unit->setText(QString("%1 EUR / ").arg(value(&valid) / settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(value(&valid) / settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(value(&valid) / settings.value("btcFactor", 0).toFloat()));
+}
+
 void NavCoinAmountField::setReadOnly(bool fReadOnly)
 {
     amount->setReadOnly(fReadOnly);
@@ -283,19 +289,14 @@ void NavCoinAmountField::setReadOnly(bool fReadOnly)
 
 void NavCoinAmountField::unitChanged(int idx)
 {
-    // Use description tooltip for current unit for the combobox
-    unit->setToolTip(unit->itemData(idx, Qt::ToolTipRole).toString());
 
-    // Determine new unit ID
-    int newUnit = unit->itemData(idx, NavCoinUnits::UnitRole).toInt();
-
-    amount->setDisplayUnit(newUnit);
 }
 
 void NavCoinAmountField::setDisplayUnit(int newUnit)
 {
-    unit->setValue(newUnit);
+    amount->setDisplayUnit(newUnit);
 }
+
 
 void NavCoinAmountField::setSingleStep(const CAmount& step)
 {

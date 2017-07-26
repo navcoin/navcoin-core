@@ -174,6 +174,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                        : pblock->GetBlockTime();
 
 
+    fIncludeWitness = false;
+
     addPriorityTxs(fProofOfStake, pblock->vtx[0].nTime);
     addPackageTxs();
 
@@ -803,7 +805,10 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         // Process this block the same as if we had received it from another node
         CValidationState state;
         if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
+        {
+            LogPrintf("NavCoinStaker: ProcessNewBlock() : %s\n", pblock->ToString());
             return error("NavCoinStaker: ProcessNewBlock, block not accepted");
+        }
     }
 
     return true;

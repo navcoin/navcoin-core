@@ -443,7 +443,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2 || params.size() > 5)
         throw runtime_error(
-            "anonsend \"navcoinaddress\" amount ( \"comment\" \"comment-to\" subtractfeefromamount )\n"
+            "anonsend \"navcoinaddress\" amount ( \"comment\" \"comment-to\" )\n"
             "\nSend an amount to a given address anonymously.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -454,35 +454,42 @@ UniValue anonsend(const UniValue& params, bool fHelp)
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
             "                             to which you're sending the transaction. This is not part of the \n"
             "                             transaction, just kept in your wallet.\n"
-            "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
-            "                             The recipient will receive less navcoins than you enter in the amount field.\n"
             "\nResult:\n"
             "\"transactionid\"  (string) The transaction id.\n"
             "\nExamples:\n"
             + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true")
+            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\"")
             + HelpExampleRpc("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
         );
-
-
-
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
-    CNavCoinAddress address(params[0].get_str());
-    if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
     if (nAmount <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
 
-    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount);
-    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
+    LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    if (!serverNavAddress.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
+    int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
+
+    int nTransactions = (rand() % nEntropy) + 2;
+
+    CNavCoinAddress address(params[0].get_str());
+    if (!address.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
+    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount / (nTransactions * 2), nTransactions);
+    std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
+
+    if(serverNavAddresses.size() != nTransactions)
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "NAVTech server returned a different number of addresses.");
+
+    for(int i = 0; i < serverNavAddresses.size(); i++)
+    {
+        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
+        if (!serverNavAddress.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
+    }
 
     // Wallet comments
     CWalletTx wtx;
@@ -496,13 +503,36 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
         strDZeel = params[4].get_str();
 
-    bool fSubtractFeeFromAmount = false;
-    if (params.size() > 5)
-        fSubtractFeeFromAmount = params[5].get_bool();
+    bool fSubtractFeeFromAmount = true;
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(serverNavAddress.Get(), nAmount, fSubtractFeeFromAmount, wtx, find_value(navtechData, "anondestination").get_str());
+    CAmount nAmountAlreadyProcessed = 0;
+    CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
+    UniValue pubKey = find_value(navtechData, "public_key");
+    double nId = rand() % pindexBestHeader->GetMedianTimePast();
+
+    for(int i = 0; i < serverNavAddresses.size(); i++)
+    {
+        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
+        CAmount nAmountRound = 0;
+        CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
+        CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % nEntropy)+2);
+        if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
+        {
+            nAmountRound = nAmountNotProcessed;
+            i = serverNavAddresses.size();
+        }
+        else
+        {
+            nAmountRound = std::max(nAmountToSubstract,nMinAmount);
+        }
+
+        nAmountAlreadyProcessed += nAmountRound;
+
+        string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+(i==serverNavAddresses.size()?0:1), nId);
+        SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, encryptedAddress);
+    }
 
     return wtx.GetHash().GetHex();
 }
@@ -2869,6 +2899,7 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 }
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
+extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
 extern UniValue importaddress(const UniValue& params, bool fHelp);
 extern UniValue importpubkey(const UniValue& params, bool fHelp);
@@ -2887,6 +2918,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true  },
     { "wallet",             "backupwallet",             &backupwallet,             true  },
     { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
+    { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
     { "wallet",             "dumpwallet",               &dumpwallet,               true  },
     { "wallet",             "encryptwallet",            &encryptwallet,            true  },
     { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },

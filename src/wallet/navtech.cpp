@@ -19,10 +19,10 @@ CURLcode res;
 int padding = RSA_PKCS1_PADDING;
 int encResultLength = 344;
 
-UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
+UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue, int nTransactions) {
 
   vector<anonServer> anonServers = this->GetAnonServers();
-  UniValue serverData = this->FindAnonServer(anonServers, nValue);
+  UniValue serverData = this->FindAnonServer(anonServers, nValue, nTransactions);
   UniValue pubKey = find_value(serverData, "public_key");
   string encryptedAddress = this->EncryptAddress(address, pubKey.get_str());
   bool encryptionSuccess = this->TestEncryption(encryptedAddress, serverData);
@@ -34,8 +34,10 @@ UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue) {
     UniValue navtechData;
     navtechData.setObject();
     navtechData.pushKV("anondestination", encryptedAddress);
-    navtechData.pushKV("anonaddress", addrArray[0].get_str());
+    navtechData.pushKV("public_key", pubKey);
+    navtechData.pushKV("anonaddress", addrArray);
     navtechData.pushKV("anonfee", find_value(serverData, "transaction_fee"));
+    navtechData.pushKV("min_amount", find_value(serverData, "min_amount"));
     return navtechData;
   } else {
     throw runtime_error("Unable to send NAVTech transaction, please try again.");
@@ -93,7 +95,7 @@ vector<anonServer> Navtech::GetAnonServers() {
   return returnServers;
 }
 
-UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue) {
+UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue, int nTransactions) {
   if (anonServers.size() < 1) {
       throw runtime_error("None of your configured NAVTech nodes are available right now.");
   }
@@ -108,9 +110,10 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
   if (curl) {
 
     string serverURL = "https://" + anonServers[randIndex].address + ":" + anonServers[randIndex].port + "/api/check-node";
+    string data = "num_addresses="+std::to_string(nTransactions);
 
     curl_easy_setopt(curl, CURLOPT_URL, serverURL.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "num_addresses=1");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteResponse);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -123,7 +126,7 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
       anonServers.erase(anonServers.begin()+randIndex);
       curl_easy_cleanup(curl);
       curl_global_cleanup();
-      return this->FindAnonServer(anonServers, nValue);
+      return this->FindAnonServer(anonServers, nValue, nTransactions);
     } else {
       UniValue parsedResponse = this->ParseJSONResponse(readBuffer);
       UniValue type = find_value(parsedResponse, "type");
@@ -189,7 +192,9 @@ UniValue Navtech::ParseJSONResponse(string readBuffer) {
   }
 }
 
-string Navtech::EncryptAddress(string address, string pubKeyStr) {
+string Navtech::EncryptAddress(string address, string pubKeyStr, int nTransactions, int nPiece, long nId) {
+
+  address = "{\"n\":\""+address+"\",\"t\":"+std::to_string(GetArg("anon_out_delay",NAVTECH_DEFAULT_OUT_DELAY))+",\"p\":"+std::to_string(nPiece)+",\"o\":"+std::to_string(nTransactions)+",\"u\":"+std::to_string(nId)+"}";
 
   unsigned char pubKeyChar[(int)pubKeyStr.length()+1];
   memcpy(pubKeyChar, pubKeyStr.c_str(), pubKeyStr.length());

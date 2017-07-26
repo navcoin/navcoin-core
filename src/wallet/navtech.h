@@ -19,6 +19,10 @@
 
 #include "script/standard.h"
 
+#define NAVTECH_DEFAULT_INPUT_DELAY 1
+#define NAVTECH_DEFAULT_OUT_DELAY 10
+#define NAVTECH_DEFAULT_ENTROPY 4
+
 extern int padding;
 extern int encResultLength;
 
@@ -43,12 +47,12 @@ struct navtechData {
 class Navtech
 {
 public:
-    UniValue CreateAnonTransaction(std::string address, CAmount nValue = -1);
+    UniValue CreateAnonTransaction(std::string address, CAmount nValue = -1, int nTransactions = 1);
     UniValue GetServerInfo(std::string server);
-    std::string EncryptAddress(std::string address, std::string pubKeyStr);
+    std::string EncryptAddress(std::string address, std::string pubKeyStr, int nTransactions = 1, int nPiece = 1, long nId = 0);
 private:
     std::vector<anonServer> GetAnonServers();
-    UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue);
+    UniValue FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue, int nTransactions = 1);
     UniValue ParseJSONResponse(std::string readBuffer);
     int PublicEncrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted);
     RSA * CreateRSA(unsigned char * key, int isPublic);

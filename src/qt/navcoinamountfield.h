@@ -7,6 +7,7 @@
 
 #include "amount.h"
 
+#include <QLabel>
 #include <QWidget>
 
 class AmountSpinBox;
@@ -65,10 +66,11 @@ protected:
 
 private:
     AmountSpinBox *amount;
-    QValueComboBox *unit;
+    QLabel *unit;
 
 private Q_SLOTS:
     void unitChanged(int idx);
+    void valueDidChange();
 
 };
 

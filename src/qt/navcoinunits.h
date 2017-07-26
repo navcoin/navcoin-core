@@ -58,7 +58,10 @@ public:
     {
         NAV,
         mNAV,
-        uNAV
+        uNAV,
+        BTC,
+        EUR,
+        USD
     };
 
     enum SeparatorStyle

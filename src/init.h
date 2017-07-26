@@ -38,6 +38,6 @@ std::string HelpMessage(HelpMessageMode mode);
 /** Returns licensing information (for -version) */
 std::string LicenseInfo();
 
-char *sPrivKey, *sPubKey;
+extern char *sPrivKey, *sPubKey;
 
 #endif // NAVCOIN_INIT_H
