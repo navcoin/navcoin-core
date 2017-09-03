@@ -1611,6 +1611,8 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
   if(clientModel)
     clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
 
+  reply->deleteLater();
+
 }
 
 void NavCoinGUI::updateStakingStatus()
