@@ -519,6 +519,10 @@ WId NavCoinApplication::getMainWinId() const
 #ifndef NAVCOIN_QT_TEST
 int main(int argc, char *argv[])
 {
+    // Address 4K screen resolution: http://doc.qt.io/qt-5/highdpi.html
+    // enable automatic scaling based on the pixel density of the monitor
+    qputenv( "QT_AUTO_SCREEN_SCALE_FACTOR", "1" );
+
     SetupEnvironment();
 
     /// 1. Parse command-line options. These take precedence over anything else.
