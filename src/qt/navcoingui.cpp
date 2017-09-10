@@ -246,9 +246,12 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
 
-    QTimer *timerPrice = new QTimer(labelPrice);
-    connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
-    timerPrice->start(120 * 1000);
+    if (GetArg("-updatefiatperiod",0) > 120000)
+    {
+        QTimer *timerPrice = new QTimer(labelPrice);
+        connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
+        timerPrice->start(GetArg("-updatefiatperiod",0));
+    }
     updatePrice();
 
     if (GetBoolArg("-staking", true))
