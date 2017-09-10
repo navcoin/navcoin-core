@@ -145,6 +145,7 @@ private:
     const PlatformStyle *platformStyle;
 
     QAction *toggleStakingAction;
+    QAction *updatePriceAction;
 
     /** Create the main UI actions. */
     void createActions();
