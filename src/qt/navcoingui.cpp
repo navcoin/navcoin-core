@@ -145,6 +145,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
+    updatePriceAction(0),
     platformStyle(platformStyle)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
@@ -375,6 +376,12 @@ void NavCoinGUI::createActions()
     }
 
     connect(toggleStakingAction, SIGNAL(triggered()), this, SLOT(toggleStaking()));
+
+    updatePriceAction  = new QAction(tr("Update exchange prices"), this);
+    updatePriceAction->setStatusTip(tr("Update exchange prices"));
+
+    connect(updatePriceAction, SIGNAL(triggered()), this, SLOT(updatePrice()));
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -523,6 +530,7 @@ void NavCoinGUI::createMenuBar()
             currency->addAction(menuAction);
         }
         connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
+        settings->addAction(updatePriceAction);
     }
     settings->addAction(optionsAction);
 
