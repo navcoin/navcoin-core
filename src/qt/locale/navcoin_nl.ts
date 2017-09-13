@@ -58,7 +58,7 @@
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation>Herhaal nieuw wachtwoord</translation>
+        <translation>Herhaal nieuwe wachtwoord</translation>
     </message>
 </context>
 <context>
@@ -168,7 +168,7 @@
     </message>
     <message>
         <source>Backup wallet to another location</source>
-        <translation>Backup portemonnee naar een andere locatie</translation>
+        <translation>Back-up portemonnee naar een andere locatie</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
@@ -339,34 +339,24 @@
         <translation>Aan het bijwerken...</translation>
     </message>
     <message>
-        <source>Date: %1
-</source>
-        <translation>Datum: %1
-</translation>
+        <source>Date: %1</source>
+        <translation>Datum: %1</translation>
     </message>
     <message>
-        <source>Amount: %1
-</source>
-        <translation>Aantal: %1
-</translation>
+        <source>Amount: %1</source>
+        <translation>Aantal: %1</translation>
     </message>
     <message>
-        <source>Type: %1
-</source>
-        <translation>Type: %1
-</translation>
+        <source>Type: %1</source>
+        <translation>Type: %1</translation>
     </message>
     <message>
-        <source>Label: %1
-</source>
-        <translation>Label: %1
-</translation>
+        <source>Label: %1</source>
+        <translation>Label: %1</translation>
     </message>
     <message>
-        <source>Address: %1
-</source>
-        <translation>Adres: %1
-</translation>
+        <source>Address: %1</source>
+        <translation>Adres: %1</translation>
     </message>
     <message>
         <source>Sent transaction</source>
@@ -417,7 +407,7 @@
     </message>
     <message>
         <source>After Fee:</source>
-        <translation>Naheffing:</translation>
+        <translation>Na Transactiekosten:</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -491,7 +481,7 @@
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
-        <translation>Een nieuwe gegevensmap wordt aangemaakt.</translation>
+        <translation>Een nieuwe map wordt aangemaakt.</translation>
     </message>
     <message>
         <source>name</source>
@@ -503,11 +493,11 @@
     </message>
     <message>
         <source>Path already exists, and is not a directory.</source>
-        <translation>Communicatiepad bestaat al, en is geen map.</translation>
+        <translation>Pad bestaat al, en is geen map.</translation>
     </message>
     <message>
         <source>Cannot create data directory here.</source>
-        <translation>Kan hier geen gegevensmap aanmaken.</translation>
+        <translation>Kan hier geen map aanmaken.</translation>
     </message>
 </context>
 <context>
@@ -542,7 +532,7 @@
     </message>
     <message>
         <source>Choose data directory on startup (default: %u)</source>
-        <translation>Kies gegevensmap bij opstarten (standaard: %u)</translation>
+        <translation>Kies map bij opstarten (standaard: %u)</translation>
     </message>
     <message>
         <source>Set language, for example "de_DE" (default: system locale)</source>
@@ -687,11 +677,11 @@
     </message>
     <message>
         <source>Reset all client options to default.</source>
-        <translation>Reset alle clientopties naar de standaardinstellingen.</translation>
+        <translation>Herstel alle clientopties naar de standaardinstellingen.</translation>
     </message>
     <message>
         <source>&amp;Reset Options</source>
-        <translation>&amp;Reset Opties</translation>
+        <translation>&amp;Herstel Opties</translation>
     </message>
     <message>
         <source>&amp;Network</source>
@@ -731,7 +721,7 @@
     </message>
     <message>
         <source>Connect to the NavCoin network through a SOCKS5 proxy.</source>
-        <translation>Verbind met het NavCoinnetwerk via een SOCKS5 proxy.</translation>
+        <translation>Verbind met het NavCoin-netwerk via een SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -968,7 +958,7 @@
     </message>
     <message>
         <source>%1 h</source>
-        <translation>%1 uur</translation>
+        <translation>%1 u</translation>
     </message>
     <message>
         <source>%1 m</source>
@@ -1187,7 +1177,7 @@
     </message>
     <message>
         <source>Debug log file</source>
-        <translation>Debuglogbestand</translation>
+        <translation>Debug-logbestand</translation>
     </message>
     <message>
         <source>Clear console</source>
@@ -1764,11 +1754,11 @@
     </message>
     <message>
         <source>Reduce storage requirements by pruning (deleting) old blocks. This mode is incompatible with -txindex and -rescan. Warning: Reverting this setting requires re-downloading the entire blockchain. (default: 0 = disable pruning blocks, &gt;%u = target size in MiB to use for block files)</source>
-        <translation>Beperk benodigde opslag door snoeien (verwijderen) van oude blokken. Deze modus is niet-compatibele met -txindex en -rescan. Waarschuwing: Terugzetten van deze instellingen vereist opnieuw downloaden van gehele de blokketen. (standaard:0 = uitzetten snoeimodus, &gt;%u = doelgrootte in MiB voor blokbestanden)</translation>
+        <translation>Beperk benodigde opslag door het inkorten (verwijderen) van oude blokken. Deze modus is niet-compatibele met -txindex en -rescan. Waarschuwing: Terugzetten van deze instellingen vereist opnieuw downloaden van gehele de blokketen. (standaard:0 = uitzetten snoeimodus, &gt;%u = doelgrootte in MiB voor blokbestanden)</translation>
     </message>
     <message>
         <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
-        <translation>Herscannen is niet mogelijk in de snoeimodus. U moet -reindex gebruiken dat de hele blokketen opnieuw zal downloaden.</translation>
+        <translation>Herscannen is niet mogelijk in de inkort-modus. U moet -reindex gebruiken dat de hele blokketen opnieuw zal downloaden.</translation>
     </message>
     <message>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
@@ -2024,7 +2014,7 @@
     </message>
     <message>
         <source>Loading banlist...</source>
-        <translation>Verbanningslijst aan het laden...</translation>
+        <translation>Banlijst aan het laden...</translation>
     </message>
     <message>
         <source>Location of the auth cookie (default: data dir)</source>
@@ -2036,7 +2026,7 @@
     </message>
     <message>
         <source>Not enough file descriptors available.</source>
-        <translation>Niet genoeg file descriptors beschikbaar.</translation>
+        <translation>Niet genoeg bestandsdescriptors beschikbaar.</translation>
     </message>
     <message>
         <source>Only connect to nodes in network &lt;net&gt; (ipv4, ipv6 or onion)</source>
@@ -2072,7 +2062,7 @@
     </message>
     <message>
         <source>Set maximum block size in bytes (default: %d)</source>
-        <translation>Stel maximum blokgrootte in in bytes (standaard: %d)</translation>
+        <translation>Stel maximum blokgrootte in bytes (standaard: %d)</translation>
     </message>
     <message>
         <source>Specify wallet file (within data directory)</source>
