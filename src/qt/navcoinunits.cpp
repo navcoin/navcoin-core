@@ -12,6 +12,10 @@
 #include <QStringList>
 #include <QSettings>
 
+#include <sstream>
+#include <string>
+#include <iomanip>
+
 NavCoinUnits::NavCoinUnits(QObject *parent):
         QAbstractListModel(parent),
         unitlist(availableUnits())
@@ -118,10 +122,15 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     double quotient;
     qint64 remainder;
 
-    double q;
-    double r = modf((double)n_abs / (double)coin, &q);
-    quotient = q;
-    remainder = r * (double)pow(10,num_decimals);
+    quotient = n_abs / coin;
+
+    std::ostringstream out;
+    out << std::setprecision(num_decimals) << std::fixed
+        << std::showpoint << (double)n_abs / (double)coin;
+    std::istringstream in(out.str());
+    std::string wholePart;
+    std::getline(in, wholePart, '.');
+    in >> remainder;
 
     QString quotient_str = QString::number((qint64)quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');

@@ -145,6 +145,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
+    updatePriceAction(0),
     platformStyle(platformStyle)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
@@ -246,9 +247,12 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
 
-    QTimer *timerPrice = new QTimer(labelPrice);
-    connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
-    timerPrice->start(120 * 1000);
+    if (GetArg("-updatefiatperiod",0) > 120000)
+    {
+        QTimer *timerPrice = new QTimer(labelPrice);
+        connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
+        timerPrice->start(GetArg("-updatefiatperiod",0));
+    }
     updatePrice();
 
     if (GetBoolArg("-staking", true))
@@ -372,6 +376,12 @@ void NavCoinGUI::createActions()
     }
 
     connect(toggleStakingAction, SIGNAL(triggered()), this, SLOT(toggleStaking()));
+
+    updatePriceAction  = new QAction(tr("Update exchange prices"), this);
+    updatePriceAction->setStatusTip(tr("Update exchange prices"));
+
+    connect(updatePriceAction, SIGNAL(triggered()), this, SLOT(updatePrice()));
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -532,6 +542,7 @@ void NavCoinGUI::createMenuBar()
             currency->addAction(menuAction);
         }
         connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
+        settings->addAction(updatePriceAction);
     }
     settings->addAction(optionsAction);
 
@@ -1623,6 +1634,8 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
 
   if(clientModel)
     clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
+
+  reply->deleteLater();
 
 }
 
