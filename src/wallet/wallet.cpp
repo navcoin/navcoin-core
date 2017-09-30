@@ -254,6 +254,9 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
             if (pcoin->GetBlocksToMaturity() > 0)
                 continue;
 
+            if (pcoin->isAbandoned())
+                continue;
+
             int nDepth = pcoin->GetDepthInMainChain();
             if (nDepth < 1)
                 continue;
