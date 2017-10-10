@@ -1116,15 +1116,14 @@ void NavCoinGUI::showVotingDialog()
 
   showingVotingDialog = true;
 
-  bool showWitness = pindexBestHeader->nTime > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
-      pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
-      !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()) &&
-      !ExistsKeyInConfigFile("votewitness") &&
-      GetBoolArg("-staking",true);
+  bool showVoting = !ExistsKeyInConfigFile("votefunding") &&
+      pindexBestHeader->nTime > 1508284800 &&
+      pindexBestHeader->nTime < 1510704000 &&
+      GetBoolArg("-votefunding",true);
 
   bool vote = false;
 
-  if(showWitness)
+  if(showVoting)
   {
 
     QMessageBox msgBox;
@@ -1140,10 +1139,10 @@ void NavCoinGUI::showVotingDialog()
         vote = true;
     }
 
-    SoftSetArg("-votewitness",vote?"1":"0",true);
+    SoftSetArg("-votefunding",vote?"1":"0",true);
 
-    RemoveConfigFile("votewitness",vote?"0":"1");
-    WriteConfigFile("votewitness",vote?"1":"0");
+    RemoveConfigFile("votefunding",vote?"0":"1");
+    WriteConfigFile("votefunding",vote?"1":"0");
 
   }
 
@@ -1634,21 +1633,19 @@ void NavCoinGUI::updateStakingStatus()
 
         if(Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout && pindexBestHeader != NULL){
 
-//          QString witnessLabel;
+          QString votingLabel;
 
-//          bool showWitness = pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout;
-//          bool witnessEnabled = IsWitnessEnabled(pindexBestHeader, Params().GetConsensus());
+          if(pindexBestHeader->nTime < 1508284800)
+            votingLabel = tr("Voting starts at 00:00 18/10/17");
+          else if (pindexBestHeader->nTime > 1510704000)
+            votingLabel = tr("Voting period ended");
+          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
+            votingLabel = tr("Please, start staking to vote.");
+          else
+            votingLabel = tr("Your vote is %1.").arg(GetBoolArg("-votefunding",false) ? "YES" : "NO");
 
-//          if(pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
-//            witnessLabel = tr("SegWit voting starts at 00:00 01/05/17");
-//          else if (witnessEnabled)
-//            witnessLabel = tr("Segregated Witness has been activated. Spread the word!");
-//          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
-//            witnessLabel = tr("Please, start staking to vote.");
-//          else if (showWitness)
-//            witnessLabel = tr("Your vote is %1.").arg(GetBoolArg("-votewitness",false) ? "YES" : "NO");
+          walletFrame->setVotingStatus(votingLabel);
 
-//          walletFrame->setVotingStatus(witnessLabel);
         }
 
         if (!GetBoolArg("-staking",true))

@@ -556,7 +556,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
             continue;
         }
 
-        if(strKey == "-votewitness")
+        if(strKey == "-votefunding")
         {
             mapArgs[strKey] = strValue;
         }
