@@ -232,10 +232,10 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x08;
-        pchMessageStart[1] = 0x05;
-        pchMessageStart[2] = 0x43;
-        pchMessageStart[3] = 0x02;
+        pchMessageStart[0] = 0x80;
+        pchMessageStart[1] = 0x50;
+        pchMessageStart[2] = 0x34;
+        pchMessageStart[3] = 0x20;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
 
