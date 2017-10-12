@@ -147,7 +147,7 @@ UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nV
           UniValue minAmount = find_value(data, "min_amount");
           int satoshiFactor = 100000000;
 
-          if (nValue/satoshiFactor > maxAmount.get_int() || nValue/satoshiFactor < minAmount.get_int()) {
+          if ((nValue*nTransactions*2)/satoshiFactor > maxAmount.get_int() || nValue/satoshiFactor < minAmount.get_int()) {
             LogPrintf("Transaction amount outside of specified range min_amount=%i max_amount=%i value=%i\n", minAmount.get_int(), maxAmount.get_int(), nValue/satoshiFactor);
             anonServers.erase(anonServers.begin()+randIndex);
             curl_easy_cleanup(curl);

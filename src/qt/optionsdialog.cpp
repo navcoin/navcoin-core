@@ -66,16 +66,15 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyIpTor, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyPortTor, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
-    connect(ui->voteSegWit, SIGNAL(clicked(bool)), this, SLOT(voteSegWit()));
+    connect(ui->voteSegWit, SIGNAL(clicked(bool)), this, SLOT(vote()));
 
-    ui->voteSegWit->setChecked(GetBoolArg("-votewitness",false));
+    ui->voteSegWit->setChecked(GetBoolArg("-votefunding",false));
 
-    bool showWitness = pindexBestHeader->nTime > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
-        pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
-        !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()) &&
+    bool showWitness = pindexBestHeader->nTime > 1508284800 &&
+        pindexBestHeader->nTime < 1510704000 &&
         GetBoolArg("-staking",true);
 
-    ui->voteSegWit->setVisible(false);
+    ui->voteSegWit->setVisible(showWitness);
 
     /* Window elements init */
 #ifdef Q_OS_MAC
@@ -299,12 +298,12 @@ void OptionsDialog::clearStatusLabel()
     ui->statusLabel->clear();
 }
 
-void OptionsDialog::voteSegWit()
+void OptionsDialog::vote()
 {
-    bool fVoteWitness = !GetBoolArg("-votewitness",false);
-    SoftSetArg("-votewitness",fVoteWitness?"1":"0",true);
-    RemoveConfigFile("votewitness",fVoteWitness?"0":"1");
-    WriteConfigFile("votewitness",fVoteWitness?"1":"0");
+    bool fVote = !GetBoolArg("-votefunding",false);
+    SoftSetArg("-votefunding",fVote?"1":"0",true);
+    RemoveConfigFile("votefunding",fVote?"0":"1");
+    WriteConfigFile("votefunding",fVote?"1":"0");
 }
 
 void OptionsDialog::updateProxyValidationState()

@@ -1128,20 +1128,19 @@ void NavCoinGUI::showVotingDialog()
 
   showingVotingDialog = true;
 
-  bool showWitness = pindexBestHeader->nTime > Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime &&
-      pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout &&
-      !IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()) &&
-      !ExistsKeyInConfigFile("votewitness") &&
-      GetBoolArg("-staking",true);
+  bool showVoting = !ExistsKeyInConfigFile("votefunding") &&
+      pindexBestHeader->nTime > 1508284800 &&
+      pindexBestHeader->nTime < 1510704000 &&
+      GetBoolArg("-votefunding",true);
 
   bool vote = false;
 
-  if(showWitness)
+  if(showVoting)
   {
 
     QMessageBox msgBox;
     msgBox.setText(tr("Important network notice."));
-    msgBox.setInformativeText(tr("The Nav Coin Network is currently voting on activating Segregated Witness. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. <br><br>For more information on Segregated Witness, please visit <a href=\"https://bitcoincore.org/en/2016/01/26/segwit-benefits/\">this link</a><br><br>Would you like the Nav Coin Network to activate Segregated Witness?"));
+    msgBox.setInformativeText(tr("The Nav Coin Network is currently voting on introducing changes on the consensus protocol. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. <br><br>For more information on the proposal, please visit <a href=\"https://navcoin.org/community-fund\">this link</a><br><br>Would you like the Nav Coin Network to update the staking rewards to setup a decentralised community fund that will help grow the network?"));
     QAbstractButton *myYesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
     msgBox.addButton(trUtf8("No"), QMessageBox::NoRole);
     msgBox.setIcon(QMessageBox::Question);
@@ -1152,10 +1151,10 @@ void NavCoinGUI::showVotingDialog()
         vote = true;
     }
 
-    SoftSetArg("-votewitness",vote?"1":"0",true);
+    SoftSetArg("-votefunding",vote?"1":"0",true);
 
-    RemoveConfigFile("votewitness",vote?"0":"1");
-    WriteConfigFile("votewitness",vote?"1":"0");
+    RemoveConfigFile("votefunding",vote?"0":"1");
+    WriteConfigFile("votefunding",vote?"1":"0");
 
   }
 
@@ -1647,21 +1646,19 @@ void NavCoinGUI::updateStakingStatus()
 
         if(Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout && pindexBestHeader != NULL){
 
-//          QString witnessLabel;
+          QString votingLabel;
 
-//          bool showWitness = pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout;
-//          bool witnessEnabled = IsWitnessEnabled(pindexBestHeader, Params().GetConsensus());
+          if(pindexBestHeader->nTime < 1508284800)
+            votingLabel = tr("Voting starts at 00:00 18/10/17");
+          else if (pindexBestHeader->nTime > 1510704000)
+            votingLabel = tr("Voting period ended");
+          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
+            votingLabel = tr("Please, start staking to vote.");
+          else
+            votingLabel = tr("Your vote is %1.").arg(GetBoolArg("-votefunding",false) ? "YES" : "NO");
 
-//          if(pindexBestHeader->nTime < Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
-//            witnessLabel = tr("SegWit voting starts at 00:00 01/05/17");
-//          else if (witnessEnabled)
-//            witnessLabel = tr("Segregated Witness has been activated. Spread the word!");
-//          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
-//            witnessLabel = tr("Please, start staking to vote.");
-//          else if (showWitness)
-//            witnessLabel = tr("Your vote is %1.").arg(GetBoolArg("-votewitness",false) ? "YES" : "NO");
+          walletFrame->setVotingStatus(votingLabel);
 
-//          walletFrame->setVotingStatus(witnessLabel);
         }
 
         if (!GetBoolArg("-staking",true))
