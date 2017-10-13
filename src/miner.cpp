@@ -755,7 +755,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               //    our transactions set
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
-
+              
+              txCoinStake.nVersion = 2;
               txCoinStake.strDZeel = GetBoolArg("-votefunding",false) ? "1" : "0";
               *static_cast<CTransaction*>(&txNew) = CTransaction(txCoinStake);
               pblock->vtx.insert(pblock->vtx.begin() + 1, txNew);
