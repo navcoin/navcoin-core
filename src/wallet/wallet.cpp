@@ -4033,7 +4033,7 @@ int CMerkleTx::GetDepthInMainChain(const CBlockIndex* &pindexRet) const
 
 int CMerkleTx::GetBlocksToMaturity() const
 {
-    if (!(IsCoinBase() || IsCoinStake()))
+    if (!(IsCoinBase() || IsCoinStake()) || GetBoolArg("-testnet",false))
         return 0;
     return max(0, (COINBASE_MATURITY+1) - GetDepthInMainChain());
 }
