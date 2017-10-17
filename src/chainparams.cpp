@@ -57,7 +57,7 @@ static CBlock CreateGenesisBlockTestnet(const char* pszTimestamp, const CScript&
     CBlock genesis;
     genesis.nTime    = 1508196641;
     genesis.nBits    = 0;
-    genesis.nNonce   = 6960;
+    genesis.nNonce   = 7398;
     genesis.nVersion = nVersion;
     genesis.vtx.push_back(txNew);
     genesis.vtx[0].nTime = 1508196641;
@@ -274,7 +274,7 @@ public:
         genesis = CreateGenesisBlockTestnet(1508196641, 2042883868, 0x1d00ffff, 1, 1000000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x00c7b7a8fa90c21e625dbcb027e12fe2e6050861c63601fa22a636d14138b433");
+        uint256 hashGenesisBlock = uint256S("0x008c4eceb65e32e66cb0fae433e8c622eee1488fe7a03b98a31daf7dffff90b5");
 
         // Change to true to enable genesis block creation
 
@@ -293,7 +293,7 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x00c7b7a8fa90c21e625dbcb027e12fe2e6050861c63601fa22a636d14138b433"));
+        assert(consensus.hashGenesisBlock == uint256S("0x008c4eceb65e32e66cb0fae433e8c622eee1488fe7a03b98a31daf7dffff90b5"));
         assert(genesis.hashMerkleRoot == uint256S("0xa37b8a2612ac048cd92e69647184591c35da7d37ee572abf4e816475ca330ccc"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,54);
