@@ -274,7 +274,7 @@ public:
         genesis = CreateGenesisBlockTestnet(1508196641, 2042883868, 0x1d00ffff, 1, 1000000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x0000000013cb675cc890cf8c7a22f1f3948684b297ccd2553d6e203e00198ae0");
+        uint256 hashGenesisBlock = uint256S("0x00c7b7a8fa90c21e625dbcb027e12fe2e6050861c63601fa22a636d14138b433");
 
         // Change to true to enable genesis block creation
 
@@ -293,8 +293,8 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        //assert(consensus.hashGenesisBlock == uint256S("0x00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a"));
-        //assert(genesis.hashMerkleRoot == uint256S("0xc507eec6ccabfd5432d764afceafba42d2d946594b8a60570cb2358a7392c61a"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00c7b7a8fa90c21e625dbcb027e12fe2e6050861c63601fa22a636d14138b433"));
+        assert(genesis.hashMerkleRoot == uint256S("0xa37b8a2612ac048cd92e69647184591c35da7d37ee572abf4e816475ca330ccc"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,54);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,86);
