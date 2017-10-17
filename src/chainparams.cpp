@@ -278,7 +278,7 @@ public:
 
         // Change to true to enable genesis block creation
 
-        if (true && genesis.GetHash() != hashGenesisBlock)
+        if (false && genesis.GetHash() != hashGenesisBlock)
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
