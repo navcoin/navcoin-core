@@ -9,6 +9,7 @@
 #include "core_io.h"
 #include "init.h"
 #include "main.h"
+#include "navtech.h"
 #include "net.h"
 #include "netbase.h"
 #include "policy/rbf.h"
@@ -16,10 +17,10 @@
 #include "rpc/server.h"
 #include "timedata.h"
 #include "util.h"
+#include "utils/dns_utils.h"
 #include "utilmoneystr.h"
 #include "wallet.h"
 #include "walletdb.h"
-#include "navtech.h"
 
 #include <stdint.h>
 
@@ -404,7 +405,26 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CNavCoinAddress address(params[0].get_str());
+    string address_str = params[0].get_str();
+    utils::DNSResolver *DNS;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        bool dnssec_valid;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else
+        {
+
+          address_str = addresses.front();
+
+        }
+
+    }
+
+    CNavCoinAddress address(address_str);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
 
@@ -474,7 +494,26 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     int nTransactions = (rand() % nEntropy) + 2;
 
-    CNavCoinAddress address(params[0].get_str());
+    string address_str = params[0].get_str();
+    utils::DNSResolver *DNS;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        bool dnssec_valid;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else
+        {
+
+          address_str = addresses.front();
+
+        }
+
+    }
+
+    CNavCoinAddress address(address_str);
     if (!address.IsValid())
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
@@ -558,7 +597,26 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CNavCoinAddress address(params[0].get_str());
+    string address_str = params[0].get_str();
+    utils::DNSResolver *DNS;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        bool dnssec_valid;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else
+        {
+
+          address_str = addresses.front();
+
+        }
+
+    }
+
+    CNavCoinAddress address(address_str);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
@@ -2898,6 +2956,51 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
     return  result;
 }
 
+UniValue resolveopenalias(const UniValue& params, bool fHelp)
+{
+  std::string address = params[0].get_str();
+  bool dnssec_valid;
+  UniValue result(UniValue::VOBJ);
+
+  if (!EnsureWalletIsAvailable(fHelp))
+      return NullUniValue;
+
+  if ((fHelp || params.size() != 1))
+      throw runtime_error(
+          "resolveopenalias \"address\"\n"
+          "\nEncrypts the wallet with 'passphrase'. This is for first time encryption.\n"
+          "After this, any calls that interact with private keys such as sending or signing \n"
+          "will require the passphrase to be set prior the making these calls.\n"
+          "Use the walletpassphrase call for this, and then walletlock call.\n"
+          "If the wallet is already encrypted, use the walletpassphrasechange call.\n"
+          "Note that this will shutdown the server.\n"
+          "\nArguments:\n"
+          "1. \"passphrase\"    (string) The pass phrase to encrypt the wallet with. It must be at least 1 character, but should be long.\n"
+          "\nExamples:\n"
+          "\nEncrypt you wallet\n"
+          + HelpExampleCli("encryptwallet", "\"my pass phrase\"") +
+          "\nNow set the passphrase to use the wallet, such as for signing or sending navcoin\n"
+          + HelpExampleCli("walletpassphrase", "\"my pass phrase\"") +
+          "\nNow we can so something like sign\n"
+          + HelpExampleCli("signmessage", "\"navcoinaddress\" \"test message\"") +
+          "\nNow lock the wallet again by removing the passphrase\n"
+          + HelpExampleCli("walletlock", "") +
+          "\nAs a json rpc call\n"
+          + HelpExampleRpc("encryptwallet", "\"my pass phrase\"")
+      );
+
+  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_valid);
+
+  result.push_back(Pair("dnssec",dnssec_valid));
+
+  if (addresses.empty())
+      result.push_back(Pair("address",""));
+  else
+      result.push_back(Pair("address",addresses.front()));
+
+  return result;
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
@@ -2961,6 +3064,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true  },
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
+    { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)

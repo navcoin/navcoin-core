@@ -10,6 +10,8 @@
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
+#include "util.h"
+#include "utils/dns_utils.h"
 #include "walletmodel.h"
 
 #include <QApplication>
@@ -138,11 +140,31 @@ bool SendCoinsEntry::validate()
     // Check input validity
     bool retval = true;
 
+    utils::DNSResolver* DNS;
+
     // Skip checks for payment request
     if (recipient.paymentRequest.IsInitialized())
         return retval;
 
-    if (!model->validateAddress(ui->payTo->text()))
+    if(DNS->check_address_syntax(ui->payTo->text().toStdString().c_str()))
+    {
+        bool dnssec_valid;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(ui->payTo->text().toStdString().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          retval = false;
+        else
+        {
+
+          LogPrintf("ad %s\n",addresses.front().c_str());
+
+          ui->payTo->setText(QString::fromStdString(addresses.front()));
+
+        }
+
+    }
+
+    else if (!model->validateAddress(ui->payTo->text()))
     {
         ui->payTo->setValid(false);
         retval = false;

@@ -14,6 +14,7 @@
 #include "txmempool.h"
 #include "util.h"
 #include "utilstrencodings.h"
+#include "utils/dns_utils.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
@@ -182,7 +183,26 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
     LOCK(cs_main);
 #endif
 
-    CNavCoinAddress address(params[0].get_str());
+    string address_str = params[0].get_str();
+    utils::DNSResolver *DNS;
+    bool dnssec_valid;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else
+        {
+
+          address_str = addresses.front();
+
+        }
+
+    }
+
+    CNavCoinAddress address(address_str);
     bool isValid = address.IsValid();
 
     UniValue ret(UniValue::VOBJ);
@@ -192,6 +212,8 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
         CTxDestination dest = address.Get();
         string currentAddress = address.ToString();
         ret.push_back(Pair("address", currentAddress));
+        if(DNS->check_address_syntax(params[0].get_str().c_str()))
+            ret.push_back(Pair("dnssec", dnssec_valid));
 
         CScript scriptPubKey = GetScriptForDestination(dest);
         ret.push_back(Pair("scriptPubKey", HexStr(scriptPubKey.begin(), scriptPubKey.end())));

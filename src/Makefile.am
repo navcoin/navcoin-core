@@ -1,6 +1,6 @@
 DIST_SUBDIRS = secp256k1 univalue
 
-AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS)
+AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) -lunbound
 AM_CXXFLAGS = $(HARDENED_CXXFLAGS)
 AM_CPPFLAGS = $(HARDENED_CPPFLAGS)
 EXTRA_LIBRARIES =
@@ -143,6 +143,7 @@ NAVCOIN_CORE_H = \
   undo.h \
   util.h \
   utilmoneystr.h \
+  utils/dns_utils.h \
   utiltime.h \
   validationinterface.h \
   versionbits.h \
@@ -201,6 +202,7 @@ libnavcoin_server_a_SOURCES = \
   txdb.cpp \
   txmempool.cpp \
   ui_interface.cpp \
+  utils/dns_utils.cpp \
   validationinterface.cpp \
   versionbits.cpp \
   $(NAVCOIN_CORE_H)
@@ -395,7 +397,7 @@ navcoind_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
 # navcoin-cli binary #
 navcoin_cli_SOURCES = navcoin-cli.cpp
@@ -413,7 +415,7 @@ navcoin_cli_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CRYPTO)
 
-navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
 # navcoin-tx binary #
