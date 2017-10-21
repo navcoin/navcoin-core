@@ -156,8 +156,7 @@ bool SendCoinsEntry::validate()
         else
         {
 
-          LogPrintf("ad %s\n",addresses.front().c_str());
-
+          ui->addAsLabel->setText(ui->payTo->text());
           ui->payTo->setText(QString::fromStdString(addresses.front()));
 
         }
