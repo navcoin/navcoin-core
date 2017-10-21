@@ -681,8 +681,8 @@ void NavCoinStaker(const CChainParams& chainparams)
             }
             CBlock *pblock = &pblocktemplate->block;
 
-            LogPrint("coinstake","Running NavCoinStaker with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
-                 ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
+            //LogPrint("coinstake","Running NavCoinStaker with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
+            //     ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
             //Trying to sign a block
             if (SignBlock(pblock, *pwalletMain, nFees))
