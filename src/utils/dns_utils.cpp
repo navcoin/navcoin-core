@@ -310,17 +310,7 @@ std::string address_from_txt_record(const std::string& s)
   if (pos == std::string::npos)
     return {};
   pos += 18; // move past "recipient_address="
-  // find the next semicolon
-  auto pos2 = s.find(";", pos);
-  if (pos2 != std::string::npos)
-  {
-    // length of address == 34
-    if (pos2 - pos == 34)
-    {
-      return s.substr(pos, 34);
-    }
-  }
-  return {};
+  return s.substr(pos, 34);
 }
 /**
  * @brief gets a navcoin address from the TXT record of a DNS entry
