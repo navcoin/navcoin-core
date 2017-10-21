@@ -16,6 +16,7 @@
 #include "main.h"
 #include "sync.h"
 #include "ui_interface.h"
+#include "utils/dns_utils.h"
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h" // for BackupWallet
 
@@ -193,8 +194,23 @@ void WalletModel::updateWatchOnlyFlag(bool fHaveWatchonly)
 
 bool WalletModel::validateAddress(const QString &address)
 {
-    CNavCoinAddress addressParsed(address.toStdString());
-    return addressParsed.IsValid();
+  utils::DNSResolver* DNS;
+  std::string address_str = address.toStdString();
+
+  // Validate the passed NavCoin address
+  if(DNS->check_address_syntax(address_str.c_str()))
+  {
+
+    bool dnssec_valid;
+    std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address_str.c_str(), dnssec_valid);
+
+    if(addresses.empty())
+      return false;
+    else
+      address_str = addresses.front();
+  }
+  CNavCoinAddress addressParsed(address_str);
+  return addressParsed.IsValid();
 }
 
 WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransaction &transaction, const CCoinControl *coinControl)
