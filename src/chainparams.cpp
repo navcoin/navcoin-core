@@ -270,6 +270,7 @@ public:
         pchMessageStart[3] = 0x20;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
+        bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
         genesis = CreateGenesisBlockTestnet(1508196641, 2042891746, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
