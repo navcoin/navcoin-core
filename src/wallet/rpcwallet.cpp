@@ -2978,7 +2978,7 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
           "\nArguments:\n"
           "1. \"address\"    (string) The OpenAlias address.\n"
           "\nExamples:\n"
-          "\Get information about an OpenAlias address\n"
+          "\nGet information about an OpenAlias address\n"
           + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
       );
 
