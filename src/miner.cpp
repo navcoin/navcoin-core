@@ -209,7 +209,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     if (!fProofOfStake)
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
-    pblock->nBits          = fProofOfStake ? GetNextTargetRequired(pindexPrev, true) : GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
+    pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
 
