@@ -6,6 +6,7 @@
 
 #include "base58.h"
 #include "utils/dns_utils.h"
+#include "util.h"
 
 /* Base58 characters are:
      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -98,7 +99,7 @@ QValidator::State NavCoinAddressCheckValidator::validate(QString &input, int &po
     bool dnssec_valid;
     std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(input.toStdString().c_str(), dnssec_valid);
 
-    if(addresses.empty())
+    if(addresses.empty() || (!dnssec_valid && GetBoolArg("-requirednssec",true)))
       return QValidator::Invalid;
     else
       return QValidator::Acceptable;

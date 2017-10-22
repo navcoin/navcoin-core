@@ -454,6 +454,9 @@ void PaymentServer::handleURIOrFile(const QString& s)
                 if(addresses.empty())
                   Q_EMIT message(tr("URI handling"), tr("Invalid OpenAlias address %1").arg(recipient.address),
                                  CClientUIInterface::MSG_ERROR);
+                else if(!dnssec_valid && GetBoolArg("-requirednssec",true))
+                  Q_EMIT message(tr("URI handling"), tr("OpenAlias address %1 does not support DNS Sec").arg(recipient.address),
+                                  CClientUIInterface::MSG_ERROR);
                 else
                   address_str = addresses.front();
               }

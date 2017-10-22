@@ -204,10 +204,11 @@ bool WalletModel::validateAddress(const QString &address)
     bool dnssec_valid;
     std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address_str.c_str(), dnssec_valid);
 
-    if(addresses.empty())
+    if(addresses.empty() || (!dnssec_valid && GetBoolArg("-requirednssec",true)))
       return false;
     else
       address_str = addresses.front();
+
   }
   CNavCoinAddress addressParsed(address_str);
   return addressParsed.IsValid();

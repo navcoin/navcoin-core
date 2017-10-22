@@ -415,6 +415,8 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
         else
         {
 
@@ -504,6 +506,8 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
         else
         {
 
@@ -607,6 +611,8 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
         else
         {
 
@@ -2968,25 +2974,12 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
   if ((fHelp || params.size() != 1))
       throw runtime_error(
           "resolveopenalias \"address\"\n"
-          "\nEncrypts the wallet with 'passphrase'. This is for first time encryption.\n"
-          "After this, any calls that interact with private keys such as sending or signing \n"
-          "will require the passphrase to be set prior the making these calls.\n"
-          "Use the walletpassphrase call for this, and then walletlock call.\n"
-          "If the wallet is already encrypted, use the walletpassphrasechange call.\n"
-          "Note that this will shutdown the server.\n"
+          "\nResolves the give OpenAlias address to a NavCoin address.\n"
           "\nArguments:\n"
-          "1. \"passphrase\"    (string) The pass phrase to encrypt the wallet with. It must be at least 1 character, but should be long.\n"
+          "1. \"address\"    (string) The OpenAlias address.\n"
           "\nExamples:\n"
-          "\nEncrypt you wallet\n"
-          + HelpExampleCli("encryptwallet", "\"my pass phrase\"") +
-          "\nNow set the passphrase to use the wallet, such as for signing or sending navcoin\n"
-          + HelpExampleCli("walletpassphrase", "\"my pass phrase\"") +
-          "\nNow we can so something like sign\n"
-          + HelpExampleCli("signmessage", "\"navcoinaddress\" \"test message\"") +
-          "\nNow lock the wallet again by removing the passphrase\n"
-          + HelpExampleCli("walletlock", "") +
-          "\nAs a json rpc call\n"
-          + HelpExampleRpc("encryptwallet", "\"my pass phrase\"")
+          "\Get information about an OpenAlias address\n"
+          + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
       );
 
   std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_valid);
