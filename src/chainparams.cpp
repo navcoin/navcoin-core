@@ -271,10 +271,10 @@ public:
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlockTestnet(1508196641, 2042883868, 0x1d00ffff, 1, 1000000 * COIN);
+        genesis = CreateGenesisBlockTestnet(1508196641, 2042886582, 0x1d00ffff, 1, 1000000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x008c4eceb65e32e66cb0fae433e8c622eee1488fe7a03b98a31daf7dffff90b5");
+        uint256 hashGenesisBlock = uint256S("0x00008ebf17c0056e0886aebae34869b1f8b917f699b5a6e1176083fbf1779ee4");
 
         // Change to true to enable genesis block creation
 
@@ -293,7 +293,7 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x008c4eceb65e32e66cb0fae433e8c622eee1488fe7a03b98a31daf7dffff90b5"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00008ebf17c0056e0886aebae34869b1f8b917f699b5a6e1176083fbf1779ee4"));
         assert(genesis.hashMerkleRoot == uint256S("0xa37b8a2612ac048cd92e69647184591c35da7d37ee572abf4e816475ca330ccc"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,54);
