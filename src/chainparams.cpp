@@ -56,8 +56,8 @@ static CBlock CreateGenesisBlockTestnet(const char* pszTimestamp, const CScript&
 
     CBlock genesis;
     genesis.nTime    = 1508196641;
-    genesis.nBits    = 0;
-    genesis.nNonce   = 7398;
+    genesis.nBits    = nBits;
+    genesis.nNonce   = nNonce;
     genesis.nVersion = nVersion;
     genesis.vtx.push_back(txNew);
     genesis.vtx[0].nTime = 1508196641;
@@ -238,7 +238,7 @@ public:
         consensus.nMajorityWindow = 1000;
         consensus.BIP34Height = 900000;
         consensus.BIP34Hash = uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
-        consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 8);
+        consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
         consensus.nPowTargetTimespan = 30; // two weeks
         consensus.nPowTargetSpacing = 30;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -278,7 +278,7 @@ public:
 
         // Change to true to enable genesis block creation
 
-        if (false && genesis.GetHash() != hashGenesisBlock)
+        if (true && genesis.GetHash() != hashGenesisBlock)
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
