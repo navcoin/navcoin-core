@@ -483,7 +483,7 @@ std::string parse_dns_public(const char *s)
   std::string dns_public_addr;
   if (!strcmp(s, "tcp"))
   {
-    dns_public_addr = DEFAULT_DNS_PUBLIC_ADDR;
+    dns_public_addr = GetArg("-dnsserver","8.8.4.4");
     LogPrintf("Parse-DNS-Public: Using default public DNS server: %s (TCP)",dns_public_addr);
   }
   else if (sscanf(s, "tcp://%u.%u.%u.%u%c", &ip0, &ip1, &ip2, &ip3, &c) == 4)
