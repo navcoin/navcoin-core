@@ -271,14 +271,14 @@ public:
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlockTestnet(1508196641, 2042886582, 0x1d00ffff, 1, 1000000 * COIN);
+        genesis = CreateGenesisBlockTestnet(1508196641, 2042891746, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x00008ebf17c0056e0886aebae34869b1f8b917f699b5a6e1176083fbf1779ee4");
+        uint256 hashGenesisBlock = uint256S("0x000054a45a81555521269ebf213c825e21ffb9dd8bae700d8b4771f8b155a205");
 
         // Change to true to enable genesis block creation
 
-        if (true && genesis.GetHash() != hashGenesisBlock)
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xa362f842f86509e1ac56df6d4d7da22cdad252027a2cfe5927e9334ab853ee17")))
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
@@ -293,8 +293,8 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x00008ebf17c0056e0886aebae34869b1f8b917f699b5a6e1176083fbf1779ee4"));
-        assert(genesis.hashMerkleRoot == uint256S("0xa37b8a2612ac048cd92e69647184591c35da7d37ee572abf4e816475ca330ccc"));
+        assert(consensus.hashGenesisBlock == uint256S("0x000054a45a81555521269ebf213c825e21ffb9dd8bae700d8b4771f8b155a205"));
+        assert(genesis.hashMerkleRoot == uint256S("0xa362f842f86509e1ac56df6d4d7da22cdad252027a2cfe5927e9334ab853ee17"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,54);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,86);

@@ -197,7 +197,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     else
     {
         coinstakeTx.vout[0].scriptPubKey = scriptPubKeyIn;
-        coinstakeTx.vout[0].nValue = 100;
+        coinstakeTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinstakeTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = coinstakeTx;
