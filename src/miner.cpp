@@ -189,8 +189,16 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinstakeTx.vin.resize(1);
     coinstakeTx.vin[0].prevout.SetNull();
     coinstakeTx.vout.resize(1);
-    coinstakeTx.vout[0].scriptPubKey.clear();
-    coinstakeTx.vout[0].nValue = 0;
+    if(fProofOfStake)
+    {
+        coinstakeTx.vout[0].scriptPubKey.clear();
+        coinstakeTx.vout[0].nValue = 0;
+    }
+    else
+    {
+        coinstakeTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinstakeTx.vout[0].nValue = 100;
+    }
     coinstakeTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = coinstakeTx;
 
