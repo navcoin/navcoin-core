@@ -42,8 +42,6 @@
 
 namespace bf = boost::filesystem;
 
-#define DEFAULT_DNS_PUBLIC_ADDR "8.8.4.4"
-
 static boost::mutex instance_lock;
 
 namespace
@@ -167,7 +165,7 @@ public:
 DNSResolver::DNSResolver() : m_data(new DNSResolverData())
 {
   int use_dns_public = 0;
-  std::string dns_public_addr = DEFAULT_DNS_PUBLIC_ADDR;
+  std::string dns_public_addr = GetArg("-dnsserver","8.8.4.4");
   if (auto res = getenv("DNS_PUBLIC"))
   {
     dns_public_addr = utils::dns_utils::parse_dns_public(res);
