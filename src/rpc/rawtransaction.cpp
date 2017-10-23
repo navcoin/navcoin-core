@@ -507,7 +507,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
     if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty()) {
       rawTx.strDZeel = params[2].get_str();
-      rawTx.nVersion = CTransaction::TXDZEEL_VERSION;
+      rawTx.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
     }
 
     if (params.size() > 3 && !params[3].isNull()) {

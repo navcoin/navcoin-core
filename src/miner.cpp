@@ -157,9 +157,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
 
-    if(!(fIncludeWitness || IsWitnessLocked(pindexPrev, chainparams.GetConsensus())) && !GetBoolArg("-votewitness",false))
-      pblock->nVersion &= ~VersionBitsMask(chainparams.GetConsensus(), (Consensus::DeploymentPos)Consensus::DEPLOYMENT_SEGWIT);
-
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     // if (chainparams.MineBlocksOnDemand())
@@ -764,7 +761,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
-              txCoinStake.nVersion = 2;
+              txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
               txCoinStake.strDZeel = GetArg("-stakervote","");
               *static_cast<CTransaction*>(&txNew) = CTransaction(txCoinStake);
               pblock->vtx.insert(pblock->vtx.begin() + 1, txNew);

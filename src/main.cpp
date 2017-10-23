@@ -1169,6 +1169,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (!CheckTransaction(tx, state))
         return false; // state filled in by CheckTransaction
 
+    if (IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
+      return state.DoS(100, false, REJECT_INVALID, "old-version");
+
     // Coinbase is only valid in a block, not as a loose transaction
     if (tx.IsCoinBase())
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
@@ -4002,6 +4005,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", version - 1),
                                  strprintf("rejected nVersion=0x%08x block", version - 1));
 
+    if(!(block.nVersion & (1 << 6)) && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected old block");
+
     return true;
 }
 
@@ -5476,6 +5483,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             Misbehaving(pfrom->GetId(), 1);
             return false;
         }
+
+//        if(pfrom->nVersion < 70020 && IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()))
+//        {
+//            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("Community Fund has been enabled and you are using an old version of NavCoin, please update."));
+//            LOCK(cs_main);
+//            Misbehaving(pfrom->GetId(), 1);
+//            return false;
+//        }
 
         pfrom->nServices = ServiceFlags(nServiceInt);
         if (!pfrom->fInbound)
