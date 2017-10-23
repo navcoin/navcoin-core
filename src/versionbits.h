@@ -63,8 +63,6 @@ struct VersionBitsCache
     void Clear();
 };
 
-extern double votes[Consensus::MAX_VERSION_BITS_DEPLOYMENTS];
-
 ThresholdState VersionBitsState(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos pos, VersionBitsCache& cache);
 uint32_t VersionBitsMask(const Consensus::Params& params, Consensus::DeploymentPos pos);
 

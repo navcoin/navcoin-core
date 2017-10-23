@@ -84,10 +84,6 @@ ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex*
                     pindexCount = pindexCount->pprev;
                 }
 
-                if(votes[votingId] == NULL || votes[votingId] == NULL > 0){
-                    votes[votingId] = count;
-                }
-
                 if (count >= nThreshold) {
                     stateNext = THRESHOLD_LOCKED_IN;
                 }
