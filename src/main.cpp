@@ -4580,6 +4580,8 @@ bool static LoadBlockIndexDB()
         DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()),
         Checkpoints::GuessVerificationProgress(chainparams.Checkpoints(), chainActive.Tip()));
 
+    hashBestChain = chainActive.Tip()->GetBlockHash();
+
     return true;
 }
 
