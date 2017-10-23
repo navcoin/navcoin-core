@@ -2472,8 +2472,6 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
         }
     }
 
-    nVersion |= 0x20;
-
     return nVersion;
 }
 
