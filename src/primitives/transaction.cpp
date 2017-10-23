@@ -173,6 +173,8 @@ std::string CMutableTransaction::ToString() const
   	);
     for (unsigned int i = 0; i < vin.size(); i++)
         str += "    " + vin[i].ToString() + "\n";
+    for (unsigned int i = 0; i < wit.vtxinwit.size(); i++)
+        str += "    " + wit.vtxinwit[i].scriptWitness.ToString() + "\n";
     for (unsigned int i = 0; i < vout.size(); i++)
         str += "    " + vout[i].ToString() + "\n";
     return str;

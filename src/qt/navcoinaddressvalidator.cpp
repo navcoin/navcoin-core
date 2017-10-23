@@ -90,6 +90,7 @@ NavCoinAddressCheckValidator::NavCoinAddressCheckValidator(QObject *parent) :
 QValidator::State NavCoinAddressCheckValidator::validate(QString &input, int &pos) const
 {
   Q_UNUSED(pos);
+#ifdef HAVE_UNBOUND
   utils::DNSResolver* DNS = nullptr;
 
   // Validate the passed NavCoin address
@@ -107,13 +108,15 @@ QValidator::State NavCoinAddressCheckValidator::validate(QString &input, int &po
   }
   else
   {
+#endif
 
     CNavCoinAddress addr(input.toStdString());
     if (addr.IsValid())
       return QValidator::Acceptable;
 
     return QValidator::Invalid;
-
+#ifdef HAVE_UNBOUND
   }
+#endif
 
 }

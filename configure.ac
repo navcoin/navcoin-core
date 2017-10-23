@@ -769,7 +769,7 @@ if test x$use_pkgconfig = xyes; then
     [PKG_CHECK_MODULES],
     [
       PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl  not found.)])
-      PKG_CHECK_MODULES([UNBOUND], [libunbound],, [AC_MSG_ERROR(libunbound  not found.)])
+      PKG_CHECK_MODULES([UNBOUND], [libunbound],[have_unbound=yes], [have_unbound=no])
       PKG_CHECK_MODULES([CURL], [libcurl],, [AC_MSG_ERROR(libcurl  not found.)])
       PKG_CHECK_MODULES([CRYPTO], [libcrypto],,[AC_MSG_ERROR(libcrypto  not found.)])
       NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([PROTOBUF], [protobuf], [have_protobuf=yes], [NAVCOIN_QT_FAIL(libprotobuf not found)])])
@@ -800,8 +800,9 @@ else
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
-  AC_CHECK_LIB([unbound],     [main],UNBOUND_LIBS=-lunbound, AC_MSG_ERROR(libunbound missing))
+  AC_CHECK_LIB([unbound],     [main],UNBOUND_LIBS=-lunbound, [have_unbound=no])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
+  AC_CHECK_HEADER([unbound.h],, have_unbound=no)
 
   if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
     AC_CHECK_HEADER([event2/event.h],, AC_MSG_ERROR(libevent headers missing),)
@@ -1025,6 +1026,7 @@ AM_CONDITIONAL([ENABLE_QT],[test x$navcoin_enable_qt = xyes])
 AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$BUILD_TEST_QT = xyes])
 AM_CONDITIONAL([ENABLE_BENCH],[test x$use_bench = xyes])
 AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
+AM_CONDITIONAL([HAVE_UNBOUND], [test x$have_unbound = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
 AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS],[test x$use_comparison_tool_reorg_test != xno])

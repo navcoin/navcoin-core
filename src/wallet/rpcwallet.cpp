@@ -406,6 +406,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     string address_str = params[0].get_str();
+#ifdef HAVE_UNBOUND
     utils::DNSResolver *DNS = nullptr;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
@@ -425,6 +426,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
         }
 
     }
+#endif
 
     CNavCoinAddress address(address_str);
     if (!address.IsValid())
@@ -497,6 +499,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     int nTransactions = (rand() % nEntropy) + 2;
 
     string address_str = params[0].get_str();
+#ifdef HAVE_UNBOUND
     utils::DNSResolver *DNS = nullptr;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
@@ -516,6 +519,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
         }
 
     }
+#endif
 
     CNavCoinAddress address(address_str);
     if (!address.IsValid())
@@ -602,6 +606,7 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     string address_str = params[0].get_str();
+#ifdef HAVE_UNBOUND
     utils::DNSResolver *DNS = nullptr;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
@@ -621,6 +626,7 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
         }
 
     }
+#endif
 
     CNavCoinAddress address(address_str);
     if (!address.IsValid())
@@ -2962,6 +2968,7 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
     return  result;
 }
 
+#ifdef HAVE_UNBOUND
 UniValue resolveopenalias(const UniValue& params, bool fHelp)
 {
   std::string address = params[0].get_str();
@@ -2993,6 +3000,7 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
   return result;
 }
+#endif
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
@@ -3057,7 +3065,9 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true  },
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
+  #ifdef HAVE_UNBOUND
     { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
+  #endif
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)

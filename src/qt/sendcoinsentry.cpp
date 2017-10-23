@@ -140,11 +140,13 @@ bool SendCoinsEntry::validate()
     // Check input validity
     bool retval = true;
 
-    utils::DNSResolver* DNS = nullptr;;
-
     // Skip checks for payment request
     if (recipient.paymentRequest.IsInitialized())
         return retval;
+
+#ifdef HAVE_UNBOUND
+    utils::DNSResolver* DNS = nullptr;
+
 
     if(DNS->check_address_syntax(ui->payTo->text().toStdString().c_str()))
     {
@@ -164,7 +166,9 @@ bool SendCoinsEntry::validate()
 
     }
 
-    else if (!model->validateAddress(ui->payTo->text()))
+    else
+#endif
+    if (!model->validateAddress(ui->payTo->text()))
     {
         ui->payTo->setValid(false);
         retval = false;
