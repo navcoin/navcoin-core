@@ -7820,10 +7820,8 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 
     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-    if (pblockindex->GetBlockTime() + nStakeMinAge > nTime){
-        LogPrintf("CheckKernel : CreateCoinStake selected coins which do not meet min age requirement.\n");
+    if (pblockindex->GetBlockTime() + nStakeMinAge > nTime)
         return false;
-    }
 
     if (pBlockTime)
         *pBlockTime = pblockindex->GetBlockTime();
