@@ -140,7 +140,7 @@ bool SendCoinsEntry::validate()
     // Check input validity
     bool retval = true;
 
-    utils::DNSResolver* DNS;
+    utils::DNSResolver* DNS = nullptr;;
 
     // Skip checks for payment request
     if (recipient.paymentRequest.IsInitialized())

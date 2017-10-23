@@ -441,7 +441,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
             SendCoinsRecipient recipient;
             if (GUIUtil::parseNavCoinURI(s, &recipient))
             {
-              utils::DNSResolver* DNS;
+              utils::DNSResolver* DNS = nullptr;;
               std::string address_str = recipient.address.toStdString();
 
               // Validate the passed NavCoin address

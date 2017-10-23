@@ -184,7 +184,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
 #endif
 
     string address_str = params[0].get_str();
-    utils::DNSResolver *DNS;
+    utils::DNSResolver *DNS = nullptr;
     bool dnssec_valid;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))

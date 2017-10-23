@@ -406,7 +406,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     string address_str = params[0].get_str();
-    utils::DNSResolver *DNS;
+    utils::DNSResolver *DNS = nullptr;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
@@ -497,7 +497,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     int nTransactions = (rand() % nEntropy) + 2;
 
     string address_str = params[0].get_str();
-    utils::DNSResolver *DNS;
+    utils::DNSResolver *DNS = nullptr;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
@@ -602,7 +602,7 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     string address_str = params[0].get_str();
-    utils::DNSResolver *DNS;
+    utils::DNSResolver *DNS = nullptr;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {

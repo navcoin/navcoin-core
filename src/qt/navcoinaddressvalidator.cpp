@@ -90,7 +90,7 @@ NavCoinAddressCheckValidator::NavCoinAddressCheckValidator(QObject *parent) :
 QValidator::State NavCoinAddressCheckValidator::validate(QString &input, int &pos) const
 {
   Q_UNUSED(pos);
-  utils::DNSResolver* DNS;
+  utils::DNSResolver* DNS = nullptr;
 
   // Validate the passed NavCoin address
   if(DNS->check_address_syntax(input.toStdString().c_str()))

@@ -194,7 +194,7 @@ void WalletModel::updateWatchOnlyFlag(bool fHaveWatchonly)
 
 bool WalletModel::validateAddress(const QString &address)
 {
-  utils::DNSResolver* DNS;
+  utils::DNSResolver* DNS = nullptr;;
   std::string address_str = address.toStdString();
 
   // Validate the passed NavCoin address
