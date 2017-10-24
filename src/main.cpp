@@ -3650,7 +3650,7 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
         pindexNew->BuildSkip();
     }
 
-    pindexNew->nCFSupply = pindexBestHeader->nCFSupply;
+    pindexNew->nCFSupply = pindexBestHeader ? pindexBestHeader->nCFSupply : 0;
 
     // ppcoin: compute chain trust score
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
