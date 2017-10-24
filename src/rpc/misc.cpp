@@ -92,6 +92,7 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     }
 #endif
     obj.push_back(Pair("blocks",        (int)chainActive.Height()));
+    obj.push_back(Pair("communityfund", ValueFromAmount(pindexBestHeader->nCFSupply)));
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
     obj.push_back(Pair("connections",   (int)vNodes.size()));
     obj.push_back(Pair("proxy",         (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : string())));

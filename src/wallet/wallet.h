@@ -672,6 +672,8 @@ public:
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
 
+    CAmount nCommunityFund;
+
     CWallet()
     {
         SetNull();

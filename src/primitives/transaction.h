@@ -168,6 +168,11 @@ public:
         return (nValue == 0 && scriptPubKey.empty());
     }
 
+    bool IsCommunityFundContribution() const
+    {
+        return (scriptPubKey[0] == OP_RETURN && scriptPubKey[1] == 0x20 && scriptPubKey[2] == 0x20 && scriptPubKey[3] == 0x20);
+    }
+
     uint256 GetHash() const;
 
     CAmount GetDustThreshold(const CFeeRate &minRelayTxFee) const

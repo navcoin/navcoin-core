@@ -530,6 +530,22 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         txNew.vout[1].nValue = blockValue;
     }
 
+    // Adds Community Fund output if enabled
+    if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus()))
+    {
+
+        int fundIndex = txNew.vout.size() + 1;
+        txNew.vout.resize(fundIndex);
+
+        txNew.vout[fundIndex-1].scriptPubKey.resize(4);
+        txNew.vout[fundIndex-1].scriptPubKey[0] = OP_RETURN;
+        txNew.vout[fundIndex-1].scriptPubKey[1] = 0x20;
+        txNew.vout[fundIndex-1].scriptPubKey[2] = 0x20;
+        txNew.vout[fundIndex-1].scriptPubKey[3] = 0x20;
+        txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
+
+    }
+
     // Sign
     int nIn = 0;
     BOOST_FOREACH(const CWalletTx* pcoin, vwtxPrev)

@@ -2789,6 +2789,22 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (tx.IsCoinStake())
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
 
+            if(IsCommunityFundEnabled(pindexBest, Params().GetConsensus()))
+            {
+
+              if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution())
+                return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
+                                      REJECT_INVALID, "no-cf-amount");
+
+              if(tx.vout[tx.vout.size() - 1].nValue != COMMUNITY_FUND_AMOUNT)
+                return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
+                                      tx.vout[tx.vout.size() - 1].nValue, COMMUNITY_FUND_AMOUNT),
+                                      REJECT_INVALID, "bad-cf-amount");
+
+              nStakeReward -= COMMUNITY_FUND_AMOUNT;
+
+            }
+
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
             if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, nScriptCheckThreads ? &vChecks : NULL, nStakeReward))
@@ -2824,6 +2840,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
 
             }
+        }
+
+
+        BOOST_FOREACH(const CTxOut& vout, tx.vout)
+        {
+          if(vout.IsCommunityFundContribution())
+          {
+            pindexBest->nCFSupply += vout.nValue;
+          }
         }
 
         CTxUndo undoDummy;
@@ -3625,6 +3650,8 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
         pindexNew->BuildSkip();
     }
 
+    pindexNew->nCFSupply = pindexBestHeader->nCFSupply;
+
     // ppcoin: compute chain trust score
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
 
@@ -3855,9 +3882,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
     unsigned int nSigOps = 0;
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
-    {
         nSigOps += GetLegacySigOpCount(tx);
-    }
+
     if (nSigOps * WITNESS_SCALE_FACTOR > MAX_BLOCK_SIGOPS_COST)
         return state.DoS(100, false, REJECT_INVALID, "bad-blk-sigops", false, "out-of-bounds SigOpCount");
 
