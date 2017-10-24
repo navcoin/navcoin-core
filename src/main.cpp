@@ -4003,7 +4003,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", version - 1),
                                  strprintf("rejected nVersion=0x%08x block", version - 1));
 
-    if(!(block.nVersion & (1 << 6)) && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
+    if(block.nVersion != ComputeBlockVersion(pindexPrev, Params().GetConsensus()) && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected old block");
 
