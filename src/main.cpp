@@ -2847,7 +2847,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         {
           if(vout.IsCommunityFundContribution())
           {
-            pindexBest->nCFSupply += vout.nValue;
+            pindex->nCFSupply += vout.nValue;
           }
         }
 
