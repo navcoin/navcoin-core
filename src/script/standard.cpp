@@ -185,12 +185,6 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     vector<valtype> vSolutions;
     txnouttype whichType;
 
-    if(scriptPubKey.IsCommunityFundContribution())
-    {
-        addressRet = CKeyID(uint160(ParseHex("202020")));
-        return true;
-    }
-
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
 
@@ -222,13 +216,6 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     addressRet.clear();
     typeRet = TX_NONSTANDARD;
     vector<valtype> vSolutions;
-
-    if(scriptPubKey.IsCommunityFundContribution())
-    {
-        typeRet = TX_CONTRIBUTION;
-        addressRet.push_back(CKeyID(uint160(ParseHex("202020"))));
-        return true;
-    }
 
     if (!Solver(scriptPubKey, typeRet, vSolutions))
         return false;
