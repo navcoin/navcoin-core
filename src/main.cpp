@@ -2518,6 +2518,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     AssertLockHeld(cs_main);
 
+    pindex->nCFSupply = pindex->pprev->nCFSupply;
+
     if (block.IsProofOfStake())
     {
         pindex->SetProofOfStake();
@@ -3649,8 +3651,6 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
         pindexNew->BuildSkip();
     }
-
-    pindexNew->nCFSupply = pindexBestHeader ? pindexBestHeader->nCFSupply : 0;
 
     // ppcoin: compute chain trust score
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
