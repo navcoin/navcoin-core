@@ -2789,21 +2789,25 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (!tx.IsCoinStake())
               nFees += view.GetValueIn(tx) - tx.GetValueOut();
             if (tx.IsCoinStake())
-              nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
-
-            if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus()))
             {
 
-              if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution())
-                return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
-                                      REJECT_INVALID, "no-cf-amount");
+              nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
 
-              if(tx.vout[tx.vout.size() - 1].nValue != COMMUNITY_FUND_AMOUNT)
-                return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
-                                      tx.vout[tx.vout.size() - 1].nValue, COMMUNITY_FUND_AMOUNT),
-                                      REJECT_INVALID, "bad-cf-amount");
+              if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus()))
+              {
 
-              nStakeReward -= COMMUNITY_FUND_AMOUNT;
+                if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution())
+                  return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
+                                   REJECT_INVALID, "no-cf-amount");
+
+                if(tx.vout[tx.vout.size() - 1].nValue != COMMUNITY_FUND_AMOUNT)
+                  return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
+                                              tx.vout[tx.vout.size() - 1].nValue, COMMUNITY_FUND_AMOUNT),
+                      REJECT_INVALID, "bad-cf-amount");
+
+                nStakeReward -= COMMUNITY_FUND_AMOUNT;
+
+              }
 
             }
 
