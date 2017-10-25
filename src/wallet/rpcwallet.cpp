@@ -354,7 +354,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
     // Parse NavCoin address
-    CScript scriptPubKey = donate ? CScript() << OP_RETURN << 0x20 << 0x20 << 0x20 : GetScriptForDestination(address);
+    CScript scriptPubKey = donate ? CScript().GetScriptForCommunityFundContribution() : GetScriptForDestination(address);
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
