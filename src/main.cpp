@@ -1169,7 +1169,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (!CheckTransaction(tx, state))
         return false; // state filled in by CheckTransaction
 
-    if (IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
+    if (IsCommunityFundEnabled(pindexBestHeader->pprev,Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
       return state.DoS(100, false, REJECT_INVALID, "old-version");
 
     // Coinbase is only valid in a block, not as a loose transaction
@@ -2789,7 +2789,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (tx.IsCoinStake())
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
 
-            if(IsCommunityFundEnabled(pindexBest, Params().GetConsensus()))
+            if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus()))
             {
 
               if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution())
