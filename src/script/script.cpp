@@ -212,6 +212,15 @@ bool CScript::IsPayToPublicKeyHash() const
 	    (*this)[24] == OP_CHECKSIG);
 }
 
+bool CScript::IsCommunityFundContribution() const
+{
+    return (this->size() == 4 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == 0x20 &&
+      (*this)[2] == 0x20 &&
+      (*this)[3] == 0x20);
+}
+
 bool CScript::IsPayToScriptHash() const
 {
     // Extra-fast test for pay-to-script-hash CScripts:

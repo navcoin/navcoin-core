@@ -702,6 +702,7 @@ bool SolverNavcoin(const CKeyStore& keystore, const CScript& scriptPubKey, uint2
     case TX_NULL_DATA:
     case TX_WITNESS_V0_SCRIPTHASH:
     case TX_WITNESS_V0_KEYHASH:
+    case TX_CONTRIBUTION:
         return false;
     case TX_PUBKEY:
         keyID = CPubKey(vSolutions[0]).GetID();
