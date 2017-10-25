@@ -31,6 +31,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_SCRIPTHASH: return "scripthash";
     case TX_MULTISIG: return "multisig";
     case TX_NULL_DATA: return "nulldata";
+    case TX_CONTRIBUTION: return "cfund_contribution";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     }
@@ -183,6 +184,13 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
 {
     vector<valtype> vSolutions;
     txnouttype whichType;
+
+    if(scriptPubKey.IsCommunityFundContribution())
+    {
+        addressRet = CKeyID(uint160(ParseHex("202020")));
+        return true;
+    }
+
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
 
@@ -214,6 +222,14 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     addressRet.clear();
     typeRet = TX_NONSTANDARD;
     vector<valtype> vSolutions;
+
+    if(scriptPubKey.IsCommunityFundContribution())
+    {
+        typeRet = TX_CONTRIBUTION;
+        addressRet.push_back(CKeyID(uint160(ParseHex("202020"))));
+        return true;
+    }
+
     if (!Solver(scriptPubKey, typeRet, vSolutions))
         return false;
     if (typeRet == TX_NULL_DATA){

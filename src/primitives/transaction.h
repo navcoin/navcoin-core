@@ -170,7 +170,7 @@ public:
 
     bool IsCommunityFundContribution() const
     {
-        return (scriptPubKey[0] == OP_RETURN && scriptPubKey[1] == 0x20 && scriptPubKey[2] == 0x20 && scriptPubKey[3] == 0x20);
+        return scriptPubKey.IsCommunityFundContribution();
     }
 
     uint256 GetHash() const;
