@@ -515,6 +515,7 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
         READWRITE(blockHash);
+        READWRITE(nCFSupply);
     }
 
     uint256 GetBlockHash() const
