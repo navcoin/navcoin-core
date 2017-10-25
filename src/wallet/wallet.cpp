@@ -1780,8 +1780,9 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
 
         if (!ExtractDestination(txout.scriptPubKey, address))
         {
-            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
-                     this->GetHash().ToString(),i);
+            if(!txout.scriptPubKey.IsCommunityFundContribution())
+                LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
+                         this->GetHash().ToString(),i);
             address = CNoDestination();
         }
 
