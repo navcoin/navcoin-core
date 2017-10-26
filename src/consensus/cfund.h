@@ -6,16 +6,10 @@
 #define NAVCOIN_CFUND_H
 
 #include <stdint.h>
+#include "script/script.h"
 
 namespace CFund {
-void SetScriptForCommunityFundContribution(CScript &script)
-{
-    script.resize(4);
-    script[0] = OP_RETURN;
-    script[1] = 0x20;
-    script[2] = 0x20;
-    script[3] = 0x20;
-}
+void SetScriptForCommunityFundContribution(CScript &script);
 }
 
 #endif // NAVCOIN_CONSENSUS_CONSENSUS_H

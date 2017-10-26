@@ -189,6 +189,7 @@ libnavcoin_server_a_SOURCES = \
   policy/policy.cpp \
 	pow.cpp \
 	pos.cpp \
+  consensus/cfund.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
 	rpc/mining.cpp \
