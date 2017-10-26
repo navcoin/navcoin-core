@@ -115,7 +115,8 @@ NAVCOIN_CORE_H = \
   policy/policy.h \
   policy/rbf.h \
 	pow.h \
-	pos.h \
+  pos.h \
+  consensus/cfund.h \
   protocol.h \
   random.h \
   reverselock.h \

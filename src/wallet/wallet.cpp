@@ -9,6 +9,7 @@
 #include "checkpoints.h"
 #include "chain.h"
 #include "coincontrol.h"
+#include "consensus/cfund.h"
 #include "consensus/consensus.h"
 #include "consensus/validation.h"
 #include "init.h"
@@ -536,8 +537,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
         int fundIndex = txNew.vout.size() + 1;
         txNew.vout.resize(fundIndex);
-
-        txNew.vout[fundIndex-1].scriptPubKey.GetScriptForCommunityFundContribution();
+        CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
         txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
 
     }

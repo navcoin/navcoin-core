@@ -6,6 +6,7 @@
 #include "amount.h"
 #include "base58.h"
 #include "chain.h"
+#include "consensus/cfund.h"
 #include "core_io.h"
 #include "init.h"
 #include "main.h"
@@ -356,7 +357,10 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     CScript CFContributionScript;
 
     // Parse NavCoin address
-    CScript scriptPubKey = donate ? CFContributionScript.GetScriptForCommunityFundContribution() : GetScriptForDestination(address);
+    CScript scriptPubKey = GetScriptForDestination(address);
+
+    if(donate)
+      CFund::SetScriptForCommunityFundContribution(scriptPubKey);
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);

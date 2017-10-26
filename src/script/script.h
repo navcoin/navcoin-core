@@ -665,9 +665,6 @@ public:
      */
     unsigned int GetSigOpCount(const CScript& scriptSig) const;
 
-    CScript GetScriptForCommunityFundContribution() const;
-
-
     bool IsPayToPublicKeyHash() const;
 
     bool IsPayToScriptHash() const;

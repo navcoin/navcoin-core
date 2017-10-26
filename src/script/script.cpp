@@ -221,18 +221,6 @@ bool CScript::IsCommunityFundContribution() const
       (*this)[3] == 0x20);
 }
 
-CScript CScript::GetScriptForCommunityFundContribution() const
-{
-    CScript retScript;
-    retScript.resize(4);
-    retScript[0] = OP_RETURN;
-    retScript[1] = 0x20;
-    retScript[2] = 0x20;
-    retScript[3] = 0x20;
-
-    return retScript;
-}
-
 bool CScript::IsPayToScriptHash() const
 {
     // Extra-fast test for pay-to-script-hash CScripts:
