@@ -224,6 +224,7 @@ endif
 libnavcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_wallet_a_SOURCES = \
+  consensus/cfund.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/navtech.cpp \

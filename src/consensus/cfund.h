@@ -12,4 +12,4 @@ namespace CFund {
 void SetScriptForCommunityFundContribution(CScript &script);
 }
 
-#endif // NAVCOIN_CONSENSUS_CONSENSUS_H
+#endif // NAVCOIN_CFUND_H
