@@ -224,11 +224,11 @@ bool CScript::IsCommunityFundContribution() const
 CScript CScript::GetScriptForCommunityFundContribution() const
 {
     CScript retScript;
+    retScript.resize(4);
     retScript[0] = OP_RETURN;
     retScript[1] = 0x20;
     retScript[2] = 0x20;
     retScript[3] = 0x20;
-    retScript.resize(4);
 
     return retScript;
 }
