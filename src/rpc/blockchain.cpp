@@ -892,6 +892,19 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue listproposals(const UniValue& params, bool fHelp)
+{
+    UniValue ret(UniValue::VARR);
+
+    std::vector<CTransaction> vec;
+    if(pblocktree->GetProposalIndex(vec))
+    {
+        BOOST_FOREACH(const CTransaction& tx, vec)
+            ret.push_back(tx.ToString());
+    }
+    return ret;
+}
+
 UniValue gettxout(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 3)
@@ -1395,6 +1408,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
+    { "blockchain",         "listproposals",          &listproposals,          true  },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },

@@ -176,6 +176,30 @@ bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CTran
     return WriteBatch(batch);
 }
 
+bool CBlockTreeDB::GetProposalIndex(std::vector<CTransaction>&vect) {
+    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+
+    pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_PROPINDEX) {
+            CTransaction proposal;
+            if (pcursor->GetValue(proposal)) {
+                vect.push_back(proposal);
+                pcursor->Next();
+            } else {
+                return error("GetProposalIndex() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool CBlockTreeDB::ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
     return Read(make_pair(DB_SPENTINDEX, key), value);
 }
