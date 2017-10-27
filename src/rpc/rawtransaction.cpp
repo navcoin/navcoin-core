@@ -163,6 +163,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     entry.push_back(Pair("vsize", (int)::GetVirtualTransactionSize(tx)));
     entry.push_back(Pair("version", tx.nVersion));
     entry.push_back(Pair("locktime", (int64_t)tx.nLockTime));
+    entry.push_back(Pair("time", (int64_t)tx.nTime));
     entry.push_back(Pair("anon-destination", tx.strDZeel));
 
     UniValue vin(UniValue::VARR);
