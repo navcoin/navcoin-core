@@ -125,6 +125,8 @@ public:
     bool ReadTxIndex(const uint256 &txid, CDiskTxPos &pos);
     bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &list);
     bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+    bool ReadProposalIndex(const uint256 &txid, CTransaction &tx);
+    bool WriteProposalIndex(const std::vector<std::pair<uint256, CTransaction> >&vect);
     bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
     bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
     bool ReadAddressUnspentIndex(uint160 addressHash, int type,

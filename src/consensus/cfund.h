@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include "script/script.h"
 
+#define MIN_PROPOSAL_FEE 10000000000
+
 namespace CFund {
 void SetScriptForCommunityFundContribution(CScript &script);
 }

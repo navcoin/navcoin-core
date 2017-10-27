@@ -19,6 +19,7 @@ using namespace std;
 static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
+static const char DB_PROPINDEX = 'p';
 static const char DB_ADDRESSINDEX = 'a';
 static const char DB_ADDRESSUNSPENTINDEX = 'u';
 static const char DB_TIMESTAMPINDEX = 's';
@@ -161,6 +162,17 @@ bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos>
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CDiskTxPos> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Write(make_pair(DB_TXINDEX, it->first), it->second);
+    return WriteBatch(batch);
+}
+
+bool CBlockTreeDB::ReadProposalIndex(const uint256 &txid, CTransaction &tx) {
+    return Read(make_pair(DB_PROPINDEX, txid), tx);
+}
+
+bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CTransaction> >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<uint256,CTransaction> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
+        batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
