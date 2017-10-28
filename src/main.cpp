@@ -1114,6 +1114,10 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
     }
 
+    if(tx.nVersion == 4) // Community Fund Proposal
+        if(!tx.IsValidProposal())
+            return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+
     // Check for duplicate inputs
     set<COutPoint> vInOutPoints;
     BOOST_FOREACH(const CTxIn& txin, tx.vin)

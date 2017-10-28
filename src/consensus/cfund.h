@@ -5,13 +5,12 @@
 #ifndef NAVCOIN_CFUND_H
 #define NAVCOIN_CFUND_H
 
-#include <stdint.h>
+#include "amount.h"
 #include "script/script.h"
-
-#define MIN_PROPOSAL_FEE 10000000000
 
 namespace CFund {
 void SetScriptForCommunityFundContribution(CScript &script);
+CAmount nMinimalFee = 10000000000;
 }
 
 #endif // NAVCOIN_CFUND_H
