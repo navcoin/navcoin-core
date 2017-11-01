@@ -128,6 +128,7 @@ public:
     bool ReadProposalIndex(const uint256 &txid, CTransaction &tx);
     bool WriteProposalIndex(const std::vector<std::pair<uint256, CTransaction> >&vect);
     bool GetProposalIndex(std::vector<CTransaction>&vect);
+    bool UpdateProposalIndex(const std::vector<std::pair<uint256, CTransaction> >&vect);
     bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
     bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
     bool ReadAddressUnspentIndex(uint160 addressHash, int type,

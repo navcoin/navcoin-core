@@ -7,9 +7,11 @@
 #define NAVCOIN_PRIMITIVES_TRANSACTION_H
 
 #include "amount.h"
+#include "consensus/cfund.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "uint256.h"
+#include "univalue/include/univalue.h"
 
 static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 
@@ -379,7 +381,7 @@ public:
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
     // bumping the default CURRENT_VERSION at which point both CURRENT_VERSION and
     // MAX_STANDARD_VERSION will be equal.
-    static const int32_t MAX_STANDARD_VERSION=2;
+    static const int32_t MAX_STANDARD_VERSION=255;
 
     // The local variables are made const to prevent unintended modification
     // without updating the cached hash value. However, CTransaction is not
@@ -444,6 +446,51 @@ public:
     {
         // ppcoin: the coin stake transaction is marked with the first output empty
         return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
+    }
+
+    bool IsValidProposal() const
+    {
+
+        UniValue metadata(UniValue::VOBJ);
+        try {
+            UniValue valRequest;
+            if (!valRequest.read(strDZeel))
+              return false;
+
+            if (valRequest.isObject())
+            {
+
+              metadata = valRequest.get_obj();
+
+            }
+            else
+            {
+
+              return false;
+
+            }
+
+        } catch (const UniValue& objError) {
+          return false;
+        } catch (const std::exception& e) {
+          return false;
+        }
+
+        CAmount nAmount = find_value(metadata, "n").get_int64();
+        std::string Address = find_value(metadata, "a").get_str();
+        int64_t nDeadline = find_value(metadata, "d").get_int64();
+        CAmount nContribution = 0;
+
+        for(unsigned int i=0;i<vout.size();i++)
+            if(vout[i].IsCommunityFundContribution())
+                nContribution +=vout[i].nValue;
+
+        return (nContribution >= CFund::nMinimalFee &&
+                Address != "" &&
+                nAmount < MAX_MONEY &&
+                nAmount > 0 &&
+                nDeadline > 0);
+
     }
 
     friend bool operator==(const CTransaction& a, const CTransaction& b)

@@ -176,6 +176,18 @@ bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CTran
     return WriteBatch(batch);
 }
 
+bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CTransaction> >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<uint256,CTransaction> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+        if (it->second.IsNull()) {
+            batch.Erase(make_pair(DB_PROPINDEX, it->first));
+        } else {
+            batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
+        }
+    }
+    return WriteBatch(batch);
+}
+
 bool CBlockTreeDB::GetProposalIndex(std::vector<CTransaction>&vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
