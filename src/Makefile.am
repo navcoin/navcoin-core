@@ -175,6 +175,7 @@ libnavcoin_server_a_SOURCES = \
   blockencodings.cpp \
   chain.cpp \
   checkpoints.cpp \
+  consensus/cfund.cpp \
   httprpc.cpp \
   httpserver.cpp \
   kernel.cpp \
@@ -187,12 +188,11 @@ libnavcoin_server_a_SOURCES = \
   noui.cpp \
   policy/fees.cpp \
   policy/policy.cpp \
-	pow.cpp \
-	pos.cpp \
-  consensus/cfund.cpp \
+  pow.cpp \
+  pos.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
-	rpc/mining.cpp \
+  rpc/mining.cpp \
   rpc/misc.cpp \
   rpc/net.cpp \
   rpc/rawtransaction.cpp \

@@ -485,7 +485,7 @@ public:
             if(vout[i].IsCommunityFundContribution())
                 nContribution +=vout[i].nValue;
 
-        return (nContribution >= CFund::nMinimalFee &&
+        return (nContribution >= FUND_MINIMAL_FEE &&
                 Address != "" &&
                 nAmount < MAX_MONEY &&
                 nAmount > 0 &&

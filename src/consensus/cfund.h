@@ -8,9 +8,10 @@
 #include "amount.h"
 #include "script/script.h"
 
+#define FUND_MINIMAL_FEE 10000000000
+
 namespace CFund {
 void SetScriptForCommunityFundContribution(CScript &script);
-CAmount nMinimalFee = 10000000000;
 }
 
 #endif // NAVCOIN_CFUND_H
