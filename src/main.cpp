@@ -6031,6 +6031,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CTransaction tx;
         vRecv >> tx;
 
+	LogPrint("net", "Received tx %s peer=%d\n%s\n", tx.GetHash().ToString(), pfrom->id, tx.ToString());
+
         CInv inv(MSG_TX, tx.GetHash());
         pfrom->AddInventoryKnown(inv);
 
@@ -6510,7 +6512,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CBlock block;
         vRecv >> block;
 
-        LogPrint("net", "received block %s peer=%d\n", block.GetHash().ToString(), pfrom->id);
+        LogPrint("net", "received block %s peer=%d\n%s\n", block.GetHash().ToString(), pfrom->id, block.ToString());
 
         CValidationState state;
         // Process all blocks from whitelisted peers, even if not requested,
@@ -7582,7 +7584,7 @@ static bool SelectBlockFromCandidates(vector<pair<int64_t, uint256> >& vSortedBy
             return error("SelectBlockFromCandidates: failed to find block index for candidate block %s", item.second.ToString());
         const CBlockIndex* pindex = mapBlockIndex[item.second];
         if (fSelected && pindex->GetBlockTime() > nSelectionIntervalStop){
-            LogPrint("stakemodifier", "SelectBlockFromCandidates: selection hash=%s index=%d proofhash=%s nStakeModifierPrev=%08x\n", hashBest.ToString(), pindex->nHeight, pindex->hashProof.ToString(), nStakeModifierPrev);
+//            LogPrint("stakemodifier", "SelectBlockFromCandidates: selection hash=%s index=%d proofhash=%s nStakeModifierPrev=%08x\n", hashBest.ToString(), pindex->nHeight, pindex->hashProof.ToString(), nStakeModifierPrev);
             break;
 
         }
@@ -7644,7 +7646,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
     int64_t nModifierTime = 0;
     if (!GetLastStakeModifier(pindexPrev, nStakeModifier, nModifierTime))
         return error("ComputeNextStakeModifier: unable to get last modifier");
-    LogPrint("stakemodifier", "ComputeNextStakeModifier: prev modifier=0x%016x time=%s\n", nStakeModifier, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nModifierTime));
+//    LogPrint("stakemodifier", "ComputeNextStakeModifier: prev modifier=0x%016x time=%s\n", nStakeModifier, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nModifierTime));
     if (nModifierTime / nModifierInterval >= pindexPrev->GetBlockTime() / nModifierInterval)
         return true;
 
@@ -7653,7 +7655,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
     vSortedByTimestamp.reserve(64 * nModifierInterval / GetTargetSpacing(pindexPrev->nHeight));
     int64_t nSelectionInterval = GetStakeModifierSelectionInterval();
     int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / nModifierInterval) * nModifierInterval - nSelectionInterval;
-    LogPrint("stakemodifier", "nSelectionInterval = %d nSelectionIntervalStart = %d\n",nSelectionInterval,nSelectionIntervalStart);
+//    LogPrint("stakemodifier", "nSelectionInterval = %d nSelectionIntervalStart = %d\n",nSelectionInterval,nSelectionIntervalStart);
 
     const CBlockIndex* pindex = pindexPrev;
     while (pindex && pindex->GetBlockTime() >= nSelectionIntervalStart)
@@ -7680,7 +7682,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
         nStakeModifierNew |= (((uint64_t)pindex->GetStakeEntropyBit()) << nRound);
         // add the selected block from candidates to selected list
         mapSelectedBlocks.insert(make_pair(pindex->GetBlockHash(), pindex));
-        LogPrint("stakemodifier", "ComputeNextStakeModifier: selected round %d stop=%s height=%d bit=%d\n", nRound, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nSelectionIntervalStop), pindex->nHeight, pindex->GetStakeEntropyBit());
+//        LogPrint("stakemodifier", "ComputeNextStakeModifier: selected round %d stop=%s height=%d bit=%d\n", nRound, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nSelectionIntervalStop), pindex->nHeight, pindex->GetStakeEntropyBit());
     }
 
     // Print selection map for visualization of the selected blocks
@@ -7703,9 +7705,9 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
             // 'W' indicates selected proof-of-work blocks
             strSelectionMap.replace(item.second->nHeight - nHeightFirstCandidate, 1, item.second->IsProofOfStake()? "S" : "W");
         }
-        LogPrintf("ComputeNextStakeModifier: selection height [%d, %d] map %s\n", nHeightFirstCandidate, pindexPrev->nHeight, strSelectionMap);
+//        LogPrintf("ComputeNextStakeModifier: selection height [%d, %d] map %s\n", nHeightFirstCandidate, pindexPrev->nHeight, strSelectionMap);
     }
-    LogPrint("stakemodifier", "ComputeNextStakeModifier: new modifier=0x%016x time=%s\n", nStakeModifierNew, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexPrev->GetBlockTime()));
+//    LogPrint("stakemodifier", "ComputeNextStakeModifier: new modifier=0x%016x time=%s\n", nStakeModifierNew, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexPrev->GetBlockTime()));
 
     nStakeModifier = nStakeModifierNew;
     fGeneratedStakeModifier = true;
@@ -7745,14 +7747,14 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     if (fPrintProofOfStake)
     {
-        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
+/*        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
             nStakeModifier, nStakeModifierHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime),
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nTimeBlockFrom));
         LogPrint("stakemodifier","CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s bnTarget=%s nBits=%08x nValueIn=%d bnWeight=%s\n",
             nStakeModifier,
             nTimeBlockFrom, txPrev.nTime, prevout.n, nTimeTx,
-            hashProofOfStake.ToString(),bnTarget.ToString(), nBits, nValueIn,bnWeight.ToString());
+            hashProofOfStake.ToString(),bnTarget.ToString(), nBits, nValueIn,bnWeight.ToString());*/
     }
 
     // Now check if proof-of-stake hash meets target protocol
@@ -7761,14 +7763,14 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     if (fDebug && !fPrintProofOfStake)
     {
-        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
+/*        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
             nStakeModifier, nStakeModifierHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime),
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nTimeBlockFrom));
         LogPrint("stakemodifier","CheckStakeKernelHash() : pass modifier=0x%016x nTimeBlockFrom=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s\n",
             nStakeModifier,
             nTimeBlockFrom, txPrev.nTime, prevout.n, nTimeTx,
-            hashProofOfStake.ToString());
+            hashProofOfStake.ToString());*/
     }
 
     return true;
