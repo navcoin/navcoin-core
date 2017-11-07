@@ -54,7 +54,7 @@ private Q_SLOTS:
     void on_hideTrayIcon_stateChanged(int fState);
 
     void showRestartWarning(bool fPersistent = false);
-    void vote();
+    void vote(QString vote);
     void clearStatusLabel();
     void updateProxyValidationState();
     /* query the networks, for which the default proxy is used */

@@ -645,6 +645,27 @@ void RemoveConfigFile(std::string key, std::string value)
     outStream << configBuffer;
     outStream.close();
 }
+
+void RemoveConfigFile(std::string key)
+{
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    if (!streamConfig.good())
+        return; // Nothing to remove
+
+    std::string configBuffer, line;
+    set<string> setOptions;
+    setOptions.insert("*");
+
+    while (std::getline(streamConfig, line))
+    {
+          if(line.substr(0,key.length()+1) != key + "=" && line != "")
+              configBuffer += line + "\n";
+    }
+
+    boost::filesystem::ofstream outStream(GetConfigFile());
+    outStream << configBuffer;
+    outStream.close();
+}
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {
