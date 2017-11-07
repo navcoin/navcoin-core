@@ -759,7 +759,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
               txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
-              txCoinStake.strDZeel = GetArg("-stakervote","");
+              txCoinStake.strDZeel = GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION);
               *static_cast<CTransaction*>(&txNew) = CTransaction(txCoinStake);
               pblock->vtx.insert(pblock->vtx.begin() + 1, txNew);
 

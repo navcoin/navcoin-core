@@ -2797,6 +2797,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             {
 
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
+              pindex->strDZeel = tx.strDZeel;
 
               if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus()))
               {
@@ -3146,7 +3147,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
             ThresholdState state = checker.GetStateFor(pindex, chainParams.GetConsensus(), warningcache[bit], bit);
             if (state == THRESHOLD_ACTIVE || state == THRESHOLD_LOCKED_IN) {
                 if (state == THRESHOLD_ACTIVE) {
-                    strMiscWarning = strprintf(_("Warning: unknown new rules activated (versionbit %i)"), bit);
+                    warningMessages.push_backstrprintf(_("Warning: unknown new rules activated (versionbit %i)"), bit));
                     if (!fWarned) {
                         AlertNotify(strMiscWarning);
                         fWarned = true;
@@ -3156,20 +3157,21 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
                 }
             }
         }
-        // Check the version of the last 100 blocks to see if we need to upgrade:
-        for (int i = 0; i < 100 && pindex != NULL; i++)
+        // Check the version of the last 1000 blocks to see if we need to upgrade:
+        for (int i = 0; i < 1000 && pindex != NULL; i++)
         {
-            int32_t nExpectedVersion = ComputeBlockVersion(pindex->pprev, chainParams.GetConsensus());
-            if (pindex->nVersion > VERSIONBITS_LAST_OLD_BLOCK_VERSION && (pindex->nVersion & ~nExpectedVersion) != 0)
+            int32_t nExpectedVersion = CLIENT_VERSION;
+            if (atoi(pindex->strDZeel.substr(pindex->strDZeel.find(";") + 1).c_str()) > nExpectedVersion)
                 ++nUpgraded;
             pindex = pindex->pprev;
         }
         if (nUpgraded > 0)
-            warningMessages.push_back(strprintf("%d of last 100 blocks have unexpected version", nUpgraded));
-        if (nUpgraded > 100/2)
+            warningMessages.push_back(strprintf("%d of last 1000 blocks use a new version of the wallet", nUpgraded));
+        if (nUpgraded > 1000/2.5)
         {
             // strMiscWarning is read by GetWarnings(), called by Qt and the JSON-RPC code to warn the user:
-            strMiscWarning = _("Warning: Unknown block versions being mined! It's possible unknown rules are in effect");
+            strMiscWarning = _("A new version of the wallet has been released. Please update as soon as possible.");
+            warningMessages.push_back("A new version of the wallet has been released. Please update as soon as possible.");
             if (!fWarned) {
                 AlertNotify(strMiscWarning);
                 fWarned = true;

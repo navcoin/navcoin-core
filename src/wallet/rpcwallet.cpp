@@ -26,7 +26,7 @@
 #include <stdint.h>
 
 #include <boost/assign/list_of.hpp>
-
+#include <boost/lexical_cast.hpp>
 #include <univalue.h>
 
 using namespace std;
@@ -462,6 +462,53 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue createproposal(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 3)
+        throw runtime_error(
+            "createproposal address amount deadline\n"
+            "\nCreates a proposal for the community fund.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
+            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
+            "3. deadline               (numeric, required) Epoch timestamp when the proposal would expire.\n"
+            "\nResult:\n"
+            "\"proposalid\"            (string) The proposal id.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createproposal", "NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ 1000 1509151016")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CAmount nAmount = FUND_MINIMAL_FEE;
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+    if (params.size() == 2)
+        fSubtractFeeFromAmount = params[1].get_bool();
+
+    string Address = params[0].get_str();
+    CAmount nReqAmount = params[1].get_int64();
+    int64_t nDeadline = params[2].get_int64();
+
+    wtx.strDZeel = "{n:" + boost::lexical_cast<std::string>(nReqAmount) +",a:\""+ Address +"\",d:"+boost::lexical_cast<std::string>(nDeadline)+"}";
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
 
     return wtx.GetHash().GetHex();
 }
@@ -3106,6 +3153,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                 &sendmany,                 false },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
     { "wallet",             "donatefund",               &donatefund,               false },
+    { "wallet",             "createproposal",           &createproposal,           false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
