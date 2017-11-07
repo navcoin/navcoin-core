@@ -3147,7 +3147,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
             ThresholdState state = checker.GetStateFor(pindex, chainParams.GetConsensus(), warningcache[bit], bit);
             if (state == THRESHOLD_ACTIVE || state == THRESHOLD_LOCKED_IN) {
                 if (state == THRESHOLD_ACTIVE) {
-                    warningMessages.push_backstrprintf(_("Warning: unknown new rules activated (versionbit %i)"), bit));
+                    warningMessages.push_back(strprintf(_("Warning: unknown new rules activated (versionbit %i)"), bit));
                     if (!fWarned) {
                         AlertNotify(strMiscWarning);
                         fWarned = true;
