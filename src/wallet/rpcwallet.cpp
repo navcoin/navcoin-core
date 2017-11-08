@@ -466,6 +466,28 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+UniValue stakervote(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "stakervote vote\n"
+            "\nSets the vote to be committed on minted blocks.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"vote\"               (string, required) The staker vote.\n"
+            + HelpExampleCli("stakervote", "yes")
+        );
+
+    SoftSetArg("-stakervote",params[0].get_str());
+    RemoveConfigFile("stakervote");
+    WriteConfigFile("stakervote",params[0].get_str());
+
+    return "";
+}
+
 UniValue createproposal(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -3154,6 +3176,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
     { "wallet",             "donatefund",               &donatefund,               false },
     { "wallet",             "createproposal",           &createproposal,           false },
+    { "wallet",             "stakervote",               &stakervote,               false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },

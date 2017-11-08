@@ -72,6 +72,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 
     ui->voteLabel->setVisible(showVoting);
     ui->voteTextField->setVisible(showVoting);
+    ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
 
     /* Window elements init */
 #ifdef Q_OS_MAC
@@ -146,6 +147,8 @@ OptionsDialog::~OptionsDialog()
 void OptionsDialog::setModel(OptionsModel *model)
 {
     this->model = model;
+
+    ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
 
     if(model)
     {
