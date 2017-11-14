@@ -1665,25 +1665,25 @@ void NavCoinGUI::updateStakingStatus()
             QString text;
             if (nEstimateTime > 60)
             {
-            if (nEstimateTime < 60*60)
-            {
-                text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
-            }
-            else if (nEstimateTime < 24*60*60)
-            {
-                text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
-            }
-            else
-            {
-                text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
-            }
+                if (nEstimateTime < 60*60)
+                {
+                    text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
+                }
+                else if (nEstimateTime < 24*60*60)
+                {
+                    text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
+                }
+                else
+                {
+                    text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
+                }
             }
 
             nWeight /= COIN;
             nNetworkWeight /= COIN;
 
     //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_on" : ":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-            walletFrame->setStakingStatus(text!=""?text:tr("You are staking"));
+            walletFrame->setStakingStatus(text!=""&&GetBoolArg("showexpectedstaketime",false)?text:tr("You are staking"));
         }
         else
         {
