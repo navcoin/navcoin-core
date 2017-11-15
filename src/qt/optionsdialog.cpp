@@ -304,7 +304,7 @@ void OptionsDialog::clearStatusLabel()
 
 void OptionsDialog::vote(QString vote)
 {
-    SoftSetArg("-stakervote",vote.toStdString());
+    SoftSetArg("-stakervote",vote.toStdString(),true);
     RemoveConfigFile("stakervote");
     WriteConfigFile("stakervote",vote.toStdString());
 }

@@ -146,6 +146,7 @@ private:
 
     QAction *toggleStakingAction;
     QAction *updatePriceAction;
+    bool fShowingVoting;
 
     /** Create the main UI actions. */
     void createActions();

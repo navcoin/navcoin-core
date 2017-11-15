@@ -146,6 +146,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     lockWalletAction(0),
     toggleStakingAction(0),
     updatePriceAction(0),
+    fShowingVoting(0),
     platformStyle(platformStyle)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
@@ -1662,15 +1663,19 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
       return;
   }
 
-  if(oldmessage != QString::fromStdString(message) && !QString::fromStdString(message).isEmpty())
+  if(oldmessage != QString::fromStdString(message) && !QString::fromStdString(message).isEmpty() && !fShowingVoting)
   {
       bool ok;
+      fShowingVoting = true;
       QString vote = QInputDialog::getText(this, tr("Network vote."),
                                            QString::fromStdString(message), QLineEdit::Normal,
                                            "", &ok);
+
+      fShowingVoting = false;
+
       if (ok && !vote.isEmpty())
       {
-          SoftSetArg("-stakervote",vote.toStdString());
+          SoftSetArg("-stakervote",vote.toStdString(),true);
           RemoveConfigFile("stakervote");
           WriteConfigFile("stakervote",vote.toStdString());
       }
