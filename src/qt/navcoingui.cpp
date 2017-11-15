@@ -1626,12 +1626,15 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
 {
 
   QString strReply = reply->readAll();
+  QSettings settings;
 
   //parse json
   QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
   QJsonArray jsonObj = jsonResponse.array();
   QJsonObject jsonObj2 = jsonObj[0].toObject();
+
+  QString oldmessage = settings.value("votingQuestion", "").toString();
 
   std::string message   = jsonObj2["message"].toString().toStdString();
   std::string signature = jsonObj2["signature"].toString().toStdString();
@@ -1659,7 +1662,19 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
       return;
   }
 
-  QSettings settings;
+  if(oldmessage != QString::fromStdString(message) && !QString::fromStdString(message).isEmpty())
+  {
+      bool ok;
+      QString vote = QInputDialog::getText(this, tr("Network vote."),
+                                           QString::fromStdString(message), QLineEdit::Normal,
+                                           "", &ok);
+      if (ok && !vote.isEmpty())
+      {
+          SoftSetArg("-stakervote",vote.toStdString());
+          RemoveConfigFile("stakervote");
+          WriteConfigFile("stakervote",vote.toStdString());
+      }
+  }
 
   settings.setValue("votingQuestion", QString::fromStdString(message));
 
