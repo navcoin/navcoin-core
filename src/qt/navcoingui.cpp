@@ -1601,9 +1601,6 @@ void NavCoinGUI::updatePrice()
 void NavCoinGUI::replyFinished(QNetworkReply *reply)
 {
 
-  QString reqString = QString("GET /v1/ticker/nav-coin/?convert=EUR HTTP/1.1\r\n" \
-                              "Host: api.coinmarketcap.com\r\n\r\n");
-
   QString strReply = reply->readAll();
 
   //parse json
@@ -1625,28 +1622,75 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
 
 }
 
+void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
+{
+
+  QString strReply = reply->readAll();
+
+  //parse json
+  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+
+  QJsonArray jsonObj = jsonResponse.array();
+  QJsonObject jsonObj2 = jsonObj[0].toObject();
+
+  std::string message   = jsonObj2["message"].toString().toStdString();
+  std::string signature = jsonObj2["signature"].toString().toStdString();
+
+  CNavCoinAddress addr("NMYuCvBiRgvkzjdEBGJHj7rpAnRmfUD6gw");
+  CKeyID keyID;
+  addr.GetKeyID(keyID);
+
+  bool fInvalid = false;
+  std::vector<unsigned char> vchSig = DecodeBase64(signature.c_str(), &fInvalid);
+
+  if (fInvalid)
+  {
+      reply->deleteLater();
+      LogPrintf("invalid");
+      return;
+  }
+
+  CHashWriter ss(SER_GETHASH, 0);
+  ss << strMessageMagic;
+  ss << message;
+
+  LogPrintf("signature is %s\n",signature);
+
+  CPubKey pubkey;
+  if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID){
+      LogPrintf("invalid 3");
+      reply->deleteLater();
+      return;
+  }
+
+  QSettings settings;
+
+  LogPrintf("question is %s\n",message);
+
+  settings.setValue("votingQuestion", QString::fromStdString(message));
+
+  reply->deleteLater();
+
+}
+
 void NavCoinGUI::updateStakingStatus()
 {
     updateWeight();
 
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+    QNetworkRequest request;
+    QNetworkReply *reply = NULL;
+
+    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    config.setProtocol(QSsl::TlsV1_2);
+    request.setSslConfiguration(config);
+    request.setUrl(QUrl("https://www.navcoin.org/voting.json"));
+    request.setHeader(QNetworkRequest::ServerHeader, "application/json");
+    reply = manager->get(request);
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+                     SLOT(replyVotingFinished(QNetworkReply*)));
+
     if(walletFrame){
-
-        if(Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout && pindexBestHeader != NULL){
-
-          QString votingLabel;
-
-          if(pindexBestHeader->nTime < 1508284800)
-            votingLabel = tr("Voting starts at 00:00 18/10/17");
-          else if (pindexBestHeader->nTime > 1510704000)
-            votingLabel = tr("Voting period ended");
-          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
-            votingLabel = tr("Please, start staking to vote.");
-          else
-            votingLabel = tr("Your vote is %1.").arg(GetBoolArg("-votefunding",false) ? "YES" : "NO");
-
-          walletFrame->setVotingStatus(votingLabel);
-
-        }
 
         if (!GetBoolArg("-staking",true))
         {

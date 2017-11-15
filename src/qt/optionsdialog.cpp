@@ -30,6 +30,7 @@
 #include <QIntValidator>
 #include <QLocale>
 #include <QMessageBox>
+#include <QSettings>
 #include <QTimer>
 
 OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
@@ -148,7 +149,10 @@ void OptionsDialog::setModel(OptionsModel *model)
 {
     this->model = model;
 
+    QSettings settings;
+
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
+    ui->voteQuestionLabel->setText(settings.value("votingQuestion", "").toString());
 
     if(model)
     {
