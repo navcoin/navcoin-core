@@ -1693,7 +1693,7 @@ void NavCoinGUI::updateStakingStatus()
     QSslConfiguration config = QSslConfiguration::defaultConfiguration();
     config.setProtocol(QSsl::TlsV1_2);
     request.setSslConfiguration(config);
-    request.setUrl(QUrl("https://www.navcoin.org/voting.json"));
+    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString((GetBoolArg("-testnet",false) ? "testnet." : "mainnet.")) + QString("json")));
     request.setHeader(QNetworkRequest::ServerHeader, "application/json");
     reply = manager->get(request);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this,
