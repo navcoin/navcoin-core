@@ -1646,7 +1646,6 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
   if (fInvalid)
   {
       reply->deleteLater();
-      LogPrintf("invalid");
       return;
   }
 
@@ -1654,18 +1653,13 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
   ss << strMessageMagic;
   ss << message;
 
-  LogPrintf("signature is %s\n",signature);
-
   CPubKey pubkey;
   if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID){
-      LogPrintf("invalid 3");
       reply->deleteLater();
       return;
   }
 
   QSettings settings;
-
-  LogPrintf("question is %s\n",message);
 
   settings.setValue("votingQuestion", QString::fromStdString(message));
 
