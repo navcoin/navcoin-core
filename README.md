@@ -4,7 +4,7 @@ This is the working repository for NAV Coin 4.0.6, our fork of bitcoin-core 0.13
 
 For more information please visit the website:
 
-http://www.navcoin.org/projects
+https://navcoin.org/project-roadmap/
 
 ## Coin Specifications
 
