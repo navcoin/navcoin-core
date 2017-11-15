@@ -3161,7 +3161,8 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
         for (int i = 0; i < 1000 && pindex != NULL; i++)
         {
             int32_t nExpectedVersion = CLIENT_VERSION;
-            if (atoi(pindex->strDZeel.substr(pindex->strDZeel.find(";") + 1).c_str()) > nExpectedVersion)
+            if (atoi(pindex->strDZeel.substr(pindex->strDZeel.find(";") + 1).c_str()) > nExpectedVersion
+                    && pindex->strDZeel.find(';') != std::string::npos)
                 ++nUpgraded;
             pindex = pindex->pprev;
         }
