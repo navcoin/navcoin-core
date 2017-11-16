@@ -58,22 +58,35 @@ public:
 class CProposal
 {
 public:
-    const CAmount nAmount;
-    const CAmount nFee;
-    const std::string Address;
-    const unsigned int nDeadline;
+    CAmount nAmount;
+    CAmount nFee;
+    std::string Address;
+    uint32_t nDeadline;
     unsigned char fState;
     std::vector<CPaymentRequest> vPayments;
-    const std::string strDZeel;
+    std::string strDZeel;
 
-    CProposal(const CAmount& _nAmount, const CAmount& _nFee, std::string _Address, unsigned int _nDeadline,
-              std::string _strDZeel) : nAmount(_nAmount), nFee(_nFee), Address(_Address),
-              nDeadline(_nDeadline), fState(), vPayments(), strDZeel(_strDZeel) { }
+    CProposal() { SetNull(); }
+
+    void SetNull() {
+        nAmount = 0;
+        nFee = 0;
+        Address = "";
+        fState = 0;
+        nDeadline = 0;
+        vPayments.clear();
+        strDZeel = "";
+    }
+
+    bool IsNull() const {
+        return (nAmount == 0 && nFee == 0 && Address == "" && fState == 0 && nDeadline == 0 && strDZeel == "");
+    }
 
     std::string ToString() const
     {
         std::string str;
-        str += strprintf("CProposal(amount=%u, nFee=%u, address=%s, nDeadline=%u, fState=%u, strDZeel=%s)", nAmount, nFee, Address, nDeadline, fState, strDZeel);
+        str += strprintf("CProposal(amount=%u, nFee=%u, address=%s, nDeadline=%u, fState=%u, strDZeel=%s)",
+                         nAmount, nFee, Address, nDeadline, fState, strDZeel);
         for (unsigned int i = 0; i < vPayments.size(); i++)
             str += "    " + vPayments[i].ToString() + "\n";
         return str;
