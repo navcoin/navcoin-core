@@ -2303,11 +2303,15 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
+    std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
 
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
         const CTransaction &tx = block.vtx[i];
         uint256 hash = tx.GetHash();
+
+        if(tx.IsValidProposal() && tx.nVersion == 4)
+            proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
 
         if (fAddressIndex) {
 
@@ -2424,6 +2428,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
             return AbortNode(state, "Failed to write address unspent index");
         }
+    }
+
+    if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
+        return AbortNode(state, "Failed to write proposal index");
     }
 
     return fClean;
@@ -2700,7 +2708,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
-    std::vector<std::pair<uint256, CTransaction> > proposalIndex;
+    std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
 
@@ -2855,6 +2863,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         bool fContribution = false;
+        CAmount nProposalFee = 0;
 
         BOOST_FOREACH(const CTxOut& vout, tx.vout)
         {
@@ -2862,11 +2871,47 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
           {
             fContribution=true;
             pindex->nCFSupply += vout.nValue;
+            nProposalFee += vout.nValue;
           }
         }
 
-        if(fContribution)
-          proposalIndex.push_back(make_pair(tx.GetHash(),tx));
+        if(fContribution && tx.nVersion == 4){
+            UniValue metadata(UniValue::VOBJ);
+            try {
+                UniValue valRequest;
+                if (!valRequest.read(tx.strDZeel))
+                  return false;
+
+                if (valRequest.isObject())
+                {
+
+                  metadata = valRequest.get_obj();
+
+                }
+                else
+                {
+
+                  return false;
+
+                }
+
+            } catch (const UniValue& objError) {
+              return false;
+            } catch (const std::exception& e) {
+              return false;
+            }  // May not return ever false, as transactions were already chcked.
+
+            CFund::CProposal proposal;
+
+            proposal.nAmount = find_value(metadata, "n").get_int64();
+            proposal.Address = find_value(metadata, "a").get_str();
+            proposal.nDeadline = find_value(metadata, "d").get_int64();
+            proposal.strDZeel = find_value(metadata, "s").get_str();
+            proposal.nFee = nProposalFee;
+
+            proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
+
+        }
 
         CTxUndo undoDummy;
         if (i > 0) {
@@ -2877,9 +2922,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         vPos.push_back(std::make_pair(tx.GetHash(), pos));
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
     }
-
-    if (!pblocktree->WriteProposalIndex(proposalIndex))
-        return AbortNode(state, "Failed to write proposal index");
 
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
@@ -2971,6 +3013,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!pblocktree->WriteTimestampBlockIndex(CTimestampBlockIndexKey(pindex->GetBlockHash()), CTimestampBlockIndexValue(logicalTS)))
             return AbortNode(state, "Failed to write blockhash index");
     }
+
+    if (!pblocktree->WriteProposalIndex(proposalIndex))
+        return AbortNode(state, "Failed to write proposal index");
 
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
@@ -7752,14 +7797,14 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     if (fPrintProofOfStake)
     {
-/*        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
+        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
             nStakeModifier, nStakeModifierHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime),
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nTimeBlockFrom));
         LogPrint("stakemodifier","CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s bnTarget=%s nBits=%08x nValueIn=%d bnWeight=%s\n",
             nStakeModifier,
             nTimeBlockFrom, txPrev.nTime, prevout.n, nTimeTx,
-            hashProofOfStake.ToString(),bnTarget.ToString(), nBits, nValueIn,bnWeight.ToString());*/
+            hashProofOfStake.ToString(),bnTarget.ToString(), nBits, nValueIn,bnWeight.ToString());
     }
 
     // Now check if proof-of-stake hash meets target protocol
@@ -7768,14 +7813,14 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     if (fDebug && !fPrintProofOfStake)
     {
-/*        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
+        LogPrint("stakemodifier","CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from timestamp=%s\n",
             nStakeModifier, nStakeModifierHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime),
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nTimeBlockFrom));
         LogPrint("stakemodifier","CheckStakeKernelHash() : pass modifier=0x%016x nTimeBlockFrom=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s\n",
             nStakeModifier,
             nTimeBlockFrom, txPrev.nTime, prevout.n, nTimeTx,
-            hashProofOfStake.ToString());*/
+            hashProofOfStake.ToString());
     }
 
     return true;
