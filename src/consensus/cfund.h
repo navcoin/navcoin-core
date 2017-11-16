@@ -8,6 +8,7 @@
 #include "amount.h"
 #include "script/script.h"
 #include "serialize.h"
+#include "tinyformat.h"
 #include "uint256.h"
 
 #define FUND_MINIMAL_FEE 10000000000
@@ -20,29 +21,34 @@ class CProposal;
 class CPaymentRequest
 {
 public:
-    CAmount nValue;
+    CAmount nAmount;
     unsigned char fState;
     uint256 hash;
     unsigned int nout;
 
-    CPaymentRequest() { SetNull(); };
+    CPaymentRequest() { SetNull(); }
 
     void SetNull() {
-        nValue = 0;
+        nAmount = 0;
         fState = 0;
         hash = uint256();
         nout = 0;
     }
 
     bool IsNull() {
-        return (nValue == 0 && fState == 0 && nout == 0);
+        return (nAmount == 0 && fState == 0 && nout == 0);
+    }
+
+    std::string ToString() const
+    {
+        return strprintf("CPaymentRequest(amount=%u, fState=%u, hash=%s, nout=%u)", nAmount, fState, hash.ToString().substr(0,10), nout);
     }
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(nValue);
+        READWRITE(nAmount);
         READWRITE(fState);
         READWRITE(hash);
         READWRITE(nout);
@@ -52,7 +58,7 @@ public:
 class CProposal
 {
 public:
-    const CAmount nReqValue;
+    const CAmount nAmount;
     const CAmount nFee;
     const std::string Address;
     const unsigned int nDeadline;
@@ -60,9 +66,18 @@ public:
     std::vector<CPaymentRequest> vPayments;
     const std::string strDZeel;
 
-    CProposal(const CAmount& _nReqValue, const CAmount& _nFee, std::string _Address, unsigned int _nDeadline,
-              std::string _strDZeel) : nReqValue(_nReqValue), nFee(_nFee), Address(_Address),
-              nDeadline(_nDeadline), fState(), vPayments(), strDZeel(_strDZeel) { };
+    CProposal(const CAmount& _nAmount, const CAmount& _nFee, std::string _Address, unsigned int _nDeadline,
+              std::string _strDZeel) : nAmount(_nAmount), nFee(_nFee), Address(_Address),
+              nDeadline(_nDeadline), fState(), vPayments(), strDZeel(_strDZeel) { }
+
+    std::string ToString() const
+    {
+        std::string str;
+        str += strprintf("CProposal(amount=%u, nFee=%u, address=%s, nDeadline=%u, fState=%u, strDZeel=%s)", nAmount, nFee, Address, nDeadline, fState, strDZeel);
+        for (unsigned int i = 0; i < vPayments.size(); i++)
+            str += "    " + vPayments[i].ToString() + "\n";
+        return str;
+    }
 
     ADD_SERIALIZE_METHODS;
 
@@ -71,7 +86,7 @@ public:
         if (ser_action.ForRead()) {
             const_cast<std::vector<CPaymentRequest>*>(&vPayments)->clear();
         }
-        READWRITE(nReqValue);
+        READWRITE(nAmount);
         READWRITE(nFee);
         READWRITE(Address);
         READWRITE(nDeadline);
