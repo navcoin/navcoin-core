@@ -368,7 +368,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
     vecSend.push_back(recipient);
     if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
@@ -623,7 +623,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
 
-    int nTransactions = (rand() % nEntropy) + 2;
+    unsigned int nTransactions = (rand() % nEntropy) + 2;
 
     string address_str = params[0].get_str();
 #ifdef HAVE_UNBOUND
@@ -658,7 +658,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     if(serverNavAddresses.size() != nTransactions)
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "NAVTech server returned a different number of addresses.");
 
-    for(int i = 0; i < serverNavAddresses.size(); i++)
+    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
     {
         CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
         if (!serverNavAddress.IsValid())
@@ -686,7 +686,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     UniValue pubKey = find_value(navtechData, "public_key");
     double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
-    for(int i = 0; i < serverNavAddresses.size(); i++)
+    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
     {
         CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
         CAmount nAmountRound = 0;

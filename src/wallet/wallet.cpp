@@ -1491,11 +1491,13 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
     // recomputed, also:
 
     if(isMine == true)
+    {
         BOOST_FOREACH(const CTxIn& txin, tx.vin)
         {
             if (mapWallet.count(txin.prevout.hash))
                 mapWallet[txin.prevout.hash].MarkDirty();
         }
+    }
 
     if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
     {
