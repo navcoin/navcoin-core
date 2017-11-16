@@ -125,7 +125,7 @@ public:
     bool ReadTxIndex(const uint256 &txid, CDiskTxPos &pos);
     bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &list);
     bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
-    bool ReadProposalIndex(const uint256 &txid, CFund::CProposal &tx);
+    bool ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal);
     bool WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
     bool GetProposalIndex(std::vector<CFund::CProposal>&vect);
     bool UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
