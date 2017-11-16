@@ -305,7 +305,7 @@ struct CMutableTransaction;
  */
 template<typename Stream, typename Operation, typename TxType>
 inline void SerializeTransaction(TxType& tx, Stream& s, Operation ser_action, int nType, int nVersion) {
-    READWRITE(tx.nVersion);
+    READWRITE(*const_cast<int32_t*>(&tx.nVersion));
     READWRITE(*const_cast<unsigned int*>(&tx.nTime));
     unsigned char flags = 0;
     if (ser_action.ForRead()) {
@@ -389,7 +389,7 @@ public:
     // actually immutable; deserialization and assignment are implemented,
     // and bypass the constness. This is safe, as they update the entire
     // structure, including the hash.
-    int32_t nVersion;
+    const int32_t nVersion;
     unsigned int nTime;
     std::vector<CTxIn> vin;
     std::vector<CTxOut> vout;

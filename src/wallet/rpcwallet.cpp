@@ -535,7 +535,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("s",sDesc));
 
     wtx.strDZeel = strDZeel.write();
-    wtx.nVersion = CTransaction::PROPOSAL_VERSION;
+    wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
 
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");

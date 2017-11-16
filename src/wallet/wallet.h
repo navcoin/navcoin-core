@@ -236,6 +236,7 @@ public:
     std::string strFromAccount;
     int64_t nOrderPos; //!< position in ordered transaction list
     std::vector<char> vfSpent; // which outputs are already spent
+    int32_t nCustomVersion;
 
     // memory only
     mutable bool fDebitCached;
