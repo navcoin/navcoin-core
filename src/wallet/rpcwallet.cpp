@@ -493,7 +493,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 3)
+    if (fHelp || params.size() < 3)
         throw runtime_error(
             "createproposal address amount deadline\n"
             "\nCreates a proposal for the community fund.\n"
@@ -502,10 +502,12 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
             "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
             "3. deadline               (numeric, required) Epoch timestamp when the proposal would expire.\n"
+            "4. desc                   (string, optional) Short description of the proposal.\n"
             "\nResult:\n"
-            "\"proposalid\"            (string) The proposal id.\n"
+            "\"{ hash: proposalid,\"            (string) The proposal id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createproposal", "NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ 1000 1509151016")
+            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 1509151016 \"Development\"")
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -515,24 +517,31 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     // Amount
     CAmount nAmount = FUND_MINIMAL_FEE;
     if (nAmount <= 0)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
-    if (params.size() == 2)
-        fSubtractFeeFromAmount = params[1].get_bool();
 
     string Address = params[0].get_str();
     CAmount nReqAmount = params[1].get_int64();
     int64_t nDeadline = params[2].get_int64();
+    string sDesc = params.size() == 4 ? params[3].get_str() : "";
 
-    wtx.strDZeel = "{n:" + boost::lexical_cast<std::string>(nReqAmount) +",a:\""+ Address +"\",d:"+boost::lexical_cast<std::string>(nDeadline)+"}";
+    wtx.strDZeel = "{\"n\":" + boost::lexical_cast<std::string>(nReqAmount) +",\"a\":\""+ Address +"\",\"d\":"+boost::lexical_cast<std::string>(nDeadline)+",\"s\":\""+ sDesc +"\"}";
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
 
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
 
-    return wtx.GetHash().GetHex();
+    UniValue ret(UniValue::VOBJ);
+
+    ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+    ret.push_back(Pair("strDZeel",wtx.strDZeel));
+
+    return ret;
 }
 
 UniValue donatefund(const UniValue& params, bool fHelp)
