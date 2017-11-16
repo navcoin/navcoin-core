@@ -24,7 +24,8 @@ public:
     CAmount nAmount;
     unsigned char fState;
     uint256 hash;
-    unsigned int nout;
+    uint256 paymentHash;
+
 
     CPaymentRequest() { SetNull(); }
 
@@ -32,16 +33,17 @@ public:
         nAmount = 0;
         fState = 0;
         hash = uint256();
-        nout = 0;
+        paymentHash = uint256();
     }
 
     bool IsNull() {
-        return (nAmount == 0 && fState == 0 && nout == 0);
+        return (nAmount == 0 && fState == 0);
     }
 
     std::string ToString() const
     {
-        return strprintf("CPaymentRequest(amount=%u, fState=%u, hash=%s, nout=%u)", nAmount, fState, hash.ToString().substr(0,10), nout);
+        return strprintf("CPaymentRequest(amount=%u, fState=%u, hash=%s, paymentHash=%s)",
+                         nAmount, fState, hash.ToString().substr(0,10), paymentHash.ToString().substr(0,10));
     }
 
     ADD_SERIALIZE_METHODS;
@@ -51,7 +53,7 @@ public:
         READWRITE(nAmount);
         READWRITE(fState);
         READWRITE(hash);
-        READWRITE(nout);
+        READWRITE(paymentHash);
     }
 };
 
@@ -65,6 +67,9 @@ public:
     unsigned char fState;
     std::vector<CPaymentRequest> vPayments;
     std::string strDZeel;
+    uint256 hash;
+    uint256 blockhash;
+
 
     CProposal() { SetNull(); }
 
@@ -76,6 +81,8 @@ public:
         nDeadline = 0;
         vPayments.clear();
         strDZeel = "";
+        hash = uint256();
+        blockhash = uint256();
     }
 
     bool IsNull() const {
@@ -85,8 +92,8 @@ public:
     std::string ToString() const
     {
         std::string str;
-        str += strprintf("CProposal(amount=%u, nFee=%u, address=%s, nDeadline=%u, fState=%u, strDZeel=%s)",
-                         nAmount, nFee, Address, nDeadline, fState, strDZeel);
+        str += strprintf("CProposal(hahs=%s, amount=%u, nFee=%u, address=%s, nDeadline=%u, fState=%u, strDZeel=%s, blockhash=%s)",
+                         hash.ToString().substr(0,10), nAmount, nFee, Address, nDeadline, fState, strDZeel, blockhash.ToString().substr(0,10));
         for (unsigned int i = 0; i < vPayments.size(); i++)
             str += "    " + vPayments[i].ToString() + "\n";
         return str;
@@ -106,6 +113,8 @@ public:
         READWRITE(fState);
         READWRITE(*const_cast<std::vector<CPaymentRequest>*>(&vPayments));
         READWRITE(strDZeel);
+        READWRITE(hash);
+        READWRITE(blockhash);
     }
 };
 

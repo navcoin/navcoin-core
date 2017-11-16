@@ -2908,6 +2908,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.nDeadline = find_value(metadata, "d").get_int64();
             proposal.strDZeel = find_value(metadata, "s").get_str();
             proposal.nFee = nProposalFee;
+            proposal.hash = tx.GetHash();
+            proposal.blockhash = block.GetHash();
 
             proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
 
