@@ -2626,7 +2626,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
 
-    txNew.strDZeel = strDZeel.length() > 0 ? strDZeel : navtech.EncryptAddress(std::to_string(GetAdjustedTime() + (rand() % 1<<8)),sPubKey);
+    txNew.strDZeel = wtxNew.strDZeel.length() > 0 ? wtxNew.strDZeel : navtech.EncryptAddress(std::to_string(GetAdjustedTime() + (rand() % 1<<8)),sPubKey);
 
     if (strDZeel.length() > 0)
       wtxNew.fAnon = true;
