@@ -305,7 +305,7 @@ struct CMutableTransaction;
  */
 template<typename Stream, typename Operation, typename TxType>
 inline void SerializeTransaction(TxType& tx, Stream& s, Operation ser_action, int nType, int nVersion) {
-    READWRITE(*const_cast<int32_t*>(&tx.nVersion));
+    READWRITE(tx.nVersion);
     READWRITE(*const_cast<unsigned int*>(&tx.nTime));
     unsigned char flags = 0;
     if (ser_action.ForRead()) {
