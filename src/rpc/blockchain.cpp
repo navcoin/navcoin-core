@@ -899,8 +899,8 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     std::vector<CFund::CProposal> vec;
     if(pblocktree->GetProposalIndex(vec))
     {
-        BOOST_FOREACH(const CFund::CProposal& tx, vec)
-            ret.push_back(tx.ToString(pindexBestHeader->GetBlockTime()));
+        BOOST_FOREACH(const CFund::CProposal& proposal, vec)
+            ret.push_back(proposal.ToString(pindexBestHeader->GetBlockTime()));
     }
     return ret;
 }
