@@ -140,7 +140,7 @@ public:
             sFlags = "expired";
         std::string str;
         str += strprintf("CProposal(hash=%s, amount=%u, available=%d, nFee=%u, address=%s, nDeadline=%u, votes=%u, fState=%s, strDZeel=%s, blockhash=%s)",
-                         hash.ToString().substr(0,10), nAmount, GetAvailable(), nFee, Address, nDeadline, votes, sFlags, strDZeel, blockhash.ToString().substr(0,10));
+                         hash.ToString(), nAmount, GetAvailable(), nFee, Address, nDeadline, votes, sFlags, strDZeel, blockhash.ToString().substr(0,10));
         for (unsigned int i = 0; i < vPayments.size(); i++)
             str += "    " + vPayments[i].ToString() + "\n";
         return str;
