@@ -79,7 +79,7 @@ public:
         READWRITE(paymentHash);
     }
 
-private:
+private: // TODO: move to enum
     const char ACCEPTED = 0x01;
     const char REJECTED = 0x02;
 
@@ -155,6 +155,7 @@ public:
         for (unsigned int i = 0; i < vPayments.size(); i++)
             if(fIncludeRequests || (!fIncludeRequests && vPayments[i].IsAccepted()))
                 initial -= vPayments[i].nAmount;
+        return initial;
     }
 
     ADD_SERIALIZE_METHODS;
@@ -176,7 +177,7 @@ public:
         READWRITE(blockhash);
     }
 
-private:
+private: // TODO: move to enum
     const char ACCEPTED = 0x01;
     const char REJECTED = 0x02;
 
