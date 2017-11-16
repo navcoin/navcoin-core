@@ -6,15 +6,28 @@
 #define NAVCOIN_CFUND_H
 
 #include "amount.h"
+#include "net.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "tinyformat.h"
 #include "uint256.h"
+#include "util.h"
 
 #define FUND_MINIMAL_FEE 10000000000
 
+using namespace std;
+
 namespace CFund {
+
 void SetScriptForCommunityFundContribution(CScript &script);
+void VoteProposal(string strProp);
+void VoteProposal(uint256 proposalHash);
+void RemoveVoteProposal(string strProp);
+void RemoveVoteProposal(uint256 proposalHash);
+void VotePaymentRequest(string strProp);
+void VotePaymentRequest(uint256 proposalHash);
+void RemoveVotePaymentRequest(string strProp);
+void RemoveVotePaymentRequest(uint256 proposalHash);
 
 class CProposal;
 

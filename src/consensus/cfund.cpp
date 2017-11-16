@@ -12,3 +12,71 @@ void CFund::SetScriptForCommunityFundContribution(CScript &script)
     script[2] = 0x20;
     script[3] = 0x20;
 }
+
+void CFund::VoteProposal(string strProp)
+{
+    vector<string>::iterator it = vAddedProposalVotes.begin();
+    for(; it != vAddedProposalVotes.end(); it++)
+        if (strProp == *it)
+            break;
+
+    WriteConfigFile("addproposalvote", strProp);
+    if (it == vAddedProposalVotes.end())
+        vAddedProposalVotes.push_back(strProp);
+}
+
+void CFund::VoteProposal(uint256 proposalHash)
+{
+    VoteProposal(proposalHash.ToString());
+}
+
+void CFund::RemoveVoteProposal(string strProp)
+{
+    vector<string>::iterator it = vAddedProposalVotes.begin();
+    for(; it != vAddedProposalVotes.end(); it++)
+        if (strProp == *it)
+            break;
+
+    RemoveConfigFile("addproposalvote", strProp);
+    if (it != vAddedProposalVotes.end())
+        vAddedProposalVotes.erase(it);
+}
+
+void CFund::RemoveVoteProposal(uint256 proposalHash)
+{
+    RemoveVoteProposal(proposalHash.ToString());
+}
+
+void CFund::VotePaymentRequest(string strProp)
+{
+    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
+    for(; it != vAddedPaymentRequestVotes.end(); it++)
+        if (strProp == *it)
+            break;
+
+    WriteConfigFile("addpaymentrequestvote", strProp);
+    if (it == vAddedPaymentRequestVotes.end())
+        vAddedPaymentRequestVotes.push_back(strProp);
+}
+
+void CFund::VotePaymentRequest(uint256 proposalHash)
+{
+    VotePaymentRequest(proposalHash.ToString());
+}
+
+void CFund::RemoveVotePaymentRequest(string strProp)
+{
+    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
+    for(; it != vAddedPaymentRequestVotes.end(); it++)
+        if (strProp == *it)
+            break;
+
+    RemoveConfigFile("addpaymentrequestvote", strProp);
+    if (it != vAddedPaymentRequestVotes.end())
+        vAddedPaymentRequestVotes.erase(it);
+}
+
+void CFund::RemoveVotePaymentRequest(uint256 proposalHash)
+{
+    RemoveVotePaymentRequest(proposalHash.ToString());
+}

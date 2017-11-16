@@ -108,6 +108,9 @@ const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 std::vector<std::string> vAddedAnonServers;
 CCriticalSection cs_vAddedAnonServers;
 
+std::vector<std::string> vAddedProposalVotes;
+std::vector<std::string> vAddedPaymentRequestVotes;
+
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
 bool fDebug = false;
@@ -556,7 +559,19 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
             continue;
         }
 
-        if(strKey == "-votefunding")
+        if(strKey == "-addproposalvote")
+        {
+            vAddedProposalVotes.push_back(strValue);
+            continue;
+        }
+
+        if(strKey == "-addpaymentrequestvote")
+        {
+            vAddedPaymentRequestVotes.push_back(strValue);
+            continue;
+        }
+
+        if(strKey == "-stakervote")
         {
             mapArgs[strKey] = strValue;
         }
