@@ -523,6 +523,11 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     bool fSubtractFeeFromAmount = false;
 
     string Address = params[0].get_str();
+
+    CNavCoinAddress address(Address);
+    if (!address.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
     string sDesc = params.size() == 4 ? params[3].get_str() : "";
