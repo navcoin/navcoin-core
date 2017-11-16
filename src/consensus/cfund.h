@@ -26,7 +26,6 @@ public:
     unsigned int nout;
 
     CPaymentRequest() { SetNull(); };
-    CPaymentRequest(CAmount& nValue, unsigned char fState, uint256 hash, unsigned int nout);
 
     void SetNull() {
         nValue = 0;
@@ -53,21 +52,27 @@ public:
 class CProposal
 {
 public:
-    const CAmount nValue;
+    const CAmount nReqValue;
+    const CAmount nFee;
     const std::string Address;
     const unsigned int nDeadline;
-    const unsigned char fState;
+    unsigned char fState;
     std::vector<CPaymentRequest> vPayments;
     const std::string strDZeel;
 
-    CProposal(const CAmount& nValue, std::string Address, unsigned int nDeadline, unsigned char fState,
-              std::vector<CPaymentRequest> vPayments, std::string strDZeel);
+    CProposal(const CAmount& _nReqValue, const CAmount& _nFee, std::string _Address, unsigned int _nDeadline,
+              std::string _strDZeel) : nReqValue(_nReqValue), nFee(_nFee), Address(_Address),
+              nDeadline(_nDeadline), fState(), vPayments(), strDZeel(_strDZeel) { };
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(nValue);
+        if (ser_action.ForRead()) {
+            const_cast<std::vector<CPaymentRequest>*>(&vPayments)->clear();
+        }
+        READWRITE(nReqValue);
+        READWRITE(nFee);
         READWRITE(Address);
         READWRITE(nDeadline);
         READWRITE(fState);
