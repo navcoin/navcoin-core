@@ -24,6 +24,7 @@ public:
     CAmount nAmount;
     unsigned char fState;
     uint256 hash;
+    uint256 proposalHash;
     uint256 paymentHash;
     int votes;
 
@@ -34,6 +35,7 @@ public:
         fState = 0;
         votes = 0;
         hash = uint256();
+        proposalHash = uint256();
         paymentHash = uint256();
     }
 
@@ -56,8 +58,8 @@ public:
             sFlags = "accepted";
         if(IsRejected())
             sFlags = "rejected";
-        return strprintf("CPaymentRequest(amount=%u, fState=%s, votes=%u, hash=%s, paymentHash=%s)",
-                         nAmount, sFlags, votes, hash.ToString().substr(0,10), paymentHash.ToString().substr(0,10));
+        return strprintf("CPaymentRequest(hash=%s, amount=%u, fState=%s, votes=%u, proposalHash=%s, paymentHash=%s)",
+                         hash.ToString().substr(0,10), nAmount, sFlags, votes, proposalHash.ToString().substr(0,10), paymentHash.ToString().substr(0,10));
     }
 
     bool IsAccepted() const {
@@ -76,6 +78,7 @@ public:
         READWRITE(fState);
         READWRITE(votes);
         READWRITE(hash);
+        READWRITE(proposalHash);
         READWRITE(paymentHash);
     }
 
@@ -126,13 +129,15 @@ public:
         fState = REJECTED;
     }
 
-    std::string ToString() const
+    std::string ToString(uint32_t currentTime = 0) const
     {
         std::string sFlags;
         if(IsAccepted())
             sFlags = "accepted";
         if(IsRejected())
             sFlags = "rejected";
+        if(currentTime > 0 && IsExpired(currentTime))
+            sFlags = "expired";
         std::string str;
         str += strprintf("CProposal(hash=%s, amount=%u, available=%d, nFee=%u, address=%s, nDeadline=%u, votes=%u, fState=%s, strDZeel=%s, blockhash=%s)",
                          hash.ToString().substr(0,10), nAmount, GetAvailable(), nFee, Address, nDeadline, votes, sFlags, strDZeel, blockhash.ToString().substr(0,10));
@@ -149,12 +154,18 @@ public:
         return fState == REJECTED;
     }
 
+    bool IsExpired(uint32_t currentTime) const {
+        return (nDeadline > currentTime);
+    }
+
     CAmount GetAvailable(bool fIncludeRequests = false) const
     {
         CAmount initial = nAmount;
         for (unsigned int i = 0; i < vPayments.size(); i++)
+        {
             if(fIncludeRequests || (!fIncludeRequests && vPayments[i].IsAccepted()))
                 initial -= vPayments[i].nAmount;
+        }
         return initial;
     }
 
