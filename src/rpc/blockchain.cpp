@@ -896,10 +896,10 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 {
     UniValue ret(UniValue::VARR);
 
-    std::vector<CTransaction> vec;
+    std::vector<CFund::CProposal> vec;
     if(pblocktree->GetProposalIndex(vec))
     {
-        BOOST_FOREACH(const CTransaction& tx, vec)
+        BOOST_FOREACH(const CFund::CProposal& tx, vec)
             ret.push_back(tx.ToString());
     }
     return ret;
