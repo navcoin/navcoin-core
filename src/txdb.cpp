@@ -165,18 +165,18 @@ bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos>
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadProposalIndex(const uint256 &txid, CTransaction &tx) {
+bool CBlockTreeDB::ReadProposalIndex(const uint256 &txid, CFund::CProposal &tx) {
     return Read(make_pair(DB_PROPINDEX, txid), tx);
 }
 
-bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CTransaction> >&vect) {
+bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CTransaction> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CTransaction> >&vect) {
+bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CTransaction> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
@@ -188,7 +188,7 @@ bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CTra
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::GetProposalIndex(std::vector<CTransaction>&vect) {
+bool CBlockTreeDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
