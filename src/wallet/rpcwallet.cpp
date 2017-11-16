@@ -527,7 +527,14 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     int64_t nDeadline = params[2].get_int64();
     string sDesc = params.size() == 4 ? params[3].get_str() : "";
 
-    wtx.strDZeel = "{\"n\":" + boost::lexical_cast<std::string>(nReqAmount) +",\"a\":\""+ Address +"\",\"d\":"+boost::lexical_cast<std::string>(nDeadline)+",\"s\":\""+ sDesc +"\"}";
+    UniValue strDZeel(UniValue::VOBJ);
+
+    strDZeel.push_back(Pair("n",nReqAmount));
+    strDZeel.push_back(Pair("a",Address));
+    strDZeel.push_back(Pair("d",nDeadline));
+    strDZeel.push_back(Pair("s",sDesc));
+
+    wtx.strDZeel = strDZeel.write();
 
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
