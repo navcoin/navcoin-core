@@ -524,8 +524,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     string Address = params[0].get_str();
 
-    CNavCoinAddress address(Address);
-    if (!address.IsValid())
+    CNavCoinAddress destaddress(Address);
+    if (!destaddress.IsValid())
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
     CAmount nReqAmount = AmountFromValue(params[1]);
