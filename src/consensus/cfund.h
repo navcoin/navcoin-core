@@ -36,7 +36,6 @@ void VotePaymentRequest(uint256 proposalHash);
 void RemoveVotePaymentRequest(string strProp);
 void RemoveVotePaymentRequest(uint256 proposalHash);
 
-
 class CPaymentRequest
 {
 public:

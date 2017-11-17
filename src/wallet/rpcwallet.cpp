@@ -3143,6 +3143,20 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 }
 #endif
 
+UniValue proposalvotelist(const UniValue& params, bool fHelp)
+{
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
+    {
+        CFund::CProposal proposal;
+        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i]), proposal))
+            ret.push_back(proposal.ToString());
+    }
+
+    return ret;
+}
+
 UniValue proposalvote(const UniValue& params, bool fHelp)
 {
     string strCommand;
@@ -3150,7 +3164,7 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "add" && strCommand != "remove" && strCommand != "list"))
+        (strCommand != "add" && strCommand != "remove"))
         throw runtime_error(
             "proposalvote \"proposal_hash\" \"add|remove\"\n"
             "\nAdds a proposal to the list of votes.\n"
@@ -3158,8 +3172,6 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
             "1. \"proposal_hash\" (string, required) The node (see getpeerinfo for nodes)\n"
             "2. \"command\"       (string, required) 'add' to add a proposal to the list,\n"
             "                      'remove' to remove a proposal from the list\n"
-            "                      or 'list' to show current proposals on the list\n"
-
         );
 
     string strHash = params[0].get_str();
@@ -3174,21 +3186,22 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
       CFund::RemoveVoteProposal(strHash);
       return NullUniValue;
     }
-    else if(strCommand == "list")
-    {
-        UniValue ret(UniValue::VARR);
 
-        for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
-        {
-            CFund::CProposal proposal;
-            if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i]), proposal))
-                ret.push_back(proposal.ToString());
-        }
-
-        return ret;
-
-    }
     return NullUniValue;
+}
+
+UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
+{
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
+    {
+        CFund::CPaymentRequest prequest;
+        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i]), prequest))
+            ret.push_back(prequest.ToString());
+    }
+
+    return ret;
 }
 
 UniValue paymentrequestvote(const UniValue& params, bool fHelp)
@@ -3198,16 +3211,14 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "add" && strCommand != "remove" && strCommand != "list"))
+        (strCommand != "add" && strCommand != "remove"))
         throw runtime_error(
-            "paymentrequestvote \"request_hash\" \"add|remove|list\"\n"
+            "paymentrequestvote \"request_hash\" \"add|remove\"\n"
             "\nAdds/removes a proposal to the list of votes.\n"
             "\nArguments:\n"
             "1. \"request_hash\" (string, required) The node (see getpeerinfo for nodes)\n"
             "2. \"command\"       (string, required) 'add' to add a proposal to the list,\n"
             "                      'remove' to remove a proposal from the list\n"
-            "                      or 'list' to show current proposals on the list\n"
-
         );
 
     string strHash = params[0].get_str();
@@ -3222,20 +3233,7 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
       CFund::RemoveVotePaymentRequest(strHash);
       return NullUniValue;
     }
-    else if(strCommand == "list")
-    {
-        UniValue ret(UniValue::VARR);
-
-        for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
-        {
-            CFund::CPaymentRequest prequest;
-            if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i]), prequest))
-                ret.push_back(prequest.ToString());
-        }
-
-        return ret;
-
-    }
+    return NullUniValue;
 
 }
 
@@ -3297,7 +3295,9 @@ static const CRPCCommand commands[] =
     { "wallet",             "createproposal",           &createproposal,           false },
     { "wallet",             "stakervote",               &stakervote,               false },
     { "wallet",             "proposalvote",             &proposalvote,             false },
+    { "wallet",             "proposalvotelist",         &proposalvotelist,         false },
     { "wallet",             "paymentrequestvote",       &paymentrequestvote,       false },
+    { "wallet",             "paymentrequestvotelist",   &paymentrequestvotelist,   false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
