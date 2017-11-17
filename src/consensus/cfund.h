@@ -23,6 +23,8 @@ class CProposal;
 class CPaymentRequest;
 
 void SetScriptForCommunityFundContribution(CScript &script);
+void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
+void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, bool vote);
 bool FindProposal(string propstr, CFund::CProposal &proposal);
 bool FindProposal(uint256 prophash, CFund::CProposal &proposal);
 bool FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest);
