@@ -16,6 +16,7 @@
 #include "policy/rbf.h"
 #include "pos.h"
 #include "rpc/server.h"
+#include "txdb.h"
 #include "timedata.h"
 #include "util.h"
 #include "utils/dns_utils.h"
@@ -3142,6 +3143,120 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 }
 #endif
 
+UniValue proposalvote(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+
+    if (params.size() >= 2)
+        strCommand = params[1].get_str();
+    if (fHelp || params.size() > 3 ||
+        (strCommand != "add" && strCommand != "remove" && strCommand != "list"))
+        throw runtime_error(
+            "proposalvote \"proposal_hash\" \"add|remove\"\n"
+            "\nAdds a proposal to the list of votes.\n"
+            "\nArguments:\n"
+            "1. \"proposal_hash\" (string, required) The node (see getpeerinfo for nodes)\n"
+            "2. \"command\"       (string, required) 'add' to add a proposal to the list,\n"
+            "                      'remove' to remove a proposal from the list\n"
+            "                      or 'list' to show current proposals on the list\n"
+
+        );
+
+    string strHash = params[0].get_str();
+
+    vector<string>::iterator it = vAddedProposalVotes.begin();
+    for(; it != vAddedProposalVotes.end(); it++)
+        if (strHash == *it)
+            break;
+
+    if (strCommand == "add")
+    {
+      WriteConfigFile("addproposalvote", strHash);
+      if (it == vAddedProposalVotes.end())
+        vAddedProposalVotes.push_back(strHash);
+      return NullUniValue;
+    }
+    else if(strCommand == "remove")
+    {
+      RemoveConfigFile("addproposalvote", strHash);
+      if (it != vAddedProposalVotes.end())
+        vAddedProposalVotes.erase(it);
+      return NullUniValue;
+    }
+    else if(strCommand == "list")
+    {
+        UniValue ret(UniValue::VARR);
+
+        for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
+        {
+            CFund::CProposal proposal;
+            if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i]), proposal))
+                ret.push_back(proposal.ToString());
+        }
+
+        return ret;
+
+    }
+
+}
+
+UniValue paymentrequestvote(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+
+    if (params.size() >= 2)
+        strCommand = params[1].get_str();
+    if (fHelp || params.size() > 3 ||
+        (strCommand != "add" && strCommand != "remove" && strCommand != "list"))
+        throw runtime_error(
+            "paymentrequestvote \"request_hash\" \"add|remove|list\"\n"
+            "\nAdds/removes a proposal to the list of votes.\n"
+            "\nArguments:\n"
+            "1. \"request_hash\" (string, required) The node (see getpeerinfo for nodes)\n"
+            "2. \"command\"       (string, required) 'add' to add a proposal to the list,\n"
+            "                      'remove' to remove a proposal from the list\n"
+            "                      or 'list' to show current proposals on the list\n"
+
+        );
+
+    string strHash = params[0].get_str();
+
+    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
+    for(; it != vAddedPaymentRequestVotes.end(); it++)
+        if (strHash == *it)
+            break;
+
+    if (strCommand == "add")
+    {
+      WriteConfigFile("addpaymentrequestvote", strHash);
+      if (it == vAddedPaymentRequestVotes.end())
+        vAddedPaymentRequestVotes.push_back(strHash);
+      return NullUniValue;
+    }
+    else if(strCommand == "remove")
+    {
+      RemoveConfigFile("addpaymentrequestvote", strHash);
+      if (it != vAddedPaymentRequestVotes.end())
+        vAddedPaymentRequestVotes.erase(it);
+      return NullUniValue;
+    }
+    else if(strCommand == "list")
+    {
+        UniValue ret(UniValue::VARR);
+
+        for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
+        {
+            CFund::CPaymentRequest prequest;
+            if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i]), prequest))
+                ret.push_back(prequest.ToString());
+        }
+
+        return ret;
+
+    }
+
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
@@ -3199,6 +3314,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "donatefund",               &donatefund,               false },
     { "wallet",             "createproposal",           &createproposal,           false },
     { "wallet",             "stakervote",               &stakervote,               false },
+    { "wallet",             "proposalvote",             &proposalvote,             false },
+    { "wallet",             "paymentrequestvote",       &paymentrequestvote,       false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
