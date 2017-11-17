@@ -19,7 +19,14 @@ using namespace std;
 
 namespace CFund {
 
+class CProposal;
+class CPaymentRequest;
+
 void SetScriptForCommunityFundContribution(CScript &script);
+bool FindProposal(string propstr, CFund::CProposal &proposal);
+bool FindProposal(uint256 prophash, CFund::CProposal &proposal);
+bool FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest);
+bool FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest);
 void VoteProposal(string strProp);
 void VoteProposal(uint256 proposalHash);
 void RemoveVoteProposal(string strProp);
@@ -29,7 +36,6 @@ void VotePaymentRequest(uint256 proposalHash);
 void RemoveVotePaymentRequest(string strProp);
 void RemoveVotePaymentRequest(uint256 proposalHash);
 
-class CProposal;
 
 class CPaymentRequest
 {
@@ -37,8 +43,9 @@ public:
     CAmount nAmount;
     unsigned char fState;
     uint256 hash;
-    uint256 proposalHash;
-    uint256 paymentHash;
+    uint256 proposalhash;
+    uint256 blockhash;
+    uint256 paymenthash;
     int votes;
 
     CPaymentRequest() { SetNull(); }
@@ -48,8 +55,8 @@ public:
         fState = 0;
         votes = 0;
         hash = uint256();
-        proposalHash = uint256();
-        paymentHash = uint256();
+        proposalhash = uint256();
+        paymenthash = uint256();
     }
 
     bool IsNull() const {
@@ -64,15 +71,15 @@ public:
         fState = REJECTED;
     }
 
-    std::string ToString() const
-    {
+    std::string ToString() const {
         std::string sFlags;
         if(IsAccepted())
             sFlags = "accepted";
         if(IsRejected())
             sFlags = "rejected";
-        return strprintf("CPaymentRequest(hash=%s, amount=%u, fState=%s, votes=%u, proposalHash=%s, paymentHash=%s)",
-                         hash.ToString().substr(0,10), nAmount, sFlags, votes, proposalHash.ToString().substr(0,10), paymentHash.ToString().substr(0,10));
+        return strprintf("CPaymentRequest(hash=%s, amount=%u, fState=%s, votes=%u, proposalhash=%s, blockhash=%s, paymenthash=%s)",
+                         hash.ToString().substr(0,10), nAmount, sFlags, votes, proposalhash.ToString().substr(0,10),
+                         blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10));
     }
 
     bool IsAccepted() const {
@@ -91,8 +98,9 @@ public:
         READWRITE(fState);
         READWRITE(votes);
         READWRITE(hash);
-        READWRITE(proposalHash);
-        READWRITE(paymentHash);
+        READWRITE(proposalhash);
+        READWRITE(blockhash);
+        READWRITE(paymenthash);
     }
 
 private: // TODO: move to enum
@@ -110,7 +118,7 @@ public:
     uint32_t nDeadline;
     unsigned char fState;
     int votes;
-    std::vector<CPaymentRequest> vPayments;
+    std::vector<uint256> vPayments;
     std::string strDZeel;
     uint256 hash;
     uint256 blockhash;
@@ -142,8 +150,7 @@ public:
         fState = REJECTED;
     }
 
-    std::string ToString(uint32_t currentTime = 0) const
-    {
+    std::string ToString(uint32_t currentTime = 0) const {
         std::string sFlags;
         if(IsAccepted())
             sFlags = "accepted";
@@ -154,8 +161,11 @@ public:
         std::string str;
         str += strprintf("CProposal(hash=%s, amount=%u, available=%d, nFee=%u, address=%s, nDeadline=%u, votes=%u, fState=%s, strDZeel=%s, blockhash=%s)",
                          hash.ToString(), nAmount, GetAvailable(), nFee, Address, nDeadline, votes, sFlags, strDZeel, blockhash.ToString().substr(0,10));
-        for (unsigned int i = 0; i < vPayments.size(); i++)
-            str += "    " + vPayments[i].ToString() + "\n";
+        for (unsigned int i = 0; i < vPayments.size(); i++) {
+            CFund::CPaymentRequest prequest;
+            if(FindPaymentRequest(vPayments[i], prequest))
+                str += "    " + prequest.ToString() + "\n";
+        }
         return str;
     }
 
@@ -176,8 +186,10 @@ public:
         CAmount initial = nAmount;
         for (unsigned int i = 0; i < vPayments.size(); i++)
         {
-            if(fIncludeRequests || (!fIncludeRequests && vPayments[i].IsAccepted()))
-                initial -= vPayments[i].nAmount;
+            CFund::CPaymentRequest prequest;
+            if(FindPaymentRequest(vPayments[i], prequest))
+                if(fIncludeRequests || (!fIncludeRequests && prequest.IsAccepted()))
+                    initial -= prequest.nAmount;
         }
         return initial;
     }
@@ -187,7 +199,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         if (ser_action.ForRead()) {
-            const_cast<std::vector<CPaymentRequest>*>(&vPayments)->clear();
+            const_cast<std::vector<uint256>*>(&vPayments)->clear();
         }
         READWRITE(nAmount);
         READWRITE(nFee);
@@ -195,7 +207,7 @@ public:
         READWRITE(nDeadline);
         READWRITE(fState);
         READWRITE(votes);
-        READWRITE(*const_cast<std::vector<CPaymentRequest>*>(&vPayments));
+        READWRITE(*const_cast<std::vector<uint256>*>(&vPayments));
         READWRITE(strDZeel);
         READWRITE(hash);
         READWRITE(blockhash);

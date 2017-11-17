@@ -14,6 +14,35 @@ void CFund::SetScriptForCommunityFundContribution(CScript &script)
     script[3] = 0x20;
 }
 
+bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
+{
+
+    return pblocktree->ReadProposalIndex(uint256S("0x"+propstr), proposal);
+
+}
+
+bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
+{
+
+    return pblocktree->ReadProposalIndex(prophash, proposal);
+
+}
+
+
+bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
+{
+
+    return pblocktree->ReadPaymentRequestIndex(preqhash, prequest);
+
+}
+
+bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
+{
+
+    return pblocktree->ReadPaymentRequestIndex(uint256S("0x"+preqstr), prequest);
+
+}
+
 void CFund::VoteProposal(string strProp)
 {
 
