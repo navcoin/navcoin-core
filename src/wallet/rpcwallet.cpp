@@ -3197,7 +3197,7 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
         return ret;
 
     }
-
+    return NullUniValue;
 }
 
 UniValue paymentrequestvote(const UniValue& params, bool fHelp)
