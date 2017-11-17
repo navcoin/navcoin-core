@@ -223,7 +223,7 @@ bool CScript::IsCommunityFundContribution() const
 
 bool CScript::IsProposalVoteYes() const
 {
-    return (this->size() == 4 &&
+    return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
       (*this)[1] == 0x20 &&
       (*this)[2] == 0x21 &&
@@ -232,7 +232,7 @@ bool CScript::IsProposalVoteYes() const
 
 bool CScript::IsProposalVoteNo() const
 {
-    return (this->size() == 4 &&
+    return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
       (*this)[1] == 0x20 &&
       (*this)[2] == 0x21 &&
@@ -241,7 +241,7 @@ bool CScript::IsProposalVoteNo() const
 
 bool CScript::IsPaymentRequestVoteYes() const
 {
-    return (this->size() == 4 &&
+    return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
       (*this)[1] == 0x20 &&
       (*this)[2] == 0x22 &&
@@ -250,7 +250,7 @@ bool CScript::IsPaymentRequestVoteYes() const
 
 bool CScript::IsPaymentRequestVoteNo() const
 {
-    return (this->size() == 4 &&
+    return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
       (*this)[1] == 0x20 &&
       (*this)[2] == 0x22 &&
