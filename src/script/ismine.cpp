@@ -51,6 +51,10 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     case TX_NONSTANDARD:
     case TX_NULL_DATA:
     case TX_CONTRIBUTION:
+    case TX_PROPOSALNOVOTE:
+    case TX_PROPOSALYESVOTE:
+    case TX_PAYMENTREQUESTNOVOTE:
+    case TX_PAYMENTREQUESTYESVOTE:
         break;
     case TX_PUBKEY:
         keyID = CPubKey(vSolutions[0]).GetID();

@@ -22,11 +22,11 @@ namespace CFund {
 class CProposal;
 class CPaymentRequest;
 
-enum flags {
-    NIL = 0x0,
-    ACCEPTED = 0x1,
-    REJECTED = 0x2
-};
+typedef unsigned int flags;
+
+flags NIL = 0x0;
+flags ACCEPTED = 0x1;
+flags REJECTED = 0x2;
 
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
@@ -102,7 +102,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(nAmount);
-        READWRITE(static_cast<int>(fState));
+        READWRITE(fState);
         READWRITE(votes);
         READWRITE(hash);
         READWRITE(proposalhash);
@@ -212,7 +212,7 @@ public:
         READWRITE(nFee);
         READWRITE(Address);
         READWRITE(nDeadline);
-        READWRITE(static_cast<int>(fState));
+        READWRITE(fState);
         READWRITE(votes);
         READWRITE(*const_cast<std::vector<uint256>*>(&vPayments));
         READWRITE(strDZeel);
