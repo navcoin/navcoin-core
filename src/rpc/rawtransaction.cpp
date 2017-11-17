@@ -54,13 +54,13 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     out.push_back(Pair("reqSigs", nRequired));
     out.push_back(Pair("type", GetTxnOutputType(type)));
 
-    if (type == TX_CONTRIBUTION || type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
+    if (type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
                  || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE)
     {
         vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;
 
-        if (Solver(scriptPubKey, whichType, vSolutions))
+        if (SolverNavcoin(scriptPubKey, whichType, vSolutions))
         {
             out.push_back(Pair("hash", uint256(vSolutions[0]).ToString()));
         }

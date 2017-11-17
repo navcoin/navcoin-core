@@ -22,6 +22,12 @@ namespace CFund {
 class CProposal;
 class CPaymentRequest;
 
+enum flags {
+    NIL = 0x0,
+    ACCEPTED = 0x1,
+    REJECTED = 0x2
+};
+
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, bool vote);
@@ -42,7 +48,7 @@ class CPaymentRequest
 {
 public:
     CAmount nAmount;
-    unsigned char fState;
+    flags fState;
     uint256 hash;
     uint256 proposalhash;
     uint256 blockhash;
@@ -53,7 +59,7 @@ public:
 
     void SetNull() {
         nAmount = 0;
-        fState = 0;
+        fState = NIL;
         votes = 0;
         hash = uint256();
         proposalhash = uint256();
@@ -61,7 +67,7 @@ public:
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && fState == 0 && votes == 0);
+        return (nAmount == 0 && fState == NIL && votes == 0);
     }
 
     void Accept() {
@@ -96,17 +102,13 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(nAmount);
-        READWRITE(fState);
+        READWRITE(static_cast<int>(fState));
         READWRITE(votes);
         READWRITE(hash);
         READWRITE(proposalhash);
         READWRITE(blockhash);
         READWRITE(paymenthash);
     }
-
-private: // TODO: move to enum
-    const char ACCEPTED = 0x01;
-    const char REJECTED = 0x02;
 
 };
 
@@ -117,7 +119,7 @@ public:
     CAmount nFee;
     std::string Address;
     uint32_t nDeadline;
-    unsigned char fState;
+    flags fState;
     int votes;
     std::vector<uint256> vPayments;
     std::string strDZeel;
@@ -130,7 +132,7 @@ public:
         nAmount = 0;
         nFee = 0;
         Address = "";
-        fState = 0;
+        fState = NIL;
         votes = 0;
         nDeadline = 0;
         vPayments.clear();
@@ -140,7 +142,7 @@ public:
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && nFee == 0 && Address == "" && votes == 0 && fState == 0 && nDeadline == 0 && strDZeel == "");
+        return (nAmount == 0 && nFee == 0 && Address == "" && votes == 0 && fState == NIL && nDeadline == 0 && strDZeel == "");
     }
 
     void Accept() {
@@ -210,17 +212,13 @@ public:
         READWRITE(nFee);
         READWRITE(Address);
         READWRITE(nDeadline);
-        READWRITE(fState);
+        READWRITE(static_cast<int>(fState));
         READWRITE(votes);
         READWRITE(*const_cast<std::vector<uint256>*>(&vPayments));
         READWRITE(strDZeel);
         READWRITE(hash);
         READWRITE(blockhash);
     }
-
-private: // TODO: move to enum
-    const char ACCEPTED = 0x01;
-    const char REJECTED = 0x02;
 
 };
 

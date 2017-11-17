@@ -9,18 +9,18 @@ void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
     script.resize(4);
     script[0] = OP_RETURN;
-    script[1] = 0x20;
-    script[2] = 0x20;
-    script[3] = 0x20;
+    script[1] = OP_CFUND;
+    script[2] = OP_CFUND;
+    script[3] = OP_CFUND;
 }
 
 void CFund::SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote)
 {
     script.resize(36);
     script[0] = OP_RETURN;
-    script[1] = 0x20;
-    script[2] = 0x21;
-    script[3] = vote ? 0x21 : 0x20;
+    script[1] = OP_CFUND;
+    script[2] = OP_PROP;
+    script[3] = vote ? OP_YES : OP_NO;
     memcpy(&script[4], proposalhash.begin(), 32);
 }
 
@@ -28,9 +28,9 @@ void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash
 {
     script.resize(36);
     script[0] = OP_RETURN;
-    script[1] = 0x20;
-    script[2] = 0x22;
-    script[3] = vote ? 0x21 : 0x20;
+    script[1] = OP_CFUND;
+    script[2] = OP_PREQ;
+    script[3] = vote ? OP_YES : OP_NO;
     memcpy(&script[4], prequesthash.begin(), 32);
 }
 

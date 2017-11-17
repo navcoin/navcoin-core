@@ -216,45 +216,45 @@ bool CScript::IsCommunityFundContribution() const
 {
     return (this->size() == 4 &&
       (*this)[0] == OP_RETURN &&
-      (*this)[1] == 0x20 &&
-      (*this)[2] == 0x20 &&
-      (*this)[3] == 0x20);
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_CFUND &&
+      (*this)[3] == OP_CFUND);
 }
 
 bool CScript::IsProposalVoteYes() const
 {
     return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
-      (*this)[1] == 0x20 &&
-      (*this)[2] == 0x21 &&
-      (*this)[3] == 0x21);
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_YES);
 }
 
 bool CScript::IsProposalVoteNo() const
 {
     return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
-      (*this)[1] == 0x20 &&
-      (*this)[2] == 0x21 &&
-      (*this)[3] == 0x20);
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_NO);
 }
 
 bool CScript::IsPaymentRequestVoteYes() const
 {
     return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
-      (*this)[1] == 0x20 &&
-      (*this)[2] == 0x22 &&
-      (*this)[3] == 0x21);
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_YES);
 }
 
 bool CScript::IsPaymentRequestVoteNo() const
 {
     return (this->size() == 36 &&
       (*this)[0] == OP_RETURN &&
-      (*this)[1] == 0x20 &&
-      (*this)[2] == 0x22 &&
-      (*this)[3] == 0x20);
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_NO);
 }
 
 bool CScript::IsPayToScriptHash() const
