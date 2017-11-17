@@ -181,6 +181,10 @@ public:
         return (nDeadline > currentTime);
     }
 
+    bool CanVote(uint32_t currentTime) const {
+        return !IsAccepted() && !IsRejected() && IsExpired(currentTime);
+    }
+
     CAmount GetAvailable(bool fIncludeRequests = false) const
     {
         CAmount initial = nAmount;
