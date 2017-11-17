@@ -194,6 +194,25 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         coinstakeTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinstakeTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    if(IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus()))
+    {
+        std::map<uint256, bool> votes;
+        for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
+        {
+            CFund::CProposal proposal;
+            bool vote = vAddedProposalVotes[i].second;
+            if(CFund::FindProposal(vAddedProposalVotes[i].first, proposal))
+            {
+                if(proposal.CanVote(nMedianTimePast) && votes.count(proposal.hash) == 0)
+                {
+                    coinstakeTx.vout.resize(coinstakeTx.vout.size()+1);
+                    CFund::SetScriptForProposalVote(coinstakeTx.vout[coinstakeTx.vout.size()-1].scriptPubKey,proposal.hash, vote);
+                    coinstakeTx.vout[coinstakeTx.vout.size()-1].nValue = 0;
+                    votes[proposal.hash] = vote;
+                }
+            }
+        }
+    }
     pblock->vtx[0] = coinstakeTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
