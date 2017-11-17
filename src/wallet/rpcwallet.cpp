@@ -3164,23 +3164,14 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
 
     string strHash = params[0].get_str();
 
-    vector<string>::iterator it = vAddedProposalVotes.begin();
-    for(; it != vAddedProposalVotes.end(); it++)
-        if (strHash == *it)
-            break;
-
     if (strCommand == "add")
     {
-      WriteConfigFile("addproposalvote", strHash);
-      if (it == vAddedProposalVotes.end())
-        vAddedProposalVotes.push_back(strHash);
+      CFund::VoteProposal(strHash);
       return NullUniValue;
     }
     else if(strCommand == "remove")
     {
-      RemoveConfigFile("addproposalvote", strHash);
-      if (it != vAddedProposalVotes.end())
-        vAddedProposalVotes.erase(it);
+      CFund::RemoveVoteProposal(strHash);
       return NullUniValue;
     }
     else if(strCommand == "list")
@@ -3221,23 +3212,14 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
 
     string strHash = params[0].get_str();
 
-    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
-    for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strHash == *it)
-            break;
-
     if (strCommand == "add")
     {
-      WriteConfigFile("addpaymentrequestvote", strHash);
-      if (it == vAddedPaymentRequestVotes.end())
-        vAddedPaymentRequestVotes.push_back(strHash);
+      CFund::VotePaymentRequest(strHash);
       return NullUniValue;
     }
     else if(strCommand == "remove")
     {
-      RemoveConfigFile("addpaymentrequestvote", strHash);
-      if (it != vAddedPaymentRequestVotes.end())
-        vAddedPaymentRequestVotes.erase(it);
+      CFund::RemoveVotePaymentRequest(strHash);
       return NullUniValue;
     }
     else if(strCommand == "list")
