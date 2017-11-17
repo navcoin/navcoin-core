@@ -129,6 +129,10 @@ public:
     bool WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
     bool GetProposalIndex(std::vector<CFund::CProposal>&vect);
     bool UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
+    bool ReadPaymentRequestIndex(const uint256 &prequestid, CFund::CPaymentRequest &prequest);
+    bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
+    bool GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect);
+    bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
     bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
     bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
     bool ReadAddressUnspentIndex(uint160 addressHash, int type,
