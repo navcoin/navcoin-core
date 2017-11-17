@@ -24,14 +24,14 @@ void CFund::SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool
     memcpy(&script[4], proposalhash.begin(), 32);
 }
 
-void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, bool vote)
+void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash, bool vote)
 {
     script.resize(36);
     script[0] = OP_RETURN;
     script[1] = 0x20;
     script[2] = 0x22;
     script[3] = vote ? 0x21 : 0x20;
-    memcpy(&script[4], prequest.begin(), 32);
+    memcpy(&script[4], prequesthash.begin(), 32);
 }
 
 bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
