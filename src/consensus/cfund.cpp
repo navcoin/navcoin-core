@@ -63,7 +63,7 @@ bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
 
 }
 
-void CFund::VoteProposal(string strProp)
+void CFund::VoteProposal(string strProp, bool vote)
 {
 
     CFund::CProposal proposal;
@@ -72,29 +72,31 @@ void CFund::VoteProposal(string strProp)
     if(!found || proposal.IsNull())
         return;
 
-    vector<string>::iterator it = vAddedProposalVotes.begin();
+    vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
     for(; it != vAddedProposalVotes.end(); it++)
-        if (strProp == *it)
+        if (strProp == (*it).first)
             break;
-
-    WriteConfigFile("addproposalvote", strProp);
+    RemoveConfigFile("addproposalvoteyes", strProp);
+    RemoveConfigFile("addproposalvoteno", strProp);
+    WriteConfigFile(vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
     if (it == vAddedProposalVotes.end())
-        vAddedProposalVotes.push_back(strProp);
+        vAddedProposalVotes.push_back(make_pair(strProp, vote));
 }
 
-void CFund::VoteProposal(uint256 proposalHash)
+void CFund::VoteProposal(uint256 proposalHash, bool vote)
 {
-    VoteProposal(proposalHash.ToString());
+    VoteProposal(proposalHash.ToString(), vote);
 }
 
 void CFund::RemoveVoteProposal(string strProp)
 {
-    vector<string>::iterator it = vAddedProposalVotes.begin();
+    vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
     for(; it != vAddedProposalVotes.end(); it++)
-        if (strProp == *it)
+        if (strProp == (*it).first)
             break;
 
-    RemoveConfigFile("addproposalvote", strProp);
+    RemoveConfigFile("addproposalvoteyes", strProp);
+    RemoveConfigFile("addproposalvoteno", strProp);
     if (it != vAddedProposalVotes.end())
         vAddedProposalVotes.erase(it);
 }
@@ -104,7 +106,7 @@ void CFund::RemoveVoteProposal(uint256 proposalHash)
     RemoveVoteProposal(proposalHash.ToString());
 }
 
-void CFund::VotePaymentRequest(string strProp)
+void CFund::VotePaymentRequest(string strProp, bool vote)
 {
 
     CFund::CPaymentRequest prequest;
@@ -113,31 +115,36 @@ void CFund::VotePaymentRequest(string strProp)
     if(!found || prequest.IsNull())
         return;
 
-    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
+    vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
     for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strProp == *it)
+        if (strProp == (*it).first)
             break;
 
-    WriteConfigFile("addpaymentrequestvote", strProp);
+    RemoveConfigFile("addpaymentrequestvoteyes", strProp);
+    RemoveConfigFile("addpaymentrequestvoteno", strProp);
+    WriteConfigFile(vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
     if (it == vAddedPaymentRequestVotes.end())
-        vAddedPaymentRequestVotes.push_back(strProp);
+        vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
+
 }
 
-void CFund::VotePaymentRequest(uint256 proposalHash)
+void CFund::VotePaymentRequest(uint256 proposalHash, bool vote)
 {
-    VotePaymentRequest(proposalHash.ToString());
+    VotePaymentRequest(proposalHash.ToString(), vote);
 }
 
 void CFund::RemoveVotePaymentRequest(string strProp)
 {
-    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
+    vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
     for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strProp == *it)
+        if (strProp == (*it).first)
             break;
 
-    RemoveConfigFile("addpaymentrequestvote", strProp);
+    RemoveConfigFile("addpaymentrequestvoteyes", strProp);
+    RemoveConfigFile("addpaymentrequestvoteno", strProp);
     if (it != vAddedPaymentRequestVotes.end())
         vAddedPaymentRequestVotes.erase(it);
+
 }
 
 void CFund::RemoveVotePaymentRequest(uint256 proposalHash)

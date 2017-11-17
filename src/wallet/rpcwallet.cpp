@@ -3145,14 +3145,22 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
 UniValue proposalvotelist(const UniValue& params, bool fHelp)
 {
-    UniValue ret(UniValue::VARR);
+    UniValue ret(UniValue::VOBJ);
+    UniValue yesvotes(UniValue::VARR);
+    UniValue novotes(UniValue::VARR);
 
     for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
     {
         CFund::CProposal proposal;
-        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i]), proposal))
-            ret.push_back(proposal.ToString());
+        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+            if(vAddedProposalVotes[i].second)
+                yesvotes.push_back(proposal.ToString());
+            else
+                novotes.push_back(proposal.ToString());
     }
+
+    ret.push_back(Pair("yes",yesvotes));
+    ret.push_back(Pair("no",novotes));
 
     return ret;
 }
@@ -3164,21 +3172,26 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "add" && strCommand != "remove"))
+        (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
         throw runtime_error(
-            "proposalvote \"proposal_hash\" \"add|remove\"\n"
+            "proposalvote \"proposal_hash\" \"yes|no|remove\"\n"
             "\nAdds a proposal to the list of votes.\n"
             "\nArguments:\n"
-            "1. \"proposal_hash\" (string, required) The node (see getpeerinfo for nodes)\n"
-            "2. \"command\"       (string, required) 'add' to add a proposal to the list,\n"
+            "1. \"proposal_hash\" (string, required) The proposal hash\n"
+            "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
             "                      'remove' to remove a proposal from the list\n"
         );
 
     string strHash = params[0].get_str();
 
-    if (strCommand == "add")
+    if (strCommand == "yes")
     {
-      CFund::VoteProposal(strHash);
+      CFund::VoteProposal(strHash,true);
+      return NullUniValue;
+    }
+    else if (strCommand == "no")
+    {
+      CFund::VoteProposal(strHash,false);
       return NullUniValue;
     }
     else if(strCommand == "remove")
@@ -3192,14 +3205,22 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
 
 UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
 {
-    UniValue ret(UniValue::VARR);
+    UniValue ret(UniValue::VOBJ);
+    UniValue yesvotes(UniValue::VARR);
+    UniValue novotes(UniValue::VARR);
 
     for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i]), prequest))
-            ret.push_back(prequest.ToString());
+        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+            if(vAddedPaymentRequestVotes[i].second)
+                yesvotes.push_back(prequest.ToString());
+            else
+                novotes.push_back(prequest.ToString());
     }
+
+    ret.push_back(Pair("yes",yesvotes));
+    ret.push_back(Pair("no",novotes));
 
     return ret;
 }
@@ -3211,21 +3232,26 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     if (params.size() >= 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() > 3 ||
-        (strCommand != "add" && strCommand != "remove"))
+        (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
         throw runtime_error(
-            "paymentrequestvote \"request_hash\" \"add|remove\"\n"
+            "paymentrequestvote \"request_hash\" \"yes|no|remove\"\n"
             "\nAdds/removes a proposal to the list of votes.\n"
             "\nArguments:\n"
-            "1. \"request_hash\" (string, required) The node (see getpeerinfo for nodes)\n"
-            "2. \"command\"       (string, required) 'add' to add a proposal to the list,\n"
+            "1. \"request_hash\" (string, required) The payment request hash\n"
+            "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
             "                      'remove' to remove a proposal from the list\n"
         );
 
     string strHash = params[0].get_str();
 
-    if (strCommand == "add")
+    if (strCommand == "yes")
     {
-      CFund::VotePaymentRequest(strHash);
+      CFund::VotePaymentRequest(strHash,true);
+      return NullUniValue;
+    }
+    else if (strCommand == "no")
+    {
+      CFund::VotePaymentRequest(strHash,false);
       return NullUniValue;
     }
     else if(strCommand == "remove")

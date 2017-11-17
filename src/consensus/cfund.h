@@ -29,12 +29,12 @@ bool FindProposal(string propstr, CFund::CProposal &proposal);
 bool FindProposal(uint256 prophash, CFund::CProposal &proposal);
 bool FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest);
 bool FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest);
-void VoteProposal(string strProp);
-void VoteProposal(uint256 proposalHash);
+void VoteProposal(string strProp, bool vote);
+void VoteProposal(uint256 proposalHash, bool vote);
 void RemoveVoteProposal(string strProp);
 void RemoveVoteProposal(uint256 proposalHash);
-void VotePaymentRequest(string strProp);
-void VotePaymentRequest(uint256 proposalHash);
+void VotePaymentRequest(string strProp, bool vote);
+void VotePaymentRequest(uint256 proposalHash, bool vote);
 void RemoveVotePaymentRequest(string strProp);
 void RemoveVotePaymentRequest(uint256 proposalHash);
 

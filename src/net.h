@@ -177,8 +177,8 @@ extern CCriticalSection cs_nLastNodeId;
 extern std::vector<std::string> vAddedAnonServers;
 extern CCriticalSection cs_vAddedAnonServers;
 
-extern std::vector<std::string> vAddedProposalVotes;
-extern std::vector<std::string> vAddedPaymentRequestVotes;
+extern std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
+extern std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 
 /** Subversion as sent to the P2P network in `version` messages */
 extern std::string strSubVersion;
