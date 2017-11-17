@@ -16,16 +16,17 @@ void CFund::SetScriptForCommunityFundContribution(CScript &script)
 
 void CFund::VoteProposal(string strProp)
 {
-    vector<string>::iterator it = vAddedProposalVotes.begin();
-    for(; it != vAddedProposalVotes.end(); it++)
-        if (strProp == *it)
-            break;
 
     CFund::CProposal proposal;
     bool found = pblocktree->ReadProposalIndex(uint256S("0x"+strProp), proposal);
 
     if(!found || proposal.IsNull())
         return;
+
+    vector<string>::iterator it = vAddedProposalVotes.begin();
+    for(; it != vAddedProposalVotes.end(); it++)
+        if (strProp == *it)
+            break;
 
     WriteConfigFile("addproposalvote", strProp);
     if (it == vAddedProposalVotes.end())
@@ -56,16 +57,17 @@ void CFund::RemoveVoteProposal(uint256 proposalHash)
 
 void CFund::VotePaymentRequest(string strProp)
 {
-    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
-    for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strProp == *it)
-            break;
 
     CFund::CPaymentRequest prequest;
     bool found = pblocktree->ReadPaymentRequestIndex(uint256S("0x"+strProp), prequest);
 
     if(!found || prequest.IsNull())
         return;
+
+    vector<string>::iterator it = vAddedPaymentRequestVotes.begin();
+    for(; it != vAddedPaymentRequestVotes.end(); it++)
+        if (strProp == *it)
+            break;
 
     WriteConfigFile("addpaymentrequestvote", strProp);
     if (it == vAddedPaymentRequestVotes.end())
