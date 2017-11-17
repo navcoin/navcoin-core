@@ -219,14 +219,14 @@ bool CBlockTreeDB::ReadPaymentRequestIndex(const uint256 &prequestid, CFund::CPa
 
 bool CBlockTreeDB::WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect) {
     CDBBatch batch(*this);
-    for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
+    for (std::vector<std::pair<uint256,CFund::CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
 bool CBlockTreeDB::UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect) {
     CDBBatch batch(*this);
-    for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+    for (std::vector<std::pair<uint256,CFund::CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
             batch.Erase(make_pair(DB_PREQINDEX, it->first));
         } else {
