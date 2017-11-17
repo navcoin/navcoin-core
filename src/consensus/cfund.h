@@ -183,7 +183,7 @@ public:
     }
 
     bool CanVote(uint32_t currentTime) const {
-        return !IsAccepted() && !IsRejected() && IsExpired(currentTime);
+        return !IsAccepted() && !IsRejected() && !IsExpired(currentTime);
     }
 
     CAmount GetAvailable(bool fIncludeRequests = false) const
