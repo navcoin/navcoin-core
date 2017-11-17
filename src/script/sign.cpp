@@ -595,6 +595,44 @@ bool SolverNavcoin(const CScript& scriptPubKey, txnouttype& typeRet, vector<vect
         return true;
     }
 
+    if (scriptPubKey.IsCommunityFundContribution())
+    {
+        typeRet = TX_CONTRIBUTION;
+        return true;
+    }
+
+    if(scriptPubKey.IsProposalVoteYes())
+    {
+        typeRet = TX_PROPOSALYESVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsProposalVoteNo())
+    {
+        typeRet = TX_PROPOSALNOVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsPaymentRequestVoteYes())
+    {
+        typeRet = TX_PAYMENTREQUESTYESVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsPaymentRequestVoteNo())
+    {
+        typeRet = TX_PAYMENTREQUESTNOVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
     // Scan templates
     const CScript& script1 = scriptPubKey;
     BOOST_FOREACH(const PAIRTYPE(txnouttype, CScript)& tplate, mTemplates)
@@ -702,6 +740,10 @@ bool SolverNavcoin(const CKeyStore& keystore, const CScript& scriptPubKey, uint2
     case TX_NULL_DATA:
     case TX_WITNESS_V0_SCRIPTHASH:
     case TX_WITNESS_V0_KEYHASH:
+    case TX_PROPOSALYESVOTE:
+    case TX_PAYMENTREQUESTYESVOTE:
+    case TX_PROPOSALNOVOTE:
+    case TX_PAYMENTREQUESTNOVOTE:
     case TX_CONTRIBUTION:
         return false;
     case TX_PUBKEY:

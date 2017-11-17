@@ -221,6 +221,42 @@ bool CScript::IsCommunityFundContribution() const
       (*this)[3] == 0x20);
 }
 
+bool CScript::IsProposalVoteYes() const
+{
+    return (this->size() == 4 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == 0x20 &&
+      (*this)[2] == 0x21 &&
+      (*this)[3] == 0x21);
+}
+
+bool CScript::IsProposalVoteNo() const
+{
+    return (this->size() == 4 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == 0x20 &&
+      (*this)[2] == 0x21 &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsPaymentRequestVoteYes() const
+{
+    return (this->size() == 4 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == 0x20 &&
+      (*this)[2] == 0x22 &&
+      (*this)[3] == 0x21);
+}
+
+bool CScript::IsPaymentRequestVoteNo() const
+{
+    return (this->size() == 4 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == 0x20 &&
+      (*this)[2] == 0x22 &&
+      (*this)[3] == 0x20);
+}
+
 bool CScript::IsPayToScriptHash() const
 {
     // Extra-fast test for pay-to-script-hash CScripts:

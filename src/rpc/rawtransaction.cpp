@@ -54,10 +54,24 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     out.push_back(Pair("reqSigs", nRequired));
     out.push_back(Pair("type", GetTxnOutputType(type)));
 
-    UniValue a(UniValue::VARR);
-    BOOST_FOREACH(const CTxDestination& addr, addresses)
-        a.push_back(CNavCoinAddress(addr).ToString());
-    out.push_back(Pair("addresses", a));
+    if (type == TX_CONTRIBUTION || type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
+                 || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE)
+    {
+        vector<std::vector<unsigned char>> vSolutions;
+        txnouttype whichType;
+
+        if (Solver(scriptPubKey, whichType, vSolutions))
+        {
+            out.push_back(Pair("hash", uint256(vSolutions[0]).ToString()));
+        }
+    }
+    else
+    {
+        UniValue a(UniValue::VARR);
+        BOOST_FOREACH(const CTxDestination& addr, addresses)
+            a.push_back(CNavCoinAddress(addr).ToString());
+        out.push_back(Pair("addresses", a));
+    }
 }
 
 void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue& entry,
