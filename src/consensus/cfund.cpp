@@ -48,7 +48,6 @@ bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 
 }
 
-
 bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
 {
 

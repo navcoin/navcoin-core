@@ -24,9 +24,9 @@ class CPaymentRequest;
 
 typedef unsigned int flags;
 
-flags NIL = 0x0;
-flags ACCEPTED = 0x1;
-flags REJECTED = 0x2;
+static const flags NIL = 0x0;
+static const flags ACCEPTED = 0x1;
+static const flags REJECTED = 0x2;
 
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
