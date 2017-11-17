@@ -81,6 +81,10 @@ void CFund::VoteProposal(string strProp, bool vote)
     WriteConfigFile(vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
     if (it == vAddedProposalVotes.end())
         vAddedProposalVotes.push_back(make_pair(strProp, vote));
+    else {
+        vAddedProposalVotes.erase(it);
+        vAddedProposalVotes.push_back(make_pair(strProp, vote));
+    }
 }
 
 void CFund::VoteProposal(uint256 proposalHash, bool vote)
@@ -125,6 +129,10 @@ void CFund::VotePaymentRequest(string strProp, bool vote)
     WriteConfigFile(vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
     if (it == vAddedPaymentRequestVotes.end())
         vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
+    else {
+        vAddedPaymentRequestVotes.erase(it);
+        vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
+    }
 
 }
 
