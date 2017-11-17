@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "consensus/cfund.h"
+#include "main.h"
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
@@ -19,6 +20,12 @@ void CFund::VoteProposal(string strProp)
     for(; it != vAddedProposalVotes.end(); it++)
         if (strProp == *it)
             break;
+
+    CFund::CProposal proposal;
+    bool found = pblocktree->ReadProposalIndex(uint256S("0x"+strProp), proposal);
+
+    if(!found || proposal.IsNull())
+        return;
 
     WriteConfigFile("addproposalvote", strProp);
     if (it == vAddedProposalVotes.end())
@@ -53,6 +60,12 @@ void CFund::VotePaymentRequest(string strProp)
     for(; it != vAddedPaymentRequestVotes.end(); it++)
         if (strProp == *it)
             break;
+
+    CFund::CPaymentRequest prequest;
+    bool found = pblocktree->ReadPaymentRequestIndex(uint256S("0x"+strProp), prequest);
+
+    if(!found || prequest.IsNull())
+        return;
 
     WriteConfigFile("addpaymentrequestvote", strProp);
     if (it == vAddedPaymentRequestVotes.end())
