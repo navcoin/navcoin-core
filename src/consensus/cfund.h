@@ -52,7 +52,7 @@ public:
         paymentHash = uint256();
     }
 
-    bool IsNull() {
+    bool IsNull() const {
         return (nAmount == 0 && fState == 0 && votes == 0);
     }
 
