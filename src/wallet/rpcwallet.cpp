@@ -3153,10 +3153,16 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     {
         CFund::CProposal proposal;
         if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+        {
             if(vAddedProposalVotes[i].second)
+            {
                 yesvotes.push_back(proposal.ToString());
+            }
             else
+            {
                 novotes.push_back(proposal.ToString());
+            }
+        }
     }
 
     ret.push_back(Pair("yes",yesvotes));
@@ -3213,10 +3219,16 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     {
         CFund::CPaymentRequest prequest;
         if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+        {
             if(vAddedPaymentRequestVotes[i].second)
+            {
                 yesvotes.push_back(prequest.ToString());
+            }
             else
+            {
                 novotes.push_back(prequest.ToString());
+            }
+        }
     }
 
     ret.push_back(Pair("yes",yesvotes));
