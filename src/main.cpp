@@ -6775,7 +6775,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                     vRecv >> hash;
                     ss << ": hash " << hash.ToString();
                 }
-                LogPrintf("Reject %s\n", SanitizeString(ss.str()));
+                LogPrintf("Nodes are rejecting our connection. Reason: %s\n", SanitizeString(ss.str()));
             } catch (const std::ios_base::failure&) {
                 // Avoid feedback loops by preventing reject messages from triggering a new reject message.
                 LogPrint("net", "Unparseable reject message received\n");
