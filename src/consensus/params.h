@@ -62,6 +62,7 @@ struct Params {
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
+    int nLastPOWBlock;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;

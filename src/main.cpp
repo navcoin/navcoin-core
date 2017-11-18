@@ -2512,8 +2512,6 @@ static int64_t nTimeIndex = 0;
 static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
-int lastPOWBlock = 20000;
-
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
                   CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck, bool fProofOfStake)
 {
@@ -4102,7 +4100,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         nLockTimeFlags |= LOCKTIME_MEDIAN_TIME_PAST;
     }
 
-    if (block.IsProofOfWork() && nHeight > lastPOWBlock)
+    if (block.IsProofOfWork() && nHeight > Params().GetConsensus().nLastPOWBlock)
         return state.DoS(10, false, REJECT_INVALID, "check-pow-height", "pow-mined blocks not allowed");
 
     // Check CheckCoinStakeTimestamp

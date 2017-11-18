@@ -99,7 +99,7 @@ UniValue getnetworkhashps(const UniValue& params, bool fHelp)
 UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript)
 {
 
-    if (pindexBestHeader->nHeight >= lastPOWBlock)
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
       throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     static const int nInnerLoopCount = 0x10000;
@@ -166,7 +166,7 @@ UniValue generate(const UniValue& params, bool fHelp)
             + HelpExampleCli("generate", "11")
         );
 
-    if (pindexBestHeader->nHeight >= lastPOWBlock)
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
       throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     int nGenerate = params[0].get_int();
@@ -206,7 +206,7 @@ UniValue generatetoaddress(const UniValue& params, bool fHelp)
             + HelpExampleCli("generatetoaddress", "11 \"myaddress\"")
         );
 
-    if (pindexBestHeader->nHeight >= lastPOWBlock)
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
       throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     int nGenerate = params[0].get_int();
@@ -248,7 +248,7 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
             + HelpExampleRpc("getmininginfo", "")
         );
 
-    if (pindexBestHeader->nHeight >= lastPOWBlock)
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
       throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
 
@@ -402,7 +402,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             + HelpExampleRpc("getblocktemplate", "")
          );
 
-    if (pindexBestHeader->nHeight >= lastPOWBlock)
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
       throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     LOCK(cs_main);
@@ -739,7 +739,7 @@ UniValue submitblock(const UniValue& params, bool fHelp)
             + HelpExampleRpc("submitblock", "\"mydata\"")
         );
 
-    if (pindexBestHeader->nHeight >= lastPOWBlock)
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
       throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     CBlock block;

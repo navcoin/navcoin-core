@@ -201,8 +201,6 @@ extern bool fEnableReplacement;
 /** Best header we've seen so far (used for getheaders queries' starting points). */
 extern CBlockIndex *pindexBestHeader;
 
-extern int lastPOWBlock;
-
 /** Minimum disk space required - used in CheckDiskSpace() */
 static const uint64_t nMinDiskSpace = 26218800;
 
