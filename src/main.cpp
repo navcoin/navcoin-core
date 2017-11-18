@@ -4089,7 +4089,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 
     if(block.nVersion & 0x70000040 != 0x70000040 && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                           "rejected no segwit block");
+                           "rejected no cfund block");
 
     return true;
 }
