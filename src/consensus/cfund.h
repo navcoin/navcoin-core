@@ -53,21 +53,23 @@ public:
     uint256 proposalhash;
     uint256 blockhash;
     uint256 paymenthash;
-    int votes;
+    int nVotesYes;
+    int nVotesNo;
 
     CPaymentRequest() { SetNull(); }
 
     void SetNull() {
         nAmount = 0;
         fState = NIL;
-        votes = 0;
+        nVotesYes = 0;
+        nVotesNo = 0;
         hash = uint256();
         proposalhash = uint256();
         paymenthash = uint256();
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && fState == NIL && votes == 0);
+        return (nAmount == 0 && fState == NIL && nVotesYes == 0 && nVotesNo == 0);
     }
 
     void Accept() {
@@ -84,8 +86,9 @@ public:
             sFlags = "accepted";
         if(IsRejected())
             sFlags = "rejected";
-        return strprintf("CPaymentRequest(hash=%s, amount=%u, fState=%s, votes=%u, proposalhash=%s, blockhash=%s, paymenthash=%s)",
-                         hash.ToString().substr(0,10), nAmount, sFlags, votes, proposalhash.ToString().substr(0,10),
+        return strprintf("CPaymentRequest(hash=%s, nAmount=%u, fState=%s, nVotesYes=%u, nVotesNo=%u, proposalhash=%s, "
+                         "blockhash=%s, paymenthash=%s)",
+                         hash.ToString().substr(0,10), nAmount, sFlags, nVotesYes, nVotesNo, proposalhash.ToString().substr(0,10),
                          blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10));
     }
 
@@ -103,7 +106,8 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(nAmount);
         READWRITE(fState);
-        READWRITE(votes);
+        READWRITE(nVotesYes);
+        READWRITE(nVotesNo);
         READWRITE(hash);
         READWRITE(proposalhash);
         READWRITE(blockhash);
@@ -120,7 +124,8 @@ public:
     std::string Address;
     uint32_t nDeadline;
     flags fState;
-    int votes;
+    int nVotesYes;
+    int nVotesNo;
     std::vector<uint256> vPayments;
     std::string strDZeel;
     uint256 hash;
@@ -133,7 +138,8 @@ public:
         nFee = 0;
         Address = "";
         fState = NIL;
-        votes = 0;
+        nVotesYes = 0;
+        nVotesNo = 0;
         nDeadline = 0;
         vPayments.clear();
         strDZeel = "";
@@ -142,7 +148,8 @@ public:
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && nFee == 0 && Address == "" && votes == 0 && fState == NIL && nDeadline == 0 && strDZeel == "");
+        return (nAmount == 0 && nFee == 0 && Address == "" && nVotesYes == 0 && fState == NIL
+                && nVotesNo == 0 && nDeadline == 0 && strDZeel == "");
     }
 
     void Accept() {
@@ -162,8 +169,10 @@ public:
         if(currentTime > 0 && IsExpired(currentTime))
             sFlags = "expired";
         std::string str;
-        str += strprintf("CProposal(hash=%s, amount=%u, available=%d, nFee=%u, address=%s, nDeadline=%u, votes=%u, fState=%s, strDZeel=%s, blockhash=%s)",
-                         hash.ToString(), nAmount, GetAvailable(), nFee, Address, nDeadline, votes, sFlags, strDZeel, blockhash.ToString().substr(0,10));
+        str += strprintf("CProposal(hash=%s, nAmount=%u, available=%d, nFee=%u, address=%s, nDeadline=%u, nVotesYes=%u, "
+                         "nVotesNo=%u, fState=%s, strDZeel=%s, blockhash=%s)",
+                         hash.ToString(), nAmount, GetAvailable(), nFee, Address, nDeadline, nVotesYes, nVotesNo, sFlags,
+                         strDZeel, blockhash.ToString().substr(0,10));
         for (unsigned int i = 0; i < vPayments.size(); i++) {
             CFund::CPaymentRequest prequest;
             if(FindPaymentRequest(vPayments[i], prequest))
@@ -213,7 +222,8 @@ public:
         READWRITE(Address);
         READWRITE(nDeadline);
         READWRITE(fState);
-        READWRITE(votes);
+        READWRITE(nVotesYes);
+        READWRITE(nVotesNo);
         READWRITE(*const_cast<std::vector<uint256>*>(&vPayments));
         READWRITE(strDZeel);
         READWRITE(hash);
