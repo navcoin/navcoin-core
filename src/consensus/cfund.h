@@ -93,12 +93,12 @@ public:
 
     bool IsAccepted() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptProposal));
+        return !IsRejected() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptProposal));
     }
 
     bool IsRejected() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectProposal));
+        return !IsAccepted() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectProposal));
     }
 
     bool CanVote() const {
@@ -180,12 +180,12 @@ public:
 
     bool IsAccepted() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptPaymentRequest));
+        return !IsRejected() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptPaymentRequest));
     }
 
     bool IsRejected() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectPaymentRequest));
+        return !IsAccepted() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectPaymentRequest));
     }
 
     bool IsExpired(uint32_t currentTime) const {
