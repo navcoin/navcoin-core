@@ -203,7 +203,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             bool vote = vAddedProposalVotes[i].second;
             if(CFund::FindProposal(vAddedProposalVotes[i].first, proposal))
             {
-                if(proposal.CanVote(nMedianTimePast) && votes.count(proposal.hash) == 0)
+                if(proposal.CanVote() && votes.count(proposal.hash) == 0)
                 {
                     coinstakeTx.vout.resize(coinstakeTx.vout.size()+1);
                     CFund::SetScriptForProposalVote(coinstakeTx.vout[coinstakeTx.vout.size()-1].scriptPubKey,proposal.hash, vote);

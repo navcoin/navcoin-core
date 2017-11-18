@@ -27,6 +27,7 @@ typedef unsigned int flags;
 static const flags NIL = 0x0;
 static const flags ACCEPTED = 0x1;
 static const flags REJECTED = 0x2;
+static const flags EXPIRED = 0x3;
 
 static const int nVotingPeriod = 2880 * 7; // 7 Days
 static const int nQuorumVotes = nVotingPeriod / 2;
@@ -102,7 +103,7 @@ public:
     }
 
     bool CanVote() const {
-        return !IsAccepted() && !IsRejected();
+        return fState != ACCEPTED && fState != REJECTED;
     }
 
     ADD_SERIALIZE_METHODS;
@@ -192,12 +193,12 @@ public:
         return (nDeadline < currentTime);
     }
 
-    bool CanVote(uint32_t currentTime) const {
-        return !IsAccepted() && !IsRejected() && !IsExpired(currentTime);
+    bool CanVote() const {
+        return fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
     }
 
-    bool CanRequestPayments(uint32_t currentTime) const {
-        return IsAccepted() && !IsRejected() && !IsExpired(currentTime);
+    bool CanRequestPayments() const {
+        return fState == ACCEPTED && fState != REJECTED && fState != EXPIRED;
     }
 
     CAmount GetAvailable(bool fIncludeRequests = false) const
