@@ -2718,7 +2718,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         votes[hash] = vote;
                         CFund::CProposal proposal;
                         if(CFund::FindProposal(hash, proposal))
-                            if(proposal.CanVote(pindex->GetMedianTimePast()))
+                            if(proposal.CanVote())
                                 pindex->vProposalVotes.push_back(make_pair(hash, vote));
                     }
                 }
@@ -2730,7 +2730,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
                             if(pblockindex == NULL)
                                 continue;
-                            if(prequest.CanVote() && parent.CanRequestPayments(pindex->GetMedianTimePast())
+                            if(prequest.CanVote() && parent.CanRequestPayments()
                                     && pindex->nHeight - pblockindex->nHeight > 50)
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                         }
@@ -3394,12 +3394,26 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew)
         if(pblocktree->GetProposalIndex(vecProposal)){
             for(unsigned int i = 0; i < vecProposal.size(); i++) {
                 CFund::CProposal proposal = vecProposal[i];
-                if(!proposal.IsAccepted() && !proposal.IsRejected()) {
+                if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
+                        (proposal.IsRejected() && proposal.fState != CFund::REJECTED) ||
+                        (!proposal.IsAccepted() && !proposal.IsRejected())) {
                     proposal.nVotesNo = 0;
                     proposal.nVotesYes = 0;
+                    if(proposal.IsExpired(pindexNew->GetMedianTimePast() && proposal.fState != CFund::EXPIRED)) {
+                        proposal.fState = CFund::EXPIRED;
+                        pindexNew->nCFSupply += proposal.GetAvailable();
+                        pindexNew->nCFLocked -= proposal.GetAvailable();
+                    }
+                    if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
+                        proposal.fState = CFund::REJECTED;
+                    }
                     vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
                 }
-                //TODO: Track state changes to modify nCFSupply and nCFLocked
+                if(proposal.IsAccepted() && proposal.fState != CFund::ACCEPTED) {
+                    pindexNew->nCFSupply -= proposal.GetAvailable();
+                    pindexNew->nCFLocked += proposal.GetAvailable();
+                    proposal.fState = CFund::ACCEPTED;
+                }
             }
             if (!pblocktree->UpdateProposalIndex(vProposalsToUpdate)) {
                 return AbortNode(state, "Failed to write proposal index");
@@ -3437,7 +3451,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew)
             CFund::CProposal proposal;
             if(!CFund::FindProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
-            if(proposal.CanVote(pindexblock->GetMedianTimePast()) && vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
+            if(proposal.CanVote() && vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
                 if(vCacheProposalsToUpdate.count(pindexblock->vProposalVotes[i].first) == 0)
                     vCacheProposalsToUpdate[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vProposalVotes[i].second)
@@ -3454,7 +3468,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew)
             CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if(parent.CanRequestPayments(pindexblock->GetMedianTimePast()) && prequest.CanVote()
+            if(parent.CanRequestPayments() && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
                     && pindexblock->nHeight - pindexblockparent->nHeight > 50) {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
