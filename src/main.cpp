@@ -4083,7 +4083,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", version - 1),
                                  strprintf("rejected nVersion=0x%08x block", version - 1));
 
-    if(b(lock.nVersion & 0x70000020) != 0x70000020 && IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
+    if((block.nVersion & 0x70000020) != 0x70000020 && IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no segwit block");
 
