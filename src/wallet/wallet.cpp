@@ -555,7 +555,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nBytes >= MAX_BLOCK_SIZE_GEN/5)
         return error("CreateCoinStake : exceeded coinstake size limit");
 
-    LogPrintf("coinstake", "Created coin stake\n");
+    LogPrint("coinstake", "Created coin stake\n");
 
     // Successfully generated coinstake
     return true;

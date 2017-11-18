@@ -708,7 +708,7 @@ void NavCoinStaker(const CChainParams& chainparams)
             //Trying to sign a block
             if (SignBlock(pblock, *pwalletMain, nFees))
             {
-                LogPrint("coinstake","PoS Block signed\n");
+                LogPrint("coinstake", "PoS Block signed\n");
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
                 CheckStake(pblock, *pwalletMain, chainparams);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
@@ -809,7 +809,7 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         return error("CheckStake() : proof-of-stake checking failed");
 
     //// debug print
-    LogPrintf("CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());
+    LogPrintf("CheckStake() : new proof-of-stake block found hash: %s\n", hashBlock.GetHex());
 
     // Found a solution
     {
