@@ -2708,6 +2708,37 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         nInputs += tx.vin.size();
 
+        if((tx.IsCoinBase() && IsCommunityFundEnabled(pindex->pprev, chainparams.GetConsensus())) || true) {
+            for (size_t j = 0; j < tx.vout.size(); j++) {
+                std::map<uint256, bool> votes; uint256 hash; bool vote;
+                if(tx.vout[j].IsVote())
+                    tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
+                if(tx.vout[j].IsProposalVote()) {
+                    if(votes.count(hash) == 0) {
+                        votes[hash] = vote;
+                        CFund::CProposal proposal;
+                        if(CFund::FindProposal(hash, proposal))
+                            if(proposal.CanVote(pindex->GetMedianTimePast()))
+                                pindex->vProposalVotes.push_back(make_pair(hash, vote));
+                    }
+                }
+                else if (tx.vout[j].IsPaymentRequestVote()) {
+                    if(votes.count(hash) == 0){
+                        votes[hash] = vote;
+                        CFund::CPaymentRequest prequest; CFund::CProposal parent;
+                        if(CFund::FindPaymentRequest(hash, prequest) && CFund::FindProposal(prequest.proposalhash, parent)) {
+                            CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
+                            if(pblockindex == NULL)
+                                continue;
+                            if(prequest.CanVote() && parent.CanRequestPayments(pindex->GetMedianTimePast())
+                                    && pindex->nHeight - pblockindex->nHeight > 50)
+                                pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
+                        }
+                    }
+                }
+            }
+        }
+
         if (!tx.IsCoinBase())
         {
             if (!view.HaveInputs(tx))
@@ -3314,6 +3345,86 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
             return error("ConnectTip(): ConnectBlock %s failed: ", pindexNew->GetBlockHash().ToString());
+        }
+        else
+        {
+            if(pindexNew->nHeight % CFund::nVotingPeriod == 0) {
+                // We need to reset vote counter of proposals and requests.
+                std::vector<CFund::CProposal> vecProposal;
+                std::vector<pair<uint256,CFund::CProposal>> vProposalsToUpdate;
+
+                if(pblocktree->GetProposalIndex(vecProposal)){
+                    for(unsigned int i = 0; i < vecProposal.size(); i++) {
+                        CFund::CProposal proposal = vecProposal[i];
+                        if(!proposal.IsAccepted() && !proposal.IsRejected()) {
+                            proposal.nVotesNo = 0;
+                            proposal.nVotesYes = 0;
+                            vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+                        }
+                    }
+                    pblocktree->UpdateProposalIndex(vProposalsToUpdate);
+                }
+
+                std::vector<CFund::CPaymentRequest> vecPaymentRequest;
+                std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
+
+                if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
+                    for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
+                        CFund::CPaymentRequest prequest = vecPaymentRequest[i];
+                        if(!prequest.IsAccepted() && !prequest.IsRejected()) {
+                            prequest.nVotesNo = 0;
+                            prequest.nVotesYes = 0;
+                            vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                        }
+                    }
+                    pblocktree->UpdatePaymentRequestIndex(vPRequestsToUpdate);
+                }
+            }
+
+            int nBlocks = (pindexNew->nHeight % CFund::nVotingPeriod);
+            CBlockIndex* pindexblock = pindexNew;
+
+            std::map<uint256, std::pair<int, int>> vProposalsToUpdate;
+            std::map<uint256, std::pair<int, int>> vPaymentRequestToUpdate;
+
+            while(nBlocks > 0 && pindexblock != NULL) {
+                std::map<uint256, bool> vSeen;
+                for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
+                    CFund::CProposal proposal;
+                    if(!CFund::FindProposal(pindexblock->vProposalVotes[i].first, proposal))
+                        continue;
+                    if(proposal.CanVote(pindexblock->GetMedianTimePast()) && vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
+                        if(vProposalsToUpdate.count(pindexblock->vProposalVotes[i].first) == 0)
+                            vProposalsToUpdate[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
+                        if(pindexblock->vProposalVotes[i].second)
+                            vProposalsToUpdate[pindexblock->vProposalVotes[i].first].first += 1;
+                        else
+                            vProposalsToUpdate[pindexblock->vProposalVotes[i].first].second += 1;
+                        vSeen[pindexblock->vProposalVotes[i].first]=true;
+                    }
+                }
+                for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
+                    CFund::CPaymentRequest prequest; CFund::CProposal parent;
+                    if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest) && !CFund::FindProposal(prequest.proposalhash, parent))
+                        continue;
+                    CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
+                    if(pindexblockparent == NULL)
+                        continue;
+                    if(parent.CanRequestPayments(pindexblock->GetMedianTimePast()) && prequest.CanVote()
+                            && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
+                            && pindexblock->nHeight - pindexblockparent->nHeight > 50) {
+                        if(vPaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
+                            vPaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
+                        if(pindexblock->vPaymentRequestVotes[i].second)
+                            vPaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first].first += 1;
+                        else
+                            vPaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first].second += 1;
+                        vSeen[pindexblock->vPaymentRequestVotes[i].first]=true;
+                    }
+                }
+                pindexblock = pindexblock->pprev;
+                nBlocks--;
+            }
         }
         mapBlockSource.erase(pindexNew->GetBlockHash());
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;

@@ -28,6 +28,13 @@ static const flags NIL = 0x0;
 static const flags ACCEPTED = 0x1;
 static const flags REJECTED = 0x2;
 
+static const int nVotingPeriod = 2880 * 7; // 7 Days
+static const int nQuorumVotes = nVotingPeriod / 2;
+static const float nVotesAcceptProposal = 0.7;
+static const float nVotesRejectProposal = 0.7;
+static const float nVotesAcceptPaymentRequest = 0.7;
+static const float nVotesRejectPaymentRequest = 0.7;
+
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, bool vote);
@@ -72,14 +79,6 @@ public:
         return (nAmount == 0 && fState == NIL && nVotesYes == 0 && nVotesNo == 0);
     }
 
-    void Accept() {
-        fState = ACCEPTED;
-    }
-
-    void Reject() {
-        fState = REJECTED;
-    }
-
     std::string ToString() const {
         std::string sFlags;
         if(IsAccepted())
@@ -93,11 +92,17 @@ public:
     }
 
     bool IsAccepted() const {
-        return fState == ACCEPTED;
+        int nTotalVotes = nVotesYes + nVotesNo;
+        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptProposal));
     }
 
     bool IsRejected() const {
-        return fState == REJECTED;
+        int nTotalVotes = nVotesYes + nVotesNo;
+        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectProposal));
+    }
+
+    bool CanVote() const {
+        return !IsAccepted() && !IsRejected();
     }
 
     ADD_SERIALIZE_METHODS;
@@ -152,14 +157,6 @@ public:
                 && nVotesNo == 0 && nDeadline == 0 && strDZeel == "");
     }
 
-    void Accept() {
-        fState = ACCEPTED;
-    }
-
-    void Reject() {
-        fState = REJECTED;
-    }
-
     std::string ToString(uint32_t currentTime = 0) const {
         std::string sFlags;
         if(IsAccepted())
@@ -182,11 +179,13 @@ public:
     }
 
     bool IsAccepted() const {
-        return fState == ACCEPTED;
+        int nTotalVotes = nVotesYes + nVotesNo;
+        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptPaymentRequest));
     }
 
     bool IsRejected() const {
-        return fState == REJECTED;
+        int nTotalVotes = nVotesYes + nVotesNo;
+        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectPaymentRequest));
     }
 
     bool IsExpired(uint32_t currentTime) const {
@@ -195,6 +194,10 @@ public:
 
     bool CanVote(uint32_t currentTime) const {
         return !IsAccepted() && !IsRejected() && !IsExpired(currentTime);
+    }
+
+    bool CanRequestPayments(uint32_t currentTime) const {
+        return IsAccepted() && !IsRejected() && !IsExpired(currentTime);
     }
 
     CAmount GetAvailable(bool fIncludeRequests = false) const

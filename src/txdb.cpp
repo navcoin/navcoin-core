@@ -452,6 +452,9 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->nTx            = diskindex.nTx;
                 pindexNew->nMint          = diskindex.nMint;
                 pindexNew->nCFSupply      = diskindex.nCFSupply;
+                pindexNew->vPaymentRequestVotes
+                                          = diskindex.vPaymentRequestVotes;
+                pindexNew->vProposalVotes = diskindex.vProposalVotes;
                 pindexNew->nCFLocked      = diskindex.nCFLocked;
                 pindexNew->strDZeel       = diskindex.strDZeel;
                 pindexNew->nFlags         = diskindex.nFlags;

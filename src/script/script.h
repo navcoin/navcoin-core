@@ -676,11 +676,13 @@ public:
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
     bool IsCommunityFundContribution() const;
+    bool IsProposalVote() const;
     bool IsProposalVoteYes() const;
     bool IsProposalVoteNo() const;
+    bool IsPaymentRequestVote() const;
     bool IsPaymentRequestVoteYes() const;
     bool IsPaymentRequestVoteNo() const;
-    bool ExtractVote(uint256 &hash) const;
+    bool ExtractVote(uint256 &hash, bool &vote) const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;

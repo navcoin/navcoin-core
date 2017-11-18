@@ -215,6 +215,9 @@ public:
     int64_t nCFSupply;
     int64_t nCFLocked;
 
+    std::vector<std::pair<uint256, bool>> vProposalVotes;
+    std::vector<std::pair<uint256, bool>> vPaymentRequestVotes;
+
     std::string strDZeel;
 
     unsigned int nFlags;  // ppcoin: block index flags
@@ -257,6 +260,8 @@ public:
         nTime          = 0;
         nBits          = 0;
         nNonce         = 0;
+        vProposalVotes.clear();
+        vPaymentRequestVotes.clear();
     }
 
     CBlockIndex()
@@ -521,6 +526,8 @@ public:
         READWRITE(blockHash);
         READWRITE(nCFSupply);
         READWRITE(nCFLocked);
+        READWRITE(vPaymentRequestVotes);
+        READWRITE(vProposalVotes);
     }
 
     uint256 GetBlockHash() const

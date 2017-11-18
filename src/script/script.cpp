@@ -227,6 +227,11 @@ bool CScript::IsCommunityFundContribution() const
       (*this)[3] == OP_CFUND);
 }
 
+bool CScript::IsProposalVote() const
+{
+    return IsProposalVoteYes() || IsProposalVoteNo();
+}
+
 bool CScript::IsProposalVoteYes() const
 {
     return (this->size() == 36 &&
@@ -243,6 +248,11 @@ bool CScript::IsProposalVoteNo() const
       (*this)[1] == OP_CFUND &&
       (*this)[2] == OP_PROP &&
       (*this)[3] == OP_NO);
+}
+
+bool CScript::IsPaymentRequestVote() const
+{
+    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo();
 }
 
 bool CScript::IsPaymentRequestVoteYes() const
@@ -263,7 +273,7 @@ bool CScript::IsPaymentRequestVoteNo() const
       (*this)[3] == OP_NO);
 }
 
-bool CScript::ExtractVote(uint256 &hash) const
+bool CScript::ExtractVote(uint256 &hash, bool &vote) const
 {
     if(!IsPaymentRequestVoteNo() && !IsPaymentRequestVoteYes() && !IsProposalVoteYes()
             && !IsProposalVoteNo())
@@ -271,6 +281,7 @@ bool CScript::ExtractVote(uint256 &hash) const
 
     vector<unsigned char> vHash(this->begin()+4, this->begin()+36);
     hash = uint256(vHash);
+    vote = (*this)[3] == OP_YES ? true : false;
 
     return true;
 }

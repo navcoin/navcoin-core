@@ -175,6 +175,21 @@ public:
         return scriptPubKey.IsCommunityFundContribution();
     }
 
+    bool IsVote() const
+    {
+        return scriptPubKey.IsProposalVote() || scriptPubKey.IsPaymentRequestVote();
+    }
+
+    bool IsProposalVote() const
+    {
+        return scriptPubKey.IsProposalVote();
+    }
+
+    bool IsPaymentRequestVote() const
+    {
+        return scriptPubKey.IsPaymentRequestVote();
+    }
+
     uint256 GetHash() const;
 
     CAmount GetDustThreshold(const CFeeRate &minRelayTxFee) const
