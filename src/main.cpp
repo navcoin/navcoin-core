@@ -3426,12 +3426,24 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew)
         if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
             for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
                 CFund::CPaymentRequest prequest = vecPaymentRequest[i];
-                if(!prequest.IsAccepted() && !prequest.IsRejected()) {
+                if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
+                        (!prequest.IsAccepted() && !prequest.IsRejected())) {
+                    if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
+                        prequest.fState = CFund::REJECTED;
+                    }
                     prequest.nVotesNo = 0;
                     prequest.nVotesYes = 0;
                     vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
                 }
-                //TODO: Track state changes to modify nCFSupply and nCFLocked
+                CFund::CProposal parent;
+                if(!CFund::FindProposal(prequest.proposalhash, parent))
+                    continue;
+                if(parent.fState == CFund::ACCEPTED && prequest.IsAccepted()
+                        && prequest.fState != CFund::ACCEPTED) {
+                    pindexNew->nCFLocked -= prequest.nAmount;
+                    prequest.fState = CFund::ACCEPTED;
+                    vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                }
             }
             if (!pblocktree->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {
                 return AbortNode(state, "Failed to write payment request index");
