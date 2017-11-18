@@ -5529,6 +5529,39 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
 
+    if (pfrom->nVersion != 0)
+    {
+        bool fObsolete = false;
+        string reason = "";
+
+        if(pfrom->nVersion < 70015)
+        {
+            reason = "You are using an old version of NavCoin, please update.";
+            fObsolete = true;
+        }
+
+        if(pfrom->nVersion < 70016 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            reason = "Segregated Witness has been enabled and you are using an old version of NavCoin, please update.";
+            fObsolete = true;
+        }
+
+        if(pfrom->nVersion < 70020 && IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            reason = "Community Fund has been enabled and you are using an old version of NavCoin, please update.";
+            fObsolete = true;
+        }
+
+        if(fObsolete)
+        {
+            LogPrintf("peer=%d using obsolete version %i; disconnecting (reason: %s)\n", pfrom->id, pfrom->nVersion, reason);
+            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE, reason);
+            LOCK(cs_main);
+            Misbehaving(pfrom->GetId(), 1);
+            return false;
+        }
+    }
+
 
     if (strCommand == NetMsgType::VERSION)
     {
@@ -5547,30 +5580,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         uint64_t nNonce = 1;
         uint64_t nServiceInt;
         vRecv >> pfrom->nVersion >> nServiceInt >> nTime >> addrMe;
-
-        if(pfrom->nVersion < 70015)
-        {
-            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("You are using an old version of NavCoin, please update."));
-            LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 1);
-            return false;
-        }
-
-        if(pfrom->nVersion < 70016 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
-        {
-            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("Segregated Witness has been enabled and you are using an old version of NavCoin, please update."));
-            LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 1);
-            return false;
-        }
-
-        if(pfrom->nVersion < 70020 && IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()))
-        {
-            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_DUPLICATE, string("Community Fund has been enabled and you are using an old version of NavCoin, please update."));
-            LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 1);
-            return false;
-        }
 
         pfrom->nServices = ServiceFlags(nServiceInt);
         if (!pfrom->fInbound)
