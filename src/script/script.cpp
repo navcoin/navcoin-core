@@ -272,6 +272,8 @@ bool CScript::ExtractVote(uint256 &hash) const
     std::vector<unsigned char> vHash;
     memcpy(&vHash, &(*this)[4], 32);
     hash = uint256(vHash);
+
+    return true;
 }
 
 bool CScript::IsPayToScriptHash() const
