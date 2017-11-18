@@ -133,22 +133,6 @@ public:
 
         genesis = CreateGenesisBlock(1460561040, 6945, 0x1f00ffff, 1, 0);
 
-	      uint256 hashGenesisBlock = uint256S("0x00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a");
-
-	      // Change to true to enable genesis block creation
-
-        if (false && genesis.GetHash() != hashGenesisBlock)
-        {
-            printf("recalculating params for mainnet.\n");
-            printf("old mainnet genesis nonce: %d\n", genesis.nNonce);
-            printf("old mainnet genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
-            // deliberately empty for loop finds nonce value.
-            for(; genesis.GetHash() < consensus.powLimit; genesis.nNonce++){ }
-            LogPrintf("new mainnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
-            LogPrintf("new mainnet genesis nonce: %d\n", genesis.nNonce);
-            LogPrintf("new mainnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
-        }
-
 	      consensus.hashGenesisBlock = genesis.GetHash();
 
         assert(consensus.hashGenesisBlock == uint256S("0x00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a"));
@@ -273,8 +257,6 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
 
         uint256 hashGenesisBlock = uint256S("0x000053aacf0d669b1b2973915fedea11261b68d112f70017a70ff3ccace6ca8b");
-
-        // Change to true to enable genesis block creation
 
         if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xb0165b6f11b45c4f21d0750af485249b32b2cd4f74d3fa33f30d9303c19a240a")))
         {
