@@ -263,6 +263,17 @@ bool CScript::IsPaymentRequestVoteNo() const
       (*this)[3] == OP_NO);
 }
 
+bool CScript::ExtractVote(uint256 &hash) const
+{
+    if(!IsPaymentRequestVoteNo() && !IsPaymentRequestVoteYes() && !IsProposalVoteYes()
+            && !IsProposalVoteNo())
+        return false;
+
+    std::vector<unsigned char> vHash;
+    memcpy(&vHash, &(*this)[4], 32);
+    hash = uint256(vHash);
+}
+
 bool CScript::IsPayToScriptHash() const
 {
     // Extra-fast test for pay-to-script-hash CScripts:

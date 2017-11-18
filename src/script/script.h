@@ -8,8 +8,9 @@
 
 #include "crypto/common.h"
 #include "prevector.h"
-#include "utilstrencodings.h"
 #include "pubkey.h"
+#include "uint256.h"
+#include "utilstrencodings.h"
 
 #include <assert.h>
 #include <climits>
@@ -679,6 +680,7 @@ public:
     bool IsProposalVoteNo() const;
     bool IsPaymentRequestVoteYes() const;
     bool IsPaymentRequestVoteNo() const;
+    bool ExtractVote(uint256 &hash) const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;
