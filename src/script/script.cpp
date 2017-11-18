@@ -269,8 +269,7 @@ bool CScript::ExtractVote(uint256 &hash) const
             && !IsProposalVoteNo())
         return false;
 
-    std::vector<unsigned char> vHash;
-    memcpy(&vHash, &(*this)[4], 32);
+    vector<unsigned char> vHash(this->begin()+4, this->begin()+36);
     hash = uint256(vHash);
 
     return true;
