@@ -127,18 +127,8 @@ static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
 extern std::set<std::pair<COutPoint, unsigned int> > setStakeSeen;
 
-int nTargetSpacing = 30; // Blocktime: 30 secs
-
-unsigned int GetStakeSplitAge = 1 * 24 * 60 * 60;
-int64_t GetStakeCombineThreshold = 1000 * COIN;
-int64_t GetStakeSplitThreshold = 2 * GetStakeCombineThreshold;
-
 arith_uint256 bnProofOfStakeLimit(~arith_uint256() >> 20);
 arith_uint256 bnProofOfStakeLimitV2(~arith_uint256() >> 20);
-
-const int DAILY_BLOCKCOUNT =  2880; // (24 * 60 * 60) / Blocktime
-unsigned int nStakeMinAge = 60 * 60 * 2;	// minimum for coin age: 2 hours
-unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
@@ -1173,7 +1163,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (!CheckTransaction(tx, state))
         return false; // state filled in by CheckTransaction
 
-    if (IsCommunityFundEnabled(pindexBestHeader->pprev,Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
+    if (IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
       return state.DoS(100, false, REJECT_INVALID, "old-version");
 
     // Coinbase is only valid in a block, not as a loose transaction
@@ -2944,7 +2934,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), nCoinAge))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
 
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->nHeight, nCoinAge, nFees);
+        int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->nHeight, nCoinAge, nFees, pindex->pprev);
 
         if (nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
@@ -7489,8 +7479,6 @@ unsigned int ComputedMinStake(unsigned int nBase, int64_t nTime, unsigned int nB
   return ComputeMaxBits(bnProofOfStakeLimit, nBase, nTime);
 }
 
-static int64_t nTargetTimespan = 25 * 30;  // 12.5 mins
-
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
 
@@ -7511,16 +7499,16 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
 
     if (nActualSpacing < 0)
-        nActualSpacing = nTargetSpacing;
+        nActualSpacing = Params().GetConsensus().nTargetSpacing;
 
     // ppcoin: target change every block
     // ppcoin: retarget with exponential moving toward target spacing
     CBigNum bnNew;
     bnNew.SetCompact(pindexPrev->nBits);
 
-    CBigNum nInterval = (nTargetTimespan) / (nTargetSpacing);
-    bnNew *= (((nInterval - 1)) * (nTargetSpacing) + (nActualSpacing) + (nActualSpacing));
-    bnNew /= (((nInterval + 1)) * (nTargetSpacing));
+    CBigNum nInterval = (Params().GetConsensus().nTargetTimespan) / (Params().GetConsensus().nTargetSpacing);
+    bnNew *= (((nInterval - 1)) * (Params().GetConsensus().nTargetSpacing) + (nActualSpacing) + (nActualSpacing));
+    bnNew /= (((nInterval + 1)) * (Params().GetConsensus().nTargetSpacing));
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
@@ -7558,7 +7546,7 @@ bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge)
 
         CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-        if (pblockindex->nTime + nStakeMinAge > transaction.nTime)
+        if (pblockindex->nTime + Params().GetConsensus().nStakeMinAge > transaction.nTime)
             continue; // only count coins meeting min age requirement
 
         int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
@@ -7585,7 +7573,7 @@ int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd)
     // this change increases active coins participating the hash and helps
     // to secure the network when proof-of-stake difficulty is low
 
-    return nIntervalEnd - nIntervalBeginning - nStakeMinAge;
+    return nIntervalEnd - nIntervalBeginning - Params().GetConsensus().nStakeMinAge;
 }
 
 // Get the last stake modifier and its generation time from a given block
@@ -7609,7 +7597,7 @@ static bool GetLastStakeModifier(const CBlockIndex* pindex, uint64_t& nStakeModi
 static int64_t GetStakeModifierSelectionIntervalSection(int nSection)
 {
     assert (nSection >= 0 && nSection < 64);
-    return (nModifierInterval * 63 / (63 + ((63 - nSection) * (MODIFIER_INTERVAL_RATIO - 1))));
+    return (Params().GetConsensus().nModifierInterval * 63 / (63 + ((63 - nSection) * (MODIFIER_INTERVAL_RATIO - 1))));
 }
 
 // Get stake modifier selection interval (in seconds)
@@ -7699,14 +7687,15 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
     if (!GetLastStakeModifier(pindexPrev, nStakeModifier, nModifierTime))
         return error("ComputeNextStakeModifier: unable to get last modifier");
 //    LogPrint("stakemodifier", "ComputeNextStakeModifier: prev modifier=0x%016x time=%s\n", nStakeModifier, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nModifierTime));
-    if (nModifierTime / nModifierInterval >= pindexPrev->GetBlockTime() / nModifierInterval)
+    if (nModifierTime / Params().GetConsensus().nModifierInterval >= pindexPrev->GetBlockTime() / Params().GetConsensus().nModifierInterval)
         return true;
 
     // Sort candidate blocks by timestamp
     vector<pair<int64_t, uint256> > vSortedByTimestamp;
-    vSortedByTimestamp.reserve(64 * nModifierInterval / GetTargetSpacing(pindexPrev->nHeight));
+    vSortedByTimestamp.reserve(64 * Params().GetConsensus().nModifierInterval / GetTargetSpacing(pindexPrev->nHeight));
     int64_t nSelectionInterval = GetStakeModifierSelectionInterval();
-    int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / nModifierInterval) * nModifierInterval - nSelectionInterval;
+    int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / Params().GetConsensus().nModifierInterval)
+            * Params().GetConsensus().nModifierInterval - nSelectionInterval;
 //    LogPrint("stakemodifier", "nSelectionInterval = %d nSelectionIntervalStart = %d\n",nSelectionInterval,nSelectionIntervalStart);
 
     const CBlockIndex* pindex = pindexPrev;
@@ -7774,7 +7763,7 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
         return error("CheckStakeKernelHash() : nTime violation");
 
 
-    if (nTimeBlockFrom + nStakeMinAge > nTimeTx) // Min age requirement
+    if (nTimeBlockFrom + Params().GetConsensus().nStakeMinAge > nTimeTx) // Min age requirement
         return error("CheckStakeKernelHash() : min age violation");
 
     // Base target
@@ -7913,7 +7902,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 
     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-    if (pblockindex->GetBlockTime() + nStakeMinAge > nTime)
+    if (pblockindex->GetBlockTime() + Params().GetConsensus().nStakeMinAge > nTime)
         return false;
 
     if (pBlockTime)
@@ -7927,17 +7916,19 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 }
 
 // staker's coin stake reward based on coin age spent (coin-days)
-int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
+int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev)
 {
     int64_t nRewardCoinYear;
     nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
-    if(nHeight-1 < 7 * DAILY_BLOCKCOUNT)
+    if(nHeight-1 < 7 * Params().GetConsensus().nDailyBlockCount)
         nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight-1 < (365 * DAILY_BLOCKCOUNT))
+    else if(nHeight-1 < (365 * Params().GetConsensus().nDailyBlockCount))
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight-1 < (730 * DAILY_BLOCKCOUNT))
+    else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+    else if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus()))
+        nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
     else
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
 

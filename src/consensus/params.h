@@ -62,6 +62,16 @@ struct Params {
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
+
+    /** Proof of stake parameters */
+    unsigned int nStakeMinAge;
+    int nTargetSpacing;
+    unsigned int nTargetTimespan;
+    int64_t nStakeCombineThreshold;
+    int64_t nStakeSplitThreshold;
+    int nDailyBlockCount;
+    unsigned int nModifierInterval; // time to elapse before new modifier is computed
+
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
 };
 } // namespace Consensus

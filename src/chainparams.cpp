@@ -114,12 +114,20 @@ public:
         consensus.BIP34Height = 900000;
         consensus.BIP34Hash = uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
         consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
-        consensus.nPowTargetTimespan = 30; // two weeks
+        consensus.nPowTargetTimespan = 30;
         consensus.nPowTargetSpacing = 30;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 15120; // 75% of 20160
         consensus.nMinerConfirmationWindow = 20160;
+        consensus.nStakeMinAge = 60 * 60 * 2;	// minimum for coin age: 2 hours
+        consensus.nTargetSpacing = 30; // Blocktime: 30 secs
+        consensus.nStakeCombineThreshold = 1000 * COIN;
+        consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
+        consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
+        consensus.nTargetTimespan = 25 * 30;
+
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
@@ -239,7 +247,7 @@ public:
         consensus.BIP34Height = 900000;
         consensus.BIP34Hash = uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
         consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
-        consensus.nPowTargetTimespan = 30; // two weeks
+        consensus.nPowTargetTimespan = 30;
         consensus.nPowTargetSpacing = 30;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
@@ -248,6 +256,13 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        consensus.nStakeMinAge = 2;	// minimum for coin age: 2 seconds
+        consensus.nTargetSpacing = 30; // Blocktime: 30 secs
+        consensus.nStakeCombineThreshold = 1000 * COIN;
+        consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
+        consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
+        consensus.nTargetTimespan = 25 * 30;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -358,6 +373,13 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
+        consensus.nStakeMinAge = 2;	// minimum for coin age: 2 seconds
+        consensus.nTargetSpacing = 30; // Blocktime: 30 secs
+        consensus.nStakeCombineThreshold = 1000 * COIN;
+        consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
+        consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
+        consensus.nTargetTimespan = 25 * 30;
 
         pchMessageStart[0] = 0xf9;
         pchMessageStart[1] = 0xef;

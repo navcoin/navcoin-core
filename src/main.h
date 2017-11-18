@@ -201,8 +201,6 @@ extern bool fEnableReplacement;
 /** Best header we've seen so far (used for getheaders queries' starting points). */
 extern CBlockIndex *pindexBestHeader;
 
-extern unsigned int nStakeMinAge;
-
 extern int lastPOWBlock;
 
 /** Minimum disk space required - used in CheckDiskSpace() */
@@ -578,10 +576,6 @@ static const unsigned int REJECT_CONFLICT = 0x102;
 
 bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge);
 
-
-// MODIFIER_INTERVAL: time to elapse before new modifier is computed
-extern unsigned int nModifierInterval;
-
 // MODIFIER_INTERVAL_RATIO:
 // ratio of group interval length between the last group and the first group
 static const int MODIFIER_INTERVAL_RATIO = 3;
@@ -608,7 +602,7 @@ int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd);
 // Convenient for searching a kernel
 bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime = NULL);
 
-int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees);
+int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev);
 bool CheckBlockSignature(const CBlock& block);
 
 unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int64_t nTime);
