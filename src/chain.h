@@ -213,6 +213,7 @@ public:
 
     int64_t nMint;
     int64_t nCFSupply;
+    int64_t nCFLocked;
 
     std::string strDZeel;
 
@@ -245,6 +246,7 @@ public:
         nStatus = 0;
         nMint = 0;
         nCFSupply = 0;
+        nCFLocked = 0;
         nFlags = 0;
         nStakeModifier = 0;
 	      hashProof = arith_uint256();
@@ -374,9 +376,9 @@ public:
 
     std::string ToString() const
     {
-        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nCFSupply=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
+        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nCFSupply=%s, nCFLocked=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
             pprev, nFile, nHeight,
-            FormatMoney(nMint), FormatMoney(nCFSupply),
+            FormatMoney(nMint), FormatMoney(nCFSupply), FormatMoney(nCFLocked),
             GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",
             nStakeModifier,
             hashProof.ToString(),
@@ -518,6 +520,7 @@ public:
         READWRITE(nNonce);
         READWRITE(blockHash);
         READWRITE(nCFSupply);
+        READWRITE(nCFLocked);
     }
 
     uint256 GetBlockHash() const

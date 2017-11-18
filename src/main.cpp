@@ -2519,6 +2519,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     AssertLockHeld(cs_main);
 
     pindex->nCFSupply = pindex->pprev != NULL ? pindex->pprev->nCFSupply : 0;
+    pindex->nCFLocked = pindex->pprev != NULL ? pindex->pprev->nCFLocked : 0;
 
     if (block.IsProofOfStake())
     {
