@@ -181,7 +181,7 @@ public:
     }
 
     bool IsExpired(uint32_t currentTime) const {
-        return (nDeadline > currentTime);
+        return (nDeadline < currentTime);
     }
 
     bool CanVote(uint32_t currentTime) const {
