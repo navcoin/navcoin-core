@@ -708,7 +708,7 @@ void NavCoinStaker(const CChainParams& chainparams)
             //Trying to sign a block
             if (SignBlock(pblock, *pwalletMain, nFees))
             {
-                LogPrintf("PoS Block signed\n");
+                LogPrint("coinstake","PoS Block signed\n");
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
                 CheckStake(pblock, *pwalletMain, chainparams);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
