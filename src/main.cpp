@@ -5557,7 +5557,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             LogPrintf("peer=%d using obsolete version %i; disconnecting (reason: %s)\n", pfrom->id, pfrom->nVersion, reason);
             pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE, reason);
             LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 1);
             return false;
         }
     }
