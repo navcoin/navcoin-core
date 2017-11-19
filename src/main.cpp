@@ -3436,7 +3436,42 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
 bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *pblock)
 {
     if(pindexNew->nHeight % CFund::nVotingPeriod == 0) {
-        // We need to reset vote counter of proposals and requests.
+        // We need to reset vote counter and update state of proposals and requests.
+        std::vector<CFund::CPaymentRequest> vecPaymentRequest;
+        std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
+
+        if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
+            for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
+                CFund::CPaymentRequest prequest = vecPaymentRequest[i];
+                if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
+                        (!prequest.IsAccepted() && !prequest.IsRejected())) {
+                    if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
+                        prequest.fState = CFund::REJECTED;
+                    }
+                    prequest.nVotesNo = 0;
+                    prequest.nVotesYes = 0;
+                    vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                }
+                CFund::CProposal parent;
+                if(!CFund::FindProposal(prequest.proposalhash, parent))
+                    continue;
+                if(parent.fState == CFund::ACCEPTED && prequest.IsAccepted()
+                        && prequest.fState != CFund::ACCEPTED) {
+                    if(prequest.nAmount <= pindexNew->nCFLocked) {
+                        pindexNew->nCFLocked -= prequest.nAmount;
+                        prequest.fState = CFund::ACCEPTED;
+                        prequest.blockhash = pblock->GetHash();
+                        vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                    } else { // SHOULD NEVER HAPPEN!
+                        LogPrintf("ERROR! Locked coins on Community Fund not enough to pay request %s.", prequest.hash.ToString());
+                    }
+                }
+            }
+            if (!pblocktree->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {
+                return AbortNode(state, "Failed to write payment request index");
+            }
+        }
+
         std::vector<CFund::CProposal> vecProposal;
         std::vector<pair<uint256,CFund::CProposal>> vProposalsToUpdate;
 
@@ -3473,40 +3508,6 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             }
         }
 
-        std::vector<CFund::CPaymentRequest> vecPaymentRequest;
-        std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
-
-        if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
-            for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
-                CFund::CPaymentRequest prequest = vecPaymentRequest[i];
-                if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
-                        (!prequest.IsAccepted() && !prequest.IsRejected())) {
-                    if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
-                        prequest.fState = CFund::REJECTED;
-                    }
-                    prequest.nVotesNo = 0;
-                    prequest.nVotesYes = 0;
-                    vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
-                }
-                CFund::CProposal parent;
-                if(!CFund::FindProposal(prequest.proposalhash, parent))
-                    continue;
-                if(parent.fState == CFund::ACCEPTED && prequest.IsAccepted()
-                        && prequest.fState != CFund::ACCEPTED) {
-                    if(prequest.nAmount <= pindexNew->nCFLocked) {
-                        pindexNew->nCFLocked -= prequest.nAmount;
-                        prequest.fState = CFund::ACCEPTED;
-                        prequest.blockhash = pblock->GetHash();
-                        vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
-                    } else { // SHOULD NEVER HAPPEN!
-                        LogPrintf("ERROR! Locked coins on Community Fund not enough to pay request.");
-                    }
-                }
-            }
-            if (!pblocktree->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {
-                return AbortNode(state, "Failed to write payment request index");
-            }
-        }
     }
 
     int nBlocks = (pindexNew->nHeight % CFund::nVotingPeriod);

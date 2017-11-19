@@ -98,12 +98,12 @@ public:
 
     bool IsAccepted() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return !IsRejected() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptProposal));
+        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptProposal));
     }
 
     bool IsRejected() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return !IsAccepted() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectProposal));
+        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectProposal));
     }
 
     bool CanVote() const {
