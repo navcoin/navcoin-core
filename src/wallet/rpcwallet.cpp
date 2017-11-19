@@ -584,7 +584,10 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     CFund::CProposal proposal;
 
     if(!CFund::FindProposal(params[0].get_str(),proposal))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash");
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
+
+    if(proposal.fState != CFund::ACCEPTED)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Proposal has not been accepted.");
 
     CNavCoinAddress address(proposal.Address);
 
@@ -593,7 +596,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CKeyID keyID;
     if (!address.GetKeyID(keyID))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key");
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key.");
 
     CKey key;
     if (!pwalletMain->GetKey(keyID, key))
@@ -610,12 +613,12 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     vector<unsigned char> vchSig;
     if (!key.SignCompact(ss.GetHash(), vchSig))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed.");
 
     std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
-    if (nReqAmount <= 0)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount.");
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
