@@ -3432,7 +3432,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     return true;
 }
 
-bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, CBlock *pblock)
+bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *pblock)
 {
     if(pindexNew->nHeight % CFund::nVotingPeriod == 0) {
         // We need to reset vote counter of proposals and requests.
