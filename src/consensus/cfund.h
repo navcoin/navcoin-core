@@ -7,6 +7,7 @@
 
 #include "amount.h"
 #include "net.h"
+#include "rpc/server.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "tinyformat.h"
@@ -90,9 +91,9 @@ public:
             sFlags = "accepted";
         if(IsRejected())
             sFlags = "rejected";
-        return strprintf("CPaymentRequest(hash=%s, nAmount=%u, fState=%s, nVotesYes=%u, nVotesNo=%u, proposalhash=%s, "
+        return strprintf("CPaymentRequest(hash=%s, nAmount=%s, fState=%s, nVotesYes=%u, nVotesNo=%u, proposalhash=%s, "
                          "blockhash=%s, paymenthash=%s, strDZeel=%s)",
-                         hash.ToString().substr(0,10), nAmount, sFlags, nVotesYes, nVotesNo, proposalhash.ToString().substr(0,10),
+                         hash.ToString().substr(0,10), ValueFromAmount(nAmount), sFlags, nVotesYes, nVotesNo, proposalhash.ToString().substr(0,10),
                          blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10), strDZeel);
     }
 
@@ -181,10 +182,10 @@ public:
                 sFlags += " waiting for end of voting period";
         }
         std::string str;
-        str += strprintf("CProposal(hash=%s, nAmount=%u, available=%d, nFee=%u, address=%s, nDeadline=%u, nVotesYes=%u, "
+        str += strprintf("CProposal(hash=%s, nAmount=%s, available=%s, nFee=%s, address=%s, nDeadline=%u, nVotesYes=%u, "
                          "nVotesNo=%u, fState=%s, strDZeel=%s, blockhash=%s)",
-                         hash.ToString(), nAmount, GetAvailable(), nFee, Address, nDeadline, nVotesYes, nVotesNo, sFlags,
-                         strDZeel, blockhash.ToString().substr(0,10));
+                         hash.ToString(), ValueFromAmount(nAmount), ValueFromAmount(GetAvailable()), ValueFromAmount(nFee),
+                         Address, nDeadline, nVotesYes, nVotesNo, sFlags, strDZeel, blockhash.ToString().substr(0,10));
         for (unsigned int i = 0; i < vPayments.size(); i++) {
             CFund::CPaymentRequest prequest;
             if(FindPaymentRequest(vPayments[i], prequest))
