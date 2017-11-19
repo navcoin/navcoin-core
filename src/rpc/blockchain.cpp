@@ -919,11 +919,6 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     if(pblocktree->GetProposalIndex(vec))
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-            LogPrintf("%d %d %d %d %d\n",showAll,(!showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime())),
-                      (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted())),
-                      (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected())),
-                      (showExpired && proposal.IsExpired(pindexBestHeader->GetBlockTime())));
-
             if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
                || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
                || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
