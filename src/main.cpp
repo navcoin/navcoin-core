@@ -3458,11 +3458,13 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, CBlock *pblock)
                     vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
                 }
                 if(proposal.IsAccepted() && proposal.fState != CFund::ACCEPTED) {
-                    pindexNew->nCFSupply -= proposal.GetAvailable();
-                    pindexNew->nCFLocked += proposal.GetAvailable();
-                    proposal.fState = CFund::ACCEPTED;
-                    proposal.blockhash = pblock->GetHash();
-                    vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+                    if(pindexNew->nCFSupply >= proposal.GetAvailable()) {
+                        pindexNew->nCFSupply -= proposal.GetAvailable();
+                        pindexNew->nCFLocked += proposal.GetAvailable();
+                        proposal.fState = CFund::ACCEPTED;
+                        proposal.blockhash = pblock->GetHash();
+                        vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+                    }
                 }
             }
             if (!pblocktree->UpdateProposalIndex(vProposalsToUpdate)) {
@@ -3490,10 +3492,14 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, CBlock *pblock)
                     continue;
                 if(parent.fState == CFund::ACCEPTED && prequest.IsAccepted()
                         && prequest.fState != CFund::ACCEPTED) {
-                    pindexNew->nCFLocked -= prequest.nAmount;
-                    prequest.fState = CFund::ACCEPTED;
-                    prequest.blockhash = pblock->GetHash();
-                    vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                    if(prequest.nAmount <= pindexNew->nCFLocked) {
+                        pindexNew->nCFLocked -= prequest.nAmount;
+                        prequest.fState = CFund::ACCEPTED;
+                        prequest.blockhash = pblock->GetHash();
+                        vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                    } else { // SHOULD NEVER HAPPEN!
+                        LogPrintf("ERROR! Locked coins on Community Fund not enough to pay request.");
+                    }
                 }
             }
             if (!pblocktree->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {

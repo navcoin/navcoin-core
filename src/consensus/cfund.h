@@ -162,12 +162,21 @@ public:
 
     std::string ToString(uint32_t currentTime = 0) const {
         std::string sFlags;
-        if(IsAccepted())
+        if(IsAccepted()) {
             sFlags = "accepted";
-        if(IsRejected())
+            if(fState != ACCEPTED)
+                sFlags += " waiting for end of voting period";
+        }
+        if(IsRejected()) {
             sFlags = "rejected";
-        if(currentTime > 0 && IsExpired(currentTime))
+            if(fState != REJECTED)
+                sFlags += " waiting for end of voting period";
+        }
+        if(currentTime > 0 && IsExpired(currentTime)) {
             sFlags = "expired";
+            if(fState != EXPIRED)
+                sFlags += " waiting for end of voting period";
+        }
         std::string str;
         str += strprintf("CProposal(hash=%s, nAmount=%u, available=%d, nFee=%u, address=%s, nDeadline=%u, nVotesYes=%u, "
                          "nVotesNo=%u, fState=%s, strDZeel=%s, blockhash=%s)",
@@ -183,12 +192,12 @@ public:
 
     bool IsAccepted() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return !IsRejected() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptPaymentRequest));
+        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptPaymentRequest));
     }
 
     bool IsRejected() const {
         int nTotalVotes = nVotesYes + nVotesNo;
-        return !IsAccepted() && nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectPaymentRequest));
+        return nTotalVotes > nQuorumVotes && ((float)nVotesNo > ((float)(nTotalVotes) * nVotesRejectPaymentRequest));
     }
 
     bool IsExpired(uint32_t currentTime) const {
@@ -210,7 +219,7 @@ public:
         {
             CFund::CPaymentRequest prequest;
             if(FindPaymentRequest(vPayments[i], prequest))
-                if(fIncludeRequests || (!fIncludeRequests && prequest.IsAccepted()))
+                if(fIncludeRequests || (!fIncludeRequests && prequest.fState == ACCEPTED))
                     initial -= prequest.nAmount;
         }
         return initial;
