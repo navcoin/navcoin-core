@@ -215,6 +215,26 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             }
         }
 
+        for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
+        {
+            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+            bool vote = vAddedPaymentRequestVotes[i].second;
+            if(CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest))
+            {
+                CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
+                if(pblockindex == NULL)
+                    continue;
+                if(prequest.CanVote() && parent.CanRequestPayments() && votes.count(proposal.hash) == 0 &&
+                        pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
+                {
+                    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+                    CFund::SetScriptForPaymentRequestVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,prequest.hash, vote);
+                    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    votes[prequest.hash] = vote;
+                }
+            }
+        }
+
         UniValue strDZeel(UniValue::VOBJ);
         std::vector<CFund::CPaymentRequest> vec;
         if(pblocktree->GetPaymentRequestIndex(vec))
@@ -223,8 +243,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
                 if(pblockindex == NULL)
                     continue;
-                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256()
-                        && pindexPrev->nHeight - pblockindex->nHeight > 50) {
+                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
+                        pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal parent;
                     if(CFund::FindProposal(prequest.proposalhash, parent)) {
                         coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);

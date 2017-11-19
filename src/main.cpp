@@ -2753,7 +2753,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             if(pblockindex == NULL)
                                 continue;
                             if(prequest.CanVote() && parent.CanRequestPayments()
-                                    && pindex->nHeight - pblockindex->nHeight > 50)
+                                    && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                         }
                     }
@@ -4458,7 +4458,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                     CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
                     if(pblockindex == NULL)
                         continue;
-                    if(!(pindexPrev->nHeight - pblockindex->nHeight > 50))
+                    if(!(pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                         return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
                     if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || parent.Address != CNavCoinAddress(address).ToString())
                         return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));

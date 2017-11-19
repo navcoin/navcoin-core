@@ -72,6 +72,7 @@ struct Params {
     float nVotesAcceptPaymentRequest;
     float nVotesRejectPaymentRequest;
     float nMinimumQuorum;
+    int nCommunityFundMinAge;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;
