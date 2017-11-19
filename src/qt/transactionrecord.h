@@ -78,7 +78,8 @@ public:
         RecvWithAddress,
         RecvFromOther,
         SendToSelf,
-        AnonTx
+        AnonTx,
+        CFund
     };
 
     /** Number of confirmation recommended for accepting a transaction */

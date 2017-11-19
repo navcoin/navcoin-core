@@ -259,6 +259,7 @@ public:
     mutable CAmount nChangeCached;
 
     bool fAnon;
+    bool fCFund;
 
     CWalletTx()
     {
@@ -301,6 +302,7 @@ public:
         fAvailableWatchCreditCached = false;
         fChangeCached = false;
         fAnon = false;
+        fCFund = false;
         nDebitCached = 0;
         nCreditCached = 0;
         nImmatureCreditCached = 0;
@@ -325,6 +327,8 @@ public:
         if (!ser_action.ForRead())
         {
             mapValue["fromaccount"] = strFromAccount;
+            if(fCFund)
+                mapValue["to"] = "community fund";
 
             WriteOrderPos(nOrderPos, mapValue);
 
@@ -349,6 +353,8 @@ public:
             ReadOrderPos(nOrderPos, mapValue);
 
             nTimeSmart = mapValue.count("timesmart") ? (unsigned int)atoi64(mapValue["timesmart"]) : 0;
+            if(mapValue["to"] == "community fund")
+                fCFund = true;
         }
 
         mapValue.erase("fromaccount");

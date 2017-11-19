@@ -2696,6 +2696,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 {
                     CTxOut txout(recipient.nAmount, recipient.scriptPubKey);
 
+                    if(recipient.scriptPubKey.IsCommunityFundContribution())
+                        wtxNew.fCFund = true;
+
                     if (recipient.fSubtractFeeFromAmount)
                     {
                         txout.nValue -= nFeeRet / nSubtractFeeFromAmount; // Subtract fee equally from each selected recipient

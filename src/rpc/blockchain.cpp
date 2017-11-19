@@ -1012,7 +1012,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         op.push_back(Pair("hash", prequest.hash.ToString()));
         op.push_back(Pair("proposalstr", parent.strDZeel));
         op.push_back(Pair("str", prequest.strDZeel));
-        op.push_back(Pair("amount", prequest.nAmount));
+        op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesPaymentRequests.push_back(op);
@@ -1432,6 +1432,48 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
     return mempoolInfoToJSON();
 }
 
+UniValue getproposal(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getproposal \"hash\"\n"
+            "\nShows information about the given proposal.\n"
+            "\nArguments:\n"
+            "1. hash   (string, required) the hash of the proposal\n"
+        );
+
+    CFund::CProposal proposal;
+    if(!CFund::FindProposal(params[0].get_str(), proposal))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not found");
+
+    UniValue ret(UniValue::VOBJ);
+
+    proposal.ToJson(ret);
+
+    return ret;
+}
+
+UniValue getpaymentrequest(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "getpaymentrequest \"hash\"\n"
+                "\nShows information about the given payment request.\n"
+                "\nArguments:\n"
+                "1. hash   (string, required) the hash of the payment request\n"
+        );
+
+    CFund::CPaymentRequest prequest;
+    if(!CFund::FindPaymentRequest(params[0].get_str(), prequest))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Payment request not found");
+
+    UniValue ret(UniValue::VOBJ);
+
+    prequest.ToJson(ret);
+
+    return ret;
+}
+
 UniValue invalidateblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1525,6 +1567,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getmempooldescendants",  &getmempooldescendants,  true  },
     { "blockchain",         "getmempoolentry",        &getmempoolentry,        true  },
     { "blockchain",         "getmempoolinfo",         &getmempoolinfo,         true  },
+    { "blockchain",         "getproposal",            &getproposal,            true  },
+    { "blockchain",         "getpaymentrequest",      &getpaymentrequest,      true  },
     { "blockchain",         "getrawmempool",          &getrawmempool,          true  },
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },

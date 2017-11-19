@@ -5,6 +5,7 @@
 #include "consensus/cfund.h"
 #include "base58.h"
 #include "main.h"
+#include "rpc/server.h"
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
@@ -180,6 +181,9 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
       return false;
     }
 
+    if(!(find_value(metadata, "n").isNum() && find_value(metadata, "s").isStr() && find_value(metadata, "h").isStr() && find_value(metadata, "i").isStr()))
+        return false;
+
     CAmount nAmount = find_value(metadata, "n").get_int64();
     std::string Signature = find_value(metadata, "s").get_str();
     std::string Hash = find_value(metadata, "h").get_str();
@@ -219,7 +223,6 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 
 bool CFund::IsValidProposal(CTransaction tx)
 {
-
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
@@ -236,6 +239,9 @@ bool CFund::IsValidProposal(CTransaction tx)
     } catch (const std::exception& e) {
       return false;
     }
+
+    if(!(find_value(metadata, "n").isNum() && find_value(metadata, "a").isStr() && find_value(metadata, "d").isNum()))
+        return false;
 
     CAmount nAmount = find_value(metadata, "n").get_int64();
     std::string Address = find_value(metadata, "a").get_str();
@@ -276,4 +282,44 @@ bool CFund::CProposal::IsRejected() const {
     int nTotalVotes = nVotesYes + nVotesNo;
     return nTotalVotes > Params().GetConsensus().nQuorumVotes
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
+}
+
+void CFund::CProposal::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("hash", hash.ToString()));
+    ret.push_back(Pair("description", strDZeel));
+    ret.push_back(Pair("requestedAmount", (float)nAmount/COIN));
+    ret.push_back(Pair("notPaidYet", (float)GetAvailable()/COIN));
+    ret.push_back(Pair("userPaidFee", (float)nFee/COIN));
+    ret.push_back(Pair("paymentAddress", Address));
+    ret.push_back(Pair("deadline", (uint64_t)nDeadline));
+    ret.push_back(Pair("votesYes", nVotesYes));
+    ret.push_back(Pair("votesNo", nVotesNo));
+    ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
+    if(fState == ACCEPTED)
+        ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
+    if(vPayments.size() > 0) {
+        UniValue arr(UniValue::VARR);
+        for(unsigned int i = 0; i < vPayments.size(); i++) {
+            UniValue preq(UniValue::VOBJ);
+            CFund::CPaymentRequest prequest;
+            if(CFund::FindPaymentRequest(vPayments[i],prequest)) {
+                prequest.ToJson(preq);
+                arr.push_back(preq);
+            }
+        }
+        ret.push_back(Pair("paymentRequests", arr));
+    }
+}
+
+void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("hash", hash.ToString()));
+    ret.push_back(Pair("description", strDZeel));
+    ret.push_back(Pair("requestedAmount", AmountFromValue(nAmount)));
+    ret.push_back(Pair("votesYes", nVotesYes));
+    ret.push_back(Pair("votesNo", nVotesNo));
+    ret.push_back(Pair("status", GetState()));
+    if(fState == ACCEPTED) {
+        ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
+        ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
+    }
 }
