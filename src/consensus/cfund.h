@@ -91,9 +91,9 @@ public:
         if(IsRejected())
             sFlags = "rejected";
         return strprintf("CPaymentRequest(hash=%s, nAmount=%u, fState=%s, nVotesYes=%u, nVotesNo=%u, proposalhash=%s, "
-                         "blockhash=%s, paymenthash=%s)",
+                         "blockhash=%s, paymenthash=%s, strDZeel=%s)",
                          hash.ToString().substr(0,10), nAmount, sFlags, nVotesYes, nVotesNo, proposalhash.ToString().substr(0,10),
-                         blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10));
+                         blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10), strDZeel);
     }
 
     bool IsAccepted() const {
