@@ -3532,7 +3532,9 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
             CFund::CPaymentRequest prequest; CFund::CProposal parent;
-            if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest) && !CFund::FindProposal(prequest.proposalhash, parent))
+            if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
+                continue;
+            if(!CFund::FindProposal(prequest.proposalhash, parent))
                 continue;
             CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
             if(pindexblockparent == NULL)
@@ -3555,7 +3557,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
     std::map<uint256, std::pair<int, int>>::iterator it;
     std::vector<std::pair<uint256, CFund::CProposal>> vecProposalsToUpdate;
-    std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdaate;
+    std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdate;
     for(it = vCacheProposalsToUpdate.begin(); it != vCacheProposalsToUpdate.end(); it++) {
         CFund::CProposal proposal;
         if(!CFund::FindProposal(it->first, proposal))
@@ -3570,12 +3572,12 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             continue;
         prequest.nVotesYes = it->second.first;
         prequest.nVotesNo = it->second.second;
-        vecPaymentRequestsToUpdaate.push_back(make_pair(prequest.hash, prequest));
+        vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
     }
     if (!pblocktree->UpdateProposalIndex(vecProposalsToUpdate)) {
         return AbortNode(state, "Failed to write proposal index");
     }
-    if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdaate)) {
+    if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
         return AbortNode(state, "Failed to write payment request index");
     }
     return true;
