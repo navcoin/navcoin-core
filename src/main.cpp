@@ -2942,7 +2942,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.strDZeel = find_value(metadata, "s").get_str();
             proposal.nFee = nProposalFee;
             proposal.hash = tx.GetHash();
-            proposal.blockhash = block.GetHash();
 
             proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
         }
@@ -3435,7 +3434,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
 
 bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *pblock)
 {
-    if(pindexNew->nHeight % CFund::nVotingPeriod == 0) {
+    if(pindexNew->nHeight % Params().GetConsensus().nVotingPeriod == 0) {
         // We need to reset vote counter and update state of proposals and requests.
         std::vector<CFund::CPaymentRequest> vecPaymentRequest;
         std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
@@ -3507,10 +3506,9 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                 return AbortNode(state, "Failed to write proposal index");
             }
         }
-
     }
 
-    int nBlocks = (pindexNew->nHeight % CFund::nVotingPeriod);
+    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nVotingPeriod);
     CBlockIndex* pindexblock = pindexNew;
 
     std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
@@ -3541,7 +3539,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                 continue;
             if(parent.CanRequestPayments() && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
-                    && pindexblock->nHeight - pindexblockparent->nHeight > 50) {
+                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nProposalConfirmationWindow) {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)
@@ -7008,25 +7006,25 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
     else if (strCommand == NetMsgType::REJECT)
     {
-        if (fDebug) {
-            try {
-                string strMsg; unsigned char ccode; string strReason;
-                vRecv >> LIMITED_STRING(strMsg, CMessageHeader::COMMAND_SIZE) >> ccode >> LIMITED_STRING(strReason, MAX_REJECT_MESSAGE_LENGTH);
+        try {
+            string strMsg; unsigned char ccode; string strReason;
+            vRecv >> LIMITED_STRING(strMsg, CMessageHeader::COMMAND_SIZE) >> ccode >> LIMITED_STRING(strReason, MAX_REJECT_MESSAGE_LENGTH);
 
-                ostringstream ss;
-                ss << strMsg << " code " << itostr(ccode) << ": " << strReason;
+            ostringstream ss;
+            ss << strMsg << " code " << itostr(ccode) << ": " << strReason;
 
-                if (strMsg == NetMsgType::BLOCK || strMsg == NetMsgType::TX)
-                {
-                    uint256 hash;
-                    vRecv >> hash;
-                    ss << ": hash " << hash.ToString();
-                }
-                LogPrintf("Nodes are rejecting our connection. Reason: %s\n", SanitizeString(ss.str()));
-            } catch (const std::ios_base::failure&) {
-                // Avoid feedback loops by preventing reject messages from triggering a new reject message.
-                LogPrint("net", "Unparseable reject message received\n");
+            if (strMsg == NetMsgType::BLOCK || strMsg == NetMsgType::TX)
+            {
+                uint256 hash;
+                vRecv >> hash;
+                ss << ": hash " << hash.ToString();
             }
+            if(fDebug || ccode == REJECT_OBSOLETE)
+                LogPrintf("Nodes are rejecting our messages. Reason: %s\n", SanitizeString(ss.str()));
+        } catch (const std::ios_base::failure&) {
+            // Avoid feedback loops by preventing reject messages from triggering a new reject message.
+            if(fDebug)
+                LogPrint("net", "Unparseable reject message received\n");
         }
     }
 

@@ -29,13 +29,6 @@ static const flags ACCEPTED = 0x1;
 static const flags REJECTED = 0x2;
 static const flags EXPIRED = 0x3;
 
-static const int nVotingPeriod = 2880 * 7; // 7 Days
-static const int nQuorumVotes = nVotingPeriod / 2;
-static const float nVotesAcceptProposal = 0.7;
-static const float nVotesRejectProposal = 0.7;
-static const float nVotesAcceptPaymentRequest = 0.7;
-static const float nVotesRejectPaymentRequest = 0.7;
-
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, bool vote);
@@ -102,15 +95,9 @@ public:
                          blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10), strDZeel);
     }
 
-    bool IsAccepted() const {
-        int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptProposal));
-    }
+    bool IsAccepted() const;
 
-    bool IsRejected() const {
-        int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesRejectProposal));
-    }
+    bool IsRejected() const;
 
     bool CanVote() const {
         return fState != ACCEPTED && fState != REJECTED;
@@ -199,15 +186,9 @@ public:
         return str + "\n";
     }
 
-    bool IsAccepted() const {
-        int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesYes > ((float)(nTotalVotes) * nVotesAcceptPaymentRequest));
-    }
+    bool IsAccepted() const;
 
-    bool IsRejected() const {
-        int nTotalVotes = nVotesYes + nVotesNo;
-        return nTotalVotes > nQuorumVotes && ((float)nVotesNo > ((float)(nTotalVotes) * nVotesRejectPaymentRequest));
-    }
+    bool IsRejected() const;
 
     bool IsExpired(uint32_t currentTime) const {
         return (nDeadline < currentTime);

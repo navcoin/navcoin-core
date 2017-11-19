@@ -103,6 +103,13 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 20000;
+        consensus.nProposalConfirmationWindow = 50;
+        consensus.nVotingPeriod = 2880 * 7; // 7 Days
+        consensus.nQuorumVotes = consensus.nVotingPeriod / 2;
+        consensus.nVotesAcceptProposal = 0.7;
+        consensus.nVotesRejectProposal = 0.7;
+        consensus.nVotesAcceptPaymentRequest = 0.7;
+        consensus.nVotesRejectPaymentRequest = 0.7;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -224,6 +231,13 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 100000;
+        consensus.nProposalConfirmationWindow = 5;
+        consensus.nVotingPeriod = 720; // 6 hours
+        consensus.nQuorumVotes = consensus.nVotingPeriod / 2;
+        consensus.nVotesAcceptProposal = 0.7;
+        consensus.nVotesRejectProposal = 0.7;
+        consensus.nVotesAcceptPaymentRequest = 0.7;
+        consensus.nVotesRejectPaymentRequest = 0.7;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -340,6 +354,13 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 20000;
+        consensus.nProposalConfirmationWindow = 5;
+        consensus.nVotingPeriod = 720; // 6 hours
+        consensus.nQuorumVotes = consensus.nVotingPeriod / 2;
+        consensus.nVotesAcceptProposal = 0.7;
+        consensus.nVotesRejectProposal = 0.7;
+        consensus.nVotesAcceptPaymentRequest = 0.7;
+        consensus.nVotesRejectPaymentRequest = 0.7;
 
         pchMessageStart[0] = 0xf9;
         pchMessageStart[1] = 0xef;
@@ -351,7 +372,7 @@ public:
         genesis = CreateGenesisBlock(1484131714, 2042883868, 0x207fffff, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-	// Need to be reviewed
+        // Need to be reviewed
 
         //assert(consensus.hashGenesisBlock == uint256S("0x0000000013cb675cc890cf8c7a22f1f3948684b297ccd2553d6e203e00198ae0"));
         //assert(genesis.hashMerkleRoot == uint256S("0x3c71675ea78d84a0aafd2ec31a82745cd7c2844b6f77616a7f36134f0fd3e30b"));

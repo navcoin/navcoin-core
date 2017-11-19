@@ -644,7 +644,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), 0.0001, fSubtractFeeFromAmount, wtx, "", true);
+    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true);
 
     UniValue ret(UniValue::VOBJ);
 

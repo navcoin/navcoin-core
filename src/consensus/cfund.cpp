@@ -254,3 +254,26 @@ bool CFund::IsValidProposal(CTransaction tx)
 
 }
 
+bool CFund::CPaymentRequest::IsAccepted() const {
+    int nTotalVotes = nVotesYes + nVotesNo;
+    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+           && ((float)nVotesYes > ((float)(nTotalVotes) * Params().GetConsensus().nVotesAcceptPaymentRequest));
+}
+
+bool CFund::CPaymentRequest::IsRejected() const {
+    int nTotalVotes = nVotesYes + nVotesNo;
+    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+           && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectPaymentRequest));
+}
+
+bool CFund::CProposal::IsAccepted() const {
+    int nTotalVotes = nVotesYes + nVotesNo;
+    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+           && ((float)nVotesYes > ((float)(nTotalVotes) * Params().GetConsensus().nVotesAcceptProposal));
+}
+
+bool CFund::CProposal::IsRejected() const {
+    int nTotalVotes = nVotesYes + nVotesNo;
+    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+           && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
+}
