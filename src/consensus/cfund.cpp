@@ -252,7 +252,7 @@ bool CFund::IsValidProposal(CTransaction tx)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
-    return (nContribution >= FUND_MINIMAL_FEE &&
+    return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
             Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&

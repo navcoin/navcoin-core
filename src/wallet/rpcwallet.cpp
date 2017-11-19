@@ -494,16 +494,17 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 3)
+    if (fHelp || params.size() < 4)
         throw runtime_error(
             "createproposal address amount deadline\n"
-            "\nCreates a proposal for the community fund.\n"
+            "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
             "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
             "3. deadline               (numeric, required) Epoch timestamp when the proposal would expire.\n"
-            "4. desc                   (string, optional) Short description of the proposal.\n"
+            "4. \"desc\"               (string, required) Short description of the proposal.\n"
+            "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
@@ -516,8 +517,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
-    CAmount nAmount = FUND_MINIMAL_FEE;
-    if (nAmount <= 0)
+    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : Params().GetConsensus().nProposalMinimalFee;
+    if (nAmount <= 0 || nAmount < Params().GetConsensus().nProposalMinimalFee)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     CWalletTx wtx;
@@ -531,7 +532,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
-    string sDesc = params.size() == 4 ? params[3].get_str() : "";
+    string sDesc = params[3].get_str();
 
     UniValue strDZeel(UniValue::VOBJ);
 
@@ -566,7 +567,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 3)
         throw runtime_error(
             "createpaymentrequest hash amount id\n"
-            "\nCreates a proposal to withdraw funds from the community fund.\n"
+            "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"hash\"               (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.\n"

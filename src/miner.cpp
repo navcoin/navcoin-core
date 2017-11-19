@@ -215,12 +215,15 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             }
         }
 
+
         for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
         {
             CFund::CPaymentRequest prequest; CFund::CProposal parent;
             bool vote = vAddedPaymentRequestVotes[i].second;
             if(CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest))
             {
+                if(!CFund::FindProposal(prequest.proposalhash, parent))
+                    continue;
                 CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
                 if(pblockindex == NULL)
                     continue;
