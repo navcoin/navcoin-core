@@ -65,6 +65,7 @@ public:
     uint256 paymenthash;
     int nVotesYes;
     int nVotesNo;
+    string strDZeel;
 
     CPaymentRequest() { SetNull(); }
 
@@ -76,10 +77,11 @@ public:
         hash = uint256();
         proposalhash = uint256();
         paymenthash = uint256();
+        strDZeel = "";
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && fState == NIL && nVotesYes == 0 && nVotesNo == 0);
+        return (nAmount == 0 && fState == NIL && nVotesYes == 0 && nVotesNo == 0 && strDZeel == "");
     }
 
     std::string ToString() const {
@@ -120,6 +122,7 @@ public:
         READWRITE(proposalhash);
         READWRITE(blockhash);
         READWRITE(paymenthash);
+        READWRITE(strDZeel);
     }
 
 };

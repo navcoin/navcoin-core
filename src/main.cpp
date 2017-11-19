@@ -2969,6 +2969,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             prequest.nAmount = find_value(metadata, "n").get_int64();
             prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
+            prequest.strDZeel = find_value(metadata, "i").get_str();
 
             CFund::CProposal parent;
             if(!CFund::FindProposal(prequest.proposalhash, parent))

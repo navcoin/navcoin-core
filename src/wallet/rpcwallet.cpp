@@ -558,6 +558,99 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue cretepaymentrequest(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 3)
+        throw runtime_error(
+            "createpaymentrequest hash amount id\n"
+            "\nCreates a proposal to withdraw funds from the community fund.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"hash\"               (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.\n"
+            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to withdraw. eg 10\n"
+            "3. \"id\"                 (string, required) Unique id to identify the payment request\n"
+            "\nResult:\n"
+            "\"{ hash: prequestid,\"             (string) The payment request id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createpaymentrequest", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" 1000 \"Invoice March 2017\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CFund::CProposal proposal;
+
+    if(!CFund::FindProposal(params[0].get_str(),proposal))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash");
+
+    CNavCoinAddress address(proposal.Address);
+
+    if(!address.IsValid())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address of the proposal is not a valid NavCoin address.");
+
+    CKeyID keyID;
+    if (!addr.GetKeyID(keyID))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key");
+
+    CKey key;
+    if (!pwalletMain->GetKey(keyID, key))
+        throw JSONRPCError(RPC_WALLET_ERROR, "You are not the owner of the proposal. Can't find the private key.");
+
+    CAmount nReqAmount = AmountFromValue(params[1]);
+    std::string id = params[2].get_str();
+
+    std::string Secret = "I kindly ask to withdraw " + std::to_string(nReqAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + id;
+
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << strMessageMagic;
+    ss << Secret;
+
+    vector<unsigned char> vchSig;
+    if (!key.SignCompact(ss.GetHash(), vchSig))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
+
+    std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
+
+    if (nReqAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    string Address = params[0].get_str();
+
+    CNavCoinAddress destaddress(Address);
+    if (!destaddress.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
+    UniValue strDZeel(UniValue::VOBJ);
+
+    strDZeel.push_back(Pair("h",params[0].get_str));
+    strDZeel.push_back(Pair("n",nReqAmount));
+    strDZeel.push_back(Pair("s",Signature));
+    strDZeel.push_back(Pair("i",id));
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(address.Get(), 0.0001, fSubtractFeeFromAmount, wtx, "", true);
+
+    UniValue ret(UniValue::VOBJ);
+
+    ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+    ret.push_back(Pair("strDZeel",wtx.strDZeel));
+
+    return ret;
+}
+
 UniValue donatefund(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -3330,6 +3423,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                 &sendmany,                 false },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
     { "wallet",             "donatefund",               &donatefund,               false },
+    { "wallet",             "createpaymentrequest",     &createpaymentrequest,     false },
     { "wallet",             "createproposal",           &createproposal,           false },
     { "wallet",             "stakervote",               &stakervote,               false },
     { "wallet",             "proposalvote",             &proposalvote,             false },
