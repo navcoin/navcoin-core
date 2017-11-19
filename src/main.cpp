@@ -3396,7 +3396,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         }
         else
         {
-            if(!CountVotes(state, pindexNew))
+            if(!CountVotes(state, pindexNew, pblock))
                 return error("ConnectTip(): ConnectBlock %s failed while counting votes. ", pindexNew->GetBlockHash().ToString());
         }
         mapBlockSource.erase(pindexNew->GetBlockHash());
@@ -3432,7 +3432,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     return true;
 }
 
-bool CountVotes(CValidationState& state, CBlockIndex *pindexNew)
+bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, CBlock *pblock)
 {
     if(pindexNew->nHeight % CFund::nVotingPeriod == 0) {
         // We need to reset vote counter of proposals and requests.
@@ -3461,6 +3461,8 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew)
                     pindexNew->nCFSupply -= proposal.GetAvailable();
                     pindexNew->nCFLocked += proposal.GetAvailable();
                     proposal.fState = CFund::ACCEPTED;
+                    proposal.blockhash = pblock->GetHash();
+                    vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
                 }
             }
             if (!pblocktree->UpdateProposalIndex(vProposalsToUpdate)) {
@@ -3490,6 +3492,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew)
                         && prequest.fState != CFund::ACCEPTED) {
                     pindexNew->nCFLocked -= prequest.nAmount;
                     prequest.fState = CFund::ACCEPTED;
+                    prequest.blockhash = pblock->GetHash();
                     vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
                 }
             }

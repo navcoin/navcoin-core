@@ -613,6 +613,6 @@ static const unsigned int MAX_STANDARD_TX_SIZE = MAX_BLOCK_SIZE_GEN/5;
 
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
-bool CountVotes(CValidationState& state, CBlockIndex *pindexNew);
+bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, CBlock* pblock);
 
 #endif // NAVCOIN_MAIN_H
