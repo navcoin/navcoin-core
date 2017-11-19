@@ -558,7 +558,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     return ret;
 }
 
-UniValue cretepaymentrequest(const UniValue& params, bool fHelp)
+UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
@@ -592,7 +592,7 @@ UniValue cretepaymentrequest(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "Address of the proposal is not a valid NavCoin address.");
 
     CKeyID keyID;
-    if (!addr.GetKeyID(keyID))
+    if (!address.GetKeyID(keyID))
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key");
 
     CKey key;
@@ -628,7 +628,7 @@ UniValue cretepaymentrequest(const UniValue& params, bool fHelp)
 
     UniValue strDZeel(UniValue::VOBJ);
 
-    strDZeel.push_back(Pair("h",params[0].get_str));
+    strDZeel.push_back(Pair("h",params[0].get_str()));
     strDZeel.push_back(Pair("n",nReqAmount));
     strDZeel.push_back(Pair("s",Signature));
     strDZeel.push_back(Pair("i",id));
