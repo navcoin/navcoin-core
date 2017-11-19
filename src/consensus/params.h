@@ -63,7 +63,6 @@ struct Params {
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
     int nLastPOWBlock;
-    int nProposalConfirmationWindow;
 
     int nVotingPeriod;
     int nQuorumVotes;
@@ -73,6 +72,7 @@ struct Params {
     float nVotesRejectPaymentRequest;
     float nMinimumQuorum;
     int nCommunityFundMinAge;
+    CAmount nProposalMinimalFee;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;

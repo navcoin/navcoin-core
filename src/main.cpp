@@ -2967,6 +2967,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             CFund::CPaymentRequest prequest;
 
+            prequest.hash = tx.GetHash();
             prequest.nAmount = find_value(metadata, "n").get_int64();
             prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
             prequest.strDZeel = find_value(metadata, "i").get_str();
@@ -3549,7 +3550,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                 continue;
             if(parent.CanRequestPayments() && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
-                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nProposalConfirmationWindow) {
+                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)

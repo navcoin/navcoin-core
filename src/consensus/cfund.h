@@ -14,8 +14,6 @@
 #include "uint256.h"
 #include "util.h"
 
-#define FUND_MINIMAL_FEE 10000000000
-
 using namespace std;
 
 namespace CFund {

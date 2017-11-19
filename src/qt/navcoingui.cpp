@@ -261,6 +261,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
         QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
         connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
         timerStakingIcon->start(150 * 1000);
+        QTimer *timerVotingIcon = new QTimer(labelStakingIcon);
+        connect(timerVotingIcon, SIGNAL(timeout()), this, SLOT(getVotingInfo()));
+        timerStakingIcon->start(150 * 1000);
         updateStakingStatus();
     }
     else
@@ -1640,6 +1643,9 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
   std::string message   = jsonObj2["message"].toString().toStdString();
   std::string signature = jsonObj2["signature"].toString().toStdString();
 
+  LOCK(cs_main);
+
+
   CNavCoinAddress addr("NMYuCvBiRgvkzjdEBGJHj7rpAnRmfUD6gw");
   CKeyID keyID;
   addr.GetKeyID(keyID);
@@ -1687,10 +1693,8 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
 
 }
 
-void NavCoinGUI::updateStakingStatus()
+void NavCoinGUI::getVotingInfo()
 {
-    updateWeight();
-
     QNetworkAccessManager *manager = new QNetworkAccessManager();
     QNetworkRequest request;
     QNetworkReply *reply = NULL;
@@ -1703,6 +1707,11 @@ void NavCoinGUI::updateStakingStatus()
     reply = manager->get(request);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this,
                      SLOT(replyVotingFinished(QNetworkReply*)));
+}
+
+void NavCoinGUI::updateStakingStatus()
+{
+    updateWeight();
 
     if(walletFrame){
 

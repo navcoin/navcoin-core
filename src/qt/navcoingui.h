@@ -230,6 +230,8 @@ private Q_SLOTS:
     /** Fetch Price from CMC **/
     void updatePrice();
 
+    void getVotingInfo();
+
     /** Repairs wallet **/
     void repairWallet();
 

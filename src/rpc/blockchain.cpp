@@ -963,7 +963,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
                 continue;
             if(parent.CanRequestPayments() && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
-                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nProposalConfirmationWindow) {
+                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequest.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)

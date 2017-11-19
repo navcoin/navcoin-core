@@ -103,7 +103,6 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 20000;
-        consensus.nProposalConfirmationWindow = 50;
         consensus.nVotingPeriod = 2880 * 7; // 7 Days
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
@@ -112,6 +111,7 @@ public:
         consensus.nVotesAcceptPaymentRequest = 0.7;
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 50;
+        consensus.nProposalMinimalFee = 10000000000;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -233,7 +233,6 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 100000;
-        consensus.nProposalConfirmationWindow = 5;
         consensus.nVotingPeriod = 720; // 6 hours
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
@@ -241,7 +240,8 @@ public:
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
         consensus.nVotesRejectPaymentRequest = 0.7;
-        consensus.nCommunityFundMinAge = 50;
+        consensus.nCommunityFundMinAge = 5;
+        consensus.nProposalMinimalFee = 10000000000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -358,7 +358,6 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 20000;
-        consensus.nProposalConfirmationWindow = 5;
         consensus.nVotingPeriod = 720; // 6 hours
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
@@ -366,7 +365,8 @@ public:
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
         consensus.nVotesRejectPaymentRequest = 0.7;
-        consensus.nCommunityFundMinAge = 50;
+        consensus.nCommunityFundMinAge = 5;
+        consensus.nProposalMinimalFee = 10000000000;
 
         pchMessageStart[0] = 0xf9;
         pchMessageStart[1] = 0xef;
