@@ -28,6 +28,7 @@ static const flags NIL = 0x0;
 static const flags ACCEPTED = 0x1;
 static const flags REJECTED = 0x2;
 static const flags EXPIRED = 0x3;
+static const flags PENDING_FUNDS = 0x4;
 
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
@@ -78,7 +79,7 @@ public:
     }
 
     std::string ToString() const {
-        std::string sFlags;
+        std::string sFlags = "pending";
         if(IsAccepted()) {
             sFlags = "accepted";
             if(fState != ACCEPTED)
@@ -157,10 +158,12 @@ public:
     }
 
     std::string ToString(uint32_t currentTime = 0) const {
-        std::string sFlags;
+        std::string sFlags = "pending";
         if(IsAccepted()) {
             sFlags = "accepted";
-            if(fState != ACCEPTED)
+            if(fState == PENDING_FUNDS)
+                sFlags += " waiting for enough coins in fund";
+            else if(fState != ACCEPTED)
                 sFlags += " waiting for end of voting period";
         }
         if(IsRejected()) {
@@ -195,11 +198,11 @@ public:
     }
 
     bool CanVote() const {
-        return fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
+        return fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && fState != PENDING_FUNDS;
     }
 
     bool CanRequestPayments() const {
-        return fState == ACCEPTED && fState != REJECTED && fState != EXPIRED;
+        return fState == ACCEPTED;
     }
 
     CAmount GetAvailable(bool fIncludeRequests = false) const

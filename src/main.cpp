@@ -3480,8 +3480,10 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                 if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
                         (proposal.IsRejected() && proposal.fState != CFund::REJECTED) ||
                         (!proposal.IsAccepted() && !proposal.IsRejected())) {
-                    proposal.nVotesNo = 0;
-                    proposal.nVotesYes = 0;
+                    if(proposal.fState != CFund::PENDING_FUNDS) {
+                        proposal.nVotesNo = 0;
+                        proposal.nVotesYes = 0;
+                    }
                     if(proposal.IsExpired(pindexNew->GetMedianTimePast() && proposal.fState != CFund::EXPIRED)) {
                         proposal.fState = CFund::EXPIRED;
                         pindexNew->nCFSupply += proposal.GetAvailable();
@@ -3492,12 +3494,17 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                     }
                     vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
                 }
-                if(proposal.IsAccepted() && proposal.fState != CFund::ACCEPTED) {
+                if(proposal.IsAccepted() && (proposal.fState != CFund::ACCEPTED || proposal.fState == CFund::PENDING_FUNDS)) {
                     if(pindexNew->nCFSupply >= proposal.GetAvailable()) {
                         pindexNew->nCFSupply -= proposal.GetAvailable();
                         pindexNew->nCFLocked += proposal.GetAvailable();
                         proposal.fState = CFund::ACCEPTED;
                         proposal.blockhash = pblock->GetHash();
+                        vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+                    } else if(proposal.fState != CFund::PENDING_FUNDS) {
+                        proposal.fState = CFund::PENDING_FUNDS;
+                        LogPrintf("Could not accept proposal %s. There are no enough coins on the community fund. (req %d vs. %d available)\n",
+                                  proposal.hash.ToString(), proposal.GetAvailable(), pindexNew->nCFSupply);
                         vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
                     }
                 }
