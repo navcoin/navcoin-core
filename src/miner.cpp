@@ -220,7 +220,11 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         if(pblocktree->GetPaymentRequestIndex(vec))
         {
             BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256()) {
+                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
+                if(pblockindex == NULL)
+                    continue;
+                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256()
+                        && pindexPrev->nHeight - pblockindex->nHeight > 50) {
                     CFund::CProposal parent;
                     if(CFund::FindProposal(prequest.proposalhash, parent)) {
                         coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
