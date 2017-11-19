@@ -464,51 +464,6 @@ public:
         return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
     }
 
-    bool IsValidProposal() const
-    {
-
-        UniValue metadata(UniValue::VOBJ);
-        try {
-            UniValue valRequest;
-            if (!valRequest.read(strDZeel))
-              return false;
-
-            if (valRequest.isObject())
-            {
-
-              metadata = valRequest.get_obj();
-
-            }
-            else
-            {
-
-              return false;
-
-            }
-
-        } catch (const UniValue& objError) {
-          return false;
-        } catch (const std::exception& e) {
-          return false;
-        }
-
-        CAmount nAmount = find_value(metadata, "n").get_int64();
-        std::string Address = find_value(metadata, "a").get_str();
-        int64_t nDeadline = find_value(metadata, "d").get_int64();
-        CAmount nContribution = 0;
-
-        for(unsigned int i=0;i<vout.size();i++)
-            if(vout[i].IsCommunityFundContribution())
-                nContribution +=vout[i].nValue;
-
-        return (nContribution >= FUND_MINIMAL_FEE &&
-                Address != "" &&
-                nAmount < MAX_MONEY &&
-                nAmount > 0 &&
-                nDeadline > 0);
-
-    }
-
     friend bool operator==(const CTransaction& a, const CTransaction& b)
     {
         return a.hash == b.hash;

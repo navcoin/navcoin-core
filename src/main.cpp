@@ -1105,8 +1105,12 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
     }
 
     if(tx.nVersion == 4) // Community Fund Proposal
-        if(!tx.IsValidProposal())
+        if(!CFund::IsValidProposal(tx))
             return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+
+    if(tx.nVersion == 5) // Community Fund Payment Request
+        if(!CFund::IsValidPaymentRequest(tx))
+            return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
 
     // Check for duplicate inputs
     set<COutPoint> vInOutPoints;
@@ -2294,14 +2298,26 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
     std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
+    std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
 
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
         const CTransaction &tx = block.vtx[i];
         uint256 hash = tx.GetHash();
 
-        if(tx.IsValidProposal() && tx.nVersion == 4)
+        if(CFund::IsValidProposal(tx) && tx.nVersion == 4)
             proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
+
+        if(CFund::IsValidPaymentRequest(tx) && tx.nVersion == 5) {
+            paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
+            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+            if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, parent)) {
+                std::vector<uint256>::iterator position = std::find(parent.vPayments.begin(), parent.vPayments.end(), prequest.hash);
+                if (position != parent.vPayments.end())
+                    parent.vPayments.erase(position);
+                proposalIndex.push_back(make_pair(parent.hash,parent));
+            }
+        }
 
         if (fAddressIndex) {
 
@@ -2421,6 +2437,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     }
 
     if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
+        return AbortNode(state, "Failed to write proposal index");
+    }
+
+    if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex)) {
         return AbortNode(state, "Failed to write proposal index");
     }
 
@@ -2698,6 +2718,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
     std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
+    std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
 
@@ -2903,17 +2924,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                   return false;
 
                 if (valRequest.isObject())
-                {
-
                   metadata = valRequest.get_obj();
-
-                }
                 else
-                {
-
                   return false;
-
-                }
 
             } catch (const UniValue& objError) {
               return false;
@@ -2932,8 +2945,40 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.blockhash = block.GetHash();
 
             proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
-
         }
+
+        if(tx.nVersion == 5){
+            UniValue metadata(UniValue::VOBJ);
+            try {
+                UniValue valRequest;
+                if (!valRequest.read(tx.strDZeel))
+                  return false;
+
+                if (valRequest.isObject())
+                  metadata = valRequest.get_obj();
+                else
+                  return false;
+
+            } catch (const UniValue& objError) {
+              return false;
+            } catch (const std::exception& e) {
+              return false;
+            }  // May not return ever false, as transactions were already chcked.
+
+            CFund::CPaymentRequest prequest;
+
+            prequest.nAmount = find_value(metadata, "n").get_int64();
+            prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
+
+            CFund::CProposal parent;
+            if(!CFund::FindProposal(prequest.proposalhash, parent))
+                return false;
+            parent.vPayments.push_back(tx.hash);
+
+            proposalIndex.push_back(make_pair(prequest.proposalhash, parent));
+            paymentRequestIndex.push_back(make_pair(tx.GetHash(), prequest));
+        }
+
 
         CTxUndo undoDummy;
         if (i > 0) {
@@ -3038,6 +3083,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     if (!pblocktree->WriteProposalIndex(proposalIndex))
         return AbortNode(state, "Failed to write proposal index");
+
+    if (!pblocktree->WritePaymentRequestIndex(paymentRequestIndex))
+        return AbortNode(state, "Failed to write payment request index");
 
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());

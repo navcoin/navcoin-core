@@ -51,6 +51,8 @@ void VotePaymentRequest(string strProp, bool vote);
 void VotePaymentRequest(uint256 proposalHash, bool vote);
 void RemoveVotePaymentRequest(string strProp);
 void RemoveVotePaymentRequest(uint256 proposalHash);
+bool IsValidPaymentRequest(CTransaction tx);
+bool IsValidProposal(CTransaction tx);
 
 class CPaymentRequest
 {

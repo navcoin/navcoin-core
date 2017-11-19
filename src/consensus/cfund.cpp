@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "consensus/cfund.h"
+#include "base58.h"
 #include "main.h"
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
@@ -158,3 +159,103 @@ void CFund::RemoveVotePaymentRequest(uint256 proposalHash)
 {
     RemoveVotePaymentRequest(proposalHash.ToString());
 }
+
+bool CFund::IsValidPaymentRequest(CTransaction tx)
+{
+
+    UniValue metadata(UniValue::VOBJ);
+    try {
+        UniValue valRequest;
+        if (!valRequest.read(tx.strDZeel))
+          return false;
+
+        if (valRequest.isObject())
+          metadata = valRequest.get_obj();
+        else
+          return false;
+
+    } catch (const UniValue& objError) {
+      return false;
+    } catch (const std::exception& e) {
+      return false;
+    }
+
+    CAmount nAmount = find_value(metadata, "n").get_int64();
+    std::string Signature = find_value(metadata, "s").get_str();
+    std::string Hash = find_value(metadata, "h").get_str();
+
+    CFund::CProposal proposal;
+
+    if(!CFund::FindProposal(Hash, proposal) || proposal.fState != CFund::ACCEPTED)
+        return false;
+
+    std::vector<uint256>::iterator position = std::find(proposal.vPayments.begin(), proposal.vPayments.end(), uint256S("0x"+Hash));
+    if (position == proposal.vPayments.end())
+        return false;
+
+    int pos = std::distance(proposal.vPayments.begin(), position);
+
+    std::string Secret = "I kindly ask to withdraw " + std::to_string(nAmount) + "NAV from the proposal " + Hash + ". Payment request id: " + std::to_string(pos);
+
+    CNavCoinAddress addr(proposal.Address);
+    CKeyID keyID;
+    addr.GetKeyID(keyID);
+
+    bool fInvalid = false;
+    std::vector<unsigned char> vchSig = DecodeBase64(Signature.c_str(), &fInvalid);
+
+    if (fInvalid)
+        return false;
+
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << strMessageMagic;
+    ss << Secret;
+
+    CPubKey pubkey;
+    if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID)
+        return false;
+
+    if(nAmount > proposal.GetAvailable())
+        return false;
+
+    return true;
+
+}
+
+bool CFund::IsValidProposal(CTransaction tx)
+{
+
+    UniValue metadata(UniValue::VOBJ);
+    try {
+        UniValue valRequest;
+        if (!valRequest.read(tx.strDZeel))
+          return false;
+
+        if (valRequest.isObject())
+          metadata = valRequest.get_obj();
+        else
+          return false;
+
+    } catch (const UniValue& objError) {
+      return false;
+    } catch (const std::exception& e) {
+      return false;
+    }
+
+    CAmount nAmount = find_value(metadata, "n").get_int64();
+    std::string Address = find_value(metadata, "a").get_str();
+    int64_t nDeadline = find_value(metadata, "d").get_int64();
+    CAmount nContribution = 0;
+
+    for(unsigned int i=0;i<tx.vout.size();i++)
+        if(tx.vout[i].IsCommunityFundContribution())
+            nContribution +=tx.vout[i].nValue;
+
+    return (nContribution >= FUND_MINIMAL_FEE &&
+            Address != "" &&
+            nAmount < MAX_MONEY &&
+            nAmount > 0 &&
+            nDeadline > 0);
+
+}
+
