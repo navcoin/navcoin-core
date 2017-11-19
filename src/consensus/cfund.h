@@ -86,10 +86,16 @@ public:
 
     std::string ToString() const {
         std::string sFlags;
-        if(IsAccepted())
+        if(IsAccepted()) {
             sFlags = "accepted";
-        if(IsRejected())
+            if(fState != ACCEPTED)
+                sFlags += " waiting for end of voting period";
+        }
+        if(IsRejected()) {
             sFlags = "rejected";
+            if(fState != REJECTED)
+                sFlags += " waiting for end of voting period";
+        }
         return strprintf("CPaymentRequest(hash=%s, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, proposalhash=%s, "
                          "blockhash=%s, paymenthash=%s, strDZeel=%s)",
                          hash.ToString().substr(0,10), (float)nAmount/COIN, sFlags, nVotesYes, nVotesNo, proposalhash.ToString().substr(0,10),
@@ -188,9 +194,9 @@ public:
         for (unsigned int i = 0; i < vPayments.size(); i++) {
             CFund::CPaymentRequest prequest;
             if(FindPaymentRequest(vPayments[i], prequest))
-                str += "    " + prequest.ToString() + "\n";
+                str += "\n    " + prequest.ToString();
         }
-        return str;
+        return str + "\n";
     }
 
     bool IsAccepted() const {
