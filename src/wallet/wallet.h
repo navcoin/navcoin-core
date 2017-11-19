@@ -311,6 +311,7 @@ public:
         nImmatureWatchCreditCached = 0;
         nChangeCached = 0;
         nOrderPos = -1;
+        nCustomVersion = 0;
     }
 
     ADD_SERIALIZE_METHODS;

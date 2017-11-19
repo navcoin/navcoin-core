@@ -1104,11 +1104,11 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
     }
 
-    if(tx.nVersion == 4) // Community Fund Proposal
+    if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
         if(!CFund::IsValidProposal(tx))
             return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
-    if(tx.nVersion == 5) // Community Fund Payment Request
+    if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
         if(!CFund::IsValidPaymentRequest(tx))
             return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
 
@@ -2305,10 +2305,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         const CTransaction &tx = block.vtx[i];
         uint256 hash = tx.GetHash();
 
-        if(CFund::IsValidProposal(tx) && tx.nVersion == 4)
+        if(CFund::IsValidProposal(tx) && tx.nVersion == CTransaction::PROPOSAL_VERSION)
             proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
 
-        if(CFund::IsValidPaymentRequest(tx) && tx.nVersion == 5) {
+        if(CFund::IsValidPaymentRequest(tx) && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
             paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
             CFund::CPaymentRequest prequest; CFund::CProposal parent;
             if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, parent)) {
@@ -2916,7 +2916,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
           }
         }
 
-        if(fContribution && tx.nVersion == 4){
+        if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION){
             UniValue metadata(UniValue::VOBJ);
             try {
                 UniValue valRequest;
@@ -2946,7 +2946,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
         }
 
-        if(tx.nVersion == 5){
+        if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION){
             UniValue metadata(UniValue::VOBJ);
             try {
                 UniValue valRequest;

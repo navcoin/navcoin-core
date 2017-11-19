@@ -105,7 +105,8 @@ public:
         consensus.nLastPOWBlock = 20000;
         consensus.nProposalConfirmationWindow = 50;
         consensus.nVotingPeriod = 2880 * 7; // 7 Days
-        consensus.nQuorumVotes = consensus.nVotingPeriod / 2;
+        consensus.nMinimumQuorum = 0.5;
+        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -233,7 +234,8 @@ public:
         consensus.nLastPOWBlock = 100000;
         consensus.nProposalConfirmationWindow = 5;
         consensus.nVotingPeriod = 720; // 6 hours
-        consensus.nQuorumVotes = consensus.nVotingPeriod / 2;
+        consensus.nMinimumQuorum = 0.5;
+        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -356,7 +358,8 @@ public:
         consensus.nLastPOWBlock = 20000;
         consensus.nProposalConfirmationWindow = 5;
         consensus.nVotingPeriod = 720; // 6 hours
-        consensus.nQuorumVotes = consensus.nVotingPeriod / 2;
+        consensus.nMinimumQuorum = 0.5;
+        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
