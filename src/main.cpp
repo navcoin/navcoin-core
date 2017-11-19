@@ -3454,7 +3454,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                 CFund::CProposal parent;
                 if(!CFund::FindProposal(prequest.proposalhash, parent))
                     continue;
-                if(parent.fState == CFund::ACCEPTED && prequest.IsAccepted()
+                if(parent.fState != CFund::ACCEPTED && prequest.IsAccepted()
                         && prequest.fState != CFund::ACCEPTED) {
                     if(prequest.nAmount <= pindexNew->nCFLocked) {
                         pindexNew->nCFLocked -= prequest.nAmount;
