@@ -4464,7 +4464,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                     if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || parent.Address != CNavCoinAddress(address).ToString())
                         return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
                     else {
-                        prequest.paymenthash = block.vtx[0].GetHash();
+                        prequest.paymenthash = block.GetHash();
                         std::vector<std::pair<uint256, CFund::CPaymentRequest>> vec;
                         vec.push_back(make_pair(prequest.hash, prequest));
                         if(!pblocktree->UpdatePaymentRequestIndex(vec))
