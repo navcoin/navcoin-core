@@ -17,5 +17,7 @@ define $(package)_stage_cmds
 endef
 
 define $(package)_postprocess_cmds
-  export PKG_CONFIG_PATH="`pwd`/contrib:$PKG_CONFIG_PATH"
+  cp contrib/libunbound.pc $($(package)_staging_dir)
+  export PKG_CONFIG_PATH="$($(package)_staging_dir):$PKG_CONFIG_PATH"
+  echo "Installing libunbound.pc ..."
 endef
