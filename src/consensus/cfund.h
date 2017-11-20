@@ -105,9 +105,7 @@ public:
 
     bool IsRejected() const;
 
-    bool CanVote() const {
-        return fState != ACCEPTED && fState != REJECTED;
-    }
+    bool CanVote() const;
 
     ADD_SERIALIZE_METHODS;
 

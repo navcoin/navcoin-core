@@ -956,7 +956,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
             CFund::CPaymentRequest prequest; CFund::CProposal parent;
-            if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest) && !CFund::FindProposal(prequest.proposalhash, parent))
+            if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
+                continue;
+            if(!CFund::FindProposal(prequest.proposalhash, parent))
                 continue;
             CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
             if(pindexblockparent == NULL)
