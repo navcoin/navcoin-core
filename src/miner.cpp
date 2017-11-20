@@ -238,14 +238,17 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             }
         }
 
-        UniValue strDZeel(UniValue::VOBJ);
+        UniValue strDZeel(UniValue::VARR);
         std::vector<CFund::CPaymentRequest> vec;
         if(pblocktree->GetPaymentRequestIndex(vec))
         {
             BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
+                LogPrintf("Loking for block\n");
                 if(pblockindex == NULL)
                     continue;
+                LogPrintf("%d %d %d %d\n",prequest.fState == CFund::ACCEPTED,prequest.paymenthash == uint256(),
+                          pindexPrev->nHeight - pblockindex->nHeight, Params().GetConsensus().nCommunityFundMinAge);
                 if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal parent;
@@ -265,6 +268,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         }
         coinbaseTx.strDZeel = strDZeel.write();
     }
+    LogPrintf("coinbaseTx %s\n",coinbaseTx.ToString());
     pblock->vtx[0] = coinbaseTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());

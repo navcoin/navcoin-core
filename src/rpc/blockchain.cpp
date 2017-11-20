@@ -925,10 +925,10 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
             if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
-               || (showPending && proposal.fState == CFund::NIL)
+               || (showPending  &&  proposal.fState == CFund::NIL)
                || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
                || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
-               || (showExpired && proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
+               || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o);
                 ret.push_back(o);
