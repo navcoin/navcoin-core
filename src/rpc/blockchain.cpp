@@ -900,6 +900,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     bool showAccepted = false;
     bool showRejected = false;
     bool showExpired = false;
+    bool showPending = false;
     if(params.size() == 1) {
         if(params[0].get_str() == "accepted") {
             showAccepted = true;
@@ -913,6 +914,10 @@ UniValue listproposals(const UniValue& params, bool fHelp)
             showAll = false;
             showExpired = true;
         }
+        if(params[0].get_str() == "pending") {
+            showAll = false;
+            showPending = true;
+        }
     }
 
     std::vector<CFund::CProposal> vec;
@@ -920,10 +925,13 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
             if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
+               || (showPending && proposal.fState == CFund::NIL)
                || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
                || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
                || (showExpired && proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
-                ret.push_back(proposal.ToString(pindexBestHeader->GetBlockTime()));
+                UniValue o(UniValue::VOBJ);
+                proposal.ToJson(o);
+                ret.push_back(o);
             }
         }
     }
@@ -1012,8 +1020,8 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             continue;
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("hash", prequest.hash.ToString()));
-        op.push_back(Pair("proposalstr", parent.strDZeel));
-        op.push_back(Pair("str", prequest.strDZeel));
+        op.push_back(Pair("proposaldesc", parent.strDZeel));
+        op.push_back(Pair("desc", prequest.strDZeel));
         op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
