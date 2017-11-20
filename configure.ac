@@ -334,7 +334,7 @@ case $host in
          fi
          if test x$unbound_prefix != x; then
            CPPFLAGS="$CPPFLAGS -I$unbound_prefix/include"
-           LIBS="$LIBS -L$unbound_prefix/lib -lunbound"
+           LIBS="$LIBS -L$unbound_prefix/lib"
          fi
          if test x$qt5_prefix != x; then
            PKG_CONFIG_PATH="$qt5_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
