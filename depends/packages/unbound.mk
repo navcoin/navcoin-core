@@ -20,7 +20,6 @@ endef
 
 define $(package)_stage_cmds
   $(MAKE) DESTDIR=$($(package)_staging_dir) install
-  cp contrib/libunbound.pc $depends_prefix/share/pkgconfig
 endef
 
 define $(package)_postprocess_cmds
