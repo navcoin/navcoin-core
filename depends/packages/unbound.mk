@@ -20,10 +20,7 @@ endef
 
 define $(package)_stage_cmds
   $(MAKE) DESTDIR=$($(package)_staging_dir) install
-  cp contrib/libunbound.pc $($(package)_staging_dir)
-  export PKG_CONFIG_PATH="$($(package)_staging_dir):$PKG_CONFIG_PATH"
-  echo "Installing libunbound.pc ..."
-  echo "New PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+  cp contrib/libunbound.pc $depends_prefix/share/pkgconfig
 endef
 
 define $(package)_postprocess_cmds
