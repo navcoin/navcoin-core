@@ -9,7 +9,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_set_vars
-  $(package)_config_opts=--with-ssl=$(host_prefix)/lib
+  $(package)_config_opts=--with-ssl=$(host_prefix)
 endef
 
 define $(package)_config_cmds
