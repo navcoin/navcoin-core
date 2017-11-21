@@ -7,6 +7,9 @@ $(package)_sha256_hash=4e7bd43d827004c6d51bef73adf941798e4588bdb40de5e79d89034d6
 define $(package)_preprocess_cmds
 endef
 
+define $(package)_set_vars
+endef
+
 define $(package)_config_cmds
   $($(package)_autoconf)
 endef
