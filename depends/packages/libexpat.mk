@@ -9,7 +9,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds 
-  $($(package)_autoconf) --without-xmlwf
+  $($(package)_autoconf) --without-xmlwf --prefix=$(host_prefix)
 endef
 
 define $(package)_build_cmds
