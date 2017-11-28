@@ -3,7 +3,7 @@ $(package)_version=1.6.7
 $(package)_download_path=http://unbound.net/downloads/
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=4e7bd43d827004c6d51bef73adf941798e4588bdb40de5e79d89034d69751c9f
-$(package)_dependencies=openssl
+$(package)_dependencies=openssl libexpat
 $(package)_patches=fix_pkg_config.patch
 
 define $(package)_preprocess_cmds
