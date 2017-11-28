@@ -9,7 +9,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds 
-  $($(package)_autoconf) --without-xmlwf --prefix=$(host_prefix)
+  $($(package)_autoconf) --without-xmlwf --prefix=$($(package)_staging_dir)
 endef
 
 define $(package)_build_cmds
@@ -17,7 +17,7 @@ define $(package)_build_cmds
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$(host_prefix) install
+  $(MAKE) DESTDIR=$($(package)_staging_dir) --prefix=$($(package)_staging_dir) install
 endef
 
 define $(package)_postprocess_cmds
