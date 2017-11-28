@@ -1,5 +1,5 @@
---- Makefile.in.orig    2017-11-11 17:22:13.612000000 +0000                                                                             
-+++ Makefile.in 2017-11-11 17:21:31.480000000 +0000                                                                                     
+--- old/Makefile.in    2017-11-11 17:22:13.612000000 +0000                                                                             
++++ new/Makefile.in    2017-11-11 17:21:31.480000000 +0000                                                                                     
 @@ -533,6 +533,8 @@                                                                                                                     
         $(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man8                                                                                   
         $(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man5                                                                                   
