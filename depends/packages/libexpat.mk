@@ -4,8 +4,11 @@ $(package)_download_path=http://navcoin.org/depend-sources/
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=aa843ff7aed4770d9c5c7e66648f3e0232392c9d45b1bfc0555787de7958886b
 
-define $(package)_config_cmds
+define $(package)_preprocess_cmds
   ./buildconf.sh
+endef
+
+define $(package)_config_cmds 
   $($(package)_autoconf)
 endef
 
