@@ -372,7 +372,7 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     switch(wtx->type)
     {
     case TransactionRecord::AnonTx:
-        return tr("Anonymous send");
+        return tr("Private Payment");
     case TransactionRecord::RecvWithAddress:
         return tr("Received with");
     case TransactionRecord::RecvFromOther:
