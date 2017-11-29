@@ -223,7 +223,7 @@ AC_ARG_WITH([utils],
 
 AC_ARG_WITH([libs],
   [AS_HELP_STRING([--with-libs],
-  [build libraries (default=yes)])],
+  [build libraries (default=no)])],
   [build_navcoin_libs=$withval],
   [build_navcoin_libs=yes])
 
