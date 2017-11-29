@@ -271,12 +271,12 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        genesis = CreateGenesisBlockTestnet(1511009849, 2042922802, 0x1d00ffff, 1, 0);
+        genesis = CreateGenesisBlockTestnet(1511977736, 2042978451, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x000053aacf0d669b1b2973915fedea11261b68d112f70017a70ff3ccace6ca8b");
+        uint256 hashGenesisBlock = uint256S("0x0000cea5281d7608697a91bf3fc9c44a8c9c5c414808f05c11da143cbaf65a6a");
 
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xb0165b6f11b45c4f21d0750af485249b32b2cd4f74d3fa33f30d9303c19a240a")))
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0x3169bd3bf02a37edc92ca2ee818863d71683c13f7a97890199690d3ec642165c")))
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
@@ -291,8 +291,8 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x000053aacf0d669b1b2973915fedea11261b68d112f70017a70ff3ccace6ca8b"));
-        assert(genesis.hashMerkleRoot == uint256S("0xb0165b6f11b45c4f21d0750af485249b32b2cd4f74d3fa33f30d9303c19a240a"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000cea5281d7608697a91bf3fc9c44a8c9c5c414808f05c11da143cbaf65a6a"));
+        assert(genesis.hashMerkleRoot == uint256S("0x3169bd3bf02a37edc92ca2ee818863d71683c13f7a97890199690d3ec642165c"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,54);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,86);
