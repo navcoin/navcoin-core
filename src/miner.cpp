@@ -246,6 +246,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
                 if(pblockindex == NULL)
                     continue;
+                if(prequest.hash == uint256())
+                    continue;
                 if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal parent;
