@@ -1,4 +1,4 @@
-packages:=boost openssl libevent curl libexpat unbound
+packages:=boost openssl libevent curl unbound
 darwin_packages:=zeromq 
 linux_packages:=zeromq 
 native_packages := native_ccache native_comparisontool
