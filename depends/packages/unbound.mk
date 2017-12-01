@@ -13,7 +13,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_set_vars
-  $(package)_config_opts=--with-ssl=$(host_prefix) --disable-gost
+  $(package)_config_opts=--with-ssl=$(host_prefix) --disable-gost --disable-ecdsa
 endef
 
 define $(package)_config_cmds
