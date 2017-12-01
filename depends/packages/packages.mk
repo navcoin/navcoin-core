@@ -1,5 +1,5 @@
 packages:=boost openssl libevent curl unbound
-darwin_packages:=zeromq 
+darwin_packages:=zeromq libexpat
 linux_packages:=zeromq 
 native_packages := native_ccache native_comparisontool
 
@@ -9,7 +9,7 @@ qt_packages = qrencode protobuf zlib
 qt_x86_64_linux_packages:=qt expat dbus libxcb xcb_proto libXau xproto freetype fontconfig libX11 xextproto libXext xtrans libexpat
 qt_i686_linux_packages:=$(qt_x86_64_linux_packages)
 
-qt_darwin_packages=qt libexpat
+qt_darwin_packages=qt
 qt_mingw32_packages=qt
 
 wallet_packages=bdb
