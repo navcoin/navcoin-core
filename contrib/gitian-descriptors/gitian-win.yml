@@ -150,6 +150,7 @@ script: |
     make install DESTDIR=${INSTALLPATH}
     cp -f navcoin-*setup*.exe $OUTDIR/
     cd installed
+    mkdir ${DISTNAME}/lib/
     mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
     find . -name "lib*.la" -delete
     find . -name "lib*.a" -delete
