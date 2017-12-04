@@ -9,11 +9,9 @@
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
-    script.resize(4);
+    script.resize(2);
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
-    script[2] = OP_CFUND;
-    script[3] = OP_CFUND;
 }
 
 void CFund::SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote)

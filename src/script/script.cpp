@@ -220,11 +220,9 @@ bool CScript::IsPayToPublicKeyHash() const
 
 bool CScript::IsCommunityFundContribution() const
 {
-    return (this->size() == 4 &&
+    return (this->size() == 2 &&
       (*this)[0] == OP_RETURN &&
-      (*this)[1] == OP_CFUND &&
-      (*this)[2] == OP_CFUND &&
-      (*this)[3] == OP_CFUND);
+      (*this)[1] == OP_CFUND);
 }
 
 bool CScript::IsProposalVote() const
