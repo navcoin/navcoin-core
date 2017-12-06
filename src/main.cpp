@@ -1105,13 +1105,15 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
     }
 
-    if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-        if(!CFund::IsValidProposal(tx))
-            return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+    if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
+        if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+            if(!CFund::IsValidProposal(tx))
+                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
-    if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-        if(!CFund::IsValidPaymentRequest(tx))
-            return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
+        if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+            if(!CFund::IsValidPaymentRequest(tx))
+                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
+    }
 
     // Check for duplicate inputs
     set<COutPoint> vInOutPoints;
@@ -2306,17 +2308,19 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         const CTransaction &tx = block.vtx[i];
         uint256 hash = tx.GetHash();
 
-        if(CFund::IsValidProposal(tx) && tx.nVersion == CTransaction::PROPOSAL_VERSION)
-            proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
+        if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
+            if(CFund::IsValidProposal(tx) && tx.nVersion == CTransaction::PROPOSAL_VERSION)
+                proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
 
-        if(CFund::IsValidPaymentRequest(tx) && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
-            paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
-            CFund::CPaymentRequest prequest; CFund::CProposal parent;
-            if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, parent)) {
-                std::vector<uint256>::iterator position = std::find(parent.vPayments.begin(), parent.vPayments.end(), prequest.hash);
-                if (position != parent.vPayments.end())
-                    parent.vPayments.erase(position);
-                proposalIndex.push_back(make_pair(parent.hash,parent));
+            if(CFund::IsValidPaymentRequest(tx) && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
+                paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
+                CFund::CPaymentRequest prequest; CFund::CProposal parent;
+                if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, parent)) {
+                    std::vector<uint256>::iterator position = std::find(parent.vPayments.begin(), parent.vPayments.end(), prequest.hash);
+                    if (position != parent.vPayments.end())
+                        parent.vPayments.erase(position);
+                    proposalIndex.push_back(make_pair(parent.hash,parent));
+                }
             }
         }
 
@@ -4172,7 +4176,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
         if (!CheckTransaction(tx, state))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
-                                 strprintf("Transaction check failed (tx hash %s) %s", tx.GetHash().ToString(), state.GetDebugMessage()));
+                                 strprintf("Transaction check failed (tx hash %s) %s\n%s", tx.GetHash().ToString(), state.GetDebugMessage(), tx.ToString()));
 
     unsigned int nSigOps = 0;
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
@@ -4448,6 +4452,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                     return state.DoS(100, error("CheckBlock() : coinbase output amount greater than 0 for proof-of-stake block. proof of work not allowed."));
                 if(metadata[nPaymentRequestsCount].isStr()) {
                     CFund::CPaymentRequest prequest; CFund::CProposal parent;
+                    LogPrintf("strdzeel: %s [%d] = %s\n", block.vtx[0].strDZeel, nPaymentRequestsCount, metadata[nPaymentRequestsCount].get_str());
                     if(!CFund::FindPaymentRequest(metadata[nPaymentRequestsCount].get_str(), prequest))
                         return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
                     if(!CFund::FindProposal(prequest.proposalhash, parent))
