@@ -35,4 +35,5 @@ https://navcoin.org/project-roadmap/
 | Twitter | https://twitter.com/NavCoin |
 | Reddit | http://www.reddit.com/r/navcoin |
 | Slack | https://navcoin-sign-up.herokuapp.com |
-| Telegram | https://telegram.me/joinchat/COuj0kE7K01APpfZSq3i7Q |
+| Telegram | https://t.me/navcoin |
+| Discord | https://discord.gg/y4Vu9jw |
