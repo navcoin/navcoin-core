@@ -5854,7 +5854,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             fObsolete = true;
         }
 
-        if(pfrom->nVersion < 70016 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
+        if(pfrom->nVersion < 70017 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
         {
             reason = "Segregated Witness has been enabled and you are using an old version of NavCoin, please update.";
             fObsolete = true;
