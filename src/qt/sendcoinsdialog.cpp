@@ -271,7 +271,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                       CAmount nAmountAlreadyProcessed = 0;
                       CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
 
-                      for(int i = 0; i < serverNavAddresses.size(); i++)
+                      for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
                       {
                           SendCoinsRecipient cRecipient = recipient;
                           cRecipient.destaddress = QString::fromStdString(serverNavAddresses[i].get_str());

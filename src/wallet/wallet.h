@@ -327,8 +327,6 @@ public:
         if (!ser_action.ForRead())
         {
             mapValue["fromaccount"] = strFromAccount;
-            if(fCFund)
-                mapValue["to"] = "community fund";
 
             WriteOrderPos(nOrderPos, mapValue);
 
@@ -353,8 +351,6 @@ public:
             ReadOrderPos(nOrderPos, mapValue);
 
             nTimeSmart = mapValue.count("timesmart") ? (unsigned int)atoi64(mapValue["timesmart"]) : 0;
-            if(mapValue["to"] == "community fund")
-                fCFund = true;
         }
 
         mapValue.erase("fromaccount");

@@ -95,7 +95,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     sub.type = TransactionRecord::AnonTx;
                 }
-                if(wtx.fCFund)
+                if(txout.scriptPubKey.IsCommunityFundContribution())
                 {
                     sub.type = TransactionRecord::CFund;
                 }
@@ -172,7 +172,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::AnonTx;
                 }
 
-                if(wtx.fCFund)
+                if(txout.scriptPubKey.IsCommunityFundContribution())
                 {
                     sub.type = TransactionRecord::CFund;
                 }
