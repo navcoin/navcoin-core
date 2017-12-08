@@ -839,7 +839,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               pblock->vtx[0].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 
-              return key.SignNav(pblock->GetHash(), pblock->vchBlockSig);
+              return key.Sign(pblock->GetHash(), pblock->vchBlockSig);
           }
       }
       nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
