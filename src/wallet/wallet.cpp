@@ -6,6 +6,7 @@
 #include "wallet/wallet.h"
 
 #include "base58.h"
+#include "bignum.h"
 #include "checkpoints.h"
 #include "chain.h"
 #include "coincontrol.h"
@@ -208,7 +209,7 @@ uint64_t CWallet::GetStakeWeight() const
     if (nBalance <= nReserveBalance)
         return 0;
 
-    vector<const CWalletTx*> vwtxPrev;
+    set<pair<const CWalletTx*,unsigned int> > vwtxPrev;
 
     set<pair<const CWalletTx*,unsigned int> > setCoins;
     int64_t nValueIn = 0;
@@ -331,7 +332,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nBalance <= nReserveBalance)
         return false;
 
-    vector<const CWalletTx*> vwtxPrev;
+    set<pair<const CWalletTx*,unsigned int> > vwtxPrev;
 
     set<pair<const CWalletTx*,unsigned int> > setCoins;
     int64_t nValueIn = 0;
@@ -406,7 +407,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 txNew.nTime -= n;
                 txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
                 nCredit += pcoin.first->vout[pcoin.second].nValue;
-                vwtxPrev.push_back(pcoin.first);
+                vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
 
                 LogPrint("coinstake", "CreateCoinStake : added kernel type=%d\n", whichType);
@@ -448,7 +449,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->vout[pcoin.second].nValue;
-            vwtxPrev.push_back(pcoin.first);
+            vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
         }
     }
 
@@ -534,20 +535,30 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     // Adds Community Fund output if enabled
     if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus()))
     {
-
         int fundIndex = txNew.vout.size() + 1;
         txNew.vout.resize(fundIndex);
         CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
         txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
-
     }
 
     // Sign
     int nIn = 0;
-    BOOST_FOREACH(const CWalletTx* pcoin, vwtxPrev)
+    CTransaction txNewConst(txNew);
+    BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, vwtxPrev)
     {
-        if (!SignSignatureNavcoin(*this, *pcoin, txNew, nIn++))
-            return error("CreateCoinStake : failed to sign coinstake");
+        bool signSuccess;
+        const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
+        SignatureData sigdata;
+        signSuccess = ProduceSignature(TransactionSignatureCreator(this, &txNewConst, nIn, coin.first->vout[coin.second].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+
+        if (!signSuccess)
+        {
+            return error("Signing transaction failed");
+        } else {
+            UpdateTransaction(txNew, nIn, sigdata);
+        }
+
+        nIn++;
     }
 
     // Limit size
@@ -2845,10 +2856,27 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 // Sign
                 int nIn = 0;
-
+                CTransaction txNewConst(txNew);
                 BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
-                  if (!SignSignature(*this, *coin.first, txNew, nIn++))
-                    return false;
+                {
+                    bool signSuccess;
+                    const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
+                    SignatureData sigdata;
+                    if (sign)
+                        signSuccess = ProduceSignature(TransactionSignatureCreator(this, &txNewConst, nIn, coin.first->vout[coin.second].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+                    else
+                        signSuccess = ProduceSignature(DummySignatureCreator(this), scriptPubKey, sigdata);
+
+                    if (!signSuccess)
+                    {
+                        strFailReason = _("Signing transaction failed");
+                        return false;
+                    } else {
+                        UpdateTransaction(txNew, nIn, sigdata);
+                    }
+
+                    nIn++;
+                }
 
                 unsigned int nBytes = GetVirtualTransactionSize(txNew);
 

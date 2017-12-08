@@ -60,7 +60,7 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
         vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;
 
-        if (SolverNavcoin(scriptPubKey, whichType, vSolutions))
+        if (Solver(scriptPubKey, whichType, vSolutions))
         {
             out.push_back(Pair("hash", uint256(vSolutions[0]).ToString()));
         }

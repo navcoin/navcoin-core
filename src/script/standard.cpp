@@ -74,6 +74,44 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         return true;
     }
 
+    if (scriptPubKey.IsCommunityFundContribution())
+    {
+        typeRet = TX_CONTRIBUTION;
+        return true;
+    }
+
+    if(scriptPubKey.IsProposalVoteYes())
+    {
+        typeRet = TX_PROPOSALYESVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsProposalVoteNo())
+    {
+        typeRet = TX_PROPOSALNOVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsPaymentRequestVoteYes())
+    {
+        typeRet = TX_PAYMENTREQUESTYESVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsPaymentRequestVoteNo())
+    {
+        typeRet = TX_PAYMENTREQUESTNOVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
     int witnessversion;
     std::vector<unsigned char> witnessprogram;
     if (scriptPubKey.IsWitnessProgram(witnessversion, witnessprogram)) {
@@ -222,7 +260,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     typeRet = TX_NONSTANDARD;
     vector<valtype> vSolutions;
 
-    if (!SolverNavcoin(scriptPubKey, typeRet, vSolutions))
+    if (!Solver(scriptPubKey, typeRet, vSolutions))
         return false;
     if (typeRet == TX_NULL_DATA){
         // This is data, not addresses

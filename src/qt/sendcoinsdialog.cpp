@@ -224,7 +224,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
 
-    int nTransactions = (rand() % nEntropy) + 2;
+    unsigned int nTransactions = (rand() % nEntropy) + 2;
 
     SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
     if(entry)
@@ -254,7 +254,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                         valid = false;
                     }
 
-                    for(int i = 0; i < serverNavAddresses.size(); i++)
+                    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
                     {
                         CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
                         if (!serverNavAddress.IsValid())
@@ -311,7 +311,7 @@ void SendCoinsDialog::on_sendButton_clicked()
                     msgBox.setText(tr("Something went wrong:"));
                     msgBox.setInformativeText(tr(e.what()));
                     QAbstractButton *myYesButton = msgBox.addButton(tr("Do a normal transaction"), QMessageBox::YesRole);
-                    QAbstractButton *myNoButton = msgBox.addButton(trUtf8("Abort"), QMessageBox::NoRole);
+                    msgBox.addButton(trUtf8("Abort"), QMessageBox::NoRole);
                     msgBox.setIcon(QMessageBox::Question);
                     msgBox.exec();
 
