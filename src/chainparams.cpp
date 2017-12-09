@@ -272,7 +272,7 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        genesis = CreateGenesisBlockTestnet(1512822476, 2042989216, 0x1d00ffff, 1, 0);
+        genesis = CreateGenesisBlockTestnet(1512566756, 2042989216, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
         uint256 hashGenesisBlock = uint256S("0x00005befcbbc049b34348f568a81abcf3cddedbedd8f08a09bf62391cb70f2e2");
