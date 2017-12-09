@@ -82,6 +82,7 @@ struct Params {
     int64_t nStakeSplitThreshold;
     int nDailyBlockCount;
     unsigned int nModifierInterval; // time to elapse before new modifier is computed
+    int64_t sigActivationTime;
 
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
 };
