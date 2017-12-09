@@ -20,6 +20,7 @@
 #include "policy/policy.h"
 #include "pos.h"
 #include "primitives/transaction.h"
+#include "script/sign.h"
 #include "script/standard.h"
 #include "timedata.h"
 #include "txmempool.h"
@@ -833,6 +834,28 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
               txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
               txCoinStake.strDZeel = GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION);
+
+              // After the changes, we need to resign inputs.
+
+              CTransaction txNewConst(txCoinStake);
+              for(unsigned int i = 0; i < txCoinStake.vin.size(); i++)
+              {
+                  bool signSuccess;
+                  uint256 prevHash = txCoinStake.vin[i].prevout.hash;
+                  uint32_t n = txCoinStake.vin[i].prevout.n;
+                  assert(pwalletMain->mapWallet.count(prevHash));
+                  CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
+                  const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
+                  SignatureData sigdata;
+                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+
+                  if (!signSuccess) {
+                      return false;
+                  } else {
+                      UpdateTransaction(txCoinStake, i, sigdata);
+                  }
+              }
+
               *static_cast<CTransaction*>(&txNew) = CTransaction(txCoinStake);
               pblock->vtx.insert(pblock->vtx.begin() + 1, txNew);
 
