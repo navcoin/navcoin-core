@@ -192,11 +192,12 @@ public:
             (575981, uint256S("0xdeb9ff859b5263edcf1968cb43626264c9b92e84a9805e2af6463776eca51137"))
             (750000, uint256S("0x7c163d8dc6320bdc3b1b726bf7be13fa3a44c621efcb0f8f3bcd7f2ad374b5ef"))
             (957163, uint256S("0x53a4525300051ce014fb034217690735121a42e5423b97385afbbbd5380f7583"))
-            (1465787,uint256S("0x91694fd2980c65e6b81e8af75bf817d0ae9240863e0a0ef953d7ddc19cd86407")),
-            1491940608, // * UNIX timestamp of last checkpoint block
-            0,          // * total number of transactions between genesis and last checkpoint
+            (1465787,uint256S("0x91694fd2980c65e6b81e8af75bf817d0ae9240863e0a0ef953d7ddc19cd86407"))
+            (1628312,uint256S("c79f1222bf0e3b6c9983543692261f2e3d06e8b0685a47fe3769e39c76a18d67")),
+            1512822640, // * UNIX timestamp of last checkpoint block
+            3421199,    // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
-            7000         // * estimated number of transactions per day after checkpoint
+            7000        // * estimated number of transactions per day after checkpoint
         };
     }
 };
@@ -271,12 +272,12 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        genesis = CreateGenesisBlockTestnet(1512566756, 2042989216, 0x1d00ffff, 1, 0);
+        genesis = CreateGenesisBlockTestnet(1512822476, 2043097711, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x00005befcbbc049b34348f568a81abcf3cddedbedd8f08a09bf62391cb70f2e2");
+        uint256 hashGenesisBlock = uint256S("0x0000e3419d60f71bd36af2a2d37f6a5e35b5e018db5ff6154db92350ff9a1646");
 
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0x472868bc7686c2f3e852eb12ab1757c9f2b2848f13ad7f7b848eef70c3f86fdd")))
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0x3ea6f42c5a8f18a16b197fe02fc77ba99da7706ed570d254cb9c87bbf99ea84e")))
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
@@ -291,8 +292,8 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x00005befcbbc049b34348f568a81abcf3cddedbedd8f08a09bf62391cb70f2e2"));
-        assert(genesis.hashMerkleRoot == uint256S("0x472868bc7686c2f3e852eb12ab1757c9f2b2848f13ad7f7b848eef70c3f86fdd"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000e3419d60f71bd36af2a2d37f6a5e35b5e018db5ff6154db92350ff9a1646"));
+        assert(genesis.hashMerkleRoot == uint256S("0x3ea6f42c5a8f18a16b197fe02fc77ba99da7706ed570d254cb9c87bbf99ea84e"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,54);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,86);
