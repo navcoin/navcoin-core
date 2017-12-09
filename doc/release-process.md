@@ -20,10 +20,7 @@ Before every major release:
 Check out the source code in the following directory hierarchy.
 
     cd /path/to/your/toplevel/build
-    git clone https://github.com/bitcoin-core/gitian.sigs.git
-    git clone https://github.com/bitcoin-core/navcoin-detached-sigs.git
-    git clone https://github.com/devrandom/gitian-builder.git
-    git clone https://github.com/navcoindev/navcoin-core.git
+    git clone https://github.com/navcoin/navcoin-core.git
 
 ### NavCoin maintainers/release engineers, update version in sources
 
@@ -45,7 +42,7 @@ Update the following:
 
 Write release notes. git shortlog helps a lot, for example:
 
-    git shortlog --no-merges v(current version, e.g. 0.7.2)..v(new version, e.g. 0.8.0)
+    git shortlog --no-merges v(current version, e.g. 4.0.6)..v(new version, e.g. 4.1.0)
 
 (or ping @wumpus on IRC, he has specific tooling to generate the list of merged pulls
 and sort them into categories based on labels)
@@ -56,23 +53,16 @@ Generate list of authors:
 
 Tag version (or release candidate) in git
 
-    git tag -s v(new version, e.g. 0.8.0)
+    git tag -s v(new version, e.g. 4.1.0)
 
 ### Setup and perform Gitian builds
 
 Setup Gitian descriptors:
 
     pushd ./navcoin-core
-    export SIGNER=(your Gitian key, ie bluematt, sipa, etc)
-    export VERSION=(new version, e.g. 0.8.0)
+    export VERSION=(new version, e.g. v4.1.0)
     git fetch
     git checkout v${VERSION}
-    popd
-
-Ensure your gitian.sigs are up-to-date if you wish to gverify your builds against other Gitian signatures.
-
-    pushd ./gitian.sigs
-    git pull
     popd
 
 Ensure gitian-builder is up-to-date:
@@ -85,7 +75,7 @@ Ensure gitian-builder is up-to-date:
 
     pushd ./gitian-builder
     mkdir -p inputs
-    wget -P inputs https://navcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
+    wget -P inputs https://bitcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
     wget -P inputs http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz
     popd
 
@@ -112,17 +102,14 @@ The gbuild invocations below <b>DO NOT DO THIS</b> by default.
 ### Build and sign NavCoin Core for Linux, Windows, and OS X:
 
     pushd ./gitian-builder
-    ./bin/gbuild --memory 3000 --commit navcoin-core=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-linux --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
+    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
     mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
 
-    ./bin/gbuild --memory 3000 --commit navcoin-core=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-unsigned --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
+    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
     mv build/out/navcoin-*-win-unsigned.tar.gz inputs/navcoin-win-unsigned.tar.gz
     mv build/out/navcoin-*.zip build/out/navcoin-*.exe ../
 
-    ./bin/gbuild --memory 3000 --commit navcoin-core=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-unsigned --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
+    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
     mv build/out/navcoin-*-osx-unsigned.tar.gz inputs/navcoin-osx-unsigned.tar.gz
     mv build/out/navcoin-*.tar.gz build/out/navcoin-*.dmg ../
     popd
@@ -135,72 +122,6 @@ Build output expected:
   4. OS X unsigned installer and dist tarball (`navcoin-${VERSION}-osx-unsigned.dmg`, `navcoin-${VERSION}-osx64.tar.gz`)
   5. Gitian signatures (in `gitian.sigs/${VERSION}-<linux|{win,osx}-unsigned>/(your Gitian key)/`)
 
-### Verify other gitian builders signatures to your own. (Optional)
-
-Add other gitian builders keys to your gpg keyring
-
-    gpg --import navcoin-core/contrib/gitian-keys/*.pgp
-
-Verify the signatures
-
-    pushd ./gitian-builder
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-linux ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-unsigned ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-unsigned ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
-    popd
-
-### Next steps:
-
-Commit your signature to gitian.sigs:
-
-    pushd gitian.sigs
-    git add ${VERSION}-linux/${SIGNER}
-    git add ${VERSION}-win-unsigned/${SIGNER}
-    git add ${VERSION}-osx-unsigned/${SIGNER}
-    git commit -a
-    git push  # Assuming you can push to the gitian.sigs tree
-    popd
-
-Wait for Windows/OS X detached signatures:
-
-- Once the Windows/OS X builds each have 3 matching signatures, they will be signed with their respective release keys.
-- Detached signatures will then be committed to the [navcoin-detached-sigs](https://github.com/navcoin-core/navcoin-detached-sigs) repository, which can be combined with the unsigned apps to create signed binaries.
-
-Create (and optionally verify) the signed OS X binary:
-
-    pushd ./gitian-builder
-    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-osx-signed --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-osx-signed ../navcoin-core/contrib/gitian-descriptors/gitian-osx-signer.yml
-    mv build/out/navcoin-osx-signed.dmg ../navcoin-${VERSION}-osx.dmg
-    popd
-
-Create (and optionally verify) the signed Windows binaries:
-
-    pushd ./gitian-builder
-    ./bin/gbuild -i --commit signature=v${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
-    ./bin/gsign --signer $SIGNER --release ${VERSION}-win-signed --destination ../gitian.sigs/ ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-signed ../navcoin-core/contrib/gitian-descriptors/gitian-win-signer.yml
-    mv build/out/navcoin-*win64-setup.exe ../navcoin-${VERSION}-win64-setup.exe
-    mv build/out/navcoin-*win32-setup.exe ../navcoin-${VERSION}-win32-setup.exe
-    popd
-
-Commit your signature for the signed OS X/Windows binaries:
-
-    pushd gitian.sigs
-    git add ${VERSION}-osx-signed/${SIGNER}
-    git add ${VERSION}-win-signed/${SIGNER}
-    git commit -a
-    git push  # Assuming you can push to the gitian.sigs tree
-    popd
-
-### After 3 or more people have gitian-built and their results match:
-
-- Create `SHA256SUMS.asc` for the builds, and GPG-sign it:
-
-```bash
-sha256sum * > SHA256SUMS
-```
 
 The list of files should be:
 ```
@@ -244,33 +165,6 @@ navcoin.org (see below for navcoin.org update instructions).
 
 - Update navcoin.org version
 
-  - First, check to see if the NavCoin.org maintainers have prepared a
-    release: https://github.com/navcoin-dot-org/navcoin.org/labels/Releases
-
-      - If they have, it will have previously failed their Travis CI
-        checks because the final release files weren't uploaded.
-        Trigger a Travis CI rebuild---if it passes, merge.
-
-  - If they have not prepared a release, follow the NavCoin.org release
-    instructions: https://github.com/navcoin-dot-org/navcoin.org#release-notes
-
-  - After the pull request is merged, the website will automatically show the newest version within 15 minutes, as well
-    as update the OS download links. Ping @saivann/@harding (saivann/harding on Freenode) in case anything goes wrong
-
 - Announce the release:
 
-  - navcoin-dev and navcoin-core-dev mailing list
-
-  - NavCoin Core announcements list https://navcoincore.org/en/list/announcements/join/
-
-  - navcoincore.org blog post
-
-  - Update title of #navcoin on Freenode IRC
-
-  - Optionally twitter, reddit /r/NavCoin, ... but this will usually sort out itself
-
-  - Notify BlueMatt so that he can start building [the PPAs](https://launchpad.net/~navcoin/+archive/ubuntu/navcoin)
-
-  - Add release notes for the new version to the directory `doc/release-notes` in git master
-
-  - Celebrate
+- Celebrate

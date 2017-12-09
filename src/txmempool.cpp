@@ -697,8 +697,8 @@ void CTxMemPool::removeForReorg(const CCoinsViewCache *pcoins, unsigned int nMem
                 if (it2 != mapTx.end())
                     continue;
                 const CCoins *coins = pcoins->AccessCoins(txin.prevout.hash);
-		if (nCheckFrequency != 0) assert(coins);
-                if (!coins || (coins->IsCoinBase() && ((signed long)nMemPoolHeight) - coins->nHeight < COINBASE_MATURITY)) {
+                if (nCheckFrequency != 0) assert(coins);
+                if (!coins || ((coins->IsCoinBase() || coins->IsCoinStake()) && ((signed long)nMemPoolHeight) - coins->nHeight < COINBASE_MATURITY)) {
                     transactionsToRemove.push_back(tx);
                     break;
                 }
