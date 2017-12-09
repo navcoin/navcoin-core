@@ -76,6 +76,7 @@ NAVCOIN_CORE_H = \
   timestampindex.h \
   addrman.h \
   base58.h \
+  bignum.h \
   bloom.h \
   blockencodings.h \
   chain.h \
@@ -115,7 +116,8 @@ NAVCOIN_CORE_H = \
   policy/policy.h \
   policy/rbf.h \
 	pow.h \
-	pos.h \
+  pos.h \
+  consensus/cfund.h \
   protocol.h \
   random.h \
   reverselock.h \
@@ -143,6 +145,7 @@ NAVCOIN_CORE_H = \
   undo.h \
   util.h \
   utilmoneystr.h \
+  utils/dns_utils.h \
   utiltime.h \
   validationinterface.h \
   versionbits.h \
@@ -173,6 +176,7 @@ libnavcoin_server_a_SOURCES = \
   blockencodings.cpp \
   chain.cpp \
   checkpoints.cpp \
+  consensus/cfund.cpp \
   httprpc.cpp \
   httpserver.cpp \
   kernel.cpp \
@@ -185,11 +189,11 @@ libnavcoin_server_a_SOURCES = \
   noui.cpp \
   policy/fees.cpp \
   policy/policy.cpp \
-	pow.cpp \
-	pos.cpp \
+  pow.cpp \
+  pos.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
-	rpc/mining.cpp \
+  rpc/mining.cpp \
   rpc/misc.cpp \
   rpc/net.cpp \
   rpc/rawtransaction.cpp \
@@ -201,6 +205,7 @@ libnavcoin_server_a_SOURCES = \
   txdb.cpp \
   txmempool.cpp \
   ui_interface.cpp \
+  utils/dns_utils.cpp \
   validationinterface.cpp \
   versionbits.cpp \
   $(NAVCOIN_CORE_H)
@@ -220,6 +225,7 @@ endif
 libnavcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_wallet_a_SOURCES = \
+  consensus/cfund.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/navtech.cpp \
@@ -395,7 +401,7 @@ navcoind_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
 # navcoin-cli binary #
 navcoin_cli_SOURCES = navcoin-cli.cpp
@@ -413,7 +419,7 @@ navcoin_cli_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CRYPTO)
 
-navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
 # navcoin-tx binary #

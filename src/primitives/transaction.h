@@ -7,9 +7,11 @@
 #define NAVCOIN_PRIMITIVES_TRANSACTION_H
 
 #include "amount.h"
+#include "consensus/cfund.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "uint256.h"
+#include "univalue/include/univalue.h"
 
 static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 
@@ -166,6 +168,26 @@ public:
     bool IsEmpty() const
     {
         return (nValue == 0 && scriptPubKey.empty());
+    }
+
+    bool IsCommunityFundContribution() const
+    {
+        return scriptPubKey.IsCommunityFundContribution();
+    }
+
+    bool IsVote() const
+    {
+        return scriptPubKey.IsProposalVote() || scriptPubKey.IsPaymentRequestVote();
+    }
+
+    bool IsProposalVote() const
+    {
+        return scriptPubKey.IsProposalVote();
+    }
+
+    bool IsPaymentRequestVote() const
+    {
+        return scriptPubKey.IsPaymentRequestVote();
     }
 
     uint256 GetHash() const;
@@ -368,12 +390,15 @@ public:
     static const int32_t CURRENT_VERSION=1;
 
     static const int32_t TXDZEEL_VERSION=2;
+    static const int32_t TXDZEEL_VERSION_V2=3;
+    static const int32_t PROPOSAL_VERSION=4;
+    static const int32_t PAYMENT_REQUEST_VERSION=5;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
     // bumping the default CURRENT_VERSION at which point both CURRENT_VERSION and
     // MAX_STANDARD_VERSION will be equal.
-    static const int32_t MAX_STANDARD_VERSION=2;
+    static const int32_t MAX_STANDARD_VERSION=255;
 
     // The local variables are made const to prevent unintended modification
     // without updating the cached hash value. However, CTransaction is not

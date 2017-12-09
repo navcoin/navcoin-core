@@ -18,6 +18,7 @@ enum DeploymentPos
     DEPLOYMENT_CSV, // Deployment of BIP68, BIP112, and BIP113.
     DEPLOYMENT_SEGWIT, // Deployment of BIP141 and BIP143
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
+    DEPLOYMENT_COMMUNITYFUND,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
@@ -61,6 +62,28 @@ struct Params {
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
+    int nLastPOWBlock;
+
+    int nVotingPeriod;
+    int nQuorumVotes;
+    float nVotesAcceptProposal;
+    float nVotesRejectProposal;
+    float nVotesAcceptPaymentRequest;
+    float nVotesRejectPaymentRequest;
+    float nMinimumQuorum;
+    int nCommunityFundMinAge;
+    int64_t nProposalMinimalFee;
+
+    /** Proof of stake parameters */
+    unsigned int nStakeMinAge;
+    int nTargetSpacing;
+    unsigned int nTargetTimespan;
+    int64_t nStakeCombineThreshold;
+    int64_t nStakeSplitThreshold;
+    int nDailyBlockCount;
+    unsigned int nModifierInterval; // time to elapse before new modifier is computed
+    int64_t sigActivationTime;
+
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
 };
 } // namespace Consensus

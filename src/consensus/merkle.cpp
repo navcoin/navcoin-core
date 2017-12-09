@@ -165,13 +165,13 @@ uint256 BlockMerkleRoot(const CBlock& block, bool* mutated)
     return ComputeMerkleRoot(leaves, mutated);
 }
 
-uint256 BlockWitnessMerkleRoot(const CBlock& block, bool* mutated)
+uint256 BlockWitnessMerkleRoot(const CBlock& block, bool* mutated, bool fIgnoreCoinStake)
 {
     std::vector<uint256> leaves;
     leaves.resize(block.vtx.size());
     leaves[0].SetNull(); // The witness hash of the coinbase is 0.
-    for (size_t s = 1; s < block.vtx.size(); s++) {
-        leaves[s] = block.vtx[s].GetWitnessHash();
+    for (size_t s = fIgnoreCoinStake ? 2 : 1; s < block.vtx.size(); s++) {
+        leaves[s - (fIgnoreCoinStake ? 1 : 0)] = block.vtx[s].GetWitnessHash();
     }
     return ComputeMerkleRoot(leaves, mutated);
 }

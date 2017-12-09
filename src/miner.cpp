@@ -7,6 +7,7 @@
 #include "miner.h"
 
 #include "amount.h"
+#include "base58.h"
 #include "chain.h"
 #include "chainparams.h"
 #include "coins.h"
@@ -19,6 +20,7 @@
 #include "policy/policy.h"
 #include "pos.h"
 #include "primitives/transaction.h"
+#include "script/sign.h"
 #include "script/standard.h"
 #include "timedata.h"
 #include "txmempool.h"
@@ -117,7 +119,7 @@ void BlockAssembler::resetBlock()
     nBlockSize = 1000;
     nBlockWeight = 4000;
     nBlockSigOpsCost = 400;
-    fIncludeWitness = true;
+    fIncludeWitness = false;
 
     // These counters do not include coinbase tx
     nBlockTx = 0;
@@ -153,12 +155,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     // -promiscuousmempoolflags is used.
     // TODO: replace this with a call to main to assess validity of a mempool
     // transaction (which in most cases can be a no-op).
-    fIncludeWitness = true;
+    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
 
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
-
-    if(!(fIncludeWitness || IsWitnessLocked(pindexPrev, chainparams.GetConsensus())) && !GetBoolArg("-votewitness",false))
-      pblock->nVersion &= ~VersionBitsMask(chainparams.GetConsensus(), (Consensus::DeploymentPos)Consensus::DEPLOYMENT_SEGWIT);
 
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
@@ -173,9 +172,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                        ? nMedianTimePast
                        : pblock->GetBlockTime();
 
-
-    fIncludeWitness = false;
-
     addPriorityTxs(fProofOfStake, pblock->vtx[0].nTime);
     addPackageTxs();
 
@@ -185,14 +181,94 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     //LogPrint("coinstake","CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
 
     // Create coinbase transaction.
-    CMutableTransaction coinstakeTx;
-    coinstakeTx.vin.resize(1);
-    coinstakeTx.vin[0].prevout.SetNull();
-    coinstakeTx.vout.resize(1);
-    coinstakeTx.vout[0].scriptPubKey.clear();
-    coinstakeTx.vout[0].nValue = 0;
-    coinstakeTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
-    pblock->vtx[0] = coinstakeTx;
+    CMutableTransaction coinbaseTx;
+    coinbaseTx.nVersion = CTransaction::TXDZEEL_VERSION_V2;
+    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin[0].prevout.SetNull();
+    coinbaseTx.vout.resize(1);
+    if(fProofOfStake)
+    {
+        coinbaseTx.vout[0].scriptPubKey.clear();
+        coinbaseTx.vout[0].nValue = 0;
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
+    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    if(IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus()))
+    {
+        std::map<uint256, bool> votes;
+        for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
+        {
+            CFund::CProposal proposal;
+            bool vote = vAddedProposalVotes[i].second;
+            if(CFund::FindProposal(vAddedProposalVotes[i].first, proposal))
+            {
+                if(proposal.CanVote() && votes.count(proposal.hash) == 0)
+                {
+                    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+                    CFund::SetScriptForProposalVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,proposal.hash, vote);
+                    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    votes[proposal.hash] = vote;
+                }
+            }
+        }
+
+
+        for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
+        {
+            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+            bool vote = vAddedPaymentRequestVotes[i].second;
+            if(CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest))
+            {
+                if(!CFund::FindProposal(prequest.proposalhash, parent))
+                    continue;
+                CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
+                if(pblockindex == NULL)
+                    continue;
+                if(prequest.CanVote() && parent.CanRequestPayments() && votes.count(prequest.hash) == 0 &&
+                        pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
+                {
+                    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+                    CFund::SetScriptForPaymentRequestVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,prequest.hash, vote);
+                    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    votes[prequest.hash] = vote;
+                }
+            }
+        }
+
+        UniValue strDZeel(UniValue::VARR);
+        std::vector<CFund::CPaymentRequest> vec;
+        if(pblocktree->GetPaymentRequestIndex(vec))
+        {
+            BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
+                if(pblockindex == NULL)
+                    continue;
+                if(prequest.hash == uint256())
+                    continue;
+                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
+                        pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
+                    CFund::CProposal parent;
+                    if(CFund::FindProposal(prequest.proposalhash, parent)) {
+                        coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+                        CNavCoinAddress addr(parent.Address);
+                        if (!addr.IsValid())
+                            continue;
+                        coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey = GetScriptForDestination(addr.Get());
+                        coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = prequest.nAmount;
+                        strDZeel.push_back(prequest.hash.ToString());
+                    } else {
+                        LogPrint("cfund", "Could not find parent proposal of payment request %s.\n", prequest.hash.ToString());
+                    }
+                }
+            }
+        }
+        coinbaseTx.strDZeel = strDZeel.write();
+    }
+    pblock->vtx[0] = coinbaseTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
@@ -201,7 +277,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     if (!fProofOfStake)
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
-    pblock->nBits          = fProofOfStake ? GetNextTargetRequired(pindexPrev, true) : GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
+    pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
 
@@ -681,13 +757,13 @@ void NavCoinStaker(const CChainParams& chainparams)
             }
             CBlock *pblock = &pblocktemplate->block;
 
-            LogPrint("coinstake","Running NavCoinStaker with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
-                 ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
+            //LogPrint("coinstake","Running NavCoinStaker with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
+            //     ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
             //Trying to sign a block
             if (SignBlock(pblock, *pwalletMain, nFees))
             {
-                LogPrintf("PoS Block signed\n");
+                LogPrint("coinstake", "PoS Block signed\n");
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
                 CheckStake(pblock, *pwalletMain, chainparams);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
@@ -755,16 +831,38 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               //    our transactions set
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
-              
-              txCoinStake.nVersion = 2;
-              txCoinStake.strDZeel = GetBoolArg("-votefunding",false) ? "1" : "0";
+
+              txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+              txCoinStake.strDZeel = GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION);
+
+              // After the changes, we need to resign inputs.
+
+              CTransaction txNewConst(txCoinStake);
+              for(unsigned int i = 0; i < txCoinStake.vin.size(); i++)
+              {
+                  bool signSuccess;
+                  uint256 prevHash = txCoinStake.vin[i].prevout.hash;
+                  uint32_t n = txCoinStake.vin[i].prevout.n;
+                  assert(pwalletMain->mapWallet.count(prevHash));
+                  CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
+                  const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
+                  SignatureData sigdata;
+                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+
+                  if (!signSuccess) {
+                      return false;
+                  } else {
+                      UpdateTransaction(txCoinStake, i, sigdata);
+                  }
+              }
+
               *static_cast<CTransaction*>(&txNew) = CTransaction(txCoinStake);
               pblock->vtx.insert(pblock->vtx.begin() + 1, txNew);
 
               pblock->vtx[0].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 
-              return key.SignNav(pblock->GetHash(), pblock->vchBlockSig);
+              return key.Sign(pblock->GetHash(), pblock->vchBlockSig);
           }
       }
       nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
@@ -788,7 +886,7 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         return error("CheckStake() : proof-of-stake checking failed");
 
     //// debug print
-    LogPrintf("CheckStake() : new proof-of-stake block found  \n  hash: %s \nproofhash: %s  \ntarget: %s\n", hashBlock.GetHex(), proofHash.GetHex(), hashTarget.GetHex());
+    LogPrintf("CheckStake() : new proof-of-stake block found hash: %s\n", hashBlock.GetHex());
 
     // Found a solution
     {
@@ -808,7 +906,6 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         CValidationState state;
         if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
         {
-            LogPrintf("NavCoinStaker: ProcessNewBlock() : %s\n", pblock->ToString());
             return error("NavCoinStaker: ProcessNewBlock, block not accepted");
         }
     }

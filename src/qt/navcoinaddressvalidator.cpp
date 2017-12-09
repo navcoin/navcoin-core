@@ -5,6 +5,8 @@
 #include "navcoinaddressvalidator.h"
 
 #include "base58.h"
+#include "utils/dns_utils.h"
+#include "util.h"
 
 /* Base58 characters are:
      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -66,8 +68,8 @@ QValidator::State NavCoinAddressEntryValidator::validate(QString &input, int &po
 
         if (((ch >= '0' && ch<='9') ||
             (ch >= 'a' && ch<='z') ||
-            (ch >= 'A' && ch<='Z')) &&
-            ch != 'l' && ch != 'I' && ch != '0' && ch != 'O')
+            (ch >= 'A' && ch<='Z')) ||
+            ch == '.' || ch == '@' )
         {
             // Alphanumeric and not a 'forbidden' character
         }
@@ -87,11 +89,34 @@ NavCoinAddressCheckValidator::NavCoinAddressCheckValidator(QObject *parent) :
 
 QValidator::State NavCoinAddressCheckValidator::validate(QString &input, int &pos) const
 {
-    Q_UNUSED(pos);
-    // Validate the passed NavCoin address
+  Q_UNUSED(pos);
+#ifdef HAVE_UNBOUND
+  utils::DNSResolver* DNS = nullptr;
+
+  // Validate the passed NavCoin address
+  if(DNS->check_address_syntax(input.toStdString().c_str()))
+  {
+
+    bool dnssec_valid;
+    std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(input.toStdString().c_str(), dnssec_valid);
+
+    if(addresses.empty() || (!dnssec_valid && GetBoolArg("-requirednssec",true)))
+      return QValidator::Invalid;
+    else
+      return QValidator::Acceptable;
+
+  }
+  else
+  {
+#endif
+
     CNavCoinAddress addr(input.toStdString());
     if (addr.IsValid())
-        return QValidator::Acceptable;
+      return QValidator::Acceptable;
 
     return QValidator::Invalid;
+#ifdef HAVE_UNBOUND
+  }
+#endif
+
 }

@@ -146,6 +146,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     lockWalletAction(0),
     toggleStakingAction(0),
     updatePriceAction(0),
+    fShowingVoting(0),
     platformStyle(platformStyle)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
@@ -259,6 +260,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     {
         QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
         connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
+        timerStakingIcon->start(150 * 1000);
+        QTimer *timerVotingIcon = new QTimer(labelStakingIcon);
+        connect(timerVotingIcon, SIGNAL(timeout()), this, SLOT(getVotingInfo()));
         timerStakingIcon->start(150 * 1000);
         updateStakingStatus();
     }
@@ -1614,9 +1618,6 @@ void NavCoinGUI::updatePrice()
 void NavCoinGUI::replyFinished(QNetworkReply *reply)
 {
 
-  QString reqString = QString("GET /v1/ticker/nav-coin/?convert=EUR HTTP/1.1\r\n" \
-                              "Host: api.coinmarketcap.com\r\n\r\n");
-
   QString strReply = reply->readAll();
 
   //parse json
@@ -1638,28 +1639,94 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
 
 }
 
+void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
+{
+
+  QString strReply = reply->readAll();
+  QSettings settings;
+
+  //parse json
+  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+
+  QJsonArray jsonObj = jsonResponse.array();
+  QJsonObject jsonObj2 = jsonObj[0].toObject();
+
+  QString oldmessage = settings.value("votingQuestion", "").toString();
+
+  std::string message   = jsonObj2["message"].toString().toStdString();
+  std::string signature = jsonObj2["signature"].toString().toStdString();
+
+  LOCK(cs_main);
+
+
+  CNavCoinAddress addr("NMYuCvBiRgvkzjdEBGJHj7rpAnRmfUD6gw");
+  CKeyID keyID;
+  addr.GetKeyID(keyID);
+
+  bool fInvalid = false;
+  std::vector<unsigned char> vchSig = DecodeBase64(signature.c_str(), &fInvalid);
+
+  if (fInvalid)
+  {
+      reply->deleteLater();
+      return;
+  }
+
+  CHashWriter ss(SER_GETHASH, 0);
+  ss << strMessageMagic;
+  ss << message;
+
+  CPubKey pubkey;
+  if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID){
+      reply->deleteLater();
+      return;
+  }
+
+  if(oldmessage != QString::fromStdString(message) && !QString::fromStdString(message).isEmpty() && !fShowingVoting)
+  {
+      bool ok;
+      fShowingVoting = true;
+      QString vote = QInputDialog::getText(this, tr("Network vote."),
+                                           QString::fromStdString(message), QLineEdit::Normal,
+                                           "", &ok);
+
+      fShowingVoting = false;
+
+      if (ok && !vote.isEmpty())
+      {
+          SoftSetArg("-stakervote",vote.toStdString(),true);
+          RemoveConfigFile("stakervote");
+          WriteConfigFile("stakervote",vote.toStdString());
+      }
+  }
+
+  settings.setValue("votingQuestion", QString::fromStdString(message));
+
+  reply->deleteLater();
+
+}
+
+void NavCoinGUI::getVotingInfo()
+{
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+    QNetworkRequest request;
+    QNetworkReply *reply = NULL;
+
+    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    config.setProtocol(QSsl::TlsV1_2);
+    request.setSslConfiguration(config);
+    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString((GetBoolArg("-testnet",false) ? "testnet." : "mainnet.")) + QString("json")));
+    request.setHeader(QNetworkRequest::ServerHeader, "application/json");
+    reply = manager->get(request);
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+                     SLOT(replyVotingFinished(QNetworkReply*)));
+}
+
 void NavCoinGUI::updateStakingStatus()
 {
     updateWeight();
 
     if(walletFrame){
-
-        if(Params().GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout && pindexBestHeader != NULL){
-
-          QString votingLabel;
-
-          if(pindexBestHeader->nTime < 1508284800)
-            votingLabel = tr("Voting starts at 00:00 18/10/17");
-          else if (pindexBestHeader->nTime > 1510704000)
-            votingLabel = tr("Voting period ended");
-          else if (!GetBoolArg("-staking",true) || (pwalletMain && pwalletMain->IsLocked()))
-            votingLabel = tr("Please, start staking to vote.");
-          else
-            votingLabel = tr("Your vote is %1.").arg(GetBoolArg("-votefunding",false) ? "YES" : "NO");
-
-          walletFrame->setVotingStatus(votingLabel);
-
-        }
 
         if (!GetBoolArg("-staking",true))
         {
@@ -1678,25 +1745,25 @@ void NavCoinGUI::updateStakingStatus()
             QString text;
             if (nEstimateTime > 60)
             {
-            if (nEstimateTime < 60*60)
-            {
-                text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
-            }
-            else if (nEstimateTime < 24*60*60)
-            {
-                text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
-            }
-            else
-            {
-                text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
-            }
+                if (nEstimateTime < 60*60)
+                {
+                    text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
+                }
+                else if (nEstimateTime < 24*60*60)
+                {
+                    text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
+                }
+                else
+                {
+                    text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
+                }
             }
 
             nWeight /= COIN;
             nNetworkWeight /= COIN;
 
     //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_on" : ":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-            walletFrame->setStakingStatus(text!=""?text:tr("You are staking"));
+            walletFrame->setStakingStatus(text!=""&&GetBoolArg("showexpectedstaketime",false)?text:tr("You are staking"));
         }
         else
         {

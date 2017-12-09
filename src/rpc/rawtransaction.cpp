@@ -54,10 +54,24 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     out.push_back(Pair("reqSigs", nRequired));
     out.push_back(Pair("type", GetTxnOutputType(type)));
 
-    UniValue a(UniValue::VARR);
-    BOOST_FOREACH(const CTxDestination& addr, addresses)
-        a.push_back(CNavCoinAddress(addr).ToString());
-    out.push_back(Pair("addresses", a));
+    if (type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
+                 || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE)
+    {
+        vector<std::vector<unsigned char>> vSolutions;
+        txnouttype whichType;
+
+        if (Solver(scriptPubKey, whichType, vSolutions))
+        {
+            out.push_back(Pair("hash", uint256(vSolutions[0]).ToString()));
+        }
+    }
+    else
+    {
+        UniValue a(UniValue::VARR);
+        BOOST_FOREACH(const CTxDestination& addr, addresses)
+            a.push_back(CNavCoinAddress(addr).ToString());
+        out.push_back(Pair("addresses", a));
+    }
 }
 
 void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue& entry,
@@ -163,6 +177,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     entry.push_back(Pair("vsize", (int)::GetVirtualTransactionSize(tx)));
     entry.push_back(Pair("version", tx.nVersion));
     entry.push_back(Pair("locktime", (int64_t)tx.nLockTime));
+    entry.push_back(Pair("time", (int64_t)tx.nTime));
     entry.push_back(Pair("anon-destination", tx.strDZeel));
 
     UniValue vin(UniValue::VARR);
@@ -507,8 +522,9 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
     if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty()) {
       rawTx.strDZeel = params[2].get_str();
-      rawTx.nVersion = CTransaction::TXDZEEL_VERSION;
     }
+
+    rawTx.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
 
     if (params.size() > 3 && !params[3].isNull()) {
         int64_t nLockTime = params[3].get_int64();

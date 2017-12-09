@@ -236,6 +236,7 @@ public:
     std::string strFromAccount;
     int64_t nOrderPos; //!< position in ordered transaction list
     std::vector<char> vfSpent; // which outputs are already spent
+    int32_t nCustomVersion;
 
     // memory only
     mutable bool fDebitCached;
@@ -258,6 +259,7 @@ public:
     mutable CAmount nChangeCached;
 
     bool fAnon;
+    bool fCFund;
 
     CWalletTx()
     {
@@ -300,6 +302,7 @@ public:
         fAvailableWatchCreditCached = false;
         fChangeCached = false;
         fAnon = false;
+        fCFund = false;
         nDebitCached = 0;
         nCreditCached = 0;
         nImmatureCreditCached = 0;
@@ -310,6 +313,7 @@ public:
         nImmatureWatchCreditCached = 0;
         nChangeCached = 0;
         nOrderPos = -1;
+        nCustomVersion = 0;
     }
 
     ADD_SERIALIZE_METHODS;
@@ -671,6 +675,8 @@ public:
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
+
+    CAmount nCommunityFund;
 
     CWallet()
     {

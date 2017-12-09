@@ -147,6 +147,7 @@ private:
 
     QAction *toggleStakingAction;
     QAction *updatePriceAction;
+    bool fShowingVoting;
 
     /** Create the main UI actions. */
     void createActions();
@@ -190,6 +191,7 @@ public Q_SLOTS:
     */
     void message(const QString &title, const QString &message, unsigned int style, bool *ret = NULL);
     void replyFinished(QNetworkReply *reply);
+    void replyVotingFinished(QNetworkReply *reply);
 
 #ifdef ENABLE_WALLET
     /** Set the encryption status as shown in the UI.
@@ -228,6 +230,8 @@ private Q_SLOTS:
     void updateStakingStatus();
     /** Fetch Price from CMC **/
     void updatePrice();
+
+    void getVotingInfo();
 
     /** Repairs wallet **/
     void repairWallet();

@@ -188,6 +188,9 @@ bool CBase58Data::SetString(const std::string& str)
 
 std::string CBase58Data::ToString() const
 {
+//    if(vchData.To == "0x202020")
+//      return "FUND_CONTRIBUTION";
+
     std::vector<unsigned char> vch = vchVersion;
     vch.insert(vch.end(), vchData.begin(), vchData.end());
     return EncodeBase58Check(vch);

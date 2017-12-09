@@ -141,6 +141,12 @@ const char* GetOpName(opcodetype opcode)
     case OP_NOP9                   : return "OP_NOP9";
     case OP_NOP10                  : return "OP_NOP10";
 
+    case OP_CFUND                  : return "OP_CFUND";
+    case OP_PROP                   : return "OP_PROP";
+    case OP_PREQ                   : return "OP_PREQ";
+    case OP_YES                    : return "OP_YES";
+    case OP_NO                     : return "OP_NO";
+
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
     // Note:
@@ -210,6 +216,72 @@ bool CScript::IsPayToPublicKeyHash() const
 	    (*this)[2] == 0x14 &&
 	    (*this)[23] == OP_EQUALVERIFY &&
 	    (*this)[24] == OP_CHECKSIG);
+}
+
+bool CScript::IsCommunityFundContribution() const
+{
+    return (this->size() == 2 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND);
+}
+
+bool CScript::IsProposalVote() const
+{
+    return IsProposalVoteYes() || IsProposalVoteNo();
+}
+
+bool CScript::IsProposalVoteYes() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_YES);
+}
+
+bool CScript::IsProposalVoteNo() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_NO);
+}
+
+bool CScript::IsPaymentRequestVote() const
+{
+    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo();
+}
+
+bool CScript::IsPaymentRequestVoteYes() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_YES);
+}
+
+bool CScript::IsPaymentRequestVoteNo() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_NO);
+}
+
+bool CScript::ExtractVote(uint256 &hash, bool &vote) const
+{
+    if(!IsPaymentRequestVoteNo() && !IsPaymentRequestVoteYes() && !IsProposalVoteYes()
+            && !IsProposalVoteNo())
+        return false;
+
+    vector<unsigned char> vHash(this->begin()+4, this->begin()+36);
+    hash = uint256(vHash);
+    vote = (*this)[3] == OP_YES ? true : false;
+
+    return true;
 }
 
 bool CScript::IsPayToScriptHash() const

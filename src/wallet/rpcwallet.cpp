@@ -6,25 +6,28 @@
 #include "amount.h"
 #include "base58.h"
 #include "chain.h"
+#include "consensus/cfund.h"
 #include "core_io.h"
 #include "init.h"
 #include "main.h"
+#include "navtech.h"
 #include "net.h"
 #include "netbase.h"
 #include "policy/rbf.h"
 #include "pos.h"
 #include "rpc/server.h"
+#include "txdb.h"
 #include "timedata.h"
 #include "util.h"
+#include "utils/dns_utils.h"
 #include "utilmoneystr.h"
 #include "wallet.h"
 #include "walletdb.h"
-#include "navtech.h"
 
 #include <stdint.h>
 
 #include <boost/assign/list_of.hpp>
-
+#include <boost/lexical_cast.hpp>
 #include <univalue.h>
 
 using namespace std;
@@ -341,7 +344,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "")
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool donate = false)
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -352,8 +355,13 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     if (nValue > curBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
 
+    CScript CFContributionScript;
+
     // Parse NavCoin address
     CScript scriptPubKey = GetScriptForDestination(address);
+
+    if(donate)
+      CFund::SetScriptForCommunityFundContribution(scriptPubKey);
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
@@ -361,7 +369,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
     vecSend.push_back(recipient);
     if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
@@ -404,7 +412,30 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CNavCoinAddress address(params[0].get_str());
+    string address_str = params[0].get_str();
+#ifdef HAVE_UNBOUND
+    utils::DNSResolver *DNS = nullptr;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        bool dnssec_valid;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        else
+        {
+
+          address_str = addresses.front();
+
+        }
+
+    }
+#endif
+
+    CNavCoinAddress address(address_str);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
 
@@ -432,6 +463,231 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue stakervote(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "stakervote vote\n"
+            "\nSets the vote to be committed on minted blocks.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"vote\"               (string, required) The staker vote.\n"
+            + HelpExampleCli("stakervote", "yes")
+        );
+
+    SoftSetArg("-stakervote",params[0].get_str());
+    RemoveConfigFile("stakervote");
+    WriteConfigFile("stakervote",params[0].get_str());
+
+    return "";
+}
+
+UniValue createproposal(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 4)
+        throw runtime_error(
+            "createproposal address amount deadline\n"
+            "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
+            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
+            "3. deadline               (numeric, required) Epoch timestamp when the proposal would expire.\n"
+            "4. \"desc\"               (string, required) Short description of the proposal.\n"
+            "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
+            "\nResult:\n"
+            "\"{ hash: proposalid,\"            (string) The proposal id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 1509151016 \"Development\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : Params().GetConsensus().nProposalMinimalFee;
+    if (nAmount <= 0 || nAmount < Params().GetConsensus().nProposalMinimalFee)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    string Address = params[0].get_str();
+
+    CNavCoinAddress destaddress(Address);
+    if (!destaddress.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+
+    CAmount nReqAmount = AmountFromValue(params[1]);
+    int64_t nDeadline = params[2].get_int64();
+    string sDesc = params[3].get_str();
+
+    UniValue strDZeel(UniValue::VOBJ);
+
+    strDZeel.push_back(Pair("n",nReqAmount));
+    strDZeel.push_back(Pair("a",Address));
+    strDZeel.push_back(Pair("d",nDeadline));
+    strDZeel.push_back(Pair("s",sDesc));
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
+
+    UniValue ret(UniValue::VOBJ);
+
+    ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+    ret.push_back(Pair("strDZeel",wtx.strDZeel));
+
+    return ret;
+}
+
+UniValue createpaymentrequest(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 3)
+        throw runtime_error(
+            "createpaymentrequest hash amount id\n"
+            "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"hash\"               (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.\n"
+            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to withdraw. eg 10\n"
+            "3. \"id\"                 (string, required) Unique id to identify the payment request\n"
+            "\nResult:\n"
+            "\"{ hash: prequestid,\"             (string) The payment request id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createpaymentrequest", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" 1000 \"Invoice March 2017\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CFund::CProposal proposal;
+
+    if(!CFund::FindProposal(params[0].get_str(),proposal))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
+
+    if(proposal.fState != CFund::ACCEPTED)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Proposal has not been accepted.");
+
+    CNavCoinAddress address(proposal.Address);
+
+    if(!address.IsValid())
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address of the proposal is not a valid NavCoin address.");
+
+    CKeyID keyID;
+    if (!address.GetKeyID(keyID))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key.");
+
+    CKey key;
+    if (!pwalletMain->GetKey(keyID, key))
+        throw JSONRPCError(RPC_WALLET_ERROR, "You are not the owner of the proposal. Can't find the private key.");
+
+    CAmount nReqAmount = AmountFromValue(params[1]);
+    std::string id = params[2].get_str();
+
+    std::string Secret = "I kindly ask to withdraw " + std::to_string(nReqAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + id;
+
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << strMessageMagic;
+    ss << Secret;
+
+    vector<unsigned char> vchSig;
+    if (!key.SignCompact(ss.GetHash(), vchSig))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed.");
+
+    std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
+
+    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(true))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount.");
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    UniValue strDZeel(UniValue::VOBJ);
+
+    strDZeel.push_back(Pair("h",params[0].get_str()));
+    strDZeel.push_back(Pair("n",nReqAmount));
+    strDZeel.push_back(Pair("s",Signature));
+    strDZeel.push_back(Pair("i",id));
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true);
+
+    UniValue ret(UniValue::VOBJ);
+
+    ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+    ret.push_back(Pair("strDZeel",wtx.strDZeel));
+
+    return ret;
+}
+
+UniValue donatefund(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "donatefund amount ( subtractfeefromamount )\n"
+            "\nDonates an amount to the community fund.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"amount\"      (numeric or string, required) The amount in " + CURRENCY_UNIT + " to donate. eg 0.1\n"
+            "2. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+            "                             The fund will receive less navcoins than you enter in the amount field.\n"
+            "\nResult:\n"
+            "\"transactionid\"  (string) The transaction id.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("donatefund", "0.1")
+            + HelpExampleCli("donatefund", "0.1 true")
+
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CAmount nAmount = AmountFromValue(params[0]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+    if (params.size() == 2)
+        fSubtractFeeFromAmount = params[1].get_bool();
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
 
     return wtx.GetHash().GetHex();
 }
@@ -472,9 +728,32 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
 
-    int nTransactions = (rand() % nEntropy) + 2;
+    unsigned int nTransactions = (rand() % nEntropy) + 2;
 
-    CNavCoinAddress address(params[0].get_str());
+    string address_str = params[0].get_str();
+#ifdef HAVE_UNBOUND
+    utils::DNSResolver *DNS = nullptr;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        bool dnssec_valid;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        else
+        {
+
+          address_str = addresses.front();
+
+        }
+
+    }
+#endif
+
+    CNavCoinAddress address(address_str);
     if (!address.IsValid())
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
@@ -484,7 +763,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     if(serverNavAddresses.size() != nTransactions)
       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "NAVTech server returned a different number of addresses.");
 
-    for(int i = 0; i < serverNavAddresses.size(); i++)
+    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
     {
         CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
         if (!serverNavAddress.IsValid())
@@ -512,7 +791,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
     UniValue pubKey = find_value(navtechData, "public_key");
     double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
-    for(int i = 0; i < serverNavAddresses.size(); i++)
+    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
     {
         CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
         CAmount nAmountRound = 0;
@@ -558,7 +837,30 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CNavCoinAddress address(params[0].get_str());
+    string address_str = params[0].get_str();
+#ifdef HAVE_UNBOUND
+    utils::DNSResolver *DNS = nullptr;
+
+    if(DNS->check_address_syntax(params[0].get_str().c_str()))
+    {
+        bool dnssec_valid;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+
+        if(addresses.empty())
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
+          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        else
+        {
+
+          address_str = addresses.front();
+
+        }
+
+    }
+#endif
+
+    CNavCoinAddress address(address_str);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
 
@@ -1082,7 +1384,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
                 fSubtractFeeFromAmount = true;
         }
 
-        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount};
+        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, ""};
         vecSend.push_back(recipient);
     }
 
@@ -1476,7 +1778,13 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 entry.push_back(Pair("involvesWatchonly", true));
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, s.destination);
-            entry.push_back(Pair("category", "send"));
+            bool fCFund = false;
+            for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
+            {
+                const CTxOut& txout = wtx.vout[nOut];
+                if (txout.scriptPubKey.IsCommunityFundContribution()) fCFund = true;
+            }
+            entry.push_back(Pair("category", fCFund ? "cfund contribution" : "send"));
             entry.push_back(Pair("amount", ValueFromAmount(-s.amount)));
             if (pwalletMain->mapAddressBook.count(s.destination))
                 entry.push_back(Pair("label", pwalletMain->mapAddressBook[s.destination].name));
@@ -2902,6 +3210,172 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
     return  result;
 }
 
+#ifdef HAVE_UNBOUND
+UniValue resolveopenalias(const UniValue& params, bool fHelp)
+{
+  std::string address = params[0].get_str();
+  bool dnssec_valid;
+  UniValue result(UniValue::VOBJ);
+
+  if (!EnsureWalletIsAvailable(fHelp))
+      return NullUniValue;
+
+  if ((fHelp || params.size() != 1))
+      throw runtime_error(
+          "resolveopenalias \"address\"\n"
+          "\nResolves the give OpenAlias address to a NavCoin address.\n"
+          "\nArguments:\n"
+          "1. \"address\"    (string) The OpenAlias address.\n"
+          "\nExamples:\n"
+          "\nGet information about an OpenAlias address\n"
+          + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
+      );
+
+  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_valid);
+
+  result.push_back(Pair("dnssec",dnssec_valid));
+
+  if (addresses.empty())
+      result.push_back(Pair("address",""));
+  else
+      result.push_back(Pair("address",addresses.front()));
+
+  return result;
+}
+#endif
+
+UniValue proposalvotelist(const UniValue& params, bool fHelp)
+{
+    UniValue ret(UniValue::VOBJ);
+    UniValue yesvotes(UniValue::VARR);
+    UniValue novotes(UniValue::VARR);
+
+    for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
+    {
+        CFund::CProposal proposal;
+        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+        {
+            if(vAddedProposalVotes[i].second)
+            {
+                yesvotes.push_back(proposal.ToString());
+            }
+            else
+            {
+                novotes.push_back(proposal.ToString());
+            }
+        }
+    }
+
+    ret.push_back(Pair("yes",yesvotes));
+    ret.push_back(Pair("no",novotes));
+
+    return ret;
+}
+
+UniValue proposalvote(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+
+    if (params.size() >= 2)
+        strCommand = params[1].get_str();
+    if (fHelp || params.size() > 3 ||
+        (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
+        throw runtime_error(
+            "proposalvote \"proposal_hash\" \"yes|no|remove\"\n"
+            "\nAdds a proposal to the list of votes.\n"
+            "\nArguments:\n"
+            "1. \"proposal_hash\" (string, required) The proposal hash\n"
+            "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
+            "                      'remove' to remove a proposal from the list\n"
+        );
+
+    string strHash = params[0].get_str();
+
+    if (strCommand == "yes")
+    {
+      CFund::VoteProposal(strHash,true);
+      return NullUniValue;
+    }
+    else if (strCommand == "no")
+    {
+      CFund::VoteProposal(strHash,false);
+      return NullUniValue;
+    }
+    else if(strCommand == "remove")
+    {
+      CFund::RemoveVoteProposal(strHash);
+      return NullUniValue;
+    }
+
+    return NullUniValue;
+}
+
+UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
+{
+    UniValue ret(UniValue::VOBJ);
+    UniValue yesvotes(UniValue::VARR);
+    UniValue novotes(UniValue::VARR);
+
+    for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
+    {
+        CFund::CPaymentRequest prequest;
+        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+        {
+            if(vAddedPaymentRequestVotes[i].second)
+            {
+                yesvotes.push_back(prequest.ToString());
+            }
+            else
+            {
+                novotes.push_back(prequest.ToString());
+            }
+        }
+    }
+
+    ret.push_back(Pair("yes",yesvotes));
+    ret.push_back(Pair("no",novotes));
+
+    return ret;
+}
+
+UniValue paymentrequestvote(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+
+    if (params.size() >= 2)
+        strCommand = params[1].get_str();
+    if (fHelp || params.size() > 3 ||
+        (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
+        throw runtime_error(
+            "paymentrequestvote \"request_hash\" \"yes|no|remove\"\n"
+            "\nAdds/removes a proposal to the list of votes.\n"
+            "\nArguments:\n"
+            "1. \"request_hash\" (string, required) The payment request hash\n"
+            "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
+            "                      'remove' to remove a proposal from the list\n"
+        );
+
+    string strHash = params[0].get_str();
+
+    if (strCommand == "yes")
+    {
+      CFund::VotePaymentRequest(strHash,true);
+      return NullUniValue;
+    }
+    else if (strCommand == "no")
+    {
+      CFund::VotePaymentRequest(strHash,false);
+      return NullUniValue;
+    }
+    else if(strCommand == "remove")
+    {
+      CFund::RemoveVotePaymentRequest(strHash);
+      return NullUniValue;
+    }
+    return NullUniValue;
+
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
@@ -2956,6 +3430,14 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendfrom",                 &sendfrom,                 false },
     { "wallet",             "sendmany",                 &sendmany,                 false },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
+    { "wallet",             "donatefund",               &donatefund,               false },
+    { "wallet",             "createpaymentrequest",     &createpaymentrequest,     false },
+    { "wallet",             "createproposal",           &createproposal,           false },
+    { "wallet",             "stakervote",               &stakervote,               false },
+    { "wallet",             "proposalvote",             &proposalvote,             false },
+    { "wallet",             "proposalvotelist",         &proposalvotelist,         false },
+    { "wallet",             "paymentrequestvote",       &paymentrequestvote,       false },
+    { "wallet",             "paymentrequestvotelist",   &paymentrequestvotelist,   false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
@@ -2965,6 +3447,9 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true  },
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
+  #ifdef HAVE_UNBOUND
+    { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
+  #endif
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)

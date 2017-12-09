@@ -7,6 +7,7 @@
 
 #include "pubkey.h"
 #include "script/script.h"
+#include "script/sign.h"
 #include "util.h"
 #include "utilstrencodings.h"
 
@@ -31,6 +32,11 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_SCRIPTHASH: return "scripthash";
     case TX_MULTISIG: return "multisig";
     case TX_NULL_DATA: return "nulldata";
+    case TX_CONTRIBUTION: return "cfund_contribution";
+    case TX_PROPOSALYESVOTE: return "proposal_yes_vote";
+    case TX_PAYMENTREQUESTYESVOTE: return "payment_request_yes_vote";
+    case TX_PROPOSALNOVOTE: return "proposal_no_vote";
+    case TX_PAYMENTREQUESTNOVOTE: return "payment_request_no_vote";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     }
@@ -64,6 +70,44 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     {
         typeRet = TX_SCRIPTHASH;
         vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.begin()+22);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if (scriptPubKey.IsCommunityFundContribution())
+    {
+        typeRet = TX_CONTRIBUTION;
+        return true;
+    }
+
+    if(scriptPubKey.IsProposalVoteYes())
+    {
+        typeRet = TX_PROPOSALYESVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsProposalVoteNo())
+    {
+        typeRet = TX_PROPOSALNOVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsPaymentRequestVoteYes())
+    {
+        typeRet = TX_PAYMENTREQUESTYESVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsPaymentRequestVoteNo())
+    {
+        typeRet = TX_PAYMENTREQUESTNOVOTE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
@@ -183,6 +227,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
 {
     vector<valtype> vSolutions;
     txnouttype whichType;
+
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
 
@@ -214,6 +259,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     addressRet.clear();
     typeRet = TX_NONSTANDARD;
     vector<valtype> vSolutions;
+
     if (!Solver(scriptPubKey, typeRet, vSolutions))
         return false;
     if (typeRet == TX_NULL_DATA){
@@ -236,6 +282,11 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
 
         if (addressRet.empty())
             return false;
+    }
+    else if (typeRet == TX_CONTRIBUTION || typeRet == TX_PAYMENTREQUESTNOVOTE || typeRet == TX_PAYMENTREQUESTYESVOTE
+             || typeRet == TX_PROPOSALNOVOTE || typeRet == TX_PROPOSALYESVOTE)
+    {
+        return true;
     }
     else
     {

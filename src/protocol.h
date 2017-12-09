@@ -266,7 +266,7 @@ enum ServiceFlags : uint64_t {
     NODE_BLOOM = (1 << 2),
     // Indicates that a node can be asked for blocks and transactions including
     // witness data.
-    NODE_WITNESS = (1 << 3),
+    NODE_WITNESS = (1 << 3)
 
     // Bits 24-31 are reserved for temporary experiments. Just pick a bit that
     // isn't getting used, or one not being used much, and notify the
