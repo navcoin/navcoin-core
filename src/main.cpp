@@ -2030,6 +2030,7 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight)
 bool CScriptCheck::operator()() {
     const CScript &scriptSig = ptxTo->vin[nIn].scriptSig;
     const CScriptWitness *witness = (nIn < ptxTo->wit.vtxinwit.size()) ? &ptxTo->wit.vtxinwit[nIn].scriptWitness : NULL;
+
     if (!VerifyScript(scriptSig, scriptPubKey, witness, nFlags, CachingTransactionSignatureChecker(ptxTo, nIn, amount, cacheStore, *txdata), &error)) {
         return false;
     }
@@ -4216,7 +4217,6 @@ bool CheckBlockSignature(const CBlock& block)
     if (whichType == TX_PUBKEY)
     {
         std::vector<unsigned char>& vchPubKey = vSolutions[0];
-
         return CPubKey(vchPubKey).Verify(block.GetHash(), block.vchBlockSig);
     }
 
@@ -4332,6 +4332,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         if (block.nVersion < version && IsSuperMajority(version, pindexPrev, consensusParams.nMajorityRejectBlockOutdated, consensusParams))
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", version - 1),
                                  strprintf("rejected nVersion=0x%08x block", version - 1));
+
+    if((block.nVersion & VERSIONBITS_TOP_BITS) != VERSIONBITS_TOP_BITS)
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected old block");
 
     if((block.nVersion & nSegWitVersionMask) != nSegWitVersionMask && IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
