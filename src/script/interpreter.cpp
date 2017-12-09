@@ -900,6 +900,7 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, un
                         return false;
                     }
                     bool fSuccess = checker.CheckSig(vchSig, vchPubKey, scriptCode, sigversion);
+                    LogPrintf("%d\n", fSuccess);
 
                     if (!fSuccess && (flags & SCRIPT_VERIFY_NULLFAIL) && vchSig.size())
                         return set_error(serror, SCRIPT_ERR_SIG_NULLFAIL);
@@ -1127,6 +1128,8 @@ public:
     void Serialize(S &s, int nType, int nVersion) const {
         // Serialize nVersion
         ::Serialize(s, txTo.nVersion, nType, nVersion);
+        // Serialize nTime
+        ::Serialize(s, txTo.nTime, nType, nVersion);
         // Serialize vin
         unsigned int nInputs = fAnyoneCanPay ? 1 : txTo.vin.size();
         ::WriteCompactSize(s, nInputs);
@@ -1139,6 +1142,8 @@ public:
              SerializeOutput(s, nOutput, nType, nVersion);
         // Serialize nLockTime
         ::Serialize(s, txTo.nLockTime, nType, nVersion);
+        // Serialize strDZeel
+        ::Serialize(s, txTo.strDZeel, nType, nVersion);
     }
 };
 
@@ -1264,6 +1269,8 @@ bool TransactionSignatureChecker::CheckSig(const vector<unsigned char>& vchSigIn
     vchSig.pop_back();
 
     uint256 sighash = SignatureHash(scriptCode, *txTo, nIn, nHashType, amount, sigversion, this->txdata);
+
+    LogPrintf("%s %s %s\n",HexStr(vchSig.begin(), vchSig.end()), HexStr(vchPubKey.begin(), vchPubKey.end()), sighash.ToString());
 
     if (!VerifySignature(vchSig, pubkey, sighash))
         return false;
