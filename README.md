@@ -1,12 +1,10 @@
 ![alt text](https://raw.githubusercontent.com/navcoindev/navcoin-media/master/logo/logo-extended.png "Logo text 2")
 
-This is the working repository for NAV Coin 4.0.0, our fork of bitcoin-core 0.13.
-
-**Not all functionality is production ready, use at your own risk.**
+This is the working repository for NAV Coin 4.0.6, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
-http://www.navcoin.org/projects
+https://navcoin.org/project-roadmap/
 
 ## Coin Specifications
 
@@ -37,4 +35,5 @@ http://www.navcoin.org/projects
 | Twitter | https://twitter.com/NavCoin |
 | Reddit | http://www.reddit.com/r/navcoin |
 | Slack | https://navcoin-sign-up.herokuapp.com |
-| Telegram | https://telegram.me/joinchat/COuj0kE7K01APpfZSq3i7Q |
+| Telegram | https://t.me/navcoin |
+| Discord | https://discord.gg/y4Vu9jw |
