@@ -4,6 +4,8 @@
 
 #include "versionbits.h"
 
+#include "main.h"
+#include "chainparams.h"
 #include "consensus/params.h"
 
 const struct BIP9DeploymentInfo VersionBitsDeploymentInfo[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
@@ -123,7 +125,8 @@ protected:
 
     bool Condition(const CBlockIndex* pindex, const Consensus::Params& params) const
     {
-        return (((pindex->nVersion & VERSIONBITS_TOP_MASK) == VERSIONBITS_TOP_BITS) && (pindex->nVersion & Mask(params)) != 0);
+        return (((pindex->nVersion & VERSIONBITS_TOP_MASK) == IsSigHFEnabled(Params().GetConsensus(), pindex) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS)
+                && (pindex->nVersion & Mask(params)) != 0);
     }
 
 public:

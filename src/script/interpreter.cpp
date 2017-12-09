@@ -900,7 +900,6 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, un
                         return false;
                     }
                     bool fSuccess = checker.CheckSig(vchSig, vchPubKey, scriptCode, sigversion);
-                    LogPrintf("%d\n", fSuccess);
 
                     if (!fSuccess && (flags & SCRIPT_VERIFY_NULLFAIL) && vchSig.size())
                         return set_error(serror, SCRIPT_ERR_SIG_NULLFAIL);

@@ -618,4 +618,6 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 
 bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock* pblock);
 
+bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
+
 #endif // NAVCOIN_MAIN_H
