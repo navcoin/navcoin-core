@@ -4356,11 +4356,9 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", version - 1),
                                  strprintf("rejected nVersion=0x%08x block", version - 1));
 
-    int32_t expectedTopBits = IsSigHFEnabled(Params().GetConsensus(), pindexPrev) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS;
-
-    if((block.nVersion & expectedTopBits) != expectedTopBits)
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x) expected(0x%08x)", block.nVersion, expectedTopBits),
-                           "rejected old block");
+    if((block.nVersion & VERSIONBITS_TOP_BITS_SIG) != VERSIONBITS_TOP_BITS_SIG && IsSigHFEnabled(Params().GetConsensus(), pindexPrev))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected no sig block");
 
     if((block.nVersion & nSegWitVersionMask) != nSegWitVersionMask && IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),

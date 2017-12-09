@@ -145,7 +145,6 @@ private:
 
     const PlatformStyle *platformStyle;
 
-    QAction *toggleStakingAction;
     QAction *updatePriceAction;
     bool fShowingVoting;
 
@@ -237,7 +236,6 @@ private Q_SLOTS:
     void repairWallet();
 
 #endif // ENABLE_WALLET
-    void toggleStaking();
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */
