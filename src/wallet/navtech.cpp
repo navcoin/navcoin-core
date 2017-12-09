@@ -19,6 +19,11 @@ CURLcode res;
 int padding = RSA_PKCS1_PADDING;
 int encResultLength = 344;
 
+static size_t CurlWriteResponse(void *contents, size_t size, size_t nmemb, void *userp) {
+  ((std::string*)userp)->append((char*)contents, size * nmemb);
+  return size * nmemb;
+}
+
 UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue, int nTransactions) {
 
   vector<anonServer> anonServers = this->GetAnonServers();
@@ -196,11 +201,11 @@ string Navtech::EncryptAddress(string address, string pubKeyStr, int nTransactio
 
   address = "{\"n\":\""+address+"\",\"t\":"+std::to_string(GetArg("anon_out_delay",NAVTECH_DEFAULT_OUT_DELAY))+",\"p\":"+std::to_string(nPiece)+",\"o\":"+std::to_string(nTransactions)+",\"u\":"+std::to_string(nId)+"}";
 
-  unsigned char pubKeyChar[(int)pubKeyStr.length()+1];
+  unsigned char pubKeyChar[4098];
   memcpy(pubKeyChar, pubKeyStr.c_str(), pubKeyStr.length());
   pubKeyChar[pubKeyStr.length()] = 0;
 
-  unsigned char addressChar[(int)address.length()+1];
+  unsigned char addressChar[4098];
   memcpy(addressChar, address.c_str(), address.length());
   addressChar[address.length()] = 0;
 

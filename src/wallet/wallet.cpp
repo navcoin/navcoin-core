@@ -6,9 +6,11 @@
 #include "wallet/wallet.h"
 
 #include "base58.h"
+#include "bignum.h"
 #include "checkpoints.h"
 #include "chain.h"
 #include "coincontrol.h"
+#include "consensus/cfund.h"
 #include "consensus/consensus.h"
 #include "consensus/validation.h"
 #include "init.h"
@@ -207,7 +209,7 @@ uint64_t CWallet::GetStakeWeight() const
     if (nBalance <= nReserveBalance)
         return 0;
 
-    vector<const CWalletTx*> vwtxPrev;
+    set<pair<const CWalletTx*,unsigned int> > vwtxPrev;
 
     set<pair<const CWalletTx*,unsigned int> > setCoins;
     int64_t nValueIn = 0;
@@ -229,7 +231,7 @@ uint64_t CWallet::GetStakeWeight() const
         if (!mapWallet.count(pcoin.first->GetHash()))
             continue;
 
-        if (nCurrentTime - pcoin.first->nTime > nStakeMinAge)
+        if (nCurrentTime - pcoin.first->nTime > Params().GetConsensus().nStakeMinAge)
             nWeight += pcoin.first->vout[pcoin.second].nValue;
     }
 
@@ -248,7 +250,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
             const uint256& wtxid = it->first;
 
             // Filtering by tx timestamp instead of block timestamp may give false positives but never false negatives
-            if (pcoin->nTime + nStakeMinAge > nSpendTime)
+            if (pcoin->nTime + Params().GetConsensus().nStakeMinAge > nSpendTime)
                 continue;
 
             if (pcoin->GetBlocksToMaturity() > 0)
@@ -330,7 +332,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nBalance <= nReserveBalance)
         return false;
 
-    vector<const CWalletTx*> vwtxPrev;
+    set<pair<const CWalletTx*,unsigned int> > vwtxPrev;
 
     set<pair<const CWalletTx*,unsigned int> > setCoins;
     int64_t nValueIn = 0;
@@ -405,7 +407,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 txNew.nTime -= n;
                 txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
                 nCredit += pcoin.first->vout[pcoin.second].nValue;
-                vwtxPrev.push_back(pcoin.first);
+                vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
 
                 LogPrint("coinstake", "CreateCoinStake : added kernel type=%d\n", whichType);
@@ -439,15 +441,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if (nCredit + pcoin.first->vout[pcoin.second].nValue > nBalance - nReserveBalance)
                 break;
             // Do not add additional significant input
-            if (pcoin.first->vout[pcoin.second].nValue >= StakeCombineThreshold)
+            if (pcoin.first->vout[pcoin.second].nValue >= Params().GetConsensus().nStakeCombineThreshold)
                 continue;
             // Do not add input that is still too young
-            if (nTimeWeight < nStakeMinAge)
+            if (nTimeWeight < Params().GetConsensus().nStakeMinAge)
                 continue;
 
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->vout[pcoin.second].nValue;
-            vwtxPrev.push_back(pcoin.first);
+            vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
         }
     }
 
@@ -459,14 +461,14 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if (!TransactionGetCoinAge(ptxNew, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
-        nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees);
+        nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees, pindexBestHeader);
         if (nReward <= 0)
             return false;
 
         nCredit += nReward;
     }
 
-	  if (nCredit >= StakeSplitThreshold)
+    if (nCredit >= Params().GetConsensus().nStakeSplitThreshold)
         txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
 
     // Inode Payments
@@ -530,18 +532,41 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         txNew.vout[1].nValue = blockValue;
     }
 
+    // Adds Community Fund output if enabled
+    if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus()))
+    {
+        int fundIndex = txNew.vout.size() + 1;
+        txNew.vout.resize(fundIndex);
+        CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+        txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
+    }
+
     // Sign
     int nIn = 0;
-    BOOST_FOREACH(const CWalletTx* pcoin, vwtxPrev)
+    CTransaction txNewConst(txNew);
+    BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, vwtxPrev)
     {
-        if (!SignSignatureNavcoin(*this, *pcoin, txNew, nIn++))
-            return error("CreateCoinStake : failed to sign coinstake");
+        bool signSuccess;
+        const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
+        SignatureData sigdata;
+        signSuccess = ProduceSignature(TransactionSignatureCreator(this, &txNewConst, nIn, coin.first->vout[coin.second].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+
+        if (!signSuccess)
+        {
+            return error("Signing transaction failed");
+        } else {
+            UpdateTransaction(txNew, nIn, sigdata);
+        }
+
+        nIn++;
     }
 
     // Limit size
     unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
     if (nBytes >= MAX_BLOCK_SIZE_GEN/5)
         return error("CreateCoinStake : exceeded coinstake size limit");
+
+    LogPrint("coinstake", "Created coin stake\n");
 
     // Successfully generated coinstake
     return true;
@@ -1479,11 +1504,13 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
     // recomputed, also:
 
     if(isMine == true)
+    {
         BOOST_FOREACH(const CTxIn& txin, tx.vin)
         {
             if (mapWallet.count(txin.prevout.hash))
                 mapWallet[txin.prevout.hash].MarkDirty();
         }
+    }
 
     if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
     {
@@ -1764,8 +1791,9 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
 
         if (!ExtractDestination(txout.scriptPubKey, address))
         {
-            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
-                     this->GetHash().ToString(),i);
+            if(!txout.scriptPubKey.IsCommunityFundContribution())
+                LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
+                         this->GetHash().ToString(),i);
             address = CNoDestination();
         }
 
@@ -2538,7 +2566,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
     // Turn the txout set into a CRecipient vector
     BOOST_FOREACH(const CTxOut& txOut, tx.vout)
     {
-        CRecipient recipient = {txOut.scriptPubKey, txOut.nValue, false};
+        CRecipient recipient = {txOut.scriptPubKey, txOut.nValue, false, ""};
         vecSend.push_back(recipient);
     }
 
@@ -2609,9 +2637,11 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     CMutableTransaction txNew;
 
-    txNew.nVersion = CTransaction::TXDZEEL_VERSION;
+    txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
 
-    txNew.strDZeel = strDZeel.length() > 0 ? strDZeel : navtech.EncryptAddress(std::to_string(GetAdjustedTime() + (rand() % 1<<8)),sPubKey);
+    if(wtxNew.nCustomVersion > 0) txNew.nVersion = wtxNew.nCustomVersion;
+
+    txNew.strDZeel = wtxNew.strDZeel.length() > 0 ? wtxNew.strDZeel : navtech.EncryptAddress(std::to_string(GetAdjustedTime() + (rand() % 1<<8)),sPubKey);
 
     if (strDZeel.length() > 0)
       wtxNew.fAnon = true;
@@ -2676,6 +2706,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 BOOST_FOREACH (const CRecipient& recipient, vecSend)
                 {
                     CTxOut txout(recipient.nAmount, recipient.scriptPubKey);
+
+                    if(recipient.scriptPubKey.IsCommunityFundContribution())
+                        wtxNew.fCFund = true;
 
                     if (recipient.fSubtractFeeFromAmount)
                     {
@@ -2814,15 +2847,36 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 // Note how the sequence number is set to max()-1 so that the
                 // nLockTime set above actually works.
                 BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
+                {
+                    if(coin.first->nTime > txNew.nTime)
+                        txNew.nTime = coin.first->nTime;
                     txNew.vin.push_back(CTxIn(coin.first->GetHash(),coin.second,CScript(),
                                               std::numeric_limits<unsigned int>::max()-1));
+                }
 
                 // Sign
                 int nIn = 0;
-
+                CTransaction txNewConst(txNew);
                 BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
-                  if (!SignSignature(*this, *coin.first, txNew, nIn++))
-                    return false;
+                {
+                    bool signSuccess;
+                    const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
+                    SignatureData sigdata;
+                    if (sign)
+                        signSuccess = ProduceSignature(TransactionSignatureCreator(this, &txNewConst, nIn, coin.first->vout[coin.second].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+                    else
+                        signSuccess = ProduceSignature(DummySignatureCreator(this), scriptPubKey, sigdata);
+
+                    if (!signSuccess)
+                    {
+                        strFailReason = _("Signing transaction failed");
+                        return false;
+                    } else {
+                        UpdateTransaction(txNew, nIn, sigdata);
+                    }
+
+                    nIn++;
+                }
 
                 unsigned int nBytes = GetVirtualTransactionSize(txNew);
 
@@ -4033,7 +4087,7 @@ int CMerkleTx::GetDepthInMainChain(const CBlockIndex* &pindexRet) const
 
 int CMerkleTx::GetBlocksToMaturity() const
 {
-    if (!(IsCoinBase() || IsCoinStake()))
+    if (!(IsCoinBase() || IsCoinStake()) || GetBoolArg("-testnet",false))
         return 0;
     return max(0, (COINBASE_MATURITY+1) - GetDepthInMainChain());
 }

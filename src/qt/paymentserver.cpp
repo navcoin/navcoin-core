@@ -13,6 +13,7 @@
 #include "main.h" // For minRelayTxFee
 #include "ui_interface.h"
 #include "util.h"
+#include "utils/dns_utils.h"
 #include "wallet/wallet.h"
 
 #include <cstdlib>
@@ -440,13 +441,35 @@ void PaymentServer::handleURIOrFile(const QString& s)
             SendCoinsRecipient recipient;
             if (GUIUtil::parseNavCoinURI(s, &recipient))
             {
-                CNavCoinAddress address(recipient.address.toStdString());
-                if (!address.IsValid()) {
-                    Q_EMIT message(tr("URI handling"), tr("Invalid payment address %1").arg(recipient.address),
-                        CClientUIInterface::MSG_ERROR);
-                }
+              std::string address_str = recipient.address.toStdString();
+#ifdef HAVE_UNBOUND
+              utils::DNSResolver* DNS = nullptr;
+
+              // Validate the passed NavCoin address
+              if(DNS->check_address_syntax(recipient.address.toStdString().c_str()))
+              {
+
+                bool dnssec_valid;
+                std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(recipient.address.toStdString().c_str(), dnssec_valid);
+
+                if(addresses.empty())
+                  Q_EMIT message(tr("URI handling"), tr("Invalid OpenAlias address %1").arg(recipient.address),
+                                 CClientUIInterface::MSG_ERROR);
+                else if(!dnssec_valid && GetBoolArg("-requirednssec",true))
+                  Q_EMIT message(tr("URI handling"), tr("OpenAlias address %1 does not support DNS Sec").arg(recipient.address),
+                                  CClientUIInterface::MSG_ERROR);
                 else
-                    Q_EMIT receivedPaymentRequest(recipient);
+                  address_str = addresses.front();
+              }
+#endif
+
+              CNavCoinAddress address(address_str);
+              if (!address.IsValid()) {
+                Q_EMIT message(tr("URI handling"), tr("Invalid payment address %1").arg(recipient.address),
+                               CClientUIInterface::MSG_ERROR);
+              }
+              else
+                Q_EMIT receivedPaymentRequest(recipient);
             }
             else
                 Q_EMIT message(tr("URI handling"),

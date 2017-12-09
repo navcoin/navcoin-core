@@ -12,10 +12,14 @@
 static const int32_t VERSIONBITS_LAST_OLD_BLOCK_VERSION = 7;
 /** What bits to set in version for versionbits blocks */
 static const int32_t VERSIONBITS_TOP_BITS = 0x70000000UL;
+static const int32_t VERSIONBITS_TOP_BITS_SIG = 0x71000000UL;
 /** What bitmask determines whether versionbits is in use */
 static const int32_t VERSIONBITS_TOP_MASK = 0xF0000000UL;
 /** Total bits available for versionbits */
 static const int32_t VERSIONBITS_NUM_BITS = 29;
+
+static const int32_t nSegWitVersionMask = 0x00000020;
+static const int32_t nCFundVersionMask = 0x00000040;
 
 enum ThresholdState {
     THRESHOLD_DEFINED,
@@ -62,8 +66,6 @@ struct VersionBitsCache
 
     void Clear();
 };
-
-extern double votes[Consensus::MAX_VERSION_BITS_DEPLOYMENTS];
 
 ThresholdState VersionBitsState(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos pos, VersionBitsCache& cache);
 uint32_t VersionBitsMask(const Consensus::Params& params, Consensus::DeploymentPos pos);

@@ -1,14 +1,14 @@
 dnl require autoconf 2.60 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.60])
 define(_CLIENT_VERSION_MAJOR, 4)
-define(_CLIENT_VERSION_MINOR, 0)
-define(_CLIENT_VERSION_REVISION, 6)
+define(_CLIENT_VERSION_MINOR, 1)
+define(_CLIENT_VERSION_REVISION, 0)
 define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_COPYRIGHT_YEAR, 2017)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[NavCoin Core]])
-AC_INIT([NavCoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/navcoin/navcoin/issues],[navcoin],[https://navcoincore.org/])
+AC_INIT([NavCoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/navcoin/navcoin-core/issues],[navcoin],[https://navcoin.org/])
 AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_HEADERS([src/config/navcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -223,9 +223,9 @@ AC_ARG_WITH([utils],
 
 AC_ARG_WITH([libs],
   [AS_HELP_STRING([--with-libs],
-  [build libraries (default=yes)])],
+  [build libraries (default=no)])],
   [build_navcoin_libs=$withval],
-  [build_navcoin_libs=yes])
+  [build_navcoin_libs=no])
 
 AC_ARG_WITH([daemon],
   [AS_HELP_STRING([--with-daemon],
@@ -322,6 +322,7 @@ case $host in
 
          openssl_prefix=`$BREW --prefix openssl 2>/dev/null`
          bdb_prefix=`$BREW --prefix berkeley-db4 2>/dev/null`
+         unbound_prefix=`$BREW --prefix unbound 2>/dev/null`
          qt5_prefix=`$BREW --prefix qt5 2>/dev/null`
          if test x$openssl_prefix != x; then
            PKG_CONFIG_PATH="$openssl_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
@@ -330,6 +331,10 @@ case $host in
          if test x$bdb_prefix != x; then
            CPPFLAGS="$CPPFLAGS -I$bdb_prefix/include"
            LIBS="$LIBS -L$bdb_prefix/lib"
+         fi
+         if test x$unbound_prefix != x; then
+           CPPFLAGS="$CPPFLAGS -I$unbound_prefix/include"
+           LIBS="$LIBS -L$unbound_prefix/lib"
          fi
          if test x$qt5_prefix != x; then
            PKG_CONFIG_PATH="$qt5_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
@@ -764,6 +769,7 @@ if test x$use_pkgconfig = xyes; then
     [PKG_CHECK_MODULES],
     [
       PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl  not found.)])
+      PKG_CHECK_MODULES([UNBOUND], [libunbound], [have_unbound=yes], [have_unbound=no])
       PKG_CHECK_MODULES([CURL], [libcurl],, [AC_MSG_ERROR(libcurl  not found.)])
       PKG_CHECK_MODULES([CRYPTO], [libcrypto],,[AC_MSG_ERROR(libcrypto  not found.)])
       NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([PROTOBUF], [protobuf], [have_protobuf=yes], [NAVCOIN_QT_FAIL(libprotobuf not found)])])
@@ -794,6 +800,9 @@ else
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
+  AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound
+	have_unbound=yes], [AC_MSG_WARN(libunbound missing)
+	have_unbound=no])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
 
   if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
@@ -866,7 +875,7 @@ AC_SUBST(UNIVALUE_LIBS)
 CXXFLAGS_TEMP="$CXXFLAGS"
 LIBS_TEMP="$LIBS"
 CXXFLAGS="$CXXFLAGS $SSL_CFLAGS $CRYPTO_CFLAGS"
-LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS"
+LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS $UNBOUND_LIBS"
 AC_CHECK_HEADER([openssl/ec.h],, AC_MSG_ERROR(OpenSSL ec header missing),)
 CXXFLAGS="$CXXFLAGS_TEMP"
 LIBS="$LIBS_TEMP"
@@ -1018,6 +1027,7 @@ AM_CONDITIONAL([ENABLE_QT],[test x$navcoin_enable_qt = xyes])
 AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$BUILD_TEST_QT = xyes])
 AM_CONDITIONAL([ENABLE_BENCH],[test x$use_bench = xyes])
 AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
+AM_CONDITIONAL([HAVE_UNBOUND], [test x$have_unbound = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
 AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS],[test x$use_comparison_tool_reorg_test != xno])
@@ -1064,6 +1074,7 @@ AC_SUBST(MINIUPNPC_CPPFLAGS)
 AC_SUBST(MINIUPNPC_LIBS)
 AC_SUBST(CRYPTO_LIBS)
 AC_SUBST(SSL_LIBS)
+AC_SUBST(UNBOUND_LIBS)
 AC_SUBST(CURL_LIBS)
 AC_SUBST(EVENT_LIBS)
 AC_SUBST(EVENT_PTHREADS_LIBS)

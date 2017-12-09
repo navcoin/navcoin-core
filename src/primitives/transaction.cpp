@@ -56,7 +56,10 @@ uint256 CTxOut::GetHash() const
 std::string CTxOut::ToString() const
 {
     if (IsEmpty()) return "CTxOut(empty)";
-    return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, scriptPubKey.ToString());
+    if (IsCommunityFundContribution())
+      return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution)", nValue / COIN, nValue % COIN);
+    else
+      return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, scriptPubKey.ToString());
 }
 
 CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nTime(0), nLockTime(0) {
@@ -173,6 +176,8 @@ std::string CMutableTransaction::ToString() const
   	);
     for (unsigned int i = 0; i < vin.size(); i++)
         str += "    " + vin[i].ToString() + "\n";
+    for (unsigned int i = 0; i < wit.vtxinwit.size(); i++)
+        str += "    " + wit.vtxinwit[i].scriptWitness.ToString() + "\n";
     for (unsigned int i = 0; i < vout.size(); i++)
         str += "    " + vout[i].ToString() + "\n";
     return str;

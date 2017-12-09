@@ -125,7 +125,7 @@ CAmount AmountFromValue(const UniValue& value)
     if (!ParseFixedPoint(value.getValStr(), 8, &amount))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
     if (!MoneyRange(amount))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Amount out of range");
+        throw JSONRPCError(RPC_TYPE_ERROR, strprintf("Amount out of range (%d)", amount));
     return amount;
 }
 

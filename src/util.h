@@ -80,8 +80,15 @@ int LogPrintStr(const std::string &str);
 template<typename T1, typename... Args>
 static inline int LogPrint(const char* category, const char* fmt, const T1& v1, const Args&... args)
 {
-    if(!LogAcceptCategory(category)) return 0;                            \
-    return LogPrintStr(tfm::format(fmt, v1, args...));
+    if(!LogAcceptCategory(category)) return 0;
+    std::string _log_msg_;
+    try {
+        _log_msg_ = tfm::format(fmt, v1, args...);
+    } catch (std::runtime_error &e) {
+        _log_msg_ = "Error \"" + std::string(e.what()) + "\" while formatting log message: " + fmt;
+    }
+    return LogPrintStr(_log_msg_);
+
 }
 
 template<typename T1, typename... Args>
@@ -126,6 +133,7 @@ void CreatePidFile(const boost::filesystem::path &path, pid_t pid);
 void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet, std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet);
 void WriteConfigFile(std::string key, std::string value);
 void RemoveConfigFile(std::string key, std::string value);
+void RemoveConfigFile(std::string key);
 bool ExistsKeyInConfigFile(std::string key);
 #ifdef WIN32
 boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);

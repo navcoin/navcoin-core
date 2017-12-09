@@ -1,0 +1,11 @@
+--- old/Makefile.in	2017-08-31 10:08:45.000000000 +0200
++++ new/Makefile.in	2017-11-30 13:23:51.000000000 +0100
+@@ -533,6 +533,8 @@
+ 	$(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man8
+ 	$(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man5
+ 	$(INSTALL) -m 755 -d $(DESTDIR)$(mandir)/man1
++	$(INSTALL) -m 755 -d $(DESTDIR)$(libdir)/pkgconfig
++	$(INSTALL) -m 644 contrib/libunbound.pc $(DESTDIR)$(libdir)/pkgconfig
+ 	$(LIBTOOL) --mode=install cp -f unbound$(EXEEXT) $(DESTDIR)$(sbindir)/unbound$(EXEEXT)
+ 	$(LIBTOOL) --mode=install cp -f unbound-checkconf$(EXEEXT) $(DESTDIR)$(sbindir)/unbound-checkconf$(EXEEXT)
+ 	$(LIBTOOL) --mode=install cp -f unbound-control$(EXEEXT) $(DESTDIR)$(sbindir)/unbound-control$(EXEEXT)

@@ -30,6 +30,7 @@
 #include <QIntValidator>
 #include <QLocale>
 #include <QMessageBox>
+#include <QSettings>
 #include <QTimer>
 
 OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
@@ -66,15 +67,13 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyIpTor, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), ui->proxyPortTor, SLOT(setEnabled(bool)));
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
-    connect(ui->voteSegWit, SIGNAL(clicked(bool)), this, SLOT(vote()));
+    connect(ui->voteTextField, SIGNAL(textChanged(QString)), this, SLOT(vote(QString)));
 
-    ui->voteSegWit->setChecked(GetBoolArg("-votefunding",false));
+    bool showVoting = GetBoolArg("-staking",true);
 
-    bool showWitness = pindexBestHeader->nTime > 1508284800 &&
-        pindexBestHeader->nTime < 1510704000 &&
-        GetBoolArg("-staking",true);
-
-    ui->voteSegWit->setVisible(showWitness);
+    ui->voteLabel->setVisible(showVoting);
+    ui->voteTextField->setVisible(showVoting);
+    ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
 
     /* Window elements init */
 #ifdef Q_OS_MAC
@@ -149,6 +148,11 @@ OptionsDialog::~OptionsDialog()
 void OptionsDialog::setModel(OptionsModel *model)
 {
     this->model = model;
+
+    QSettings settings;
+
+    ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
+    ui->voteQuestionLabel->setText(settings.value("votingQuestion", "").toString());
 
     if(model)
     {
@@ -298,12 +302,11 @@ void OptionsDialog::clearStatusLabel()
     ui->statusLabel->clear();
 }
 
-void OptionsDialog::vote()
+void OptionsDialog::vote(QString vote)
 {
-    bool fVote = !GetBoolArg("-votefunding",false);
-    SoftSetArg("-votefunding",fVote?"1":"0",true);
-    RemoveConfigFile("votefunding",fVote?"0":"1");
-    WriteConfigFile("votefunding",fVote?"1":"0");
+    SoftSetArg("-stakervote",vote.toStdString(),true);
+    RemoveConfigFile("stakervote");
+    WriteConfigFile("stakervote",vote.toStdString());
 }
 
 void OptionsDialog::updateProxyValidationState()
