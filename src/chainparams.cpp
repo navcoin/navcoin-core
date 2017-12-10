@@ -112,7 +112,7 @@ public:
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 50;
         consensus.nProposalMinimalFee = 10000000000;
-        consensus.sigActivationTime = 1512903600;
+        consensus.sigActivationTime = 1512990000;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
