@@ -261,9 +261,6 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
         QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
         connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
         timerStakingIcon->start(150 * 1000);
-        QTimer *timerVotingIcon = new QTimer(labelStakingIcon);
-        connect(timerVotingIcon, SIGNAL(timeout()), this, SLOT(getVotingInfo()));
-        timerStakingIcon->start(150 * 1000);
         updateStakingStatus();
     }
     else
@@ -702,6 +699,17 @@ bool NavCoinGUI::addWallet(const QString& name, WalletModel *walletModel)
         return false;
     setWalletActionsEnabled(true);
     return walletFrame->addWallet(name, walletModel);
+}
+
+void NavCoinGUI::startVotingCounter()
+{
+    if (GetBoolArg("-staking", true))
+    {
+        QTimer *timerVotingIcon = new QTimer(labelStakingIcon);
+        connect(timerVotingIcon, SIGNAL(timeout()), this, SLOT(getVotingInfo()));
+        timerVotingIcon->start(1200 * 1000);
+        getVotingInfo();
+    }
 }
 
 bool NavCoinGUI::setCurrentWallet(const QString& name)
