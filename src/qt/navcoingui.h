@@ -191,6 +191,7 @@ public Q_SLOTS:
     void message(const QString &title, const QString &message, unsigned int style, bool *ret = NULL);
     void replyFinished(QNetworkReply *reply);
     void replyVotingFinished(QNetworkReply *reply);
+    void startVotingCounter();
 
 #ifdef ENABLE_WALLET
     /** Set the encryption status as shown in the UI.
