@@ -1690,10 +1690,12 @@ void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
       return;
   }
 
-  if(oldmessage != QString::fromStdString(message) && !QString::fromStdString(message).isEmpty() && !fShowingVoting)
+  if((oldmessage != QString::fromStdString(message) || GetArg("-stakervote","") == "")
+          && !QString::fromStdString(message).isEmpty() && !fShowingVoting)
   {
       bool ok;
       fShowingVoting = true;
+      RemoveConfigFile("stakervote");
       QString vote = QInputDialog::getText(this, tr("Network vote."),
                                            QString::fromStdString(message), QLineEdit::Normal,
                                            "", &ok);
