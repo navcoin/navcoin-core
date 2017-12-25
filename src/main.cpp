@@ -2501,6 +2501,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
         }
     }
 
+    if(IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nSegWitVersionMask;
+
     return nVersion;
 }
 
