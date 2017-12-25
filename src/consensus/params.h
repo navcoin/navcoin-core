@@ -18,7 +18,8 @@ enum DeploymentPos
     DEPLOYMENT_CSV, // Deployment of BIP68, BIP112, and BIP113.
     DEPLOYMENT_SEGWIT, // Deployment of BIP141 and BIP143
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
-    DEPLOYMENT_SEGWIT_DUMMY,
+    DEPLOYMENT_CSV_LEGACY,
+    DEPLOYMENT_SEGWIT_LEGACY,
     DEPLOYMENT_COMMUNITYFUND,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
