@@ -3287,21 +3287,25 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     {
         int nUpgraded = 0;
         const CBlockIndex* pindex = chainActive.Tip();
-        for (int bit = 0; bit < VERSIONBITS_NUM_BITS; bit++) {
-            WarningBitsConditionChecker checker(bit);
-            ThresholdState state = checker.GetStateFor(pindex, chainParams.GetConsensus(), warningcache[bit], bit);
-            if (state == THRESHOLD_ACTIVE || state == THRESHOLD_LOCKED_IN) {
-                if (state == THRESHOLD_ACTIVE) {
-                    warningMessages.push_back(strprintf(_("Warning: unknown new rules activated (versionbit %i)"), bit));
-                    if (!fWarned) {
-                        AlertNotify(strMiscWarning);
-                        fWarned = true;
-                    }
-                } else {
-                    warningMessages.push_back(strprintf("unknown new rules are about to activate (versionbit %i)", bit));
-                }
-            }
-        }
+//
+// Commented - NavCoin uses now version control
+//
+//        for (int bit = 0; bit < VERSIONBITS_NUM_BITS; bit++) {
+//            WarningBitsConditionChecker checker(bit);
+//            ThresholdState state = checker.GetStateFor(pindex, chainParams.GetConsensus(), warningcache[bit], bit);
+//            if (state == THRESHOLD_ACTIVE || state == THRESHOLD_LOCKED_IN) {
+//                if (state == THRESHOLD_ACTIVE) {
+//                    warningMessages.push_back(strprintf(_("Warning: unknown new rules activated (versionbit %i)"), bit));
+//                    if (!fWarned) {
+//                        AlertNotify(strMiscWarning);
+//                        fWarned = true;
+//                    }
+//                } else {
+//                    warningMessages.push_back(strprintf("unknown new rules are about to activate (versionbit %i)", bit));
+//                }
+//            }
+//        }
+
         // Check the version of the last 1000 blocks to see if we need to upgrade:
         for (int i = 0; i < 1000 && pindex != NULL; i++)
         {
