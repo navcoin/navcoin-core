@@ -462,6 +462,8 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
+    wtx.strDZeel = strDZeel;
+
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
 
     return wtx.GetHash().GetHex();
@@ -810,6 +812,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
         nAmountAlreadyProcessed += nAmountRound;
 
         string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+(i==serverNavAddresses.size()?0:1), nId);
+        wtx.strDZeel = encryptedAddress;
         SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, encryptedAddress);
     }
 
