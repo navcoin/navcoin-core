@@ -7,6 +7,9 @@
 #include "main.h"
 #include "rpc/server.h"
 
+std::map<uint256, CFund::CProposal> mapProposal;
+std::map<uint256, CFund::CPaymentRequest> mapPaymentRequest;
+
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
     script.resize(2);
@@ -37,28 +40,52 @@ void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash
 bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
 {
 
-    return pcfundindex->ReadProposalIndex(uint256S("0x"+propstr), proposal);
+    return CFund::FindProposal(uint256S("0x"+propstr), proposal);
 
 }
 
 bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 {
 
-    return pcfundindex->ReadProposalIndex(prophash, proposal);
+    if(mapProposal.count(prophash) != 0) {
+        proposal = mapProposal[prophash];
+        return true;
+    }
+
+    CFund::CProposal temp;
+    if(pcfundindex->ReadProposalIndex(prophash, temp)) {
+        proposal = temp;
+        mapProposal[prophash] = temp;
+        return true;
+    }
+
+    return false;
 
 }
 
 bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
 {
 
-    return pcfundindex->ReadPaymentRequestIndex(preqhash, prequest);
+    if(mapPaymentRequest.count(preqhash) != 0) {
+        prequest = mapPaymentRequest[preqhash];
+        return true;
+    }
+
+    CFund::CPaymentRequest temp;
+    if(pcfundindex->ReadPaymentRequestIndex(preqhash, temp)) {
+        prequest = temp;
+        mapPaymentRequest[preqhash] = temp;
+        return true;
+    }
+
+    return false;
 
 }
 
 bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
 {
 
-    return pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+preqstr), prequest);
+    return CFund::FindPaymentRequest(uint256S("0x"+preqstr), prequest);
 
 }
 
@@ -66,7 +93,7 @@ void CFund::VoteProposal(string strProp, bool vote)
 {
 
     CFund::CProposal proposal;
-    bool found = pcfundindex->ReadProposalIndex(uint256S("0x"+strProp), proposal);
+    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
     if(!found || proposal.IsNull())
         return;
@@ -113,7 +140,7 @@ void CFund::VotePaymentRequest(string strProp, bool vote)
 {
 
     CFund::CPaymentRequest prequest;
-    bool found = pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+strProp), prequest);
+    bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
     if(!found || prequest.IsNull())
         return;
