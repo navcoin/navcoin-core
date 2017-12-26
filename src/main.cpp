@@ -703,6 +703,7 @@ CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& loc
 
 CCoinsViewCache *pcoinsTip = NULL;
 CBlockTreeDB *pblocktree = NULL;
+CCFundDB *pcfundindex = NULL;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2443,11 +2444,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         }
     }
 
-    if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
+    if (!pcfundindex->UpdateProposalIndex(proposalIndex)) {
         return AbortNode(state, "Failed to write proposal index");
     }
 
-    if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex)) {
+    if (!pcfundindex->UpdatePaymentRequestIndex(paymentRequestIndex)) {
         return AbortNode(state, "Failed to write proposal index");
     }
 
@@ -3113,10 +3114,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             return AbortNode(state, "Failed to write blockhash index");
     }
 
-    if (!pblocktree->WriteProposalIndex(proposalIndex))
+    if (!pcfundindex->WriteProposalIndex(proposalIndex))
         return AbortNode(state, "Failed to write proposal index");
 
-    if (!pblocktree->WritePaymentRequestIndex(paymentRequestIndex))
+    if (!pcfundindex->WritePaymentRequestIndex(paymentRequestIndex))
         return AbortNode(state, "Failed to write payment request index");
 
     // add this block to the view's block chain
@@ -3475,7 +3476,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         std::vector<CFund::CPaymentRequest> vecPaymentRequest;
         std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
 
-        if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
+        if(pcfundindex->GetPaymentRequestIndex(vecPaymentRequest)){
             for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
                 CFund::CPaymentRequest prequest = vecPaymentRequest[i];
                 if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
@@ -3502,7 +3503,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                     }
                 }
             }
-            if (!pblocktree->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {
+            if (!pcfundindex->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {
                 return AbortNode(state, "Failed to write payment request index");
             }
         }
@@ -3510,7 +3511,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         std::vector<CFund::CProposal> vecProposal;
         std::vector<pair<uint256,CFund::CProposal>> vProposalsToUpdate;
 
-        if(pblocktree->GetProposalIndex(vecProposal)){
+        if(pcfundindex->GetProposalIndex(vecProposal)){
             for(unsigned int i = 0; i < vecProposal.size(); i++) {
                 CFund::CProposal proposal = vecProposal[i];
                 if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
@@ -3545,7 +3546,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                     }
                 }
             }
-            if (!pblocktree->UpdateProposalIndex(vProposalsToUpdate)) {
+            if (!pcfundindex->UpdateProposalIndex(vProposalsToUpdate)) {
                 return AbortNode(state, "Failed to write proposal index");
             }
         }
@@ -3617,10 +3618,10 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         prequest.nVotesNo = it->second.second;
         vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
     }
-    if (!pblocktree->UpdateProposalIndex(vecProposalsToUpdate)) {
+    if (!pcfundindex->UpdateProposalIndex(vecProposalsToUpdate)) {
         return AbortNode(state, "Failed to write proposal index");
     }
-    if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
+    if (!pcfundindex->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
         return AbortNode(state, "Failed to write payment request index");
     }
     return true;
@@ -4516,7 +4517,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                         prequest.paymenthash = block.GetHash();
                         std::vector<std::pair<uint256, CFund::CPaymentRequest>> vec;
                         vec.push_back(make_pair(prequest.hash, prequest));
-                        if(!pblocktree->UpdatePaymentRequestIndex(vec))
+                        if(!pcfundindex->UpdatePaymentRequestIndex(vec))
                             return AbortNode(state, "Failed to write payment request index");
                     }
                 } else {

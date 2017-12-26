@@ -47,6 +47,7 @@ static const int64_t MAX_MINT_PROOF_OF_STAKE = 0.1 * COIN;
 
 class CBlockIndex;
 class CBlockTreeDB;
+class CCFundDB;
 class CBloomFilter;
 class CChainParams;
 class CInv;
@@ -96,7 +97,7 @@ static const unsigned int UNDOFILE_CHUNK_SIZE = 0x100000; // 1 MiB
 /** Maximum number of script-checking threads allowed */
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 /** -par default (number of script-checking threads, 0 = auto) */
-static const int DEFAULT_SCRIPTCHECK_THREADS = 0;
+static const int DEFAULT_SCRIPTCHECK_THREADS = 1;
 /** Number of blocks that can be requested at any given time from a single peer. */
 static const int MAX_BLOCKS_IN_TRANSIT_PER_PEER = 16;
 /** Timeout in seconds during which a peer must stall block download progress before being disconnected. */
@@ -547,6 +548,7 @@ extern CCoinsViewCache *pcoinsTip;
 
 /** Global variable that points to the active block tree (protected by cs_main) */
 extern CBlockTreeDB *pblocktree;
+extern CCFundDB *pcfundindex;
 extern uint256 hashBestChain;
 
 /**

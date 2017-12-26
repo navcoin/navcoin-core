@@ -37,28 +37,28 @@ void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash
 bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
 {
 
-    return pblocktree->ReadProposalIndex(uint256S("0x"+propstr), proposal);
+    return pcfundindex->ReadProposalIndex(uint256S("0x"+propstr), proposal);
 
 }
 
 bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 {
 
-    return pblocktree->ReadProposalIndex(prophash, proposal);
+    return pcfundindex->ReadProposalIndex(prophash, proposal);
 
 }
 
 bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
 {
 
-    return pblocktree->ReadPaymentRequestIndex(preqhash, prequest);
+    return pcfundindex->ReadPaymentRequestIndex(preqhash, prequest);
 
 }
 
 bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
 {
 
-    return pblocktree->ReadPaymentRequestIndex(uint256S("0x"+preqstr), prequest);
+    return pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+preqstr), prequest);
 
 }
 
@@ -66,7 +66,7 @@ void CFund::VoteProposal(string strProp, bool vote)
 {
 
     CFund::CProposal proposal;
-    bool found = pblocktree->ReadProposalIndex(uint256S("0x"+strProp), proposal);
+    bool found = pcfundindex->ReadProposalIndex(uint256S("0x"+strProp), proposal);
 
     if(!found || proposal.IsNull())
         return;
@@ -113,7 +113,7 @@ void CFund::VotePaymentRequest(string strProp, bool vote)
 {
 
     CFund::CPaymentRequest prequest;
-    bool found = pblocktree->ReadPaymentRequestIndex(uint256S("0x"+strProp), prequest);
+    bool found = pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+strProp), prequest);
 
     if(!found || prequest.IsNull())
         return;
