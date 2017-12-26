@@ -921,7 +921,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     }
 
     std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
+    if(pcfundindex->GetProposalIndex(vec))
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
             if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
