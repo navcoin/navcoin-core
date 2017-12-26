@@ -166,7 +166,7 @@ bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos>
     return WriteBatch(batch);
 }
 
-CCFundDB::CCFundDB(size_t nCacheSize, bool fMemory, bool fWipe, bool compression, int maxOpenFiles) : CDBWrapper(GetDataDir() / "cfund" / "index", nCacheSize, fMemory, fWipe, false, compression, maxOpenFiles) {
+CCFundDB::CCFundDB(size_t nCacheSize, bool fMemory, bool fWipe, bool compression, int maxOpenFiles) : CDBWrapper(GetDataDir() / "cfund", nCacheSize, fMemory, fWipe, false, compression, maxOpenFiles) {
 }
 
 bool CCFundDB::ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal) {
