@@ -687,3 +687,56 @@ UniValue dumpmasterprivkey(const UniValue& params, bool fHelp)
          return NullUniValue;
      }
  }
+
+UniValue importmasterprivkey(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "importmasterprivkey \"navcoinmasterprivkey\" ( \"label\" rescan )\n"
+            "\nAdds a master private key (as returned by dumpmasterprivkey) to your wallet.\n"
+            "\nArguments:\n"
+            "1. \"navcoinmasterprivkey\"   (string, required) The private key (see dumpmasterprivkey)\n"
+            "2. rescan                     (boolean, optional, default=true) Rescan the wallet for transactions\n"
+            "\nNote: This call can take minutes to complete if rescan is true.\n"
+            "\nExamples:\n"
+            "\nDump a master private key\n"
+            + HelpExampleCli("dumpmasterprivkey", "") +
+            "\nImport the master private key with rescan\n"
+            + HelpExampleCli("importmasterprivkey", "\"mykey\"")
+        );
+
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    EnsureWalletIsUnlocked();
+
+     // Note that the walletpassphrase is stored in params[0] which is not mlock()ed
+    SecureString strWalletPass;
+    strWalletPass.reserve(100);
+    // TODO: get rid of this .c_str() by implementing SecureString::operator=(std::string)
+    // Alternately, find a way to make params[0] mlock()'d to begin with.
+    strWalletPass = params[0].get_str().c_str();
+
+    // Whether to perform rescan after import
+    bool fRescan = true;
+    if (params.size() > 1)
+        fRescan = params[1].get_bool();
+
+    if (fRescan && fPruneMode)
+        throw JSONRPCError(RPC_WALLET_ERROR, "Rescan is disabled in pruned mode");
+
+    pwalletMain->MarkDirty();
+    pwalletMain->Unlock(strWalletPass);
+
+    // whenever a key is imported, we need to scan the whole chain
+    pwalletMain->nTimeFirstKey = 1; // 0 would be considered 'no value'
+
+    if (fRescan) {
+        pwalletMain->ScanForWalletTransactions(chainActive.Genesis(), true);
+    }
+
+    return NullUniValue;
+}
