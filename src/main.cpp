@@ -3517,21 +3517,29 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                 if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
                         (proposal.IsRejected() && proposal.fState != CFund::REJECTED) ||
                         (!proposal.IsAccepted() && !proposal.IsRejected())) {
-                    if(proposal.fState != CFund::PENDING_FUNDS) {
+                    bool fUpdate = false;
+                    if(proposal.fState != CFund::PENDING_FUNDS && proposal.fState != CFund::ACCEPTED &&
+                            proposal.fState != CFund::REJECTED) {
                         proposal.nVotesNo = 0;
                         proposal.nVotesYes = 0;
+                        fUpdate = true;
                     }
                     if(proposal.IsExpired(pindexNew->GetMedianTimePast() && proposal.fState != CFund::EXPIRED)) {
+                        if(proposal.fState == CFund::ACCEPTED) {
+                            pindexNew->nCFSupply += proposal.GetAvailable();
+                            pindexNew->nCFLocked -= proposal.GetAvailable();
+                        }
                         proposal.fState = CFund::EXPIRED;
-                        pindexNew->nCFSupply += proposal.GetAvailable();
-                        pindexNew->nCFLocked -= proposal.GetAvailable();
+                        fUpdate = true;
                     }
                     if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
                         proposal.fState = CFund::REJECTED;
+                        fUpdate = true;
                     }
-                    vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+                    if(fUpdate)
+                        vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
                 }
-                if(proposal.IsAccepted() && (proposal.fState != CFund::ACCEPTED || proposal.fState == CFund::PENDING_FUNDS)) {
+                if(proposal.IsAccepted() && proposal.fState != CFund::ACCEPTED) {
                     if(pindexNew->nCFSupply >= proposal.GetAvailable()) {
                         pindexNew->nCFSupply -= proposal.GetAvailable();
                         pindexNew->nCFLocked += proposal.GetAvailable();
