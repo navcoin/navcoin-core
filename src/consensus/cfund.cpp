@@ -44,6 +44,18 @@ bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
 
 }
 
+void CFund::UpdateMapProposal(uint256 prophash)
+{
+    if(mapProposal.count(prophash) != 0)
+        mapProposal.erase(prophash);
+}
+
+void CFund::UpdateMapProposal(uint256 prophash, CFund::CProposal proposal)
+{
+    if(mapProposal.count(prophash) != 0)
+        mapProposal[prophash] = proposal;
+}
+
 bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 {
 
@@ -80,6 +92,18 @@ bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &preques
 
     return false;
 
+}
+
+void CFund::UpdateMapPaymentRequest(uint256 preqhash)
+{
+    if(mapPaymentRequest.count(preqhash) != 0)
+        mapPaymentRequest.erase(preqhash);
+}
+
+void CFund::UpdateMapPaymentRequest(uint256 preqhash, CFund::CPaymentRequest prequest)
+{
+    if(mapPaymentRequest.count(preqhash) != 0)
+        mapPaymentRequest[preqhash] = prequest;
 }
 
 bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)

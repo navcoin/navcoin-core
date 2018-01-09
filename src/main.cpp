@@ -3478,6 +3478,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
         if(pcfundindex->GetPaymentRequestIndex(vecPaymentRequest)){
             for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
+                bool fUpdate = false;
                 CFund::CPaymentRequest prequest = vecPaymentRequest[i];
                 if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
                         (!prequest.IsAccepted() && !prequest.IsRejected())) {
@@ -3486,7 +3487,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                     }
                     prequest.nVotesNo = 0;
                     prequest.nVotesYes = 0;
-                    vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                    fUpdate = true;
                 }
                 CFund::CProposal parent;
                 if(!CFund::FindProposal(prequest.proposalhash, parent))
@@ -3497,11 +3498,13 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                         pindexNew->nCFLocked -= prequest.nAmount;
                         prequest.fState = CFund::ACCEPTED;
                         prequest.blockhash = pblock->GetHash();
-                        vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                        fUpdate = true;
                     } else { // SHOULD NEVER HAPPEN!
                         LogPrintf("ERROR! Locked coins on Community Fund not enough to pay request %s.", prequest.hash.ToString());
                     }
                 }
+                if(fUpdate)
+                    vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
             }
             if (!pcfundindex->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {
                 return AbortNode(state, "Failed to write payment request index");
@@ -3513,11 +3516,11 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
         if(pcfundindex->GetProposalIndex(vecProposal)){
             for(unsigned int i = 0; i < vecProposal.size(); i++) {
+                bool fUpdate = false;
                 CFund::CProposal proposal = vecProposal[i];
                 if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
                         (proposal.IsRejected() && proposal.fState != CFund::REJECTED) ||
                         (!proposal.IsAccepted() && !proposal.IsRejected())) {
-                    bool fUpdate = false;
                     if(proposal.fState != CFund::PENDING_FUNDS && proposal.fState != CFund::ACCEPTED &&
                             proposal.fState != CFund::REJECTED) {
                         proposal.nVotesNo = 0;
@@ -3536,8 +3539,6 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                         proposal.fState = CFund::REJECTED;
                         fUpdate = true;
                     }
-                    if(fUpdate)
-                        vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
                 }
                 if(proposal.IsAccepted() && proposal.fState != CFund::ACCEPTED) {
                     if(pindexNew->nCFSupply >= proposal.GetAvailable()) {
@@ -3545,14 +3546,16 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                         pindexNew->nCFLocked += proposal.GetAvailable();
                         proposal.fState = CFund::ACCEPTED;
                         proposal.blockhash = pblock->GetHash();
-                        vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+                        fUpdate = true;
                     } else if(proposal.fState != CFund::PENDING_FUNDS) {
                         proposal.fState = CFund::PENDING_FUNDS;
                         LogPrintf("Could not accept proposal %s. There are no enough coins on the community fund. (req %d vs. %d available)\n",
                                   proposal.hash.ToString(), proposal.GetAvailable(), pindexNew->nCFSupply);
-                        vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+                        fUpdate = true;
                     }
                 }
+                if(fUpdate)
+                    vProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
             }
             if (!pcfundindex->UpdateProposalIndex(vProposalsToUpdate)) {
                 return AbortNode(state, "Failed to write proposal index");
