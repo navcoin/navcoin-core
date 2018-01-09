@@ -185,11 +185,13 @@ bool CCFundDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::C
     for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
             batch.Erase(make_pair(DB_PROPINDEX, it->first));
+            CFund::UpdateMapProposal(it->first);
         } else {
+            CFund::UpdateMapProposal(it->first, it->second);
             batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
         }
     }
-    return WriteBatch(batch);
+    return WriteBatch(batch, true);
 }
 
 bool CCFundDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
@@ -231,8 +233,10 @@ bool CCFundDB::UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CF
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
+            CFund::UpdateMapPaymentRequest(it->first);
             batch.Erase(make_pair(DB_PREQINDEX, it->first));
         } else {
+            CFund::UpdateMapPaymentRequest(it->first, it->second);
             batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
         }
     }
