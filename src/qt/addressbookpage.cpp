@@ -10,11 +10,18 @@
 #include "ui_addressbookpage.h"
 
 #include "addresstablemodel.h"
+#include "base58.h"
+#include "main.h"
 #include "navcoingui.h"
 #include "csvmodelwriter.h"
 #include "editaddressdialog.h"
 #include "guiutil.h"
 #include "platformstyle.h"
+
+#ifdef ENABLE_WALLET
+#include "wallet/wallet.h"
+#include "walletmodel.h"
+#endif
 
 #include <QIcon>
 #include <QMenu>
@@ -69,10 +76,12 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode mode, 
     case SendingTab:
         ui->labelExplanation->setText(tr("These are your NavCoin addresses for sending payments. Always check the amount and the receiving address before sending coins."));
         ui->deleteAddress->setVisible(true);
+        ui->showPrivateKey->hide();
         break;
     case ReceivingTab:
         ui->labelExplanation->setText(tr("These are your NavCoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction."));
         ui->deleteAddress->setVisible(false);
+        ui->showPrivateKey->show();
         break;
     }
 
@@ -80,6 +89,7 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode mode, 
     QAction *copyAddressAction = new QAction(tr("&Copy Address"), this);
     QAction *copyLabelAction = new QAction(tr("Copy &Label"), this);
     QAction *editAction = new QAction(tr("&Edit"), this);
+    QAction *showPrivateKeyAction = new QAction(tr("Show &Private Key"), this);
     deleteAction = new QAction(ui->deleteAddress->text(), this);
 
     // Build context menu
@@ -89,12 +99,15 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode mode, 
     contextMenu->addAction(editAction);
     if(tab == SendingTab)
         contextMenu->addAction(deleteAction);
+    else
+        contextMenu->addAction(showPrivateKeyAction);
     contextMenu->addSeparator();
 
     // Connect signals for context menu actions
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(on_copyAddress_clicked()));
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(onCopyLabelAction()));
     connect(editAction, SIGNAL(triggered()), this, SLOT(onEditAction()));
+    connect(showPrivateKeyAction, SIGNAL(triggered()), this, SLOT(on_showPrivateKey_clicked()));
     connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_deleteAddress_clicked()));
 
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
@@ -228,11 +241,15 @@ void AddressBookPage::selectionChanged()
             ui->deleteAddress->setEnabled(true);
             ui->deleteAddress->setVisible(true);
             deleteAction->setEnabled(true);
+            ui->showPrivateKey->setEnabled(false);
+            ui->showPrivateKey->setVisible(false);
             break;
         case ReceivingTab:
             // Deleting receiving addresses, however, is not allowed
             ui->deleteAddress->setEnabled(false);
             ui->deleteAddress->setVisible(false);
+            ui->showPrivateKey->setEnabled(true);
+            ui->showPrivateKey->setVisible(true);
             deleteAction->setEnabled(false);
             break;
         }
@@ -241,6 +258,7 @@ void AddressBookPage::selectionChanged()
     else
     {
         ui->deleteAddress->setEnabled(false);
+        ui->showPrivateKey->setEnabled(false);
         ui->copyAddress->setEnabled(false);
     }
 }
@@ -288,6 +306,27 @@ void AddressBookPage::on_exportButton_clicked()
     if(!writer.write()) {
         QMessageBox::critical(this, tr("Exporting Failed"),
             tr("There was an error trying to save the address list to %1. Please try again.").arg(filename));
+    }
+}
+
+void AddressBookPage::on_showPrivateKey_clicked()
+{
+    QTableView *table = ui->tableView;
+    if(!table->selectionModel() || !table->model())
+        return;
+
+    QModelIndexList indexes = table->selectionModel()->selectedRows(AddressTableModel::Address);
+
+    if(!indexes.isEmpty())
+    {
+
+        QVariant ad = table->model()->data(indexes.at(0));
+        std::string strAddress = ad.toString().toStdString();
+        std::string key;
+
+        model->getPrivateKey(strAddress, key);
+        QMessageBox::information(this, tr("Show Private Key"),
+            tr("Private key for %1:<br><br>%2").arg(ad.toString(),QString::fromStdString(key)));
     }
 }
 
