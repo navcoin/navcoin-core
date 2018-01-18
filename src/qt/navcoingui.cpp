@@ -122,6 +122,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     usedReceivingAddressesAction(0),
     repairWalletAction(0),
     importPrivateKeyAction(0),
+    exportMasterPrivateKeyAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -461,6 +462,9 @@ void NavCoinGUI::createActions()
     importPrivateKeyAction = new QAction(tr("&Import private key"), this);
     importPrivateKeyAction->setToolTip(tr("Import private key"));
 
+    exportMasterPrivateKeyAction = new QAction(tr("Show &master private key"), this);
+    exportMasterPrivateKeyAction->setToolTip(tr("Show master private key"));
+
     openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
 
@@ -492,6 +496,7 @@ void NavCoinGUI::createActions()
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
         connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
+        connect(exportMasterPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(exportMasterPrivateKeyAction()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -525,6 +530,7 @@ void NavCoinGUI::createMenuBar()
         file->addAction(repairWalletAction);
         file->addSeparator();
         file->addAction(importPrivateKeyAction);
+        file->addAction(exportMasterPrivateKeyAction);
 
     }
     file->addAction(quitAction);

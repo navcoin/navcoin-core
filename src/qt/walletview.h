@@ -105,6 +105,7 @@ public Q_SLOTS:
     void unlockWalletStaking();
     void lockWallet();
     void importPrivateKey();
+    void exportMasterPrivateKeyAction();
 
     /** Show used sending addresses */
     void usedSendingAddresses();

@@ -305,6 +305,13 @@ void WalletFrame::importPrivateKey()
         walletView->importPrivateKey();
 }
 
+void WalletFrame::exportMasterPrivateKeyAction()
+{
+    WalletView *walletView = currentWalletView();
+    if(walletView)
+        walletView->exportMasterPrivateKeyAction();
+}
+
 void WalletFrame::lockWallet()
 {
     WalletView *walletView = currentWalletView();
