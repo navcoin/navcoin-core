@@ -56,6 +56,8 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    bool getPrivateKey(std::string publicKey, std::string &privateKey) const;
+
     /*@}*/
 
     /* Add an address to the model.
