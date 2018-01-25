@@ -31,6 +31,7 @@
 #include <QList>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
 #include <QNetworkReply>
@@ -56,6 +57,7 @@ const char* BIP70_MESSAGE_PAYMENTREQUEST = "PaymentRequest";
 const char* BIP71_MIMETYPE_PAYMENT = "application/navcoin-payment";
 const char* BIP71_MIMETYPE_PAYMENTACK = "application/navcoin-paymentack";
 const char* BIP71_MIMETYPE_PAYMENTREQUEST = "application/navcoin-paymentrequest";
+const char* NIP01_MIMETYPE_SIGNEDMSG = "application/navcoin-signedmsg";
 // BIP70 max payment request size in bytes (DoS protection)
 const qint64 BIP70_MAX_PAYMENTREQUEST_SIZE = 50000;
 
@@ -303,7 +305,8 @@ PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
     saveURIs(true),
     uriServer(0),
     netManager(0),
-    optionsModel(0)
+    optionsModel(0),
+    model(0)
 {
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against.
@@ -399,6 +402,11 @@ void PaymentServer::uiReady()
     savedPaymentRequests.clear();
 }
 
+void PaymentServer::setWalletModel(WalletModel *walletModel)
+{
+    this->model = walletModel;
+}
+
 void PaymentServer::handleURIOrFile(const QString& s)
 {
     if (saveURIs)
@@ -414,7 +422,71 @@ void PaymentServer::handleURIOrFile(const QString& s)
 #else
         QUrlQuery uri((QUrl(s)));
 #endif
-        if (uri.hasQueryItem("r")) // payment request URI
+        if (uri.hasQueryItem("m") && uri.hasQueryItem("a")) // payment request URI
+        {
+            QByteArray temp;
+            temp.append(uri.queryItemValue("m"));
+            temp.append(uri.queryItemValue("a"));
+            QString decoded = QUrl::fromPercentEncoding(temp);
+            QUrl fetchUrl(decoded, QUrl::StrictMode);
+
+            if (!model)
+                return;
+
+            CNavCoinAddress addr(uri.queryItemValue("a").toStdString());
+            if (!addr.IsValid())
+            {
+                Q_EMIT message(tr("Verify address"), tr("The entered address is invalid.") + QString(" ") + tr("Please check the address and try again."),
+                               CClientUIInterface::ICON_WARNING);
+                return;
+            }
+            CKeyID keyID;
+            if (!addr.GetKeyID(keyID))
+            {
+                Q_EMIT message(tr("Verify address"), tr("The entered address does not refer to a key.") + QString(" ") + tr("Please check the address and try again."),
+                               CClientUIInterface::ICON_WARNING);
+                return;
+            }
+
+            WalletModel::UnlockContext ctx(model->requestUnlock());
+            if (!ctx.isValid())
+            {
+                Q_EMIT message(tr("Verify address"), tr("Wallet unlock was cancelled."),
+                               CClientUIInterface::ICON_WARNING);
+                return;
+            }
+
+            CKey key;
+            if (!pwalletMain->GetKey(keyID, key))
+            {
+                Q_EMIT message(tr("Verify address"), tr("Private key for the entered address is not available."),
+                               CClientUIInterface::ICON_WARNING);
+                return;
+            }
+
+            CHashWriter ss(SER_GETHASH, 0);
+            ss << strMessageMagic;
+            ss << uri.queryItemValue("m").toStdString();
+
+            std::vector<unsigned char> vchSig;
+            if (!key.SignCompact(ss.GetHash(), vchSig))
+            {
+                Q_EMIT message(tr("Verify address"),tr("Message signing failed."),
+                               CClientUIInterface::ICON_WARNING);
+                return;
+            }
+
+            QString signature = (QString::fromStdString(EncodeBase64(&vchSig[0], vchSig.size())));
+
+            QUrl fetchUrlConstructed(s.mid(NAVCOIN_IPC_PREFIX.length()) + "&s=" + QUrl::toPercentEncoding(signature));
+
+            Q_EMIT message(tr("Verify address"), tr("Message signed."),
+                           CClientUIInterface::ICON_INFORMATION);
+
+            sendSignature(fetchUrlConstructed);
+
+        }
+        else if (uri.hasQueryItem("r")) // payment request URI
         {
             QByteArray temp;
             temp.append(uri.queryItemValue("r"));
@@ -639,6 +711,15 @@ void PaymentServer::fetchRequest(const QUrl& url)
     netRequest.setUrl(url);
     netRequest.setRawHeader("User-Agent", CLIENT_NAME.c_str());
     netRequest.setRawHeader("Accept", BIP71_MIMETYPE_PAYMENTREQUEST);
+    netManager->get(netRequest);
+}
+
+void PaymentServer::sendSignature(const QUrl& url)
+{
+    QNetworkRequest netRequest;
+    netRequest.setUrl(url);
+    netRequest.setRawHeader("User-Agent", CLIENT_NAME.c_str());
+    netRequest.setRawHeader("Accept", NIP01_MIMETYPE_SIGNEDMSG);
     netManager->get(netRequest);
 }
 
