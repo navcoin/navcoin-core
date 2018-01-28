@@ -423,7 +423,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
 #else
         QUrlQuery uri((QUrl(s)));
 #endif
-        if (uri.hasQueryItem("m") && uri.hasQueryItem("a")) // payment request URI
+        if (uri.hasQueryItem("m") && uri.hasQueryItem("a")) // sign message URI
         {
             QByteArray temp;
             temp.append(uri.queryItemValue("m"));
