@@ -135,7 +135,7 @@ private:
     static bool readPaymentRequestFromFile(const QString& filename, PaymentRequestPlus& request);
     bool processPaymentRequest(const PaymentRequestPlus& request, SendCoinsRecipient& recipient);
     void fetchRequest(const QUrl& url);
-    void sendSignature(const QUrl& url);
+    void sendSignature(const QUrl& url, const QString data);
 
     // Setup networking
     void initNetManager();
