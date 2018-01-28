@@ -478,12 +478,12 @@ void PaymentServer::handleURIOrFile(const QString& s)
 
             QString signature = (QString::fromStdString(EncodeBase64(&vchSig[0], vchSig.size())));
 
-            QUrl fetchUrlConstructed(s.mid(NAVCOIN_IPC_PREFIX.length()) + "&s=" + QUrl::toPercentEncoding(signature));
+            QUrl fetchUrlConstructed(s.mid(NAVCOIN_IPC_PREFIX.length()));
 
             Q_EMIT message(tr("Verify address"), tr("Message signed."),
                            CClientUIInterface::ICON_INFORMATION);
 
-            sendSignature(fetchUrlConstructed);
+            sendSignature(fetchUrlConstructed, signature);
 
         }
         else if (uri.hasQueryItem("r")) // payment request URI
@@ -714,13 +714,15 @@ void PaymentServer::fetchRequest(const QUrl& url)
     netManager->get(netRequest);
 }
 
-void PaymentServer::sendSignature(const QUrl& url)
+void PaymentServer::sendSignature(const QUrl& url, const QString data)
 {
     QNetworkRequest netRequest;
     netRequest.setUrl(url);
     netRequest.setRawHeader("User-Agent", CLIENT_NAME.c_str());
-    netRequest.setRawHeader("Accept", NIP01_MIMETYPE_SIGNEDMSG);
-    netManager->get(netRequest);
+    netRequest.setHeader(QNetworkRequest::ContentTypeHeader,  NIP01_MIMETYPE_SIGNEDMSG);
+    QByteArray postData;
+    postData.append(data);
+    netManager->post(netRequest, postData);
 }
 
 void PaymentServer::fetchPaymentACK(CWallet* wallet, SendCoinsRecipient recipient, QByteArray transaction)
