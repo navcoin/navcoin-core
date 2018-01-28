@@ -437,15 +437,15 @@ void PaymentServer::handleURIOrFile(const QString& s)
             CNavCoinAddress addr(uri.queryItemValue("a").toStdString());
             if (!addr.IsValid())
             {
-                Q_EMIT message(tr("Verify address"), tr("The entered address is invalid.") + QString(" ") + tr("Please check the address and try again."),
-                               CClientUIInterface::ICON_WARNING);
+                Q_EMIT message(tr("Verify address"), tr("The provided address is invalid.") + QString(" ") + tr("Please check the address and try again."),
+                               CClientUIInterface::MSG_ERROR);
                 return;
             }
             CKeyID keyID;
             if (!addr.GetKeyID(keyID))
             {
-                Q_EMIT message(tr("Verify address"), tr("The entered address does not refer to a key.") + QString(" ") + tr("Please check the address and try again."),
-                               CClientUIInterface::ICON_WARNING);
+                Q_EMIT message(tr("Verify address"), tr("The provided address does not refer to a key.") + QString(" ") + tr("Please check the address and try again."),
+                               CClientUIInterface::MSG_ERROR);
                 return;
             }
 
@@ -460,8 +460,8 @@ void PaymentServer::handleURIOrFile(const QString& s)
             CKey key;
             if (!pwalletMain->GetKey(keyID, key))
             {
-                Q_EMIT message(tr("Verify address"), tr("Private key for the entered address is not available."),
-                               CClientUIInterface::ICON_WARNING);
+                Q_EMIT message(tr("Verify address"), tr("Private key for the provided address is not available."),
+                               CClientUIInterface::MSG_ERROR);
                 return;
             }
 
@@ -473,7 +473,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
             if (!key.SignCompact(ss.GetHash(), vchSig))
             {
                 Q_EMIT message(tr("Verify address"),tr("Message signing failed."),
-                               CClientUIInterface::ICON_WARNING);
+                               CClientUIInterface::MSG_ERROR);
                 return;
             }
 
@@ -815,7 +815,7 @@ void PaymentServer::netRequestFinished(QNetworkReply* reply)
                        CClientUIInterface::ICON_INFORMATION);
         else
             Q_EMIT message(tr("Verify address"), tr("Something went wrong."),
-                       CClientUIInterface::ICON_WARNING);
+                       CClientUIInterface::MSG_ERROR);
     }
     else if (requestType == BIP70_MESSAGE_PAYMENTREQUEST)
     {
