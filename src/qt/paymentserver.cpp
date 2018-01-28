@@ -53,6 +53,7 @@ const QString NAVCOIN_IPC_PREFIX("navcoin:");
 // BIP70 payment protocol messages
 const char* BIP70_MESSAGE_PAYMENTACK = "PaymentACK";
 const char* BIP70_MESSAGE_PAYMENTREQUEST = "PaymentRequest";
+const char* NIP01_MESSAGE_SIGNEDMSG = "SignedMsg";
 // BIP71 payment protocol media types
 const char* BIP71_MIMETYPE_PAYMENT = "application/navcoin-payment";
 const char* BIP71_MIMETYPE_PAYMENTACK = "application/navcoin-paymentack";
@@ -480,9 +481,6 @@ void PaymentServer::handleURIOrFile(const QString& s)
 
             QUrl fetchUrlConstructed(s.mid(NAVCOIN_IPC_PREFIX.length()));
 
-            Q_EMIT message(tr("Verify address"), tr("Message signed."),
-                           CClientUIInterface::ICON_INFORMATION);
-
             sendSignature(fetchUrlConstructed, signature);
 
         }
@@ -718,6 +716,7 @@ void PaymentServer::sendSignature(const QUrl& url, const QString data)
 {
     QNetworkRequest netRequest;
     netRequest.setUrl(url);
+    netRequest.setAttribute(QNetworkRequest::User, NIP01_MESSAGE_SIGNEDMSG);
     netRequest.setRawHeader("User-Agent", CLIENT_NAME.c_str());
     netRequest.setHeader(QNetworkRequest::ContentTypeHeader,  NIP01_MIMETYPE_SIGNEDMSG);
     QByteArray postData;
@@ -806,9 +805,19 @@ void PaymentServer::netRequestFinished(QNetworkReply* reply)
     }
 
     QByteArray data = reply->readAll();
+    QString strReply(data);
 
     QString requestType = reply->request().attribute(QNetworkRequest::User).toString();
-    if (requestType == BIP70_MESSAGE_PAYMENTREQUEST)
+    if (requestType == NIP01_MESSAGE_SIGNEDMSG)
+    {
+        if(strReply == "true")
+            Q_EMIT message(tr("Verify address"), tr("Message signed."),
+                       CClientUIInterface::ICON_INFORMATION);
+        else
+            Q_EMIT message(tr("Verify address"), tr("Something went wrong."),
+                       CClientUIInterface::ICON_WARNING);
+    }
+    else if (requestType == BIP70_MESSAGE_PAYMENTREQUEST)
     {
         PaymentRequestPlus request;
         SendCoinsRecipient recipient;
