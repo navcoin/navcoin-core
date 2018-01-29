@@ -84,7 +84,8 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     typeWidget->addItem(tr("All"), TransactionFilterProxy::ALL_TYPES);
     typeWidget->addItem(tr("Received with"), TransactionFilterProxy::TYPE(TransactionRecord::RecvWithAddress) |
-                                        TransactionFilterProxy::TYPE(TransactionRecord::RecvFromOther));
+                                        TransactionFilterProxy::TYPE(TransactionRecord::RecvFromOther) |
+                                        TransactionFilterProxy::TYPE(TransactionRecord::CFundPayment));
     typeWidget->addItem(tr("Sent to"), TransactionFilterProxy::TYPE(TransactionRecord::SendToAddress) |
                                   TransactionFilterProxy::TYPE(TransactionRecord::SendToOther) |
                                   TransactionFilterProxy::TYPE(TransactionRecord::CFund));
