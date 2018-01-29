@@ -3535,7 +3535,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                         proposal.fState = CFund::EXPIRED;
                         fUpdate = true;
                     }
-                    if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
+                    else if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
                         proposal.fState = CFund::REJECTED;
                         fUpdate = true;
                     }
