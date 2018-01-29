@@ -373,6 +373,8 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     {
     case TransactionRecord::CFund:
         return tr("Sent to");
+    case TransactionRecord::CFundPayment:
+        return tr("Community Fund Payment");
     case TransactionRecord::AnonTx:
         return tr("Private Payment");
     case TransactionRecord::RecvWithAddress:
@@ -421,9 +423,11 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     switch(wtx->type)
     {
     case TransactionRecord::CFund:
-        return "Community Fund Contribution";
+        return tr("Community Fund Contribution");
+    case TransactionRecord::CFundPayment:
+        return tr("Community Fund Payment");
     case TransactionRecord::AnonTx:
-        return "Private Payment";
+        return tr("Private Payment");
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
