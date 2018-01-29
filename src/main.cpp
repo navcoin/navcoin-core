@@ -3527,7 +3527,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                         proposal.nVotesYes = 0;
                         fUpdate = true;
                     }
-                    if(proposal.IsExpired(pindexNew->GetMedianTimePast() && proposal.fState != CFund::EXPIRED)) {
+                    if(proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) {
                         if(proposal.fState == CFund::ACCEPTED) {
                             pindexNew->nCFSupply += proposal.GetAvailable();
                             pindexNew->nCFLocked -= proposal.GetAvailable();
