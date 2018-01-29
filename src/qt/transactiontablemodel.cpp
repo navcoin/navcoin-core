@@ -426,14 +426,13 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     {
     case TransactionRecord::CFund:
         return tr("Community Fund Contribution");
-    case TransactionRecord::CFundPayment:
-        return tr("Community Fund Payment");
     case TransactionRecord::AnonTx:
         return tr("Private Payment");
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
+    case TransactionRecord::CFundPayment:
     case TransactionRecord::Generated:
         return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:
