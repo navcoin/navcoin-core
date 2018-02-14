@@ -3120,6 +3120,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (!pcfundindex->WritePaymentRequestIndex(paymentRequestIndex))
         return AbortNode(state, "Failed to write payment request index");
 
+    if (!pcfundindex->WriteTipHeight(pindex->nHeight))
+        return AbortNode(state, "Failed to write tip height to proposal db");
+
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
 

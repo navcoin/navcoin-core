@@ -181,6 +181,8 @@ public:
     bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
     bool GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect);
     bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
+    bool WriteTipHeight(int nHeight);
+    int ReadTipHeight();
 };
 
 #endif // NAVCOIN_TXDB_H
