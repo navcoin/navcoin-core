@@ -3277,7 +3277,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     chainActive.SetTip(pindexNew);
 
     if (!pcfundindex->WriteTipHeight(pindexNew->nHeight))
-        return AbortNode(state, "Failed to write tip height to proposal db");
+        AbortNode("Failed to write tip height to proposal db", "");
 
     // New best block
     nTimeBestReceived = GetTime();
