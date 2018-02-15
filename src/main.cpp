@@ -3120,9 +3120,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (!pcfundindex->WritePaymentRequestIndex(paymentRequestIndex))
         return AbortNode(state, "Failed to write payment request index");
 
-    if (!pcfundindex->WriteTipHeight(pindex->nHeight))
-        return AbortNode(state, "Failed to write tip height to proposal db");
-
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
 
@@ -3278,6 +3275,9 @@ void PruneAndFlush() {
 /** Update chainActive and related internal data structures. */
 void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     chainActive.SetTip(pindexNew);
+
+    if (!pcfundindex->WriteTipHeight(pindexNew->nHeight))
+        return AbortNode(state, "Failed to write tip height to proposal db");
 
     // New best block
     nTimeBestReceived = GetTime();
