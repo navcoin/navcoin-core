@@ -6,6 +6,7 @@
 #include "base58.h"
 #include "main.h"
 #include "rpc/server.h"
+#include "utilmoneystr.h"
 
 std::map<uint256, CFund::CProposal> mapProposal;
 std::map<uint256, CFund::CPaymentRequest> mapPaymentRequest;
@@ -343,9 +344,9 @@ bool CFund::CProposal::IsRejected() const {
 void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", (float)nAmount/COIN));
-    ret.push_back(Pair("notPaidYet", (float)GetAvailable()/COIN));
-    ret.push_back(Pair("userPaidFee", (float)nFee/COIN));
+    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
+    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
+    ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
     ret.push_back(Pair("deadline", (uint64_t)nDeadline));
     ret.push_back(Pair("votesYes", nVotesYes));
@@ -370,7 +371,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
 void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", (float)nAmount/COIN));
+    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
     ret.push_back(Pair("status", GetState()));
