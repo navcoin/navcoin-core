@@ -14,6 +14,8 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
+  sed -i 's/CHAR_WIDTH/CHARWIDTH/g' fontconfig/fontconfig.h src/fcobjshash.gperf src/fcobjs.h src/fcobjshash.h && \
+  sed -i 's/fcobjshash.h: fcobjshash.gperf/fcobjshash.h:/' src/Makefile && \
   $(MAKE)
 endef
 
