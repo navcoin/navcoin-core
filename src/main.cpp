@@ -3276,6 +3276,9 @@ void PruneAndFlush() {
 void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     chainActive.SetTip(pindexNew);
 
+    if (!pcfundindex->WriteTipHeight(pindexNew->nHeight))
+        AbortNode("Failed to write tip height to proposal db", "");
+
     // New best block
     nTimeBestReceived = GetTime();
     mempool.AddTransactionsUpdated(1);

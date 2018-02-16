@@ -20,6 +20,7 @@ static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
 static const char DB_PROPINDEX = 'p';
+static const char DB_PROP_TIP_HEIGHT = 't';
 static const char DB_PREQINDEX = 'r';
 static const char DB_ADDRESSINDEX = 'a';
 static const char DB_ADDRESSUNSPENTINDEX = 'u';
@@ -32,7 +33,6 @@ static const char DB_BEST_BLOCK = 'B';
 static const char DB_FLAG = 'F';
 static const char DB_REINDEX_FLAG = 'R';
 static const char DB_LAST_BLOCK = 'l';
-
 
 CCoinsViewDB::CCoinsViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
 {
@@ -215,6 +215,8 @@ bool CCFundDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
         }
     }
 
+    std::sort(vect.begin(), vect.end(), make_member_comparer<std::greater>(&CFund::CProposal::nFee));
+
     return true;
 }
 
@@ -265,6 +267,18 @@ bool CCFundDB::GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect) 
     }
 
     return true;
+}
+
+
+bool CCFundDB::WriteTipHeight(int nHeight) {
+    return Write(DB_PROP_TIP_HEIGHT, nHeight);
+}
+
+int CCFundDB::ReadTipHeight() {
+    int nHeight = 0;
+    if (!Read(DB_PROP_TIP_HEIGHT, nHeight))
+        return 0;
+    return nHeight;
 }
 
 bool CBlockTreeDB::ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {

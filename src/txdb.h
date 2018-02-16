@@ -14,6 +14,7 @@
 #include "spentindex.h"
 #include "timestampindex.h"
 
+#include <functional>
 #include <map>
 #include <string>
 #include <utility>
@@ -45,6 +46,26 @@ static const int64_t nMaxBlockDBCache = 2;
 static const int64_t nMaxBlockDBAndTxIndexCache = 1024;
 //! Max memory allocated to coin DB specific cache (MiB)
 static const int64_t nMaxCoinsDBCache = 8;
+
+template<typename T, typename M, template<typename> class C = std::less>
+struct member_comparer : std::binary_function<T, T, bool>
+{
+    explicit member_comparer(M T::*p) : p_(p) { }
+
+    bool operator ()(T const& lhs, T const& rhs) const
+    {
+        return C<M>()(lhs.*p_, rhs.*p_);
+    }
+
+private:
+    M T::*p_;
+};
+
+template<template<typename> class C, typename T, typename M>
+member_comparer<T, M, C> make_member_comparer(M T::*p)
+{
+    return member_comparer<T, M, C>(p);
+}
 
 struct CDiskTxPos : public CDiskBlockPos
 {
@@ -160,6 +181,8 @@ public:
     bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
     bool GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect);
     bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
+    bool WriteTipHeight(int nHeight);
+    int ReadTipHeight();
 };
 
 #endif // NAVCOIN_TXDB_H
