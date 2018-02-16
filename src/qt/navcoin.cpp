@@ -456,6 +456,7 @@ void NavCoinApplication::initializeResult(int retval)
 
             window->addWallet(NavCoinGUI::DEFAULT_WALLET, walletModel);
             window->setCurrentWallet(NavCoinGUI::DEFAULT_WALLET);
+            paymentServer->setWalletModel(walletModel);
 
             connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
                              paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
