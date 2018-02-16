@@ -523,7 +523,7 @@ int main(int argc, char *argv[])
 {
     // Address 4K screen resolution: http://doc.qt.io/qt-5/highdpi.html
     // enable automatic scaling based on the pixel density of the monitor
-    qputenv( "QT_AUTO_SCREEN_SCALE_FACTOR", "1" );
+    //qputenv( "QT_AUTO_SCREEN_SCALE_FACTOR", "1" );
 
     SetupEnvironment();
 
