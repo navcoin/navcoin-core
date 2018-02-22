@@ -33,7 +33,6 @@ static const char DB_FLAG = 'F';
 static const char DB_REINDEX_FLAG = 'R';
 static const char DB_LAST_BLOCK = 'l';
 
-
 CCoinsViewDB::CCoinsViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
 {
 }
@@ -214,6 +213,8 @@ bool CCFundDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
             break;
         }
     }
+
+    std::sort(vect.begin(), vect.end(), make_member_comparer<std::greater>(&CFund::CProposal::nFee));
 
     return true;
 }
