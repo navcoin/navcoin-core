@@ -6,15 +6,18 @@
 #define NAVCOIN_CFUND_H
 
 #include "amount.h"
-#include "net.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "tinyformat.h"
 #include "univalue/include/univalue.h"
 #include "uint256.h"
-#include "util.h"
 
 using namespace std;
+
+class CTransaction;
+
+extern std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
+extern std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 
 namespace CFund {
 
