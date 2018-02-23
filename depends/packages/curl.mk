@@ -12,7 +12,7 @@ endef
 
 define $(package)_set_vars
   $(package)_config_env=CURL_CFLAG_EXTRAS="-DBUILDING_LIBCURL" 
-  $(package)_config_opts_mingw32=--with-random=/dev/urandom --with-ssl=$(host_prefix)
+  $(package)_config_opts_mingw32=--with-random=/dev/urandom --with-ssl=$(host_prefix) --enable-static --disable-shared
   $(package)_config_opts_x86_64_mingw32=mingw64
   $(package)_config_opts_i686_mingw32=mingw32
 endef
