@@ -23,7 +23,6 @@ $(package)_config_opts+=no-rc4
 $(package)_config_opts+=no-rc5
 $(package)_config_opts+=no-rdrand
 $(package)_config_opts+=no-rfc3779
-$(package)_config_opts+=no-rsax
 $(package)_config_opts+=no-sctp
 $(package)_config_opts+=no-seed
 $(package)_config_opts+=no-sha0
