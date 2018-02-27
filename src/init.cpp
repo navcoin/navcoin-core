@@ -1387,6 +1387,14 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                                 "Only rebuild the block database if you are sure that your computer's date and time are correct");
                         break;
                     }
+                    int nTipHeight = 0;
+                    if(tip)
+                        nTipHeight = tip->nHeight;
+                    if(nTipHeight > 0 && nTipHeight != pcfundindex->ReadTipHeight()) {
+                        strLoadError = _("The community fund database looks to be corrupted. "
+                                "You will need to rebuild the block database.");
+                        break;
+                    }
                 }
 
                 if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
