@@ -20,6 +20,7 @@ static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
 static const char DB_PROPINDEX = 'p';
+static const char DB_PROP_TIP_HEIGHT = 't';
 static const char DB_PREQINDEX = 'r';
 static const char DB_ADDRESSINDEX = 'a';
 static const char DB_ADDRESSUNSPENTINDEX = 'u';
@@ -266,6 +267,18 @@ bool CCFundDB::GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect) 
     }
 
     return true;
+}
+
+
+bool CCFundDB::WriteTipHeight(int nHeight) {
+    return Write(DB_PROP_TIP_HEIGHT, nHeight);
+}
+
+int CCFundDB::ReadTipHeight() {
+    int nHeight = 0;
+    if (!Read(DB_PROP_TIP_HEIGHT, nHeight))
+        return 0;
+    return nHeight;
 }
 
 bool CBlockTreeDB::ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
