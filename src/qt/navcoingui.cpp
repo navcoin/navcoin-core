@@ -1057,8 +1057,6 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
     }
 
-    showVotingDialog();
-
     // Set icon state: spinning if catching up, tick otherwise
     if(secs < 90*60)
     {
