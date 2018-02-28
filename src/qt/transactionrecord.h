@@ -79,7 +79,8 @@ public:
         RecvFromOther,
         SendToSelf,
         AnonTx,
-        CFund
+        CFund,
+        CFundPayment
     };
 
     /** Number of confirmation recommended for accepting a transaction */

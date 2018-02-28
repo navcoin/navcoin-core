@@ -3276,6 +3276,9 @@ void PruneAndFlush() {
 void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     chainActive.SetTip(pindexNew);
 
+    if (!pcfundindex->WriteTipHeight(pindexNew->nHeight))
+        AbortNode("Failed to write tip height to proposal db", "");
+
     // New best block
     nTimeBestReceived = GetTime();
     mempool.AddTransactionsUpdated(1);
@@ -3527,7 +3530,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                         proposal.nVotesYes = 0;
                         fUpdate = true;
                     }
-                    if(proposal.IsExpired(pindexNew->GetMedianTimePast() && proposal.fState != CFund::EXPIRED)) {
+                    if(proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) {
                         if(proposal.fState == CFund::ACCEPTED) {
                             pindexNew->nCFSupply += proposal.GetAvailable();
                             pindexNew->nCFLocked -= proposal.GetAvailable();
@@ -3535,7 +3538,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                         proposal.fState = CFund::EXPIRED;
                         fUpdate = true;
                     }
-                    if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
+                    else if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
                         proposal.fState = CFund::REJECTED;
                         fUpdate = true;
                     }
