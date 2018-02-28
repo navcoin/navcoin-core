@@ -1,6 +1,6 @@
-![alt text](https://raw.githubusercontent.com/navcoindev/navcoin-media/master/logo/logo-extended.png "Logo text 2")
+![alt text](https://raw.githubusercontent.com/navcoin/navcoin-media/master/logo/logo-extended.png "Logo text 2")
 
-This is the working repository for NAV Coin 4.0.6, our fork of bitcoin-core 0.13.
+This is the working repository for NAV Coin 4.1.2, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
@@ -12,7 +12,6 @@ https://navcoin.org/project-roadmap/
 |:-----------|:-----------|
 | Block Spacing | `30 seconds` |
 | Stake Minimum Age | `2 hours` |
-| Stake Maximum Age | `24 hours` |
 | Stake Reward | `5% per annum` |
 | Port | `44440` |
 | RPC Port | `44444` |
