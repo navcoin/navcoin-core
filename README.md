@@ -1,4 +1,4 @@
-![alt text](https://raw.githubusercontent.com/navcoin/navcoin-media/master/logo/logo-extended.png "Logo text 2")
+![alt text](https://github.com/NAVCoin/navcoin-media/raw/master/logo/logo-extended.png "NAV Coin")
 
 This is the working repository for NAV Coin 4.1.2, our fork of bitcoin-core 0.13.
 
