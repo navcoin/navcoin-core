@@ -163,14 +163,8 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
-        vFixedSeeds.clear();
-      	vSeeds.clear();
-
-        vSeeds.push_back(CDNSSeedData("supernode.navcoin.org", "95.183.51.56"));
-        vSeeds.push_back(CDNSSeedData("navtech1.navcoin.org", "95.183.52.55"));
-        vSeeds.push_back(CDNSSeedData("navtech2.navcoin.org", "95.183.52.28"));
-        vSeeds.push_back(CDNSSeedData("navtech3.navcoin.org", "95.183.52.29"));
-        vSeeds.push_back(CDNSSeedData("navtech4.navcoin.org", "95.183.53.184"));
+        vSeeds.push_back(CDNSSeedData("nav.community", "seed.nav.community"));
+        vSeeds.push_back(CDNSSeedData("navcoin.org", "seed.navcoin.org"));
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
@@ -300,8 +294,8 @@ public:
             printf("new testnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
         }
 
-        vFixedSeeds.clear();
-        vSeeds.clear();
+        vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
+        vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
 
         assert(consensus.hashGenesisBlock == uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f"));
         assert(genesis.hashMerkleRoot == uint256S("0xc9314161f5337394b2718149f7f2be4f1716e1e85cf3150f635ac9aa82bcd239"));
