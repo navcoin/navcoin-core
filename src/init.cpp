@@ -1388,9 +1388,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                         break;
                     }
                     int nTipHeight = 0;
+                    bool fCFEnabled = false;
+                    pblocktree->ReadFlag("CFEnabled", fCFEnabled);
                     if(tip)
                         nTipHeight = tip->nHeight;
-                    if(nTipHeight > 0 && nTipHeight != pcfundindex->ReadTipHeight()) {
+                    if(nTipHeight > 0 && nTipHeight != pcfundindex->ReadTipHeight() && fCFEnabled) {
                         strLoadError = _("The community fund database looks to be corrupted. "
                                 "You will need to rebuild the block database.");
                         break;

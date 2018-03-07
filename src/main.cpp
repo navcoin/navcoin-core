@@ -3279,6 +3279,9 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     if (!pcfundindex->WriteTipHeight(pindexNew->nHeight))
         AbortNode("Failed to write tip height to proposal db", "");
 
+    if (!pblocktree->WriteFlag("CFEnabled", IsCommunityFundEnabled(pindexNew->pprev,Params().GetConsensus())))
+        AbortNode("Failed to write CFund-enabled flag", "");
+
     // New best block
     nTimeBestReceived = GetTime();
     mempool.AddTransactionsUpdated(1);
