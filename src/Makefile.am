@@ -93,6 +93,7 @@ NAVCOIN_CORE_H = \
   compat/endian.h \
   compat/sanity.h \
   compressor.h \
+  consensus/cfund.h \
   consensus/consensus.h \
   core_io.h \
   core_memusage.h \
@@ -115,9 +116,8 @@ NAVCOIN_CORE_H = \
   policy/fees.h \
   policy/policy.h \
   policy/rbf.h \
-	pow.h \
+  pow.h \
   pos.h \
-  consensus/cfund.h \
   protocol.h \
   random.h \
   reverselock.h \
@@ -267,36 +267,36 @@ libnavcoin_consensus_a_SOURCES = \
   consensus/merkle.h \
   consensus/params.h \
   consensus/validation.h \
-	aes_helper.c \
-	blake.c \
-	bmw.c \
-	cubehash.c \
-	echo.c \
-	fugue.c \
-	groestl.c \
-	keccak.c \
-	hamsi_helper.c \
-	hamsi.c \
-	jh.c \
-	luffa.c \
-	shavite.c \
-	simd.c \
-	skein.c \
-	sph_blake.h \
-	sph_bmw.h \
-	sph_cubehash.h \
-	sph_echo.h \
-	sph_fugue.h \
-	sph_groestl.h \
-	sph_hamsi.h \
-	sph_jh.h \
-	sph_keccak.h \
-	sph_luffa.h \
-	sph_shavite.h \
-	sph_simd.h \
-	sph_skein.h \
-	sph_types.h \
-	hashblock.h \
+  aes_helper.c \
+  blake.c \
+  bmw.c \
+  cubehash.c \
+  echo.c \
+  fugue.c \
+  groestl.c \
+  keccak.c \
+  hamsi_helper.c \
+  hamsi.c \
+  jh.c \
+  luffa.c \
+  shavite.c \
+  simd.c \
+  skein.c \
+  sph_blake.h \
+  sph_bmw.h \
+  sph_cubehash.h \
+  sph_echo.h \
+  sph_fugue.h \
+  sph_groestl.h \
+  sph_hamsi.h \
+  sph_jh.h \
+  sph_keccak.h \
+  sph_luffa.h \
+  sph_shavite.h \
+  sph_simd.h \
+  sph_skein.h \
+  sph_types.h \
+  hashblock.h \
   hash.cpp \
   hash.h \
   prevector.h \
@@ -314,13 +314,12 @@ libnavcoin_consensus_a_SOURCES = \
   script/script_error.cpp \
   script/script_error.h \
   serialize.h \
-	tinyformat.h \
+  tinyformat.h \
   uint256.cpp \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
   version.h
-
 
 # common: shared between navcoind, and navcoin-qt and non-server tools
 libnavcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)

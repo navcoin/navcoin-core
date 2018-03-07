@@ -11,7 +11,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_set_vars
-  $(package)_config_env=CURL_CFLAG_EXTRAS="-DBUILDING_LIBCURL" 
+  $(package)_config_env=CURL_CFLAG_EXTRAS="-DBUILDING_LIBCURL"
   $(package)_config_opts=--with-ssl=$(host_prefix)/lib
   $(package)_config_opts_darwin=--enable-static --disable-shared
   $(package)_config_opts_mingw32=--with-random=/dev/urandom --enable-static --disable-shared
