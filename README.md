@@ -38,3 +38,8 @@ https://navcoin.org/project-roadmap/
 | Facebook | https://www.facebook.com/NAVCoin |
 | Instagram | https://www.instagram.com/nav.coin.official/ |
 | Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
+
+
+License
+---------------------
+Distributed under the [MIT software license](http://www.opensource.org/licenses/mit-license.php).
