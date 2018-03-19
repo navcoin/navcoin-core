@@ -56,7 +56,7 @@ protected:
 
 public:
     // Note that the function below takes a pindexPrev as input: they compute information for block B based on its parent.
-    ThresholdState GetStateFor(const CBlockIndex* pindexPrev, const Consensus::Params& params, ThresholdConditionCache& cache, int votingId) const;
+    ThresholdState GetStateFor(const CBlockIndex* pindexPrev, const Consensus::Params& params, ThresholdConditionCache& cache) const;
 
 };
 
