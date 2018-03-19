@@ -71,7 +71,7 @@ static bool AppInitRawTx(int argc, char* argv[])
         strUsage = HelpMessageGroup(_("Commands:"));
         strUsage += HelpMessageOpt("delin=N", _("Delete input N from TX"));
         strUsage += HelpMessageOpt("delout=N", _("Delete output N from TX"));
-        strUsage += HelpMessageOpt("in=TXID:VOUT(:SEQUENCE_NUMBER)", _("Add input to TX"));
+        strUsage += HelpMessageOpt("in=TXID:VOUT(:SEQUENCE_NUMBER:SCRIPTSIG)", _("Add input to TX"));
         strUsage += HelpMessageOpt("locktime=N", _("Set TX lock time to N"));
         strUsage += HelpMessageOpt("time=N", _("Set TX time to N"));
         strUsage += HelpMessageOpt("nversion=N", _("Set TX version to N"));
@@ -218,8 +218,13 @@ static void MutateTxAddInput(CMutableTransaction& tx, const string& strInput)
     if (vStrInputParts.size() > 2)
         nSequenceIn = std::stoul(vStrInputParts[2]);
 
+    CScript scriptIn = CScript();
+
+    if (vStrInputParts.size() > 3)
+        scriptIn = ParseScript(vStrInputParts[3]);
+
     // append to transaction input list
-    CTxIn txin(txid, vout, CScript(), nSequenceIn);
+    CTxIn txin(txid, vout, scriptIn, nSequenceIn);
     tx.vin.push_back(txin);
 }
 
