@@ -114,36 +114,40 @@ bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
 
 }
 
-void CFund::VoteProposal(string strProp, bool vote)
+bool CFund::VoteProposal(string strProp, bool vote, bool &duplicate)
 {
 
     CFund::CProposal proposal;
     bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
     if(!found || proposal.IsNull())
-        return;
+        return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
     for(; it != vAddedProposalVotes.end(); it++)
-        if (strProp == (*it).first)
+        if (strProp == (*it).first) {
+            if (vote == (*it).second)
+                duplicate = true;
             break;
+        }
     RemoveConfigFile("addproposalvoteyes", strProp);
     RemoveConfigFile("addproposalvoteno", strProp);
     WriteConfigFile(vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
-    if (it == vAddedProposalVotes.end())
+    if (it == vAddedProposalVotes.end()) {
         vAddedProposalVotes.push_back(make_pair(strProp, vote));
-    else {
+    } else {
         vAddedProposalVotes.erase(it);
         vAddedProposalVotes.push_back(make_pair(strProp, vote));
     }
+    return true;
 }
 
-void CFund::VoteProposal(uint256 proposalHash, bool vote)
+bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
 {
-    VoteProposal(proposalHash.ToString(), vote);
+    return VoteProposal(proposalHash.ToString(), vote, duplicate);
 }
 
-void CFund::RemoveVoteProposal(string strProp)
+bool CFund::RemoveVoteProposal(string strProp)
 {
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
     for(; it != vAddedProposalVotes.end(); it++)
@@ -154,45 +158,52 @@ void CFund::RemoveVoteProposal(string strProp)
     RemoveConfigFile("addproposalvoteno", strProp);
     if (it != vAddedProposalVotes.end())
         vAddedProposalVotes.erase(it);
+    else
+        return false;
+    return true;
 }
 
-void CFund::RemoveVoteProposal(uint256 proposalHash)
+bool CFund::RemoveVoteProposal(uint256 proposalHash)
 {
-    RemoveVoteProposal(proposalHash.ToString());
+    return RemoveVoteProposal(proposalHash.ToString());
 }
 
-void CFund::VotePaymentRequest(string strProp, bool vote)
+bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
 {
 
     CFund::CPaymentRequest prequest;
     bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
     if(!found || prequest.IsNull())
-        return;
+        return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
     for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strProp == (*it).first)
+        if (strProp == (*it).first) {
+            if (vote == (*it).second)
+                duplicate = true;
             break;
-
+        }
     RemoveConfigFile("addpaymentrequestvoteyes", strProp);
     RemoveConfigFile("addpaymentrequestvoteno", strProp);
     WriteConfigFile(vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
-    if (it == vAddedPaymentRequestVotes.end())
+    if (it == vAddedPaymentRequestVotes.end()) {
         vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
-    else {
+    } else {
         vAddedPaymentRequestVotes.erase(it);
         vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
     }
 
+    return true;
+
 }
 
-void CFund::VotePaymentRequest(uint256 proposalHash, bool vote)
+bool CFund::VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate)
 {
-    VotePaymentRequest(proposalHash.ToString(), vote);
+    return VotePaymentRequest(proposalHash.ToString(), vote, duplicate);
 }
 
-void CFund::RemoveVotePaymentRequest(string strProp)
+bool CFund::RemoveVotePaymentRequest(string strProp)
 {
     vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
     for(; it != vAddedPaymentRequestVotes.end(); it++)
@@ -203,12 +214,15 @@ void CFund::RemoveVotePaymentRequest(string strProp)
     RemoveConfigFile("addpaymentrequestvoteno", strProp);
     if (it != vAddedPaymentRequestVotes.end())
         vAddedPaymentRequestVotes.erase(it);
+    else
+        return false;
+    return true;
 
 }
 
-void CFund::RemoveVotePaymentRequest(uint256 proposalHash)
+bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
 {
-    RemoveVotePaymentRequest(proposalHash.ToString());
+    return RemoveVotePaymentRequest(proposalHash.ToString());
 }
 
 bool CFund::IsValidPaymentRequest(CTransaction tx)
