@@ -2539,7 +2539,7 @@ public:
 
     bool Condition(const CBlockIndex* pindex, const Consensus::Params& params) const
     {
-        return (((pindex->nVersion & VERSIONBITS_TOP_MASK) == IsSigHFEnabled(Params().GetConsensus(), pindex)) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS) &&
+        return ((pindex->nVersion & VERSIONBITS_TOP_MASK) == IsSigHFEnabled(Params().GetConsensus(), pindex) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS) &&
                ((pindex->nVersion >> bit) & 1) != 0 &&
                ((ComputeBlockVersion(pindex->pprev, params) >> bit) & 1) == 0;
     }
@@ -3279,9 +3279,6 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     if (!pcfundindex->WriteTipHeight(pindexNew->nHeight))
         AbortNode("Failed to write tip height to proposal db", "");
 
-    if (!pblocktree->WriteFlag("CFEnabled", IsCommunityFundEnabled(pindexNew->pprev,Params().GetConsensus())))
-        AbortNode("Failed to write CFund-enabled flag", "");
-
     // New best block
     nTimeBestReceived = GetTime();
     mempool.AddTransactionsUpdated(1);
@@ -3477,6 +3474,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
 
 bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *pblock)
 {
+    CFund::CPaymentRequest prequest; CFund::CProposal proposal;
     if(pindexNew->nHeight % Params().GetConsensus().nVotingPeriod == 0) {
         // We need to reset vote counter and update state of proposals and requests.
         std::vector<CFund::CPaymentRequest> vecPaymentRequest;
@@ -3485,7 +3483,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         if(pcfundindex->GetPaymentRequestIndex(vecPaymentRequest)){
             for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
                 bool fUpdate = false;
-                CFund::CPaymentRequest prequest = vecPaymentRequest[i];
+                prequest = vecPaymentRequest[i];
                 if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
                         (!prequest.IsAccepted() && !prequest.IsRejected())) {
                     if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
@@ -3495,10 +3493,9 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                     prequest.nVotesYes = 0;
                     fUpdate = true;
                 }
-                CFund::CProposal parent;
-                if(!CFund::FindProposal(prequest.proposalhash, parent))
+                if(!CFund::FindProposal(prequest.proposalhash, proposal))
                     continue;
-                if(parent.fState == CFund::ACCEPTED && prequest.IsAccepted()
+                if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()
                         && prequest.fState != CFund::ACCEPTED) {
                     if(prequest.nAmount <= pindexNew->nCFLocked) {
                         pindexNew->nCFLocked -= prequest.nAmount;
@@ -3523,7 +3520,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         if(pcfundindex->GetProposalIndex(vecProposal)){
             for(unsigned int i = 0; i < vecProposal.size(); i++) {
                 bool fUpdate = false;
-                CFund::CProposal proposal = vecProposal[i];
+                proposal = vecProposal[i];
                 if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
                         (proposal.IsRejected() && proposal.fState != CFund::REJECTED) ||
                         (!proposal.IsAccepted() && !proposal.IsRejected())) {
@@ -3574,11 +3571,11 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
     std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
     std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
+    std::map<uint256, bool> vSeen;
 
     while(nBlocks > 0 && pindexblock != NULL) {
-        std::map<uint256, bool> vSeen;
+        vSeen.clear();
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
-            CFund::CProposal proposal;
             if(!CFund::FindProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
             if(proposal.CanVote() && vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
@@ -3592,15 +3589,15 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             }
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
-            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+
             if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
-            if(!CFund::FindProposal(prequest.proposalhash, parent))
+            if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 continue;
-            CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
+            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if(parent.CanRequestPayments() && prequest.CanVote()
+            if(proposal.CanRequestPayments() && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
                     && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
@@ -3620,7 +3617,6 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
     std::vector<std::pair<uint256, CFund::CProposal>> vecProposalsToUpdate;
     std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdate;
     for(it = vCacheProposalsToUpdate.begin(); it != vCacheProposalsToUpdate.end(); it++) {
-        CFund::CProposal proposal;
         if(!CFund::FindProposal(it->first, proposal))
             continue;
         proposal.nVotesYes = it->second.first;
@@ -3628,7 +3624,6 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         vecProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
     }
     for(it = vCachePaymentRequestToUpdate.begin(); it != vCachePaymentRequestToUpdate.end(); it++) {
-        CFund::CPaymentRequest prequest;
         if(!CFund::FindPaymentRequest(it->first, prequest))
             continue;
         prequest.nVotesYes = it->second.first;
