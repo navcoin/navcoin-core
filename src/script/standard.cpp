@@ -74,6 +74,17 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         return true;
     }
 
+    // Shortcut for cold stake, so we save
+    if (scriptPubKey.IsColdStake())
+    {
+        typeRet = TX_COLDSTAKE;
+        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+4, scriptPubKey.begin()+24);
+        vSolutionsRet.push_back(stakingPubKey);
+        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+30, scriptPubKey.begin()+50);
+        vSolutionsRet.push_back(spendingPubKey);
+        return true;
+    }
+
     if (scriptPubKey.IsCommunityFundContribution())
     {
         typeRet = TX_CONTRIBUTION;
