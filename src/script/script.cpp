@@ -218,13 +218,13 @@ bool CScript::IsColdStake() const
             (*this)[3] == OP_HASH160 &&
             (*this)[4] == 0x14 &&
             (*this)[25] == OP_EQUALVERIFY &&
-            (*this)[26] == OP_CHECKSIG) &&
+            (*this)[26] == OP_CHECKSIG &&
             (*this)[27] == OP_ELSE &&
             (*this)[28] == OP_DUP &&
             (*this)[29] == OP_HASH160 &&
             (*this)[30] == 0x14 &&
             (*this)[51] == OP_EQUALVERIFY &&
-            (*this)[52] == OP_CHECKSIG) &&
+            (*this)[52] == OP_CHECKSIG &&
             (*this)[53] == OP_ENDIF);
 }
 
