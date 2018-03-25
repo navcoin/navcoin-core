@@ -674,7 +674,7 @@ public:
 
     bool IsPayToPublicKeyHash() const;
 
-    bool IsColdStake() const;
+    bool IsColdStaking() const;
 
     bool IsPayToScriptHash() const;
     bool IsPayToWitnessScriptHash() const;
