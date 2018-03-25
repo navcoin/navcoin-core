@@ -677,6 +677,8 @@ public:
 
     bool IsColdStaking() const;
 
+    bool IsColdStake() const;
+
     bool IsPayToScriptHash() const;
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
