@@ -147,6 +147,8 @@ const char* GetOpName(opcodetype opcode)
     case OP_YES                    : return "OP_YES";
     case OP_NO                     : return "OP_NO";
 
+    case OP_COINSTAKE              : return "OP_COINSTAKE";
+
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
     // Note:
