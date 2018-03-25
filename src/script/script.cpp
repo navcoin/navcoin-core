@@ -209,7 +209,7 @@ unsigned int CScript::GetSigOpCount(const CScript& scriptSig) const
     return subscript.GetSigOpCount(true);
 }
 
-bool CScript::IsColdStake() const
+bool CScript::IsColdStaking() const
 {
     return (this->size() == 1+1+25+1+25+1 &&
             (*this)[0] == OP_COINSTAKE &&
