@@ -214,7 +214,7 @@ bool CScript::IsColdStaking() const
     return (this->size() == 1+1+25+1+25+1 &&
             (*this)[0] == OP_COINSTAKE &&
             (*this)[1] == OP_IF &&
-            (*this)[0] == OP_DUP &&
+            (*this)[2] == OP_DUP &&
             (*this)[3] == OP_HASH160 &&
             (*this)[4] == 0x14 &&
             (*this)[25] == OP_EQUALVERIFY &&
