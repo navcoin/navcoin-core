@@ -3645,6 +3645,8 @@ public:
             vKeys.push_back(keyId);
     }
 
+    void operator()(const pair<CKeyID, CKeyID> &keyId) { }
+
     void operator()(const CScriptID &scriptId) {
         CScript script;
         if (keystore.GetCScript(scriptId, script))
