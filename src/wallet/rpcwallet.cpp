@@ -151,6 +151,32 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
     return CNavCoinAddress(keyID).ToString();
 }
 
+UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
+{
+
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+            "getnewcoldstakingaddress \"stakingaddress\" \"spendingaddress\"\n"
+            "\nTODO"
+        );
+
+    CNavCoinAddress stakingAddress(params[0].get_str());
+    if (!stakingAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Staking address is not a valid NavCoin address");
+
+    CKeyID stakingKeyID;
+    stakingAddress.GetKeyID(stakingKeyID);
+
+    CNavCoinAddress spendingAddress(params[1].get_str());
+    if (!spendingAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address is not a valid NavCoin address");
+
+    CKeyID spendingKeyID;
+    spendingAddress.GetKeyID(spendingKeyID);
+
+    return CNavCoinAddress(stakingKeyID, spendingKeyID).ToString();
+}
+
 
 CNavCoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
 {
@@ -3418,7 +3444,7 @@ extern UniValue removeprunedfunds(const UniValue& params, bool fHelp);
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           okSafeMode
-    //  --------------------- ------------------------    -----------------------    ----------
+  //  --------------------- ------------------------    -----------------------    ----------
     { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false },
     { "hidden",             "resendwallettransactions", &resendwallettransactions, true  },
     { "wallet",             "abandontransaction",       &abandontransaction,       false },
@@ -3434,6 +3460,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
     { "wallet",             "getbalance",               &getbalance,               false },
     { "wallet",             "getnewaddress",            &getnewaddress,            true  },
+    { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
     { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true  },
     { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false },
     { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false },
