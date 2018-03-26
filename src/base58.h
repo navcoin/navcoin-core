@@ -96,10 +96,12 @@ public:
 };
 
 /** base58-encoded NavCoin addresses.
- * Public-key-hash-addresses have version 0 (or 111 testnet).
+ * Public-key-hash-addresses have version 111 (or 20 testnet).
  * The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
- * Script-hash-addresses have version 5 (or 196 testnet).
+ * Script-hash-addresses have version 28 (or 96 testnet).
  * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
+ * Cold-staking-addresses have version 196 (or 63 testnet).
+ * The data vector contains RIPEMD160(SHA256(stakingkey)) || RIPEMD160(SHA256(spendingkey)), where stakingkey and spendingkey are the serialized public keys.
  */
 class CNavCoinAddress : public CBase58Data {
 public:
