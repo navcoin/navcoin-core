@@ -14,13 +14,6 @@
 #ifndef NAVCOIN_BASE58_H
 #define NAVCOIN_BASE58_H
 
-#include "chainparams.h"
-#include "key.h"
-#include "pubkey.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "support/allocators/zeroafterfree.h"
-
 #include <string>
 #include <vector>
 
@@ -64,110 +57,5 @@ inline bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRe
  * vector (vchRet), return true if decoding is successful
  */
 inline bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRet);
-
-/**
- * Base class for all base58-encoded data
- */
-class CBase58Data
-{
-protected:
-    //! the version byte(s)
-    std::vector<unsigned char> vchVersion;
-
-    //! the actually encoded data
-    typedef std::vector<unsigned char, zero_after_free_allocator<unsigned char> > vector_uchar;
-    vector_uchar vchData;
-
-    CBase58Data();
-    void SetData(const std::vector<unsigned char> &vchVersionIn, const void* pdata, size_t nSize);
-    void SetData(const std::vector<unsigned char> &vchVersionIn, const unsigned char *pbegin, const unsigned char *pend);
-
-public:
-    bool SetString(const char* psz, unsigned int nVersionBytes = 1);
-    bool SetString(const std::string& str);
-    std::string ToString() const;
-    int CompareTo(const CBase58Data& b58) const;
-
-    bool operator==(const CBase58Data& b58) const { return CompareTo(b58) == 0; }
-    bool operator<=(const CBase58Data& b58) const { return CompareTo(b58) <= 0; }
-    bool operator>=(const CBase58Data& b58) const { return CompareTo(b58) >= 0; }
-    bool operator< (const CBase58Data& b58) const { return CompareTo(b58) <  0; }
-    bool operator> (const CBase58Data& b58) const { return CompareTo(b58) >  0; }
-};
-
-/** base58-encoded NavCoin addresses.
- * Public-key-hash-addresses have version 111 (or 20 testnet).
- * The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
- * Script-hash-addresses have version 28 (or 96 testnet).
- * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
- * Cold-staking-addresses have version 196 (or 63 testnet).
- * The data vector contains RIPEMD160(SHA256(stakingkey)) || RIPEMD160(SHA256(spendingkey)), where stakingkey and spendingkey are the serialized public keys.
- */
-class CNavCoinAddress : public CBase58Data {
-public:
-    bool Set(const CKeyID &id);
-    bool Set(const CScriptID &id);
-    bool Set(const CTxDestination &dest);
-    bool IsValid() const;
-    bool IsValid(const CChainParams &params) const;
-
-    CNavCoinAddress() {}
-    CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
-    CNavCoinAddress(const std::string& strAddress) { SetString(strAddress); }
-    CNavCoinAddress(const char* pszAddress) { SetString(pszAddress); }
-
-    CTxDestination Get() const;
-    bool GetKeyID(CKeyID &keyID) const;
-    bool GetIndexKey(uint160& hashBytes, int& type) const;
-    bool IsScript() const;
-};
-
-/**
- * A base58-encoded secret key
- */
-class CNavCoinSecret : public CBase58Data
-{
-public:
-    void SetKey(const CKey& vchSecret);
-    CKey GetKey();
-    bool IsValid() const;
-    bool SetString(const char* pszSecret);
-    bool SetString(const std::string& strSecret);
-
-    CNavCoinSecret(const CKey& vchSecret) { SetKey(vchSecret); }
-    CNavCoinSecret() {}
-};
-
-template<typename K, int Size, CChainParams::Base58Type Type> class CNavCoinExtKeyBase : public CBase58Data
-{
-public:
-    void SetKey(const K &key) {
-        unsigned char vch[Size];
-        key.Encode(vch);
-        SetData(Params().Base58Prefix(Type), vch, vch+Size);
-    }
-
-    K GetKey() {
-        K ret;
-        if (vchData.size() == Size) {
-            //if base58 encouded data not holds a ext key, return a !IsValid() key
-            ret.Decode(&vchData[0]);
-        }
-        return ret;
-    }
-
-    CNavCoinExtKeyBase(const K &key) {
-        SetKey(key);
-    }
-
-    CNavCoinExtKeyBase(const std::string& strBase58c) {
-        SetString(strBase58c.c_str(), Params().Base58Prefix(Type).size());
-    }
-
-    CNavCoinExtKeyBase() {}
-};
-
-typedef CNavCoinExtKeyBase<CExtKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_SECRET_KEY> CNavCoinExtKey;
-typedef CNavCoinExtKeyBase<CExtPubKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_PUBLIC_KEY> CNavCoinExtPubKey;
 
 #endif // NAVCOIN_BASE58_H
