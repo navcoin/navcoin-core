@@ -8,7 +8,12 @@
 #include "uint256.h"
 
 #include <assert.h>
+#include <stdint.h>
 #include <string.h>
+#include <vector>
+#include <string>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
 
 /** All alphanumeric characters except for "0", "I", "O", and "l" */
 static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -140,7 +145,6 @@ bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRe
     return DecodeBase58Check(str.c_str(), vchRet);
 }
 
-<<<<<<< HEAD
 CBase58Data::CBase58Data()
 {
     vchVersion.clear();
@@ -348,5 +352,3 @@ bool CNavCoinSecret::SetString(const std::string& strSecret)
 {
     return SetString(strSecret.c_str());
 }
-=======
->>>>>>> f52bb159847995ca542acdbae017c11bfb85e48a
