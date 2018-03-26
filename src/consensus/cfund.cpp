@@ -261,6 +261,9 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::string Secret = "I kindly ask to withdraw " + std::to_string(nAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
     CNavCoinAddress addr(proposal.Address);
+    if (!addr.IsValid())
+        return false;
+
     CKeyID keyID;
     addr.GetKeyID(keyID);
 
@@ -319,12 +322,15 @@ bool CFund::IsValidProposal(CTransaction tx)
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
 
+    CNavCoinAddress address(Address);
+    if (!address.IsValid())
+        return false;
+
     for(unsigned int i=0;i<tx.vout.size();i++)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
     return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
-            Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0);
