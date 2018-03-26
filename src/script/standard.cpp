@@ -92,7 +92,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         typeRet = TX_COLDSTAKE;
         vector<unsigned char> stakingPubKey(scriptPubKey.begin()+4, scriptPubKey.begin()+24);
         vSolutionsRet.push_back(stakingPubKey);
-        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+30, scriptPubKey.begin()+50);
+        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
         vSolutionsRet.push_back(spendingPubKey);
         return true;
     }
@@ -313,7 +313,10 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     }
     else if (typeRet == TX_COLDSTAKING)
     {
+<<<<<<< HEAD
         nRequiredRet = 1;
+=======
+>>>>>>> fix extractdestinations
         for (unsigned int i = 0; i < vSolutions.size(); i++)
         {
             uint160 keyInt(vSolutions[i]);
