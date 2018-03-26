@@ -103,6 +103,7 @@ NAVCOIN_CORE_H = \
   kernel.h \
   init.h \
   key.h \
+  key_io.h \
   keystore.h \
   dbwrapper.h \
   limitedmap.h \
@@ -335,6 +336,7 @@ libnavcoin_common_a_SOURCES = \
   core_read.cpp \
   core_write.cpp \
   key.cpp \
+  key_io.cpp \
   keystore.cpp \
   netbase.cpp \
   protocol.cpp \
