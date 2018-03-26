@@ -79,9 +79,9 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if (scriptPubKey.IsColdStaking())
     {
         typeRet = TX_COLDSTAKING;
-        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+4, scriptPubKey.begin()+24);
+        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
         vSolutionsRet.push_back(stakingPubKey);
-        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+30, scriptPubKey.begin()+50);
+        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
         vSolutionsRet.push_back(spendingPubKey);
         return true;
     }
@@ -297,14 +297,11 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     }
     else if (typeRet == TX_COLDSTAKING)
     {
-        for (unsigned int i = 1; i < vSolutions.size()-1; i++)
+        for (unsigned int i = 0; i < vSolutions.size(); i++)
         {
-            CPubKey pubKey(vSolutions[i]);
-            if (!pubKey.IsValid())
-                continue;
-
-            CTxDestination address = pubKey.GetID();
-            addressRet.push_back(address);
+            uint160 keyInt(vSolutions[i]);
+            CKeyID keyID(keyInt);
+            addressRet.push_back(keyID);
         }
 
         if (addressRet.empty())
