@@ -280,6 +280,7 @@ CTxDestination CNavCoinAddress::Get() const
     if (vchVersion == Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS)) {
         uint160 id2;
         memcpy(&id2, &vchData[20], 20);
+        return make_pair(CKeyID(id), CKeyID(id2));
     } if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return CKeyID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
