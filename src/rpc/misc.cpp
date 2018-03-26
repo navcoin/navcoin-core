@@ -126,9 +126,24 @@ public:
         UniValue obj(UniValue::VOBJ);
         CPubKey vchPubKey;
         obj.push_back(Pair("isscript", false));
+        obj.push_back(Pair("iscoldstaking", false));
         if (pwalletMain && pwalletMain->GetPubKey(keyID, vchPubKey)) {
             obj.push_back(Pair("pubkey", HexStr(vchPubKey)));
             obj.push_back(Pair("iscompressed", vchPubKey.IsCompressed()));
+        }
+        return obj;
+    }
+
+    UniValue operator()(const pair<CKeyID, CKeyID> &keyID) const {
+        UniValue obj(UniValue::VOBJ);
+        CPubKey vchPubKey;
+        obj.push_back(Pair("isscript", false));
+        obj.push_back(Pair("iscoldstaking", true));
+        if (pwalletMain && pwalletMain->GetPubKey(keyID.first, vchPubKey)) {
+            obj.push_back(Pair("stakingpubkey", HexStr(vchPubKey)));
+            if(pwalletMain->GetPubKey(keyID.second, vchPubKey)) {
+                obj.push_back(Pair("spendingpubkey", HexStr(vchPubKey)));
+            }
         }
         return obj;
     }
@@ -137,6 +152,7 @@ public:
         UniValue obj(UniValue::VOBJ);
         CScript subscript;
         obj.push_back(Pair("isscript", true));
+        obj.push_back(Pair("iscoldstaking", false));
         if (pwalletMain && pwalletMain->GetCScript(scriptID, subscript)) {
             std::vector<CTxDestination> addresses;
             txnouttype whichType;
