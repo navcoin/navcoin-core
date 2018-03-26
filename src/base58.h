@@ -80,6 +80,7 @@ protected:
 
     CBase58Data();
     void SetData(const std::vector<unsigned char> &vchVersionIn, const void* pdata, size_t nSize);
+    void SetData(const std::vector<unsigned char> &vchVersionIn, const void* pdata, size_t nSize, const void* pdata2, size_t nSize2);
     void SetData(const std::vector<unsigned char> &vchVersionIn, const unsigned char *pbegin, const unsigned char *pend);
 
 public:
@@ -106,6 +107,7 @@ public:
 class CNavCoinAddress : public CBase58Data {
 public:
     bool Set(const CKeyID &id);
+    bool Set(const CKeyID &id, const CKeyID &id2);
     bool Set(const CScriptID &id);
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
@@ -113,6 +115,7 @@ public:
 
     CNavCoinAddress() {}
     CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
+    CNavCoinAddress(const CKeyID &id, const CKeyID &id2) { Set(id, id2); }
     CNavCoinAddress(const std::string& strAddress) { SetString(strAddress); }
     CNavCoinAddress(const char* pszAddress) { SetString(pszAddress); }
 

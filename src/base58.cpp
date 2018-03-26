@@ -159,6 +159,16 @@ void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const 
         memcpy(&vchData[0], pdata, nSize);
 }
 
+void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const void* pdata, size_t nSize, const void* pdata2, size_t nSize2)
+{
+    vchVersion = vchVersionIn;
+    vchData.resize(nSize+nSize2);
+    if (!vchData.empty()) {
+        memcpy(&vchData[0], pdata, nSize);
+        memcpy(&vchData[nSize], pdata2, nSize2);
+    }
+}
+
 void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const unsigned char* pbegin, const unsigned char* pend)
 {
     SetData(vchVersionIn, (void*)pbegin, pend - pbegin);
@@ -229,6 +239,12 @@ bool CNavCoinAddress::Set(const CKeyID& id)
     return true;
 }
 
+bool CNavCoinAddress::Set(const CKeyID& id, const CKeyID& id2)
+{
+    SetData(Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS), &id, 20, &id2, 20);
+    return true;
+}
+
 bool CNavCoinAddress::Set(const CScriptID& id)
 {
     SetData(Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS), &id, 20);
@@ -247,6 +263,8 @@ bool CNavCoinAddress::IsValid() const
 
 bool CNavCoinAddress::IsValid(const CChainParams& params) const
 {
+    if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
+        return vchData.size() == 40;
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
@@ -259,7 +277,10 @@ CTxDestination CNavCoinAddress::Get() const
         return CNoDestination();
     uint160 id;
     memcpy(&id, &vchData[0], 20);
-    if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
+    if (vchVersion == Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS)) {
+        uint160 id2;
+        memcpy(&id2, &vchData[20], 20);
+    } if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return CKeyID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);
