@@ -14,13 +14,6 @@
 #ifndef NAVCOIN_BASE58_H
 #define NAVCOIN_BASE58_H
 
-#include "chainparams.h"
-#include "key.h"
-#include "pubkey.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "support/allocators/zeroafterfree.h"
-
 #include <string>
 #include <vector>
 
