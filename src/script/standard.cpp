@@ -313,10 +313,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     }
     else if (typeRet == TX_COLDSTAKING)
     {
-<<<<<<< HEAD
         nRequiredRet = 1;
-=======
->>>>>>> fix extractdestinations
         for (unsigned int i = 0; i < vSolutions.size(); i++)
         {
             uint160 keyInt(vSolutions[i]);
