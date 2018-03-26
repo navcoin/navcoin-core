@@ -69,13 +69,11 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
         break;
     case TX_COLDSTAKING:
         keyID = CKeyID(uint160(vSolutions[1]));
-        isminetype fReturn = ISMINE_NO;
         if (keystore.HaveKey(keyID))
-            fReturn |= ISMINE_SPENDABLE;
+            return ISMINE_SPENDABLE;
         keyID = CKeyID(uint160(vSolutions[0]));
         if (keystore.HaveKey(keyID))
-            fReturn |= ISMINE_STAKABLE;
-        return fReturn;
+            return ISMINE_STAKABLE;
         break;
     case TX_SCRIPTHASH:
     {
