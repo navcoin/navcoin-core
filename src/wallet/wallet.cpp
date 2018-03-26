@@ -383,14 +383,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     // try to find staking key
                     if (!keystore.GetKey(uint160(vSolutions[0]), key))
                     {
-                        // try to find spending key if staking key not present
-                        if (!keystore.GetKey(uint160(vSolutions[1]), key))
-                        {
-                            LogPrint("coinstake", "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
-                            break;  // unable to find corresponding public key
-                        }
-                        // if the spending key is used to stake, we use a p2pk script
-                        scriptPubKeyOut << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
+                        LogPrint("coinstake", "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
+                        break;  // unable to find corresponding public key
                     } else {
                         // we keep the same script
                         scriptPubKeyOut = scriptPubKeyKernel;
