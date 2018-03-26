@@ -373,10 +373,28 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     break;
                 }
                 LogPrint("coinstake", "CreateCoinStake : parsed kernel type=%d\n", whichType);
-                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH)
+                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_COLDSTAKING)
                 {
                     LogPrint("coinstake", "CreateCoinStake : no support for kernel type=%d\n", whichType);
                     break;  // only support pay to public key and pay to address
+                }
+                if (whichType == TX_COLDSTAKING) // cold staking
+                {
+                    // try to find staking key
+                    if (!keystore.GetKey(uint160(vSolutions[0]), key))
+                    {
+                        // try to find spending key if staking key not present
+                        if (!keystore.GetKey(uint160(vSolutions[1]), key))
+                        {
+                            LogPrint("coinstake", "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
+                            break;  // unable to find corresponding public key
+                        }
+                        // if the spending key is used to stake, we use a p2pk script
+                        scriptPubKeyOut << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
+                    } else {
+                        // we keep the same script
+                        scriptPubKeyOut = scriptPubKeyKernel;
+                    }
                 }
                 if (whichType == TX_PUBKEYHASH) // pay to address type
                 {
