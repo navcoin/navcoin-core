@@ -3645,7 +3645,12 @@ public:
             vKeys.push_back(keyId);
     }
 
-    void operator()(const pair<CKeyID, CKeyID> &keyId) { }
+    void operator()(const pair<CKeyID, CKeyID> &keyId) {
+        if (keystore.HaveKey(keyId))
+            vKeys.push_back(keyId);
+        if (keystore.HaveKey(keyId2))
+            vKeys.push_back(keyId2);
+    }
 
     void operator()(const CScriptID &scriptId) {
         CScript script;
