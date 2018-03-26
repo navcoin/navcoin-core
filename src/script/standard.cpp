@@ -39,6 +39,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_PAYMENTREQUESTNOVOTE: return "payment_request_no_vote";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
+    case TX_COLDSTAKING: return "cold_staking";
     }
     return NULL;
 }
