@@ -14,13 +14,6 @@
 #ifndef NAVCOIN_BASE58_H
 #define NAVCOIN_BASE58_H
 
-#include "chainparams.h"
-#include "key.h"
-#include "pubkey.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "support/allocators/zeroafterfree.h"
-
 #include <string>
 #include <vector>
 
@@ -65,6 +58,7 @@ inline bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRe
  */
 inline bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRet);
 
+<<<<<<< HEAD
 /**
  * Base class for all base58-encoded data
  */
@@ -173,4 +167,6 @@ public:
 typedef CNavCoinExtKeyBase<CExtKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_SECRET_KEY> CNavCoinExtKey;
 typedef CNavCoinExtKeyBase<CExtPubKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_PUBLIC_KEY> CNavCoinExtPubKey;
 
+=======
+>>>>>>> f52bb159847995ca542acdbae017c11bfb85e48a
 #endif // NAVCOIN_BASE58_H
