@@ -3640,10 +3640,10 @@ public:
     }
 
     void operator()(const pair<CKeyID, CKeyID> &keyId) {
-        if (keystore.HaveKey(keyId))
-            vKeys.push_back(keyId);
-        if (keystore.HaveKey(keyId2))
-            vKeys.push_back(keyId2);
+        if (keystore.HaveKey(keyId.first))
+            vKeys.push_back(keyId.first);
+        if (keystore.HaveKey(keyId.second))
+            vKeys.push_back(keyId.second);
     }
 
     void operator()(const CScriptID &scriptId) {
