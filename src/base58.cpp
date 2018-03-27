@@ -272,6 +272,11 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
     return fCorrectSize && fKnownVersion;
 }
 
+bool CNavCoinAddress::IsColdStakingAddress(const CChainParams& params) const
+{
+    return vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS) && vchData.size() == 40;
+}
+
 CTxDestination CNavCoinAddress::Get() const
 {
     if (!IsValid())
