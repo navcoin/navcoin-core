@@ -2070,6 +2070,36 @@ CAmount CWalletTx::GetAvailableCredit(bool fUseCache) const
     return nCredit;
 }
 
+CAmount CWalletTx::GetAvailableStakableCredit(bool fUseCache) const
+{
+    if (pwallet == 0)
+        return 0;
+
+    // Must wait until coinbase is safely deep enough in the chain before valuing it
+    if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
+        return 0;
+
+    if (fUseCache && fAvailableCreditCached)
+        return nAvailableCreditCached;
+
+    CAmount nCredit = 0;
+    uint256 hashTx = GetHash();
+    for (unsigned int i = 0; i < vout.size(); i++)
+    {
+        if (!pwallet->IsSpent(hashTx, i))
+        {
+            const CTxOut &txout = vout[i];
+            nCredit += pwallet->GetCredit(txout, ISMINE_STAKABLE);
+            if (!MoneyRange(nCredit))
+                throw std::runtime_error("CWalletTx::GetAvailableCredit() : value out of range");
+        }
+    }
+
+    nAvailableCreditCached = nCredit;
+    fAvailableCreditCached = true;
+    return nCredit;
+}
+
 CAmount CWalletTx::GetImmatureWatchOnlyCredit(const bool& fUseCache) const
 {
     if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0 && IsInMainChain())
@@ -2131,7 +2161,7 @@ bool CWalletTx::InMempool() const
     return false;
 }
 
-bool CWalletTx::IsTrusted(bool fColdStaking) const
+bool CWalletTx::IsTrusted() const
 {
     // Quick answer in most cases
     if (!CheckFinalTx(*this))
@@ -2156,7 +2186,7 @@ bool CWalletTx::IsTrusted(bool fColdStaking) const
         if (parent == NULL)
             return false;
         const CTxOut& parentOut = parent->vout[txin.prevout.n];
-        if (pwallet->IsMine(parentOut) != (fColdStaking ? ISMINE_STAKABLE : ISMINE_SPENDABLE))
+        if (pwallet->IsMine(parentOut) != ISMINE_STAKABLE : ISMINE_SPENDABLE)
             return false;
     }
     return true;
@@ -2253,8 +2283,8 @@ CAmount CWallet::GetColdStakingBalance() const
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
-            if (pcoin->IsTrusted(true))
-                nTotal += pcoin->GetAvailableCredit();
+            if (pcoin->IsTrusted())
+                nTotal += pcoin->GetAvailableStakableCredit();
         }
     }
 
