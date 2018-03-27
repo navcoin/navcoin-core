@@ -457,7 +457,7 @@ public:
 
 
     bool InMempool() const;
-    bool IsTrusted(bool fColdStaking = false) const;
+    bool IsTrusted() const;
 
     int64_t GetTxTime() const;
     int GetRequestCount() const;
