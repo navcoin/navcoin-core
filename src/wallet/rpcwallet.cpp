@@ -156,7 +156,7 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 2)
         throw runtime_error(
-            "getnewcoldstakingaddress \"stakingaddress\" \"spendingaddress\"\n"
+            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\"\n"
             "\nTODO"
         );
 
