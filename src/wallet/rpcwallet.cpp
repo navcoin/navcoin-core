@@ -1908,6 +1908,7 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
             "2. count          (numeric, optional, default=10) The number of transactions to return\n"
             "3. from           (numeric, optional, default=0) The number of transactions to skip\n"
             "4. includeWatchonly (bool, optional, default=false) Include transactions to watchonly addresses (see 'importaddress')\n"
+            "5. includeColdStaking (bool, optional, default=true) Include transactions to cold staking addresses\n"
             "\nResult:\n"
             "[\n"
             "  {\n"
@@ -1969,10 +1970,13 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
     int nFrom = 0;
     if (params.size() > 2)
         nFrom = params[2].get_int();
-    isminefilter filter = ISMINE_SPENDABLE;
+    isminefilter filter = ISMINE_SPENDABLE | ISMINE_STAKABLE;
     if(params.size() > 3)
         if(params[3].get_bool())
             filter = filter | ISMINE_WATCH_ONLY;
+    if(params.size() > 4)
+        if(!params[4].get_bool())
+            filter &= ~ISMINE_WATCH_ONLY;
 
     if (nCount < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Negative count");
