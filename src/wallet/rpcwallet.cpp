@@ -1783,8 +1783,9 @@ UniValue listreceivedbyaccount(const UniValue& params, bool fHelp)
 static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
 {
     CNavCoinAddress addr;
-    if (addr.Set(dest))
+    if (addr.Set(dest)) {
         entry.push_back(Pair("address", addr.ToString()));
+    }
 }
 
 void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter)
@@ -1809,6 +1810,10 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 entry.push_back(Pair("involvesWatchonly", true));
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, s.destination);
+            if(CNavCoinAddress(s.destination).IsColdStakingAddress(Params())) {
+                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, s.destination) & ISMINE_STAKABLE) ? true : false));
+                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, s.destination) & ISMINE_SPENDABLE) ? true : false));
+            }
             bool fCFund = false;
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
