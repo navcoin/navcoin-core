@@ -8216,7 +8216,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     if (txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking())
         for(unsigned int i = 0; i < tx.vout.size(); i++)
             if(tx.vout[i].scriptPubKey != txPrev.vout[txin.prevout.n].scriptPubKey)
-                return("CheckProofOfStake(): Coinstake tried to move cold staking coins to a non authorised address.");
+                return error("CheckProofOfStake(): Coinstake tried to move cold staking coins to a non authorised address.");
 
     if (pvChecks)
         pvChecks->reserve(tx.vin.size());
