@@ -87,6 +87,7 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     if (pwalletMain) {
         obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
         obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
+        obj.push_back(Pair("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance())));
         obj.push_back(Pair("newmint",       ValueFromAmount(pwalletMain->GetNewMint())));
         obj.push_back(Pair("stake",         ValueFromAmount(pwalletMain->GetStake())));
     }
