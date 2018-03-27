@@ -2187,7 +2187,7 @@ bool CWalletTx::IsTrusted() const
         if (parent == NULL)
             return false;
         const CTxOut& parentOut = parent->vout[txin.prevout.n];
-        if (pwallet->IsMine(parentOut) != ISMINE_STAKABLE : ISMINE_SPENDABLE)
+        if (pwallet->IsMine(parentOut) != ISMINE_SPENDABLE)
             return false;
     }
     return true;
