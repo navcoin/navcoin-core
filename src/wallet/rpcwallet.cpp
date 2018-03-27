@@ -1865,10 +1865,10 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                     entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
                     stop = true; // only one coinstake output
                 }
-                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, s.destination) & ISMINE_STAKABLE ||
-                                                  (::IsMine(*pwalletMain, s.destination) & ISMINE_SPENDABLE &&
-                                                   !CNavCoinAddress(s.destination).IsColdStakingAddress(Params()))) ? true : false));
-                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, s.destination) & ISMINE_SPENDABLE) ? true : false));
+                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
+                                                  (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
+                                                   !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
+                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false));
                 if (pwalletMain->mapAddressBook.count(r.destination))
                     entry.push_back(Pair("label", account));
                 entry.push_back(Pair("vout", r.vout));
