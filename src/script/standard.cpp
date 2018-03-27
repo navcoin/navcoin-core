@@ -264,8 +264,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     }
     else if (whichType == TX_COLDSTAKING)
     {
-        // We extract spending key
-        addressRet = CScriptID(uint160(vSolutions[1]));
+        addressRet = make_pair(CKeyID(uint160(vSolutions[0])), CKeyID(uint160(vSolutions[1])));
         return true;
     }
     // Multisig txns have more than one address...
