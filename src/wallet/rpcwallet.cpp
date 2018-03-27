@@ -1810,10 +1810,6 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 entry.push_back(Pair("involvesWatchonly", true));
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, s.destination);
-            if(CNavCoinAddress(s.destination).IsColdStakingAddress(Params())) {
-                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, s.destination) & ISMINE_STAKABLE) ? true : false));
-                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, s.destination) & ISMINE_SPENDABLE) ? true : false));
-            }
             bool fCFund = false;
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -1869,6 +1865,10 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                     entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
                     stop = true; // only one coinstake output
                 }
+                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, s.destination) & ISMINE_STAKABLE ||
+                                                  (::IsMine(*pwalletMain, s.destination) & ISMINE_SPENDABLE &&
+                                                   !CNavCoinAddress(s.destination).IsColdStakingAddress(Params()))) ? true : false));
+                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, s.destination) & ISMINE_SPENDABLE) ? true : false));
                 if (pwalletMain->mapAddressBook.count(r.destination))
                     entry.push_back(Pair("label", account));
                 entry.push_back(Pair("vout", r.vout));
