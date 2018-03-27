@@ -2071,7 +2071,7 @@ CAmount CWalletTx::GetAvailableCredit(bool fUseCache) const
     return nCredit;
 }
 
-CAmount CWalletTx::GetAvailableStakableCredit(bool fUseCache) const
+CAmount CWalletTx::GetAvailableStakableCredit() const
 {
     if (pwallet == 0)
         return 0;
@@ -2079,9 +2079,6 @@ CAmount CWalletTx::GetAvailableStakableCredit(bool fUseCache) const
     // Must wait until coinbase is safely deep enough in the chain before valuing it
     if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
         return 0;
-
-    if (fUseCache && fAvailableCreditCached)
-        return nAvailableCreditCached;
 
     CAmount nCredit = 0;
     uint256 hashTx = GetHash();
@@ -2096,8 +2093,6 @@ CAmount CWalletTx::GetAvailableStakableCredit(bool fUseCache) const
         }
     }
 
-    nAvailableCreditCached = nCredit;
-    fAvailableCreditCached = true;
     return nCredit;
 }
 
