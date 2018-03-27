@@ -457,7 +457,7 @@ public:
 
 
     bool InMempool() const;
-    bool IsTrusted() const;
+    bool IsTrusted(bool fColdStaking = false) const;
 
     int64_t GetTxTime() const;
     int GetRequestCount() const;
@@ -821,6 +821,7 @@ public:
     void ResendWalletTransactions(int64_t nBestBlockTime);
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime);
     CAmount GetBalance() const;
+    CAmount GetColdStakingBalance() const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
     CAmount GetWatchOnlyBalance() const;
