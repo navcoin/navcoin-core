@@ -330,6 +330,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     // Choose coins to use
     int64_t nBalance = GetBalance();
+    int64_t nColdStakingBalance = GetColdStakingBalance();
 
     if (nBalance <= nReserveBalance)
         return false;
@@ -340,7 +341,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int64_t nValueIn = 0;
 
     // Select coins with suitable depth
-    if (!SelectCoinsForStaking(nBalance - nReserveBalance, txNew.nTime, setCoins, nValueIn))
+    if (!SelectCoinsForStaking(nColdStakingBalance + nBalance - nReserveBalance, txNew.nTime, setCoins, nValueIn))
         return false;
 
     if (setCoins.empty())
