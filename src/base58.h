@@ -112,6 +112,7 @@ public:
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
     bool IsValid(const CChainParams &params) const;
+    bool IsColdStakingAddress(const CChainParams& params) const;
 
     CNavCoinAddress() {}
     CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
