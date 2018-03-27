@@ -2181,7 +2181,7 @@ bool CWalletTx::InMempool() const
     return false;
 }
 
-bool CWalletTx::IsTrusted() const
+bool CWalletTx::IsTrusted(bool fColdStaking) const
 {
     // Quick answer in most cases
     if (!CheckFinalTx(*this))
@@ -2206,7 +2206,7 @@ bool CWalletTx::IsTrusted() const
         if (parent == NULL)
             return false;
         const CTxOut& parentOut = parent->vout[txin.prevout.n];
-        if (pwallet->IsMine(parentOut) != ISMINE_SPENDABLE)
+        if (pwallet->IsMine(parentOut) != (fColdStaking ? ISMINE_STAKABLE : ISMINE_SPENDABLE))
             return false;
     }
     return true;
