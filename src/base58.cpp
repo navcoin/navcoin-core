@@ -262,6 +262,26 @@ bool CNavCoinAddress::IsValid() const
     return IsValid(Params());
 }
 
+bool CNavCoinAddress::GetSpendingAddress(CNavCoinAddress &address) const
+{
+    if(!IsColdStakingAddress(Params()))
+        return false;
+    uint160 id;
+    memcpy(&id, &vchData[0], 20);
+    address.Set(CKeyID(id));
+    return true;
+}
+
+bool CNavCoinAddress::GetStakingAddress(CNavCoinAddress &address) const
+{
+    if(!IsColdStakingAddress(Params()))
+        return false;
+    uint160 id;
+    memcpy(&id, &vchData[20], 20);
+    address.Set(CKeyID(id));
+    return true;
+}
+
 bool CNavCoinAddress::IsValid(const CChainParams& params) const
 {
     if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
