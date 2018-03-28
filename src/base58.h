@@ -124,6 +124,10 @@ public:
     bool GetKeyID(CKeyID &keyID) const;
     bool GetIndexKey(uint160& hashBytes, int& type) const;
     bool IsScript() const;
+
+    bool GetStakingAddress(CNavCoinAddress &address) const;
+    bool GetSpendingAddress(CNavCoinAddress &address) const;
+
 };
 
 /**
