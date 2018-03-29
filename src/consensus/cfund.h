@@ -214,7 +214,7 @@ public:
     }
 
     bool CanVote() const {
-        return fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && fState != PENDING_FUNDS;
+        return fState == NIL;
     }
 
     bool CanRequestPayments() const {
