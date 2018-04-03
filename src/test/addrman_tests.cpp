@@ -182,8 +182,8 @@ BOOST_AUTO_TEST_CASE(addrman_select)
     // Test 12: Select pulls from new and tried regardless of port number.
     BOOST_CHECK(addrman.Select().ToString() == "250.4.6.6:5556");
     BOOST_CHECK(addrman.Select().ToString() == "250.3.2.2:9999");
-    BOOST_CHECK(addrman.Select().ToString() == "250.3.3.3:9999");
-    BOOST_CHECK(addrman.Select().ToString() == "250.4.4.4:5556");
+    BOOST_CHECK(addrman.Select().ToString() == "250.3.2.2:9999");
+    BOOST_CHECK(addrman.Select().ToString() == "250.1.1.1:5556");
 }
 
 BOOST_AUTO_TEST_CASE(addrman_new_collisions)
