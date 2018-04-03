@@ -160,8 +160,6 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_parse)
         }
         else
         {
-BOOST_TEST_MESSAGE("sdfsdfasdf");
-             BOOST_TEST_MESSAGE(secret.IsValid());
 
             std::string exp_addrType = find_value(metadata, "addrType").get_str(); // "script" or "pubkey"
             // Must be valid public key
