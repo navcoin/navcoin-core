@@ -204,7 +204,7 @@ int64_t CWallet::GetNewMint() const
 uint64_t CWallet::GetStakeWeight() const
 {
     // Choose coins to use
-    int64_t nBalance = GetBalance();
+    int64_t nBalance = GetBalance() + GetColdStakingBalance();
 
     if (nBalance <= nReserveBalance)
         return 0;
