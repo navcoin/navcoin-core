@@ -330,8 +330,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
 
     // Choose coins to use
-    int64_t nBalance = GetBalance();
-    int64_t nColdStakingBalance = GetColdStakingBalance();
+    int64_t nBalance = GetBalance() + GetColdStakingBalance();
 
     if (nBalance <= nReserveBalance)
         return false;
@@ -342,7 +341,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int64_t nValueIn = 0;
 
     // Select coins with suitable depth
-    if (!SelectCoinsForStaking(nColdStakingBalance + nBalance - nReserveBalance, txNew.nTime, setCoins, nValueIn))
+    if (!SelectCoinsForStaking(nBalance - nReserveBalance, txNew.nTime, setCoins, nValueIn))
         return false;
 
     if (setCoins.empty())
@@ -438,7 +437,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             break; // if kernel is found stop searching
     }
 
-    if (nCredit == 0 || nCredit > nColdStakingBalance + nBalance - nReserveBalance)
+    if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
         return false;
 
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
@@ -1993,6 +1992,17 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
             debit += nWatchDebitCached;
         }
     }
+    if (filter & ISMINE_STAKABLE)
+    {
+        if (fColdStakingDebitCached)
+            debit += nColdStakingDebitCached;
+        else
+        {
+            nColdStakingDebitCached = pwallet->GetDebit(*this, ISMINE_STAKABLE);
+            fColdStakingDebitCached = true;
+            debit += nColdStakingDebitCached;
+        }
+    }
     return debit;
 }
 
@@ -2024,6 +2034,17 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
             nWatchCreditCached = pwallet->GetCredit(*this, ISMINE_WATCH_ONLY);
             fWatchCreditCached = true;
             credit += nWatchCreditCached;
+        }
+    }
+    if (filter & ISMINE_STAKABLE)
+    {
+        if (fColdStakingCreditCached)
+            credit += nColdStakingCreditCached;
+        else
+        {
+            nColdStakingCreditCached = pwallet->GetCredit(*this, ISMINE_STAKABLE);
+            fColdStakingCreditCached = true;
+            credit += nColdStakingCreditCached;
         }
     }
     return credit;
