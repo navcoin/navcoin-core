@@ -30,11 +30,11 @@ class Ui_getAddressToReceive
 public:
     QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout;
+    QSpacerItem *verticalSpacer;
     QHBoxLayout *horizontalLayout;
     QSpacerItem *horizontalSpacer;
     QLabel *label;
     QSpacerItem *horizontalSpacer_2;
-    QSpacerItem *verticalSpacer;
     QSpacerItem *verticalSpacer_2;
     QHBoxLayout *horizontalLayout_8;
     QSpacerItem *horizontalSpacer_4;
