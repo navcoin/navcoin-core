@@ -63,7 +63,7 @@ public:
         if (getAddressToReceive->objectName().isEmpty())
             getAddressToReceive->setObjectName(QStringLiteral("getAddressToReceive"));
         getAddressToReceive->setWindowModality(Qt::NonModal);
-        getAddressToReceive->resize(1497, 666);
+        getAddressToReceive->resize(1497, 558);
         QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -74,7 +74,7 @@ public:
         verticalLayout = new QVBoxLayout();
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         verticalLayout->setSizeConstraint(QLayout::SetNoConstraint);
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Maximum);
+        verticalSpacer = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 
         verticalLayout->addItem(verticalSpacer);
 
@@ -99,7 +99,7 @@ public:
 
         verticalLayout->addLayout(horizontalLayout);
 
-        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_2 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer_2);
 
@@ -149,7 +149,7 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_8);
 
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_3 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer_3);
 
@@ -204,7 +204,7 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_3);
 
-        verticalSpacer_4 = new QSpacerItem(20, 80, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        verticalSpacer_4 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
         verticalLayout->addItem(verticalSpacer_4);
 
