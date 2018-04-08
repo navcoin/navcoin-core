@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1497</width>
-    <height>666</height>
+    <height>558</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -39,7 +39,7 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>40</height>
+         <height>10</height>
         </size>
        </property>
       </spacer>
@@ -94,7 +94,7 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>40</height>
+         <height>10</height>
         </size>
        </property>
       </spacer>
@@ -202,7 +202,7 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>40</height>
+         <height>20</height>
         </size>
        </property>
       </spacer>
@@ -313,7 +313,7 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>80</height>
+         <height>10</height>
         </size>
        </property>
       </spacer>
