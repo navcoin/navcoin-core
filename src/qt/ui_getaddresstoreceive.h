@@ -30,11 +30,11 @@ class Ui_getAddressToReceive
 public:
     QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout;
+    QSpacerItem *verticalSpacer;
     QHBoxLayout *horizontalLayout;
     QSpacerItem *horizontalSpacer;
     QLabel *label;
     QSpacerItem *horizontalSpacer_2;
-    QSpacerItem *verticalSpacer;
     QSpacerItem *verticalSpacer_2;
     QHBoxLayout *horizontalLayout_8;
     QSpacerItem *horizontalSpacer_4;
@@ -48,10 +48,14 @@ public:
     QHBoxLayout *horizontalLayout_7;
     QSpacerItem *horizontalSpacer_13;
     QPushButton *copyClipboardButton;
-    QPushButton *newAddressButton;
     QPushButton *requestPaymentButton;
     QPushButton *requestNewAddressButton;
     QSpacerItem *horizontalSpacer_14;
+    QHBoxLayout *horizontalLayout_3;
+    QSpacerItem *horizontalSpacer_5;
+    QPushButton *newAddressButton;
+    QPushButton *coldStakingButton;
+    QSpacerItem *horizontalSpacer_6;
     QSpacerItem *verticalSpacer_4;
 
     void setupUi(QWidget *getAddressToReceive)
@@ -70,6 +74,10 @@ public:
         verticalLayout = new QVBoxLayout();
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         verticalLayout->setSizeConstraint(QLayout::SetNoConstraint);
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Maximum);
+
+        verticalLayout->addItem(verticalSpacer);
+
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -90,10 +98,6 @@ public:
 
 
         verticalLayout->addLayout(horizontalLayout);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Maximum);
-
-        verticalLayout->addItem(verticalSpacer);
 
         verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -160,11 +164,6 @@ public:
 
         horizontalLayout_7->addWidget(copyClipboardButton);
 
-        newAddressButton = new QPushButton(getAddressToReceive);
-        newAddressButton->setObjectName(QStringLiteral("newAddressButton"));
-
-        horizontalLayout_7->addWidget(newAddressButton);
-
         requestPaymentButton = new QPushButton(getAddressToReceive);
         requestPaymentButton->setObjectName(QStringLiteral("requestPaymentButton"));
 
@@ -181,6 +180,29 @@ public:
 
 
         verticalLayout->addLayout(horizontalLayout_7);
+
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_5);
+
+        newAddressButton = new QPushButton(getAddressToReceive);
+        newAddressButton->setObjectName(QStringLiteral("newAddressButton"));
+
+        horizontalLayout_3->addWidget(newAddressButton);
+
+        coldStakingButton = new QPushButton(getAddressToReceive);
+        coldStakingButton->setObjectName(QStringLiteral("coldStakingButton"));
+
+        horizontalLayout_3->addWidget(coldStakingButton);
+
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_6);
+
+
+        verticalLayout->addLayout(horizontalLayout_3);
 
         verticalSpacer_4 = new QSpacerItem(20, 80, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
@@ -203,9 +225,10 @@ public:
         lblQRCode->setToolTip(QApplication::translate("getAddressToReceive", "QR Code", nullptr));
 #endif // QT_NO_TOOLTIP
         copyClipboardButton->setText(QApplication::translate("getAddressToReceive", "Copy to clipboard", nullptr));
-        newAddressButton->setText(QApplication::translate("getAddressToReceive", "Generate a new address", nullptr));
         requestPaymentButton->setText(QApplication::translate("getAddressToReceive", "Request payment", nullptr));
         requestNewAddressButton->setText(QApplication::translate("getAddressToReceive", "List old addresses", nullptr));
+        newAddressButton->setText(QApplication::translate("getAddressToReceive", "Generate a new address", nullptr));
+        coldStakingButton->setText(QApplication::translate("getAddressToReceive", "Create a Cold Staking address", nullptr));
     } // retranslateUi
 
 };

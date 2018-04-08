@@ -2,9 +2,9 @@
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "walletmodel.h"
-
 #include "wallet/wallet.h"
 
+#include "coldstakingwizard.h"
 #include "getaddresstoreceive.h"
 #include "ui_getaddresstoreceive.h"
 
@@ -39,6 +39,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
     connect(ui->copyClipboardButton,SIGNAL(clicked()),this,SLOT(copyToClipboard()));
     connect(ui->newAddressButton,SIGNAL(clicked()),this,SLOT(getNewAddress()));
+    connect(ui->coldStakingButton,SIGNAL(clicked()),this,SLOT(getColdStakingAddress()));
     connect(ui->requestNewAddressButton,SIGNAL(clicked()),this,SLOT(showAddressHistory()));
 }
 
@@ -71,6 +72,12 @@ void getAddressToReceive::getNewAddress()
 {
     address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, "", "");
     showQR();
+}
+
+void getAddressToReceive::getColdStakingAddress()
+{
+    ColdStakingWizard wizard;
+    wizard.exec();
 }
 
 void getAddressToReceive::showQR()
