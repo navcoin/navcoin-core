@@ -17,6 +17,7 @@
 #include "consensus/consensus.h"
 #include "consensus/merkle.h"
 #include "consensus/validation.h"
+#include "core_io.h"
 #include "hash.h"
 #include "init.h"
 #include "merkleblock.h"
@@ -4263,10 +4264,15 @@ bool CheckBlockSignature(const CBlock& block)
         return false;
     }
 
-    if (whichType == TX_PUBKEY || whichType == TX_COLDSTAKING)
+    if (whichType == TX_PUBKEY)
     {
         std::vector<unsigned char>& vchPubKey = vSolutions[0];
         return CPubKey(vchPubKey).Verify(block.GetHash(), block.vchBlockSig);
+    }
+
+    if(whichType == TX_COLDSTAKING) // We need to get the public key from the input's scriptSig
+    {
+        return CPubKey(block.vtx[1].vin[0].scriptSig.begin()+73,block.vtx[1].vin[0].scriptSig.end()).Verify(block.GetHash(), block.vchBlockSig);
     }
 
     LogPrintf("CheckBlockSignature: Unknown type\n");
@@ -8212,9 +8218,10 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
         return error("CheckProofOfStake() : INFO: read txPrev failed %s",txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
 
     if (txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking())
-        for(unsigned int i = 0; i < tx.vout.size(); i++)
+        for(unsigned int i = 1; i < tx.vout.size() - 1; i++) // First output is empty, last is CFund contribution
             if(tx.vout[i].scriptPubKey != txPrev.vout[txin.prevout.n].scriptPubKey)
-                return error("CheckProofOfStake(): Coinstake tried to move cold staking coins to a non authorised address.");
+                return error(strprintf("CheckProofOfStake(): Coinstake output %d tried to move cold staking coins to a non authorised script. (%s vs. %s)",
+                                       i, ScriptToAsmStr(txPrev.vout[txin.prevout.n].scriptPubKey), ScriptToAsmStr(tx.vout[i].scriptPubKey)));
 
     if (pvChecks)
         pvChecks->reserve(tx.vin.size());
