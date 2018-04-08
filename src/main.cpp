@@ -4310,7 +4310,7 @@ bool CheckBlockSignature(const CBlock& block)
         return false;
     }
 
-    if (whichType == TX_PUBKEY || whichType == TX_COLDSTAKING)
+    if (whichType == TX_PUBKEY)
     {
         std::vector<unsigned char>& vchPubKey = vSolutions[0];
         return CPubKey(vchPubKey).Verify(block.GetHash(), block.vchBlockSig);
