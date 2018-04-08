@@ -113,7 +113,10 @@ static inline bool error(const char* s)
     LogPrintStr(std::string("ERROR: ") + s + "\n");
     return false;
 }
-
+static inline bool error(std::string s)
+{
+    error(s.c_str());
+}
 void PrintExceptionContinue(const std::exception *pex, const char* pszThread);
 void ParseParameters(int argc, const char*const argv[]);
 void FileCommit(FILE *fileout);
