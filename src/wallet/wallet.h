@@ -245,6 +245,8 @@ public:
     mutable bool fAvailableCreditCached;
     mutable bool fWatchDebitCached;
     mutable bool fWatchCreditCached;
+    mutable bool fColdStakingCreditCached;
+    mutable bool fColdStakingDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
@@ -254,6 +256,8 @@ public:
     mutable CAmount nAvailableCreditCached;
     mutable CAmount nWatchDebitCached;
     mutable CAmount nWatchCreditCached;
+    mutable CAmount nColdStakingCreditCached;
+    mutable CAmount nColdStakingDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
@@ -298,6 +302,8 @@ public:
         fAvailableCreditCached = false;
         fWatchDebitCached = false;
         fWatchCreditCached = false;
+        fColdStakingCreditCached = false;
+        fColdStakingDebitCached = false;
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
         fChangeCached = false;
@@ -307,6 +313,8 @@ public:
         nCreditCached = 0;
         nImmatureCreditCached = 0;
         nAvailableCreditCached = 0;
+        nColdStakingCreditCached = 0;
+        nColdStakingDebitCached = 0;
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
         nAvailableWatchCreditCached = 0;
@@ -367,6 +375,8 @@ public:
         fAvailableCreditCached = false;
         fWatchDebitCached = false;
         fWatchCreditCached = false;
+        fColdStakingCreditCached = false;
+        fColdStakingDebitCached = false;
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
         fDebitCached = false;
