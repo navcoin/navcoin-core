@@ -846,7 +846,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
                   const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
                   SignatureData sigdata;
-                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata, true);
 
                   if (!signSuccess) {
                       return false;
@@ -860,7 +860,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
               pblock->vtx[0].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-
               return key.Sign(pblock->GetHash(), pblock->vchBlockSig);
           }
       }
