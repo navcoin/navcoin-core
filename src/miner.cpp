@@ -832,7 +832,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
-              txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
               txCoinStake.strDZeel = GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION);
 
               // After the changes, we need to resign inputs.

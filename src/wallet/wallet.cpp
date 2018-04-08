@@ -556,6 +556,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
     }
 
+    txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+
     // Sign
     int nIn = 0;
     CTransaction txNewConst(txNew);
