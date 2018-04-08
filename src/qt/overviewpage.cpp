@@ -382,7 +382,7 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
 
     }
 
-    int64_t nTook2 = GetTimeMillis();
+    //int64_t nTook2 = GetTimeMillis();
 
     int i=30;
 
