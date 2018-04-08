@@ -116,6 +116,7 @@ static inline bool error(const char* s)
 static inline bool error(std::string s)
 {
     error(s.c_str());
+    return false;
 }
 void PrintExceptionContinue(const std::exception *pex, const char* pszThread);
 void ParseParameters(int argc, const char*const argv[]);
