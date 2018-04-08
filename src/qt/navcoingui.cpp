@@ -590,32 +590,33 @@ void NavCoinGUI::createToolBars()
         // "QToolButton:pressed { background-color: #997cc5; border-bottom: 4px solid #7d59b5; border-left: none; } "
         // "#tabs { color: #ffffff; background-image: url(:/images/background) }");
 
-        QPushButton* topMenuLogo = new QPushButton(walletFrame->topMenu);
+        QPushButton* topMenuLogo = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenuLogo);
         topMenuLogo->setFixedSize(187,94);
         topMenuLogo->setObjectName("navLogo");
-        topMenuLogo->move(0,0);
         topMenuLogo->setStyleSheet(
            "#navLogo { border-image: url(:/icons/menu_logo)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu1 = new QPushButton(walletFrame->topMenu);
+        topMenu1 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu1);
         topMenu1->setFixedSize(139,94);
         topMenu1->setObjectName("topMenu1");
         connect(topMenu1, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
-        topMenu1->move(186,0);
         topMenu1->setStyleSheet(
            "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
            "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu2 = new QPushButton(walletFrame->topMenu);
+        topMenu2 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu2);
         topMenu2->setFixedSize(144,94);
         topMenu2->setObjectName("topMenu2");
         connect(topMenu2, SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
-        topMenu2->move(325,0);
         topMenu2->setStyleSheet(
                     "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu3 = new QPushButton(walletFrame->topMenu);
+        topMenu3 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu3);
         topMenu3->setFixedSize(156,94);
         topMenu3->setObjectName("topMenu3");
         connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
@@ -624,14 +625,20 @@ void NavCoinGUI::createToolBars()
                     "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu4 = new QPushButton(walletFrame->topMenu);
+        topMenu4 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu4);
         topMenu4->setFixedSize(215,94);
         topMenu4->setObjectName("topMenu4");
         connect(topMenu4, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
-        topMenu4->move(625,0);
         topMenu4->setStyleSheet(
                     "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+
+        QWidget *topMenu = new QWidget();
+        topMenu->setObjectName("topMenu");
+        topMenu->setStyleSheet(
+                    "#topMenu { border-image: url(:/icons/background_top)  0 0 0 0 stretch stretch; border: 0px; border-image-repeat: stretch; }");
+        walletFrame->menuLayout->addWidget(topMenu);
 
         // ImageButton* navLogo2 = new ImageButton();
         // navLogo2->setFixedSize(64,64);
