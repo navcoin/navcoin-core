@@ -1,6 +1,7 @@
 #include "addresstablemodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
+#include "main.h"
 #include "walletmodel.h"
 #include "wallet/wallet.h"
 
@@ -76,8 +77,13 @@ void getAddressToReceive::getNewAddress()
 
 void getAddressToReceive::getColdStakingAddress()
 {
-    ColdStakingWizard wizard;
-    wizard.exec();
+    if (!IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()))
+        QMessageBox::warning(this, tr("Action not available"),
+                             "<qt>Cold Staking is not active yet.</qt>");
+    else {
+        ColdStakingWizard wizard;
+        wizard.exec();
+    }
 }
 
 void getAddressToReceive::showQR()
