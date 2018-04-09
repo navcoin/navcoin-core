@@ -160,6 +160,10 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
             "\nTODO"
         );
 
+    if (!IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()))
+        throw runtime_error(
+            "Cold Staking is not active yet.");
+
     CNavCoinAddress stakingAddress(params[0].get_str());
     if (!stakingAddress.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Staking address is not a valid NavCoin address");
