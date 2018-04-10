@@ -4290,6 +4290,7 @@ bool CheckBlockSignature(const CBlock& block)
 {
     if (block.IsProofOfWork())
     {
+        LogPrintf("CheckBlockSignature: Bad Block - can't check signature of a proof of work block\n");
         return block.vchBlockSig.empty();
     }
 
