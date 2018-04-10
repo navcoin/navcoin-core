@@ -4244,6 +4244,7 @@ bool CheckBlockSignature(const CBlock& block)
 {
     if (block.IsProofOfWork())
     {
+        LogPrintf("CheckBlockSignature: Bad Block - can't check signature of a proof of work block\n");
         return block.vchBlockSig.empty();
     }
 
@@ -8173,7 +8174,7 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
         LogPrint("stakemodifier","CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s bnTarget=%s nBits=%08x nValueIn=%d bnWeight=%s\n",
             nStakeModifier,
             nTimeBlockFrom, txPrev.nTime, prevout.n, nTimeTx,
-            hashProofOfStake.ToString(),bnTarget.ToString(), nBits, nValueIn,bnWeight.ToString());
+            hashProofOfStake.ToString(),bnTarget.ToString(16), nBits, nValueIn,bnWeight.ToString());
     }
 
     // Now check if proof-of-stake hash meets target protocol
