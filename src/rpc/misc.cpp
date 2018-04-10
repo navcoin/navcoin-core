@@ -95,8 +95,8 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("blocks",        (int)chainActive.Height()));
 
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("available",      ValueFromAmount(pindexBestHeader->nCFSupply)));
-    cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
+    cf.push_back(Pair("available",      ValueFromAmount(chainActive.Tip()->nCFSupply)));
+    cf.push_back(Pair("locked",         ValueFromAmount(chainActive.Tip()->nCFLocked)));
 
     obj.push_back(Pair("communityfund", cf));
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
