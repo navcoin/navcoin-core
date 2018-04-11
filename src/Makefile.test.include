@@ -37,7 +37,6 @@ GENERATED_TEST_FILES = $(JSON_TEST_FILES:.json=.json.h) $(RAW_TEST_FILES:.raw=.r
 
 NAVCOIN_TESTS =\
     test/nav_cfund_tests.cpp \
-    test/arith_uint256_tests.cpp \
   test/scriptnum10.h \
   test/addrman_tests.cpp \
   test/amount_tests.cpp \
