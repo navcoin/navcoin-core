@@ -64,7 +64,6 @@ NAVCOIN_TESTS =\
   test/pow_tests.cpp \
   test/prevector_tests.cpp \
   test/reverselock_tests.cpp \
-  test/rpc_tests.cpp \
   test/sanity_tests.cpp \
   test/scheduler_tests.cpp \
   test/script_P2SH_tests.cpp \
@@ -72,7 +71,6 @@ NAVCOIN_TESTS =\
   test/script_tests.cpp \
   test/scriptnum_tests.cpp \
   test/serialize_tests.cpp \
-  test/sighash_tests.cpp \
   test/sigopcount_tests.cpp \
   test/skiplist_tests.cpp \
   test/streams_tests.cpp \
