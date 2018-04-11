@@ -68,7 +68,6 @@ NAVCOIN_TESTS =\
   test/scheduler_tests.cpp \
   test/script_P2SH_tests.cpp \
   test/script_P2PKH_tests.cpp \
-  test/script_tests.cpp \
   test/scriptnum_tests.cpp \
   test/serialize_tests.cpp \
   test/sigopcount_tests.cpp \
@@ -79,12 +78,9 @@ NAVCOIN_TESTS =\
   test/testutil.cpp \
   test/testutil.h \
   test/timedata_tests.cpp \
-  test/transaction_tests.cpp \
-  test/txvalidationcache_tests.cpp \
   test/versionbits_tests.cpp \
   test/uint256_tests.cpp \
-  test/univalue_tests.cpp \
-  test/util_tests.cpp
+  test/univalue_tests.cpp
 
 
 #NAVCOIN_TESTS =\
