@@ -5922,7 +5922,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         {
             pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE, reason);
             LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 10);
+            Misbehaving(pfrom->GetId(), 100);
             return false;
         }
     }
