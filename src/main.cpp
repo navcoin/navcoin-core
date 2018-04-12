@@ -2505,6 +2505,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nSegWitVersionMask;
 
+    if(IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nNSyncVersionMask;
+
     return nVersion;
 }
 
@@ -4400,6 +4403,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nCFundVersionMask) != nCFundVersionMask && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no cfund block");
+
+    if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected no nsync block");
 
     return true;
 }
