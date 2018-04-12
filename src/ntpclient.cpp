@@ -26,7 +26,7 @@ int64_t CNtpClient::getTimestamp()
         ip::udp::socket socket(io_service);
         socket.open(ip::udp::v4());
 
-        boost::array<unsigned char, 48> sendBuf = {10,0,0,0,0,0,0,0,0};
+        boost::array<unsigned char, 48> sendBuf = {{10,0,0,0,0,0,0,0,0}};
 
         socket.send_to(boost::asio::buffer(sendBuf), receiver_endpoint);
 
