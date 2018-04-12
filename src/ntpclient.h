@@ -1,0 +1,24 @@
+// Copyright (c) 2018 alex v
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef NTPCLIENT_H
+#define NTPCLIENT_H
+
+#include <boost/array.hpp>
+#include <boost/asio.hpp>
+
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+class CNtpClient
+{
+    string sHostName;
+  public:
+    CNtpClient(string server) : sHostName(server) { }
+    int64_t getTimestamp();
+};
+
+#endif // NTPCLIENT_H
