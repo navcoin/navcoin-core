@@ -39,7 +39,7 @@ int64_t CNtpClient::getTimestamp()
             fd_set fileDescriptorSet;
             struct timeval timeStruct;
 
-            // set the timeout to 5 seconds
+            // set the timeout to 10 seconds
             timeStruct.tv_sec = GetArg("-ntptimeout", 10);
             timeStruct.tv_usec = 0;
             FD_ZERO(&fileDescriptorSet);
