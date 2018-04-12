@@ -22,8 +22,11 @@ void MilliSleep(int64_t n);
 std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime);
 
 static int64_t nNtpTimeOffset = 0;
-static std::vector<std::string> vDefaultNtpServers = {"0.pool.ntp.org", "1.pool.ntp.org",
-                  "2.pool.ntp.org", "3.pool.ntp.org", "time-a-wwv.nist.gov",
-                  "utcnist.colorado.edu", "time.google.com" };
+static std::vector<std::string> vDefaultNtpServers = {"de.pool.ntp.org",
+                  "0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org",
+                  "0.de.pool.ntp.org", "1.de.pool.ntp.org", "2.de.pool.ntp.org",
+                  "3.pool.ntp.org", "pool.ntp.org", "time.google.com",
+                  "ntp0.fau.de", "ntps1-0.uni-erlangen.de", "ntps1-0.cs.tu-berlin.de",
+                  "ptbtime1.ptb.de", "rustime01.rus.uni-stuttgart.de" };
 
 #endif // NAVCOIN_UTILTIME_H
