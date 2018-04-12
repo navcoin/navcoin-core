@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 #define MINIMUM_NTP_MEASURE 3
 
