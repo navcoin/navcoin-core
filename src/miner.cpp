@@ -54,6 +54,9 @@ uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 uint64_t nLastCoinStakeSearchInterval = 0;
 
+uint64_t nLastTime = -1;
+uint64_t nLastSteadyTime = -1;
+
 class ScoreCompare
 {
 public:
@@ -742,6 +745,30 @@ void NavCoinStaker(const CChainParams& chainparams)
             {
                 nLastCoinStakeSearchInterval = 0;
                 MilliSleep(1000);
+            }
+
+            if (GetTime() % 15 == 0)
+            {
+                if (nLastTime != -1 && nLastSteadyTime != -1)
+                {
+                    uint64_t nClockDifference = GetTime() - nLastTime;
+                    uint64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
+
+                    nClockDifference = round((float)nClockDifference / 10.0) * 10;
+                    nSteadyClockDifference = round((float)nSteadyClockDifference / 10.0) * 10;
+
+                    if(nClockDifference != nSteadyClockDifference)
+                    {
+                        string strMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly. Staking has been disabled."), _(PACKAGE_NAME));
+                        strMiscWarning = strMessage;
+                        uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_WARNING);
+
+                        return;
+                    }
+                }
+
+                nLastTime = GetTime();
+                nLastSteadyTime = GetSteadyTime();
             }
 
             //
