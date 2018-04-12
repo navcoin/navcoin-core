@@ -505,6 +505,9 @@ bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& par
 bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
+/** Check whether NtpSync has been activated. */
+bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);
 
