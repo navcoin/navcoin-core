@@ -13,6 +13,7 @@
 #define MINIMUM_NTP_MEASURE 3
 
 int64_t GetTime();
+int64_t GetSteadyTime();
 int64_t GetTimeMillis();
 int64_t GetTimeMicros();
 int64_t GetLogTimeMicros();
