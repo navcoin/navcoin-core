@@ -1112,6 +1112,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     string sPrevServer = "";
     int64_t nPrevMeasure = -1;
 
+    random_shuffle(vNtpServers.begin(), vNtpServers.end(), GetRandInt);
+
     BOOST_FOREACH(string s, vNtpServers)
     {
         CNtpClient ntpClient(s);
@@ -1158,10 +1160,15 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
                 nPrevMeasure = -1;
                 sPrevServer = "";
-            } else {
+            }
+            else
+            {
                 nPrevMeasure = nClockDrift;
                 sPrevServer = s;
             }
+
+            if (vResults.size() >= 5)
+                break;
         }
     }
 
