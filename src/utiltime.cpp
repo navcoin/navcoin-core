@@ -17,6 +17,7 @@
 using namespace std;
 
 static int64_t nMockTime = 0; //!< For unit testing
+static int64_t nNtpTimeOffset = 0;
 
 int64_t GetTime()
 {
@@ -24,7 +25,7 @@ int64_t GetTime()
 
     time_t now = time(NULL);
     assert(now > 0);
-    return now - nNtpTimeOffset;
+    return now - GetNtpTimeOffset();
 }
 
 int64_t GetSteadyTime()
@@ -45,7 +46,7 @@ int64_t GetTimeMillis()
     int64_t now = (boost::posix_time::microsec_clock::universal_time() -
                    boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_milliseconds();
     assert(now > 0);
-    return now - (nNtpTimeOffset * 1000);
+    return now - (GetNtpTimeOffset() * 1000);
 }
 
 int64_t GetTimeMicros()
@@ -53,7 +54,7 @@ int64_t GetTimeMicros()
     int64_t now = (boost::posix_time::microsec_clock::universal_time() -
                    boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds();
     assert(now > 0);
-    return now - (nNtpTimeOffset * 1000  * 1000);
+    return now - (GetNtpTimeOffset() * 1000  * 1000);
 }
 
 /** Return a time useful for the debug log */
@@ -90,4 +91,15 @@ std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime)
     ss.imbue(loc);
     ss << boost::posix_time::from_time_t(nTime);
     return ss.str();
+}
+
+int64_t GetNtpTimeOffset()
+{
+    return nNtpTimeOffset;
+}
+
+void SetNtpTimeOffset(uint64_t nTimeOffsetIn)
+{
+    nNtpTimeOffset = nTimeOffsetIn;
+    return true;
 }

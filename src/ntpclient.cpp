@@ -183,9 +183,9 @@ bool NtpClockSync() {
             vNtpTimeOffsets.input(vResults[i]);
         }
 
-        nNtpTimeOffset = vNtpTimeOffsets.median();
+        SetNtpTimeOffset(vNtpTimeOffsets.median());
 
-        LogPrintf("[NTP] Calculated offset from median: %d\n", nNtpTimeOffset);
+        LogPrintf("[NTP] Calculated offset from median: %d\n", GetNtpTimeOffset());
         return true;
     }
     else
