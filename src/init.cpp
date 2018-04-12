@@ -24,6 +24,7 @@
 #include "main.h"
 #include "miner.h"
 #include "net.h"
+#include "ntpclient.h"
 #include "policy/policy.h"
 #include "rpc/server.h"
 #include "rpc/register.h"
@@ -36,6 +37,7 @@
 #include "torcontrol.h"
 #include "ui_interface.h"
 #include "util.h"
+#include "utiltime.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
 #ifdef ENABLE_WALLET
@@ -1089,6 +1091,107 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     } // (!fDisableWallet)
 #endif // ENABLE_WALLET
     // ********************************************************* Step 6: network initialization
+
+    LogPrintf("[NTP] Starting clock sync...\n");
+
+    uiInterface.InitMessage(_("Synchronizing clock..."));
+
+    std::vector<std::string> vNtpServers;
+    std::vector<int64_t> vResults;
+
+    if (mapMultiArgs["-ntpservers"].size() > 0)
+    {
+        vNtpServers = mapMultiArgs["-ntpservers"];
+    }
+    else
+    {
+        vNtpServers = vDefaultNtpServers;
+    }
+
+    string sReport = "";
+    string sPrevServer = "";
+    int64_t nPrevMeasure = -1;
+
+    BOOST_FOREACH(string s, vNtpServers)
+    {
+        CNtpClient ntpClient(s);
+        int64_t nTimestamp = ntpClient.getTimestamp();
+        if(nTimestamp > -1)
+        {
+            int64_t nClockDrift = GetTime() - nTimestamp;
+
+            // We push if its the first entry
+            if(vResults.size() == 0)
+            {
+                vResults.push_back(nClockDrift);
+
+                string sign = "";
+                if(nClockDrift > 0)
+                    sign = "+";
+                else if (nClockDrift < 0)
+                    sign = "-";
+
+                sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
+            }
+            // or if we have two cached values, ensuring size of the vector is odd
+            else if (nPrevMeasure != -1)
+            {
+                vResults.push_back(nClockDrift);
+
+                string sign = "";
+                if(nClockDrift > 0)
+                    sign = "+";
+                else if (nClockDrift < 0)
+                    sign = "-";
+
+                sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
+
+                vResults.push_back(nPrevMeasure);
+
+                sign = "";
+                if(nPrevMeasure > 0)
+                    sign = "+";
+                else if (nPrevMeasure < 0)
+                    sign = "-";
+
+                sReport += sPrevServer + "[" + sign + to_string(nPrevMeasure) + "sec.] ";
+
+                nPrevMeasure = -1;
+                sPrevServer = "";
+            } else {
+                nPrevMeasure = nClockDrift;
+                sPrevServer = s;
+            }
+        }
+    }
+
+    assert(vResults.size() % 2 == 1 || vResults.size() == 0);
+
+    unsigned int nMin = GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE);
+
+    if (vResults.size() >= nMin)
+    {
+        LogPrintf("[NTP] Measured: %s\n", sReport);
+
+        static CMedianFilter<int64_t> vNtpTimeOffsets(vResults.size(), 0);
+
+        for(unsigned int i = 0; i < vResults.size(); i++)
+        {
+            vNtpTimeOffsets.input(vResults[i]);
+        }
+
+        nNtpTimeOffset = vNtpTimeOffsets.median();
+
+        LogPrintf("[NTP] Calculated offset from median: %d\n", nNtpTimeOffset);
+    }
+    else
+    {
+        return InitError("Could not fetch clock data from NTP servers. "
+                         "Please specify a list of valid NTP servers "
+                         "using -ntpserver= as an argument to the daemon. "
+                         "A minimum of " + to_string(nMin) + " "
+                         "valid servers is required.");
+    }
 
     RegisterNodeSignals(GetNodeSignals());
 
