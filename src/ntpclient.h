@@ -21,4 +21,6 @@ class CNtpClient
     int64_t getTimestamp();
 };
 
+bool NtpClockSync();
+
 #endif // NTPCLIENT_H
