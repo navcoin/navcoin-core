@@ -15,8 +15,10 @@
 #include "consensus/merkle.h"
 #include "consensus/validation.h"
 #include "hash.h"
+#include "init.h"
 #include "main.h"
 #include "net.h"
+#include "ntpclient.h"
 #include "policy/policy.h"
 #include "pos.h"
 #include "primitives/transaction.h"
@@ -54,8 +56,8 @@ uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 uint64_t nLastCoinStakeSearchInterval = 0;
 
-uint64_t nLastTime = -1;
-uint64_t nLastSteadyTime = -1;
+uint64_t nLastTime = 0;
+uint64_t nLastSteadyTime = 0;
 
 class ScoreCompare
 {
@@ -747,23 +749,24 @@ void NavCoinStaker(const CChainParams& chainparams)
                 MilliSleep(1000);
             }
 
-            if (GetTime() % 15 == 0)
+            if (GetTime() % 0xF == 0)
             {
-                if (nLastTime != -1 && nLastSteadyTime != -1)
+                if (nLastTime != 0 && nLastSteadyTime != 0)
                 {
-                    uint64_t nClockDifference = GetTime() - nLastTime;
-                    uint64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
+                    int64_t nClockDifference = GetTime() - nLastTime;
+                    int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
 
-                    nClockDifference = round((float)nClockDifference / 10.0) * 10;
-                    nSteadyClockDifference = round((float)nSteadyClockDifference / 10.0) * 10;
-
-                    if(nClockDifference != nSteadyClockDifference)
+                    if(abs(nClockDifference - nSteadyClockDifference) > 0xF)
                     {
-                        string strMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly. Staking has been disabled."), _(PACKAGE_NAME));
-                        strMiscWarning = strMessage;
-                        uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_WARNING);
-
-                        return;
+                        if(!NtpClockSync())
+                        {
+                            string strMessage = "System clock change detected! Could not synchronize with NTP servers. Aborting node!";
+                            string userMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly."), _(PACKAGE_NAME));
+                            strMiscWarning = strMessage;
+                            LogPrintf("*** %s\n", strMessage);
+                            uiInterface.ThreadSafeMessageBox(userMessage, "", CClientUIInterface::MSG_ERROR);
+                            StartShutdown();
+                        }
                     }
                 }
 
