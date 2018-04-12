@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <string>
 
+#define MINIMUM_NTP_MEASURE 3
+
 int64_t GetTime();
 int64_t GetTimeMillis();
 int64_t GetTimeMicros();
@@ -17,5 +19,10 @@ void SetMockTime(int64_t nMockTimeIn);
 void MilliSleep(int64_t n);
 
 std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime);
+
+static int64_t nNtpTimeOffset = 0;
+static std::vector<std::string> vDefaultNtpServers = {"0.pool.ntp.org", "1.pool.ntp.org",
+                  "2.pool.ntp.org", "3.pool.ntp.org", "time-a-wwv.nist.gov",
+                  "utcnist.colorado.edu", "time.google.com" };
 
 #endif // NAVCOIN_UTILTIME_H
