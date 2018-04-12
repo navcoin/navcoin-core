@@ -101,5 +101,4 @@ int64_t GetNtpTimeOffset()
 void SetNtpTimeOffset(uint64_t nTimeOffsetIn)
 {
     nNtpTimeOffset = nTimeOffsetIn;
-    return true;
 }
