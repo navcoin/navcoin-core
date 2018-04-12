@@ -138,7 +138,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV_LEGACY].nTimeout = 1525132800; // May 1st, 2018
 
         // Deployment of NTP Sync
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 7;
+        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // Apr 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1554076800; // Apr 1st, 2019
 
@@ -270,7 +270,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1525132800; // May 1st, 2018
 
         // Deployment of NTP Sync
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 7;
+        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // Apr 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1554076800; // Apr 1st, 2019
 
