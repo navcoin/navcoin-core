@@ -4305,6 +4305,12 @@ bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Para
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_NTPSYNC, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
