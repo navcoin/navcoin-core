@@ -17,12 +17,13 @@ int64_t GetSteadyTime();
 int64_t GetTimeMillis();
 int64_t GetTimeMicros();
 int64_t GetLogTimeMicros();
+int64_t GetNtpTimeOffset();
 void SetMockTime(int64_t nMockTimeIn);
+void SetNtpTimeOffset(uint64_t nTimeOffsetIn);
 void MilliSleep(int64_t n);
 
 std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime);
 
-static int64_t nNtpTimeOffset = 0;
 static std::vector<std::string> vDefaultNtpServers = {"de.pool.ntp.org",
                   "0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org",
                   "0.de.pool.ntp.org", "1.de.pool.ntp.org", "2.de.pool.ntp.org",
