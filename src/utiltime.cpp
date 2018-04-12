@@ -22,7 +22,7 @@ int64_t GetTime()
 
     time_t now = time(NULL);
     assert(now > 0);
-    return now;
+    return now + nNtpTimeOffset;
 }
 
 void SetMockTime(int64_t nMockTimeIn)
