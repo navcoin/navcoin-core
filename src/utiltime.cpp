@@ -9,6 +9,8 @@
 
 #include "utiltime.h"
 
+#include <chrono>
+
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
 
@@ -23,6 +25,14 @@ int64_t GetTime()
     time_t now = time(NULL);
     assert(now > 0);
     return now + nNtpTimeOffset;
+}
+
+int64_t GetSteadyTime()
+{
+    auto now = std::chrono::steady_clock::now();
+    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    assert(millisecs.count() > 0);
+    return millisecs.count()/1000;
 }
 
 void SetMockTime(int64_t nMockTimeIn)
