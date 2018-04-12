@@ -26,7 +26,7 @@ int64_t CNtpClient::getTimestamp()
         ip::udp::socket socket(io_service);
         socket.open(ip::udp::v4());
 
-        boost::array<unsigned char, 48> sendBuf = {{10,0,0,0,0,0,0,0,0}};
+        boost::array<unsigned char, 48> sendBuf = {{010,0,0,0,0,0,0,0,0}};
 
         socket.send_to(boost::asio::buffer(sendBuf), receiver_endpoint);
 
@@ -40,7 +40,7 @@ int64_t CNtpClient::getTimestamp()
             struct timeval timeStruct;
 
             // set the timeout to 5 seconds
-            timeStruct.tv_sec = GetArg("-ntptimeout", 5);
+            timeStruct.tv_sec = GetArg("-ntptimeout", 10);
             timeStruct.tv_usec = 0;
             FD_ZERO(&fileDescriptorSet);
 
@@ -63,7 +63,7 @@ int64_t CNtpClient::getTimestamp()
                 timeRecv = ntohl((time_t)recvBuf[4]);
                 timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
 
-                LogPrint("ntp", "CNtpClient: Received timestamp: %ll", (long)timeRecv);
+                LogPrint("ntp", "CNtpClient: Received timestamp: %ll \n", (uint64_t)timeRecv);
 
             }
 
