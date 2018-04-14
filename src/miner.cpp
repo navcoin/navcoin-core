@@ -751,10 +751,12 @@ void NavCoinStaker(const CChainParams& chainparams)
 
             if (nLastTime != 0 && nLastSteadyTime != 0)
             {
-                int64_t nClockDifference = GetTime() - nLastTime;
+                int64_t nClockDifference = GetTimeMillis() - nLastTime;
                 int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
 
-                if(abs(nClockDifference - nSteadyClockDifference) > 0xF)
+                LogPrintf("%d\n", nClockDifference - nSteadyClockDifference);
+
+                if(abs(nClockDifference - nSteadyClockDifference) > 1000)
                 {
                     if(!NtpClockSync())
                     {

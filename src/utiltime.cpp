@@ -33,7 +33,7 @@ int64_t GetSteadyTime()
     auto now = std::chrono::steady_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     assert(millisecs.count() > 0);
-    return millisecs.count()/1000;
+    return millisecs.count();
 }
 
 void SetMockTime(int64_t nMockTimeIn)
