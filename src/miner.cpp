@@ -749,30 +749,27 @@ void NavCoinStaker(const CChainParams& chainparams)
                 MilliSleep(1000);
             }
 
-            if (GetTime() % 0xF == 0)
+            if (nLastTime != 0 && nLastSteadyTime != 0)
             {
-                if (nLastTime != 0 && nLastSteadyTime != 0)
-                {
-                    int64_t nClockDifference = GetTime() - nLastTime;
-                    int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
+                int64_t nClockDifference = GetTime() - nLastTime;
+                int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
 
-                    if(abs(nClockDifference - nSteadyClockDifference) > 0xF)
+                if(abs(nClockDifference - nSteadyClockDifference) > 0xF)
+                {
+                    if(!NtpClockSync())
                     {
-                        if(!NtpClockSync())
-                        {
-                            string strMessage = "System clock change detected! Could not synchronize with NTP servers. Aborting node!";
-                            string userMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly."), _(PACKAGE_NAME));
-                            strMiscWarning = strMessage;
-                            LogPrintf("*** %s\n", strMessage);
-                            uiInterface.ThreadSafeMessageBox(userMessage, "", CClientUIInterface::MSG_ERROR);
-                            StartShutdown();
-                        }
+                        string strMessage = "System clock change detected! Could not synchronize with NTP servers. Aborting node!";
+                        string userMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly."), _(PACKAGE_NAME));
+                        strMiscWarning = strMessage;
+                        LogPrintf("*** %s\n", strMessage);
+                        uiInterface.ThreadSafeMessageBox(userMessage, "", CClientUIInterface::MSG_ERROR);
+                        StartShutdown();
                     }
                 }
-
-                nLastTime = GetTime();
-                nLastSteadyTime = GetSteadyTime();
             }
+
+            nLastTime = GetTime();
+            nLastSteadyTime = GetSteadyTime();
 
             //
             // Create new block
