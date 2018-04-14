@@ -754,8 +754,6 @@ void NavCoinStaker(const CChainParams& chainparams)
                 int64_t nClockDifference = GetTimeMillis() - nLastTime;
                 int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
 
-                LogPrintf("%d\n", nClockDifference - nSteadyClockDifference);
-
                 if(abs(nClockDifference - nSteadyClockDifference) > 1000)
                 {
                     if(!NtpClockSync())
@@ -770,7 +768,7 @@ void NavCoinStaker(const CChainParams& chainparams)
                 }
             }
 
-            nLastTime = GetTime();
+            nLastTime = GetTimeMillis();
             nLastSteadyTime = GetSteadyTime();
 
             //
