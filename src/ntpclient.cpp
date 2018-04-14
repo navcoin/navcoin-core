@@ -116,7 +116,7 @@ bool NtpClockSync() {
         int64_t nTimestamp = ntpClient.getTimestamp();
         if(nTimestamp > -1)
         {
-            int64_t nClockDrift = GetTime() - nTimestamp;
+            int64_t nClockDrift = GetTimeNow() - nTimestamp;
 
             // We push if its the first entry
             if(vResults.size() == 0)

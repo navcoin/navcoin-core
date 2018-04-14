@@ -28,6 +28,15 @@ int64_t GetTime()
     return now - GetNtpTimeOffset();
 }
 
+int64_t GetTimeNow()
+{
+    if (nMockTime) return nMockTime;
+
+    time_t now = time(NULL);
+    assert(now > 0);
+    return now;
+}
+
 int64_t GetSteadyTime()
 {
     auto now = std::chrono::steady_clock::now();
