@@ -4269,7 +4269,11 @@ bool CheckBlockSignature(const CBlock& block)
 
     if(whichType == TX_COLDSTAKING) // We need to get the public key from the input's scriptSig
     {
-        return CPubKey(block.vtx[1].vin[0].scriptSig.begin()+73,block.vtx[1].vin[0].scriptSig.end()).Verify(block.GetHash(), block.vchBlockSig);
+        if(block.vtx[1].vin[0].scriptSig.size() <= 0x21)
+            return false;
+
+        vector<unsigned char> signerPubKey(block.vtx[1].vin[0].scriptSig.end()-0x21,block.vtx[1].vin[0].scriptSig.end());
+        return CPubKey(signerPubKey).Verify(block.GetHash(), block.vchBlockSig);
     }
 
     LogPrintf("CheckBlockSignature: Unknown type\n");
