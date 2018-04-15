@@ -108,6 +108,8 @@ bool NtpClockSync() {
     int64_t nPrevMeasure = -1;
 
     random_shuffle(vNtpServers.begin(), vNtpServers.end(), GetRandInt);
+    
+    unsigned int nMeasureCount = 0;
 
     for(unsigned int i = 0; i < vNtpServers.size(); i++)
     {
@@ -117,9 +119,10 @@ bool NtpClockSync() {
         if(nTimestamp > -1)
         {
             int64_t nClockDrift = GetTimeNow() - nTimestamp;
+            nMeasureCount++;
 
             // We push if its the first entry
-            if(vResults.size() == 0)
+            if(nMeasureCount == 1)
             {
                 vResults.push_back(nClockDrift);
 
@@ -131,8 +134,8 @@ bool NtpClockSync() {
 
                 sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
             }
-            // or if we have two cached values, ensuring size of the vector is odd
-            else if (nPrevMeasure != -1)
+            // or if n.measure is odd, including prev measure too
+            else if (nMeasureCount % 2 == 1)
             {
                 vResults.push_back(nClockDrift);
 
@@ -153,9 +156,6 @@ bool NtpClockSync() {
                     sign = "-";
 
                 sReport += sPrevServer + "[" + sign + to_string(nPrevMeasure) + "sec.] ";
-
-                nPrevMeasure = -1;
-                sPrevServer = "";
             }
             else
             {
