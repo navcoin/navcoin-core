@@ -11,6 +11,7 @@
 #include <vector>
 
 #define MINIMUM_NTP_MEASURE 3
+#define MAXIMUM_TIME_OFFSET 30
 
 int64_t GetTime();
 int64_t GetTimeNow();
