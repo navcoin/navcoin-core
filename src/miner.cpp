@@ -27,6 +27,7 @@
 #include "timedata.h"
 #include "txmempool.h"
 #include "util.h"
+#include "utiltime.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
 #include "versionbits.h"
@@ -754,7 +755,7 @@ void NavCoinStaker(const CChainParams& chainparams)
                 int64_t nClockDifference = GetTimeMillis() - nLastTime;
                 int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
 
-                if(abs(nClockDifference - nSteadyClockDifference) > 1000)
+                if(abs64(nClockDifference - nSteadyClockDifference) > 1000)
                 {
                     if(!NtpClockSync())
                     {
@@ -773,7 +774,7 @@ void NavCoinStaker(const CChainParams& chainparams)
 
             //
             // Create new block
-            //<
+            //
             uint64_t nFees = 0;
 
             std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, true, &nFees));
