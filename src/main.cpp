@@ -31,6 +31,7 @@
 #include "script/sigcache.h"
 #include "script/standard.h"
 #include "tinyformat.h"
+#include "timedata.h"
 #include "txdb.h"
 #include "txmempool.h"
 #include "ui_interface.h"
@@ -6075,8 +6076,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             }
         }
 
-        pfrom->fSuccessfullyConnected = true;
-
         string remoteAddr;
         if (fLogIPs)
             remoteAddr = ", peeraddr=" + pfrom->addr.ToString();
@@ -6088,7 +6087,16 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         int64_t nTimeOffset = nTime - GetTime();
         pfrom->nTimeOffset = nTimeOffset;
-        AddTimeData(pfrom->addr, nTimeOffset);
+        if(abs64(pfrom->nTimeOffset) > GetArg("-maxtimeoffset", MAXIMUM_TIME_OFFSET))
+        {
+            LogPrintf("peer=%d clock drifts too much (%d); disconnecting\n", pfrom->id, pfrom->nTimeOffset);
+            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_INVALID,
+                               strprintf("Clock drift cannot be greater than %d. Please, adjust your clock.", GetArg("-maxtimeoffset", MAXIMUM_TIME_OFFSET)));
+            pfrom->fDisconnect = true;
+            return false;
+        }
+        pfrom->fSuccessfullyConnected = true;
+
     }
 
 
