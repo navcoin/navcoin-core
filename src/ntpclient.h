@@ -11,6 +11,8 @@
 #include <string>
 #include <iostream>
 
+#define DEFAULT_NTP_TIMEOUT 10
+
 using namespace std;
 
 class CNtpClient
