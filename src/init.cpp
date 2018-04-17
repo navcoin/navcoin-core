@@ -356,7 +356,11 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-addressindex", strprintf(_("Maintain a full address index, used to query for the balance, txids and unspent outputs for addresses (default: %u)"), DEFAULT_ADDRESSINDEX));
     strUsage += HelpMessageOpt("-timestampindex", strprintf(_("Maintain a timestamp index for block hashes, used to query blocks hashes by a range of timestamps (default: %u)"), DEFAULT_TIMESTAMPINDEX));
     strUsage += HelpMessageOpt("-spentindex", strprintf(_("Maintain a full spent index, used to query the spending txid and input index for an outpoint (default: %u)"), DEFAULT_SPENTINDEX));
-
+    strUsage += HelpMessageGroup(_("Clock options:"));
+    strUsage += HelpMessageOpt("-ntpserver=<ip/host>", _("Adds a ntp server to use for clock syncronization"));
+    strUsage += HelpMessageOpt("-ntpminmeasures=<n>", strprintf(_("Min. number of valid requests to NTP servers (default: %u)"), MINIMUM_NTP_MEASURE));
+    strUsage += HelpMessageOpt("-ntptimeout=<n>", strprintf(_("Number of seconds to wait for a response from a NTP server (default: %u)"), DEFAULT_NTP_TIMEOUT));
+    strUsage += HelpMessageOpt("-maxtimeoffset=<n>", strprintf(_("Max number of seconds allowed as clock offset for a peer (default: %u)"), MAXIMUM_TIME_OFFSET));
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open"));
     strUsage += HelpMessageOpt("-banscore=<n>", strprintf(_("Threshold for disconnecting misbehaving peers (default: %u)"), DEFAULT_BANSCORE_THRESHOLD));
