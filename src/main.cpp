@@ -2325,6 +2325,20 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     // undo unspent index
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), hash, k), CAddressUnspentValue()));
 
+
+                }  else if (out.scriptPubKey.IsPayToPublicKey()) {
+                    vector<unsigned char> vch(out.scriptPubKey.begin()+1, out.scriptPubKey.begin()+35);
+                    vector<unsigned char> hashBytes;
+                    hashBytes.reserve(20);
+                    CHash160().Write(begin_ptr(vch), vch.size()).Finalize(begin_ptr(hashBytes));
+
+                    // undo spending activity
+                    addressIndex.push_back(make_pair(CAddressIndexKey(3, uint160(hashBytes), pindex->nHeight, i, hash, k, true), out.nValue));
+
+                    // restore unspent index
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(3, uint160(hashBytes), hash, k), CAddressUnspentValue()));
+
+
                 } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
                     vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
 
@@ -2390,6 +2404,19 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                         // restore unspent index
                         addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
+
+
+                    } else if (prevout.scriptPubKey.IsPayToPublicKey()) {
+                        vector<unsigned char> vch(prevout.scriptPubKey.begin()+1, prevout.scriptPubKey.begin()+35);
+                        vector<unsigned char> hashBytes;
+                        hashBytes.reserve(20);
+                        CHash160().Write(begin_ptr(vch), vch.size()).Finalize(begin_ptr(hashBytes));
+
+                        // undo spending activity
+                        addressIndex.push_back(make_pair(CAddressIndexKey(3, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
+
+                        // restore unspent index
+                        addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(3, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
 
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
@@ -2828,6 +2855,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
                         hashBytes = uint160(vector <unsigned char>(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23));
                         addressType = 1;
+                    } else if (prevout.scriptPubKey.IsPayToPublicKey()) {
+                        vector<unsigned char> vch(prevout.scriptPubKey.begin()+1, prevout.scriptPubKey.begin()+35);
+                        vector<unsigned char> hashBytes;
+                        hashBytes.reserve(20);
+                        CHash160().Write(begin_ptr(vch), vch.size()).Finalize(begin_ptr(hashBytes));
+                        addressType = 3;
                     } else {
                         hashBytes.SetNull();
                         addressType = 0;
@@ -2915,6 +2948,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
+
+                } else if (out.scriptPubKey.IsPayToPublicKey()) {
+                    vector<unsigned char> vch(out.scriptPubKey.begin()+1, out.scriptPubKey.begin()+35);
+                    vector<unsigned char> hashBytes;
+                    hashBytes.reserve(20);
+                    CHash160().Write(begin_ptr(vch), vch.size()).Finalize(begin_ptr(hashBytes));
+
+                    // undo spending activity
+                    addressIndex.push_back(make_pair(CAddressIndexKey(3, uint160(hashBytes), pindex->nHeight, i, txhash, k, true), out.nValue));
+
+                    // restore unspent index
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(3, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
                 } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
                     vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
