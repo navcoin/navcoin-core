@@ -230,7 +230,7 @@ bool CScript::IsColdStaking() const
 
 bool CScript::IsPayToPublicKeyHash() const
 {
-    // Extra-fast test for pay-to-pubkey-hash CScripts:
+    // Extra-fast test for pay-to-pubkey CScripts:
     return (this->size() == 25 &&
 	    (*this)[0] == OP_DUP &&
 	    (*this)[1] == OP_HASH160 &&
