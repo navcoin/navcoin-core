@@ -2829,6 +2829,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
                 {
                     CAmount nCredit = pcoin.first->vout[pcoin.second].nValue;
+                    if(pcoin.first->vout[pcoin.second].scriptPubKey.IsColdStaking())
+                        wtxNew.fSpendsColdStaking = true;
                     //The coin age after the next block (depth+1) is used instead of the current,
                     //reflecting an assumption the user would accept a bit more delay for
                     //a chance at a free transaction.

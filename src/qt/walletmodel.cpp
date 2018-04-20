@@ -322,6 +322,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         newTx = new CWalletTx();
 
         fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true, rcp.strDZeel);
+        if (newTx->fSpendsColdStaking)
+            transaction.fSpendsColdStaking = true;
         transaction.vTransactions.push_back(*newTx);
 
         transaction.setTransactionFee(nFeeRequired);
