@@ -388,6 +388,22 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
     }
 
+    if (currentTransaction.fSpendsColdStaking && (!model->getOptionsModel()->getCoinControlFeatures() ||
+        (model->getOptionsModel()->getCoinControlFeatures() && !CNavCoinAddress(CoinControlDialog::coinControl->destChange).IsColdStakingAddress(Params()))))
+    {
+        SendConfirmationDialog confirmationDialog(tr("Confirm send coins"),
+            tr("This transaction will spend coins stored in a cold staking address.<br>You did not set any cold staking address as custom change destination, so those coins won't be locked anymore by the cold staking smart contract.<br><br>Do you still want to send this transaction?"), SEND_CONFIRM_DELAY, this);
+        confirmationDialog.exec();
+        QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
+
+        if(retval != QMessageBox::Yes)
+        {
+            fNewRecipientAllowed = true;
+            return;
+        }
+    }
+
+
     CAmount txFee = currentTransaction.getTransactionFee();
     CAmount anonfee;
     CAmount nTotalAmount = 0;
@@ -959,9 +975,24 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         }
         else // Valid address
         {
-            CKeyID keyid;
-            addr.GetKeyID(keyid);
-            if (!model->havePrivKey(keyid)) // Unknown change address
+            bool fHaveKey = false;
+            if(addr.IsColdStakingAddress(Params()))
+            {
+                CKeyID stakingId, spendingId;
+                addr.GetStakingKeyID(stakingId);
+                addr.GetSpendingKeyID(spendingId);
+                if(model->havePrivKey(stakingId) || model->havePrivKey(spendingId))
+                    fHaveKey = true;
+            }
+            else
+            {
+                CKeyID keyid;
+                addr.GetKeyID(keyid);
+                if(model->havePrivKey(keyid))
+                    fHaveKey = true;
+            }
+
+            if (!fHaveKey) // Unknown change address
             {
                 ui->labelCoinControlChangeLabel->setText(tr("Warning: Unknown change address"));
             }
