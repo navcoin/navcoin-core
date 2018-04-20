@@ -346,6 +346,26 @@ bool CNavCoinAddress::GetKeyID(CKeyID& keyID) const
     return true;
 }
 
+bool CNavCoinAddress::GetStakingKeyID(CKeyID& keyID) const
+{
+    if (!IsValid() || vchVersion != Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
+        return false;
+    uint160 id;
+    memcpy(&id, &vchData[0], 20);
+    keyID = CKeyID(id);
+    return true;
+}
+
+bool CNavCoinAddress::GetSpendingKeyID(CKeyID& keyID) const
+{
+    if (!IsValid() || vchVersion != Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
+        return false;
+    uint160 id;
+    memcpy(&id, &vchData[20], 20);
+    keyID = CKeyID(id);
+    return true;
+}
+
 bool CNavCoinAddress::IsScript() const
 {
     return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
