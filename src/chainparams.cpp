@@ -427,12 +427,12 @@ public:
         {
             printf("recalculating params for devnet.\n");
             printf("old devnet genesis nonce: %d\n", genesis.nNonce);
-            printf("old devnet genesis hash:  %s\n\n", hashGenesisBlock.ToString().c_str());
+            printf("old devnet genesis hash:  0x%s\n\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
             for(; genesis.GetHash() > consensus.powLimit; genesis.nNonce++){ }
-            printf("new devnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+            printf("new devnet genesis merkle root: 0x%s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new devnet genesis nonce: %d\n", genesis.nNonce);
-            printf("new devnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            printf("new devnet genesis hash: 0x%s\n", genesis.GetHash().ToString().c_str());
             printf("use the new values to update CDevNetParams class in src/chainparams.cpp\n");
         }
 
