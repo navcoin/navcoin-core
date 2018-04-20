@@ -338,6 +338,138 @@ public:
 static CTestNetParams testNetParams;
 
 /**
+ * Devnet (v3)
+ */
+class CDevNetParams : public CChainParams {
+public:
+    CDevNetParams() {
+        strNetworkID = "dev";
+        consensus.nSubsidyHalvingInterval = 210000;
+        consensus.nMajorityEnforceBlockUpgrade = 750;
+        consensus.nMajorityRejectBlockOutdated = 950;
+        consensus.nMajorityWindow = 1000;
+        consensus.BIP34Height = 900000;
+        consensus.BIP34Hash = uint256S("0x0");
+        consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
+        consensus.nPowTargetTimespan = 30;
+        consensus.nPowTargetSpacing = 30;
+        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.fPowNoRetargeting = false;
+        consensus.nRuleChangeActivationThreshold = 300; // 75% of 400
+        consensus.nMinerConfirmationWindow = 400;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        consensus.nStakeMinAge = 2;	// minimum for coin age: 2 seconds
+        consensus.nTargetSpacing = 30; // Blocktime: 30 secs
+        consensus.nStakeCombineThreshold = 1000 * COIN;
+        consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
+        consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
+        consensus.nTargetTimespan = 25 * 30;
+        consensus.nLastPOWBlock = 100000;
+        consensus.nVotingPeriod = 180; // 1.5 hours
+        consensus.nMinimumQuorum = 0.5;
+        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
+        consensus.nVotesAcceptProposal = 0.7;
+        consensus.nVotesRejectProposal = 0.7;
+        consensus.nVotesAcceptPaymentRequest = 0.7;
+        consensus.nVotesRejectPaymentRequest = 0.7;
+        consensus.nCommunityFundMinAge = 5;
+        consensus.nProposalMinimalFee = 10000;
+        consensus.sigActivationTime = 1512826692;
+
+        // Deployment of BIP68, BIP112, and BIP113.
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1556668800; // May 1st, 2019
+
+        // Deployment of SegWit (BIP141 and BIP143)
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 5;
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1556668800; // May 1st, 2019
+
+        // Deployment of Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556668800; // May 1st, 2019
+
+        /**
+         * The message start string is designed to be unlikely to occur in normal data.
+         * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
+         * a large 32-bit integer with any alignment.
+         */
+        pchMessageStart[0] = 0xa8;
+        pchMessageStart[1] = 0xb3;
+        pchMessageStart[2] = 0x89;
+        pchMessageStart[3] = 0xfa;
+        nDefaultPort = 18886;
+        nPruneAfterHeight = 1000;
+        bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
+
+        // To create a new devnet:
+        //
+        // 1) Replace nTimestamp with current timestamp.
+        uint32_t nTimestamp = 1524255895;
+        // 2) Rebuild
+        // 3) Launch daemon. It'll calculate the new parameters.
+        // 4) Update the following variables with the new values:
+        uint256 hashGenesisBlock = uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f");
+        uint256 hashMerkleRoot = uint256S("0xc9314161f5337394b2718149f7f2be4f1716e1e85cf3150f635ac9aa82bcd239");
+        uint32_t nNonce = 2043029139;
+        // 5) Rebuild. Launch daemon.
+        // 6) Generate first block using RPC command "./navcoin-cli generate 1"
+
+        genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
+        consensus.hashGenesisBlock = genesis.GetHash();
+
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
+        {
+            printf("recalculating params for devnet.\n");
+            printf("old devnet genesis nonce: %d\n", genesis.nNonce);
+            printf("old devnet genesis hash:  %s\n\n", hashGenesisBlock.ToString().c_str());
+            // deliberately empty for loop finds nonce value.
+            for(; genesis.GetHash() > consensus.powLimit; genesis.nNonce++){ }
+            printf("new devnet genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+            printf("new devnet genesis nonce: %d\n", genesis.nNonce);
+            printf("new devnet genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            printf("use the new values to update CDevNetParams class in src/chainparams.cpp\n");
+        }
+
+        vSeeds.push_back(CDNSSeedData("devnav.community", "devseed.nav.community"));
+        vSeeds.push_back(CDNSSeedData("devnet.navcoin.org", "devseed.navcoin.org"));
+
+        assert(consensus.hashGenesisBlock == hashGenesisBlock);
+        assert(genesis.hashMerkleRoot == hashMerkleRoot);
+
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
+        base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x40)(0x88)(0x2B)(0xE1).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x40)(0x88)(0xDA)(0x4E).convert_to_container<std::vector<unsigned char> >();
+
+        vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_dev, pnSeed6_dev + ARRAYLEN(pnSeed6_dev));
+
+        fMiningRequiresPeers = true;
+        fDefaultConsistencyChecks = false;
+        fRequireStandard = false;
+        fMineBlocksOnDemand = false;
+        fTestnetToBeDeprecatedFieldRPC = true;
+
+        checkpointData = (CCheckpointData) {
+            boost::assign::map_list_of
+            ( 0,     hashGenesisBlock),
+            1515437594, // * UNIX timestamp of last checkpoint block
+            0,          // * total number of transactions between genesis and last checkpoint
+                        //   (the tx=... number in the SetBestChain debug.log lines)
+            7000         // * estimated number of transactions per day after checkpoint
+        };
+
+    }
+};
+static CDevNetParams devNetParams;
+
+/**
  * Regression test
  */
 class CRegTestParams : public CChainParams {
@@ -475,6 +607,8 @@ CChainParams& Params(const std::string& chain)
             return mainParams;
     else if (chain == CBaseChainParams::TESTNET)
             return testNetParams;
+    else if (chain == CBaseChainParams::DEVNET)
+            return devNetParams;
     else if (chain == CBaseChainParams::REGTEST)
             return regTestParams;
     else
