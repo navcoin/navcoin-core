@@ -234,6 +234,10 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
                 {
                     SelectParams(CBaseChainParams::TESTNET);
                 }
+                else if (address.IsValid(Params(CBaseChainParams::DEVNET)))
+                {
+                    SelectParams(CBaseChainParams::DEVNET);
+                }
             }
         }
         else if (QFile::exists(arg)) // Filename
@@ -250,6 +254,10 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
                 else if (request.getDetails().network() == "test")
                 {
                     SelectParams(CBaseChainParams::TESTNET);
+                }
+                else if (request.getDetails().network() == "dev")
+                {
+                    SelectParams(CBaseChainParams::DEVNET);
                 }
             }
         }
