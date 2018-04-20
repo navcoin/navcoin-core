@@ -250,6 +250,7 @@ public:
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
+    mutable bool fSpendsColdStaking;
     mutable CAmount nDebitCached;
     mutable CAmount nCreditCached;
     mutable CAmount nImmatureCreditCached;
@@ -306,6 +307,7 @@ public:
         fColdStakingDebitCached = false;
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
+        fSpendsColdStaking = false;
         fChangeCached = false;
         fAnon = false;
         fCFund = false;
