@@ -416,6 +416,7 @@ public:
         if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
         {
             printf("recalculating params for devnet.\n");
+            printf("old devnet genesis merkle root:  0x%s\n\n", hashMerkleRoot.ToString().c_str());
             printf("old devnet genesis nonce: %d\n", genesis.nNonce);
             printf("old devnet genesis hash:  0x%s\n\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
