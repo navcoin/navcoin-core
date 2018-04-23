@@ -109,6 +109,7 @@ private:
     QAction *usedReceivingAddressesAction;
     QAction *repairWalletAction;
     QAction *importPrivateKeyAction;
+    QAction *bootstrapBlockchainAction;
     QAction *exportMasterPrivateKeyAction;
     QAction *signMessageAction;
     QAction *verifyMessageAction;
@@ -250,6 +251,8 @@ private Q_SLOTS:
     void showHelpMessageClicked();
     /** Toggle Staking **/
     void toggleStaking();
+    /** Bootstrap blockchain **/
+    void bootstrapBlockchain();
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
