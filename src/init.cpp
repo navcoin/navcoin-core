@@ -35,6 +35,7 @@
 #include "txmempool.h"
 #include "torcontrol.h"
 #include "ui_interface.h"
+#include "untar.h"
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
@@ -57,6 +58,7 @@
 #include <boost/function.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
+#include <curl/curl.h>
 #include <openssl/crypto.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
@@ -101,6 +103,34 @@ enum BindFlags {
 };
 
 static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
+
+static float fBootstrapProgress = 0.0;
+
+static int xferinfo(void *p,
+                    curl_off_t dltotal, curl_off_t dlnow,
+                    curl_off_t ultotal, curl_off_t ulnow)
+{
+    float fProgress = (float)dlnow/(float)dltotal*100.0f;
+    if (fProgress == fBootstrapProgress)
+        return 0;
+
+    uiInterface.InitMessage(strprintf("[BOOTSTRAP] Downloaded %" CURL_FORMAT_CURL_OFF_T "MB of %" CURL_FORMAT_CURL_OFF_T
+                                      "MB  (%.2f%%)",
+                                      dlnow/(1024*1024), dltotal/(1024*1024), (float)dlnow/(float)dltotal*100.0f));
+    fprintf(stdout, "[BOOTSTRAP] Downloaded %" CURL_FORMAT_CURL_OFF_T "MB of %" CURL_FORMAT_CURL_OFF_T
+            "MB  (%.2f%%)    \r",
+            dlnow/(1024*1024), dltotal/(1024*1024), fProgress);
+
+    fBootstrapProgress = fProgress;
+
+    return 0;
+}
+
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    size_t written;
+    written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -302,7 +332,7 @@ void OnRPCPreCommand(const CRPCCommand& cmd)
     // Observe safe mode
     string strWarning = GetWarnings("rpc");
     if (strWarning != "" && !GetBoolArg("-disablesafemode", DEFAULT_DISABLE_SAFEMODE) &&
-        !cmd.okSafeMode)
+            !cmd.okSafeMode)
         throw JSONRPCError(RPC_FORBIDDEN_BY_SAFE_MODE, string("Safe mode: ") + strWarning);
 }
 
@@ -337,13 +367,13 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-maxmempool=<n>", strprintf(_("Keep the transaction memory pool below <n> megabytes (default: %u)"), DEFAULT_MAX_MEMPOOL_SIZE));
     strUsage += HelpMessageOpt("-mempoolexpiry=<n>", strprintf(_("Do not keep transactions in the mempool longer than <n> hours (default: %u)"), DEFAULT_MEMPOOL_EXPIRY));
     strUsage += HelpMessageOpt("-par=<n>", strprintf(_("Set the number of script verification threads (%u to %d, 0 = auto, <0 = leave that many cores free, default: %d)"),
-        -GetNumCores(), MAX_SCRIPTCHECK_THREADS, DEFAULT_SCRIPTCHECK_THREADS));
+                                                     -GetNumCores(), MAX_SCRIPTCHECK_THREADS, DEFAULT_SCRIPTCHECK_THREADS));
 #ifndef WIN32
     strUsage += HelpMessageOpt("-pid=<file>", strprintf(_("Specify pid file (default: %s)"), NAVCOIN_PID_FILENAME));
 #endif
     strUsage += HelpMessageOpt("-prune=<n>", strprintf(_("Reduce storage requirements by pruning (deleting) old blocks. This mode is incompatible with -txindex and -rescan. "
-            "Warning: Reverting this setting requires re-downloading the entire blockchain. "
-            "(default: 0 = disable pruning blocks, >%u = target size in MiB to use for block files)"), MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024));
+                                                         "Warning: Reverting this setting requires re-downloading the entire blockchain. "
+                                                         "(default: 0 = disable pruning blocks, >%u = target size in MiB to use for block files)"), MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024));
     strUsage += HelpMessageOpt("-reindex-chainstate", _("Rebuild chain state from the currently indexed blocks"));
     strUsage += HelpMessageOpt("-reindex", _("Rebuild chain state and block index from the blk*.dat files on disk"));
 #ifndef WIN32
@@ -392,7 +422,7 @@ std::string HelpMessage(HelpMessageMode mode)
 #endif
     strUsage += HelpMessageOpt("-whitebind=<addr>", _("Bind to given address and whitelist peers connecting to it. Use [host]:port notation for IPv6"));
     strUsage += HelpMessageOpt("-whitelist=<netmask>", _("Whitelist peers connecting from the given netmask or IP address. Can be specified multiple times.") +
-        " " + _("Whitelisted peers cannot be DoS banned and their transactions are always relayed, even if they are already in the mempool, useful e.g. for a gateway"));
+                               " " + _("Whitelisted peers cannot be DoS banned and their transactions are always relayed, even if they are already in the mempool, useful e.g. for a gateway"));
     strUsage += HelpMessageOpt("-whitelistrelay", strprintf(_("Accept relayed transactions received from whitelisted peers even when not relaying transactions (default: %d)"), DEFAULT_WHITELISTRELAY));
     strUsage += HelpMessageOpt("-whitelistforcerelay", strprintf(_("Force relay of transactions from whitelisted peers even they violate local relay policy (default: %d)"), DEFAULT_WHITELISTFORCERELAY));
     strUsage += HelpMessageOpt("-maxuploadtarget=<n>", strprintf(_("Tries to keep outbound traffic under the given target (in MiB per 24h), 0 = no limit (default: %d)"), DEFAULT_MAX_UPLOAD_TARGET));
@@ -430,7 +460,7 @@ std::string HelpMessage(HelpMessageMode mode)
     if (mode == HMM_NAVCOIN_QT)
         debugCategories += ", qt";
     strUsage += HelpMessageOpt("-debug=<category>", strprintf(_("Output debugging information (default: %u, supplying <category> is optional)"), 0) + ". " +
-        _("If <category> is not supplied or if <category> = 1, output all debugging information.") + _("<category> can be:") + " " + debugCategories + ".");
+                               _("If <category> is not supplied or if <category> = 1, output all debugging information.") + _("<category> can be:") + " " + debugCategories + ".");
     if (showDebug)
         strUsage += HelpMessageOpt("-nodebug", "Turn off debugging messages, same as -debug=0");
     strUsage += HelpMessageOpt("-help-debug", _("Show all debugging options (usage: --help -help-debug)"));
@@ -446,9 +476,9 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-maxtipage=<n>", strprintf("Maximum tip age in seconds to consider node in initial block download (default: %u)", DEFAULT_MAX_TIP_AGE));
     }
     strUsage += HelpMessageOpt("-minrelaytxfee=<amt>", strprintf(_("Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation"),
-        CURRENCY_UNIT));
+                                                                 CURRENCY_UNIT));
     strUsage += HelpMessageOpt("-maxtxfee=<amt>", strprintf(_("Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions"),
-        CURRENCY_UNIT));
+                                                            CURRENCY_UNIT));
     strUsage += HelpMessageOpt("-printtoconsole", _("Send trace/debug info to console instead of debug.log file"));
     if (showDebug)
     {
@@ -498,20 +528,20 @@ std::string LicenseInfo()
     const std::string URL_WEBSITE = "<https://navcoin.org>";
     // todo: remove urls from translations on next change
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2009, COPYRIGHT_YEAR) + " ") + "\n" +
-           "\n" +
-           strprintf(_("Please contribute if you find %s useful. "
-                       "Visit %s for further information about the software."),
-               PACKAGE_NAME, URL_WEBSITE) +
-           "\n" +
-           strprintf(_("The source code is available from %s."),
-               URL_SOURCE_CODE) +
-           "\n" +
-           "\n" +
-           _("This is experimental software.") + "\n" +
-           _("Distributed under the MIT software license, see the accompanying file COPYING or <http://www.opensource.org/licenses/mit-license.php>.") + "\n" +
-           "\n" +
-           _("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.") +
-           "\n";
+            "\n" +
+            strprintf(_("Please contribute if you find %s useful. "
+                        "Visit %s for further information about the software."),
+                      PACKAGE_NAME, URL_WEBSITE) +
+            "\n" +
+            strprintf(_("The source code is available from %s."),
+                      URL_SOURCE_CODE) +
+            "\n" +
+            "\n" +
+            _("This is experimental software.") + "\n" +
+            _("Distributed under the MIT software license, see the accompanying file COPYING or <http://www.opensource.org/licenses/mit-license.php>.") + "\n" +
+            "\n" +
+            _("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.") +
+            "\n";
 }
 
 static void BlockNotifyCallback(bool initialSync, const CBlockIndex *pBlockIndex)
@@ -557,8 +587,8 @@ void CleanupBlockRevFiles()
     path blocksdir = GetDataDir() / "blocks";
     for (directory_iterator it(blocksdir); it != directory_iterator(); it++) {
         if (is_regular_file(*it) &&
-            it->path().filename().string().length() == 12 &&
-            it->path().filename().string().substr(8,4) == ".dat")
+                it->path().filename().string().length() == 12 &&
+                it->path().filename().string().substr(8,4) == ".dat")
         {
             if (it->path().filename().string().substr(0,3) == "blk")
                 mapBlockFiles[it->path().filename().string().substr(3,5)] = it->path();
@@ -780,6 +810,63 @@ void InitLogging()
  */
 bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 {
+    // ********************************************************* Step 0: download bootstrap
+    std::string sBootstrap = GetArg("-bootstrap","");
+
+    if(sBootstrap != "")
+    {
+        RemoveConfigFile("bootstrap");
+        uiInterface.InitMessage(strprintf("[BOOTSTRAP] Trying to download from %s", sBootstrap.c_str()));
+        CURL *curl;
+        FILE *fp, *a;
+        CURLcode res;
+
+        curl = curl_easy_init();
+        if (curl) {
+            std::string sDownload = (GetDataDir(false).string() + "/bootstrap_temp.tar");
+            fp = fopen(sDownload.c_str(),"wb");
+            curl_easy_setopt(curl, CURLOPT_URL, sBootstrap.c_str());
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+            curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xferinfo);
+            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+            res = curl_easy_perform(curl);
+            if (res != CURLE_OK) {
+                curl_easy_cleanup(curl);
+                curl_global_cleanup();
+                return InitError("[BOOTSTRAP] Failed!");
+            } else {
+                curl_easy_cleanup(curl);
+                curl_global_cleanup();
+                int i=fclose(fp);
+                if(i==0) {
+                    uiInterface.InitMessage("[BOOTSTRAP] Downloaded");
+                    a = fopen(sDownload.c_str(), "rb");
+                    if (a == NULL) {
+                        boost::filesystem::remove_all(sDownload);
+                        return InitError("[BOOTSTRAP] Unable to open downloaded file.");
+                    } else {
+                        boost::filesystem::remove_all(GetDataDir(false) / "blocks");
+                        boost::filesystem::remove_all(GetDataDir(false) / "chainstate");
+                        boost::filesystem::remove_all(GetDataDir(false) / "cfund");
+                        bool fOk = untar(a, sDownload.c_str());
+                        fclose(a);
+                        boost::filesystem::remove_all(sDownload);
+                        if(!fOk)
+                            return InitError("[BOOTSTRAP] Could not extract data.");
+                    }
+                } else {
+                    return InitError("[BOOTSTRAP] Failed!");
+                }
+            }
+        } else {
+            return InitError("[BOOTSTRAP] Failed!");
+            return 1;
+        }
+    }
+
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
     // Turn off Microsoft heap dump noise
@@ -1103,7 +1190,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     strSubVersion = FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, uacomments);
     if (strSubVersion.size() > MAX_SUBVERSION_LENGTH) {
         return InitError(strprintf(_("Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments."),
-            strSubVersion.size(), MAX_SUBVERSION_LENGTH));
+                                   strSubVersion.size(), MAX_SUBVERSION_LENGTH));
     }
 
     if (mapArgs.count("-onlynet")) {
@@ -1208,7 +1295,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
     BOOST_FOREACH(const std::string& strDest, mapMultiArgs["-seednode"])
-        AddOneShot(strDest);
+            AddOneShot(strDest);
 
 #if ENABLE_ZMQ
     pzmqNotificationInterface = CZMQNotificationInterface::CreateWithArguments(mapArgs);
@@ -1375,7 +1462,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 uiInterface.InitMessage(_("Verifying blocks..."));
                 if (fHavePruned && GetArg("-checkblocks", DEFAULT_CHECKBLOCKS) > MIN_BLOCKS_TO_KEEP) {
                     LogPrintf("Prune: pruned datadir may not have more than %d blocks; only checking available blocks",
-                        MIN_BLOCKS_TO_KEEP);
+                              MIN_BLOCKS_TO_KEEP);
                 }
 
                 {
@@ -1383,8 +1470,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     CBlockIndex* tip = chainActive.Tip();
                     if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
                         strLoadError = _("The block database contains a block which appears to be from the future. "
-                                "This may be due to your computer's date and time being set incorrectly. "
-                                "Only rebuild the block database if you are sure that your computer's date and time are correct");
+                                         "This may be due to your computer's date and time being set incorrectly. "
+                                         "Only rebuild the block database if you are sure that your computer's date and time are correct");
                         break;
                     }
                     int nTipHeight = 0;
@@ -1394,13 +1481,13 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                         nTipHeight = tip->nHeight;
                     if(nTipHeight > 0 && nTipHeight != pcfundindex->ReadTipHeight() && fCFEnabled) {
                         strLoadError = _("The community fund database looks to be corrupted. "
-                                "You will need to rebuild the block database.");
+                                         "You will need to rebuild the block database.");
                         break;
                     }
                 }
 
                 if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
-                              GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
+                                          GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
                     strLoadError = _("Corrupted block database detected");
                     break;
                 }
@@ -1417,9 +1504,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             // first suggest a reindex
             if (!fReset) {
                 bool fRet = uiInterface.ThreadSafeQuestion(
-                    strLoadError + ".\n\n" + _("Do you want to rebuild the block database now?"),
-                    strLoadError + ".\nPlease restart with -reindex or -reindex-chainstate to recover.",
-                    "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
+                            strLoadError + ".\n\n" + _("Do you want to rebuild the block database now?"),
+                            strLoadError + ".\nPlease restart with -reindex or -reindex-chainstate to recover.",
+                            "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
                 if (fRet) {
                     fReindex = true;
                     fRequestShutdown = false;
@@ -1498,7 +1585,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (mapArgs.count("-loadblock"))
     {
         BOOST_FOREACH(const std::string& strFile, mapMultiArgs["-loadblock"])
-            vImportFiles.push_back(strFile);
+                vImportFiles.push_back(strFile);
     }
     threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
 
