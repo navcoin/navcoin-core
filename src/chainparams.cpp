@@ -414,9 +414,9 @@ public:
         // 2) Rebuild
         // 3) Launch daemon. It'll calculate the new parameters.
         // 4) Update the following variables with the new values:
-        uint256 hashGenesisBlock = uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f");
-        uint256 hashMerkleRoot = uint256S("0xc9314161f5337394b2718149f7f2be4f1716e1e85cf3150f635ac9aa82bcd239");
-        uint32_t nNonce = 2043029139;
+        uint256 hashGenesisBlock = uint256S("0x000006e5f7fec9bda4e53a693690ed65cbbc3ec551e273f3afc0f");
+        uint256 hashMerkleRoot = uint256S("0x073b8fa5d47d81c7f9fb427c73913a3106ad8aebb4d64d");
+        uint32_t nNonce = 2043079816;
         // 5) Rebuild. Launch daemon.
         // 6) Generate first block using RPC command "./navcoin-cli generate 1"
 
