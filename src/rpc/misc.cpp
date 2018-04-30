@@ -191,7 +191,6 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
 
     string address_str = params[0].get_str();
 
-#ifdef HAVE_UNBOUND
     utils::DNSResolver *DNS = nullptr;
     bool dnssec_valid;
 
@@ -209,7 +208,6 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
         }
 
     }
-#endif
 
     CNavCoinAddress address(address_str);
     bool isValid = address.IsValid();
@@ -221,10 +219,8 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
         CTxDestination dest = address.Get();
         string currentAddress = address.ToString();
         ret.push_back(Pair("address", currentAddress));
-#ifdef HAVE_UNBOUND
         if(DNS->check_address_syntax(params[0].get_str().c_str()))
             ret.push_back(Pair("dnssec", dnssec_valid));
-#endif
 
         CScript scriptPubKey = GetScriptForDestination(dest);
         ret.push_back(Pair("scriptPubKey", HexStr(scriptPubKey.begin(), scriptPubKey.end())));
