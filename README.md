@@ -39,6 +39,14 @@ https://navcoin.org/project-roadmap/
 | Instagram | https://www.instagram.com/nav.coin.official/ |
 | Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
 
+## Community Resources
+
+| Site | link |
+|:-----------|:-----------|
+| Trello Board | [https://trello.com/nav-community](https://trello.com/invite/b/rPdvVVL4/ba5c40a885fd3c02cda2a8b406ff7124/nav-community) |
+| Nav Community | http://navcommunity.net |
+
+
 
 License
 ---------------------
