@@ -252,7 +252,7 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
     }
 }
 
-std::string random_string( size_t length )
+static std::string random_string( size_t length )
 {
     auto randchar = []() -> char
     {
