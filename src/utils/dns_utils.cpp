@@ -39,6 +39,7 @@
 #include <random>
 #include <regex>
 #include <sstream>
+#include <string>
 #ifdef HAVE_UNBOUND
 #include <unbound.h>
 #else
@@ -277,7 +278,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         return addresses;
 
     if (curl) {
-        std::string serverURL = "https://dns.google.com/resolve?name="+url+"&type=16&cd=0&edns_client_subnet=0.0.0.0/0&random_padding=" + random_string(253 - url.length());
+        std::string serverURL = "https://dns.google.com/resolve?name="+url+"&type="+std::to_string(record_type)+"&cd=0&edns_client_subnet=0.0.0.0/0&random_padding=" + random_string(253 - url.length());
         int httpCode(0);
         std::string readBuffer = "";
 
@@ -394,20 +395,21 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
             return match[1];
         return {};
     }
+
     /**
- * @brief gets a navcoin address from the TXT record of a DNS entry
- *
- * gets the navcoin address from the  TXT  record of the DNS entry associated
- * with  <url>.   If this lookup fails,  or the TXT record does not contain a
- * NAV address in the correct format, returns an empty string. <dnssec_valid>
- * will be set true or false according to whether or not the DNS query passes
- * DNSSEC validation.
- *
- * @param url the url to look up
- * @param dnssec_valid return-by-reference for DNSSEC status of query
- *
- * @return a navcoin address (as a string) or an empty string
- */
+     * @brief gets a navcoin address from the TXT record of a DNS entry
+     *
+     * gets the navcoin address from the  TXT  record of the DNS entry associated
+     * with  <url>.   If this lookup fails,  or the TXT record does not contain a
+     * NAV address in the correct format, returns an empty string. <dnssec_valid>
+     * will be set true or false according to whether or not the DNS query passes
+     * DNSSEC validation.
+     *
+     * @param url the url to look up
+     * @param dnssec_valid return-by-reference for DNSSEC status of query
+     *
+     * @return a navcoin address (as a string) or an empty string
+     */
     std::vector<std::string> addresses_from_url(const std::string& url, bool& dnssec_valid)
     {
         std::vector<std::string> addresses;
