@@ -257,7 +257,7 @@ public:
         // coinbase height
         ::Unserialize(s, VARINT(nHeight), nType, nVersion);
         // transaction time
-        ::Unserialize(s, VARINT(nHeight), nType, nVersion);
+        ::Unserialize(s, VARINT(nTime), nType, nVersion);
         Cleanup();
     }
 
