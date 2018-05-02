@@ -19,7 +19,7 @@
 #include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
 
-/** 
+/**
  * Pruned version of CTransaction: only retains metadata and unspent transaction outputs
  *
  * Serialized format:
@@ -37,10 +37,10 @@
  *   - In case both bit 1 and bit 2 are unset, they encode N-1, as there must be at
  *     least one non-spent output).
  *
- * Example: 0104835800816115944e077fe7c803cfa57f29b36bf87c1d358bb85e
- *          <><><--------------------------------------------><---->
- *          |  \                  |                             /
- *    version   code             vout[1]                  height
+ * Example: 0104835800816115944e077fe7c803cfa57f29b36bf87c1d358bb85e5ae9821e
+ *          <><><--------------------------------------------><----><------>
+ *          |  \                  |                             /      |
+ *    version   code             vout[1]                  height     nTime
  *
  *    - version = 1
  *    - code = 4 (vout[1] is not spent, and 0 non-zero bytes of bitvector follow)
@@ -50,12 +50,13 @@
  *               * 00: special txout type pay-to-pubkey-hash
  *               * 816115944e077fe7c803cfa57f29b36bf87c1d35: address uint160
  *    - height = 203998
+ *  - nTime = 1525252638
  *
  *
- * Example: 0109044086ef97d5790061b01caab50f1b8e9c50a5057eb43c2d9563a4eebbd123008c988f1a4a4de2161e0f50aac7f17e7f9555caa486af3b
- *          <><><--><--------------------------------------------------><----------------------------------------------><---->
- *         /  \   \                     |                                                           |                     /
- *  version  code  unspentness       vout[4]                                                     vout[16]           height
+ * Example: 0109044086ef97d5790061b01caab50f1b8e9c50a5057eb43c2d9563a4eebbd123008c988f1a4a4de2161e0f50aac7f17e7f9555caa486af3b5ae9821e
+ *          <><><--><--------------------------------------------------><----------------------------------------------><----><------>
+ *         /  \   \                     |                                                           |                     /      |
+ *  version  code  unspentness       vout[4]                                                     vout[16]           height     nTime
  *
  *  - version = 1
  *  - code = 9 (coinbase, neither vout[0] or vout[1] are unspent,
@@ -70,6 +71,7 @@
  *              * 00: special txout type pay-to-pubkey-hash
  *              * 8c988f1a4a4de2161e0f50aac7f17e7f9555caa4: address uint160
  *  - height = 120891
+ *  - nTime = 1525252638
  */
 class CCoins
 {
@@ -88,12 +90,16 @@ public:
     //! as new tx version will probably only be introduced at certain heights
     int nVersion;
 
+    //! time of the transaction
+    unsigned int nTime;
+
     void FromTx(const CTransaction &tx, int nHeightIn) {
         fCoinBase = tx.IsCoinBase();
         fCoinStake = tx.IsCoinStake();
         vout = tx.vout;
         nHeight = nHeightIn;
         nVersion = tx.nVersion;
+        nTime = tx.nTime;
         ClearUnspendable();
     }
 
@@ -108,10 +114,11 @@ public:
         std::vector<CTxOut>().swap(vout);
         nHeight = 0;
         nVersion = 0;
+        nTime = 0;
     }
 
     //! empty constructor
-    CCoins() : fCoinBase(false), fCoinStake(false), vout(0), nHeight(0), nVersion(0) { }
+    CCoins() : fCoinBase(false), fCoinStake(false), vout(0), nHeight(0), nVersion(0), nTime(0) { }
 
     //!remove spent outputs at the end of vout
     void Cleanup() {
@@ -135,6 +142,7 @@ public:
         to.vout.swap(vout);
         std::swap(to.nHeight, nHeight);
         std::swap(to.nVersion, nVersion);
+        std::swap(to.nTime, nTime);
     }
 
     //! equality test
@@ -145,6 +153,7 @@ public:
          return a.fCoinBase == b.fCoinBase &&
                 a.nHeight == b.nHeight &&
                 a.nVersion == b.nVersion &&
+                a.nTime == b.nTime &&
                 a.vout == b.vout;
     }
     friend bool operator!=(const CCoins &a, const CCoins &b) {
@@ -181,6 +190,7 @@ public:
                 nSize += ::GetSerializeSize(CTxOutCompressor(REF(vout[i])), nType, nVersion);
         // height
         nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
+        nSize += ::GetSerializeSize(VARINT(nTime), nType, nVersion);
         return nSize;
     }
 
@@ -211,6 +221,8 @@ public:
         }
         // coinbase height
         ::Serialize(s, VARINT(nHeight), nType, nVersion);
+        // transaction time
+        ::Serialize(s, VARINT(nTime), nType, nVersion);
     }
 
     template<typename Stream>
@@ -243,6 +255,8 @@ public:
                 ::Unserialize(s, REF(CTxOutCompressor(vout[i])), nType, nVersion);
         }
         // coinbase height
+        ::Unserialize(s, VARINT(nHeight), nType, nVersion);
+        // transaction time
         ::Unserialize(s, VARINT(nHeight), nType, nVersion);
         Cleanup();
     }
@@ -373,10 +387,10 @@ public:
 
 class CCoinsViewCache;
 
-/** 
+/**
  * A reference to a mutable cache entry. Encapsulating it allows us to run
  *  cleanup code after the modification is finished, and keeping track of
- *  concurrent modifications. 
+ *  concurrent modifications.
  */
 class CCoinsModifier
 {
@@ -403,7 +417,7 @@ protected:
 
     /**
      * Make mutable so that we can "fill the cache" even from Get-methods
-     * declared as "const".  
+     * declared as "const".
      */
     mutable uint256 hashBlock;
     mutable CCoinsMap cacheCoins;
@@ -473,7 +487,7 @@ public:
     //! Calculate the size of the cache (in bytes)
     size_t DynamicMemoryUsage() const;
 
-    /** 
+    /**
      * Amount of navcoins coming in to a transaction
      * Note that lightweight clients may not know anything besides the hash of previous transactions,
      * so may not be able to calculate this.
