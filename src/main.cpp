@@ -7918,10 +7918,10 @@ bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge)
     BOOST_FOREACH(const CTxIn& txin, transaction.vin)
     {
         // First try finding the previous transaction in database
-        CTransaction txPrev;
+        CCoins txPrev;
         uint256 hashBlock = uint256();
 
-        if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+        if (!GetCoins(txin.prevout.hash, txPrev, hashBlock))
             continue;  // previous transaction not in main chain
 
         if (transaction.nTime < txPrev.nTime)
@@ -8142,7 +8142,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
 }
 
 
-static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, unsigned int nTimeBlockFrom, const CTransaction& txPrev, const COutPoint& prevout, unsigned int nTimeTx, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, bool fPrintProofOfStake)
+static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, unsigned int nTimeBlockFrom, const CCoins& txPrev, const COutPoint& prevout, unsigned int nTimeTx, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, bool fPrintProofOfStake)
 {
 
     if (nTimeTx < txPrev.nTime)  // Transaction timestamp violation
@@ -8203,7 +8203,7 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
     return true;
 }
 
-bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockIndex& blockFrom, const CTransaction& txPrev, const COutPoint& prevout, unsigned int nTimeTx, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, bool fPrintProofOfStake)
+bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockIndex& blockFrom, const CCoins& txPrev, const COutPoint& prevout, unsigned int nTimeTx, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, bool fPrintProofOfStake)
 {
     // if (IsProtocolV2(pindexPrev->nHeight+1))
         return CheckStakeKernelHashV2(pindexPrev, nBits, blockFrom.GetBlockTime(), txPrev, prevout, nTimeTx, hashProofOfStake, targetProofOfStake, true);
@@ -8220,9 +8220,9 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     // Kernel (input 0) must match the stake hash target per coin age (nBits)
     const CTxIn& txin = tx.vin[0];
 
-    CTransaction txPrev;
+    CCoins txPrev;
     uint256 hashBlock = uint256();
-    if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+    if (!GetCoins(txin.prevout.hash, txPrev, hashBlock))
         return error("CheckProofOfStake() : INFO: read txPrev failed %s",txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
 
     if (pvChecks)
@@ -8251,8 +8251,8 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
 
     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-    if (txin.prevout.hash != txPrev.GetHash())
-        return error("CheckProofOfStake(): Coinstake input does not match previous output %s",txin.prevout.hash.GetHex());
+    if (!txPrev.IsAvailable(txin.prevout.n))
+        return error("CheckProofOfStake(): Coinstake input previous output %s is already spent",txin.prevout.hash.GetHex());
 
     if (!CheckStakeKernelHash(pindexPrev, nBits, *pblockindex, txPrev, txin.prevout, tx.nTime, hashProofOfStake, targetProofOfStake, fDebug))
         return error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString()); // may occur during initial download or if behind on block chain sync
@@ -8273,9 +8273,9 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 {
     arith_uint256 hashProofOfStake, targetProofOfStake;
 
-    CTransaction txPrev;
+    CCoins txPrev;
     uint256 hashBlock = uint256();
-    if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true)){
+    if (!GetCoins(prevout.hash, txPrev, hashBlock)){
         LogPrintf("CheckKernel : Could not find previous transaction %s\n",prevout.hash.ToString());
         return false;
     }
@@ -8292,7 +8292,6 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 
     if (pBlockTime)
         *pBlockTime = pblockindex->GetBlockTime();
-
 
     if (!pwalletMain->mapWallet.count(prevout.hash))
         return("CheckProofOfStake(): Couldn't get Tx Index");
