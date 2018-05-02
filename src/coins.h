@@ -151,9 +151,9 @@ public:
          if (a.IsPruned() && b.IsPruned())
              return true;
          return a.fCoinBase == b.fCoinBase &&
+                a.fCoinStake == b.fCoinStake &&
                 a.nHeight == b.nHeight &&
                 a.nVersion == b.nVersion &&
-                a.nTime == b.nTime &&
                 a.vout == b.vout;
     }
     friend bool operator!=(const CCoins &a, const CCoins &b) {
