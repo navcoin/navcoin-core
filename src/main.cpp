@@ -1739,9 +1739,22 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, const Consensus::P
     return false;
 }
 
-
-
-
+/** Return transaction in tx, and if it was found inside a block, its hash is placed in hashBlock
+    using the coin index*/
+bool GetCoins(const uint256 &hash, CCoins &txOut, uint256 &hashBlock)
+{
+    LOCK(cs_main);
+    CCoinsViewCache inputs(pcoinsTip);
+    const CCoins *coins = inputs.AccessCoins(hash);
+    if(coins == NULL)
+        return false;
+    txOut = *coins;
+    if (txOut.nHeight < 0 || txOut.nHeight > chainActive.Height())
+        return false;
+    CBlockIndex* pblockindex = chainActive[txOut.nHeight];
+    hashBlock = pblockindex->GetBlockHash();
+    return true;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2120,11 +2133,11 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 const CCoins* coins = inputs.AccessCoins(prevout.hash);
                 assert(coins);
 
-                CTransaction txPrev;
+                CCoins txPrev;
                 uint256 hashBlock = uint256();
                 int valid = 1;
 
-                if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                if (!GetCoins(prevout.hash, txPrev, hashBlock))
                    valid = 0;
 
                 if (mapBlockIndex.count(hashBlock) == 0)
@@ -3048,8 +3061,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
 
-    if (!control.Wait()){}
-    //     return state.DoS(100, false);
+    if (!control.Wait())
+        return state.DoS(100, false);
+
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 

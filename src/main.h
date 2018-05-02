@@ -283,8 +283,10 @@ bool IsInitialBlockDownload();
  * This function only returns the highest priority warning of the set selected by strFor.
  */
 std::string GetWarnings(const std::string& strFor);
+/** Retrieve a Transaction from the coin index **/
+bool GetCoins(const uint256 &hash, CCoins &tx, uint256 &hashBlock);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
+bool GetTransaction(const uint256 &hash, CTransaction &txOut, const Consensus::Params& consensusParams, uint256 &hashBlock, bool fAllowSlow);
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, const CBlock* pblock = NULL);
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
