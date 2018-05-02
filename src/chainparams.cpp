@@ -400,7 +400,7 @@ public:
         // To create a new devnet:
         //
         // 1) Replace nTimestamp with current timestamp.
-        uint32_t nTimestamp = 1525235501;
+        uint32_t nTimestamp = 1525239600;
         // 2) Rebuild
         // 3) Launch daemon. It'll calculate the new parameters.
         // 4) Update the following variables with the new values:
