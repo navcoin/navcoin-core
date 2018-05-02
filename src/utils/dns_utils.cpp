@@ -37,6 +37,7 @@
 #include <deque>
 #include <stdlib.h>
 #include <random>
+#include <regex>
 #include <sstream>
 #ifdef HAVE_UNBOUND
 #include <unbound.h>
@@ -385,19 +386,13 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
     namespace dns_utils
     {
 
-    //-----------------------------------------------------------------------
-    // TODO: parse the string in a less stupid way, probably with regex
     std::string address_from_txt_record(const std::string& s)
     {
-        // make sure the txt record has "oa1:nav recipient_address=" and find it
-        auto pos = s.find("oa1:nav recipient_address=");
-        if (pos == std::string::npos)
-            return {};
-        pos += 26; // move past "ao1:nav recipient_address="
-        auto pos_end = s.find(";", pos);
-        if (pos == std::string::npos)
-            return {};
-        return s.substr(pos, pos_end-pos);
+        std::regex exp("^oa1:nav recipient_address=([^;]+);");
+        std::smatch match;
+        if(std::regex_search(s, match, exp))
+            return match[1];
+        return {};
     }
     /**
  * @brief gets a navcoin address from the TXT record of a DNS entry
