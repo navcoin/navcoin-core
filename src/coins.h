@@ -33,17 +33,19 @@
  * - bit 0: IsCoinBase()
  * - bit 1: vout[0] is not spent
  * - bit 2: vout[1] is not spent
+ * - bit 3: marks if the transaction includes the nTime field
  * - The higher bits encode N, the number of non-zero bytes in the following bitvector.
  *   - In case both bit 1 and bit 2 are unset, they encode N-1, as there must be at
  *     least one non-spent output).
  *
- * Example: 0104835800816115944e077fe7c803cfa57f29b36bf87c1d358bb85e5ae9821e
+ * Example: 010b835800816115944e077fe7c803cfa57f29b36bf87c1d358bb85e5ae9821e
  *          <><><--------------------------------------------><----><------>
  *          |  \                  |                             /      |
  *    version   code             vout[1]                  height     nTime
  *
  *    - version = 1
- *    - code = 4 (vout[1] is not spent, and 0 non-zero bytes of bitvector follow)
+ *    - code = 12 (vout[1] is not spent, and 0 non-zero bytes of bitvector follow,
+ *                 includes nTime)
  *    - unspentness bitvector: as 0 non-zero bytes follow, it has length 0
  *    - vout[1]: 835800816115944e077fe7c803cfa57f29b36bf87c1d35
  *               * 8358: compact amount representation for 60000000000 (600 NAV)
@@ -53,14 +55,15 @@
  *  - nTime = 1525252638
  *
  *
- * Example: 0109044086ef97d5790061b01caab50f1b8e9c50a5057eb43c2d9563a4eebbd123008c988f1a4a4de2161e0f50aac7f17e7f9555caa486af3b5ae9821e
+ * Example: 0111044086ef97d5790061b01caab50f1b8e9c50a5057eb43c2d9563a4eebbd123008c988f1a4a4de2161e0f50aac7f17e7f9555caa486af3b5ae9821e
  *          <><><--><--------------------------------------------------><----------------------------------------------><----><------>
  *         /  \   \                     |                                                           |                     /      |
  *  version  code  unspentness       vout[4]                                                     vout[16]           height     nTime
  *
  *  - version = 1
- *  - code = 9 (coinbase, neither vout[0] or vout[1] are unspent,
- *                2 (1, +1 because both bit 1 and bit 2 are unset) non-zero bitvector bytes follow)
+ *  - code = 17(coinbase, neither vout[0] or vout[1] are unspent,
+ *                2 (1, +1 because both bit 1 and bit 2 are unset) non-zero bitvector bytes follow,
+ *                includes nTime)
  *  - unspentness bitvector: bits 2 (0x04) and 14 (0x4000) are set, so vout[2+2] and vout[14+2] are unspent
  *  - vout[4]: 86ef97d5790061b01caab50f1b8e9c50a5057eb43c2d9563a4ee
  *             * 86ef97d579: compact amount representation for 234925952 (2.35 NAV)
