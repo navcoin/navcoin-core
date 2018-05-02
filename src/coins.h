@@ -190,7 +190,8 @@ public:
                 nSize += ::GetSerializeSize(CTxOutCompressor(REF(vout[i])), nType, nVersion);
         // height
         nSize += ::GetSerializeSize(VARINT(nHeight), nType, nVersion);
-        nSize += ::GetSerializeSize(VARINT(nTime), nType, nVersion);
+        if((nCode & 8) == 1)
+            nSize += ::GetSerializeSize(VARINT(nTime), nType, nVersion);
         return nSize;
     }
 
@@ -202,6 +203,7 @@ public:
         bool fSecond = vout.size() > 1 && !vout[1].IsNull();
         assert(fFirst || fSecond || nMaskCode);
         unsigned int nCode = 8*(nMaskCode - (fFirst || fSecond ? 0 : 1)) + (fCoinBase ? 1 : 0) + (fFirst ? 2 : 0) + (fSecond ? 4 : 0);
+        nCode |= 8;
         // version
         ::Serialize(s, VARINT(this->nVersion), nType, nVersion);
         // header code
@@ -257,7 +259,8 @@ public:
         // coinbase height
         ::Unserialize(s, VARINT(nHeight), nType, nVersion);
         // transaction time
-        ::Unserialize(s, VARINT(nTime), nType, nVersion);
+        if((nCode & 8) == 1)
+            ::Unserialize(s, VARINT(nTime), nType, nVersion);
         Cleanup();
     }
 
