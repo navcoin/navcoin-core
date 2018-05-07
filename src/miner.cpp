@@ -15,8 +15,10 @@
 #include "consensus/merkle.h"
 #include "consensus/validation.h"
 #include "hash.h"
+#include "init.h"
 #include "main.h"
 #include "net.h"
+#include "ntpclient.h"
 #include "policy/policy.h"
 #include "pos.h"
 #include "primitives/transaction.h"
@@ -25,6 +27,7 @@
 #include "timedata.h"
 #include "txmempool.h"
 #include "util.h"
+#include "utiltime.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
 #include "versionbits.h"
@@ -53,6 +56,9 @@ uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 uint64_t nLastCoinStakeSearchInterval = 0;
+
+uint64_t nLastTime = 0;
+uint64_t nLastSteadyTime = 0;
 
 class ScoreCompare
 {
@@ -744,9 +750,31 @@ void NavCoinStaker(const CChainParams& chainparams)
                 MilliSleep(1000);
             }
 
+            if (nLastTime != 0 && nLastSteadyTime != 0)
+            {
+                int64_t nClockDifference = GetTimeMillis() - nLastTime;
+                int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
+
+                if(abs64(nClockDifference - nSteadyClockDifference) > 1000)
+                {
+                    if(!NtpClockSync())
+                    {
+                        string strMessage = "System clock change detected! Could not synchronize with NTP servers. Aborting node!";
+                        string userMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly."), _(PACKAGE_NAME));
+                        strMiscWarning = strMessage;
+                        LogPrintf("*** %s\n", strMessage);
+                        uiInterface.ThreadSafeMessageBox(userMessage, "", CClientUIInterface::MSG_ERROR);
+                        StartShutdown();
+                    }
+                }
+            }
+
+            nLastTime = GetTimeMillis();
+            nLastSteadyTime = GetSteadyTime();
+
             //
             // Create new block
-            //<
+            //
             uint64_t nFees = 0;
 
             std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, true, &nFees));

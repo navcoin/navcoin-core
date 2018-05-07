@@ -20,6 +20,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 
 static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nCFundVersionMask = 0x00000040;
+static const int32_t nNSyncVersionMask = 0x00000080;
 
 enum ThresholdState {
     THRESHOLD_DEFINED,
