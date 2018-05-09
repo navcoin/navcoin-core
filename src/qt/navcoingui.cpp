@@ -1732,7 +1732,7 @@ void NavCoinGUI::getVotingInfo()
     QSslConfiguration config = QSslConfiguration::defaultConfiguration();
     config.setProtocol(QSsl::TlsV1_2);
     request.setSslConfiguration(config);
-    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString((GetBoolArg("-testnet",false) ? "testnet." : "mainnet.")) + QString("json")));
+    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString::fromStdString(Params().NetworkIDString()) + QString("net.json")));
     request.setHeader(QNetworkRequest::ServerHeader, "application/json");
     reply = manager->get(request);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this,
