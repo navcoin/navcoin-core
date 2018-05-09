@@ -12,6 +12,7 @@
 
 const std::string CBaseChainParams::MAIN = "main";
 const std::string CBaseChainParams::TESTNET = "test";
+const std::string CBaseChainParams::DEVNET = "dev";
 const std::string CBaseChainParams::REGTEST = "regtest";
 
 void AppendParamsHelpMessages(std::string& strUsage, bool debugHelp)
@@ -51,6 +52,20 @@ public:
 };
 static CBaseTestNetParams testNetParams;
 
+/**
+ * Devnet (v3)
+ */
+class CBaseDevNetParams : public CBaseChainParams
+{
+public:
+    CBaseDevNetParams()
+    {
+        nRPCPort = 44446;
+        strDataDir = "devnet";
+    }
+};
+static CBaseDevNetParams devNetParams;
+
 /*
  * Regression test
  */
@@ -79,6 +94,8 @@ CBaseChainParams& BaseParams(const std::string& chain)
         return mainParams;
     else if (chain == CBaseChainParams::TESTNET)
         return testNetParams;
+    else if (chain == CBaseChainParams::DEVNET)
+        return devNetParams;
     else if (chain == CBaseChainParams::REGTEST)
         return regTestParams;
     else
@@ -94,13 +111,20 @@ std::string ChainNameFromCommandLine()
 {
     bool fRegTest = GetBoolArg("-regtest", false);
     bool fTestNet = GetBoolArg("-testnet", false);
+    bool fDevNet = GetBoolArg("-devnet", false);
 
     if (fTestNet && fRegTest)
         throw std::runtime_error("Invalid combination of -regtest and -testnet.");
+    if (fTestNet && fDevNet)
+        throw std::runtime_error("Invalid combination of -devnet and -testnet.");
+    if (fDevNet && fRegTest)
+        throw std::runtime_error("Invalid combination of -regtest and -devnet.");
     if (fRegTest)
         return CBaseChainParams::REGTEST;
     if (fTestNet)
         return CBaseChainParams::TESTNET;
+    if (fDevNet)
+        return CBaseChainParams::DEVNET;
     return CBaseChainParams::MAIN;
 }
 
