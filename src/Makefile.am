@@ -76,7 +76,6 @@ NAVCOIN_CORE_H = \
   timestampindex.h \
   addrman.h \
   base58.h \
-  bignum.h \
   bloom.h \
   blockencodings.h \
   chain.h \
