@@ -2512,7 +2512,7 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nCFundVersionMask;
 
-    if(IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus()))
+    if(IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
         nVersion |= nCFundAccVersionMask;
 
     return nVersion;
@@ -2890,7 +2890,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
               pindex->strDZeel = tx.strDZeel;
 
-              if(IsCommunityFundAccumulationEnabled(pindex->pprev, Params().GetConsensus()))
+              if(IsCommunityFundAccumulationEnabled(pindex->pprev, Params().GetConsensus(), false))
               {
 
                 if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution())
@@ -4315,11 +4315,11 @@ bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Para
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict)
 {
     LOCK(cs_main);
-    return IsCommunityFundEnabled(pindexPrev, params) ||
-          (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_ACTIVE);
+    return (IsCommunityFundEnabled(pindexPrev, params) && !fStrict) ||
+          (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
@@ -4418,7 +4418,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no cfund block");
 
-    if((block.nVersion & nCFundAccVersionMask) != nCFundAccVersionMask && IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus()))
+    if((block.nVersion & nCFundAccVersionMask) != nCFundAccVersionMask && IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no cfund accumulation block");
 
@@ -8339,7 +8339,7 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
     else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus()))
+    else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
         nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
     else
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
