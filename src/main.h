@@ -504,7 +504,7 @@ bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& par
 /** Check whether community fund has been activated. */
 bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict = true);
 
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
