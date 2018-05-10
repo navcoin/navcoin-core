@@ -533,7 +533,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     // Adds Community Fund output if enabled
-    if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus()))
+    if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
     {
         int fundIndex = txNew.vout.size() + 1;
         txNew.vout.resize(fundIndex);
