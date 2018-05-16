@@ -6,6 +6,8 @@ For more information please visit the website:
 
 https://navcoin.org/project-roadmap/
 
+[![Build Status](https://travis-ci.org/NAVCoin/navcoin-core.svg?branch=master)](https://travis-ci.org/NAVCoin/navcoin-core)
+
 ## Coin Specifications
 
 | Specification | Value |
