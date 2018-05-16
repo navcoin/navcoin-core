@@ -33,6 +33,8 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "Accept relayed transactions received from whitelisted peers even when not "
 "relaying transactions (default: %d)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"Add a ntp server to connect to and attempt to use to synchronize the clock"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "Allow JSON-RPC connections from specified source. Valid for <ip> are a "
 "single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or "
 "a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times"),
@@ -164,6 +166,9 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "Set the number of script verification threads (%u to %d, 0 = auto, <0 = "
 "leave that many cores free, default: %d)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"Sets the interval in miliseconds to update the fiat price from "
+"CoinMarketcap. Min. 120000"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "Support filtering of blocks and transaction with bloom filters (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "The block database contains a block which appears to be from the future. "
@@ -247,6 +252,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "<category> can be:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept command line and JSON-RPC commands"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept connections from outside (default: 1 if no -proxy or -connect)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept public REST requests (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Add a NavTech node to use for private transactions"),
 QT_TRANSLATE_NOOP("navcoin-core", "Add a node to connect to and attempt to keep the connection open"),
 QT_TRANSLATE_NOOP("navcoin-core", "Adds a ntp server to use for clock syncronization"),
 QT_TRANSLATE_NOOP("navcoin-core", "Allow DNS lookups for -addnode, -seednode and -connect"),
@@ -267,6 +273,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Connection options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Copyright (C) %i-%i"),
 QT_TRANSLATE_NOOP("navcoin-core", "Corrupted block database detected"),
 QT_TRANSLATE_NOOP("navcoin-core", "Debugging/Testing options:"),
+QT_TRANSLATE_NOOP("navcoin-core", "Defines the staker vote to be attached to found blocks."),
 QT_TRANSLATE_NOOP("navcoin-core", "Do not load the wallet and disable wallet RPC calls"),
 QT_TRANSLATE_NOOP("navcoin-core", "Do you want to rebuild the block database now?"),
 QT_TRANSLATE_NOOP("navcoin-core", "Done loading"),
@@ -275,6 +282,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Enable publish hash transaction in <address>"
 QT_TRANSLATE_NOOP("navcoin-core", "Enable publish raw block in <address>"),
 QT_TRANSLATE_NOOP("navcoin-core", "Enable publish raw transaction in <address>"),
 QT_TRANSLATE_NOOP("navcoin-core", "Enable transaction replacement in the memory pool (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Enables or disables the staking thread."),
 QT_TRANSLATE_NOOP("navcoin-core", "Error initializing block database"),
 QT_TRANSLATE_NOOP("navcoin-core", "Error initializing wallet database environment %s!"),
 QT_TRANSLATE_NOOP("navcoin-core", "Error loading %s"),
@@ -289,6 +297,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Error: A fatal internal error occurred, see d
 QT_TRANSLATE_NOOP("navcoin-core", "Error: Disk space is low!"),
 QT_TRANSLATE_NOOP("navcoin-core", "Failed to listen on any port. Use -listen=0 if you want this."),
 QT_TRANSLATE_NOOP("navcoin-core", "Fee (in %s/kB) to add to transactions you send (default: %s)"),
+QT_TRANSLATE_NOOP("navcoin-core", "GUI options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "How many blocks to check at startup (default: %u, 0 = all)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Importing..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Imports blocks from external blk000??.dat file on startup"),
@@ -334,6 +343,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Rebuild chain state from the currently indexe
 QT_TRANSLATE_NOOP("navcoin-core", "Reducing -maxconnections from %d to %d, because of system limitations."),
 QT_TRANSLATE_NOOP("navcoin-core", "Relay and mine data carrier transactions (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Relay non-P2SH multisig (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Requires DNS Sec for OpenAlias requests (default: true)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Rescan the block chain for missing wallet transactions on startup"),
 QT_TRANSLATE_NOOP("navcoin-core", "Rescanning..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Rewinding blocks..."),
@@ -345,6 +355,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Set key pool size to <n> (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Set maximum BIP141 block weight (default: %d)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Set maximum block size in bytes (default: %d)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Set the number of threads to service RPC calls (default: %d)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Sets the default sleep for the staking thread (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Show all debugging options (usage: --help -help-debug)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Shrink debug.log file on client startup (default: 1 when no -debug)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Signing transaction failed"),
@@ -377,6 +388,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Upgrade wallet to latest format on startup"),
 QT_TRANSLATE_NOOP("navcoin-core", "Use UPnP to map the listening port (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "User Agent comment (%s) contains unsafe characters."),
 QT_TRANSLATE_NOOP("navcoin-core", "Username for JSON-RPC connections"),
+QT_TRANSLATE_NOOP("navcoin-core", "Uses the devnet network"),
 QT_TRANSLATE_NOOP("navcoin-core", "Verifying blocks..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Verifying wallet..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Wallet %s resides outside data directory %s"),
