@@ -27,6 +27,9 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "A fee rate (in %s/kB) that will be used when fee estimation has insufficient "
 "data (default: %s)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"A new version of the wallet has been released. Please update as soon as "
+"possible."),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "Accept relayed transactions received from whitelisted peers even when not "
 "relaying transactions (default: %d)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
@@ -79,7 +82,7 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "hash)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Fees (in %s/kB) smaller than this are considered zero fee for relaying, "
-"mining and transaction creation (default: %s)"),
+"mining and transaction creation"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Fees (in %s/kB) smaller than this are considered zero fee for transaction "
 "creation (default: %s)"),
@@ -98,8 +101,22 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "Invalid amount for -maxtxfee=<amount>: '%s' (must be at least the minrelay "
 "fee of %s to prevent stuck transactions)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"Listen for JSON-RPC connections on <port> (default: %u or testnet: %u or "
+"devnet: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Listen for connections on <port> (default: %u or testnet: %u or devnet: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Maintain a full address index, used to query for the balance, txids and "
+"unspent outputs for addresses (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Maintain a full spent index, used to query the spending txid and input index "
+"for an outpoint (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "Maintain a full transaction index, used by the getrawtransaction rpc call "
 "(default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Maintain a timestamp index for block hashes, used to query blocks hashes by "
+"a range of timestamps (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Maximum allowed median peer time offset adjustment. Local perspective of "
 "time may be influenced by peers forward or backward by this amount. "
@@ -109,9 +126,11 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "(default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Maximum total fees (in %s) to use in a single wallet transaction or raw "
-"transaction; setting this too low may abort large transactions (default: %s)"),
+"transaction; setting this too low may abort large transactions"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Number of seconds to keep misbehaving peers from reconnecting (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Number of seconds to wait for a response from a NTP server (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Output debugging information (default: %u, supplying <category> is optional)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
@@ -152,6 +171,9 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "rebuild the block database if you are sure that your computer's date and "
 "time are correct"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"The community fund database looks to be corrupted. You will need to rebuild "
+"the block database."),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "The transaction amount is too small to send after the fee has been deducted"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "This is a pre-release test build - use at your own risk - do not use for "
@@ -191,9 +213,6 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "Warning: The network does not appear to fully agree! Some miners appear to "
 "be experiencing issues."),
 QT_TRANSLATE_NOOP("navcoin-core", ""
-"Warning: Unknown block versions being mined! It's possible unknown rules are "
-"in effect"),
-QT_TRANSLATE_NOOP("navcoin-core", ""
 "Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; "
 "if your balance or transactions are incorrect you should restore from a "
 "backup."),
@@ -210,6 +229,15 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "You need to rebuild the database using -reindex to go back to unpruned "
 "mode.  This will redownload the entire blockchain"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"You need to rebuild the database using -reindex-chainstate to change -"
+"addressindex"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"You need to rebuild the database using -reindex-chainstate to change -"
+"spentindex"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"You need to rebuild the database using -reindex-chainstate to change -"
+"timestampindex"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "You need to rebuild the database using -reindex-chainstate to change -txindex"),
 QT_TRANSLATE_NOOP("navcoin-core", "%s corrupt, salvage failed"),
 QT_TRANSLATE_NOOP("navcoin-core", "(default: %s)"),
@@ -220,6 +248,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Accept command line and JSON-RPC commands"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept connections from outside (default: 1 if no -proxy or -connect)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept public REST requests (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Add a node to connect to and attempt to keep the connection open"),
+QT_TRANSLATE_NOOP("navcoin-core", "Adds a ntp server to use for clock syncronization"),
 QT_TRANSLATE_NOOP("navcoin-core", "Allow DNS lookups for -addnode, -seednode and -connect"),
 QT_TRANSLATE_NOOP("navcoin-core", "Always query for peer addresses via DNS lookup (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Append comment to the user agent string"),
@@ -230,6 +259,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Cannot downgrade wallet"),
 QT_TRANSLATE_NOOP("navcoin-core", "Cannot resolve -%s address: '%s'"),
 QT_TRANSLATE_NOOP("navcoin-core", "Cannot write default address"),
 QT_TRANSLATE_NOOP("navcoin-core", "Change index out of range"),
+QT_TRANSLATE_NOOP("navcoin-core", "Clock options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Connect only to the specified node(s)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Connect through SOCKS5 proxy"),
 QT_TRANSLATE_NOOP("navcoin-core", "Connect to a node to retrieve peer addresses, and disconnect"),
@@ -275,8 +305,6 @@ QT_TRANSLATE_NOOP("navcoin-core", "Invalid amount for -paytxfee=<amount>: '%s' (
 QT_TRANSLATE_NOOP("navcoin-core", "Invalid netmask specified in -whitelist: '%s'"),
 QT_TRANSLATE_NOOP("navcoin-core", "Keep at most <n> unconnectable transactions in memory (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Keep the transaction memory pool below <n> megabytes (default: %u)"),
-QT_TRANSLATE_NOOP("navcoin-core", "Listen for JSON-RPC connections on <port> (default: %u or testnet: %u)"),
-QT_TRANSLATE_NOOP("navcoin-core", "Listen for connections on <port> (default: %u or testnet: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Loading addresses..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Loading banlist..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Loading block index..."),
@@ -284,8 +312,10 @@ QT_TRANSLATE_NOOP("navcoin-core", "Loading wallet..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Location of the auth cookie (default: data dir)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Maintain at most <n> connections to peers (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Make the wallet broadcast transactions"),
+QT_TRANSLATE_NOOP("navcoin-core", "Max number of seconds allowed as clock offset for a peer (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Maximum per-connection receive buffer, <n>*1000 bytes (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Maximum per-connection send buffer, <n>*1000 bytes (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Min. number of valid requests to NTP servers (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Need to specify a port with -whitebind: '%s'"),
 QT_TRANSLATE_NOOP("navcoin-core", "Node relay options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Not enough file descriptors available."),
@@ -325,6 +355,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Specify pid file (default: %s)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Specify wallet file (within data directory)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Specify your own public address"),
 QT_TRANSLATE_NOOP("navcoin-core", "Spend unconfirmed change when sending transactions (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Synchronizing clock..."),
 QT_TRANSLATE_NOOP("navcoin-core", "The source code is available from %s."),
 QT_TRANSLATE_NOOP("navcoin-core", "The transaction amount is too small to pay the fee"),
 QT_TRANSLATE_NOOP("navcoin-core", "This is experimental software."),
@@ -353,7 +384,6 @@ QT_TRANSLATE_NOOP("navcoin-core", "Wallet debugging/testing options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Wallet needed to be rewritten: restart %s to complete"),
 QT_TRANSLATE_NOOP("navcoin-core", "Wallet options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Warning"),
-QT_TRANSLATE_NOOP("navcoin-core", "Warning: unknown new rules activated (versionbit %i)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Whether to operate in a blocks only mode (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Zapping all transactions from wallet..."),
 QT_TRANSLATE_NOOP("navcoin-core", "ZeroMQ notification options:"),
