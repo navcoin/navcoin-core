@@ -591,7 +591,6 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
 
         uint256 hashGenesisBlock = uint256S("0x0000ebc922e5172da588766084696ec50a62006231e1d0d5d1e83b6a9cfc6e3f");
-<<<<<<< HEAD
 
         if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xb8f305a4c87e0d64b20f58a1123a892f12920039d68657a5e87b940781d2338a")))
         {
