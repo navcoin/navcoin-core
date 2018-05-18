@@ -1,4 +1,4 @@
-<TS language="fa_IR" version="2.1">
+<!DOCTYPE TS><TS language="fa_IR" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>

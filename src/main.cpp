@@ -32,6 +32,7 @@
 #include "script/sigcache.h"
 #include "script/standard.h"
 #include "tinyformat.h"
+#include "timedata.h"
 #include "txdb.h"
 #include "txmempool.h"
 #include "ui_interface.h"
@@ -2537,6 +2538,15 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nSegWitVersionMask;
 
+    if(IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nNSyncVersionMask;
+
+    if(IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nCFundVersionMask;
+
+    if(IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
+        nVersion |= nCFundAccVersionMask;
+
     return nVersion;
 }
 
@@ -2571,7 +2581,7 @@ public:
 
     bool Condition(const CBlockIndex* pindex, const Consensus::Params& params) const
     {
-        return (((pindex->nVersion & VERSIONBITS_TOP_MASK) == IsSigHFEnabled(Params().GetConsensus(), pindex)) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS) &&
+        return  (pindex->nVersion & VERSIONBITS_TOP_MASK) == (IsSigHFEnabled(Params().GetConsensus(), pindex) ? VERSIONBITS_TOP_BITS_SIG : VERSIONBITS_TOP_BITS) &&
                ((pindex->nVersion >> bit) & 1) != 0 &&
                ((ComputeBlockVersion(pindex->pprev, params) >> bit) & 1) == 0;
     }
@@ -2917,7 +2927,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
               pindex->strDZeel = tx.strDZeel;
 
-              if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus()))
+              if(IsCommunityFundAccumulationEnabled(pindex->pprev, Params().GetConsensus(), false))
               {
 
                 if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution())
@@ -4365,6 +4375,19 @@ bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Para
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict)
+{
+    LOCK(cs_main);
+    return (IsCommunityFundEnabled(pindexPrev, params) && !fStrict) ||
+          (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_NTPSYNC, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -4434,7 +4457,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 {
 
     // Check timestamp
-    if (block.GetBlockTime() > nAdjustedTime + 2 * 60 * 60)
+    if (block.GetBlockTime() > nAdjustedTime + (IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()) ? 60 : 2 * 60 * 60))
         return state.Invalid(false, REJECT_INVALID, "time-too-new", "block timestamp too far in the future");
 
     // Reject outdated version blocks when 95% (75% on testnet) of the network has upgraded:
@@ -4455,6 +4478,14 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no cfund block");
 
+    if((block.nVersion & nCFundAccVersionMask) != nCFundAccVersionMask && IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected no cfund accumulation block");
+
+    if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected no nsync block");
+
     return true;
 }
 
@@ -4471,6 +4502,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
     if (block.IsProofOfWork() && nHeight > Params().GetConsensus().nLastPOWBlock)
         return state.DoS(10, false, REJECT_INVALID, "check-pow-height", "pow-mined blocks not allowed");
+
+    if (IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()) && block.GetBlockTime() < pindexPrev->GetPastTimeLimit())
+        return state.Invalid(false, REJECT_INVALID, "too-old", "block goes too far in the past");
 
     // Check CheckCoinStakeTimestamp
     if (block.IsProofOfStake() && !CheckCoinStakeTimestamp(nHeight, block.GetBlockTime(), (int64_t)block.vtx[1].nTime))
@@ -5982,7 +6016,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         {
             pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE, reason);
             LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 10);
+            Misbehaving(pfrom->GetId(), 100);
             return false;
         }
     }
@@ -6117,8 +6151,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             }
         }
 
-        pfrom->fSuccessfullyConnected = true;
-
         string remoteAddr;
         if (fLogIPs)
             remoteAddr = ", peeraddr=" + pfrom->addr.ToString();
@@ -6130,7 +6162,16 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         int64_t nTimeOffset = nTime - GetTime();
         pfrom->nTimeOffset = nTimeOffset;
-        AddTimeData(pfrom->addr, nTimeOffset);
+        if(IsNtpSyncEnabled(chainActive.Tip(), Params().GetConsensus()) && abs64(pfrom->nTimeOffset) > GetArg("-maxtimeoffset", MAXIMUM_TIME_OFFSET))
+        {
+            LogPrintf("peer=%d clock drifts too much (%d); disconnecting\n", pfrom->id, pfrom->nTimeOffset);
+            pfrom->PushMessage(NetMsgType::REJECT, strCommand, REJECT_INVALID,
+                               strprintf("Clock drift cannot be greater than %d. Please, adjust your clock.", GetArg("-maxtimeoffset", MAXIMUM_TIME_OFFSET)));
+            pfrom->fDisconnect = true;
+            return false;
+        }
+        pfrom->fSuccessfullyConnected = true;
+
     }
 
 
@@ -8364,7 +8405,7 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
     else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus()))
+    else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
         nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
     else
         nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
