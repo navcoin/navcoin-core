@@ -39,12 +39,14 @@ int64_t GetAdjustedTime()
     return GetTime() + GetTimeOffset();
 }
 
-static int64_t abs64(int64_t n)
+int64_t abs64(int64_t n)
 {
     return (n >= 0 ? n : -n);
 }
 
 #define NAVCOIN_TIMEDATA_MAX_SAMPLES 200
+
+/* AddTimeData() is deprecated since introduction of NTPSYNC
 
 void AddTimeData(const CNetAddr& ip, int64_t nOffsetSample)
 {
@@ -117,3 +119,4 @@ void AddTimeData(const CNetAddr& ip, int64_t nOffsetSample)
         LogPrint("net", "nTimeOffset = %+d  (%+d minutes)\n", nTimeOffset, nTimeOffset/60);
     }
 }
+*/

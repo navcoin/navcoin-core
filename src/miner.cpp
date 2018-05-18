@@ -15,8 +15,10 @@
 #include "consensus/merkle.h"
 #include "consensus/validation.h"
 #include "hash.h"
+#include "init.h"
 #include "main.h"
 #include "net.h"
+#include "ntpclient.h"
 #include "policy/policy.h"
 #include "pos.h"
 #include "primitives/transaction.h"
@@ -25,6 +27,7 @@
 #include "timedata.h"
 #include "txmempool.h"
 #include "util.h"
+#include "utiltime.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
 #include "versionbits.h"
@@ -53,6 +56,9 @@ uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 uint64_t nLastCoinStakeSearchInterval = 0;
+
+uint64_t nLastTime = 0;
+uint64_t nLastSteadyTime = 0;
 
 class ScoreCompare
 {
@@ -744,9 +750,31 @@ void NavCoinStaker(const CChainParams& chainparams)
                 MilliSleep(1000);
             }
 
+            if (nLastTime != 0 && nLastSteadyTime != 0)
+            {
+                int64_t nClockDifference = GetTimeMillis() - nLastTime;
+                int64_t nSteadyClockDifference = GetSteadyTime() - nLastSteadyTime;
+
+                if(abs64(nClockDifference - nSteadyClockDifference) > 1000)
+                {
+                    if(!NtpClockSync())
+                    {
+                        string strMessage = "System clock change detected! Could not synchronize with NTP servers. Aborting node!";
+                        string userMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly."), _(PACKAGE_NAME));
+                        strMiscWarning = strMessage;
+                        LogPrintf("*** %s\n", strMessage);
+                        uiInterface.ThreadSafeMessageBox(userMessage, "", CClientUIInterface::MSG_ERROR);
+                        StartShutdown();
+                    }
+                }
+            }
+
+            nLastTime = GetTimeMillis();
+            nLastSteadyTime = GetSteadyTime();
+
             //
             // Create new block
-            //<
+            //
             uint64_t nFees = 0;
 
             std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, true, &nFees));
@@ -807,7 +835,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
   CKey key;
   CMutableTransaction txCoinStake;
   CTransaction txNew;
-  int nBestHeight = pindexBestHeader->nHeight;
+  int nBestHeight = chainActive.Tip()->nHeight;
 
   txCoinStake.nTime = GetAdjustedTime();
   txCoinStake.nTime &= ~STAKE_TIMESTAMP_MASK;
@@ -821,7 +849,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
       if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nFees, txCoinStake, key))
       {
 
-          if (txCoinStake.nTime >= pindexBestHeader->GetPastTimeLimit()+1)
+          if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
           {
               // make sure coinstake would meet timestamp protocol
               //    as it would be the same as the block timestamp
@@ -832,7 +860,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
-              txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+              txCoinStake.nVersion = CTransaction::TXDZEEL_VERSION_V2;
               txCoinStake.strDZeel = GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION);
 
               // After the changes, we need to resign inputs.
@@ -847,7 +875,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
                   const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
                   SignatureData sigdata;
-                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata, true);
 
                   if (!signSuccess) {
                       return false;
@@ -861,7 +889,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
               pblock->vtx[0].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-
               return key.Sign(pblock->GetHash(), pblock->vchBlockSig);
           }
       }

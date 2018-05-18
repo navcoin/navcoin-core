@@ -3,17 +3,16 @@ Release Process
 
 Before every release candidate:
 
-* Update translations (ping wumpus on IRC) see [translation_process.md](https://github.com/navcoin/navcoin/blob/master/doc/translation_process.md#synchronising-translations).
+* Update translations see [translation_process.md](https://github.com/navcoin/navcoin/blob/master/doc/translation_process.md#synchronising-translations).
 
 Before every minor and major release:
 
-* Update [bips.md](bips.md) to account for changes since the last release.
 * Update version in sources (see below)
 * Write release notes (see below)
 
 Before every major release:
 
-* Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/navcoin/navcoin/pull/7415) for an example.
+* Update hardcoded [seeds](/contrib/seeds/README.md).
 
 ### First time / New builders
 
@@ -166,5 +165,11 @@ navcoin.org (see below for navcoin.org update instructions).
 - Update navcoin.org version
 
 - Announce the release:
+
+- Communicate with enough time to economic actors of the Network (exchanges):
+
+[TODO] 
+
+List of exchanges
 
 - Celebrate
