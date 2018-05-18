@@ -202,14 +202,15 @@ public:
             (160000, uint256S("0xb855f143c2ebec37b0b9a9e2a2fc9e3d3d2437440c2101fb57ad11407e3bb147"))
             (180000, uint256S("0x774851c8ac775e671bed326be4fec73f5663aa4b1e84e89b20d0cea529fb5c06"))
             (200000, uint256S("0x9aa7fff01e07e800774b4ef7e11d55afffa8a1c6fdb0cd19762418cb8b901b32"))
-            (211160, uint256S("0x7de94b058dc9fb6c183c5d3b493c88d13b597e473b86454c923e029d9c6a67b0"))
-            (575981, uint256S("0xdeb9ff859b5263edcf1968cb43626264c9b92e84a9805e2af6463776eca51137"))
+            (500000, uint256S("0xee97c591a67c19ed74e6162f18eaa73c2a566d3e2754df8fa70a5662e3ed30df"))
             (750000, uint256S("0x7c163d8dc6320bdc3b1b726bf7be13fa3a44c621efcb0f8f3bcd7f2ad374b5ef"))
-            (957163, uint256S("0x53a4525300051ce014fb034217690735121a42e5423b97385afbbbd5380f7583"))
-            (1465787,uint256S("0x91694fd2980c65e6b81e8af75bf817d0ae9240863e0a0ef953d7ddc19cd86407"))
-            (1700000,uint256S("0x8e2e2d9503c82c46f5a3138f562202af265f9b2a71dbbedac629e5624a246d15")),
-            1515037328, // * UNIX timestamp of last checkpoint block
-            3421199,    // * total number of transactions between genesis and last checkpoint
+            (1000000,uint256S("0x12befed86624731beb4f53a523ece1342f68832710a2933f189f18ddaf5af713"))
+            (1250000,uint256S("0x43a9f08444cf05b1193dbdcfffebd558c0d406e478606bdc8755de75c513f620"))
+            (1500000,uint256S("0xdfc75b7d1be540bbcabea1323f6d06d92e96b73c93f386b57f82cd62a1c94ce1"))
+            (1750000,uint256S("0x713cbac2df077bacb25dedf4acd60745f102cbe53ede019b738a6864fc0b12c6"))
+            (2000000,uint256S("0x41b723e003cab30d326a0fae995521554ab59e550e1e0013187b3267d09dd42c")),
+            1524067216, // * UNIX timestamp of last checkpoint block
+            4424417,    // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             7000        // * estimated number of transactions per day after checkpoint
         };
