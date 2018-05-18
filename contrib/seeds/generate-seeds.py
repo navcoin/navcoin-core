@@ -131,6 +131,9 @@ def main():
     g.write('\n')
     with open(os.path.join(indir,'nodes_test.txt'),'r') as f:
         process_nodes(g, f, 'pnSeed6_test', 15556)
+    g.write('\n')
+    with open(os.path.join(indir,'nodes_dev.txt'),'r') as f:
+        process_nodes(g, f, 'pnSeed6_dev', 18886)
     g.write('#endif // NAVCOIN_CHAINPARAMSSEEDS_H\n')
             
 if __name__ == '__main__':
