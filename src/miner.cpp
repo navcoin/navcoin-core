@@ -60,6 +60,8 @@ uint64_t nLastCoinStakeSearchInterval = 0;
 uint64_t nLastTime = 0;
 uint64_t nLastSteadyTime = 0;
 
+bool fIncorrectTime = false;
+
 class ScoreCompare
 {
 public:
@@ -757,14 +759,16 @@ void NavCoinStaker(const CChainParams& chainparams)
 
                 if(abs64(nClockDifference - nSteadyClockDifference) > 1000)
                 {
-                    if(!NtpClockSync())
-                    {
-                        string strMessage = "System clock change detected! Could not synchronize with NTP servers. Aborting node!";
-                        string userMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly."), _(PACKAGE_NAME));
-                        strMiscWarning = strMessage;
-                        LogPrintf("*** %s\n", strMessage);
-                        uiInterface.ThreadSafeMessageBox(userMessage, "", CClientUIInterface::MSG_ERROR);
-                        StartShutdown();
+                    fIncorrectTime = true;
+                    LogPrintf("*** System clock change detected. Staking will be paused until the clock is synced again.\n");
+
+                }
+                if(fIncorrectTime) {
+                    if(!NtpClockSync()) {
+                        continue;
+                    } else {
+                        fIncorrectTime = false;
+                        LogPrintf("*** Starting staking thread again.\n");
                     }
                 }
             }
