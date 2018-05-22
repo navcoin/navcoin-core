@@ -761,10 +761,10 @@ void NavCoinStaker(const CChainParams& chainparams)
                 {
                     fIncorrectTime = true;
                     LogPrintf("*** System clock change detected. Staking will be paused until the clock is synced again.\n");
-
                 }
                 if(fIncorrectTime) {
                     if(!NtpClockSync()) {
+                        MilliSleep(10000);
                         continue;
                     } else {
                         fIncorrectTime = false;
