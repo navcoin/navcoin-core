@@ -77,7 +77,7 @@ void getAddressToReceive::getNewAddress()
 
 void getAddressToReceive::getColdStakingAddress()
 {
-    if (!IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()))
+    if (!IsColdStakingEnabled(pindexBestHeader,Params().GetConsensus()))
         QMessageBox::warning(this, tr("Action not available"),
                              "<qt>Cold Staking is not active yet.</qt>");
     else {
