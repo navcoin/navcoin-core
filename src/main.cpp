@@ -2549,6 +2549,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
         nVersion |= nCFundAccVersionMask;
 
+    if(IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nColdStakingVersionMask;
+
     return nVersion;
 }
 
@@ -4493,6 +4496,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
+
+    if((block.nVersion & nColdStakingVersionMask) != nColdStakingVersionMask && IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected no cold-staking block");
 
     return true;
 }
