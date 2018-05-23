@@ -1107,6 +1107,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+        if(txout.scriptPubKey.IsColdStaking() && !IsColdStakingEnabled(pindexBestHeader, Params().GetConsensus()))
+            return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
     }
 
     if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
