@@ -1,4 +1,4 @@
-NavCoin Core 0.13.0
+NavCoin Core 4.2.0
 =====================
 
 Setup

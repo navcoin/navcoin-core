@@ -112,6 +112,7 @@ NAVCOIN_CORE_H = \
   net.h \
   netbase.h \
   noui.h \
+  ntpclient.h \
   policy/fees.h \
   policy/policy.h \
   policy/rbf.h \
@@ -185,6 +186,7 @@ libnavcoin_server_a_SOURCES = \
   merkleblock.cpp \
   miner.cpp \
   net.cpp \
+  ntpclient.cpp \
   noui.cpp \
   policy/fees.cpp \
   policy/policy.cpp \
