@@ -8142,9 +8142,11 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
 
     // Weighted target
     int64_t nValueIn = txPrev.vout[prevout.n].nValue;
-    arith_uint256 bnWeight;
-    bnWeight.SetCompact(nValueIn);
-    targetProofOfStake *= bnWeight;
+    arith_uint512 bnWeight = arith_uint512(nValueIn);
+
+    // We need to convert to uint512 to prevent overflow when multiplying by 1st block coins
+    base_uint<512> targetProofOfStake512(targetProofOfStake.GetHex());
+    targetProofOfStake512 *= bnWeight;
 
     uint64_t nStakeModifier = pindexPrev->nStakeModifier;
     int nStakeModifierHeight = pindexPrev->nHeight;
@@ -8164,11 +8166,14 @@ static bool CheckStakeKernelHashV2(CBlockIndex* pindexPrev, unsigned int nBits, 
         LogPrint("stakemodifier","CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s bnTarget=%s nBits=%08x nValueIn=%d bnWeight=%s\n",
             nStakeModifier,
             nTimeBlockFrom, txPrev.nTime, prevout.n, nTimeTx,
-            hashProofOfStake.ToString(), targetProofOfStake.ToString(), nBits, nValueIn,bnWeight.ToString());
+            hashProofOfStake.ToString(), targetProofOfStake512.ToString(), nBits, nValueIn,bnWeight.ToString());
     }
 
+    // We need to convert type so it can be compared to target
+    base_uint<512> hashProofOfStake512(hashProofOfStake.GetHex());
+
     // Now check if proof-of-stake hash meets target protocol
-    if (hashProofOfStake > targetProofOfStake)
+    if (hashProofOfStake512 > targetProofOfStake512)
       return false;
 
     if (fDebug && !fPrintProofOfStake)
