@@ -219,16 +219,16 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
         for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
         {
-            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             bool vote = vAddedPaymentRequestVotes[i].second;
             if(CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest))
             {
-                if(!CFund::FindProposal(prequest.proposalhash, parent))
+                if(!CFund::FindProposal(prequest.proposalhash, proposal))
                     continue;
-                CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
+                CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                 if(pblockindex == NULL)
                     continue;
-                if(prequest.CanVote() && parent.CanRequestPayments() && votes.count(prequest.hash) == 0 &&
+                if(prequest.CanVote() && proposal.CanRequestPayments() && votes.count(prequest.hash) == 0 &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
@@ -251,10 +251,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     continue;
                 if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
-                    CFund::CProposal parent;
-                    if(CFund::FindProposal(prequest.proposalhash, parent)) {
+                    CFund::CProposal proposal;
+                    if(CFund::FindProposal(prequest.proposalhash, proposal)) {
                         coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
-                        CNavCoinAddress addr(parent.Address);
+                        CNavCoinAddress addr(proposal.Address);
                         if (!addr.IsValid())
                             continue;
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey = GetScriptForDestination(addr.Get());
