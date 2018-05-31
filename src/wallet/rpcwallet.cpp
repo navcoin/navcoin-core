@@ -3256,7 +3256,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
     {
         CFund::CProposal proposal;
-        if(pcfundindex->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
         {
             if(vAddedProposalVotes[i].second)
             {
@@ -3335,7 +3335,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
         {
             if(vAddedPaymentRequestVotes[i].second)
             {

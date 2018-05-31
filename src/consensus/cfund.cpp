@@ -66,7 +66,7 @@ bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
     }
 
     CFund::CProposal temp;
-    if(pcfundindex->ReadProposalIndex(prophash, temp)) {
+    if(pblocktree->ReadProposalIndex(prophash, temp)) {
         proposal = temp;
         mapProposal[prophash] = temp;
         return true;
@@ -85,7 +85,7 @@ bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &preques
     }
 
     CFund::CPaymentRequest temp;
-    if(pcfundindex->ReadPaymentRequestIndex(preqhash, temp)) {
+    if(pblocktree->ReadPaymentRequestIndex(preqhash, temp)) {
         prequest = temp;
         mapPaymentRequest[preqhash] = temp;
         return true;

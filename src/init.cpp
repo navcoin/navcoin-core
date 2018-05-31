@@ -233,8 +233,6 @@ void Shutdown()
         pcoinsdbview = NULL;
         delete pblocktree;
         pblocktree = NULL;
-        delete pcfundindex;
-        pcfundindex = NULL;
     }
 #ifdef ENABLE_WALLET
     if (pwalletMain)
@@ -1301,10 +1299,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pcoinsdbview;
                 delete pcoinscatcher;
                 delete pblocktree;
-                delete pcfundindex;
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex, dbCompression, dbMaxOpenFiles);
-                pcfundindex = new CCFundDB(nCFundCache, false, fReindex || fReindexChainState, dbCompression, dbMaxOpenFiles);
                 pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex || fReindexChainState);
 
                 pcoinscatcher = new CCoinsViewErrorCatcher(pcoinsdbview);
@@ -1378,26 +1374,28 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                         MIN_BLOCKS_TO_KEEP);
                 }
 
-                {
-                    LOCK(cs_main);
-                    CBlockIndex* tip = chainActive.Tip();
-                    if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
-                        strLoadError = _("The block database contains a block which appears to be from the future. "
-                                "This may be due to your computer's date and time being set incorrectly. "
-                                "Only rebuild the block database if you are sure that your computer's date and time are correct");
-                        break;
-                    }
-                    int nTipHeight = 0;
-                    bool fCFEnabled = false;
-                    pblocktree->ReadFlag("CFEnabled", fCFEnabled);
-                    if(tip)
-                        nTipHeight = tip->nHeight;
-                    if(nTipHeight > 0 && nTipHeight != pcfundindex->ReadTipHeight() && fCFEnabled) {
-                        strLoadError = _("The community fund database looks to be corrupted. "
-                                "You will need to rebuild the block database.");
-                        break;
-                    }
-                }
+//                {
+//                    {
+//                        LOCK(cs_main);
+//                        CBlockIndex* tip = chainActive.Tip();
+//                        if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
+//                            strLoadError = _("The block database contains a block which appears to be from the future. "
+//                                             "This may be due to your computer's date and time being set incorrectly. "
+//                                             "Only rebuild the block database if you are sure that your computer's date and time are correct");
+//                            break;
+//                        }
+//                        int nTipHeight = 0;
+//                        bool fCFEnabled = false;
+//                        pblocktree->ReadFlag("CFEnabled", fCFEnabled);
+//                        if(tip)
+//                            nTipHeight = tip->nHeight;
+//                        if(nTipHeight > 0 && nTipHeight != pcfundindex->ReadTipHeight() && fCFEnabled) {
+//                            strLoadError = _("The community fund database looks to be corrupted. "
+//                                             "You will need to rebuild the block database.");
+//                            break;
+//                        }
+//                    }
+//                }
 
                 if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
                               GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
