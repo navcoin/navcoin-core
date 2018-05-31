@@ -241,7 +241,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
         UniValue strDZeel(UniValue::VARR);
         std::vector<CFund::CPaymentRequest> vec;
-        if(pcfundindex->GetPaymentRequestIndex(vec))
+        if(pblocktree->GetPaymentRequestIndex(vec))
         {
             BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
