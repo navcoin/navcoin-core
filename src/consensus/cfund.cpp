@@ -263,7 +263,6 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     CNavCoinAddress addr(proposal.Address);
     if (!addr.IsValid())
         return false;
-
     CKeyID keyID;
     addr.GetKeyID(keyID);
 
@@ -289,10 +288,10 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 }
 
 bool CFund::CPaymentRequest::CanVote() const {
-    CFund::CProposal proposal;
-    if(!CFund::FindProposal(proposalhash, proposal))
+    CFund::CProposal parent;
+    if(!CFund::FindProposal(proposalhash, parent))
         return false;
-    return nAmount >= proposal.GetAvailable() && fState == NIL;
+    return nAmount >= parent.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)
@@ -331,6 +330,7 @@ bool CFund::IsValidProposal(CTransaction tx)
             nContribution +=tx.vout[i].nValue;
 
     return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+            Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0);
