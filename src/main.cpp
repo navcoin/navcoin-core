@@ -3470,6 +3470,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
 
 bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *pblock)
 {
+    int64_t nTimeStart = GetTimeMicros();
     CFund::CPaymentRequest prequest; CFund::CProposal proposal;
     if(pindexNew->nHeight % Params().GetConsensus().nVotingPeriod == 0) {
         // We need to reset vote counter and update state of proposals and requests.
@@ -3632,6 +3633,8 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
     if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
         return AbortNode(state, "Failed to write payment request index");
     }
+    int64_t nTimeEnd = GetTimeMicros();
+    LogPrint("bench", "- CFund count votes: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
     return true;
 }
 
