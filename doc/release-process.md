@@ -7,7 +7,8 @@ Before every release candidate:
 
 Before every minor and major release:
 
-* Update [bips.md](bips.md) to account for changes since the last release.
+* Update [npips.md](npips.md) to a to account for the protocol changes since the last release
+* Update [bips.md](bips.md) to account for changes since the last release that we included from bitcoin core.
 * Update version in sources (see below)
 * Write release notes (see below)
 
