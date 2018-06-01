@@ -7,16 +7,6 @@ Before any code can be accepted into NavCoin Core a Release Candidate branch and
 
 Release candidates are critical to the NavCoin release eco-system and give the community and interested parties time to review the code and potentially prepare for any changes that may be introduced.  
 
-#### Release Candidates Review Period
-
-* PATCH - 2 Weeks minimum from the time of notification to the community, via signaling by the PR date.
-
-* MINOR - 6 Weeks minimum from the time of notification to the community, via signaling by the PR date.
-
-* MAJOR - 8 Weeks minimum from the time of notification to the community, via signaling by the PR date.
-
-Please note any type of network security or stability issues will be prioritized and might not have any applied stand-down period.
-
 #### Release Candidates and Release Version Convention
 
 NavCoin follows the Semantic Versioning.
@@ -34,6 +24,17 @@ E.g: `v4.5.0-rc.1`
 Every time a new release branch is cut the RC version should be increased to help inform the community.
 
 E.g: `v2.5.0-rc.1`, `v2.5.0-rc.2`, `v2.5.0-rc.3`
+
+#### Release Candidates Review Period
+
+* PATCH - 2 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+
+* MINOR - 6 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+
+* MAJOR - 8 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+
+Please note any type of network security or stability issues will be prioritized and might not have any applied stand-down period.
+
 
 #### Release Candidates Preparation
 
