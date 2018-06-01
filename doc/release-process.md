@@ -52,8 +52,6 @@ Before every major release:
 
 * Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/navcoin/navcoin/pull/7415) for an example.
 
-
-
 ### First time / New builders
 
 Check out the source code in the following directory hierarchy.
