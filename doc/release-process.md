@@ -50,8 +50,6 @@ Before every major release:
 
 * Update hardcoded [seeds](/contrib/seeds/README.md).
 
-
-
 ### First time / New builders
 
 Check out the source code in the following directory hierarchy.
