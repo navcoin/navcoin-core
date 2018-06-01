@@ -39,16 +39,18 @@ E.g: `v2.5.0-rc.1`, `v2.5.0-rc.2`, `v2.5.0-rc.3`
 
 Before every release candidate:
 
-* Update translations see [translation_process.md](https://github.com/navcoin/navcoin/blob/master/doc/translation_process.md#synchronising-translations).
+* Update translations (ping wumpus on IRC) see [translation_process.md](https://github.com/navcoin/navcoin/blob/master/doc/translation_process.md#synchronising-translations).
 
 Before every minor and major release:
 
+* Update [npips.md](npips.md) to a to account for the protocol changes since the last release
+* Update [bips.md](bips.md) to account for changes since the last release that we included from bitcoin core.
 * Update version in sources (see below)
 * Write release notes (see below)
 
 Before every major release:
 
-* Update hardcoded [seeds](/contrib/seeds/README.md).
+* Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/navcoin/navcoin/pull/7415) for an example.
 
 ### First time / New builders
 
@@ -201,11 +203,5 @@ navcoin.org (see below for navcoin.org update instructions).
 - Update navcoin.org version
 
 - Announce the release:
-
-- Communicate with enough time to economic actors of the Network (exchanges):
-
-[TODO] 
-
-List of exchanges
 
 - Celebrate
