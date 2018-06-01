@@ -15,7 +15,7 @@ Release candidates are critical to the NavCoin release eco-system and give the c
 
 * MAJOR - 8 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
-Please note any type of network stabliltu ot 
+Please note any type of network security or stability issues will be prioritized and might not have any applied stand-down period.
 
 #### Release Candidates and Release Version Convention
 
