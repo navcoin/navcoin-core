@@ -365,7 +365,6 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-ntpminmeasures=<n>", strprintf(_("Min. number of valid requests to NTP servers (default: %u)"), MINIMUM_NTP_MEASURE));
     strUsage += HelpMessageOpt("-ntptimeout=<n>", strprintf(_("Number of seconds to wait for a response from a NTP server (default: %u)"), DEFAULT_NTP_TIMEOUT));
     strUsage += HelpMessageOpt("-maxtimeoffset=<n>", strprintf(_("Max number of seconds allowed as clock offset for a peer (default: %u)"), MAXIMUM_TIME_OFFSET));
-    strUsage += HelpMessageOpt("-ntpservers=<ip>", _("Add a ntp server to connect to and attempt to use to synchronize the clock"));
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open"));
     strUsage += HelpMessageOpt("-addanonserver=<ip>", _("Add a NavTech node to use for private transactions"));
