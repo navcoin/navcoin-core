@@ -93,9 +93,9 @@ bool NtpClockSync() {
     std::vector<std::string> vNtpServers;
     std::vector<int64_t> vResults;
 
-    if (mapMultiArgs["-ntpservers"].size() > 0)
+    if (mapMultiArgs["-ntpserver"].size() > 0)
     {
-        vNtpServers = mapMultiArgs["-ntpservers"];
+        vNtpServers = mapMultiArgs["-ntpserver"];
     }
     else
     {
