@@ -1112,11 +1112,25 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     uiInterface.InitMessage(_("Synchronizing clock..."));
     if(!NtpClockSync())
     {
-        return InitError("Could not fetch clock data from NTP servers. "
-                         "Please specify a list of valid NTP servers "
-                         "using -ntpserver= as an argument to the daemon. "
-                         "A minimum of " + to_string(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE)) + " "
-                         "valid servers is required.");
+        string sMsg = "";
+        if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0) {
+            sMsg = "By setting ntpminmeasures to 0 you are disabling the NTP Sync functionality. "
+                   "Doing this can lead to your blocks being rejected if your clock is wrong. ";
+        } else {
+            sMsg = "Could not fetch clock data from NTP servers. "
+                   "Staking has been disabled. Please add valid servers "
+                   "using -ntpserver= as an argument to the daemon. "
+                   "A minimum of " + to_string(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE)) + " "
+                   "valid servers is required. Alternatively you can disable NTP Sync "
+                   "using -ntpminmeasures=0";
+            SoftSetBoolArg("-staking", false);
+        }
+        if (sMsg != "") {
+            uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+            strMiscWarning = sMsg;
+            AlertNotify(strMiscWarning);
+            LogPrintf(strMiscWarning.c_str());
+        }
     }
 
     RegisterNodeSignals(GetNodeSignals());
@@ -1589,4 +1603,21 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif
 
     return !fRequestShutdown;
+}
+
+void AlertNotify(const std::string& strMessage)
+{
+    uiInterface.NotifyAlertChanged();
+    std::string strCmd = GetArg("-alertnotify", "");
+    if (strCmd.empty()) return;
+
+    // Alert text should be plain ascii coming from a trusted source, but to
+    // be safe we first strip anything not in safeChars, then add single quotes around
+    // the whole string before passing it to the shell:
+    std::string singleQuote("'");
+    std::string safeStatus = SanitizeString(strMessage);
+    safeStatus = singleQuote+safeStatus+singleQuote;
+    boost::replace_all(strCmd, "%s", safeStatus);
+
+    boost::thread t(runCommand, strCmd); // thread runs free
 }
