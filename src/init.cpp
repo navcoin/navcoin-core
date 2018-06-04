@@ -1110,13 +1110,31 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     // ********************************************************* Step 6: network initialization
 
     uiInterface.InitMessage(_("Synchronizing clock..."));
+
+    string sMsg = "";
+
     if(!NtpClockSync())
     {
-        return InitError("Could not fetch clock data from NTP servers. "
-                         "Please specify a list of valid NTP servers "
-                         "using -ntpserver= as an argument to the daemon. "
-                         "A minimum of " + to_string(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE)) + " "
-                         "valid servers is required.");
+        sMsg = "A connection could not be made to any ntp server. "
+               "Your system clock will now be used. "
+               "Please ensure you system clock is correct otherwise "
+               "your stakes will be rejected by the network";
+    }
+
+    if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0)
+    {
+        sMsg = "You have set to ignore NTP Sync with the wallet "
+               "setting ntpminmeasures=0. Please be aware that "
+               "your system clock needs to be set correctly for "
+               "your blocks to be accepted. ";
+    }
+
+    if (sMsg != "")
+    {
+        uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+        strMiscWarning = sMsg;
+        AlertNotify(strMiscWarning);
+        LogPrintf(strMiscWarning.c_str());
     }
 
     RegisterNodeSignals(GetNodeSignals());
@@ -1589,4 +1607,21 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif
 
     return !fRequestShutdown;
+}
+
+void AlertNotify(const std::string& strMessage)
+{
+    uiInterface.NotifyAlertChanged();
+    std::string strCmd = GetArg("-alertnotify", "");
+    if (strCmd.empty()) return;
+
+    // Alert text should be plain ascii coming from a trusted source, but to
+    // be safe we first strip anything not in safeChars, then add single quotes around
+    // the whole string before passing it to the shell:
+    std::string singleQuote("'");
+    std::string safeStatus = SanitizeString(strMessage);
+    safeStatus = singleQuote+safeStatus+singleQuote;
+    boost::replace_all(strCmd, "%s", safeStatus);
+
+    boost::thread t(runCommand, strCmd); // thread runs free
 }
