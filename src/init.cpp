@@ -1121,8 +1121,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                    "Staking has been disabled. Please add valid servers "
                    "using -ntpserver= as an argument to the daemon. "
                    "A minimum of " + to_string(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE)) + " "
-                   "valid servers is required. Alternatively you can "
-                   "disable NTP Sync using -ntpminmeasures=0";
+                   "valid servers is required. Alternatively you can disable NTP Sync "
+                   "using -ntpminmeasures=0";
             SoftSetBoolArg("-staking", false);
         }
         if (sMsg != "") {
