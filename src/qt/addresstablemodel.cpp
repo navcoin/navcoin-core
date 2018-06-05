@@ -5,6 +5,7 @@
 #include "addresstablemodel.h"
 
 #include "guiutil.h"
+#include "main.h"
 #include "walletmodel.h"
 
 #include "base58.h"
@@ -14,6 +15,7 @@
 
 #include <QFont>
 #include <QDebug>
+#include <QMessageBox>
 
 const QString AddressTableModel::Send = "S";
 const QString AddressTableModel::Receive = "R";
@@ -181,6 +183,39 @@ int AddressTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return priv->size();
+}
+
+bool AddressTableModel::getPrivateKey(std::string publicKey, std::string &privateKey) const
+{
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    WalletModel::UnlockContext ctx(walletModel->requestUnlock());
+    if(!ctx.isValid())
+    {
+      // Unlock wallet was cancelled
+      return false;
+    }
+
+    CNavCoinAddress address;
+    if (!address.SetString(publicKey))
+    {
+        qWarning() << "Invalid NavCoin address";
+        return false;
+    }
+    CKeyID keyID;
+    if (!address.GetKeyID(keyID))
+    {
+        qWarning() << "Address does not refer to a key";
+        return false;
+    }
+    CKey vchSecret;
+    if (!pwalletMain->GetKey(keyID, vchSecret))
+    {
+        qWarning() << "Private key for address is not known";
+        return false;
+    }
+    privateKey = CNavCoinSecret(vchSecret).ToString();
+    return true;
 }
 
 int AddressTableModel::columnCount(const QModelIndex &parent) const

@@ -9,6 +9,7 @@
 #include "main.h"
 #include "navcoingui.h"
 #include "navcoinunits.h"
+#include "clientversion.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -121,6 +122,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     usedReceivingAddressesAction(0),
     repairWalletAction(0),
     importPrivateKeyAction(0),
+    exportMasterPrivateKeyAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -293,7 +295,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     {
         progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 0px solid grey; border-radius: 10px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 10px; margin: 0px; }");
     }
-
+    QLabel *versionLabel = new QLabel();
+    versionLabel->setText(QString::fromStdString("v" + FormatVersion(CLIENT_VERSION)));
+    statusBar()->addWidget(versionLabel);
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
     statusBar()->addPermanentWidget(frameBlocks);
@@ -458,6 +462,9 @@ void NavCoinGUI::createActions()
     importPrivateKeyAction = new QAction(tr("&Import private key"), this);
     importPrivateKeyAction->setToolTip(tr("Import private key"));
 
+    exportMasterPrivateKeyAction = new QAction(tr("Show &master private key"), this);
+    exportMasterPrivateKeyAction->setToolTip(tr("Show master private key"));
+
     openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
 
@@ -489,6 +496,7 @@ void NavCoinGUI::createActions()
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
         connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
+        connect(exportMasterPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(exportMasterPrivateKeyAction()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -522,6 +530,7 @@ void NavCoinGUI::createMenuBar()
         file->addAction(repairWalletAction);
         file->addSeparator();
         file->addAction(importPrivateKeyAction);
+        file->addAction(exportMasterPrivateKeyAction);
 
     }
     file->addAction(quitAction);
@@ -1047,8 +1056,6 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
             walletFrame->hideStatusTitleBlocks();
 
     }
-
-    showVotingDialog();
 
     // Set icon state: spinning if catching up, tick otherwise
     if(secs < 90*60)
@@ -1725,7 +1732,7 @@ void NavCoinGUI::getVotingInfo()
     QSslConfiguration config = QSslConfiguration::defaultConfiguration();
     config.setProtocol(QSsl::TlsV1_2);
     request.setSslConfiguration(config);
-    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString((GetBoolArg("-testnet",false) ? "testnet." : "mainnet.")) + QString("json")));
+    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString::fromStdString(Params().NetworkIDString()) + QString("net.json")));
     request.setHeader(QNetworkRequest::ServerHeader, "application/json");
     reply = manager->get(request);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this,

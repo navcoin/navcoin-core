@@ -6,15 +6,18 @@
 #define NAVCOIN_CFUND_H
 
 #include "amount.h"
-#include "net.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "tinyformat.h"
 #include "univalue/include/univalue.h"
 #include "uint256.h"
-#include "util.h"
 
 using namespace std;
+
+class CTransaction;
+
+extern std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
+extern std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 
 namespace CFund {
 
@@ -36,14 +39,18 @@ bool FindProposal(string propstr, CFund::CProposal &proposal);
 bool FindProposal(uint256 prophash, CFund::CProposal &proposal);
 bool FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest);
 bool FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest);
-void VoteProposal(string strProp, bool vote);
-void VoteProposal(uint256 proposalHash, bool vote);
-void RemoveVoteProposal(string strProp);
-void RemoveVoteProposal(uint256 proposalHash);
-void VotePaymentRequest(string strProp, bool vote);
-void VotePaymentRequest(uint256 proposalHash, bool vote);
-void RemoveVotePaymentRequest(string strProp);
-void RemoveVotePaymentRequest(uint256 proposalHash);
+void UpdateMapPaymentRequest(uint256 preqhash, CFund::CPaymentRequest prequest);
+void UpdateMapPaymentRequest(uint256 preqhash);
+void UpdateMapProposal(uint256 preqhash, CFund::CProposal prequest);
+void UpdateMapProposal(uint256 preqhash);
+bool VoteProposal(string strProp, bool vote, bool &duplicate);
+bool VoteProposal(uint256 proposalHash, bool vote, bool &duplicate);
+bool RemoveVoteProposal(string strProp);
+bool RemoveVoteProposal(uint256 proposalHash);
+bool VotePaymentRequest(string strProp, bool vote, bool &duplicate);
+bool VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate);
+bool RemoveVotePaymentRequest(string strProp);
+bool RemoveVotePaymentRequest(uint256 proposalHash);
 bool IsValidPaymentRequest(CTransaction tx);
 bool IsValidProposal(CTransaction tx);
 
@@ -207,7 +214,7 @@ public:
     }
 
     bool CanVote() const {
-        return fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && fState != PENDING_FUNDS;
+        return fState == NIL;
     }
 
     bool CanRequestPayments() const {

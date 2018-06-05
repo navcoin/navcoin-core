@@ -32,6 +32,8 @@ coins.h
 compat.h
 compressor.cpp
 compressor.h
+consensus/cfund.cpp
+consensus/cfund.h
 core_io.h
 core_memusage.h
 core_read.cpp

@@ -20,6 +20,7 @@ static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
 static const char DB_PROPINDEX = 'p';
+static const char DB_PROP_TIP_HEIGHT = 't';
 static const char DB_PREQINDEX = 'r';
 static const char DB_ADDRESSINDEX = 'a';
 static const char DB_ADDRESSUNSPENTINDEX = 'u';
@@ -32,7 +33,6 @@ static const char DB_BEST_BLOCK = 'B';
 static const char DB_FLAG = 'F';
 static const char DB_REINDEX_FLAG = 'R';
 static const char DB_LAST_BLOCK = 'l';
-
 
 CCoinsViewDB::CCoinsViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
 {
@@ -166,30 +166,35 @@ bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos>
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal) {
+CCFundDB::CCFundDB(size_t nCacheSize, bool fMemory, bool fWipe, bool compression, int maxOpenFiles) : CDBWrapper(GetDataDir() / "cfund", nCacheSize, fMemory, fWipe, false, compression, maxOpenFiles) {
+}
+
+bool CCFundDB::ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal) {
     return Read(make_pair(DB_PROPINDEX, proposalid), proposal);
 }
 
-bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
+bool CCFundDB::WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
+bool CCFundDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
             batch.Erase(make_pair(DB_PROPINDEX, it->first));
+            CFund::UpdateMapProposal(it->first);
         } else {
+            CFund::UpdateMapProposal(it->first, it->second);
             batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
         }
     }
-    return WriteBatch(batch);
+    return WriteBatch(batch, true);
 }
 
-bool CBlockTreeDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
+bool CCFundDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
@@ -210,33 +215,37 @@ bool CBlockTreeDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
         }
     }
 
+    std::sort(vect.begin(), vect.end(), make_member_comparer<std::greater>(&CFund::CProposal::nFee));
+
     return true;
 }
 
-bool CBlockTreeDB::ReadPaymentRequestIndex(const uint256 &prequestid, CFund::CPaymentRequest &prequest) {
+bool CCFundDB::ReadPaymentRequestIndex(const uint256 &prequestid, CFund::CPaymentRequest &prequest) {
     return Read(make_pair(DB_PREQINDEX, prequestid), prequest);
 }
 
-bool CBlockTreeDB::WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect) {
+bool CCFundDB::WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect) {
+bool CCFundDB::UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
+            CFund::UpdateMapPaymentRequest(it->first);
             batch.Erase(make_pair(DB_PREQINDEX, it->first));
         } else {
+            CFund::UpdateMapPaymentRequest(it->first, it->second);
             batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
         }
     }
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect) {
+bool CCFundDB::GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(make_pair(DB_PREQINDEX, uint256()));
@@ -258,6 +267,18 @@ bool CBlockTreeDB::GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&ve
     }
 
     return true;
+}
+
+
+bool CCFundDB::WriteTipHeight(int nHeight) {
+    return Write(DB_PROP_TIP_HEIGHT, nHeight);
+}
+
+int CCFundDB::ReadTipHeight() {
+    int nHeight = 0;
+    if (!Read(DB_PROP_TIP_HEIGHT, nHeight))
+        return 0;
+    return nHeight;
 }
 
 bool CBlockTreeDB::ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
