@@ -20,6 +20,8 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 
 static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nCFundVersionMask = 0x00000040;
+static const int32_t nNSyncVersionMask = 0x00000080;
+static const int32_t nCFundAccVersionMask = 0x00000100;
 
 enum ThresholdState {
     THRESHOLD_DEFINED,
@@ -56,7 +58,7 @@ protected:
 
 public:
     // Note that the function below takes a pindexPrev as input: they compute information for block B based on its parent.
-    ThresholdState GetStateFor(const CBlockIndex* pindexPrev, const Consensus::Params& params, ThresholdConditionCache& cache, int votingId) const;
+    ThresholdState GetStateFor(const CBlockIndex* pindexPrev, const Consensus::Params& params, ThresholdConditionCache& cache) const;
 
 };
 

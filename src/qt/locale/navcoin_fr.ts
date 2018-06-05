@@ -1,3 +1,4 @@
+<!DOCTYPE TS>
 <TS language="fr" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -401,7 +402,7 @@
     </message>
     <message>
         <source>Amount:</source>
-        <translation>Montant :</translation>
+        <translation>Montant :</translation>
     </message>
     <message>
         <source>Priority:</source>
@@ -530,7 +531,7 @@
     </message>
     <message>
         <source>Usage:</source>
-        <translation>Utilisation :</translation>
+        <translation>Utilisation :</translation>
     </message>
     <message>
         <source>command-line options</source>
@@ -546,7 +547,7 @@
     </message>
     <message>
         <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Définir la langue, par exemple « fr_CA » (par défaut : la langue du système)</translation>
+        <translation>Définir la langue, par exemple « fr_CA » (par défaut : la langue du système)</translation>
     </message>
     <message>
         <source>Start minimized</source>
@@ -558,7 +559,7 @@
     </message>
     <message>
         <source>Show splash screen on startup (default: %u)</source>
-        <translation>Afficher l'écran d'accueil au démarrage (par défaut : %u)</translation>
+        <translation>Afficher l'écran d'accueil au démarrage (par défaut : %u)</translation>
     </message>
     <message>
         <source>Reset all settings changed in the GUI</source>
@@ -739,11 +740,11 @@
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
-        <translation>&amp;IP du serveur mandataire :</translation>
+        <translation>&amp;IP du serveur mandataire :</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
-        <translation>&amp;Port :</translation>
+        <translation>&amp;Port :</translation>
     </message>
     <message>
         <source>Port of the proxy (e.g. 9050)</source>
@@ -807,7 +808,7 @@
     </message>
     <message>
         <source>User Interface &amp;language:</source>
-        <translation>&amp;Langue de l'interface utilisateur :</translation>
+        <translation>&amp;Langue de l'interface utilisateur :</translation>
     </message>
     <message>
         <source>The user interface language can be set here. This setting will take effect after restarting %1.</source>
@@ -815,7 +816,7 @@
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
-        <translation>&amp;Unité d'affichage des montants :</translation>
+        <translation>&amp;Unité d'affichage des montants :</translation>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
@@ -1290,7 +1291,7 @@
     </message>
     <message>
         <source>&amp;Label:</source>
-        <translation>&amp;Étiquette :</translation>
+        <translation>&amp;Étiquette :</translation>
     </message>
     <message>
         <source>&amp;Message:</source>
@@ -1404,7 +1405,7 @@
     </message>
     <message>
         <source>Amount:</source>
-        <translation>Montant :</translation>
+        <translation>Montant :</translation>
     </message>
     <message>
         <source>Priority:</source>
@@ -1512,7 +1513,7 @@
     </message>
     <message>
         <source>Balance:</source>
-        <translation>Solde :</translation>
+        <translation>Solde :</translation>
     </message>
     <message>
         <source>Confirm the send action</source>
@@ -1527,15 +1528,15 @@
     <name>SendCoinsEntry</name>
     <message>
         <source>A&amp;mount:</source>
-        <translation>&amp;Montant :</translation>
+        <translation>&amp;Montant :</translation>
     </message>
     <message>
         <source>Pay &amp;To:</source>
-        <translation>&amp;Payer à :</translation>
+        <translation>&amp;Payer à :</translation>
     </message>
     <message>
         <source>&amp;Label:</source>
-        <translation>É&amp;tiquette :</translation>
+        <translation>É&amp;tiquette :</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -1575,7 +1576,7 @@
     </message>
     <message>
         <source>Message:</source>
-        <translation>Message :</translation>
+        <translation>Message :</translation>
     </message>
     <message>
         <source>This is an unauthenticated payment request.</source>
@@ -1732,7 +1733,7 @@
     <name>navcoin-core</name>
     <message>
         <source>Options:</source>
-        <translation>Options :</translation>
+        <translation>Options :</translation>
     </message>
     <message>
         <source>Specify data directory</source>
@@ -1792,7 +1793,7 @@
     </message>
     <message>
         <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
-        <translation>Accepter les connexions entrantes (par défaut : 1 si aucun -proxy ou -connect )</translation>
+        <translation>Accepter les connexions entrantes (par défaut : 1 si aucun -proxy ou -connect )</translation>
     </message>
     <message>
         <source>NavCoin Core</source>
@@ -1860,7 +1861,7 @@
     </message>
     <message>
         <source>Use UPnP to map the listening port (default: 1 when listening and no -proxy)</source>
-        <translation>Utiliser l'UPnP pour mapper le port d'écoute (par défaut : 1 lors de l'écoute et pas de mandataire -proxy)</translation>
+        <translation>Utiliser l'UPnP pour mapper le port d'écoute (par défaut : 1 lors de l'écoute et pas de mandataire -proxy)</translation>
     </message>
     <message>
         <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
@@ -1904,7 +1905,7 @@
     </message>
     <message>
         <source>Cannot resolve -%s address: '%s'</source>
-        <translation>Impossible de résoudre l'adresse -%s : « %s »</translation>
+        <translation>Impossible de résoudre l'adresse -%s : « %s »</translation>
     </message>
     <message>
         <source>Change index out of range</source>
@@ -1968,11 +1969,11 @@
     </message>
     <message>
         <source>Error loading %s: Wallet corrupted</source>
-        <translation>Erreur lors du chargement de %s : porte-monnaie corrompu</translation>
+        <translation>Erreur lors du chargement de %s : porte-monnaie corrompu</translation>
     </message>
     <message>
         <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation>Erreur lors du chargement de %s : le porte-monnaie exige une version plus récente de %s</translation>
+        <translation>Erreur lors du chargement de %s : le porte-monnaie exige une version plus récente de %s</translation>
     </message>
     <message>
         <source>Error loading %s: You can't disable HD on a already existing HD wallet</source>
@@ -2008,7 +2009,7 @@
     </message>
     <message>
         <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
-        <translation>Montant invalide pour -%s=&lt;amount&gt; : « %s »</translation>
+        <translation>Montant invalide pour -%s=&lt;amount&gt; : « %s »</translation>
     </message>
     <message>
         <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
@@ -2212,7 +2213,7 @@
     </message>
     <message>
         <source>Automatically create Tor hidden service (default: %d)</source>
-        <translation>Créer automatiquement un service caché Tor (par défaut : %d)</translation>
+        <translation>Créer automatiquement un service caché Tor (par défaut : %d)</translation>
     </message>
     <message>
         <source>Connect through SOCKS5 proxy</source>
@@ -2232,7 +2233,7 @@
     </message>
     <message>
         <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation>Montant invalide pour -paytxfee=&lt;montant&gt; : « %s » (doit être au moins %s)</translation>
+        <translation>Montant invalide pour -paytxfee=&lt;montant&gt; : « %s » (doit être au moins %s)</translation>
     </message>
     <message>
         <source>Invalid netmask specified in -whitelist: '%s'</source>
@@ -2452,7 +2453,7 @@
     </message>
     <message>
         <source>Invalid -proxy address: '%s'</source>
-        <translation>Adresse -proxy invalide : « %s »</translation>
+        <translation>Adresse -proxy invalide : « %s »</translation>
     </message>
     <message>
         <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
@@ -2520,7 +2521,7 @@
     </message>
     <message>
         <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation>Réseau inconnu spécifié sur -onlynet : « %s »</translation>
+        <translation>Réseau inconnu spécifié sur -onlynet : « %s »</translation>
     </message>
     <message>
         <source>Insufficient funds</source>

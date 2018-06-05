@@ -337,6 +337,43 @@ void WalletView::unlockWallet()
     }
 }
 
+void WalletView::exportMasterPrivateKeyAction()
+{
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    WalletModel::UnlockContext ctx(walletModel->requestUnlock());
+    if(!ctx.isValid())
+    {
+      // Unlock wallet was cancelled
+      return;
+    }
+
+    CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
+     if (!pwalletMain->IsHDEnabled())
+     {
+         QMessageBox::critical(0, tr(PACKAGE_NAME),
+             tr("Wallet is not a HD wallet."));
+     }
+     CKey key;
+     if (pwalletMain->GetKey(masterKeyID, key))
+     {
+         CExtKey masterKey;
+         masterKey.SetMaster(key.begin(), key.size());
+
+         CNavCoinExtKey b58extkey;
+         b58extkey.SetKey(masterKey);
+
+         QMessageBox::information(this, tr("Show Master Private Key"),
+             tr("Master Private Key:<br><br>%1").arg(QString::fromStdString(b58extkey.ToString())));
+     }
+     else
+     {
+         QMessageBox::critical(0, tr(PACKAGE_NAME),
+             tr("Unable to retrieve HD master private key"));
+     }
+
+}
+
 void WalletView::importPrivateKey()
 {
     bool ok;

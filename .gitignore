@@ -1,5 +1,5 @@
 *.tar.gz
-
+navcoincore.*
 *.exe
 src/navcoin
 src/navcoind

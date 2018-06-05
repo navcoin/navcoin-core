@@ -84,11 +84,15 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     typeWidget->addItem(tr("All"), TransactionFilterProxy::ALL_TYPES);
     typeWidget->addItem(tr("Received with"), TransactionFilterProxy::TYPE(TransactionRecord::RecvWithAddress) |
-                                        TransactionFilterProxy::TYPE(TransactionRecord::RecvFromOther));
+                                        TransactionFilterProxy::TYPE(TransactionRecord::RecvFromOther) |
+                                        TransactionFilterProxy::TYPE(TransactionRecord::CFundPayment));
     typeWidget->addItem(tr("Sent to"), TransactionFilterProxy::TYPE(TransactionRecord::SendToAddress) |
-                                  TransactionFilterProxy::TYPE(TransactionRecord::SendToOther));
+                                  TransactionFilterProxy::TYPE(TransactionRecord::SendToOther) |
+                                  TransactionFilterProxy::TYPE(TransactionRecord::CFund));
     typeWidget->addItem(tr("To yourself"), TransactionFilterProxy::TYPE(TransactionRecord::SendToSelf));
     typeWidget->addItem(tr("Staked"), TransactionFilterProxy::TYPE(TransactionRecord::Generated));
+    typeWidget->addItem(tr("Community Fund"), TransactionFilterProxy::TYPE(TransactionRecord::CFund) |
+                        TransactionFilterProxy::TYPE(TransactionRecord::CFundPayment));
     typeWidget->addItem(tr("Other"), TransactionFilterProxy::TYPE(TransactionRecord::Other));
 
     hlayout->addWidget(typeWidget);
