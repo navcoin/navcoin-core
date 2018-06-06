@@ -462,6 +462,8 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
+    wtx.strDZeel = strDZeel;
+
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
 
     return wtx.GetHash().GetHex();
@@ -810,6 +812,7 @@ UniValue anonsend(const UniValue& params, bool fHelp)
         nAmountAlreadyProcessed += nAmountRound;
 
         string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+(i==serverNavAddresses.size()?0:1), nId);
+        wtx.strDZeel = encryptedAddress;
         SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, encryptedAddress);
     }
 
@@ -3253,7 +3256,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
     {
         CFund::CProposal proposal;
-        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+        if(pcfundindex->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
         {
             if(vAddedProposalVotes[i].second)
             {
@@ -3290,24 +3293,37 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
         );
 
     string strHash = params[0].get_str();
+    bool duplicate = false;
 
     if (strCommand == "yes")
     {
-      CFund::VoteProposal(strHash,true);
-      return NullUniValue;
+      bool ret = CFund::VoteProposal(strHash,true,duplicate);
+      if (duplicate) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+      } else if (ret) {
+        return NullUniValue;
+      }
     }
     else if (strCommand == "no")
     {
-      CFund::VoteProposal(strHash,false);
-      return NullUniValue;
+      bool ret = CFund::VoteProposal(strHash,false,duplicate);
+      if (duplicate) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+      } else if (ret) {
+        return NullUniValue;
+      }
     }
     else if(strCommand == "remove")
     {
-      CFund::RemoveVoteProposal(strHash);
-      return NullUniValue;
+      bool ret = CFund::RemoveVoteProposal(strHash);
+      if (ret) {
+        return NullUniValue;
+      } else {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is not in the list: ")+strHash);
+      }
     }
 
-    return NullUniValue;
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
 }
 
 UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
@@ -3319,7 +3335,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+        if(pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
         {
             if(vAddedPaymentRequestVotes[i].second)
             {
@@ -3356,23 +3372,37 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
         );
 
     string strHash = params[0].get_str();
+    bool duplicate = false;
 
     if (strCommand == "yes")
     {
-      CFund::VotePaymentRequest(strHash,true);
-      return NullUniValue;
+      bool ret = CFund::VotePaymentRequest(strHash,true,duplicate);
+      if (duplicate) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
+      } else if (ret) {
+        return NullUniValue;
+      }
     }
     else if (strCommand == "no")
     {
-      CFund::VotePaymentRequest(strHash,false);
-      return NullUniValue;
+      bool ret = CFund::VotePaymentRequest(strHash,false,duplicate);
+      if (duplicate) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
+      } else if (ret) {
+        return NullUniValue;
+      }
     }
     else if(strCommand == "remove")
     {
-      CFund::RemoveVotePaymentRequest(strHash);
-      return NullUniValue;
+      bool ret = CFund::RemoveVotePaymentRequest(strHash);
+      if (ret) {
+        return NullUniValue;
+      } else {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is not in the list: ")+strHash);
+      }
     }
-    return NullUniValue;
+
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find payment request: ")+strHash);
 
 }
 

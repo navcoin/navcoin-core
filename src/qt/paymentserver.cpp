@@ -31,6 +31,7 @@
 #include <QList>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
 #include <QNetworkReply>
@@ -52,10 +53,12 @@ const QString NAVCOIN_IPC_PREFIX("navcoin:");
 // BIP70 payment protocol messages
 const char* BIP70_MESSAGE_PAYMENTACK = "PaymentACK";
 const char* BIP70_MESSAGE_PAYMENTREQUEST = "PaymentRequest";
+const char* NIP01_MESSAGE_SIGNEDMSG = "SignedMsg";
 // BIP71 payment protocol media types
 const char* BIP71_MIMETYPE_PAYMENT = "application/navcoin-payment";
 const char* BIP71_MIMETYPE_PAYMENTACK = "application/navcoin-paymentack";
 const char* BIP71_MIMETYPE_PAYMENTREQUEST = "application/navcoin-paymentrequest";
+const char* NIP01_MIMETYPE_SIGNEDMSG = "application/navcoin-signedmsg";
 // BIP70 max payment request size in bytes (DoS protection)
 const qint64 BIP70_MAX_PAYMENTREQUEST_SIZE = 50000;
 
@@ -231,6 +234,10 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
                 {
                     SelectParams(CBaseChainParams::TESTNET);
                 }
+                else if (address.IsValid(Params(CBaseChainParams::DEVNET)))
+                {
+                    SelectParams(CBaseChainParams::DEVNET);
+                }
             }
         }
         else if (QFile::exists(arg)) // Filename
@@ -247,6 +254,10 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
                 else if (request.getDetails().network() == "test")
                 {
                     SelectParams(CBaseChainParams::TESTNET);
+                }
+                else if (request.getDetails().network() == "dev")
+                {
+                    SelectParams(CBaseChainParams::DEVNET);
                 }
             }
         }
@@ -303,7 +314,8 @@ PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
     saveURIs(true),
     uriServer(0),
     netManager(0),
-    optionsModel(0)
+    optionsModel(0),
+    model(0)
 {
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against.
@@ -399,6 +411,11 @@ void PaymentServer::uiReady()
     savedPaymentRequests.clear();
 }
 
+void PaymentServer::setWalletModel(WalletModel *walletModel)
+{
+    this->model = walletModel;
+}
+
 void PaymentServer::handleURIOrFile(const QString& s)
 {
     if (saveURIs)
@@ -414,7 +431,68 @@ void PaymentServer::handleURIOrFile(const QString& s)
 #else
         QUrlQuery uri((QUrl(s)));
 #endif
-        if (uri.hasQueryItem("r")) // payment request URI
+        if (uri.hasQueryItem("m") && uri.hasQueryItem("a")) // sign message URI
+        {
+            QByteArray temp;
+            temp.append(uri.queryItemValue("m"));
+            temp.append(uri.queryItemValue("a"));
+            QString decoded = QUrl::fromPercentEncoding(temp);
+            QUrl fetchUrl(decoded, QUrl::StrictMode);
+
+            if (!model)
+                return;
+
+            CNavCoinAddress addr(uri.queryItemValue("a").toStdString());
+            if (!addr.IsValid())
+            {
+                Q_EMIT message(tr("Verify address"), tr("The provided address is invalid.") + QString(" ") + tr("Please check the address and try again."),
+                               CClientUIInterface::MSG_ERROR);
+                return;
+            }
+            CKeyID keyID;
+            if (!addr.GetKeyID(keyID))
+            {
+                Q_EMIT message(tr("Verify address"), tr("The provided address does not refer to a key.") + QString(" ") + tr("Please check the address and try again."),
+                               CClientUIInterface::MSG_ERROR);
+                return;
+            }
+
+            WalletModel::UnlockContext ctx(model->requestUnlock());
+            if (!ctx.isValid())
+            {
+                Q_EMIT message(tr("Verify address"), tr("Wallet unlock was cancelled."),
+                               CClientUIInterface::ICON_WARNING);
+                return;
+            }
+
+            CKey key;
+            if (!pwalletMain->GetKey(keyID, key))
+            {
+                Q_EMIT message(tr("Verify address"), tr("Private key for the provided address is not available."),
+                               CClientUIInterface::MSG_ERROR);
+                return;
+            }
+
+            CHashWriter ss(SER_GETHASH, 0);
+            ss << strMessageMagic;
+            ss << uri.queryItemValue("m").toStdString();
+
+            std::vector<unsigned char> vchSig;
+            if (!key.SignCompact(ss.GetHash(), vchSig))
+            {
+                Q_EMIT message(tr("Verify address"),tr("Message signing failed."),
+                               CClientUIInterface::MSG_ERROR);
+                return;
+            }
+
+            QString signature = (QString::fromStdString(EncodeBase64(&vchSig[0], vchSig.size())));
+
+            QUrl fetchUrlConstructed(s.mid(NAVCOIN_IPC_PREFIX.length()));
+
+            sendSignature(fetchUrlConstructed, signature);
+
+        }
+        else if (uri.hasQueryItem("r")) // payment request URI
         {
             QByteArray temp;
             temp.append(uri.queryItemValue("r"));
@@ -642,6 +720,18 @@ void PaymentServer::fetchRequest(const QUrl& url)
     netManager->get(netRequest);
 }
 
+void PaymentServer::sendSignature(const QUrl& url, const QString data)
+{
+    QNetworkRequest netRequest;
+    netRequest.setUrl(url);
+    netRequest.setAttribute(QNetworkRequest::User, NIP01_MESSAGE_SIGNEDMSG);
+    netRequest.setRawHeader("User-Agent", CLIENT_NAME.c_str());
+    netRequest.setHeader(QNetworkRequest::ContentTypeHeader,  NIP01_MIMETYPE_SIGNEDMSG);
+    QByteArray postData;
+    postData.append(data);
+    netManager->post(netRequest, postData);
+}
+
 void PaymentServer::fetchPaymentACK(CWallet* wallet, SendCoinsRecipient recipient, QByteArray transaction)
 {
     const payments::PaymentDetails& details = recipient.paymentRequest.getDetails();
@@ -723,9 +813,19 @@ void PaymentServer::netRequestFinished(QNetworkReply* reply)
     }
 
     QByteArray data = reply->readAll();
+    QString strReply(data);
 
     QString requestType = reply->request().attribute(QNetworkRequest::User).toString();
-    if (requestType == BIP70_MESSAGE_PAYMENTREQUEST)
+    if (requestType == NIP01_MESSAGE_SIGNEDMSG)
+    {
+        if(strReply == "true")
+            Q_EMIT message(tr("Verify address"), tr("Message signed."),
+                       CClientUIInterface::ICON_INFORMATION);
+        else
+            Q_EMIT message(tr("Verify address"), tr("Something went wrong."),
+                       CClientUIInterface::MSG_ERROR);
+    }
+    else if (requestType == BIP70_MESSAGE_PAYMENTREQUEST)
     {
         PaymentRequestPlus request;
         SendCoinsRecipient recipient;

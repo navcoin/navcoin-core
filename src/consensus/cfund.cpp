@@ -6,6 +6,10 @@
 #include "base58.h"
 #include "main.h"
 #include "rpc/server.h"
+#include "utilmoneystr.h"
+
+std::map<uint256, CFund::CProposal> mapProposal;
+std::map<uint256, CFund::CPaymentRequest> mapPaymentRequest;
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
@@ -37,61 +41,113 @@ void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash
 bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
 {
 
-    return pblocktree->ReadProposalIndex(uint256S("0x"+propstr), proposal);
+    return CFund::FindProposal(uint256S("0x"+propstr), proposal);
 
+}
+
+void CFund::UpdateMapProposal(uint256 prophash)
+{
+    if(mapProposal.count(prophash) != 0)
+        mapProposal.erase(prophash);
+}
+
+void CFund::UpdateMapProposal(uint256 prophash, CFund::CProposal proposal)
+{
+    if(mapProposal.count(prophash) != 0)
+        mapProposal[prophash] = proposal;
 }
 
 bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 {
 
-    return pblocktree->ReadProposalIndex(prophash, proposal);
+    if(mapProposal.count(prophash) != 0) {
+        proposal = mapProposal[prophash];
+        return true;
+    }
+
+    CFund::CProposal temp;
+    if(pcfundindex->ReadProposalIndex(prophash, temp)) {
+        proposal = temp;
+        mapProposal[prophash] = temp;
+        return true;
+    }
+
+    return false;
 
 }
 
 bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
 {
 
-    return pblocktree->ReadPaymentRequestIndex(preqhash, prequest);
+    if(mapPaymentRequest.count(preqhash) != 0) {
+        prequest = mapPaymentRequest[preqhash];
+        return true;
+    }
 
+    CFund::CPaymentRequest temp;
+    if(pcfundindex->ReadPaymentRequestIndex(preqhash, temp)) {
+        prequest = temp;
+        mapPaymentRequest[preqhash] = temp;
+        return true;
+    }
+
+    return false;
+
+}
+
+void CFund::UpdateMapPaymentRequest(uint256 preqhash)
+{
+    if(mapPaymentRequest.count(preqhash) != 0)
+        mapPaymentRequest.erase(preqhash);
+}
+
+void CFund::UpdateMapPaymentRequest(uint256 preqhash, CFund::CPaymentRequest prequest)
+{
+    if(mapPaymentRequest.count(preqhash) != 0)
+        mapPaymentRequest[preqhash] = prequest;
 }
 
 bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
 {
 
-    return pblocktree->ReadPaymentRequestIndex(uint256S("0x"+preqstr), prequest);
+    return CFund::FindPaymentRequest(uint256S("0x"+preqstr), prequest);
 
 }
 
-void CFund::VoteProposal(string strProp, bool vote)
+bool CFund::VoteProposal(string strProp, bool vote, bool &duplicate)
 {
 
     CFund::CProposal proposal;
-    bool found = pblocktree->ReadProposalIndex(uint256S("0x"+strProp), proposal);
+    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
     if(!found || proposal.IsNull())
-        return;
+        return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
     for(; it != vAddedProposalVotes.end(); it++)
-        if (strProp == (*it).first)
+        if (strProp == (*it).first) {
+            if (vote == (*it).second)
+                duplicate = true;
             break;
+        }
     RemoveConfigFile("addproposalvoteyes", strProp);
     RemoveConfigFile("addproposalvoteno", strProp);
     WriteConfigFile(vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
-    if (it == vAddedProposalVotes.end())
+    if (it == vAddedProposalVotes.end()) {
         vAddedProposalVotes.push_back(make_pair(strProp, vote));
-    else {
+    } else {
         vAddedProposalVotes.erase(it);
         vAddedProposalVotes.push_back(make_pair(strProp, vote));
     }
+    return true;
 }
 
-void CFund::VoteProposal(uint256 proposalHash, bool vote)
+bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
 {
-    VoteProposal(proposalHash.ToString(), vote);
+    return VoteProposal(proposalHash.ToString(), vote, duplicate);
 }
 
-void CFund::RemoveVoteProposal(string strProp)
+bool CFund::RemoveVoteProposal(string strProp)
 {
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
     for(; it != vAddedProposalVotes.end(); it++)
@@ -102,45 +158,52 @@ void CFund::RemoveVoteProposal(string strProp)
     RemoveConfigFile("addproposalvoteno", strProp);
     if (it != vAddedProposalVotes.end())
         vAddedProposalVotes.erase(it);
+    else
+        return false;
+    return true;
 }
 
-void CFund::RemoveVoteProposal(uint256 proposalHash)
+bool CFund::RemoveVoteProposal(uint256 proposalHash)
 {
-    RemoveVoteProposal(proposalHash.ToString());
+    return RemoveVoteProposal(proposalHash.ToString());
 }
 
-void CFund::VotePaymentRequest(string strProp, bool vote)
+bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
 {
 
     CFund::CPaymentRequest prequest;
-    bool found = pblocktree->ReadPaymentRequestIndex(uint256S("0x"+strProp), prequest);
+    bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
     if(!found || prequest.IsNull())
-        return;
+        return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
     for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strProp == (*it).first)
+        if (strProp == (*it).first) {
+            if (vote == (*it).second)
+                duplicate = true;
             break;
-
+        }
     RemoveConfigFile("addpaymentrequestvoteyes", strProp);
     RemoveConfigFile("addpaymentrequestvoteno", strProp);
     WriteConfigFile(vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
-    if (it == vAddedPaymentRequestVotes.end())
+    if (it == vAddedPaymentRequestVotes.end()) {
         vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
-    else {
+    } else {
         vAddedPaymentRequestVotes.erase(it);
         vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
     }
 
+    return true;
+
 }
 
-void CFund::VotePaymentRequest(uint256 proposalHash, bool vote)
+bool CFund::VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate)
 {
-    VotePaymentRequest(proposalHash.ToString(), vote);
+    return VotePaymentRequest(proposalHash.ToString(), vote, duplicate);
 }
 
-void CFund::RemoveVotePaymentRequest(string strProp)
+bool CFund::RemoveVotePaymentRequest(string strProp)
 {
     vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
     for(; it != vAddedPaymentRequestVotes.end(); it++)
@@ -151,12 +214,15 @@ void CFund::RemoveVotePaymentRequest(string strProp)
     RemoveConfigFile("addpaymentrequestvoteno", strProp);
     if (it != vAddedPaymentRequestVotes.end())
         vAddedPaymentRequestVotes.erase(it);
+    else
+        return false;
+    return true;
 
 }
 
-void CFund::RemoveVotePaymentRequest(uint256 proposalHash)
+bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
 {
-    RemoveVotePaymentRequest(proposalHash.ToString());
+    return RemoveVotePaymentRequest(proposalHash.ToString());
 }
 
 bool CFund::IsValidPaymentRequest(CTransaction tx)
@@ -195,6 +261,9 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::string Secret = "I kindly ask to withdraw " + std::to_string(nAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
     CNavCoinAddress addr(proposal.Address);
+    if (!addr.IsValid())
+        return false;
+
     CKeyID keyID;
     addr.GetKeyID(keyID);
 
@@ -220,10 +289,10 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 }
 
 bool CFund::CPaymentRequest::CanVote() const {
-    CFund::CProposal parent;
-    if(!CFund::FindProposal(proposalhash, parent))
+    CFund::CProposal proposal;
+    if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount >= parent.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
+    return nAmount >= proposal.GetAvailable() && fState == NIL;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)
@@ -253,12 +322,15 @@ bool CFund::IsValidProposal(CTransaction tx)
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
 
+    CNavCoinAddress address(Address);
+    if (!address.IsValid())
+        return false;
+
     for(unsigned int i=0;i<tx.vout.size();i++)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
     return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
-            Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0);
@@ -292,9 +364,9 @@ bool CFund::CProposal::IsRejected() const {
 void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", (float)nAmount/COIN));
-    ret.push_back(Pair("notPaidYet", (float)GetAvailable()/COIN));
-    ret.push_back(Pair("userPaidFee", (float)nFee/COIN));
+    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
+    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
+    ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
     ret.push_back(Pair("deadline", (uint64_t)nDeadline));
     ret.push_back(Pair("votesYes", nVotesYes));
@@ -319,7 +391,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
 void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", (float)nAmount/COIN));
+    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
     ret.push_back(Pair("status", GetState()));
