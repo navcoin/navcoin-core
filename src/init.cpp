@@ -1125,7 +1125,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             if(!NtpClockSync())
             {
                 sMsg = "A connection could not be made to any ntp server. "
-                       "Your system clock will now be used. "
                        "Please ensure you system clock is correct otherwise "
                        "your stakes will be rejected by the network";
                 MilliSleep(50000);
