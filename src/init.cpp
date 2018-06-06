@@ -1113,20 +1113,29 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     string sMsg = "";
 
-    if(!NtpClockSync())
-    {
-        sMsg = "A connection could not be made to any ntp server. "
-               "Your system clock will now be used. "
-               "Please ensure you system clock is correct otherwise "
-               "your stakes will be rejected by the network";
-    }
-
     if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0)
     {
         sMsg = "You have set to ignore NTP Sync with the wallet "
                "setting ntpminmeasures=0. Please be aware that "
                "your system clock needs to be set correctly for "
                "your blocks to be accepted. ";
+    } else {
+        while(1)
+        {
+            if(!NtpClockSync())
+            {
+                sMsg = "A connection could not be made to any ntp server. "
+                       "Your system clock will now be used. "
+                       "Please ensure you system clock is correct otherwise "
+                       "your stakes will be rejected by the network";
+                MilliSleep(500);
+            }
+            else
+            {
+                break;
+                MilliSleep(500);
+            }
+        }
     }
 
     if (sMsg != "")
