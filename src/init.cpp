@@ -1128,12 +1128,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                        "Your system clock will now be used. "
                        "Please ensure you system clock is correct otherwise "
                        "your stakes will be rejected by the network";
-                MilliSleep(500);
+                MilliSleep(50000);
             }
             else
             {
                 break;
-                MilliSleep(500);
             }
         }
     }
