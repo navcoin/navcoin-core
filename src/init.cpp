@@ -1112,6 +1112,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     uiInterface.InitMessage(_("Synchronizing clock..."));
 
     string sMsg = "";
+    bool fWarningShown = false;
 
     if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0)
     {
@@ -1127,13 +1128,16 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 sMsg = "A connection could not be made to any ntp server. "
                        "Please ensure you system clock is correct otherwise "
                        "your stakes will be rejected by the network";
-
-                uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+                if (!fWarningShown)
+                {
+                    uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+                    fWarningShown = true;
+                }
                 strMiscWarning = sMsg;
                 AlertNotify(strMiscWarning);
                 LogPrintf(strMiscWarning.c_str());
 
-                MilliSleep(50000);
+                MilliSleep(30000);
             }
             else
             {
