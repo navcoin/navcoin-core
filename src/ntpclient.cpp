@@ -7,6 +7,9 @@
 #include "timedata.h"
 #include "util.h"
 
+#include <sstream>
+#include <iomanip>
+
 using namespace boost;
 using namespace boost::asio;
 
@@ -61,10 +64,15 @@ int64_t CNtpClient::getTimestamp()
             {
 
                 socket.receive_from(boost::asio::buffer(recvBuf), sender_endpoint);
+
+                std::ostringstream oss;
+                oss << std::hex << std::setfill('0');
+                oss << std::setw(2) << (unsigned int)recvBuf[4];
+
                 timeRecv = ntohl((time_t)recvBuf[4]);
                 timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
 
-                LogPrint("ntp", "[NTP] Received timestamp: %ll \n", (uint64_t)timeRecv);
+                LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint64_t)timeRecv, oss.str());
 
             }
 
@@ -84,7 +92,9 @@ int64_t CNtpClient::getTimestamp()
 
     }
 
-    return (int64_t)timeRecv;
+    assert (sizeof(int64_t) >= sizeof(time_t));
+
+    return *reinterpret_cast<int64_t*>(&timeRecv);
 }
 
 bool NtpClockSync() {
@@ -128,8 +138,6 @@ bool NtpClockSync() {
                 string sign = "";
                 if(nClockDrift > 0)
                     sign = "+";
-                else if (nClockDrift < 0)
-                    sign = "-";
 
                 sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
             }
@@ -141,8 +149,6 @@ bool NtpClockSync() {
                 string sign = "";
                 if(nClockDrift > 0)
                     sign = "+";
-                else if (nClockDrift < 0)
-                    sign = "-";
 
                 sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
 
@@ -151,8 +157,6 @@ bool NtpClockSync() {
                 sign = "";
                 if(nPrevMeasure > 0)
                     sign = "+";
-                else if (nPrevMeasure < 0)
-                    sign = "-";
 
                 sReport += sPrevServer + "[" + sign + to_string(nPrevMeasure) + "sec.] ";
             }
