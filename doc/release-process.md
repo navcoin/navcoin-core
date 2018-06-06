@@ -140,6 +140,10 @@ The gbuild invocations below <b>DO NOT DO THIS</b> by default.
 ### Build and sign NavCoin Core for Linux, Windows, and OS X:
 
     pushd ./gitian-builder
+    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-arm.yml
+    mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
+    
+    pushd ./gitian-builder
     ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
     mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
 
