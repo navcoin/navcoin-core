@@ -1127,10 +1127,17 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 sMsg = "A connection could not be made to any ntp server. "
                        "Please ensure you system clock is correct otherwise "
                        "your stakes will be rejected by the network";
+
+                uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+                strMiscWarning = sMsg;
+                AlertNotify(strMiscWarning);
+                LogPrintf(strMiscWarning.c_str());
+
                 MilliSleep(50000);
             }
             else
             {
+                sMsg = "";
                 break;
             }
         }
