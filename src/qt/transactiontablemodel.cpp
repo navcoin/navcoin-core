@@ -373,6 +373,8 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     {
     case TransactionRecord::CFund:
         return tr("Sent to");
+    case TransactionRecord::CFundPayment:
+        return tr("Community Fund Payment");
     case TransactionRecord::AnonTx:
         return tr("Private Payment");
     case TransactionRecord::RecvWithAddress:
@@ -401,9 +403,11 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
         return QIcon(":/icons/tx_mined");
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::RecvFromOther:
+    case TransactionRecord::CFundPayment:
         return QIcon(":/icons/tx_input");
     case TransactionRecord::SendToAddress:
     case TransactionRecord::SendToOther:
+    case TransactionRecord::CFund:
         return QIcon(":/icons/tx_output");
     default:
         return QIcon(":/icons/tx_inout");
@@ -421,13 +425,14 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     switch(wtx->type)
     {
     case TransactionRecord::CFund:
-        return "Community Fund Contribution";
+        return tr("Community Fund Contribution");
     case TransactionRecord::AnonTx:
-        return "Private Payment";
+        return tr("Private Payment");
     case TransactionRecord::RecvFromOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
+    case TransactionRecord::CFundPayment:
     case TransactionRecord::Generated:
         return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:

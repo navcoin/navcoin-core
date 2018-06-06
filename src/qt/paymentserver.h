@@ -87,6 +87,8 @@ public:
 
     // OptionsModel is used for getting proxy settings and display unit
     void setOptionsModel(OptionsModel *optionsModel);
+    // WalletModel is used for unlocking the wallet when signing messages
+    void setWalletModel(WalletModel *walletModel);
 
     // Verify that the payment request network matches the client network
     static bool verifyNetwork(const payments::PaymentDetails& requestDetails);
@@ -133,6 +135,7 @@ private:
     static bool readPaymentRequestFromFile(const QString& filename, PaymentRequestPlus& request);
     bool processPaymentRequest(const PaymentRequestPlus& request, SendCoinsRecipient& recipient);
     void fetchRequest(const QUrl& url);
+    void sendSignature(const QUrl& url, const QString data);
 
     // Setup networking
     void initNetManager();
@@ -146,6 +149,7 @@ private:
     QNetworkAccessManager* netManager;  // Used to fetch payment requests
 
     OptionsModel *optionsModel;
+    WalletModel *model;
 };
 
 #endif // NAVCOIN_QT_PAYMENTSERVER_H

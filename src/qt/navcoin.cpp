@@ -456,6 +456,7 @@ void NavCoinApplication::initializeResult(int retval)
 
             window->addWallet(NavCoinGUI::DEFAULT_WALLET, walletModel);
             window->setCurrentWallet(NavCoinGUI::DEFAULT_WALLET);
+            paymentServer->setWalletModel(walletModel);
 
             connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
                              paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
@@ -522,7 +523,7 @@ int main(int argc, char *argv[])
 {
     // Address 4K screen resolution: http://doc.qt.io/qt-5/highdpi.html
     // enable automatic scaling based on the pixel density of the monitor
-    qputenv( "QT_AUTO_SCREEN_SCALE_FACTOR", "1" );
+    //qputenv( "QT_AUTO_SCREEN_SCALE_FACTOR", "1" );
 
     SetupEnvironment();
 
@@ -622,7 +623,7 @@ int main(int argc, char *argv[])
     // - QSettings() will use the new application name after this, resulting in network-specific settings
     // - Needs to be done before createOptionsModel
 
-    // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
+    // Check for -testnet or -regtest or -devnet parameter (Params() calls are only valid after this clause)
     try {
         SelectParams(ChainNameFromCommandLine());
     } catch(std::exception &e) {

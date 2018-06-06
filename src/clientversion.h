@@ -15,7 +15,7 @@
 
 //! These need to be macros, as clientversion.cpp's and navcoin*-res.rc's voodoo requires it
 #define CLIENT_VERSION_MAJOR 4
-#define CLIENT_VERSION_MINOR 1
+#define CLIENT_VERSION_MINOR 2
 #define CLIENT_VERSION_REVISION 0
 #define CLIENT_VERSION_BUILD 0
 
@@ -60,6 +60,7 @@ static const int CLIENT_VERSION =
 extern const std::string CLIENT_NAME;
 extern const std::string CLIENT_BUILD;
 
+std::string FormatVersion(int nVersion);
 
 std::string FormatFullVersion();
 std::string FormatSubVersion(const std::string& name, int nClientVersion, const std::vector<std::string>& comments);

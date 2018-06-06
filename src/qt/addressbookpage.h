@@ -73,6 +73,7 @@ private Q_SLOTS:
     void onEditAction();
     /** Export button clicked */
     void on_exportButton_clicked();
+    void on_showPrivateKey_clicked();
 
     /** Set button states based on selected tab and selection */
     void selectionChanged();

@@ -1,4 +1,4 @@
-packages:=boost openssl libevent curl 
+packages:=boost openssl libevent curl
 darwin_packages:=zeromq
 linux_packages:=zeromq 
 native_packages := native_ccache native_comparisontool

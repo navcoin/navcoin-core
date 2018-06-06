@@ -1,10 +1,12 @@
-![alt text](https://raw.githubusercontent.com/navcoindev/navcoin-media/master/logo/logo-extended.png "Logo text 2")
+![NavCoin](./img/logo-extended.png)
 
-This is the working repository for NAV Coin 4.0.6, our fork of bitcoin-core 0.13.
+This is the working repository for NAV Coin 4.2.0, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
 https://navcoin.org/project-roadmap/
+
+[![Build Status](https://travis-ci.org/NAVCoin/navcoin-core.svg?branch=master)](https://travis-ci.org/NAVCoin/navcoin-core)
 
 ## Coin Specifications
 
@@ -12,7 +14,6 @@ https://navcoin.org/project-roadmap/
 |:-----------|:-----------|
 | Block Spacing | `30 seconds` |
 | Stake Minimum Age | `2 hours` |
-| Stake Maximum Age | `24 hours` |
 | Stake Reward | `5% per annum` |
 | Port | `44440` |
 | RPC Port | `44444` |
@@ -30,10 +31,24 @@ https://navcoin.org/project-roadmap/
 
 | Site | link |
 |:-----------|:-----------|
-| Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
-| Facebook | https://www.facebook.com/NAVCoin |
+| Medium | https://medium.com/nav-coin |
 | Twitter | https://twitter.com/NavCoin |
-| Reddit | http://www.reddit.com/r/navcoin |
-| Slack | https://navcoin-sign-up.herokuapp.com |
-| Telegram | https://t.me/navcoin |
 | Discord | https://discord.gg/y4Vu9jw |
+| Telegram | https://t.me/navcoin |
+| Reddit | http://www.reddit.com/r/navcoin |
+| Facebook | https://www.facebook.com/NAVCoin |
+| Instagram | https://www.instagram.com/nav.coin.official/ |
+| Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
+
+## Community Resources
+
+| Site | link |
+|:-----------|:-----------|
+| Trello Board | [https://trello.com/nav-community](https://trello.com/invite/b/rPdvVVL4/ba5c40a885fd3c02cda2a8b406ff7124/nav-community) |
+| Nav Community | http://navcommunity.net |
+
+
+
+License
+---------------------
+Distributed under the [MIT software license](http://www.opensource.org/licenses/mit-license.php).
