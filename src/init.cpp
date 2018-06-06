@@ -1146,6 +1146,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             }
             else
             {
+                strMiscWarning = "";
                 sMsg = "";
                 break;
             }
