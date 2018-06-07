@@ -13,9 +13,8 @@
 using namespace boost;
 using namespace boost::asio;
 
-int64_t CNtpClient::getTimestamp()
+bool CNtpClient::getTimestamp(uint64_t &timeRecv)
 {
-    long timeRecv = -1;
 
     io_service io_service;
 
@@ -67,14 +66,26 @@ int64_t CNtpClient::getTimestamp()
 
                 std::ostringstream oss;
                 oss << std::hex << std::setfill('0');
-                oss << std::setw(2) << (uint32_t)recvBuf[4];
+                oss << std::setw(2) << (unsigned long)recvBuf[4];
 
                 timeRecv = ntohl((uint32_t)recvBuf[4]);
-                LogPrint("ntp", "[NTP] timeRecv: %ll \n", (uint32_t)timeRecv);
-                
-                timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
 
-                LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint32_t)timeRecv, oss.str());
+                if(timeRecv > 2208988800U) // Sanity check
+                {
+
+                    timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
+
+                    LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint64_t)timeRecv, oss.str());
+
+                    return true;
+
+                }
+                else
+                {
+
+                    LogPrintf("[NTP] Received wrong clock from NTP server %s (bad timestamp format)\n", sHostName);
+
+                }
 
             }
 
@@ -94,12 +105,11 @@ int64_t CNtpClient::getTimestamp()
 
     }
 
-    assert (sizeof(int64_t) >= sizeof(time_t));
-
-    return (int64_t)timeRecv;
+    return false;
 }
 
-bool NtpClockSync() {
+bool NtpClockSync()
+{
     LogPrintf("[NTP] Starting clock sync...\n");
 
     std::vector<std::string> vNtpServers;
@@ -126,8 +136,9 @@ bool NtpClockSync() {
     {
         string s = vNtpServers[i];
         CNtpClient ntpClient(s);
-        int64_t nTimestamp = ntpClient.getTimestamp();
-        if(nTimestamp > -1)
+        uint64_t nTimestamp = 0;
+
+        if(ntpClient.getTimestamp(nTimestamp))
         {
             int64_t nClockDrift = GetTimeNow() - nTimestamp;
             nMeasureCount++;
