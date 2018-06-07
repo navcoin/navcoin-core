@@ -15,7 +15,7 @@ using namespace boost::asio;
 
 int64_t CNtpClient::getTimestamp()
 {
-    time_t timeRecv = -1;
+    long timeRecv = -1;
 
     io_service io_service;
 
