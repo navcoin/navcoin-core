@@ -67,14 +67,14 @@ int64_t CNtpClient::getTimestamp()
 
                 std::ostringstream oss;
                 oss << std::hex << std::setfill('0');
-                oss << std::setw(2) << (unsigned int)recvBuf[4];
+                oss << std::setw(2) << (uint32_t)recvBuf[4];
 
-                timeRecv = ntohl((time_t)recvBuf[4]);
-                LogPrint("ntp", "[NTP] timeRecv: %ll \n", (uint64_t)timeRecv);
+                timeRecv = ntohl((uint32_t)recvBuf[4]);
+                LogPrint("ntp", "[NTP] timeRecv: %ll \n", (uint32_t)timeRecv);
                 
                 timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
 
-                LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint64_t)timeRecv, oss.str());
+                LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint32_t)timeRecv, oss.str());
 
             }
 
