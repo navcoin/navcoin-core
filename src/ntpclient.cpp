@@ -70,6 +70,8 @@ int64_t CNtpClient::getTimestamp()
                 oss << std::setw(2) << (unsigned int)recvBuf[4];
 
                 timeRecv = ntohl((time_t)recvBuf[4]);
+                LogPrint("ntp", "[NTP] timeRecv: %ll \n", (uint64_t)timeRecv);
+                
                 timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
 
                 LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint64_t)timeRecv, oss.str());
@@ -94,7 +96,7 @@ int64_t CNtpClient::getTimestamp()
 
     assert (sizeof(int64_t) >= sizeof(time_t));
 
-    return *reinterpret_cast<int64_t*>(&timeRecv);
+    return (int64_t)timeRecv;
 }
 
 bool NtpClockSync() {
@@ -117,7 +119,7 @@ bool NtpClockSync() {
     int64_t nPrevMeasure = -1;
 
     random_shuffle(vNtpServers.begin(), vNtpServers.end(), GetRandInt);
-    
+
     unsigned int nMeasureCount = 0;
 
     for(unsigned int i = 0; i < vNtpServers.size(); i++)
