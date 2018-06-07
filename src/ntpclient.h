@@ -20,7 +20,7 @@ class CNtpClient
     string sHostName;
   public:
     CNtpClient(string server) : sHostName(server) { }
-    int64_t getTimestamp();
+    bool getTimestamp(uint64_t&);
 };
 
 bool NtpClockSync();
