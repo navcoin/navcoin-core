@@ -72,10 +72,11 @@ bool CNtpClient::getTimestamp(uint64_t &timeRecv)
 
                 if(timeRecv > 2208988800U) // Sanity check
                 {
+                    LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint64_t)timeRecv, oss.str());
 
                     timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
 
-                    LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint64_t)timeRecv, oss.str());
+                    LogPrint("ntp", "[NTP] Timestamp after 2208988800U subtraction: %ll \n", (uint64_t)timeRecv);
 
                     return true;
 
