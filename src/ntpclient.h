@@ -11,7 +11,7 @@
 #include <string>
 #include <iostream>
 
-#define DEFAULT_NTP_TIMEOUT 10
+#define DEFAULT_NTP_TIMEOUT 5
 
 using namespace std;
 
