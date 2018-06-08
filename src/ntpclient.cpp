@@ -34,7 +34,7 @@ bool CNtpClient::getTimestamp(uint64_t &timeRecv)
 
         socket.send_to(boost::asio::buffer(sendBuf), receiver_endpoint);
 
-        boost::array<unsigned long, 1024> recvBuf;
+        boost::array<uint32_t, 1024> recvBuf;
         ip::udp::endpoint sender_endpoint;
 
         try
@@ -66,17 +66,15 @@ bool CNtpClient::getTimestamp(uint64_t &timeRecv)
 
                 std::ostringstream oss;
                 oss << std::hex << std::setfill('0');
-                oss << std::setw(2) << (unsigned long)recvBuf[4];
+                oss << std::setw(2) << (uint32_t)recvBuf[8];
 
-                timeRecv = ntohl((uint32_t)recvBuf[4]);
+                timeRecv = ntohl((uint32_t)recvBuf[8]);
 
                 if(timeRecv > 2208988800U) // Sanity check
                 {
                     LogPrint("ntp", "[NTP] Received timestamp: %ll  (Raw: 0x%s)\n", (uint64_t)timeRecv, oss.str());
 
                     timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
-
-                    LogPrint("ntp", "[NTP] Timestamp after 2208988800U subtraction: %ll \n", (uint64_t)timeRecv);
 
                     return true;
 
