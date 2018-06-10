@@ -1112,21 +1112,45 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     uiInterface.InitMessage(_("Synchronizing clock..."));
 
     string sMsg = "";
-
-    if(!NtpClockSync())
-    {
-        sMsg = "A connection could not be made to any ntp server. "
-               "Your system clock will now be used. "
-               "Please ensure you system clock is correct otherwise "
-               "your stakes will be rejected by the network";
-    }
+    int nWarningCounter = 0;
 
     if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0)
     {
         sMsg = "You have set to ignore NTP Sync with the wallet "
                "setting ntpminmeasures=0. Please be aware that "
-               "your system clock needs to be set correctly for "
-               "your blocks to be accepted. ";
+               "your system clock needs to be correct in order "
+               "to synchronize with the network. ";
+    } else {
+        while(1)
+        {
+            if(!NtpClockSync())
+            {
+                sMsg = "A connection could not be made to any ntp server. "
+                       "Please ensure you system clock is correct otherwise "
+                       "your stakes will be rejected by the network";
+
+                if (nWarningCounter == 0)
+                {
+                    uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+                }
+
+                strMiscWarning = sMsg;
+                AlertNotify(strMiscWarning);
+                LogPrintf(strMiscWarning.c_str());
+
+                uiInterface.InitMessage(_(strprintf("Synchronizing clock attempt %i...", nWarningCounter+1).c_str()));
+
+                nWarningCounter++;
+
+                MilliSleep(30000);
+            }
+            else
+            {
+                strMiscWarning = "";
+                sMsg = "";
+                break;
+            }
+        }
     }
 
     if (sMsg != "")
