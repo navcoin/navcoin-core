@@ -80,7 +80,8 @@ public:
         SendToSelf,
         AnonTx,
         CFund,
-        CFundPayment
+        CFundPayment,
+        Orphan
     };
 
     /** Number of confirmation recommended for accepting a transaction */
