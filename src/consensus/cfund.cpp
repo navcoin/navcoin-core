@@ -66,7 +66,7 @@ bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
     }
 
     CFund::CProposal temp;
-    if(pcfundindex->ReadProposalIndex(prophash, temp)) {
+    if(pblocktree->ReadProposalIndex(prophash, temp)) {
         proposal = temp;
         mapProposal[prophash] = temp;
         return true;
@@ -85,7 +85,7 @@ bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &preques
     }
 
     CFund::CPaymentRequest temp;
-    if(pcfundindex->ReadPaymentRequestIndex(preqhash, temp)) {
+    if(pblocktree->ReadPaymentRequestIndex(preqhash, temp)) {
         prequest = temp;
         mapPaymentRequest[preqhash] = temp;
         return true;
@@ -263,7 +263,6 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     CNavCoinAddress addr(proposal.Address);
     if (!addr.IsValid())
         return false;
-
     CKeyID keyID;
     addr.GetKeyID(keyID);
 
@@ -289,10 +288,10 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 }
 
 bool CFund::CPaymentRequest::CanVote() const {
-    CFund::CProposal proposal;
-    if(!CFund::FindProposal(proposalhash, proposal))
+    CFund::CProposal parent;
+    if(!CFund::FindProposal(proposalhash, parent))
         return false;
-    return nAmount >= proposal.GetAvailable() && fState == NIL;
+    return nAmount >= parent.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)
@@ -331,6 +330,7 @@ bool CFund::IsValidProposal(CTransaction tx)
             nContribution +=tx.vout[i].nValue;
 
     return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+            Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0);
