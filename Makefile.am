@@ -212,12 +212,6 @@ cov: test_navcoin.coverage/.dirstamp total.coverage/.dirstamp
 
 endif
 
-if USE_COMPARISON_TOOL
-check-local:
-	$(MKDIR_P) qa/tmp
-	@qa/pull-tester/run-navcoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS) 2>&1
-endif
-
 dist_noinst_SCRIPTS = autogen.sh
 
 EXTRA_DIST = $(top_srcdir)/share/genbuild.sh qa/pull-tester/rpc-tests.py qa/rpc-tests $(DIST_DOCS) $(WINDOWS_PACKAGING) $(OSX_PACKAGING) $(BIN_CHECKS)
