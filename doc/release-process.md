@@ -1,12 +1,51 @@
 Release Process
 ====================
 
+Before any code can be accepted into NavCoin Core a Release Candidate branch and PR must be presented to the community for a minimum stand-down period - as detailed below.
+
+### Release Candidates
+
+Release candidates are critical to the NavCoin release eco-system and give the community and interested parties time to review the code and potentially prepare for any changes that may be introduced.  
+
+#### Release Candidates and Release Version Convention
+
+NavCoin follows the Semantic Versioning.
+
+e.g `v(MAJOR).(MINOR).(PATCH)` = `v4.2.1`
+
+1. MAJOR version when you make incompatible changes - This applies to hard forks or any type of breaking changes,
+2. MINOR version when you add functionality in a backward-compatible manner - This also applies to any soft forks.
+3. PATCH version when you make backward-compatible bug fixes.
+
+When preparing an RC branch and PR the versioning should have `-rc.(release)` appended to the end.
+
+E.g: `v4.5.0-rc.1`
+
+Every time a new release branch is cut the RC version should be increased to help inform the community.
+
+E.g: `v2.5.0-rc.1`, `v2.5.0-rc.2`, `v2.5.0-rc.3`
+
+#### Release Candidates Review Period
+
+* PATCH - 2 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+
+* MINOR - 6 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+
+* MAJOR - 8 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+
+Please note any type of network security or stability issues will be prioritized and might not have any applied stand-down period.
+
+
+#### Release Candidates Preparation
+
 Before every release candidate:
 
 * Update translations see [translation_process.md](https://github.com/navcoin/navcoin/blob/master/doc/translation_process.md#synchronising-translations).
 
 Before every minor and major release:
 
+* Update [npips.md](npips.md) a to account for the protocol changes since the last release
+* Update [bips.md](bips.md) to account for changes since the last release that we included from bitcoin core.
 * Update version in sources (see below)
 * Write release notes (see below)
 
@@ -101,6 +140,10 @@ The gbuild invocations below <b>DO NOT DO THIS</b> by default.
 ### Build and sign NavCoin Core for Linux, Windows, and OS X:
 
     pushd ./gitian-builder
+    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-arm.yml
+    mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
+    
+    pushd ./gitian-builder
     ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
     mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
 
@@ -166,10 +209,6 @@ navcoin.org (see below for navcoin.org update instructions).
 
 - Announce the release:
 
-- Communicate with enough time to economic actors of the Network (exchanges):
-
-[TODO] 
-
-List of exchanges
+-- Communicate with enough time to economic actors of the Network (exchanges):
 
 - Celebrate
