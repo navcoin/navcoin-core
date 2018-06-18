@@ -25,8 +25,8 @@ Build NavCoin Core
 
 1. Clone the navcoin source code and cd into `navcoin`
 
-        git clone https://github.com/navcoindev/navcoin4
-        cd navcoin
+        git clone https://github.com/NAVCoin/navcoin-core.git
+        cd navcoin-core
 
 2.  Build navcoin-core:
 
@@ -104,6 +104,6 @@ Use the following commands to install Qt 5.7 under MacOS Sierra using a differen
 Notes
 -----
 
-* Tested on OS X 10.7 through 10.11 on 64-bit Intel processors only.
+* Tested on OS X 10.7 through 10.13.3 on 64-bit Intel processors only.
 
 * Building with downloaded Qt binaries is not officially supported. See the notes in [#7714](https://github.com/navcoin/navcoin/issues/7714)

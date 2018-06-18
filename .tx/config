@@ -1,7 +1,10 @@
 [main]
 host = https://www.transifex.com
 
-[bitcoin.qt-translation-013x]
-file_filter = src/qt/locale/bitcoin_<lang>.ts
-source_file = src/qt/locale/bitcoin_en.ts
+[navcoin-core.navcoin-en-ts]
+file_filter = src/qt/locale/navcoin_<lang>.ts
+minimum_perc = 0
+source_file = src/qt/locale/navcoin_en.ts
 source_lang = en
+type = QT
+
