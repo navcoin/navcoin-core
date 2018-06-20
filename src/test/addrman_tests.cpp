@@ -182,8 +182,8 @@ BOOST_AUTO_TEST_CASE(addrman_select)
     // Test 12: Select pulls from new and tried regardless of port number.
     BOOST_CHECK(addrman.Select().ToString() == "250.4.6.6:5556");
     BOOST_CHECK(addrman.Select().ToString() == "250.3.2.2:9999");
-    BOOST_CHECK(addrman.Select().ToString() == "250.3.3.3:9999");
-    BOOST_CHECK(addrman.Select().ToString() == "250.4.4.4:5556");
+    BOOST_CHECK(addrman.Select().ToString() == "250.3.2.2:9999");
+    BOOST_CHECK(addrman.Select().ToString() == "250.1.1.1:5556");
 }
 
 BOOST_AUTO_TEST_CASE(addrman_new_collisions)
@@ -414,8 +414,7 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket)
     uint256 nKey1 = (uint256)(CHashWriter(SER_GETHASH, 0) << 1).GetHash();
     uint256 nKey2 = (uint256)(CHashWriter(SER_GETHASH, 0) << 2).GetHash();
 
-
-    BOOST_CHECK(info1.GetTriedBucket(nKey1) == 40);
+    BOOST_CHECK(info1.GetTriedBucket(nKey1) == 77);
 
     // Test 26: Make sure key actually randomizes bucket placement. A fail on
     //  this test could be a security issue.
