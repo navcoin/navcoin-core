@@ -825,6 +825,88 @@ void InitLogging()
     LogPrintf("NavCoin version %s\n", FormatFullVersion());
 }
 
+void DownloadBlockchain(std::string url)
+{
+
+    CURL *curl;
+    FILE *fp, *a;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if (curl)
+    {
+
+        std::string sDownload = (GetDataDir(false).string() + "/bootstrap_temp.tar");
+        fp = fopen(sDownload.c_str(),"wb");
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xferinfo);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        res = curl_easy_perform(curl);
+
+        if (res != CURLE_OK)
+        {
+            curl_easy_cleanup(curl);
+            curl_global_cleanup();
+            throw std::runtime_error("Failed!");
+
+        }
+        else
+        {
+
+            curl_easy_cleanup(curl);
+            curl_global_cleanup();
+            int i=fclose(fp);
+
+            if(i==0)
+            {
+
+                a = fopen(sDownload.c_str(), "rb");
+
+                if (a == NULL)
+                {
+
+                    boost::filesystem::remove_all(sDownload);
+                    throw std::runtime_error("Unable to open downloaded file.");
+
+                }
+                else
+                {
+
+                    boost::filesystem::remove_all(GetDataDir(false) / "blocks");
+                    boost::filesystem::remove_all(GetDataDir(false) / "chainstate");
+                    boost::filesystem::remove_all(GetDataDir(false) / "cfund");
+                    bool fOk = untar(a, sDownload.c_str());
+                    fclose(a);
+                    boost::filesystem::remove_all(sDownload);
+
+                    if(!fOk)
+                        throw std::runtime_error("Could not extract data.");
+
+                }
+
+            }
+            else
+            {
+
+                throw std::runtime_error("Failed!");
+
+            }
+
+        }
+
+    }
+    else
+    {
+
+        throw std::runtime_error("Failed!");
+
+    }
+}
+
 /** Initialize navcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -835,56 +917,25 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if(sBootstrap != "")
     {
-        RemoveConfigFile("bootstrap");
-        uiInterface.InitMessage(strprintf("[BOOTSTRAP] Trying to download from %s", sBootstrap.c_str()));
-        CURL *curl;
-        FILE *fp, *a;
-        CURLcode res;
 
-        curl = curl_easy_init();
-        if (curl) {
-            std::string sDownload = (GetDataDir(false).string() + "/bootstrap_temp.tar");
-            fp = fopen(sDownload.c_str(),"wb");
-            curl_easy_setopt(curl, CURLOPT_URL, sBootstrap.c_str());
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-            curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xferinfo);
-            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-            res = curl_easy_perform(curl);
-            if (res != CURLE_OK) {
-                curl_easy_cleanup(curl);
-                curl_global_cleanup();
-                return InitError("[BOOTSTRAP] Failed!");
-            } else {
-                curl_easy_cleanup(curl);
-                curl_global_cleanup();
-                int i=fclose(fp);
-                if(i==0) {
-                    uiInterface.InitMessage("[BOOTSTRAP] Downloaded");
-                    a = fopen(sDownload.c_str(), "rb");
-                    if (a == NULL) {
-                        boost::filesystem::remove_all(sDownload);
-                        return InitError("[BOOTSTRAP] Unable to open downloaded file.");
-                    } else {
-                        boost::filesystem::remove_all(GetDataDir(false) / "blocks");
-                        boost::filesystem::remove_all(GetDataDir(false) / "chainstate");
-                        boost::filesystem::remove_all(GetDataDir(false) / "cfund");
-                        bool fOk = untar(a, sDownload.c_str());
-                        fclose(a);
-                        boost::filesystem::remove_all(sDownload);
-                        if(!fOk)
-                            return InitError("[BOOTSTRAP] Could not extract data.");
-                    }
-                } else {
-                    return InitError("[BOOTSTRAP] Failed!");
-                }
-            }
-        } else {
-            return InitError("[BOOTSTRAP] Failed!");
-            return 1;
+        RemoveConfigFile("bootstrap");
+        uiInterface.InitMessage(strprintf("Trying to download from %s", sBootstrap.c_str()));
+
+        try
+        {
+
+            DownloadBlockchain(sBootstrap);
+
         }
+        catch(const std::exception& e)
+        {
+
+            return InitError(strprintf("[BOOTSTRAP] %s", e.what()));
+
+        }
+
+        uiInterface.InitMessage("Downloaded");
+
     }
 
     // ********************************************************* Step 1: setup
