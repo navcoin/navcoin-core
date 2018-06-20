@@ -298,12 +298,12 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        genesis = CreateGenesisBlockTestnet(1515437594, 2043029139, 0x1d00ffff, 1, 0);
+        genesis = CreateGenesisBlockTestnet(1527070531, 2043090631, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f");
+        uint256 hashGenesisBlock = uint256S("0x0000a8003f8dd50820bd7885af42dd63d7be0c39c0f8433b3e9397a6ce7d7a5c");
 
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xc9314161f5337394b2718149f7f2be4f1716e1e85cf3150f635ac9aa82bcd239")))
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114")))
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
@@ -318,8 +318,8 @@ public:
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
         vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
 
-        assert(consensus.hashGenesisBlock == uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f"));
-        assert(genesis.hashMerkleRoot == uint256S("0xc9314161f5337394b2718149f7f2be4f1716e1e85cf3150f635ac9aa82bcd239"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000a8003f8dd50820bd7885af42dd63d7be0c39c0f8433b3e9397a6ce7d7a5c"));
+        assert(genesis.hashMerkleRoot == uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -337,9 +337,8 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0,     uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f"))
-            ( 300542,uint256S("0xb27b8b37bcbb2fcaebb1fba9dbfda3c0cb3a07ff5b3554e37a4206f2e1edb698")),
-            1515437594, // * UNIX timestamp of last checkpoint block
+            ( 0,     uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114")),
+            1527070531, // * UNIX timestamp of last checkpoint block
             0,          // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             7000         // * estimated number of transactions per day after checkpoint
