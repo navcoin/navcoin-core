@@ -396,7 +396,6 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-ntpminmeasures=<n>", strprintf(_("Min. number of valid requests to NTP servers (default: %u)"), MINIMUM_NTP_MEASURE));
     strUsage += HelpMessageOpt("-ntptimeout=<n>", strprintf(_("Number of seconds to wait for a response from a NTP server (default: %u)"), DEFAULT_NTP_TIMEOUT));
     strUsage += HelpMessageOpt("-maxtimeoffset=<n>", strprintf(_("Max number of seconds allowed as clock offset for a peer (default: %u)"), MAXIMUM_TIME_OFFSET));
-    strUsage += HelpMessageOpt("-ntpservers=<ip>", _("Add a ntp server to connect to and attempt to use to synchronize the clock"));
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open"));
     strUsage += HelpMessageOpt("-addanonserver=<ip>", _("Add a NavTech node to use for private transactions"));
@@ -1199,13 +1198,55 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     // ********************************************************* Step 6: network initialization
 
     uiInterface.InitMessage(_("Synchronizing clock..."));
-    if(!NtpClockSync())
+
+    string sMsg = "";
+    int nWarningCounter = 0;
+
+    if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0)
     {
-        return InitError("Could not fetch clock data from NTP servers. "
-                         "Please specify a list of valid NTP servers "
-                         "using -ntpserver= as an argument to the daemon. "
-                         "A minimum of " + to_string(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE)) + " "
-                         "valid servers is required.");
+        sMsg = "You have set to ignore NTP Sync with the wallet "
+               "setting ntpminmeasures=0. Please be aware that "
+               "your system clock needs to be correct in order "
+               "to synchronize with the network. ";
+    } else {
+        while(1)
+        {
+            if(!NtpClockSync())
+            {
+                sMsg = "A connection could not be made to any ntp server. "
+                       "Please ensure you system clock is correct otherwise "
+                       "your stakes will be rejected by the network";
+
+                if (nWarningCounter == 0)
+                {
+                    uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+                }
+
+                strMiscWarning = sMsg;
+                AlertNotify(strMiscWarning);
+                LogPrintf(strMiscWarning.c_str());
+
+                uiInterface.InitMessage(_(strprintf("Synchronizing clock attempt %i...", nWarningCounter+1).c_str()));
+
+                nWarningCounter++;
+
+                MilliSleep(30000);
+            }
+            else
+            {
+                strMiscWarning = "";
+                sMsg = "";
+                break;
+            }
+        }
+    }
+
+    if (sMsg != "")
+    {
+        uiInterface.ThreadSafeMessageBox(sMsg, "", CClientUIInterface::MSG_ERROR);
+        strMiscWarning = sMsg;
+        AlertNotify(strMiscWarning);
+        LogPrintf(strMiscWarning.c_str());
     }
 
     RegisterNodeSignals(GetNodeSignals());
@@ -1678,4 +1719,21 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif
 
     return !fRequestShutdown;
+}
+
+void AlertNotify(const std::string& strMessage)
+{
+    uiInterface.NotifyAlertChanged();
+    std::string strCmd = GetArg("-alertnotify", "");
+    if (strCmd.empty()) return;
+
+    // Alert text should be plain ascii coming from a trusted source, but to
+    // be safe we first strip anything not in safeChars, then add single quotes around
+    // the whole string before passing it to the shell:
+    std::string singleQuote("'");
+    std::string safeStatus = SanitizeString(strMessage);
+    safeStatus = singleQuote+safeStatus+singleQuote;
+    boost::replace_all(strCmd, "%s", safeStatus);
+
+    boost::thread t(runCommand, strCmd); // thread runs free
 }
