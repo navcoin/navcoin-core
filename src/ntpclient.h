@@ -11,7 +11,7 @@
 #include <string>
 #include <iostream>
 
-#define DEFAULT_NTP_TIMEOUT 10
+#define DEFAULT_NTP_TIMEOUT 5
 
 using namespace std;
 
@@ -20,7 +20,7 @@ class CNtpClient
     string sHostName;
   public:
     CNtpClient(string server) : sHostName(server) { }
-    int64_t getTimestamp();
+    bool getTimestamp(uint64_t&);
 };
 
 bool NtpClockSync();
