@@ -112,10 +112,10 @@ void SetNtpTimeOffset(uint64_t nTimeOffsetIn)
     nNtpTimeOffset = nTimeOffsetIn;
 }
 
-std::string StringifySeconds(uint64_t seconds)
+std::string StringifySeconds(uint64_t n)
 {
     using namespace std::chrono;
-    std::chrono::seconds input_seconds{seconds};
+    std::chrono::seconds input_seconds{n};
     typedef duration<int, std::ratio<30 * 86400>> months;
     auto M = duration_cast<months>(input_seconds);
     input_seconds -= M;
