@@ -145,6 +145,7 @@ public:
     std::string strDZeel;
     uint256 hash;
     uint256 blockhash;
+    int nVersion;
 
     CProposal() { SetNull(); }
 
@@ -160,6 +161,7 @@ public:
         strDZeel = "";
         hash = uint256();
         blockhash = uint256();
+        nVersion = 1;
     }
 
     bool IsNull() const {
@@ -241,8 +243,31 @@ public:
         if (ser_action.ForRead()) {
             const_cast<std::vector<uint256>*>(&vPayments)->clear();
         }
+
         READWRITE(nAmount);
-        READWRITE(nFee);
+
+        if(ser_action.ForRead())
+        {
+            READWRITE(nFee);
+            // Proposals with versioning are signalled by a negative fee followed by the real fee
+            if(nFee < 0)
+            {
+                READWRITE(nFee);
+                READWRITE(nVersion);
+            }
+            else
+            {
+                nVersion = 1;
+            }
+        }
+        else
+        {
+            int nSignalVersion = -1;
+            READWRITE(nSignalVersion);
+            READWRITE(nFee);
+            READWRITE(nVersion);
+        }
+
         READWRITE(Address);
         READWRITE(nDeadline);
         READWRITE(fState);
@@ -252,6 +277,13 @@ public:
         READWRITE(strDZeel);
         READWRITE(hash);
         READWRITE(blockhash);
+
+        // Version-based read/write
+        // e.g.:
+        // if(nVersion >= 2)
+        //   READWRITE(nCyclesCount);
+        // if(nVersion >= 3)
+        //   READWRITE(sExtendedDesc);
     }
 
 };
