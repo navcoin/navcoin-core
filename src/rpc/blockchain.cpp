@@ -968,12 +968,12 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
                 continue;
             if(!CFund::FindProposal(prequest.proposalhash, parent))
                 continue;
-            CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
-            if(pindexblockparent == NULL)
+            CBlockIndex* pindexblockproposal = mapBlockIndex[parent.blockhash];
+            if(pindexblockproposal == NULL)
                 continue;
             if(parent.CanRequestPayments() && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
-                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
+                    && pindexblock->nHeight - pindexblockproposal->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequest.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)
