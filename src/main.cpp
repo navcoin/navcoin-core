@@ -3465,7 +3465,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 {
     int64_t nTimeStart = GetTimeMicros();
     CFund::CPaymentRequest prequest; CFund::CProposal proposal;
-    if(pindexNew->nHeight % Params().GetConsensus().nVotingPeriod == 0) {
+    if(pindexNew->nHeight % Params().GetConsensus().nVotingCycle == 0) {
         // We need to reset vote counter and update state of proposals and requests.
         std::vector<CFund::CPaymentRequest> vecPaymentRequest;
         std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
@@ -3556,7 +3556,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         }
     }
 
-    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nVotingPeriod);
+    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nVotingCycle);
     CBlockIndex* pindexblock = pindexNew;
 
     std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;

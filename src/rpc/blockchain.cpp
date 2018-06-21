@@ -940,7 +940,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
-    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nVotingPeriod);
+    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nVotingCycle);
     CBlockIndex* pindexblock = pindexBestHeader;
 
     std::map<uint256, std::pair<int, int>> vCacheProposals;
@@ -993,9 +993,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
     ret.push_back(Pair("funds", cf));
     UniValue vp(UniValue::VOBJ);
-    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nVotingPeriod);
+    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nVotingCycle);
     vp.push_back(Pair("starting",       starting));
-    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nVotingPeriod));
+    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nVotingCycle));
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 

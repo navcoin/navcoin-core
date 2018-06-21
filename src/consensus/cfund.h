@@ -146,6 +146,7 @@ public:
     uint256 hash;
     uint256 blockhash;
     int nVersion;
+    int nVotingCycle;
 
     CProposal() { SetNull(); }
 
@@ -161,7 +162,8 @@ public:
         strDZeel = "";
         hash = uint256();
         blockhash = uint256();
-        nVersion = 1;
+        nVersion = 2;
+        nVotingCycle = 0;
     }
 
     bool IsNull() const {
@@ -211,9 +213,7 @@ public:
 
     bool IsRejected() const;
 
-    bool IsExpired(uint32_t currentTime) const {
-        return (nDeadline < currentTime);
-    }
+    bool IsExpired(uint32_t currentTime) const;
 
     bool CanVote() const {
         return fState == NIL;
@@ -279,11 +279,9 @@ public:
         READWRITE(blockhash);
 
         // Version-based read/write
-        // e.g.:
-        // if(nVersion >= 2)
-        //   READWRITE(nCyclesCount);
-        // if(nVersion >= 3)
-        //   READWRITE(sExtendedDesc);
+        if(nVersion >= 2)
+           READWRITE(nVotingCycle);
+
     }
 
 };
