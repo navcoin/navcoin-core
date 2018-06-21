@@ -361,6 +361,12 @@ bool CFund::CProposal::IsRejected() const {
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
 }
 
+bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
+    return (nDeadline < currentTime) ||
+           (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
+}
+
+
 void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
