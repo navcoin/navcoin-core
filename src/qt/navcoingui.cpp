@@ -122,6 +122,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     usedReceivingAddressesAction(0),
     repairWalletAction(0),
     importPrivateKeyAction(0),
+    bootstrapBlockchainAction(0),
     exportMasterPrivateKeyAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
@@ -462,6 +463,9 @@ void NavCoinGUI::createActions()
     importPrivateKeyAction = new QAction(tr("&Import private key"), this);
     importPrivateKeyAction->setToolTip(tr("Import private key"));
 
+    bootstrapBlockchainAction = new QAction(tr("&Bootstrap blockchain"), this);
+    bootstrapBlockchainAction->setToolTip(tr("Bootstrap blockchain"));
+
     exportMasterPrivateKeyAction = new QAction(tr("Show &master private key"), this);
     exportMasterPrivateKeyAction->setToolTip(tr("Show master private key"));
 
@@ -481,6 +485,7 @@ void NavCoinGUI::createActions()
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
     // prevents an open debug window from becoming stuck/unusable on client shutdown
     connect(quitAction, SIGNAL(triggered()), rpcConsole, SLOT(hide()));
+    connect(bootstrapBlockchainAction, SIGNAL(triggered()), this, SLOT(bootstrapBlockchain()));
 
 #ifdef ENABLE_WALLET
     if(walletFrame)
@@ -503,6 +508,29 @@ void NavCoinGUI::createActions()
 
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), this, SLOT(showDebugWindowActivateConsole()));
     new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_D), this, SLOT(showDebugWindow()));
+}
+
+void NavCoinGUI::bootstrapBlockchain()
+{
+    bool ok = false;
+    QString url = QInputDialog::getText(this, tr("Bootstrap blockchain"),
+                                            tr("You can use an external trusted source to download the blockchain from.<BR>Please, indicate the source URL:"), QLineEdit::Normal,
+                                            "", &ok);
+    if (ok && !url.isEmpty())
+    {
+        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Bootstrap blockchain"),
+            tr("Client restart required to initiate download.<br><br>Client will be shut down and you should manually start it again. Do you want to proceed?"),
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if(btnRetVal == QMessageBox::Cancel)
+            return;
+
+        RemoveConfigFile("bootstrap");
+        WriteConfigFile("bootstrap",url.toStdString());
+
+        QApplication::quit();
+    }
+
 }
 
 void NavCoinGUI::createMenuBar()
@@ -531,7 +559,7 @@ void NavCoinGUI::createMenuBar()
         file->addSeparator();
         file->addAction(importPrivateKeyAction);
         file->addAction(exportMasterPrivateKeyAction);
-
+        file->addAction(bootstrapBlockchainAction);
     }
     file->addAction(quitAction);
 

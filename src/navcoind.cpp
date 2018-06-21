@@ -13,6 +13,7 @@
 #include "init.h"
 #include "noui.h"
 #include "scheduler.h"
+#include "untar.h"
 #include "util.h"
 #include "httpserver.h"
 #include "httprpc.h"
@@ -87,7 +88,7 @@ bool AppInit(int argc, char* argv[])
         else
         {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  navcoind [options]                     " + strprintf(_("Start %s Daemon"), _(PACKAGE_NAME)) + "\n";
+                    "  navcoind [options]                     " + strprintf(_("Start %s Daemon"), _(PACKAGE_NAME)) + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_NAVCOIND);
         }
@@ -110,6 +111,7 @@ bool AppInit(int argc, char* argv[])
             fprintf(stderr,"Error reading configuration file: %s\n", e.what());
             return false;
         }
+
         // Check for -testnet or -regtest or -devnet parameter (Params() calls are only valid after this clause)
         try {
             SelectParams(ChainNameFromCommandLine());
