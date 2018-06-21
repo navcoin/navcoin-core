@@ -561,6 +561,34 @@ std::string LicenseInfo()
             _("Distributed under the MIT software license, see the accompanying file COPYING or <http://www.opensource.org/licenses/mit-license.php>.") + "\n" +
             "\n" +
             _("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.") +
+            "\n" +
+            _("Copyright (c) 2014-2017, The Monero Project") + "\n" +
+            "\n" +
+            _("All rights reserved.") + "\n" +
+            "\n" +
+            _("Redistribution and use in source and binary forms, with or without modification, are") + "\n" +
+            _("permitted provided that the following conditions are met:") + "\n" +
+            "\n" +
+            _("1. Redistributions of source code must retain the above copyright notice, this list of") + "\n" +
+            _("   conditions and the following disclaimer.") + "\n" +
+            "\n" +
+            _("2. Redistributions in binary form must reproduce the above copyright notice, this list") + "\n" +
+            _("   of conditions and the following disclaimer in the documentation and/or other") + "\n" +
+            _("   materials provided with the distribution.") + "\n" +
+            "\n" +
+            _("3. Neither the name of the copyright holder nor the names of its contributors may be") + "\n" +
+            _("   used to endorse or promote products derived from this software without specific") + "\n" +
+            _("   prior written permission.") + "\n" +
+            "\n" +
+            _("THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY") + "\n" +
+            _(" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF") + "\n" +
+            _(" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL") + "\n" +
+            _(" THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,") + "\n" +
+            _(" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,") + "\n" +
+            _(" PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS") + "\n" +
+            _(" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,") + "\n" +
+            _(" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF") + "\n" +
+            _(" THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.") + "\n" +
             "\n";
 }
 
