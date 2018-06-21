@@ -369,8 +369,18 @@ bool CFund::CProposal::IsRejected() const {
 }
 
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
-    return (nDeadline < currentTime) ||
-           (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
+    if(nVersion == 1)
+        return (nDeadline > currentTime);
+
+    if(nVersion >= 2) {
+        if (mapBlockIndex.count(blockhash) == 0)
+            return true;
+
+        CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+
+        return (pblockindex->GetMedianTimePast() + nDeadline > currentTime) ||
+               (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
+    }
 }
 
 void CFund::CProposal::ToJson(UniValue& ret) const {
@@ -381,7 +391,15 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
     ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
-    ret.push_back(Pair("deadline", (uint64_t)nDeadline));
+    if(nVersion == 1)
+        ret.push_back(Pair("deadline", (uint64_t)nDeadline));
+    else if(nVersion >= 2) {
+        ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
+        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+            ret.push_back(Pair("deadline", pblockindex->GetMedianTimePast() + (uint64_t)nDeadline));
+        }
+    }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
     ret.push_back(Pair("votingCycle", nVotingCycle));
