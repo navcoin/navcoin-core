@@ -2300,12 +2300,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
             if(CFund::IsValidPaymentRequest(tx) && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
                 paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
-                CFund::CPaymentRequest prequest; CFund::CProposal parent;
-                if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, parent)) {
+                CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+                if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, proposal)) {
                     std::vector<uint256>::iterator position = std::find(parent.vPayments.begin(), parent.vPayments.end(), prequest.hash);
-                    if (position != parent.vPayments.end())
-                        parent.vPayments.erase(position);
-                    proposalIndex.push_back(make_pair(parent.hash,parent));
+                    if (position != proposal.vPayments.end())
+                        proposal.vPayments.erase(position);
+                    proposalIndex.push_back(make_pair(proposal.hash,proposal));
                 }
             }
         }
@@ -2768,12 +2768,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 else if (tx.vout[j].IsPaymentRequestVote()) {
                     if(votes.count(hash) == 0){
                         votes[hash] = vote;
-                        CFund::CPaymentRequest prequest; CFund::CProposal parent;
-                        if(CFund::FindPaymentRequest(hash, prequest) && CFund::FindProposal(prequest.proposalhash, parent)) {
-                            CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
+                        CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+                        if(CFund::FindPaymentRequest(hash, prequest) && CFund::FindProposal(prequest.proposalhash, proposal)) {
+                            CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                             if(pblockindex == NULL)
                                 continue;
-                            if(prequest.CanVote() && parent.CanRequestPayments()
+                            if(prequest.CanVote() && proposal.CanRequestPayments()
                                     && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                         }
@@ -2995,12 +2995,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
             prequest.strDZeel = find_value(metadata, "i").get_str();
 
-            CFund::CProposal parent;
-            if(!CFund::FindProposal(prequest.proposalhash, parent))
+            CFund::CProposal proposal;
+            if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 return false;
-            parent.vPayments.push_back(tx.hash);
+            proposal.vPayments.push_back(tx.hash);
 
-            proposalIndex.push_back(make_pair(prequest.proposalhash, parent));
+            proposalIndex.push_back(make_pair(prequest.proposalhash, proposal));
             paymentRequestIndex.push_back(make_pair(tx.GetHash(), prequest));
         }
 
@@ -4524,11 +4524,11 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                 if(!isJson)
                     return state.DoS(100, error("CheckBlock() : coinbase output amount greater than 0 for proof-of-stake block. proof of work not allowed."));
                 if(metadata[nPaymentRequestsCount].isStr()) {
-                    CFund::CPaymentRequest prequest; CFund::CProposal parent;
+                    CFund::CPaymentRequest prequest; CFund::CProposal proposal;
                     LogPrintf("strdzeel: %s [%d] = %s\n", block.vtx[0].strDZeel, nPaymentRequestsCount, metadata[nPaymentRequestsCount].get_str());
                     if(!CFund::FindPaymentRequest(metadata[nPaymentRequestsCount].get_str(), prequest))
                         return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
-                    if(!CFund::FindProposal(prequest.proposalhash, parent))
+                    if(!CFund::FindProposal(prequest.proposalhash, proposal))
                         return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
                     CTxDestination address;
                     bool fValidAddress = ExtractDestination(block.vtx[0].vout[i].scriptPubKey, address);

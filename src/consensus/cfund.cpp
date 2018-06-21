@@ -288,10 +288,10 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 }
 
 bool CFund::CPaymentRequest::CanVote() const {
-    CFund::CProposal parent;
-    if(!CFund::FindProposal(proposalhash, parent))
+    CFund::CProposal proposal;
+    if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount >= parent.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
+    return nAmount >= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)
