@@ -66,6 +66,8 @@ public:
     int nVotesYes;
     int nVotesNo;
     string strDZeel;
+    int nVersion;
+    int nVotingCycle;
 
     CPaymentRequest() { SetNull(); }
 
@@ -78,6 +80,8 @@ public:
         proposalhash = uint256();
         paymenthash = uint256();
         strDZeel = "";
+        nVersion = 2;
+        nVotingCycle = 0;
     }
 
     bool IsNull() const {
@@ -96,6 +100,11 @@ public:
             if(fState != REJECTED)
                 sFlags += " waiting for end of voting period";
         }
+        if(IsExpired()) {
+            sFlags = "expired";
+            if(fState != EXPIRED)
+                sFlags += " waiting for end of voting period";
+        }
         return sFlags;
     }
 
@@ -112,13 +121,35 @@ public:
 
     bool IsRejected() const;
 
+    bool IsExpired() const;
+
     bool CanVote() const;
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(nAmount);
+        if(ser_action.ForRead())
+        {
+            READWRITE(nAmount);
+            // Payment Requests with versioning are signalled by a negative amount followed by the real amount
+            if(nAmount < 0)
+            {
+                READWRITE(nAmount);
+                READWRITE(nVersion);
+            }
+            else
+            {
+                nVersion = 1;
+            }
+        }
+        else
+        {
+            int nSignalVersion = -1;
+            READWRITE(nSignalVersion);
+            READWRITE(nAmount);
+            READWRITE(nVersion);
+        }
         READWRITE(fState);
         READWRITE(nVotesYes);
         READWRITE(nVotesNo);

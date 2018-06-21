@@ -78,6 +78,7 @@ struct Params {
     int nCommunityFundMinAge;
     int64_t nProposalMinimalFee;
     unsigned int nCyclesProposalVoting;
+    unsigned int nCyclesPaymentRequestVoting;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;

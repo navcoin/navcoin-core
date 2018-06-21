@@ -3474,14 +3474,40 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
                 bool fUpdate = false;
                 prequest = vecPaymentRequest[i];
-                if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
-                        (!prequest.IsAccepted() && !prequest.IsRejected())) {
-                    if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
-                        prequest.fState = CFund::REJECTED;
-                    }
-                    prequest.nVotesNo = 0;
-                    prequest.nVotesYes = 0;
+                CTransaction tx;
+                uint256 hashBlock = uint256();
+
+                if (!GetTransaction(prequest.hash, tx, Params().GetConsensus(), hashBlock, true))
+                    continue;
+
+                if (mapBlockIndex.count(hashBlock) == 0)
+                    continue;
+
+                CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+
+                int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nVotingCycle);
+                int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nVotingCycle);
+                int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+
+                if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
+                    prequest.nVotingCycle = nElapsedCycles;
                     fUpdate = true;
+                }
+
+                if((prequest.IsExpired() && prequest.fState != CFund::EXPIRED) ||
+                        (prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
+                        (!prequest.IsAccepted() && !prequest.IsRejected())) {
+                    if(prequest.IsExpired() && prequest.fState != CFund::EXPIRED) {
+                        prequest.fState = CFund::EXPIRED;
+                        fUpdate = true;
+                    } else if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
+                        prequest.fState = CFund::REJECTED;
+                        fUpdate = true;
+                    } else {
+                        prequest.nVotesNo = 0;
+                        prequest.nVotesYes = 0;
+                        fUpdate = true;
+                    }
                 }
                 if(!CFund::FindProposal(prequest.proposalhash, proposal))
                     continue;

@@ -291,7 +291,14 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal parent;
     if(!CFund::FindProposal(proposalhash, parent))
         return false;
-    return nAmount >= parent.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
+    return nAmount >= parent.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
+}
+
+bool CFund::CPaymentRequest::IsExpired() const {
+    if(nVersion >= 2)
+        return (nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting &&
+                fState != ACCEPTED && fState != REJECTED && fState != EXPIRED);
+    return false;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)
@@ -366,7 +373,6 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
            (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
 }
 
-
 void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
@@ -378,7 +384,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("deadline", (uint64_t)nDeadline));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle"), nVotingCycle));
+    ret.push_back(Pair("votingCycle", nVotingCycle));
     ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
     if(fState == ACCEPTED)
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
@@ -397,11 +403,13 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
 }
 
 void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
+    ret.push_back(Pair("votingCycle", nVotingCycle));
     ret.push_back(Pair("status", GetState()));
     if(fState == ACCEPTED) {
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
