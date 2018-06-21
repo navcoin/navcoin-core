@@ -2964,6 +2964,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.Address = find_value(metadata, "a").get_str();
             proposal.nDeadline = find_value(metadata, "d").get_int64();
             proposal.strDZeel = find_value(metadata, "s").get_str();
+            proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
             proposal.nFee = nProposalFee;
             proposal.hash = tx.GetHash();
 
@@ -2994,6 +2995,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             prequest.nAmount = find_value(metadata, "n").get_int64();
             prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
             prequest.strDZeel = find_value(metadata, "i").get_str();
+            prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
             CFund::CProposal parent;
             if(!CFund::FindProposal(prequest.proposalhash, parent))
