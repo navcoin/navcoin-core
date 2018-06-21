@@ -368,6 +368,7 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
 
 
 void CFund::CProposal::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
@@ -377,6 +378,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("deadline", (uint64_t)nDeadline));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
+    ret.push_back(Pair("votingCycle"), nVotingCycle));
     ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
     if(fState == ACCEPTED)
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
