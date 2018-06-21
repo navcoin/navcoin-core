@@ -3511,6 +3511,26 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             for(unsigned int i = 0; i < vecProposal.size(); i++) {
                 bool fUpdate = false;
                 proposal = vecProposal[i];
+                CTransaction tx;
+                uint256 hashBlock = uint256();
+
+                if (!GetTransaction(proposal.hash, tx, Params().GetConsensus(), hashBlock, true))
+                    continue;
+
+                if (mapBlockIndex.count(hashBlock) == 0)
+                    continue;
+
+                CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+
+                int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nVotingCycle);
+                int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nVotingCycle);
+                int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+
+                if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
+                    proposal.nVotingCycle = nElapsedCycles;
+                    fUpdate = true;
+                }
+
                 if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
                         (proposal.IsRejected() && proposal.fState != CFund::REJECTED) ||
                         (!proposal.IsAccepted() && !proposal.IsRejected())) {
