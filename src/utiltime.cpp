@@ -136,7 +136,7 @@ std::string StringifySeconds(std::chrono::seconds input_seconds)
     std::stringstream ss;
     ss.fill('0');
     if (Mc) {
-        ss << Mc.count() << " months ";
+        ss << M.count() << " months ";
     }
 
     if (Mc || dc) {
