@@ -26,8 +26,6 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_UNBOUND
-
 #pragma once
 
 #include <vector>
@@ -175,5 +173,3 @@ std::string parse_dns_public(const char *s);
 }  // namespace utils::dns_utils
 
 }  // namespace utils
-
-#endif

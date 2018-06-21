@@ -135,6 +135,8 @@ ui_interface.h
 uint256.cpp
 uint256.h
 undo.h
+untar.cpp
+untar.h
 util.cpp
 util.h
 utilmoneystr.cpp
