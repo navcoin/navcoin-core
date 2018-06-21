@@ -963,15 +963,15 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             }
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
-            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
-            if(!CFund::FindProposal(prequest.proposalhash, parent))
+            if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 continue;
-            CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
+            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if(parent.CanRequestPayments() && prequest.CanVote()
+            if(proposal.CanRequestPayments() && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
                     && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequest.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
@@ -1013,15 +1013,15 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         votesProposals.push_back(op);
     }
     for(it = vCachePaymentRequest.begin(); it != vCachePaymentRequest.end(); it++) {
-        CFund::CPaymentRequest prequest; CFund::CProposal parent;
+        CFund::CPaymentRequest prequest; CFund::CProposal proposal;
         if(!CFund::FindPaymentRequest(it->first, prequest))
             continue;
-        if(!CFund::FindProposal(prequest.proposalhash, parent))
+        if(!CFund::FindProposal(prequest.proposalhash, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
-        op.push_back(Pair("hash", prequest.hash.ToString()));
-        op.push_back(Pair("proposaldesc", parent.strDZeel));
-        op.push_back(Pair("desc", prequest.strDZeel));
+        op.push_back(Pair("hash", proposal.hash.ToString()));
+        op.push_back(Pair("proposaldesc", proposal.strDZeel));
+        op.push_back(Pair("desc", proposal.strDZeel));
         op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));

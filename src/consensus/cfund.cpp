@@ -284,15 +284,15 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     if(nAmount > proposal.GetAvailable())
         return false;
 
-    return nVersion <= Params().GetConsensus().nMaxPaymentRequestVersion;
+    return nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
 
 }
 
 bool CFund::CPaymentRequest::CanVote() const {
-    CFund::CProposal parent;
-    if(!CFund::FindProposal(proposalhash, parent))
+    CFund::CProposal proposal;
+    if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount >= parent.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
+    return nAmount >= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
@@ -343,7 +343,7 @@ bool CFund::IsValidProposal(CTransaction tx)
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0 &&
-            nVersion <= Params().GetConsensus().nMaxProposalVersion);
+            nVersion <= Params().GetConsensus().nProposalMaxVersion);
 
 }
 

@@ -79,8 +79,8 @@ struct Params {
     int64_t nProposalMinimalFee;
     unsigned int nCyclesProposalVoting;
     unsigned int nCyclesPaymentRequestVoting;
-    int nMaxPaymentRequestVersion;
-    int nMaxProposalVersion;
+    int nPaymentRequestMaxVersion;
+    int nProposalMaxVersion;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;
