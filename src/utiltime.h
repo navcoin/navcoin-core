@@ -27,7 +27,7 @@ void MilliSleep(int64_t n);
 
 std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime);
 
-std::string StringifySeconds(std::chrono::seconds input_seconds);
+std::string StringifySeconds(uint64_t seconds);
 
 static std::vector<std::string> vDefaultNtpServers = {"de.pool.ntp.org",
                   "jp.pool.ntp.org", "id.pool.ntp.org", "in.pool.ntp.org",

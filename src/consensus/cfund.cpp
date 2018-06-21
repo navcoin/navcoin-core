@@ -252,6 +252,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::string Signature = find_value(metadata, "s").get_str();
     std::string Hash = find_value(metadata, "h").get_str();
     std::string strDZeel = find_value(metadata, "i").get_str();
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
     CFund::CProposal proposal;
 
@@ -283,7 +284,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     if(nAmount > proposal.GetAvailable())
         return false;
 
-    return true;
+    return nVersion <= Params().GetConsensus().nMaxPaymentRequestVersion;
 
 }
 
@@ -327,6 +328,7 @@ bool CFund::IsValidProposal(CTransaction tx)
     std::string Address = find_value(metadata, "a").get_str();
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
     CNavCoinAddress address(Address);
     if (!address.IsValid())
@@ -340,7 +342,8 @@ bool CFund::IsValidProposal(CTransaction tx)
             Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
-            nDeadline > 0);
+            nDeadline > 0 &&
+            nVersion <= Params().GetConsensus().nMaxProposalVersion);
 
 }
 
@@ -392,12 +395,12 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
     if(nVersion == 1)
-        ret.push_back(Pair("deadline", (uint64_t)nDeadline));
+        ret.push_back(Pair("expiresOn", (uint64_t)nDeadline));
     else if(nVersion >= 2) {
-        ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
+        ret.push_back(Pair("proposalDuration", StringifySeconds(nDeadline)));
         if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
             CBlockIndex* pblockindex = mapBlockIndex[blockhash];
-            ret.push_back(Pair("deadline", pblockindex->GetMedianTimePast() + (uint64_t)nDeadline));
+            ret.push_back(Pair("expiresOn", pblockindex->GetMedianTimePast() + (uint64_t)nDeadline));
         }
     }
     ret.push_back(Pair("votesYes", nVotesYes));
