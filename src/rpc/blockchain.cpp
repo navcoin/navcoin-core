@@ -940,7 +940,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
-    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nVotingCycle);
+    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     CBlockIndex* pindexblock = pindexBestHeader;
 
     std::map<uint256, std::pair<int, int>> vCacheProposals;
@@ -971,7 +971,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nVotingCycle > 0))
+            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nBlocksPerVotingCycle > 0))
                     && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
                     && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
@@ -994,9 +994,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
     ret.push_back(Pair("funds", cf));
     UniValue vp(UniValue::VOBJ);
-    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nVotingCycle);
+    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     vp.push_back(Pair("starting",       starting));
-    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nVotingCycle));
+    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle));
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 

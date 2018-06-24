@@ -2773,7 +2773,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                             if(pblockindex == NULL)
                                 continue;
-                            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
+                            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nBlocksPerVotingCycle > 0))
                                     && prequest.CanVote()
                                     && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
@@ -3468,7 +3468,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 {
     int64_t nTimeStart = GetTimeMicros();
     CFund::CPaymentRequest prequest; CFund::CProposal proposal;
-    if(pindexNew->nHeight % Params().GetConsensus().nVotingCycle == 0) {
+    if(pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle == 0) {
         // We need to reset vote counter and update state of proposals and requests.
         std::vector<CFund::CPaymentRequest> vecPaymentRequest;
         std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
@@ -3488,12 +3488,12 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
                 CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-                int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nVotingCycle);
-                int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nVotingCycle);
+                int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
                 int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
 
-                if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
-                    prequest.nVotingCycle = nElapsedCycles;
+                if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nBlocksPerVotingCycle) {
+                    prequest.nBlocksPerVotingCycle = nElapsedCycles;
                     fUpdate = true;
                 }
 
@@ -3551,12 +3551,12 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
                 CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-                int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nVotingCycle);
-                int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nVotingCycle);
+                int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
                 int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
 
-                if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
-                    proposal.nVotingCycle = nElapsedCycles;
+                if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nBlocksPerVotingCycle) {
+                    proposal.nBlocksPerVotingCycle = nElapsedCycles;
                     fUpdate = true;
                 }
 
@@ -3605,7 +3605,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         }
     }
 
-    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nVotingCycle);
+    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     CBlockIndex* pindexblock = pindexNew;
 
     std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
@@ -3636,7 +3636,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nVotingCycle > 0))
+            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nBlocksPerVotingCycle > 0))
                     && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
                     && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
