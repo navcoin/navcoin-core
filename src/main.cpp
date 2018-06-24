@@ -3636,7 +3636,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nBlocksPerVotingCycle > 0))
+            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nBlocksPerVotingCycle > 0))
                     && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
                     && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
