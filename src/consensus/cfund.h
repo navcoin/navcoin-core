@@ -67,7 +67,7 @@ public:
     int nVotesNo;
     string strDZeel;
     int nVersion;
-    int nBlocksPerVotingCycle;
+    int nVotingCycle;
 
     CPaymentRequest() { SetNull(); }
 
@@ -81,7 +81,7 @@ public:
         paymenthash = uint256();
         strDZeel = "";
         nVersion = 2;
-        nBlocksPerVotingCycle = 0;
+        nVotingCycle = 0;
     }
 
     bool IsNull() const {
@@ -177,7 +177,7 @@ public:
     uint256 hash;
     uint256 blockhash;
     int nVersion;
-    int nBlocksPerVotingCycle;
+    int nVotingCycle;
 
     CProposal() { SetNull(); }
 
@@ -194,7 +194,7 @@ public:
         hash = uint256();
         blockhash = uint256();
         nVersion = 2;
-        nBlocksPerVotingCycle = 0;
+        nVotingCycle = 0;
     }
 
     bool IsNull() const {
@@ -311,7 +311,7 @@ public:
 
         // Version-based read/write
         if(nVersion >= 2)
-           READWRITE(nBlocksPerVotingCycle);
+           READWRITE(nVotingCycle);
 
     }
 
