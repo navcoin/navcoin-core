@@ -7954,7 +7954,7 @@ bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge)
 
     arith_uint256 bnCoinDay = ((bnCentSecond * CENT) / COIN) / (24 * 60 * 60);
     LogPrint("coinage", "coin age bnCoinDay=%s\n", bnCoinDay.ToString());
-    nCoinAge = bnCoinDay.GetCompact();
+    nCoinAge = bnCoinDay.GetLow64();
 
     return true;
 }
