@@ -245,15 +245,20 @@ public:
     mutable bool fAvailableCreditCached;
     mutable bool fWatchDebitCached;
     mutable bool fWatchCreditCached;
+    mutable bool fColdStakingCreditCached;
+    mutable bool fColdStakingDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
+    mutable bool fSpendsColdStaking;
     mutable CAmount nDebitCached;
     mutable CAmount nCreditCached;
     mutable CAmount nImmatureCreditCached;
     mutable CAmount nAvailableCreditCached;
     mutable CAmount nWatchDebitCached;
     mutable CAmount nWatchCreditCached;
+    mutable CAmount nColdStakingCreditCached;
+    mutable CAmount nColdStakingDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
@@ -298,8 +303,11 @@ public:
         fAvailableCreditCached = false;
         fWatchDebitCached = false;
         fWatchCreditCached = false;
+        fColdStakingCreditCached = false;
+        fColdStakingDebitCached = false;
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
+        fSpendsColdStaking = false;
         fChangeCached = false;
         fAnon = false;
         fCFund = false;
@@ -307,6 +315,8 @@ public:
         nCreditCached = 0;
         nImmatureCreditCached = 0;
         nAvailableCreditCached = 0;
+        nColdStakingCreditCached = 0;
+        nColdStakingDebitCached = 0;
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
         nAvailableWatchCreditCached = 0;
@@ -367,6 +377,8 @@ public:
         fAvailableCreditCached = false;
         fWatchDebitCached = false;
         fWatchCreditCached = false;
+        fColdStakingCreditCached = false;
+        fColdStakingDebitCached = false;
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
         fDebitCached = false;
@@ -437,6 +449,7 @@ public:
     CAmount GetCredit(const isminefilter& filter) const;
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
+    CAmount GetAvailableStakableCredit() const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;
@@ -740,7 +753,7 @@ public:
     /**
      * populate vCoins with vector of available COutputs.
      */
-    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false) const;
+    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
 
     /**
      * Shuffle and select coins until nTargetValue is reached while avoiding
@@ -821,6 +834,7 @@ public:
     void ResendWalletTransactions(int64_t nBestBlockTime);
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime);
     CAmount GetBalance() const;
+    CAmount GetColdStakingBalance() const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
     CAmount GetWatchOnlyBalance() const;
