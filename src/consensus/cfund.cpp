@@ -397,7 +397,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     if(nVersion == 1)
         ret.push_back(Pair("expiresOn", (uint64_t)nDeadline));
     else if(nVersion >= 2) {
-        ret.push_back(Pair("proposalDuration", nDeadline));
+        ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
         if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
             CBlockIndex* pblockindex = mapBlockIndex[blockhash];
             ret.push_back(Pair("expiresOn", pblockindex->GetMedianTimePast() + (uint64_t)nDeadline));
