@@ -297,7 +297,7 @@ bool CFund::CPaymentRequest::CanVote() const {
 
 bool CFund::CPaymentRequest::IsExpired() const {
     if(nVersion >= 2)
-        return (nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting &&
+        return (nBlocksPerVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting &&
                 fState != ACCEPTED && fState != REJECTED);
     return false;
 }
@@ -382,7 +382,7 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
         CBlockIndex* pblockindex = mapBlockIndex[blockhash];
 
         return (pblockindex->GetMedianTimePast() + nDeadline < currentTime) ||
-               (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
+               (nBlocksPerVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
     }
 }
 
@@ -405,7 +405,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", nVotingCycle));
+    ret.push_back(Pair("votingCycle", nBlocksPerVotingCycle));
     ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
     if(fState == ACCEPTED)
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
@@ -430,7 +430,7 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", nVotingCycle));
+    ret.push_back(Pair("votingCycle", nBlocksPerVotingCycle));
     ret.push_back(Pair("status", GetState()));
     if(fState == ACCEPTED) {
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
