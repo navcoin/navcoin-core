@@ -236,7 +236,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                 if(pblockindex == NULL)
                     continue;
-                if(prequest.CanVote() && proposal.CanRequestPayments() && votes.count(prequest.hash) == 0 &&
+                if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nVotingCycle > 0))
+                        && prequest.CanVote() && votes.count(prequest.hash) == 0 &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);

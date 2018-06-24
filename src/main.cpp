@@ -2773,7 +2773,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                             if(pblockindex == NULL)
                                 continue;
-                            if(prequest.CanVote() && proposal.CanRequestPayments()
+                            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nVotingCycle > 0))
+                                    && prequest.CanVote()
                                     && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                         }
@@ -3635,7 +3636,8 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if(proposal.CanRequestPayments() && prequest.CanVote()
+            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nVotingCycle > 0))
+                    && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
                     && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
