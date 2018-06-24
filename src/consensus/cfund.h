@@ -145,7 +145,7 @@ public:
         }
         else
         {
-            int nSignalVersion = -1;
+            CAmount nSignalVersion = -1;
             READWRITE(nSignalVersion);
             READWRITE(nAmount);
             READWRITE(nVersion);
@@ -293,7 +293,7 @@ public:
         }
         else
         {
-            int nSignalVersion = -1;
+            CAmount nSignalVersion = -1;
             READWRITE(nSignalVersion);
             READWRITE(nFee);
             READWRITE(nVersion);
