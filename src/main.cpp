@@ -2773,7 +2773,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                             if(pblockindex == NULL)
                                 continue;
-                            if((proposal.CanRequestPayments() || (proposal.fState == EXPIRED && prequest.nVotingCycle > 0))
+                            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
                                     && prequest.CanVote()
                                     && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
