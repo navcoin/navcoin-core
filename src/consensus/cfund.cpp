@@ -298,7 +298,7 @@ bool CFund::CPaymentRequest::CanVote() const {
 bool CFund::CPaymentRequest::IsExpired() const {
     if(nVersion >= 2)
         return (nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting &&
-                fState != ACCEPTED && fState != REJECTED && fState != EXPIRED);
+                fState != ACCEPTED && fState != REJECTED);
     return false;
 }
 
