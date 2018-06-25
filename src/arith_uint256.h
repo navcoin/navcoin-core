@@ -13,22 +13,24 @@
 #include <string>
 #include <vector>
 
+class uint512;
 class uint256;
 
-class uint_error : public std::runtime_error {
+class uint_error : public std::runtime_error
+{
 public:
     explicit uint_error(const std::string& str) : std::runtime_error(str) {}
 };
 
 /** Template base class for unsigned big integers. */
-template<unsigned int BITS>
+template <unsigned int BITS>
 class base_uint
 {
 protected:
-    enum { WIDTH=BITS/32 };
+    enum { WIDTH = BITS / 32 };
     uint32_t pn[WIDTH];
-public:
 
+public:
     base_uint()
     {
         for (int i = 0; i < WIDTH; i++)
@@ -57,6 +59,7 @@ public:
     }
 
     explicit base_uint(const std::string& str);
+    explicit base_uint(const std::vector<unsigned char>& vch);
 
     bool operator!() const
     {
@@ -135,8 +138,7 @@ public:
     base_uint& operator+=(const base_uint& b)
     {
         uint64_t carry = 0;
-        for (int i = 0; i < WIDTH; i++)
-        {
+        for (int i = 0; i < WIDTH; i++) {
             uint64_t n = carry + pn[i] + b.pn[i];
             pn[i] = n & 0xffffffff;
             carry = n >> 32;
@@ -174,7 +176,7 @@ public:
     {
         // prefix operator
         int i = 0;
-        while (++pn[i] == 0 && i < WIDTH-1)
+        while (++pn[i] == 0 && i < WIDTH - 1)
             i++;
         return *this;
     }
@@ -191,7 +193,7 @@ public:
     {
         // prefix operator
         int i = 0;
-        while (--pn[i] == (uint32_t)-1 && i < WIDTH-1)
+        while (--pn[i] == (uint32_t)-1 && i < WIDTH - 1)
             i++;
         return *this;
     }
@@ -231,6 +233,26 @@ public:
     void SetHex(const std::string& str);
     std::string ToString() const;
 
+    unsigned char* begin()
+    {
+        return (unsigned char*)&pn[0];
+    }
+
+    unsigned char* end()
+    {
+        return (unsigned char*)&pn[WIDTH];
+    }
+
+    const unsigned char* begin() const
+    {
+        return (unsigned char*)&pn[0];
+    }
+
+    const unsigned char* end() const
+    {
+        return (unsigned char*)&pn[WIDTH];
+    }
+
     unsigned int size() const
     {
         return sizeof(pn);
@@ -241,12 +263,6 @@ public:
      * value is zero.
      */
     unsigned int bits() const;
-
-    uint64_t GetLow64() const
-    {
-        assert(WIDTH >= 2);
-        return pn[0] | (uint64_t)pn[1] << 32;
-    }
 
     unsigned int GetSerializeSize(int nType, int nVersion) const
     {
@@ -264,15 +280,23 @@ public:
     {
         s.read((char*)pn, sizeof(pn));
     }
+
+    uint64_t GetLow64() const
+    {
+        assert(WIDTH >= 2);
+        return pn[0] | (uint64_t)pn[1] << 32;
+    }
 };
 
 /** 256-bit unsigned big integer. */
-class arith_uint256 : public base_uint<256> {
+class arith_uint256 : public base_uint<256>
+{
 public:
     arith_uint256() {}
     arith_uint256(const base_uint<256>& b) : base_uint<256>(b) {}
     arith_uint256(uint64_t b) : base_uint<256>(b) {}
     explicit arith_uint256(const std::string& str) : base_uint<256>(str) {}
+    explicit arith_uint256(const std::vector<unsigned char>& vch) : base_uint<256>(vch) {}
 
     /**
      * The "compact" format is a representation of a whole
@@ -289,22 +313,39 @@ public:
      * Thus 0x1234560000 is compact (0x05123456)
      * and  0xc0de000000 is compact (0x0600c0de)
      *
-     * NavCoin only uses this "compact" format for encoding difficulty
+     * Bitcoin only uses this "compact" format for encoding difficulty
      * targets, which are unsigned 256bit quantities.  Thus, all the
      * complexities of the sign bit and using base 256 are probably an
      * implementation accident.
      */
-    arith_uint256& SetCompact(uint32_t nCompact, bool *pfNegative = NULL, bool *pfOverflow = NULL);
-    arith_uint256& SetUnsignedCompact(unsigned int nCompact);
+    arith_uint256& SetCompact(uint32_t nCompact, bool* pfNegative = NULL, bool* pfOverflow = NULL);
     uint32_t GetCompact(bool fNegative = false) const;
-    void SetHex(const char* psz){};
-    void SetHex(const std::string& str){};
 
-    friend uint256 ArithToUint256(const arith_uint256 &);
-    friend arith_uint256 UintToArith256(const uint256 &);
+    friend uint256 ArithToUint256(const arith_uint256&);
+    friend arith_uint256 UintToArith256(const uint256&);
+    uint64_t GetHash(const arith_uint256& salt) const;
 };
 
-uint256 ArithToUint256(const arith_uint256 &);
-arith_uint256 UintToArith256(const uint256 &);
+
+/** 512-bit unsigned big integer. */
+class arith_uint512 : public base_uint<512>
+{
+public:
+    arith_uint512() {}
+    arith_uint512(const base_uint<512>& b) : base_uint<512>(b) {}
+    arith_uint512(uint64_t b) : base_uint<512>(b) {}
+    explicit arith_uint512(const std::string& str) : base_uint<512>(str) {}
+    explicit arith_uint512(const std::vector<unsigned char>& vch) : base_uint<512>(vch) {}
+
+    uint64_t GetHash(const arith_uint256& salt) const;
+
+    friend arith_uint512 UintToArith512(const uint512& a);
+    friend uint512 ArithToUint512(const arith_uint512& a);
+};
+
+uint256 ArithToUint256(const arith_uint256&);
+arith_uint256 UintToArith256(const uint256&);
+uint512 ArithToUint512(const arith_uint512&);
+arith_uint512 UintToArith512(const uint512&);
 
 #endif // NAVCOIN_ARITH_UINT256_H

@@ -144,7 +144,6 @@ bool SendCoinsEntry::validate()
     if (recipient.paymentRequest.IsInitialized())
         return retval;
 
-#ifdef HAVE_UNBOUND
     utils::DNSResolver* DNS = nullptr;
 
 
@@ -166,9 +165,7 @@ bool SendCoinsEntry::validate()
 
     }
 
-    else
-#endif
-    if (!model->validateAddress(ui->payTo->text()))
+    else if (!model->validateAddress(ui->payTo->text()))
     {
         ui->payTo->setValid(false);
         retval = false;
