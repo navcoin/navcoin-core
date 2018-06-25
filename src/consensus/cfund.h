@@ -80,7 +80,7 @@ public:
         proposalhash = uint256();
         paymenthash = uint256();
         strDZeel = "";
-        nVersion = 2;
+        nVersion = 0;
         nVotingCycle = 0;
     }
 
@@ -193,7 +193,7 @@ public:
         strDZeel = "";
         hash = uint256();
         blockhash = uint256();
-        nVersion = 2;
+        nVersion = 0;
         nVotingCycle = 0;
     }
 
