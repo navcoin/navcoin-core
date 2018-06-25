@@ -31,6 +31,7 @@ https://navcoin.org/project-roadmap/
 
 | Site | link |
 |:-----------|:-----------|
+| Freenode IRC | #navcoin-dev |
 | Medium | https://medium.com/nav-coin |
 | Twitter | https://twitter.com/NavCoin |
 | Discord | https://discord.gg/y4Vu9jw |

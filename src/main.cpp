@@ -2772,7 +2772,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                             if(pblockindex == NULL)
                                 continue;
-                            if(prequest.CanVote() && proposal.CanRequestPayments()
+                            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
+                                    && prequest.CanVote()
                                     && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                         }
@@ -2963,6 +2964,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.Address = find_value(metadata, "a").get_str();
             proposal.nDeadline = find_value(metadata, "d").get_int64();
             proposal.strDZeel = find_value(metadata, "s").get_str();
+            proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
             proposal.nFee = nProposalFee;
             proposal.hash = tx.GetHash();
 
@@ -2993,6 +2995,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             prequest.nAmount = find_value(metadata, "n").get_int64();
             prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
             prequest.strDZeel = find_value(metadata, "i").get_str();
+            prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
             CFund::CProposal proposal;
             if(!CFund::FindProposal(prequest.proposalhash, proposal))
@@ -3464,7 +3467,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 {
     int64_t nTimeStart = GetTimeMicros();
     CFund::CPaymentRequest prequest; CFund::CProposal proposal;
-    if(pindexNew->nHeight % Params().GetConsensus().nVotingPeriod == 0) {
+    if(pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle == 0) {
         // We need to reset vote counter and update state of proposals and requests.
         std::vector<CFund::CPaymentRequest> vecPaymentRequest;
         std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
@@ -3473,15 +3476,41 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
                 bool fUpdate = false;
                 prequest = vecPaymentRequest[i];
-                if((prequest.IsRejected() && prequest.fState != CFund::REJECTED) ||
-                        (!prequest.IsAccepted() && !prequest.IsRejected())) {
-                    if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
-                        prequest.fState = CFund::REJECTED;
+
+                if (prequest.fState == CFund::NIL) {
+                    CTransaction tx;
+                    uint256 hashBlock = uint256();
+
+                    if (!GetTransaction(prequest.hash, tx, Params().GetConsensus(), hashBlock, true))
+                        continue;
+
+                    if (mapBlockIndex.count(hashBlock) == 0)
+                        continue;
+
+                    CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+
+                    int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+
+                    if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
+                        prequest.nVotingCycle = nElapsedCycles;
+                        fUpdate = true;
                     }
+                }
+
+                if(prequest.IsExpired() && prequest.fState != CFund::EXPIRED) {
+                    prequest.fState = CFund::EXPIRED;
+                    fUpdate = true;
+                } else if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
+                    prequest.fState = CFund::REJECTED;
+                    fUpdate = true;
+                } else if(!prequest.IsAccepted() && !prequest.IsRejected()){
                     prequest.nVotesNo = 0;
                     prequest.nVotesYes = 0;
                     fUpdate = true;
                 }
+
                 if(!CFund::FindProposal(prequest.proposalhash, proposal))
                     continue;
                 if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()
@@ -3510,6 +3539,29 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
             for(unsigned int i = 0; i < vecProposal.size(); i++) {
                 bool fUpdate = false;
                 proposal = vecProposal[i];
+
+                if (proposal.fState == CFund::NIL) {
+                    CTransaction tx;
+                    uint256 hashBlock = uint256();
+
+                    if (!GetTransaction(proposal.hash, tx, Params().GetConsensus(), hashBlock, true))
+                        continue;
+
+                    if (mapBlockIndex.count(hashBlock) == 0)
+                        continue;
+
+                    CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+
+                    int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+
+                    if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
+                        proposal.nVotingCycle = nElapsedCycles;
+                        fUpdate = true;
+                    }
+                }
+
                 if((proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) ||
                         (proposal.IsRejected() && proposal.fState != CFund::REJECTED) ||
                         (!proposal.IsAccepted() && !proposal.IsRejected())) {
@@ -3555,7 +3607,7 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
         }
     }
 
-    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nVotingPeriod);
+    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     CBlockIndex* pindexblock = pindexNew;
 
     std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
@@ -3583,12 +3635,13 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
                 continue;
             if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 continue;
-            CBlockIndex* pindexblockproposal = mapBlockIndex[proposal.blockhash];
-            if(pindexblockproposal == NULL)
+            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
+            if(pindexblockparent == NULL)
                 continue;
-            if(proposal.CanRequestPayments() && prequest.CanVote()
+            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
+                    && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
-                    && pindexblock->nHeight - pindexblockproposal->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
+                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)
@@ -7950,7 +8003,7 @@ bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge)
 
     arith_uint256 bnCoinDay = ((bnCentSecond * CENT) / COIN) / (24 * 60 * 60);
     LogPrint("coinage", "coin age bnCoinDay=%s\n", bnCoinDay.ToString());
-    nCoinAge = bnCoinDay.GetCompact();
+    nCoinAge = bnCoinDay.GetLow64();
 
     return true;
 }
