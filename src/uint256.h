@@ -134,6 +134,8 @@ public:
         s.read((char*)data, sizeof(data));
     }
 
+    friend class uint160;
+    friend class uint256;
     friend class uint512;
 };
 
@@ -181,9 +183,6 @@ public:
         }
         return false;
     }
-
-
-    // friend uint256 Uint512ToUint256(const uint512 &a);
 };
 
 /** 512-bit opaque blob.
@@ -224,6 +223,11 @@ inline uint256 uint256S(const std::string& str)
     rv.SetHex(str);
     return rv;
 }
-uint256 Uint512ToUint256(const uint512 &a);
 
+inline uint512 uint512S(const std::string& str)
+{
+    uint512 rv;
+    rv.SetHex(str);
+    return rv;
+}
 #endif // NAVCOIN_UINT256_H

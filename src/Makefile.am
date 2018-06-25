@@ -76,7 +76,6 @@ NAVCOIN_CORE_H = \
   timestampindex.h \
   addrman.h \
   base58.h \
-  bignum.h \
   bloom.h \
   blockencodings.h \
   chain.h \
@@ -144,6 +143,7 @@ NAVCOIN_CORE_H = \
   txmempool.h \
   ui_interface.h \
   undo.h \
+  untar.h \
   util.h \
   utilmoneystr.h \
   utils/dns_utils.h \
@@ -207,6 +207,7 @@ libnavcoin_server_a_SOURCES = \
   txdb.cpp \
   txmempool.cpp \
   ui_interface.cpp \
+  untar.cpp \
   utils/dns_utils.cpp \
   validationinterface.cpp \
   versionbits.cpp \
