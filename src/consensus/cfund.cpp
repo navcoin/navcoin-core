@@ -372,9 +372,6 @@ bool CFund::CProposal::IsRejected() const {
 }
 
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
-    if(nVersion == 1)
-        return (nDeadline < currentTime);
-
     if(nVersion >= 2) {
         if (mapBlockIndex.count(blockhash) == 0)
             return true;
@@ -383,6 +380,8 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
 
         return (pblockindex->GetMedianTimePast() + nDeadline < currentTime) ||
                ( nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
+    } else {
+        return (nDeadline < currentTime);
     }
 }
 
