@@ -37,10 +37,7 @@ Adds too in the GUI a submenu entry under FILE to do this operation graphically.
 
 4.2.0 started hiding orphan stakes in the transactions list causing confusion in the users as OS notifications were still showing while the stakes did not appear.
 
-Alex to fill in the info here
-
-This PR introduces the necessary changes.
-
+Instead those transactions are included now in a new category "Orphan" shown in the GUI.
 
 ## Remove BIGNUM use
 
