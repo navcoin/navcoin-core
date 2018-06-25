@@ -103,9 +103,9 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 20000;
-        consensus.nVotingPeriod = 2880 * 7; // 7 Days
+        consensus.nBlocksPerVotingCycle = 2880 * 7; // 7 Days
         consensus.nMinimumQuorum = 0.5;
-        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
+        consensus.nQuorumVotes = consensus.nBlocksPerVotingCycle * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -113,6 +113,10 @@ public:
         consensus.nCommunityFundMinAge = 50;
         consensus.nProposalMinimalFee = 10000000000;
         consensus.sigActivationTime = 1512990000;
+        consensus.nCyclesProposalVoting = 4;
+        consensus.nCyclesPaymentRequestVoting = 4;
+        consensus.nPaymentRequestMaxVersion = 2;
+        consensus.nProposalMaxVersion = 2;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -249,9 +253,9 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 100000;
-        consensus.nVotingPeriod = 180; // 1.5 hours
+        consensus.nBlocksPerVotingCycle = 180; // 1.5 hours
         consensus.nMinimumQuorum = 0.5;
-        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
+        consensus.nQuorumVotes = consensus.nBlocksPerVotingCycle * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -259,6 +263,10 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCyclesProposalVoting = 4;
+        consensus.nCyclesPaymentRequestVoting = 4;
+        consensus.nPaymentRequestMaxVersion = 2;
+        consensus.nProposalMaxVersion = 2;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -379,9 +387,9 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 100000;
-        consensus.nVotingPeriod = 180; // 1.5 hours
+        consensus.nBlocksPerVotingCycle = 180; // 1.5 hours
         consensus.nMinimumQuorum = 0.5;
-        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
+        consensus.nQuorumVotes = consensus.nBlocksPerVotingCycle * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -389,6 +397,10 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCyclesProposalVoting = 4;
+        consensus.nCyclesPaymentRequestVoting = 4;
+        consensus.nPaymentRequestMaxVersion = 2;
+        consensus.nProposalMaxVersion = 2;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -527,9 +539,9 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 100000;
-        consensus.nVotingPeriod = 180; // 1.5 hours
+        consensus.nBlocksPerVotingCycle = 180; // 1.5 hours
         consensus.nMinimumQuorum = 0.5;
-        consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
+        consensus.nQuorumVotes = consensus.nBlocksPerVotingCycle * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -537,6 +549,10 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCyclesProposalVoting = 4;
+        consensus.nCyclesPaymentRequestVoting = 4;
+        consensus.nPaymentRequestMaxVersion = 2;
+        consensus.nProposalMaxVersion = 2;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
