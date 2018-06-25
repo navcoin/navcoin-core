@@ -940,7 +940,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
-    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nVotingPeriod);
+    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     CBlockIndex* pindexblock = pindexBestHeader;
 
     std::map<uint256, std::pair<int, int>> vCacheProposals;
@@ -963,17 +963,19 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             }
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
-            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
-            if(!CFund::FindProposal(prequest.proposalhash, parent))
+            if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 continue;
-            CBlockIndex* pindexblockproposal = mapBlockIndex[parent.blockhash];
-            if(pindexblockproposal == NULL)
+
+            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
+            if(pindexblockparent == NULL)
                 continue;
-            if(parent.CanRequestPayments() && prequest.CanVote()
+            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
+                    && prequest.CanVote()
                     && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
-                    && pindexblock->nHeight - pindexblockproposal->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
+                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequest.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)
@@ -993,9 +995,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
     ret.push_back(Pair("funds", cf));
     UniValue vp(UniValue::VOBJ);
-    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nVotingPeriod);
+    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     vp.push_back(Pair("starting",       starting));
-    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nVotingPeriod));
+    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle));
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 
@@ -1013,15 +1015,15 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         votesProposals.push_back(op);
     }
     for(it = vCachePaymentRequest.begin(); it != vCachePaymentRequest.end(); it++) {
-        CFund::CPaymentRequest prequest; CFund::CProposal parent;
+        CFund::CPaymentRequest prequest; CFund::CProposal proposal;
         if(!CFund::FindPaymentRequest(it->first, prequest))
             continue;
-        if(!CFund::FindProposal(prequest.proposalhash, parent))
+        if(!CFund::FindProposal(prequest.proposalhash, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
-        op.push_back(Pair("hash", prequest.hash.ToString()));
-        op.push_back(Pair("proposaldesc", parent.strDZeel));
-        op.push_back(Pair("desc", prequest.strDZeel));
+        op.push_back(Pair("hash", proposal.hash.ToString()));
+        op.push_back(Pair("proposaldesc", proposal.strDZeel));
+        op.push_back(Pair("desc", proposal.strDZeel));
         op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));

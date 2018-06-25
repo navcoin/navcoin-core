@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #define MINIMUM_NTP_MEASURE 3
 #define MAXIMUM_TIME_OFFSET 30
@@ -25,6 +26,8 @@ void SetNtpTimeOffset(uint64_t nTimeOffsetIn);
 void MilliSleep(int64_t n);
 
 std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime);
+
+std::string StringifySeconds(uint64_t n);
 
 static std::vector<std::string> vDefaultNtpServers = {"de.pool.ntp.org",
                   "jp.pool.ntp.org", "id.pool.ntp.org", "in.pool.ntp.org",
