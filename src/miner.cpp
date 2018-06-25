@@ -227,13 +227,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
         for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
         {
-            CFund::CPaymentRequest prequest; CFund::CProposal parent;
+            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             bool vote = vAddedPaymentRequestVotes[i].second;
             if(CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest))
             {
-                if(!CFund::FindProposal(prequest.proposalhash, parent))
+                if(!CFund::FindProposal(prequest.proposalhash, proposal))
                     continue;
-                CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
+                CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                 if(pblockindex == NULL)
                     continue;
                 if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
