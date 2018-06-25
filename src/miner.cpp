@@ -227,13 +227,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
         for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
         {
-            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+            CFund::CPaymentRequest prequest; CFund::CProposal parent;
             bool vote = vAddedPaymentRequestVotes[i].second;
             if(CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest))
             {
-                if(!CFund::FindProposal(prequest.proposalhash, proposal))
+                if(!CFund::FindProposal(prequest.proposalhash, parent))
                     continue;
-                CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
+                CBlockIndex* pblockindex = mapBlockIndex[parent.blockhash];
                 if(pblockindex == NULL)
                     continue;
                 if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
@@ -262,10 +262,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal proposal;
                     if(CFund::FindProposal(prequest.proposalhash, proposal)) {
-                        coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
                         CNavCoinAddress addr(proposal.Address);
                         if (!addr.IsValid())
                             continue;
+                        coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey = GetScriptForDestination(addr.Get());
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = prequest.nAmount;
                         strDZeel.push_back(prequest.hash.ToString());
