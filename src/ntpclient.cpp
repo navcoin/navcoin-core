@@ -7,12 +7,14 @@
 #include "timedata.h"
 #include "util.h"
 
+#include <sstream>
+#include <iomanip>
+
 using namespace boost;
 using namespace boost::asio;
 
-int64_t CNtpClient::getTimestamp()
+bool CNtpClient::getTimestamp(uint64_t &timeRecv)
 {
-    time_t timeRecv = -1;
 
     io_service io_service;
 
@@ -32,7 +34,7 @@ int64_t CNtpClient::getTimestamp()
 
         socket.send_to(boost::asio::buffer(sendBuf), receiver_endpoint);
 
-        boost::array<unsigned long, 1024> recvBuf;
+        boost::array<uint32_t, 1024> recvBuf;
         ip::udp::endpoint sender_endpoint;
 
         try
@@ -61,10 +63,24 @@ int64_t CNtpClient::getTimestamp()
             {
 
                 socket.receive_from(boost::asio::buffer(recvBuf), sender_endpoint);
-                timeRecv = ntohl((time_t)recvBuf[4]);
-                timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
 
-                LogPrint("ntp", "[NTP] Received timestamp: %ll \n", (uint64_t)timeRecv);
+                timeRecv = ntohl((uint32_t)recvBuf[8]);
+
+                if(timeRecv > 2208988800U) // Sanity check
+                {
+
+                    timeRecv-= 2208988800U;  // Substract 01/01/1970 == 2208988800U
+                    LogPrint("ntp", "[NTP] Received timestamp: %ll\n", (uint64_t)timeRecv);
+
+                    return true;
+
+                }
+                else
+                {
+
+                    LogPrintf("[NTP] Received wrong clock from NTP server %s (bad timestamp format)\n", sHostName);
+
+                }
 
             }
 
@@ -84,10 +100,11 @@ int64_t CNtpClient::getTimestamp()
 
     }
 
-    return (int64_t)timeRecv;
+    return false;
 }
 
-bool NtpClockSync() {
+bool NtpClockSync()
+{
     LogPrintf("[NTP] Starting clock sync...\n");
 
     std::vector<std::string> vNtpServers;
@@ -107,15 +124,16 @@ bool NtpClockSync() {
     int64_t nPrevMeasure = -1;
 
     random_shuffle(vNtpServers.begin(), vNtpServers.end(), GetRandInt);
-    
+
     unsigned int nMeasureCount = 0;
 
     for(unsigned int i = 0; i < vNtpServers.size(); i++)
     {
         string s = vNtpServers[i];
         CNtpClient ntpClient(s);
-        int64_t nTimestamp = ntpClient.getTimestamp();
-        if(nTimestamp > -1)
+        uint64_t nTimestamp = 0;
+
+        if(ntpClient.getTimestamp(nTimestamp))
         {
             int64_t nClockDrift = GetTimeNow() - nTimestamp;
             nMeasureCount++;
@@ -128,8 +146,6 @@ bool NtpClockSync() {
                 string sign = "";
                 if(nClockDrift > 0)
                     sign = "+";
-                else if (nClockDrift < 0)
-                    sign = "-";
 
                 sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
             }
@@ -141,8 +157,6 @@ bool NtpClockSync() {
                 string sign = "";
                 if(nClockDrift > 0)
                     sign = "+";
-                else if (nClockDrift < 0)
-                    sign = "-";
 
                 sReport += s + "[" + sign + to_string(nClockDrift) + "sec.] ";
 
@@ -151,8 +165,6 @@ bool NtpClockSync() {
                 sign = "";
                 if(nPrevMeasure > 0)
                     sign = "+";
-                else if (nPrevMeasure < 0)
-                    sign = "-";
 
                 sReport += sPrevServer + "[" + sign + to_string(nPrevMeasure) + "sec.] ";
             }

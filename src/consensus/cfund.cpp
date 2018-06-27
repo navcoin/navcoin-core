@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The NavCoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -292,7 +292,7 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount >= proposal.GetAvailable() && fState == NIL;
+    return nAmount >= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)

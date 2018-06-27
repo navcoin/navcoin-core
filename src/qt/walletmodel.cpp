@@ -202,7 +202,6 @@ void WalletModel::updateWatchOnlyFlag(bool fHaveWatchonly)
 bool WalletModel::validateAddress(const QString &address)
 {
   std::string address_str = address.toStdString();
-#ifdef HAVE_UNBOUND
   utils::DNSResolver* DNS = nullptr;;
 
   // Validate the passed NavCoin address
@@ -218,7 +217,6 @@ bool WalletModel::validateAddress(const QString &address)
       address_str = addresses.front();
 
   }
-#endif
 
   CNavCoinAddress addressParsed(address_str);
   return addressParsed.IsValid();
