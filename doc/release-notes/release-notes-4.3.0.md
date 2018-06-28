@@ -1,4 +1,4 @@
-# NavCoin v4.2.2 Release Notes
+# NavCoin v4.3.0 Release Notes
 
 ## Introduces OpenAlias:
 
