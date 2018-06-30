@@ -8,7 +8,8 @@ define $(package)_set_vars
 $(package)_build_opts= CC="$($(package)_cc)"
 $(package)_build_opts+=CFLAGS="$($(package)_cflags) $($(package)_cppflags) -fPIC"
 $(package)_build_opts+=AR="$($(package)_ar)"
-$(package)_build_opts+=RANLIB="$($(package)_ranlib)"
+$(package)_build_opts_darwin+=AR="$($(package)_libtool)"
+$(package)_build_opts_darwin+=ARFLAGS="-o" $(package)_build_opts+=RANLIB="$($(package)_ranlib)"
 endef
 
 define $(package)_config_cmds
