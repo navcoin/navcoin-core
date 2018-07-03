@@ -8,6 +8,12 @@ https://navcoin.org/project-roadmap/
 
 [![Build Status](https://travis-ci.org/NAVCoin/navcoin-core.svg?branch=master)](https://travis-ci.org/NAVCoin/navcoin-core)
 
+## Compiling
+
+For building the dependencies see [depends/README.md](depends/README.md)
+
+For compiling the wallet see the markdown files in [doc](doc)
+
 ## Coin Specifications
 
 | Specification | Value |
