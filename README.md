@@ -1,6 +1,6 @@
 ![NavCoin](./img/logo-extended.png)
 
-This is the working repository for NAV Coin 4.2.1, our fork of bitcoin-core 0.13.
+This is the working repository for NavCoin 4.2.1, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
@@ -49,10 +49,10 @@ For compiling the wallet see the markdown files in [doc](doc)
 
 ## Community Resources
 
-| Site          | link                                                                                                                    |
-| :------------ | :---------------------------------------------------------------------------------------------------------------------- |
-| Trello Board  | [https://trello.com/nav-community](https://trello.com/invite/b/rPdvVVL4/ba5c40a885fd3c02cda2a8b406ff7124/nav-community) |
-| Nav Community | http://navcommunity.net                                                                                                 |
+| Site         | link                                                                                                                    |
+| :----------- | :---------------------------------------------------------------------------------------------------------------------- |
+| Trello Board | [https://trello.com/nav-community](https://trello.com/invite/b/rPdvVVL4/ba5c40a885fd3c02cda2a8b406ff7124/nav-community) |
+| NavHub       | http://navhub.org                                                                                                       |
 
 
 
