@@ -404,7 +404,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", nVotingCycle));
+    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
     ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
     if(fState == ACCEPTED)
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
@@ -429,7 +429,7 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", nVotingCycle));
+    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
     ret.push_back(Pair("status", GetState()));
     if(fState == ACCEPTED) {
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
