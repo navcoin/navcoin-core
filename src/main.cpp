@@ -3489,9 +3489,9 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
                     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-                    int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-                    int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-                    int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+                    auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    auto nCurrentCycle = (unsigned )(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
 
                     if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
                         prequest.nVotingCycle = nElapsedCycles;
@@ -3552,9 +3552,9 @@ bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock *p
 
                     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-                    int nCreatedOnCycle = (int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-                    int nCurrentCycle = (int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-                    int nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+                    auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+                    auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
 
                     if(nCreatedOnCycle != nCurrentCycle && nElapsedCycles != proposal.nVotingCycle) {
                         proposal.nVotingCycle = nElapsedCycles;

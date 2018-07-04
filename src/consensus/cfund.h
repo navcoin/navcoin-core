@@ -67,7 +67,7 @@ public:
     int nVotesNo;
     string strDZeel;
     int nVersion;
-    int nVotingCycle;
+    unsigned int nVotingCycle;
 
     CPaymentRequest() { SetNull(); }
 
@@ -177,7 +177,7 @@ public:
     uint256 hash;
     uint256 blockhash;
     int nVersion;
-    int nVotingCycle;
+    unsigned int nVotingCycle;
 
     CProposal() { SetNull(); }
 
