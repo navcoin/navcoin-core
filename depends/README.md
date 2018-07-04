@@ -18,17 +18,17 @@ For example:
 make HOST=x86_64-w64-mingw32 -j4
 ```
 
-A prefix will be generated that's suitable for plugging into Bitcoin's
+A prefix will be generated that's suitable for plugging into NavCoin's
 configure. In the above example, a dir named x86_64-w64-mingw32 will be
-created. To use it for Bitcoin:
+created. To use it for NavCoin:
 
 ```bash
-./configure --prefix=`pwd`/depends/x86_64-w64-mingw32
+/configure --prefix=`pwd`/depends/x86_64-w64-mingw32 #this is in the root dir for the project, not in /depends
 ```
 
 Common `host-platform-triplets` for cross compilation are:
 
-**These may differ depending on which version your operating system is on, for example the OSX folder will change with each update**
+**These may differ depending on which version your operating system is on, for example the OSX folder will change with each OS update**
 
 | Operating System | Prefix                      |
 | ---------------- | --------------------------- |

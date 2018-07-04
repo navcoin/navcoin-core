@@ -15,9 +15,13 @@ Then install [Homebrew](http://brew.sh).
 
 ## Dependencies
 
-    brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/core/protobuf260 --c++11 qt5 libevent curl
+```bash
+brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/core/protobuf260 --c++11 qt5 libevent curl
+```
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
+
+See [README.md](README.md) for instructions on building the rest of the dependancies.
 
 ## Build NavCoin Core
 
@@ -28,29 +32,27 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
     cd navcoin-core
     ```
 
-2.  Build dependencies
 
-    See [README.md](README.md)
+2.  Build navcoin-core:
 
-3.  Build navcoin-core:
-
-    Configure and build the headless navcoin binaries as well as the GUI (if Qt is found).
-
+    These instructions will configure and build the headless navcoin binaries as well as the GUI (if Qt is found).
     You can disable the GUI build by passing `--without-gui` to configure.
+    
+    For an explanation on the `./configure` command and how it might be out of date see [README.md](README.md) 
 
     ```bash
     ./autogen.sh
-    ./configure
+    ./configure --prefix=`pwd`/depends/x86_64-apple-darwin17.6.0 # This command may be out of date    
     make
     ```
 
-4.  It is recommended to build and run the unit tests:
+3.  It is recommended to build and run the unit tests:
 
     ```bash
     make check
     ```
 
-5.  You can also create a .dmg that contains the .app bundle (optional):
+4.  You can also create a .dmg that contains the .app bundle (optional):
 
     ```bash
     make deploy
