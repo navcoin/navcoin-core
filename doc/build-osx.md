@@ -21,7 +21,7 @@ brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-c
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
-See [README.md](README.md) for instructions on building the rest of the dependancies.
+See [README.md](../depends/README.md) for instructions on building the rest of the dependancies.
 
 ## Build NavCoin Core
 
