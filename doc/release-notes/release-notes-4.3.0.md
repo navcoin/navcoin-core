@@ -23,6 +23,7 @@ You can now register a OpenAlias address at http://openalias.nav.community/
 New RPC command `resolveopenalias` resolves an OpenAlias address to a NavCoin address
 Added support for sending to OpenAlias addresses in the GUI, when parsing URIs and the RPC commands validateaddress and sendtoaddress
 New argument `-requirednssec` to set whether DNSSEC validation is required to resolve openalias addresses (true by default).
+Added support to ban nodes with determined wallet versions using the config parameter `banversion`
 Update copyright notice
 
 ## Wallet support for bootstrapping
