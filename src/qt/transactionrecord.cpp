@@ -79,7 +79,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (wtx.IsCoinBase())
                 {
                     // Generated
-                    sub.type = wtx.IsInMainChain() ? TransactionRecord::Generated : TransactionRecord::Orphan;;
+                    sub.type = wtx.IsTrusted() ? TransactionRecord::Generated : TransactionRecord::Orphan;;
                     if(i > 0)
                         sub.type = TransactionRecord::CFundPayment;
                 }
@@ -90,7 +90,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     if (hashPrev == hash)
                         continue; // last coinstake output
 
-                    sub.type = wtx.IsInMainChain() ? TransactionRecord::Generated : TransactionRecord::Orphan;
+                    sub.type = wtx.IsTrusted() ? TransactionRecord::Generated : TransactionRecord::Orphan;
                     sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit;
                     hashPrev = hash;
                 }
