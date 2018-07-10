@@ -6082,23 +6082,26 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                   pfrom->nStartingHeight, addrMe.ToString(), pfrom->id,
                   remoteAddr);
 	    
-        std::vector<std::string> vBannedVersions = mapMultiArgs["-banversion"];
-        bool fBanned = false;
-
-        for (unsigned int i = 0; i <= vBannedVersions.size(); i++)
+        if (mapMultiArgs.count("-banversion") > 0)
         {
-            if(vBannedVersions[i] == pfrom->cleanSubVer)
+            std::vector<std::string> vBannedVersions = mapMultiArgs["-banversion"];
+            bool fBanned = false;
+
+            for (unsigned int i = 0; i <= vBannedVersions.size(); i++)
             {
-                fBanned = true;
-                break;
+                if(vBannedVersions[i] == pfrom->cleanSubVer)
+                {
+                    fBanned = true;
+                    break;
+                }
             }
-        }
 
-        if(fBanned)
-        {
-            LOCK(cs_main);
-            Misbehaving(pfrom->GetId(), 100);
-            return false;
+            if(fBanned)
+            {
+                LOCK(cs_main);
+                Misbehaving(pfrom->GetId(), 100);
+                return false;
+            }
         }
 
         int64_t nTimeOffset = nTime - GetTime();
