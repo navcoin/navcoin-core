@@ -302,19 +302,22 @@ public:
          * a large 32-bit integer with any alignment.
          */
         pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0xa2;
+        pchMessageStart[1] = 0xa4;
         pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x20;
+        pchMessageStart[3] = 0x22;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
-
-        genesis = CreateGenesisBlockTestnet(1527070531, 2043090631, 0x1d00ffff, 1, 0);
+    
+	uint32_t nTimestamp = 1525248575;
+        uint256 hashGenesisBlock = uint256S("0x00004d2a1c6ecd616a12abefef72f62ad19fdf88ef723998e5a988e7fb10fe8a");
+        uint256 hashMerkleRoot = uint256S("0xeb1285f08cba8e3cef21e1637323c24b65990a36580cff3d318268d004885f23");
+        uint32_t nNonce = 2043367424;
+	    
+	genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
-
-        uint256 hashGenesisBlock = uint256S("0x0000a8003f8dd50820bd7885af42dd63d7be0c39c0f8433b3e9397a6ce7d7a5c");
-
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114")))
+	    
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
@@ -329,8 +332,8 @@ public:
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
         vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
 
-        assert(consensus.hashGenesisBlock == uint256S("0x0000a8003f8dd50820bd7885af42dd63d7be0c39c0f8433b3e9397a6ce7d7a5c"));
-        assert(genesis.hashMerkleRoot == uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114"));
+        assert(consensus.hashGenesisBlock == hashGenesisBlock);
+        assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
@@ -349,8 +352,8 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0,     uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114")),
-            1527070531, // * UNIX timestamp of last checkpoint block
+            ( 0,     hashGenesisBlock),
+            1525248575, // * UNIX timestamp of last checkpoint block
             0,          // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             7000         // * estimated number of transactions per day after checkpoint
