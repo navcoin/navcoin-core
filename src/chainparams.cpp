@@ -310,9 +310,9 @@ public:
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
 	uint32_t nTimestamp = 1525248575;
-        uint256 hashGenesisBlock = uint256S("0x00004d2a1c6ecd616a12abefef72f62ad19fdf88ef723998e5a988e7fb10fe8a");
-        uint256 hashMerkleRoot = uint256S("0xeb1285f08cba8e3cef21e1637323c24b65990a36580cff3d318268d004885f23");
-        uint32_t nNonce = 2043367424;
+        uint256 hashGenesisBlock = uint256S("0x000067f5aabadac676ce46ab5ce7cb331a2c791b279250683a323afaf517c9f0");
+        uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
+        uint32_t nNonce = 2043371346;
 	    
 	genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
