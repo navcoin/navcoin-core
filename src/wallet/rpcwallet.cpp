@@ -491,7 +491,7 @@ UniValue stakervote(const UniValue& params, bool fHelp)
 
 UniValue createproposal(const UniValue& params, bool fHelp)
 {
-    if (!EnsureWalletIsUnlocked())
+    if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
     if (fHelp || params.size() < 4)
@@ -561,7 +561,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
 UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 {
-    if (!EnsureWalletIsUnlocked())
+    if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
     if (fHelp || params.size() != 3)
@@ -598,6 +598,8 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     CKeyID keyID;
     if (!address.GetKeyID(keyID))
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key.");
+
+    EnsureWalletIsUnlocked();
 
     CKey key;
     if (!pwalletMain->GetKey(keyID, key))
@@ -636,8 +638,6 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
-
-    EnsureWalletIsUnlocked();
 
     SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true);
 
