@@ -491,7 +491,7 @@ UniValue stakervote(const UniValue& params, bool fHelp)
 
 UniValue createproposal(const UniValue& params, bool fHelp)
 {
-    if (!EnsureWalletIsUnlocked(fHelp))
+    if (!EnsureWalletIsUnlocked())
         return NullUniValue;
 
     if (fHelp || params.size() < 4)
@@ -561,7 +561,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
 UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 {
-    if (!EnsureWalletIsUnlocked(fHelp))
+    if (!EnsureWalletIsUnlocked())
         return NullUniValue;
 
     if (fHelp || params.size() != 3)
@@ -2735,6 +2735,7 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
             "  \"keypoololdest\": xxxxxx,      (numeric) the timestamp (seconds since GMT epoch) of the oldest pre-generated key in the key pool\n"
             "  \"keypoolsize\": xxxx,          (numeric) how many new keys are pre-generated\n"
             "  \"unlocked_until\": ttt,        (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
+            "  \"unlocked_for_staking\": b,    (boolean) whether the wallet is unlocked just for staking or not\n"
             "  \"paytxfee\": x.xxxx,           (numeric) the transaction fee configuration, set in " + CURRENCY_UNIT + "/kB\n"
             "  \"hdmasterkeyid\": \"<hash160>\", (string) the Hash160 of the HD master pubkey\n"
             "}\n"
@@ -2753,8 +2754,10 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("txcount",       (int)pwalletMain->mapWallet.size()));
     obj.push_back(Pair("keypoololdest", pwalletMain->GetOldestKeyPoolTime()));
     obj.push_back(Pair("keypoolsize",   (int)pwalletMain->GetKeyPoolSize()));
-    if (pwalletMain->IsCrypted())
+    if (pwalletMain->IsCrypted()) {
         obj.push_back(Pair("unlocked_until", nWalletUnlockTime));
+        obj.push_back(Pair("unlocked_for_staking", fWalletUnlockStakingOnly);
+    }
     obj.push_back(Pair("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK())));
     CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
     if (!masterKeyID.IsNull())
