@@ -43,3 +43,7 @@ Instead those transactions are included now in a new category "Orphan" shown in 
 ## Remove BIGNUM use
 
 This PR https://github.com/NAVCoin/navcoin-core/pull/214 completely removes the use of the OpenSSL's class BIGNUM, substituting the uses of CBigNum with the class uint256 with extended arithmetic capabilities (arith_uint256). OpenSSL deprecated some BIGNUM functions in version 1.1, making the wallet not being able to compile in systems which use the newer version. This patch fixes the refereed issue.
+
+# ZeroMQ Windows Patch
+
+Applies https://github.com/bitcoin/bitcoin/pull/8238/files to fix ZeroMQ compatibility with Windows systems.
