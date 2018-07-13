@@ -491,7 +491,7 @@ UniValue stakervote(const UniValue& params, bool fHelp)
 
 UniValue createproposal(const UniValue& params, bool fHelp)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsUnlocked(fHelp))
         return NullUniValue;
 
     if (fHelp || params.size() < 4)
@@ -561,7 +561,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
 UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsUnlocked(fHelp))
         return NullUniValue;
 
     if (fHelp || params.size() != 3)
