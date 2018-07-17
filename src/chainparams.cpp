@@ -266,11 +266,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1556712000; // May 1st, 2019
 
-        // Deployment of Cold Staking
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].bit = 3;
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 1556712000; // May 1st, 2019
-
         // Deployment of SegWit (BIP141 and BIP143)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
@@ -331,7 +326,6 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
-        base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x40)(0x88)(0x2B)(0xE1).convert_to_container<std::vector<unsigned char> >();
