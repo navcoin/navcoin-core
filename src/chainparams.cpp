@@ -113,6 +113,7 @@ public:
         consensus.nCommunityFundMinAge = 50;
         consensus.nProposalMinimalFee = 10000000000;
         consensus.sigActivationTime = 1512990000;
+        consensus.nCoinbaseTimeActivationHeight = 20000;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -260,6 +261,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCoinbaseTimeActivationHeight = 5000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -299,12 +301,12 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
-	uint32_t nTimestamp = 1525248575;
+        uint32_t nTimestamp = 1525248575;
         uint256 hashGenesisBlock = uint256S("0x000067f5aabadac676ce46ab5ce7cb331a2c791b279250683a323afaf517c9f0");
         uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
         uint32_t nNonce = 2043371346;
 	    
-	genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
+        genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 	    
         if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
@@ -393,6 +395,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCoinbaseTimeActivationHeight = 0;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -409,7 +412,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556668800; // May 1st, 2019
 	    
-	// Deployment of NTP Sync
+        // Deployment of NTP Sync
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
@@ -541,6 +544,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCoinbaseTimeActivationHeight = 0;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
