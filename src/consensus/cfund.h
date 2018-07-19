@@ -66,6 +66,8 @@ public:
     int nVotesYes;
     int nVotesNo;
     string strDZeel;
+    int nVersion;
+    unsigned int nVotingCycle;
 
     CPaymentRequest() { SetNull(); }
 
@@ -78,6 +80,8 @@ public:
         proposalhash = uint256();
         paymenthash = uint256();
         strDZeel = "";
+        nVersion = 0;
+        nVotingCycle = 0;
     }
 
     bool IsNull() const {
@@ -96,6 +100,11 @@ public:
             if(fState != REJECTED)
                 sFlags += " waiting for end of voting period";
         }
+        if(IsExpired()) {
+            sFlags = "expired";
+            if(fState != EXPIRED)
+                sFlags += " waiting for end of voting period";
+        }
         return sFlags;
     }
 
@@ -112,13 +121,35 @@ public:
 
     bool IsRejected() const;
 
+    bool IsExpired() const;
+
     bool CanVote() const;
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(nAmount);
+        if(ser_action.ForRead())
+        {
+            READWRITE(nAmount);
+            // Payment Requests with versioning are signalled by a negative amount followed by the real amount
+            if(nAmount < 0)
+            {
+                READWRITE(nAmount);
+                READWRITE(nVersion);
+            }
+            else
+            {
+                nVersion = 1;
+            }
+        }
+        else
+        {
+            CAmount nSignalVersion = -1;
+            READWRITE(nSignalVersion);
+            READWRITE(nAmount);
+            READWRITE(nVersion);
+        }
         READWRITE(fState);
         READWRITE(nVotesYes);
         READWRITE(nVotesNo);
@@ -145,6 +176,8 @@ public:
     std::string strDZeel;
     uint256 hash;
     uint256 blockhash;
+    int nVersion;
+    unsigned int nVotingCycle;
 
     CProposal() { SetNull(); }
 
@@ -160,6 +193,8 @@ public:
         strDZeel = "";
         hash = uint256();
         blockhash = uint256();
+        nVersion = 0;
+        nVotingCycle = 0;
     }
 
     bool IsNull() const {
@@ -209,9 +244,7 @@ public:
 
     bool IsRejected() const;
 
-    bool IsExpired(uint32_t currentTime) const {
-        return (nDeadline < currentTime);
-    }
+    bool IsExpired(uint32_t currentTime) const;
 
     bool CanVote() const {
         return fState == NIL;
@@ -241,8 +274,31 @@ public:
         if (ser_action.ForRead()) {
             const_cast<std::vector<uint256>*>(&vPayments)->clear();
         }
+
         READWRITE(nAmount);
-        READWRITE(nFee);
+
+        if(ser_action.ForRead())
+        {
+            READWRITE(nFee);
+            // Proposals with versioning are signalled by a negative fee followed by the real fee
+            if(nFee < 0)
+            {
+                READWRITE(nFee);
+                READWRITE(nVersion);
+            }
+            else
+            {
+                nVersion = 1;
+            }
+        }
+        else
+        {
+            CAmount nSignalVersion = -1;
+            READWRITE(nSignalVersion);
+            READWRITE(nFee);
+            READWRITE(nVersion);
+        }
+
         READWRITE(Address);
         READWRITE(nDeadline);
         READWRITE(fState);
@@ -252,6 +308,11 @@ public:
         READWRITE(strDZeel);
         READWRITE(hash);
         READWRITE(blockhash);
+
+        // Version-based read/write
+        if(nVersion >= 2)
+           READWRITE(nVotingCycle);
+
     }
 
 };
