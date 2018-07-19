@@ -864,7 +864,7 @@ void DownloadBlockchain(std::string url)
     if (curl)
     {
 
-        std::string sDownload = (GetDataDir(false).string() + "/bootstrap_temp.tar");
+        std::string sDownload = (GetDataDir(true).string() + "/bootstrap_temp.tar");
         fp = fopen(sDownload.c_str(),"wb");
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
@@ -904,9 +904,9 @@ void DownloadBlockchain(std::string url)
                 else
                 {
 
-                    boost::filesystem::remove_all(GetDataDir(false) / "blocks");
-                    boost::filesystem::remove_all(GetDataDir(false) / "chainstate");
-                    boost::filesystem::remove_all(GetDataDir(false) / "cfund");
+                    boost::filesystem::remove_all(GetDataDir(true) / "blocks");
+                    boost::filesystem::remove_all(GetDataDir(true) / "chainstate");
+                    boost::filesystem::remove_all(GetDataDir(true) / "cfund");
                     bool fOk = untar(a, sDownload.c_str());
                     fclose(a);
                     boost::filesystem::remove_all(sDownload);
