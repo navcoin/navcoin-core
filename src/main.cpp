@@ -2896,6 +2896,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
+        } else {
+            if (tx.nTime < block.nTime && pindex->nHeight > Params().GetConsensus().nCoinbaseTimeActivationHeight)
+                return error("ConnectBlock(): Coinbase timestamp doesn't meet protocol (tx=%d vs block=%d)",
+                             tx.nTime, block.nTime);
         }
 
         if (fAddressIndex) {
@@ -6130,6 +6134,28 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                   pfrom->cleanSubVer, pfrom->nVersion,
                   pfrom->nStartingHeight, addrMe.ToString(), pfrom->id,
                   remoteAddr);
+	    
+        if (mapMultiArgs.count("-banversion") > 0)
+        {
+            std::vector<std::string> vBannedVersions = mapMultiArgs["-banversion"];
+            bool fBanned = false;
+
+            for (unsigned int i = 0; i <= vBannedVersions.size(); i++)
+            {
+                if(vBannedVersions[i] == pfrom->cleanSubVer)
+                {
+                    fBanned = true;
+                    break;
+                }
+            }
+
+            if(fBanned)
+            {
+                LOCK(cs_main);
+                Misbehaving(pfrom->GetId(), 100);
+                return false;
+            }
+        }
 
         int64_t nTimeOffset = nTime - GetTime();
         pfrom->nTimeOffset = nTimeOffset;
@@ -7480,7 +7506,7 @@ bool SendMessages(CNode* pto)
                     LogPrintf("Warning: not banning local peer %s!\n", pto->addr.ToString());
                 else
                 {
-                    // CNode::Ban(pto->addr, BanReasonNodeMisbehaving);
+                    CNode::Ban(pto->addr, BanReasonNodeMisbehaving);
                 }
             }
             state.fShouldBan = false;

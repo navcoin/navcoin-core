@@ -29,7 +29,7 @@ E.g: `v2.5.0-rc.1`, `v2.5.0-rc.2`, `v2.5.0-rc.3`
 
 * PATCH - 2 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
-* MINOR - 6 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+* MINOR - 4 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
 * MAJOR - 8 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
