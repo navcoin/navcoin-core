@@ -723,11 +723,11 @@ void PaymentServer::sendSignature(const QUrl& url, const QString data)
     QNetworkRequest netRequest;
     netRequest.setUrl(url);
     netRequest.setAttribute(QNetworkRequest::User, NIP01_MESSAGE_SIGNEDMSG);
+    netRequest.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     netRequest.setRawHeader("User-Agent", CLIENT_NAME.c_str());
-    netRequest.setHeader(QNetworkRequest::ContentTypeHeader,  NIP01_MIMETYPE_SIGNEDMSG);
-    QByteArray postData;
-    postData.append(data);
-    netManager->post(netRequest, postData);
+    QUrlQuery postData;
+    postData.addQueryItem("s", QUrl::toPercentEncoding(data));
+    netManager->post(netRequest, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
 void PaymentServer::fetchPaymentACK(CWallet* wallet, SendCoinsRecipient recipient, QByteArray transaction)
