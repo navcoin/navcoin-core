@@ -435,7 +435,7 @@ public:
         pchMessageStart[0] = 0xa8;
         pchMessageStart[1] = 0xb3;
         pchMessageStart[2] = 0x89;
-        pchMessageStart[3] = 0xfa;
+        pchMessageStart[3] = 0xfa;ﬁ
         nDefaultPort = 18886;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
@@ -484,7 +484,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_dev, pnSeed6_dev + ARRAYLEN(pnSeed6_dev));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
         fMineBlocksOnDemand = false;
@@ -615,7 +615,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
         fMineBlocksOnDemand = false;
