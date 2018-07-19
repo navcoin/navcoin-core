@@ -511,7 +511,7 @@ public:
         consensus.nMajorityWindow = 1000;
         consensus.BIP34Height = 900000;
         consensus.BIP34Hash = uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
-        consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
+        consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 1);
         consensus.nPowTargetTimespan = 30;
         consensus.nPowTargetSpacing = 30;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -579,33 +579,22 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        // To create a new devnet:
-        //
-        // 1) Replace nTimestamp with current timestamp.
         uint32_t nTimestamp = GetTimeNow();
-        // 2) Rebuild
-        // 3) Launch daemon. It'll calculate the new parameters.
-        // 4) Update the following variables with the new values:
         uint256 hashGenesisBlock = uint256S("0x0000e01b12644af6917e5aada637a609dd9590ad6bdc4828cd8df95258d85c02");
         uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
         uint32_t nNonce = 2043184832;
-        // 5) Rebuild. Launch daemon.
-        // 6) Generate first block using RPC command "./navcoin-cli generate 1"
 
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
+        if ((genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
         {
-            printf("recalculating params for regtest.\n");
+            nTimestamp = GetTimeNow();
             // deliberately empty for loop finds nonce value.
             for(; genesis.GetHash() > consensus.powLimit; genesis.nNonce++){ }
             hashGenesisBlock = genesis.GetHash();
             nNonce = genesis.nNonce;
             hashMerkleRoot = genesis.hashMerkleRoot;
-            printf("new regtest genesis merkle root: 0x%s\n", genesis.hashMerkleRoot.ToString().c_str());
-            printf("new regtest genesis nonce: %d\n", genesis.nNonce);
-            printf("new regtest genesis hash: 0x%s\n", genesis.GetHash().ToString().c_str());
         }
 
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
