@@ -8,6 +8,7 @@ src/navcoin-tx
 src/test/test_navcoin
 src/qt/test/test_navcoin-qt
 src/qt/ui_*.h
+*.autosave
 
 # autoreconf
 Makefile.in
