@@ -47,7 +47,6 @@ static const int64_t MAX_MINT_PROOF_OF_STAKE = 0.1 * COIN;
 
 class CBlockIndex;
 class CBlockTreeDB;
-class CCFundDB;
 class CBloomFilter;
 class CChainParams;
 class CInv;
@@ -552,7 +551,6 @@ extern CCoinsViewCache *pcoinsTip;
 
 /** Global variable that points to the active block tree (protected by cs_main) */
 extern CBlockTreeDB *pblocktree;
-extern CCFundDB *pcfundindex;
 extern uint256 hashBestChain;
 
 /**

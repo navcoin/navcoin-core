@@ -66,7 +66,7 @@ bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
     }
 
     CFund::CProposal temp;
-    if(pcfundindex->ReadProposalIndex(prophash, temp)) {
+    if(pblocktree->ReadProposalIndex(prophash, temp)) {
         proposal = temp;
         mapProposal[prophash] = temp;
         return true;
@@ -85,7 +85,7 @@ bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &preques
     }
 
     CFund::CPaymentRequest temp;
-    if(pcfundindex->ReadPaymentRequestIndex(preqhash, temp)) {
+    if(pblocktree->ReadPaymentRequestIndex(preqhash, temp)) {
         prequest = temp;
         mapPaymentRequest[preqhash] = temp;
         return true;
@@ -252,6 +252,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::string Signature = find_value(metadata, "s").get_str();
     std::string Hash = find_value(metadata, "h").get_str();
     std::string strDZeel = find_value(metadata, "i").get_str();
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
     CFund::CProposal proposal;
 
@@ -263,7 +264,6 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     CNavCoinAddress addr(proposal.Address);
     if (!addr.IsValid())
         return false;
-
     CKeyID keyID;
     addr.GetKeyID(keyID);
 
@@ -284,7 +284,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     if(nAmount > proposal.GetAvailable())
         return false;
 
-    return true;
+    return nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
 
 }
 
@@ -292,7 +292,14 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount >= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
+    return nAmount >= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
+}
+
+bool CFund::CPaymentRequest::IsExpired() const {
+    if(nVersion >= 2)
+        return ( nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting &&
+                fState != ACCEPTED && fState != REJECTED);
+    return false;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)
@@ -321,6 +328,7 @@ bool CFund::IsValidProposal(CTransaction tx)
     std::string Address = find_value(metadata, "a").get_str();
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
     CNavCoinAddress address(Address);
     if (!address.IsValid())
@@ -331,9 +339,11 @@ bool CFund::IsValidProposal(CTransaction tx)
             nContribution +=tx.vout[i].nValue;
 
     return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+            Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
-            nDeadline > 0);
+            nDeadline > 0 &&
+            nVersion <= Params().GetConsensus().nProposalMaxVersion);
 
 }
 
@@ -361,14 +371,37 @@ bool CFund::CProposal::IsRejected() const {
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
 }
 
+bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
+    if(nVersion >= 2) {
+        if (mapBlockIndex.count(blockhash) == 0)
+            return true;
+
+        CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+
+        return (pblockindex->GetMedianTimePast() + nDeadline < currentTime) ||
+               ( nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
+    } else {
+        return (nDeadline < currentTime);
+    }
+}
+
 void CFund::CProposal::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
     ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
-    ret.push_back(Pair("deadline", (uint64_t)nDeadline));
+    if(nVersion >= 2) {
+        ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
+        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+            ret.push_back(Pair("expiresOn", pblockindex->GetMedianTimePast() + (uint64_t)nDeadline));
+        }
+    } else {
+        ret.push_back(Pair("expiresOn", (uint64_t)nDeadline));
+    }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
     ret.push_back(Pair("status", GetState(chainActive.Tip()->GetMedianTimePast())));
@@ -389,11 +422,13 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
 }
 
 void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
+    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
     ret.push_back(Pair("status", GetState()));
     if(fState == ACCEPTED) {
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
