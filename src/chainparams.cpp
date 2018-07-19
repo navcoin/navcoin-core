@@ -584,28 +584,42 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        genesis = CreateGenesisBlockTestnet(1523869102, 2043084254, 0x1d00ffff, 1, 0);
+        // To create a new devnet:
+        //
+        // 1) Replace nTimestamp with current timestamp.
+        uint32_t nTimestamp = GetTimeNow();
+        // 2) Rebuild
+        // 3) Launch daemon. It'll calculate the new parameters.
+        // 4) Update the following variables with the new values:
+        uint256 hashGenesisBlock = uint256S("0x0000e01b12644af6917e5aada637a609dd9590ad6bdc4828cd8df95258d85c02");
+        uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
+        uint32_t nNonce = 2043184832;
+        // 5) Rebuild. Launch daemon.
+        // 6) Generate first block using RPC command "./navcoin-cli generate 1"
+
+        genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x0000ebc922e5172da588766084696ec50a62006231e1d0d5d1e83b6a9cfc6e3f");
-
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xb8f305a4c87e0d64b20f58a1123a892f12920039d68657a5e87b940781d2338a")))
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
         {
             printf("recalculating params for regtest.\n");
-            printf("old regtest genesis nonce: %d\n", genesis.nNonce);
-            printf("old regtest genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
             // deliberately empty for loop finds nonce value.
             for(; genesis.GetHash() > consensus.powLimit; genesis.nNonce++){ }
-            printf("new regtest genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+            hashGenesisBlock = genesis.GetHash();
+            nNonce = genesis.nNonce;
+            hashMerkleRoot = genesis.hashMerkleRoot;
+            printf("new regtest genesis merkle root: 0x%s\n", genesis.hashMerkleRoot.ToString().c_str());
             printf("new regtest genesis nonce: %d\n", genesis.nNonce);
-            printf("new regtest genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            printf("new regtest genesis hash: 0x%s\n", genesis.GetHash().ToString().c_str());
         }
 
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
         vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
 
-        assert(consensus.hashGenesisBlock == uint256S("0x0000ebc922e5172da588766084696ec50a62006231e1d0d5d1e83b6a9cfc6e3f"));
-        assert(genesis.hashMerkleRoot == uint256S("0xb8f305a4c87e0d64b20f58a1123a892f12920039d68657a5e87b940781d2338a"));
+        consensus.hashGenesisBlock = genesis.GetHash();
+
+        assert(consensus.hashGenesisBlock == hashGenesisBlock);
+        assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -623,11 +637,11 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0,     uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f")),
-            1515437594, // * UNIX timestamp of last checkpoint block
+            ( 0,         hashGenesisBlock),
+            nTimestamp, // * UNIX timestamp of last checkpoint block
             0,          // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
-            7000         // * estimated number of transactions per day after checkpoint
+            7000        // * estimated number of transactions per day after checkpoint
         };
 
     }
