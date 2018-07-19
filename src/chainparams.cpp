@@ -261,7 +261,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
-        consensus.nCoinbaseTimeActivationHeight = 5000;
+        consensus.nCoinbaseTimeActivationHeight = 30000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
