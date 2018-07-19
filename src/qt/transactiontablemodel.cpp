@@ -391,7 +391,7 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     case TransactionRecord::Orphan:
         return tr("Orphan");
     default:
-        return QString();
+        return QString("Other");
     }
 }
 

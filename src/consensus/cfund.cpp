@@ -1,4 +1,4 @@
-// Copyright (c) 2017 The NavCoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -371,7 +371,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("deadline", (uint64_t)nDeadline));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
+    ret.push_back(Pair("status", GetState(chainActive.Tip()->GetMedianTimePast())));
     if(fState == ACCEPTED)
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
     if(vPayments.size() > 0) {

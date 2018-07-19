@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2017 The NavCoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -508,6 +508,9 @@ bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Con
 
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
+/** Check whether ColdStaking has been activated. */
+bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);
