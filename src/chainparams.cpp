@@ -276,6 +276,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1556712000; // May 1st, 2019
 
+        // Deployment of Cold Staking
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].bit = 3;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nStartTime = 1525132800; // May 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 1556712000; // May 1st, 2019
+
         // Deployment of SegWit (BIP141 and BIP143)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
@@ -310,11 +315,13 @@ public:
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
         uint32_t nTimestamp = 1525248575;
+
         uint256 hashGenesisBlock = uint256S("0x000067f5aabadac676ce46ab5ce7cb331a2c791b279250683a323afaf517c9f0");
         uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
         uint32_t nNonce = 2043371346;
 	    
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
+
         consensus.hashGenesisBlock = genesis.GetHash();
 	    
         if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
