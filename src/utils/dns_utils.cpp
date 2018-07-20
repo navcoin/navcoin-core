@@ -46,17 +46,6 @@ namespace bf = boost::filesystem;
 
 static boost::mutex instance_lock;
 
-size_t write_data(
-        const char* in,
-        std::size_t size,
-        std::size_t num,
-        std::string* out)
-{
-    const std::size_t totalBytes(size * num);
-    out->append(in, totalBytes);
-    return totalBytes;
-}
-
 namespace
 {
 
