@@ -1,4 +1,4 @@
-packages:=boost openssl libevent curl zeromq
+packages:=boost openssl libevent curl zeromq unbound
 native_packages := native_ccache native_comparisontool
 
 qt_native_packages = native_protobuf
