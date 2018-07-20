@@ -3,7 +3,7 @@ $(package)_version=1.6.8
 $(package)_download_path=http://unbound.net/downloads/
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash= e3b428e33f56a45417107448418865fe08d58e0e7fea199b855515f60884dd49
-$(package)_dependencies=openssl libexpat
+$(package)_dependencies=openssl
 
 define $(package)_set_vars
   $(package)_config_opts=--with-ssl=$(host_prefix) --disable-gost --disable-ecdsa
