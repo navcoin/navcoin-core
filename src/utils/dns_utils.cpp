@@ -40,27 +40,11 @@
 #include <regex>
 #include <sstream>
 #include <string>
-#ifdef HAVE_UNBOUND
 #include <unbound.h>
-#else
-#include <curl/curl.h>
-#include <univalue.h>
-#endif
 
 namespace bf = boost::filesystem;
 
 static boost::mutex instance_lock;
-
-size_t write_data(
-        const char* in,
-        std::size_t size,
-        std::size_t num,
-        std::string* out)
-{
-    const std::size_t totalBytes(size * num);
-    out->append(in, totalBytes);
-    return totalBytes;
-}
 
 namespace
 {
@@ -70,7 +54,6 @@ namespace
  * the unbound library.
  */
 
-#ifdef HAVE_UNBOUND
 /** return the built in root DS trust anchor */
 static const char*
 get_builtin_ds(void)
@@ -78,7 +61,6 @@ get_builtin_ds(void)
     return
             ". IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5\n";
 }
-#endif
 
 /************************************************************
  ************************************************************
@@ -164,17 +146,11 @@ private:
     type* ptr;
 };
 
-#ifdef HAVE_UNBOUND
 typedef class scoped_ptr<ub_result,ub_resolve_free> ub_result_ptr;
-#endif
 
 struct DNSResolverData
 {
-#ifdef HAVE_UNBOUND
     ub_ctx* m_ub_context;
-#else
-    char dummy;
-#endif
 };
 
 
@@ -191,7 +167,6 @@ public:
 
 DNSResolver::DNSResolver() : m_data(new DNSResolverData())
 {
-#ifdef HAVE_UNBOUND
     int use_dns_public = 0;
     std::string dns_public_addr = GetArg("-dnsserver","8.8.4.4");
     if (auto res = getenv("DNS_PUBLIC"))
@@ -222,12 +197,10 @@ DNSResolver::DNSResolver() : m_data(new DNSResolverData())
     }
 
     ub_ctx_add_ta(m_data->m_ub_context, string_copy(::get_builtin_ds()));
-#endif
 }
 
 DNSResolver::~DNSResolver()
 {
-#ifdef HAVE_UNBOUND
     if (m_data)
     {
         if (m_data->m_ub_context != NULL)
@@ -236,7 +209,6 @@ DNSResolver::~DNSResolver()
         }
         delete m_data;
     }
-#endif
 }
 
 std::vector<std::string> DNSResolver::get_record(const std::string& url, int record_type, std::string (*reader)(const char *,size_t), bool& dnssec_available, bool& dnssec_valid)
@@ -250,7 +222,6 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         return addresses;
     }
 
-#ifdef HAVE_UNBOUND
     // destructor takes care of cleanup
     ub_result_ptr result;
 
@@ -267,68 +238,6 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
             }
         }
     }
-#else
-    CURL *curl;
-    CURLcode res;
-
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
-
-    if (url.length() > 253)
-        return addresses;
-
-    if (curl) {
-        std::string serverURL = "https://dns.google.com/resolve?name="+url+"&type="+std::to_string(record_type)+"&cd=0&edns_client_subnet=0.0.0.0/0&random_padding=" + random_string(253 - url.length());
-        int httpCode(0);
-        std::string readBuffer = "";
-
-        curl_easy_setopt(curl, CURLOPT_URL, serverURL.c_str());
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        res = curl_easy_perform(curl);
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-        curl_easy_cleanup(curl);
-
-        if (httpCode == 200) {
-            UniValue request;
-            try {
-                UniValue valRequest;
-                if (!valRequest.read(readBuffer))
-                    return addresses;
-                if (valRequest.isObject()) {
-                    request = valRequest.get_obj();
-                } else {
-                    return addresses;
-                }
-            } catch (const UniValue& objError) {
-                return addresses;
-            } catch (const std::exception& e) {
-                return addresses;
-            }
-            UniValue status = find_value(request, "Status");
-            UniValue data_obj = find_value(request, "Answer");
-            UniValue dns_sec = find_value(request, "AD");
-
-            if (!data_obj.isArray()) {
-                return addresses;
-            } else {
-                if (status.get_int() != 0)
-                    return addresses;
-                dnssec_available = dnssec_valid = dns_sec.getBool();
-                UniValue results(UniValue::VARR);
-                results = data_obj.get_array();
-                for(unsigned int i = 0; i < results.size(); i++)
-                {
-                    UniValue address = find_value(results[i], "data");
-                    if(!address.isStr())
-                        continue;
-                    addresses.push_back(address.get_str().substr(1, address.get_str().length()-1));
-                }
-            }
-        }
-    }
-#endif
 
     return addresses;
 }
