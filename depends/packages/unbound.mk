@@ -1,8 +1,8 @@
 package=unbound
-$(package)_version=1.6.8
+$(package)_version=1.7.3
 $(package)_download_path=http://unbound.net/downloads/
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
-$(package)_sha256_hash= e3b428e33f56a45417107448418865fe08d58e0e7fea199b855515f60884dd49
+$(package)_sha256_hash=c11de115d928a6b48b2165e0214402a7a7da313cd479203a7ce7a8b62cba602d
 $(package)_dependencies=openssl
 
 define $(package)_set_vars
