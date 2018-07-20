@@ -5,7 +5,7 @@ $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=c11de115d928a6b48b2165e0214402a7a7da313cd479203a7ce7a8b62cba602d
 $(package)_dependencies=openssl
 $(package)_dependencies_i686+=expat
-$(package)_dependencies_x686_64+=expat
+$(package)_dependencies_x86_64+=expat
 
 define $(package)_set_vars
   $(package)_config_opts=--with-ssl=$(host_prefix) --disable-gost --disable-ecdsa
