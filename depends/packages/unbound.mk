@@ -6,7 +6,7 @@ $(package)_sha256_hash=c11de115d928a6b48b2165e0214402a7a7da313cd479203a7ce7a8b62
 $(package)_dependencies=openssl expat
 
 define $(package)_set_vars
-  $(package)_config_opts=--with-ssl=$(host_prefix) --disable-gost --disable-ecdsa
+  $(package)_config_opts=--with-ssl=$(host_prefix) --disable-gost --disable-ecdsa --disable-shared
 endef
 
 define $(package)_config_cmds
