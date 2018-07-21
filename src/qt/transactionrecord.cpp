@@ -79,7 +79,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (wtx.IsCoinBase())
                 {
                     // Generated
-                    sub.type = wtx.IsTrusted() ? TransactionRecord::Generated : TransactionRecord::Orphan;;
+                    sub.type = TransactionRecord::Generated;
                     if(i > 0)
                         sub.type = TransactionRecord::CFundPayment;
                 }
@@ -90,7 +90,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     if (hashPrev == hash)
                         continue; // last coinstake output
 
-                    sub.type = wtx.IsTrusted() ? TransactionRecord::Generated : TransactionRecord::Orphan;
+                    sub.type = TransactionRecord::Staked;
                     sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit;
                     hashPrev = hash;
                 }
@@ -241,7 +241,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
         }
     }
     // For generated transactions, determine maturity
-    else if(type == TransactionRecord::Generated)
+    else if(type == TransactionRecord::Generated || type == TransactionRecord::Staked)
     {
         if (wtx.GetBlocksToMaturity() > 0)
         {
@@ -257,7 +257,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
             }
             else
             {
-                status.status = TransactionStatus::NotAccepted;
+                status.status = TransactionStatus::Orphan;
             }
         }
         else

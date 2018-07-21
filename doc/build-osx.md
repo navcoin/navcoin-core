@@ -20,6 +20,11 @@ Dependencies
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
+Compiling libunbound from source
+----------------------
+
+Libunbound needs to be compiled from source. Download last version from http://www.unbound.net, untar, cd to the folder and then `./configure`, `make` and `make install-all`.
+
 Build NavCoin Core
 ------------------------
 
