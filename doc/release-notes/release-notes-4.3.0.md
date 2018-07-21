@@ -13,32 +13,21 @@ Part of the code is based in the original Monero implementation. Main difference
 - Prefix of the TXT entry is required to be set to oa1:nav
 - The only parsed parameter is recipient_address
 - NavCoin enforces by default the use of DNSSEC
-- Originally Unbound was used to resolve the entry. This created issues when linking the library in some systems, so alternatively support for using Google's DNS over HTTPS service has been implemented. Future implementation of libunbound+dnscrypt is highly recommended to reduce dependence on 3rd parties
 
 ### OpenAlias registration
 You can now register a OpenAlias address at http://openalias.nav.community/
 
-### Other modifications in the NavCoin client:
-
-New RPC command `resolveopenalias` resolves an OpenAlias address to a NavCoin address
-Added support for sending to OpenAlias addresses in the GUI, when parsing URIs and the RPC commands validateaddress and sendtoaddress
-New argument `-requirednssec` to set whether DNSSEC validation is required to resolve openalias addresses (true by default).
-Added support to ban nodes with determined wallet versions using the config parameter `banversion`
-Update copyright notice
-
 ## Wallet support for bootstrapping
-
-This PR https://github.com/NAVCoin/navcoin-core/pull/199 adds support for bootstrapping the blockchain directly from the wallet.
 
 A new argument (-bootstrap) is handled on initialisation to specify an URL from where a copy of the blockchain in TAR format will be downloaded and extracted in the data folder.
 
 Adds too in the GUI a submenu entry under FILE to do this operation graphically.
 
-## New gui tx category for orphans
+## New gui tx status for orphans
 
 4.2.0 started hiding orphan stakes in the transactions list causing confusion in the users as OS notifications were still showing while the stakes did not appear.
 
-Instead those transactions are included now in a new category "Orphan" shown in the GUI.
+Instead those transactions are clasified with a new status "Orphan" and so they will be shown in the GUI.
 
 ## Remove BIGNUM use
 
@@ -47,3 +36,17 @@ This PR https://github.com/NAVCoin/navcoin-core/pull/214 completely removes the 
 # ZeroMQ Windows Patch
 
 Applies https://github.com/bitcoin/bitcoin/pull/8238/files to fix ZeroMQ compatibility with Windows systems.
+
+### Other modifications in the NavCoin client:
+
+New RPC command `resolveopenalias` resolves an OpenAlias address to a NavCoin address
+Added support for sending to OpenAlias addresses in the GUI, when parsing URIs and the RPC commands validateaddress and sendtoaddress
+New argument `-requirednssec` to set whether DNSSEC validation is required to resolve openalias addresses (true by default)
+New argument `-mininputvalue` to set the minimum value for an output to be considered as a possible coinstake input
+New argument `-banversion` to ban nodes depending on their broadcasted version
+Added support to ban nodes with determined wallet versions using the config parameter `banversion`
+Blocks created with the rpc command `generate` now include a correct timestamp for the coinbase transaction
+Using the regtest will create a new genesis block on runtime
+A new testnet has been initiated
+The development-focused networks regtest and devnet won't require peers for blocks generation
+Update copyright notice
