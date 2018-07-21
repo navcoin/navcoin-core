@@ -37,7 +37,6 @@
 #include <deque>
 #include <stdlib.h>
 #include <random>
-#include <regex>
 #include <sstream>
 #include <string>
 #include <unbound.h>
@@ -298,10 +297,29 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
 
     std::string address_from_txt_record(const std::string& s)
     {
-        std::regex exp("^oa1:nav recipient_address=([^;]+);");
-        std::smatch match;
-        if(std::regex_search(s, match, exp))
-            return match[1];
+        // make sure the txt record has "oa1:xmr" and find it
+        auto pos = s.find("oa1:nav");
+        if (pos == std::string::npos)
+            return {};
+        // search from there to find "recipient_address="
+        pos = s.find("recipient_address=", pos);
+        if (pos == std::string::npos)
+            return {};
+        pos += 18; // move past "recipient_address="
+        // find the next semicolon
+        auto pos2 = s.find(";", pos);
+        if (pos2 != std::string::npos)
+        {
+            // length of address == 95, we can at least validate that much here
+            if (pos2 - pos == 95)
+            {
+                return s.substr(pos, 95);
+            }
+            else if (pos2 - pos == 106) // length of address == 106 --> integrated address
+            {
+                return s.substr(pos, 106);
+            }
+        }
         return {};
     }
 
