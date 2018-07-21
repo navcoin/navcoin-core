@@ -37,6 +37,7 @@ These dependencies are required:
  libboost    | Utility          | Library for threading, data structures, etc
  libcurl     | Networking       | Library for http(s) networking
  libevent    | Networking       | OS independent asynchronous networking
+ libunbound  | Networking       | DNS resolver, that does DNSSEC validation
 
 Optional dependencies:
 
@@ -66,7 +67,7 @@ Dependency Build Instructions: Ubuntu & Debian
 ----------------------------------------------
 Build requirements:
 
-    sudo apt-get install build-essential libcurl3-dev libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils
+    sudo apt-get install build-essential libcurl3-dev libunbound-dev libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils
 
 Options when installing required Boost library files:
 
