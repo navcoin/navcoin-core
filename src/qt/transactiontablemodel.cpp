@@ -315,6 +315,9 @@ QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) cons
     case TransactionStatus::Abandoned:
         status = tr("Abandoned");
         break;
+    case TransactionStatus::Orphan:
+        status = tr("Orphaned");
+        break;
     case TransactionStatus::Confirming:
         status = tr("Confirming (%1 of %2 recommended confirmations)").arg(wtx->status.depth).arg(TransactionRecord::RecommendedNumConfirmations);
         break;
@@ -386,10 +389,10 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Sent to");
     case TransactionRecord::SendToSelf:
         return tr("Payment to yourself");
+    case TransactionRecord::Staked:
+        return tr(wtx->status.status == TransactionStatus::Orphan || !wtx->status.countsForBalance? "Orphan" : "Staked");
     case TransactionRecord::Generated:
-        return tr("Staked");
-    case TransactionRecord::Orphan:
-        return tr("Orphan");
+        return tr(wtx->status.status == TransactionStatus::Orphan || !wtx->status.countsForBalance? "Orphan" : "Generated");
     default:
         return QString("Other");
     }
@@ -401,8 +404,8 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
     {
     case TransactionRecord::AnonTx:
         return QIcon(":/icons/ghost");
+    case TransactionRecord::Staked:
     case TransactionRecord::Generated:
-    case TransactionRecord::Orphan:
         return QIcon(":/icons/tx_mined");
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::RecvFromOther:
@@ -436,8 +439,8 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::CFundPayment:
+    case TransactionRecord::Staked:
     case TransactionRecord::Generated:
-    case TransactionRecord::Orphan:
         return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:
         return QString::fromStdString(wtx->address) + watchAddress;
@@ -457,7 +460,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:
-    case TransactionRecord::Orphan:
+    case TransactionRecord::Staked:
         {
         QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
         if(label.isEmpty())
@@ -515,6 +518,8 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
         int part = (wtx->status.depth * 4 / total) + 1;
         return QIcon(QString(":/icons/transaction_%1").arg(part));
         }
+    case TransactionStatus::Orphan:
+        return COLOR_NEGATIVE;
     case TransactionStatus::MaturesWarning:
     case TransactionStatus::NotAccepted:
         return QIcon(":/icons/transaction_0");
@@ -604,6 +609,11 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         // Use the "danger" color for abandoned transactions
         if(rec->status.status == TransactionStatus::Abandoned)
+        {
+            return COLOR_TX_STATUS_DANGER;
+        }
+        // Use the "danger" color for orphaned stakes
+        if(rec->status.status == TransactionStatus::Orphan || (rec->type == TransactionRecord::Staked && !rec->status.countsForBalance))
         {
             return COLOR_TX_STATUS_DANGER;
         }
