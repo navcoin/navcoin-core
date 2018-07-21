@@ -232,6 +232,9 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         dnssec_valid = result->secure && !result->bogus;
         if (result->havedata)
         {
+            if(!result->secure && result->bogus)
+                LogPrintf("[DNSResolver] DNSSec bogus entry for %s found: %s\n", url.c_str(), result->why_bogus);
+
             for (size_t i=0; result->data[i] != NULL; i++)
             {
                 addresses.push_back((*reader)(result->data[i], result->len[i]));
@@ -319,11 +322,11 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
      *
      * @return a navcoin address (as a string) or an empty string
      */
-    std::vector<std::string> addresses_from_url(const std::string& url, bool& dnssec_valid)
+    std::vector<std::string> addresses_from_url(const std::string& url, bool& dnssec_available, bool& dnssec_valid)
     {
         std::vector<std::string> addresses;
         // get txt records
-        bool dnssec_available, dnssec_isvalid;
+        bool dnssec_isvalid;
         std::string oa_addr = DNSResolver::instance().get_dns_format_from_oa_address(url);
         auto records = DNSResolver::instance().get_txt_record(oa_addr, dnssec_available, dnssec_isvalid);
 
@@ -344,18 +347,6 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
             }
         }
         return addresses;
-    }
-
-    std::string get_account_address_as_str_from_url(const std::string& url, bool& dnssec_valid, std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm)
-    {
-        // attempt to get address from dns query
-        auto addresses = addresses_from_url(url, dnssec_valid);
-        if (addresses.empty())
-        {
-            LogPrintf("OpenAlias: wrong address: %s");
-            return {};
-        }
-        return dns_confirm(url, addresses, dnssec_valid);
     }
 
     namespace
@@ -414,12 +405,12 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
             if (!avail[cur_index])
             {
                 records[cur_index].clear();
-                LogPrintf("DNSSEC not available for checkpoint update at URL: %s, skipping.", url);
+                LogPrintf("[DNSResolver] DNSSEC not available for checkpoint update at URL: %s, skipping.", url);
             }
             if (!valid[cur_index])
             {
                 records[cur_index].clear();
-                LogPrintf("DNSSEC validation failed for checkpoint update at URL: %s, skipping.", url);
+                LogPrintf("[DNSResolver] DNSSEC validation failed for checkpoint update at URL: %s, skipping.", url);
             }
 
             cur_index++;
@@ -441,7 +432,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
 
         if (num_valid_records < 2)
         {
-            LogPrintf("OpenAlias: WARNING: no two valid Pulse DNS checkpoint records were received");
+            LogPrintf("[DNSResolver] WARNING: no two valid Pulse DNS checkpoint records were received");
             return false;
         }
 
@@ -463,7 +454,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
 
         if (good_records_index < 0)
         {
-            LogPrintf("OpenAlias: WARNING: no two Pulse DNS checkpoint records matched");
+            LogPrintf("[DNSResolver] WARNING: no two Pulse DNS checkpoint records matched");
             return false;
         }
 
@@ -479,13 +470,13 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         if (!strcmp(s, "tcp"))
         {
             dns_public_addr = GetArg("-dnsserver","8.8.4.4");
-            LogPrintf("Parse-DNS-Public: Using default public DNS server: %s (TCP)",dns_public_addr);
+            LogPrintf("[DNSResolver] Parse-DNS-Public: Using default public DNS server: %s (TCP)",dns_public_addr);
         }
         else if (sscanf(s, "tcp://%u.%u.%u.%u%c", &ip0, &ip1, &ip2, &ip3, &c) == 4)
         {
             if (ip0 > 255 || ip1 > 255 || ip2 > 255 || ip3 > 255)
             {
-                LogPrintf("Parse-DNS-Public: Invalid IP: %s, using default",s);
+                LogPrintf("[DNSResolver] Parse-DNS-Public: Invalid IP: %s, using default",s);
             }
             else
             {
@@ -494,7 +485,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         }
         else
         {
-            LogPrintf("Parse-DNS-Public: Invalid DNS_PUBLIC contents, ignored");
+            LogPrintf("[DNSResolver] Parse-DNS-Public: Invalid DNS_PUBLIC contents, ignored");
         }
         return dns_public_addr;
     }
