@@ -310,15 +310,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
         auto pos2 = s.find(";", pos);
         if (pos2 != std::string::npos)
         {
-            // length of address == 95, we can at least validate that much here
-            if (pos2 - pos == 95)
-            {
-                return s.substr(pos, 95);
-            }
-            else if (pos2 - pos == 106) // length of address == 106 --> integrated address
-            {
-                return s.substr(pos, 106);
-            }
+            return s.substr(pos, pos2 - pos);
         }
         return {};
     }
