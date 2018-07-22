@@ -526,8 +526,8 @@ void PaymentServer::handleURIOrFile(const QString& s)
               if(DNS->check_address_syntax(recipient.address.toStdString().c_str()))
               {
 
-                bool dnssec_valid;
-                std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(recipient.address.toStdString().c_str(), dnssec_valid);
+                bool dnssec_valid; bool dnssec_available;
+                std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(recipient.address.toStdString().c_str(), dnssec_available, dnssec_valid);
 
                 if(addresses.empty())
                   Q_EMIT message(tr("URI handling"), tr("Invalid OpenAlias address %1").arg(recipient.address),

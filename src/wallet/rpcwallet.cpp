@@ -447,8 +447,8 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -767,8 +767,8 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -873,8 +873,8 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -3257,7 +3257,7 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 UniValue resolveopenalias(const UniValue& params, bool fHelp)
 {
   std::string address = params[0].get_str();
-  bool dnssec_valid;
+  bool dnssec_available; bool dnssec_valid;
   UniValue result(UniValue::VOBJ);
 
   if (!EnsureWalletIsAvailable(fHelp))
@@ -3274,9 +3274,10 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
           + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
       );
 
-  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_valid);
+  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_available, dnssec_valid);
 
-  result.push_back(Pair("dnssec",dnssec_valid));
+  result.push_back(Pair("dnssec_available",dnssec_available));
+  result.push_back(Pair("dnssec_valid",dnssec_valid));
 
   if (addresses.empty())
       result.push_back(Pair("address",""));

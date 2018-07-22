@@ -215,11 +215,11 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
     string address_str = params[0].get_str();
 
     utils::DNSResolver *DNS = nullptr;
-    bool dnssec_valid;
+    bool dnssec_available; bool dnssec_valid;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");

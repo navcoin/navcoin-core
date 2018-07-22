@@ -208,8 +208,8 @@ bool WalletModel::validateAddress(const QString &address)
   if(DNS->check_address_syntax(address_str.c_str()))
   {
 
-    bool dnssec_valid;
-    std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address_str.c_str(), dnssec_valid);
+    bool dnssec_valid; bool dnssec_available;
+    std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address_str.c_str(), dnssec_available, dnssec_valid);
 
     if(addresses.empty() || (!dnssec_valid && GetBoolArg("-requirednssec",true)))
       return false;
