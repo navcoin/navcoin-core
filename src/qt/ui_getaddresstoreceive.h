@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'getaddresstoreceive.ui'
 **
-** Created by: Qt User Interface Compiler version 5.7.1
+** Created by: Qt User Interface Compiler version 5.10.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
@@ -27,7 +28,7 @@ QT_BEGIN_NAMESPACE
 class Ui_getAddressToReceive
 {
 public:
-    QWidget *verticalLayoutWidget;
+    QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout;
     QSpacerItem *verticalSpacer;
     QHBoxLayout *horizontalLayout;
@@ -47,24 +48,33 @@ public:
     QHBoxLayout *horizontalLayout_7;
     QSpacerItem *horizontalSpacer_13;
     QPushButton *copyClipboardButton;
-    QPushButton *newAddressButton;
     QPushButton *requestPaymentButton;
     QPushButton *requestNewAddressButton;
     QSpacerItem *horizontalSpacer_14;
+    QHBoxLayout *horizontalLayout_3;
+    QSpacerItem *horizontalSpacer_5;
+    QPushButton *newAddressButton;
+    QPushButton *coldStakingButton;
+    QSpacerItem *horizontalSpacer_6;
     QSpacerItem *verticalSpacer_4;
 
     void setupUi(QWidget *getAddressToReceive)
     {
         if (getAddressToReceive->objectName().isEmpty())
             getAddressToReceive->setObjectName(QStringLiteral("getAddressToReceive"));
-        getAddressToReceive->resize(838, 489);
-        verticalLayoutWidget = new QWidget(getAddressToReceive);
-        verticalLayoutWidget->setObjectName(QStringLiteral("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 10, 821, 471));
-        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
+        getAddressToReceive->setWindowModality(Qt::NonModal);
+        getAddressToReceive->resize(1497, 558);
+        QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(getAddressToReceive->sizePolicy().hasHeightForWidth());
+        getAddressToReceive->setSizePolicy(sizePolicy);
+        gridLayout = new QGridLayout(getAddressToReceive);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        verticalLayout = new QVBoxLayout();
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Maximum);
+        verticalLayout->setSizeConstraint(QLayout::SetNoConstraint);
+        verticalSpacer = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 
         verticalLayout->addItem(verticalSpacer);
 
@@ -74,7 +84,7 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer);
 
-        label = new QLabel(verticalLayoutWidget);
+        label = new QLabel(getAddressToReceive);
         label->setObjectName(QStringLiteral("label"));
         QFont font;
         font.setPointSize(11);
@@ -89,7 +99,7 @@ public:
 
         verticalLayout->addLayout(horizontalLayout);
 
-        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_2 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer_2);
 
@@ -107,13 +117,13 @@ public:
 
         verticalLayout_3 = new QVBoxLayout();
         verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
-        lblQRCode = new QRImageWidget(verticalLayoutWidget);
+        lblQRCode = new QRImageWidget(getAddressToReceive);
         lblQRCode->setObjectName(QStringLiteral("lblQRCode"));
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(lblQRCode->sizePolicy().hasHeightForWidth());
-        lblQRCode->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(lblQRCode->sizePolicy().hasHeightForWidth());
+        lblQRCode->setSizePolicy(sizePolicy1);
         lblQRCode->setMinimumSize(QSize(300, 320));
         lblQRCode->setStyleSheet(QStringLiteral(""));
         lblQRCode->setTextFormat(Qt::PlainText);
@@ -139,7 +149,7 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_8);
 
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer_3 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer_3);
 
@@ -149,22 +159,17 @@ public:
 
         horizontalLayout_7->addItem(horizontalSpacer_13);
 
-        copyClipboardButton = new QPushButton(verticalLayoutWidget);
+        copyClipboardButton = new QPushButton(getAddressToReceive);
         copyClipboardButton->setObjectName(QStringLiteral("copyClipboardButton"));
 
         horizontalLayout_7->addWidget(copyClipboardButton);
 
-        newAddressButton = new QPushButton(verticalLayoutWidget);
-        newAddressButton->setObjectName(QStringLiteral("newAddressButton"));
-
-        horizontalLayout_7->addWidget(newAddressButton);
-
-        requestPaymentButton = new QPushButton(verticalLayoutWidget);
+        requestPaymentButton = new QPushButton(getAddressToReceive);
         requestPaymentButton->setObjectName(QStringLiteral("requestPaymentButton"));
 
         horizontalLayout_7->addWidget(requestPaymentButton);
 
-        requestNewAddressButton = new QPushButton(verticalLayoutWidget);
+        requestNewAddressButton = new QPushButton(getAddressToReceive);
         requestNewAddressButton->setObjectName(QStringLiteral("requestNewAddressButton"));
 
         horizontalLayout_7->addWidget(requestNewAddressButton);
@@ -176,9 +181,35 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_7);
 
-        verticalSpacer_4 = new QSpacerItem(20, 80, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_5);
+
+        newAddressButton = new QPushButton(getAddressToReceive);
+        newAddressButton->setObjectName(QStringLiteral("newAddressButton"));
+
+        horizontalLayout_3->addWidget(newAddressButton);
+
+        coldStakingButton = new QPushButton(getAddressToReceive);
+        coldStakingButton->setObjectName(QStringLiteral("coldStakingButton"));
+
+        horizontalLayout_3->addWidget(coldStakingButton);
+
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_6);
+
+
+        verticalLayout->addLayout(horizontalLayout_3);
+
+        verticalSpacer_4 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
         verticalLayout->addItem(verticalSpacer_4);
+
+
+        gridLayout->addLayout(verticalLayout, 0, 0, 1, 1);
 
 
         retranslateUi(getAddressToReceive);
@@ -188,15 +219,16 @@ public:
 
     void retranslateUi(QWidget *getAddressToReceive)
     {
-        getAddressToReceive->setWindowTitle(QApplication::translate("getAddressToReceive", "Form", Q_NULLPTR));
-        label->setText(QApplication::translate("getAddressToReceive", "Use the following address to receive NavCoins:", Q_NULLPTR));
+        getAddressToReceive->setWindowTitle(QApplication::translate("getAddressToReceive", "Form", nullptr));
+        label->setText(QApplication::translate("getAddressToReceive", "Use the following address to receive NavCoins:", nullptr));
 #ifndef QT_NO_TOOLTIP
-        lblQRCode->setToolTip(QApplication::translate("getAddressToReceive", "QR Code", Q_NULLPTR));
+        lblQRCode->setToolTip(QApplication::translate("getAddressToReceive", "QR Code", nullptr));
 #endif // QT_NO_TOOLTIP
-        copyClipboardButton->setText(QApplication::translate("getAddressToReceive", "Copy to clipboard", Q_NULLPTR));
-        newAddressButton->setText(QApplication::translate("getAddressToReceive", "Generate a new address", Q_NULLPTR));
-        requestPaymentButton->setText(QApplication::translate("getAddressToReceive", "Request payment", Q_NULLPTR));
-        requestNewAddressButton->setText(QApplication::translate("getAddressToReceive", "List old addresses", Q_NULLPTR));
+        copyClipboardButton->setText(QApplication::translate("getAddressToReceive", "Copy to clipboard", nullptr));
+        requestPaymentButton->setText(QApplication::translate("getAddressToReceive", "Request payment", nullptr));
+        requestNewAddressButton->setText(QApplication::translate("getAddressToReceive", "List old addresses", nullptr));
+        newAddressButton->setText(QApplication::translate("getAddressToReceive", "Generate a new address", nullptr));
+        coldStakingButton->setText(QApplication::translate("getAddressToReceive", "Create a Cold Staking address", nullptr));
     } // retranslateUi
 
 };

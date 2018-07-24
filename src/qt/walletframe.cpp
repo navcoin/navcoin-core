@@ -24,19 +24,12 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     QHBoxLayout *topLayout = new QHBoxLayout();
     QHBoxLayout *bottomLayout = new QHBoxLayout();
 
+    menuLayout = new QHBoxLayout();
+    menuLayout->setContentsMargins(0,0,0,0);
+    menuLayout->setSpacing(0);
+
     walletFrameLayout->setSpacing(0);
-    walletFrameLayout->setContentsMargins(0,0,0,0);
-
-    topMenu = new QWidget();
-    topMenu->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    topMenu->setMinimumWidth(1000);
-    topMenu->setFixedHeight(94);
-    topMenu->setObjectName("topMenu");
-    topMenu->setStyleSheet(
-                "#topMenu { border-image: url(:/icons/background_top)  0 0 0 0 stretch stretch; border: 0px; }");
-
-    topLayout->addWidget(topMenu);
-    topLayout->setAlignment(topMenu,Qt::AlignLeft);
+    walletFrameLayout->setContentsMargins(0,0,0,0);    
 
     setContentsMargins(0,0,0,0);
 
@@ -53,7 +46,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     noWallet->setAlignment(Qt::AlignCenter);
     walletStack->addWidget(noWallet);
 
-    walletFrameLayout->addLayout(topLayout);
+    walletFrameLayout->addLayout(menuLayout);
     walletFrameLayout->addLayout(bottomLayout);
 
 }

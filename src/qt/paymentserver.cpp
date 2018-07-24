@@ -526,8 +526,8 @@ void PaymentServer::handleURIOrFile(const QString& s)
               if(DNS->check_address_syntax(recipient.address.toStdString().c_str()))
               {
 
-                bool dnssec_valid;
-                std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(recipient.address.toStdString().c_str(), dnssec_valid);
+                bool dnssec_valid; bool dnssec_available;
+                std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(recipient.address.toStdString().c_str(), dnssec_available, dnssec_valid);
 
                 if(addresses.empty())
                   Q_EMIT message(tr("URI handling"), tr("Invalid OpenAlias address %1").arg(recipient.address),
@@ -723,11 +723,11 @@ void PaymentServer::sendSignature(const QUrl& url, const QString data)
     QNetworkRequest netRequest;
     netRequest.setUrl(url);
     netRequest.setAttribute(QNetworkRequest::User, NIP01_MESSAGE_SIGNEDMSG);
+    netRequest.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     netRequest.setRawHeader("User-Agent", CLIENT_NAME.c_str());
-    netRequest.setHeader(QNetworkRequest::ContentTypeHeader,  NIP01_MIMETYPE_SIGNEDMSG);
-    QByteArray postData;
-    postData.append(data);
-    netManager->post(netRequest, postData);
+    QUrlQuery postData;
+    postData.addQueryItem("s", QUrl::toPercentEncoding(data));
+    netManager->post(netRequest, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
 void PaymentServer::fetchPaymentACK(CWallet* wallet, SendCoinsRecipient recipient, QByteArray transaction)

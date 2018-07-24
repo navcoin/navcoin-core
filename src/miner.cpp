@@ -236,7 +236,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                 if(pblockindex == NULL)
                     continue;
-                if(prequest.CanVote() && proposal.CanRequestPayments() && votes.count(prequest.hash) == 0 &&
+                if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
+                        && prequest.CanVote() && votes.count(prequest.hash) == 0 &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
@@ -249,7 +250,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
         UniValue strDZeel(UniValue::VARR);
         std::vector<CFund::CPaymentRequest> vec;
-        if(pcfundindex->GetPaymentRequestIndex(vec))
+        if(pblocktree->GetPaymentRequestIndex(vec))
         {
             BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
@@ -261,10 +262,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal proposal;
                     if(CFund::FindProposal(prequest.proposalhash, proposal)) {
-                        coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
                         CNavCoinAddress addr(proposal.Address);
                         if (!addr.IsValid())
                             continue;
+                        coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey = GetScriptForDestination(addr.Get());
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = prequest.nAmount;
                         strDZeel.push_back(prequest.hash.ToString());
@@ -285,6 +286,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     if (!fProofOfStake)
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    pblock->vtx[0].nTime   = pblock->nTime;
     pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
@@ -839,7 +841,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
   CKey key;
   CMutableTransaction txCoinStake;
   CTransaction txNew;
-  int nBestHeight = pindexBestHeader->nHeight;
+  int nBestHeight = chainActive.Tip()->nHeight;
 
   txCoinStake.nTime = GetAdjustedTime();
   txCoinStake.nTime &= ~STAKE_TIMESTAMP_MASK;
@@ -853,7 +855,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
       if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nFees, txCoinStake, key))
       {
 
-          if (txCoinStake.nTime >= pindexBestHeader->GetPastTimeLimit()+1)
+          if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
           {
               // make sure coinstake would meet timestamp protocol
               //    as it would be the same as the block timestamp
@@ -879,7 +881,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
                   const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
                   SignatureData sigdata;
-                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata, true);
 
                   if (!signSuccess) {
                       return false;
@@ -893,7 +895,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
               pblock->vtx[0].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-
               return key.Sign(pblock->GetHash(), pblock->vchBlockSig);
           }
       }
