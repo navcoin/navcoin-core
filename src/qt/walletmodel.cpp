@@ -32,7 +32,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, Op
     QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
-    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
+    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0), cachedColdStakingBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
 {
@@ -86,6 +86,11 @@ CAmount WalletModel::getStake() const
 CAmount WalletModel::getImmatureBalance() const
 {
     return wallet->GetImmatureBalance();
+}
+
+CAmount WalletModel::getColdStakingBalance() const
+{
+    return wallet->GetColdStakingBalance();
 }
 
 bool WalletModel::haveWatchOnly() const
@@ -147,6 +152,7 @@ void WalletModel::checkBalanceChanged()
     CAmount newUnconfirmedBalance = getUnconfirmedBalance();
     CAmount newImmatureBalance = getImmatureBalance();
     CAmount newStakingBalance = getStake();
+    CAmount newColdStakingBalance = getColdStakingBalance();
     CAmount newWatchOnlyBalance = 0;
     CAmount newWatchUnconfBalance = 0;
     CAmount newWatchImmatureBalance = 0;
@@ -159,17 +165,18 @@ void WalletModel::checkBalanceChanged()
 
     if(cachedBalance != newBalance || cachedUnconfirmedBalance != newUnconfirmedBalance || cachedImmatureBalance != newImmatureBalance ||
         cachedWatchOnlyBalance != newWatchOnlyBalance || cachedWatchUnconfBalance != newWatchUnconfBalance || cachedWatchImmatureBalance != newWatchImmatureBalance ||
-            cachedStakingBalance != newStakingBalance)
+            cachedStakingBalance != newStakingBalance || cachedColdStakingBalance != newColdStakingBalance)
     {
         cachedBalance = newBalance;
         cachedUnconfirmedBalance = newUnconfirmedBalance;
         cachedStakingBalance = newStakingBalance;
+        cachedColdStakingBalance = newColdStakingBalance;
         cachedImmatureBalance = newImmatureBalance;
         cachedWatchOnlyBalance = newWatchOnlyBalance;
         cachedWatchUnconfBalance = newWatchUnconfBalance;
         cachedWatchImmatureBalance = newWatchImmatureBalance;
         Q_EMIT balanceChanged(newBalance, newUnconfirmedBalance, newStakingBalance, newImmatureBalance,
-                            newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance);
+                            newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance, newColdStakingBalance);
     }
 }
 
@@ -201,8 +208,8 @@ bool WalletModel::validateAddress(const QString &address)
   if(DNS->check_address_syntax(address_str.c_str()))
   {
 
-    bool dnssec_valid;
-    std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address_str.c_str(), dnssec_valid);
+    bool dnssec_valid; bool dnssec_available;
+    std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address_str.c_str(), dnssec_available, dnssec_valid);
 
     if(addresses.empty() || (!dnssec_valid && GetBoolArg("-requirednssec",true)))
       return false;
@@ -315,6 +322,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         newTx = new CWalletTx();
 
         fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true, rcp.strDZeel);
+        if (newTx->fSpendsColdStaking)
+            transaction.fSpendsColdStaking = true;
         transaction.vTransactions.push_back(*newTx);
 
         transaction.setTransactionFee(nFeeRequired);

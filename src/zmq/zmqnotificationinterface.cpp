@@ -141,10 +141,11 @@ void CZMQNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindex)
     }
 }
 
-void CZMQNotificationInterface::SyncTransaction(const CTransaction& tx, const CBlockIndex* pindex, const CBlock* pblock)
+void CZMQNotificationInterface::SyncTransaction(const CTransaction& tx, const CBlockIndex* pindex, const CBlock* pblock, const bool fConnect)
 {
     for (std::list<CZMQAbstractNotifier*>::iterator i = notifiers.begin(); i!=notifiers.end(); )
     {
+
         CZMQAbstractNotifier *notifier = *i;
         if (notifier->NotifyTransaction(tx))
         {
@@ -152,6 +153,7 @@ void CZMQNotificationInterface::SyncTransaction(const CTransaction& tx, const CB
         }
         else
         {
+
             notifier->Shutdown();
             i = notifiers.erase(i);
         }

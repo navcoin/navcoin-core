@@ -80,6 +80,7 @@ protected:
 
     CBase58Data();
     void SetData(const std::vector<unsigned char> &vchVersionIn, const void* pdata, size_t nSize);
+    void SetData(const std::vector<unsigned char> &vchVersionIn, const void* pdata, size_t nSize, const void* pdata2, size_t nSize2);
     void SetData(const std::vector<unsigned char> &vchVersionIn, const unsigned char *pbegin, const unsigned char *pend);
 
 public:
@@ -96,28 +97,39 @@ public:
 };
 
 /** base58-encoded NavCoin addresses.
- * Public-key-hash-addresses have version 0 (or 111 testnet).
+ * Public-key-hash-addresses have version 111 (or 20 testnet).
  * The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
- * Script-hash-addresses have version 5 (or 196 testnet).
+ * Script-hash-addresses have version 28 (or 96 testnet).
  * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
+ * Cold-staking-addresses have version 196 (or 63 testnet).
+ * The data vector contains RIPEMD160(SHA256(stakingkey)) || RIPEMD160(SHA256(spendingkey)), where stakingkey and spendingkey are the serialized public keys.
  */
 class CNavCoinAddress : public CBase58Data {
 public:
     bool Set(const CKeyID &id);
+    bool Set(const CKeyID &id, const CKeyID &id2);
     bool Set(const CScriptID &id);
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
     bool IsValid(const CChainParams &params) const;
+    bool IsColdStakingAddress(const CChainParams& params) const;
 
     CNavCoinAddress() {}
     CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
+    CNavCoinAddress(const CKeyID &id, const CKeyID &id2) { Set(id, id2); }
     CNavCoinAddress(const std::string& strAddress) { SetString(strAddress); }
     CNavCoinAddress(const char* pszAddress) { SetString(pszAddress); }
 
     CTxDestination Get() const;
     bool GetKeyID(CKeyID &keyID) const;
+    bool GetStakingKeyID(CKeyID &keyID) const;
+    bool GetSpendingKeyID(CKeyID &keyID) const;
     bool GetIndexKey(uint160& hashBytes, int& type) const;
     bool IsScript() const;
+
+    bool GetStakingAddress(CNavCoinAddress &address) const;
+    bool GetSpendingAddress(CNavCoinAddress &address) const;
+
 };
 
 /**
