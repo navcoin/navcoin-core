@@ -1007,6 +1007,26 @@ UniValue forcetransactions(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue staking(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "staking bool\n"
+            "Turns staking on or off\n"
+            );
+
+    if (!params[0].isBool())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be a boolean");
+
+    fStaking = params[0].get_bool();
+
+    UniValue ret(UniValue::VBOOL);
+
+    ret = fStaking;
+
+    return ret;
+}
+
 UniValue estimatesmartpriority(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1052,6 +1072,7 @@ static const CRPCCommand commands[] =
     { "mining",             "getblocktemplate",       &getblocktemplate,       true  },
     { "mining",             "submitblock",            &submitblock,            true  },
 
+    { "generating",         "staking",                &staking,                true  },
     { "generating",         "generate",               &generate,               true  },
     { "generating",         "generatetoaddress",      &generatetoaddress,      true  },
     { "generating",         "setcoinbasestrdzeel",    &setcoinbasestrdzeel,    true  },

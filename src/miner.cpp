@@ -762,6 +762,11 @@ void NavCoinStaker(const CChainParams& chainparams)
                 } while (true);
             }
 
+            while (!fStaking)
+            {
+                MilliSleep(1000);
+            }
+
             while (pwalletMain->IsLocked())
             {
                 nLastCoinStakeSearchInterval = 0;
