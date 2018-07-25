@@ -476,7 +476,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 4)
         throw runtime_error(
-            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] ( locktime )\n"
+            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] [nout]\n"
             "\nCreate a transaction spending the given inputs and creating new outputs.\n"
             "Outputs can be addresses or data.\n"
             "Returns hex-encoded raw transaction.\n"
@@ -588,6 +588,9 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             rawTx.vout.push_back(out);
         }
     }
+
+    if(nout > -1 && nout >= rawTx.vout.size())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, nout out of range");
 
     return nout > -1 ? EncodeHexTxOut(rawTx.vout[nout]) : EncodeHexTx(rawTx);
 }
