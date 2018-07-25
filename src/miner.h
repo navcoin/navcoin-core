@@ -227,4 +227,17 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees);
 bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams);
 void NavCoinStaker(const CChainParams& chainparams);
 
+void SetStaking(bool mode);
+void SetCoinBaseOutputs(std::vector<std::string> v);
+void SetCoinStakeOutputs(std::vector<std::string> v);
+void SetForceTransactions(std::vector<std::string> v);
+void SetCoinStakeStrDZeel(std::string s);
+void SetCoinBaseStrDZeel(std::string s);
+
+std::vector<std::string> GetCoinBaseOutputs();
+std::vector<std::string> GetCoinStakeOutputs();
+std::vector<std::string> GetForceTransactions();
+std::string GetCoinStakeStrDZeel();
+std::string GetCoinBaseStrDZeel();
+
 #endif // NAVCOIN_MINER_H

@@ -993,3 +993,45 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
 
     return true;
 }
+
+void SetStaking(bool mode) {
+    fStaking = mode;
+}
+
+void SetCoinBaseOutputs(std::vector<std::string> v){
+    vCoinBaseOutputs.clear();
+    if(!v.empty())
+        vCoinBaseOutputs.insert(vCoinBaseOutputs.end(), v.begin(), v.end());
+}
+
+void SetCoinStakeOutputs(std::vector<std::string> v){
+    vCoinStakeOutputs.clear();
+    if(!v.empty())
+        vCoinStakeOutputs.insert(vCoinStakeOutputs.end(), v.begin(), v.end());
+}
+void SetForceTransactions(std::vector<std::string> v){
+    vForcedTransactions.clear();
+    if(!v.empty())
+        vForcedTransactions.insert(vForcedTransactions.end(), v.begin(), v.end());
+}
+void SetCoinStakeStrDZeel(std::string s){
+    sCoinStakeStrDZeel = s;
+}
+void SetCoinBaseStrDZeel(std::string s){
+    sCoinBaseStrDZeel = s;
+}
+std::vector<std::string> GetCoinBaseOutputs(){
+    return vCoinBaseOutputs;
+}
+std::vector<std::string> GetCoinStakeOutputs(){
+    return vCoinStakeOutputs;
+}
+std::vector<std::string> GetForceTransactions(){
+    return vForcedTransactions;
+}
+std::string GetCoinStakeStrDZeel(){
+    return sCoinStakeStrDZeel;
+}
+std::string GetCoinBaseStrDZeel(){
+    return sCoinBaseStrDZeel;
+}

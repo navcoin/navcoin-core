@@ -139,10 +139,11 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
         if (!ProcessNewBlock(state, Params(), NULL, pblock, true, NULL))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "ProcessNewBlock, block not accepted");
         else {
-            sCoinBaseStrDZeel = sCoinStakeStrDZeel = "";
-            vForcedTransactions.clear();
-            vCoinBaseOutputs.clear();
-            vCoinStakeOutputs.clear();
+            SetCoinBaseStrDZeel("");
+            SetCoinStakeStrDZeel("");
+            SetForceTransactions({});
+            SetCoinBaseOutputs({});
+            SetCoinStakeOutputs({});
         }
 
         ++nHeight;
@@ -902,9 +903,9 @@ UniValue setcoinbasestrdzeel(const UniValue& params, bool fHelp)
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
 
-    sCoinBaseStrDZeel = params[0].get_str();
+    SetCoinBaseStrDZeel(params[0].get_str());
 
-    return sCoinBaseStrDZeel;
+    return GetCoinBaseStrDZeel();
 }
 
 UniValue setcoinstakestrdzeel(const UniValue& params, bool fHelp)
@@ -918,9 +919,9 @@ UniValue setcoinstakestrdzeel(const UniValue& params, bool fHelp)
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
 
-    sCoinStakeStrDZeel = params[0].get_str();
+    SetCoinStakeStrDZeel(params[0].get_str());
 
-    return sCoinStakeStrDZeel;
+    return GetCoinStakeStrDZeel();
 }
 
 UniValue coinbaseoutputs(const UniValue& params, bool fHelp)
@@ -945,8 +946,7 @@ UniValue coinbaseoutputs(const UniValue& params, bool fHelp)
         ret.push_back(outs[i].get_str());
     }
 
-    vCoinBaseOutputs.clear();
-    vCoinBaseOutputs.insert(vCoinBaseOutputs.end(), vTemp.begin(), vTemp.end());
+    SetCoinBaseOutputs(vTemp);
 
     return ret;
 }
@@ -973,8 +973,7 @@ UniValue coinstakeoutputs(const UniValue& params, bool fHelp)
         ret.push_back(outs[i].get_str());
     }
 
-    vCoinStakeOutputs.clear();
-    vCoinStakeOutputs.insert(vCoinStakeOutputs.end(), vTemp.begin(), vTemp.end());
+    SetCoinStakeOutputs(vTemp);
 
     return ret;
 }
@@ -1001,25 +1000,27 @@ UniValue forcetransactions(const UniValue& params, bool fHelp)
         ret.push_back(outs[i].get_str());
     }
 
-    vForcedTransactions.clear();
-    vForcedTransactions.insert(vForcedTransactions.end(), vTemp.begin(), vTemp.end());
+    SetForceTransactions(vTemp);
 
     return ret;
 }
 
 UniValue staking(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 1)
         throw runtime_error(
-            "staking\n"
-            "Toggles staking\n"
+            "staking bool\n"
+            "Turns staking on or off\n"
             );
 
-    fStaking = !fStaking;
+    if (!params[0].isBool())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
+
+    SetStaking(params[0].get_bool());
 
     UniValue ret(UniValue::VBOOL);
 
-    ret = fStaking;
+    ret = params[0].get_bool();
 
     return ret;
 }
