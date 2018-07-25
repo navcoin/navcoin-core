@@ -496,19 +496,19 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             "2. \"outputs\"             (string, required) a json object with outputs\n"
             "    {\n"
             "      \"address\": x.xxx   (numeric or string, required) The key is the navcoin address, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
-            "      \"data\": \"hex\",     (string, required) The key is \"data\", the value is hex encoded data\n"
+            "      \"data\": x.xxx,     (string, required) The key is hex encoded data, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
             "      ...\n"
             "    }\n"
-            "3. \"anon-destination\"  (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
-            "4. locktime                (numeric, optional, default=0) Raw locktime. Non-0 value also locktime-activates inputs\n"
+            "3. \"anon-destination\"    (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "4. \"nout\"                (numeric, optional, default=-1) If greater than -1, it will only print the raw data of the output on the index \"out\"\n"
             "\nResult:\n"
             "\"transaction\"            (string) hex string of the transaction\n"
 
             "\nExamples\n"
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"address\\\":0.01}\"")
-            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"data\\\":\\\"00010203\\\"}\"")
+            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"00010203\\\":\\\"0.01\\\"}\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"address\\\":0.01}\"")
-            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"data\\\":\\\"00010203\\\"}\"")
+            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"00010203\\\":\\\"0.01\\\"}\"")
         );
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VSTR)(UniValue::VNUM), true);
@@ -526,11 +526,13 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
     rawTx.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
 
+    int nout = -1;
+
     if (params.size() > 3 && !params[3].isNull()) {
-        int64_t nLockTime = params[3].get_int64();
-        if (nLockTime < 0 || nLockTime > std::numeric_limits<uint32_t>::max())
-            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, locktime out of range");
-        rawTx.nLockTime = nLockTime;
+        int nOut = params[3].get_int();
+        if (nOut < -1 || nOut > std::numeric_limits<int>::max())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, nout out of range");
+        nout = nOut;
     }
 
     rawTx.nTime = GetAdjustedTime();
@@ -568,17 +570,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
     set<CNavCoinAddress> setAddress;
     vector<string> addrList = sendTo.getKeys();
     BOOST_FOREACH(const string& name_, addrList) {
-
-        if (name_ == "data") {
-            std::vector<unsigned char> data = ParseHexV(sendTo[name_].getValStr(),"Data");
-
-            CTxOut out(0, CScript() << OP_RETURN << data);
-            rawTx.vout.push_back(out);
-        } else {
-            CNavCoinAddress address(name_);
-            if (!address.IsValid())
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid NavCoin address: ")+name_);
-
+        CNavCoinAddress address(name_);
+        if (address.IsValid()) {
             if (setAddress.count(address))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
             setAddress.insert(address);
@@ -588,10 +581,15 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
             CTxOut out(nAmount, scriptPubKey);
             rawTx.vout.push_back(out);
+        } else {
+            std::vector<unsigned char> data = ParseHex(name_);
+
+            CTxOut out(AmountFromValue(sendTo[name_]), CScript(data.begin(), data.end()));
+            rawTx.vout.push_back(out);
         }
     }
 
-    return EncodeHexTx(rawTx);
+    return nout > -1 ? EncodeHexTxOut(rawTx.vout[nout]) : EncodeHexTx(rawTx);
 }
 
 UniValue decoderawtransaction(const UniValue& params, bool fHelp)
