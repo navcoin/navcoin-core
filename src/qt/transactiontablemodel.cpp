@@ -390,9 +390,9 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     case TransactionRecord::SendToSelf:
         return tr("Payment to yourself");
     case TransactionRecord::Staked:
-        return tr(wtx->status.status == TransactionStatus::Orphan || !wtx->status.countsForBalance? "Orphan" : "Staked");
+        return tr(wtx->status.status == TransactionStatus::Orphan || !(wtx->status.depth > 0) ? "Orphan" : "Staked");
     case TransactionRecord::Generated:
-        return tr(wtx->status.status == TransactionStatus::Orphan || !wtx->status.countsForBalance? "Orphan" : "Generated");
+        return tr(wtx->status.status == TransactionStatus::Orphan || !(wtx->status.depth > 0) ? "Orphan" : "Generated");
     default:
         return QString("Other");
     }
@@ -613,7 +613,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return COLOR_TX_STATUS_DANGER;
         }
         // Use the "danger" color for orphaned stakes
-        if(rec->status.status == TransactionStatus::Orphan || (rec->type == TransactionRecord::Staked && !rec->status.countsForBalance))
+        if(rec->status.status == TransactionStatus::Orphan || (rec->type == TransactionRecord::Staked && !(rec->status.depth > 0)))
         {
             return COLOR_TX_STATUS_DANGER;
         }
