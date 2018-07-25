@@ -374,12 +374,11 @@ bool CFund::CProposal::IsRejected() const {
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
     if(nVersion >= 2) {
         if (mapBlockIndex.count(blockhash) == 0)
-            return true;
+            return (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
 
         CBlockIndex* pblockindex = mapBlockIndex[blockhash];
 
-        return (pblockindex->GetMedianTimePast() + nDeadline < currentTime) ||
-               ( nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && CanVote());
+        return (pblockindex->GetMedianTimePast() + nDeadline < currentTime);
     } else {
         return (nDeadline < currentTime);
     }
