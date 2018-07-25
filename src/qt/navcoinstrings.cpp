@@ -11,6 +11,37 @@
 static const char UNUSED *navcoin_strings[] = {
 QT_TRANSLATE_NOOP("navcoin-core", "NavCoin Core"),
 QT_TRANSLATE_NOOP("navcoin-core", "The %s developers"),
+QT_TRANSLATE_NOOP("navcoin-core", "   conditions and the following disclaimer."),
+QT_TRANSLATE_NOOP("navcoin-core", "   materials provided with the distribution."),
+QT_TRANSLATE_NOOP("navcoin-core", "   prior written permission."),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"   of conditions and the following disclaimer in the documentation and/or "
+"other"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"   used to endorse or promote products derived from this software without "
+"specific"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED "
+"WARRANTIES OF"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN "
+"CONTRACT,"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO "
+"EVENT SHALL"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; "
+"OR BUSINESS"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN "
+"ANY WAY OUT OF"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, "
+"INCIDENTAL,"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+" THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "(1 = keep tx meta data e.g. account owner and payment request information, 2 "
 "= drop tx meta data)"),
@@ -24,6 +55,15 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "-paytxfee is set very high! This is the transaction fee you will pay if you "
 "send a transaction."),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"1. Redistributions of source code must retain the above copyright notice, "
+"this list of"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"2. Redistributions in binary form must reproduce the above copyright notice, "
+"this list"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"3. Neither the name of the copyright holder nor the names of its "
+"contributors may be"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "A fee rate (in %s/kB) that will be used when fee estimation has insufficient "
 "data (default: %s)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
@@ -32,8 +72,6 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Accept relayed transactions received from whitelisted peers even when not "
 "relaying transactions (default: %d)"),
-QT_TRANSLATE_NOOP("navcoin-core", ""
-"Add a ntp server to connect to and attempt to use to synchronize the clock"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Allow JSON-RPC connections from specified source. Valid for <ip> are a "
 "single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or "
@@ -136,9 +174,6 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Output debugging information (default: %u, supplying <category> is optional)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
-"Please check that your computer's date and time are correct! If your clock "
-"is wrong, %s will not work properly."),
-QT_TRANSLATE_NOOP("navcoin-core", ""
 "Please contribute if you find %s useful. Visit %s for further information "
 "about the software."),
 QT_TRANSLATE_NOOP("navcoin-core", ""
@@ -152,6 +187,9 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Randomize credentials for every proxy connection. This enables Tor stream "
 "isolation (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Redistribution and use in source and binary forms, with or without "
+"modification, are"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Reduce storage requirements by pruning (deleting) old blocks. This mode is "
 "incompatible with -txindex and -rescan. Warning: Reverting this setting "
@@ -169,7 +207,16 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "Sets the interval in miliseconds to update the fiat price from "
 "CoinMarketcap. Min. 120000"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"Sets the minimum value for an output to be considered as a coinstake kernel "
+"candidate"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Specifies an URL from where a bootstrapped copy of the blockchain would be "
+"downloaded"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "Support filtering of blocks and transaction with bloom filters (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS"
+"\" AND ANY"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "The block database contains a block which appears to be from the future. "
 "This may be due to your computer's date and time being set incorrectly. Only "
@@ -255,6 +302,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Accept public REST requests (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Add a NavTech node to use for private transactions"),
 QT_TRANSLATE_NOOP("navcoin-core", "Add a node to connect to and attempt to keep the connection open"),
 QT_TRANSLATE_NOOP("navcoin-core", "Adds a ntp server to use for clock syncronization"),
+QT_TRANSLATE_NOOP("navcoin-core", "All rights reserved."),
 QT_TRANSLATE_NOOP("navcoin-core", "Allow DNS lookups for -addnode, -seednode and -connect"),
 QT_TRANSLATE_NOOP("navcoin-core", "Always query for peer addresses via DNS lookup (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Append comment to the user agent string"),
@@ -271,6 +319,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Connect through SOCKS5 proxy"),
 QT_TRANSLATE_NOOP("navcoin-core", "Connect to a node to retrieve peer addresses, and disconnect"),
 QT_TRANSLATE_NOOP("navcoin-core", "Connection options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Copyright (C) %i-%i"),
+QT_TRANSLATE_NOOP("navcoin-core", "Copyright (c) 2014-2017, The Monero Project"),
 QT_TRANSLATE_NOOP("navcoin-core", "Corrupted block database detected"),
 QT_TRANSLATE_NOOP("navcoin-core", "Debugging/Testing options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Defines the staker vote to be attached to found blocks."),
@@ -391,6 +440,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Username for JSON-RPC connections"),
 QT_TRANSLATE_NOOP("navcoin-core", "Uses the devnet network"),
 QT_TRANSLATE_NOOP("navcoin-core", "Verifying blocks..."),
 QT_TRANSLATE_NOOP("navcoin-core", "Verifying wallet..."),
+QT_TRANSLATE_NOOP("navcoin-core", "Version of wallet to be banned"),
 QT_TRANSLATE_NOOP("navcoin-core", "Wallet %s resides outside data directory %s"),
 QT_TRANSLATE_NOOP("navcoin-core", "Wallet debugging/testing options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Wallet needed to be rewritten: restart %s to complete"),
@@ -399,4 +449,5 @@ QT_TRANSLATE_NOOP("navcoin-core", "Warning"),
 QT_TRANSLATE_NOOP("navcoin-core", "Whether to operate in a blocks only mode (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Zapping all transactions from wallet..."),
 QT_TRANSLATE_NOOP("navcoin-core", "ZeroMQ notification options:"),
+QT_TRANSLATE_NOOP("navcoin-core", "permitted provided that the following conditions are met:"),
 };

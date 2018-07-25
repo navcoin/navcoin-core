@@ -1759,7 +1759,8 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
     if (nDebit > 0) // debit>0 means we signed/sent this transaction
     {
         CAmount nValueOut = GetValueOut();
-        nFee = nDebit - nValueOut;
+        CAmount nValueOutCFund = GetValueOutCFund();
+        nFee = nDebit - nValueOut + nValueOutCFund;
     }
 
     // Sent/received.
