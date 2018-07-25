@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="fa" version="2.1">
+<TS language="fa" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;حذف</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>تکرار گذرواژهٔ جدید</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,153 @@
         <translation>مسدود شده تا</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>انتخاب سکه</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>تعداد:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>بایت ها:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>مبلغ:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>اولویت:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>هزینه:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>هزینه ی پسین:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>پول خورد:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(لغو)انتخاب همه</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>مدل درختی</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>مدل لیست</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>مبلغ</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>دریافت شده با برچسب</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>دریافت شده با نشانی</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>تاییدیه ها</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>تأیید شده</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>اولویت</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>هیچکدام</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>ویرایش نشانی</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;برچسب</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;نشانی</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>نسخه</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>درباره %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>گزینه‌های خط‌فرمان</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>استفاده:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>گزینه‌های خط فرمان</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>خوش‌آمدید</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>به %1 خوش‌آمدید.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>خطا</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -231,10 +381,6 @@
         <translation>&amp;کمک‌رسانی</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>نوارابزار برگه‌ها</translation>
-    </message>
-    <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation>نمایش لیست آدرس های ارسال و لیبل ها</translation>
     </message>
@@ -248,7 +394,7 @@
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n ارتباط فعال با شبکهٔ بیت‌کوین</numerusform></translation>
+        <translation><numerusform>%n ارتباط فعال با شبکهٔ بیت‌کوین</numerusform><numerusform>%n ارتباط فعال با شبکهٔ بیت‌کوین</numerusform></translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -256,15 +402,15 @@
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
-        <translation><numerusform>%n ساعت</numerusform></translation>
+        <translation><numerusform>%n ساعت</numerusform><numerusform>%n ساعت</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
-        <translation><numerusform>%n روز</numerusform></translation>
+        <translation><numerusform>%n روز</numerusform><numerusform>%n روز</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>%n week(s)</source>
-        <translation><numerusform>%n هفته</numerusform></translation>
+        <translation><numerusform>%n هفته</numerusform><numerusform>%n هفته</numerusform></translation>
     </message>
     <message>
         <source>%1 and %2</source>
@@ -272,7 +418,7 @@
     </message>
     <message numerus="yes">
         <source>%n year(s)</source>
-        <translation><numerusform>%n سال</numerusform></translation>
+        <translation><numerusform>%n سال</numerusform><numerusform>%n سال</numerusform></translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -285,6 +431,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>تراکنش‌های بعد از این هنوز قابل مشاهده نیستند.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>بله</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>خیر</translation>
     </message>
     <message>
         <source>Error</source>
@@ -354,167 +508,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>انتخاب سکه</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>تعداد:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>بایت ها:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>مبلغ:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>اولویت:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>هزینه:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>هزینه ی پسین:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>پول خورد:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(لغو)انتخاب همه</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>مدل درختی</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>مدل لیست</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>مبلغ</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>دریافت شده با برچسب</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>دریافت شده با نشانی</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>تاریخ</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>تاییدیه ها</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>تأیید شده</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>اولویت</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>ویرایش نشانی</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;برچسب</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;نشانی</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>یک مسیر دادهٔ جدید ایجاد خواهد شد.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>نام</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>این پوشه در حال حاضر وجود دارد. اگر می‌خواهید یک دایرکتوری جدید در این‌جا ایجاد کنید، %1 را اضافه کنید.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>مسیر داده شده موجود است و به یک پوشه اشاره نمی‌کند.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>نمی‌توان پوشهٔ داده در این‌جا ایجاد کرد.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>نسخه</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>درباره %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>گزینه‌های خط‌فرمان</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>استفاده:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>گزینه‌های خط فرمان</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>خوش‌آمدید</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>به %1 خوش‌آمدید.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>استفاده از مسیر پیش‌فرض</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>استفاده از یک مسیر سفارشی:</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>خطا</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n گیگابایت فضا موجود است</numerusform></translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -661,49 +655,12 @@
         <translation>فرم</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>اطلاعات نمایش‌داده شده ممکن است قدیمی باشند. بعد از این که یک اتصال با شبکه برقرار شد، کیف پول شما به‌صورت خودکار با شبکهٔ بیت‌کوین همگام‌سازی می‌شود. اما این روند هنوز کامل نشده است.</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>در دسترس:</translation>
     </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>تراز علی‌الحساب شما</translation>
-    </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>مجموع تراکنش‌هایی که هنوز تأیید نشده‌اند؛ و هنوز روی تراز علی‌الحساب اعمال نشده‌اند</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>نارسیده:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>تراز استخراج شده از معدن که هنوز بالغ نشده است</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>تراز ها</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>جمع کل:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>تراز کل فعلی شما</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>:قابل خرج کردن</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>تراکنش های اخیر</translation>
-    </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -747,6 +704,13 @@
         <translation>%1 میلیونم ثانیه</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;ذخیره عکس...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -920,7 +884,7 @@
         <source>Remove</source>
         <translation>حذف کردن</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -935,7 +899,18 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;ذخیره عکس...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>مبلغ</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -975,14 +950,6 @@
         <translation>پول خورد:</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>هزینهٔ تراکنش:</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>پنهان کردن</translation>
-    </message>
-    <message>
         <source>Recommended:</source>
         <translation>توصیه شده:</translation>
     </message>
@@ -1003,18 +970,6 @@
         <translation>سریع</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>ارسال به چند دریافت‌کنندهٔ به‌طور همزمان</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;دریافت‌کنندهٔ جدید</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>پاکسازی &amp;همه</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation>تزار:</translation>
     </message>
@@ -1026,7 +981,7 @@
         <source>S&amp;end</source>
         <translation>&amp;ارسال</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1042,10 +997,6 @@
         <translation>&amp;برچسب:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>انتخاب نشانی پیش‌تر استفاده شده</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>این یک پرداخت عادی است</translation>
     </message>
@@ -1056,14 +1007,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>چسباندن نشانی از حافظهٔ سیستم</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1080,6 +1023,13 @@
     <message>
         <source>Memo:</source>
         <translation>یادداشت:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>بله</translation>
     </message>
 </context>
 <context>
@@ -1167,7 +1117,7 @@
         <source>Reset all verify message fields</source>
         <translation>بازنشانی تمام فیلدهای پیام</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1183,14 +1133,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>مبلغ</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>این پانل شامل توصیف کاملی از جزئیات تراکنش است</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>تأیید شده</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>ارسال سکه</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;صدور</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>خروجی گرفتن داده‌های برگه‌ی فعلی به یک فایل</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>فرم</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>کد QR</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1351,10 +1362,6 @@
         <translation>هشدار</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>هشدار: قوانین جدید ناشناخته‌ای فعال شده‌اند (نسخه‌بیت %i)</translation>
-    </message>
-    <message>
         <source>Password for JSON-RPC connections</source>
         <translation>JSON-RPC عبارت عبور برای ارتباطات</translation>
     </message>
@@ -1415,4 +1422,18 @@
         <translation>خطا</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>فرم</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>حذف کردن</translation>
+    </message>
+    </context>
 </TS>

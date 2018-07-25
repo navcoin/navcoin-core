@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="he" version="2.1">
+<TS language="he" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>מ&amp;חיקה</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>נא לחזור על מילת הצופן החדשה</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -68,6 +71,177 @@
         <translation>חסום עד</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>בחירת מטבע</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>כמות:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>בתים:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>סכום:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>עדיפות:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>עמלה:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>אבק:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>לאחר עמלה:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>עודף:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>ביטול/אישור הבחירה</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>מצב עץ</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>מצב רשימה</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>כמות</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>התקבל עם תווית</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>התקבל עם כתובת</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>תאריך</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>אישורים</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>מאושר</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>עדיפות</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>ללא</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>עריכת כתובת</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>ת&amp;ווית</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>התווית המשויכת לרשומה הזו ברשימת הכתובות</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>הכתובת המשויכת עם רשומה זו ברשימת הכתובות. ניתן לשנות זאת רק עבור כתובות לשליחה.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;כתובת</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>גרסה</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-סיביות)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>אפשרויות שורת פקודה</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>שימוש:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>אפשרויות שורת פקודה</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>אפשרויות ממשק</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>התחל ממוזער</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>איפוס כל שינויי הגדרות התצוגה</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>ברוך בואך</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>ברוך הבא ל %1.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>שגיאה</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -227,10 +401,6 @@
         <translation>ע&amp;זרה</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>סרגל כלים לשוניות</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>בקשת תשלומים (יצירה של קודים מסוג QR וסכימות כתובות משאב של :navcoin)</translation>
     </message>
@@ -275,6 +445,14 @@
         <translation>ההעברות שבוצעו לאחר העברה זו לא יופיעו.</translation>
     </message>
     <message>
+        <source>Yes</source>
+        <translation>כן</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>לא</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>שגיאה</translation>
     </message>
@@ -312,191 +490,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>בחירת מטבע</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>כמות:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>בתים:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>סכום:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>עדיפות:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>עמלה:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>אבק:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>לאחר עמלה:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>עודף:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>ביטול/אישור הבחירה</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>מצב עץ</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>מצב רשימה</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>כמות</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>התקבל עם תווית</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>התקבל עם כתובת</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>תאריך</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>אישורים</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>מאושר</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>עדיפות</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>עריכת כתובת</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>ת&amp;ווית</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>התווית המשויכת לרשומה הזו ברשימת הכתובות</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>הכתובת המשויכת עם רשומה זו ברשימת הכתובות. ניתן לשנות זאת רק עבור כתובות לשליחה.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;כתובת</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>תיקיית נתונים חדשה תיווצר.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>שם</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>התיקייה כבר קיימת. ניתן להוסיף %1 אם יש ליצור תיקייה חדשה כאן.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>הנתיב כבר קיים ואינו מצביע על תיקייה.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>לא ניתן ליצור כאן תיקיית נתונים.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>גרסה</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-סיביות)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>אפשרויות שורת פקודה</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>שימוש:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>אפשרויות שורת פקודה</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>אפשרויות ממשק</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>התחל ממוזער</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>איפוס כל שינויי הגדרות התצוגה</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>ברוך בואך</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>ברוך הבא ל %1.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>שימוש בבררת המחדל של תיקיית הנתונים.</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>שימוש בתיקיית נתונים מותאמת אישית:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>שגיאה: לא ניתן ליצור את תיקיית הנתונים שצוינה „%1“.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>שגיאה</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -516,7 +510,7 @@
         <source>Select payment request file</source>
         <translation>בחירת קובץ בקשת תשלום</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -707,74 +701,17 @@
         <translation>טופס</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>המידע המוצג עשוי להיות מיושן. הארנק שלך מסתנכרן באופן אוטומטי עם רשת הביטקוין לאחר יצירת החיבור, אך התהליך טרם הסתיים.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>צפייה בלבד:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>זמין:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>היתרה הזמינה הנוכחית</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>בהמתנה:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>הסכום הכולל של העברות שטרם אושרו ועדיין אינן נספרות בחישוב היתרה הזמינה</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>לא בשל:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>מאזן שנכרה וטרם הבשיל</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>מאזנים</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>סך הכול:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>סך כל היתרה הנוכחית שלך</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>המאזן הנוכחי שלך בכתובות לקריאה בלבד</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>ניתנים לבזבוז</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>העברות אחרונות</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>העברות בלתי מאושרות לכתובות לצפייה בלבד</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>מאזן לאחר כרייה בכתובות לצפייה בלבד שעדיין לא הבשילו</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>המאזן הכולל הנוכחי בכתובות לצפייה בלבד</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -825,6 +762,13 @@
         <translation>%1 מילישניות</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;שמירת תמונה…</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1150,7 +1094,7 @@
         <source>Remove</source>
         <translation>הסרה</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1169,16 +1113,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;שמירת תמונה…</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>כמות</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>תאריך</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>שליחת מטבעות</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>תכונות בקרת מטבעות</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1229,20 +1180,8 @@
         <translation>כתובת לעודף מותאמת אישית</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>עמלת העברה:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>בחר...</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>עבור קילו-בית</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>הסתר</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1269,24 +1208,8 @@
         <translation>מהיר</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>שליחה למספר מוטבים בו־זמנית</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>הוספת &amp;מוטב</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>ניקוי של כל השדות בטופס.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>אבק:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>&amp;ניקוי הכול</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1300,7 +1223,7 @@
         <source>S&amp;end</source>
         <translation>&amp;שליחה</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1316,10 +1239,6 @@
         <translation>ת&amp;ווית:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>בחירת כתובת שהייתה בשימוש</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>זהו תשלום רגיל.</translation>
     </message>
@@ -1330,14 +1249,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>הדבקת כתובת מלוח הגזירים</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1366,6 +1277,13 @@
     <message>
         <source>Memo:</source>
         <translation>תזכורת:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>כן</translation>
     </message>
 </context>
 <context>
@@ -1453,7 +1371,7 @@
         <source>Reset all verify message fields</source>
         <translation>איפוס כל שדות אימות ההודעה</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1469,12 +1387,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>תאריך</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>כמות</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>חלונית זו מציגה תיאור מפורט של ההעברה</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>תאריך</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>מאושר</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>תאריך</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1482,6 +1429,38 @@
         <translation>יחידת המידה להצגת הסכומים. יש ללחוץ כדי לבחור ביחידת מידה אחרת.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>שליחת מטבעות</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>י&amp;צוא</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>יצוא הנתונים מהלשונית הנוכחית לקובץ</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>טופס</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>קוד QR</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1829,4 +1808,18 @@
         <translation>שגיאה</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>טופס</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>הסרה</translation>
+    </message>
+    </context>
 </TS>
