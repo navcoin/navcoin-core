@@ -12,6 +12,7 @@
 #include "pos.h"
 
 #include <stdint.h>
+#include <string>
 #include <memory>
 #include "boost/multi_index_container.hpp"
 #include "boost/multi_index/ordered_index.hpp"
@@ -27,6 +28,13 @@ namespace Consensus { struct Params; };
 
 static const bool DEFAULT_PRINTPRIORITY = false;
 static const int DEFAULT_GENERATE_THREADS = 1;
+
+static std::vector<std::string> vForcedTransactions;
+static std::vector<std::string> vCoinBaseOutputs;
+static std::vector<std::string> vCoinStakeOutputs;
+static std::string sCoinBaseStrDZeel;
+static std::string sCoinStakeStrDZeel;
+static bool fStaking;
 
 struct CBlockTemplate
 {

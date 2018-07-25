@@ -138,6 +138,13 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
         CValidationState state;
         if (!ProcessNewBlock(state, Params(), NULL, pblock, true, NULL))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "ProcessNewBlock, block not accepted");
+        else {
+            sCoinBaseStrDZeel = sCoinStakeStrDZeel = "";
+            vForcedTransactions.clear();
+            vCoinBaseOutputs.clear();
+            vCoinStakeOutputs.clear();
+        }
+
         ++nHeight;
         blockHashes.push_back(pblock->GetHash().GetHex());
 
@@ -884,6 +891,122 @@ UniValue estimatesmartfee(const UniValue& params, bool fHelp)
     return result;
 }
 
+UniValue setcoinbasestrdzeel(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "setcoinbasestrdzeel string\n"
+            "Sets the value of strDZeel for the coinbase of the next generated block\n"
+            "Empty string deactivates the feature\n"
+            );
+
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
+
+    sCoinBaseStrDZeel = params[0].get_str();
+
+    return sCoinBaseStrDZeel;
+}
+
+UniValue setcoinstakestrdzeel(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "setcoinstakestrdzeel string\n"
+            "Sets the value of strDZeel for the coinstake of the next generated block\n"
+            "Empty string deactivates the feature\n"
+            );
+
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
+
+    sCoinStakeStrDZeel = params[0].get_str();
+
+    return sCoinStakeStrDZeel;
+}
+
+UniValue coinbaseoutputs(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "coinbaseoutputs [array_of_strings]\n"
+            "Adds the hex-encoded outputs to the coinbase of the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be an array");
+
+    UniValue outs = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < outs.size(); i++)
+    {
+        vTemp.push_back(outs[i].get_str());
+        ret.push_back(outs[i].get_str());
+    }
+
+    vCoinBaseOutputs.clear();
+    vCoinBaseOutputs.insert(vCoinBaseOutputs.end(), vTemp.begin(), vTemp.end());
+
+    return ret;
+}
+
+UniValue coinstakeoutputs(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "coinstakeoutputs [array_of_strings]\n"
+            "Adds the hex-encoded outputs to the coinstake of the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be an array");
+
+    UniValue outs = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < outs.size(); i++)
+    {
+        vTemp.push_back(outs[i].get_str());
+        ret.push_back(outs[i].get_str());
+    }
+
+    vCoinStakeOutputs.clear();
+    vCoinStakeOutputs.insert(vCoinStakeOutputs.end(), vTemp.begin(), vTemp.end());
+
+    return ret;
+}
+
+UniValue forcetransactions(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "forcetransactions [array_of_strings]\n"
+            "Adds the hex-encoded transactions to the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be an array");
+
+    UniValue outs = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < outs.size(); i++)
+    {
+        vTemp.push_back(outs[i].get_str());
+        ret.push_back(outs[i].get_str());
+    }
+
+    vForcedTransactions.clear();
+    vForcedTransactions.insert(vForcedTransactions.end(), vTemp.begin(), vTemp.end());
+
+    return ret;
+}
+
 UniValue estimatesmartpriority(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -931,6 +1054,11 @@ static const CRPCCommand commands[] =
 
     { "generating",         "generate",               &generate,               true  },
     { "generating",         "generatetoaddress",      &generatetoaddress,      true  },
+    { "generating",         "setcoinbasestrdzeel",    &setcoinbasestrdzeel,    true  },
+    { "generating",         "setcoinstakestrdzeel",   &setcoinstakestrdzeel,   true  },
+    { "generating",         "forcetransactions",      &forcetransactions,      true  },
+    { "generating",         "coinbaseoutputs",        &coinbaseoutputs,        true  },
+    { "generating",         "coinstakeoutputs",       &coinstakeoutputs,       true  },
 
     { "util",               "estimatefee",            &estimatefee,            true  },
     { "util",               "estimatepriority",       &estimatepriority,       true  },
