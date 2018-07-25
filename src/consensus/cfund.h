@@ -204,9 +204,9 @@ public:
 
     std::string ToString(uint32_t currentTime = 0) const {
         std::string str;
-        str += strprintf("CProposal(hash=%s, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
+        str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
                          "nVotesNo=%u, fState=%s, strDZeel=%s, blockhash=%s)",
-                         hash.ToString(), (float)nAmount/COIN, (float)GetAvailable()/COIN, (float)nFee/COIN, Address, nDeadline,
+                         hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable()/COIN, (float)nFee/COIN, Address, nDeadline,
                          nVotesYes, nVotesNo, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
         for (unsigned int i = 0; i < vPayments.size(); i++) {
             CFund::CPaymentRequest prequest;
@@ -284,7 +284,7 @@ public:
             if(nFee < 0)
             {
                 READWRITE(nFee);
-                READWRITE(nVersion);
+                READWRITE(this->nVersion);
             }
             else
             {
@@ -296,7 +296,7 @@ public:
             CAmount nSignalVersion = -1;
             READWRITE(nSignalVersion);
             READWRITE(nFee);
-            READWRITE(nVersion);
+            READWRITE(this->nVersion);
         }
 
         READWRITE(Address);
