@@ -932,7 +932,7 @@ UniValue coinbaseoutputs(const UniValue& params, bool fHelp)
             );
 
     if (!params[0].isArray())
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be an array");
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
 
     UniValue outs = params[0].get_array();
 
@@ -960,7 +960,7 @@ UniValue coinstakeoutputs(const UniValue& params, bool fHelp)
             );
 
     if (!params[0].isArray())
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be an array");
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
 
     UniValue outs = params[0].get_array();
 
@@ -988,7 +988,7 @@ UniValue forcetransactions(const UniValue& params, bool fHelp)
             );
 
     if (!params[0].isArray())
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be an array");
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
 
     UniValue outs = params[0].get_array();
 
@@ -1009,16 +1009,13 @@ UniValue forcetransactions(const UniValue& params, bool fHelp)
 
 UniValue staking(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 0)
         throw runtime_error(
-            "staking bool\n"
-            "Turns staking on or off\n"
+            "staking\n"
+            "Toggles staking\n"
             );
 
-    if (!params[0].isBool())
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 must be a boolean");
-
-    fStaking = params[0].get_bool();
+    fStaking = !fStaking;
 
     UniValue ret(UniValue::VBOOL);
 
