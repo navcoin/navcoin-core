@@ -2949,18 +2949,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             try {
                 UniValue valRequest;
                 if (!valRequest.read(tx.strDZeel))
-                  return false;
+                  return error("ConnectBlock(): Could not read strDZeel of Proposal\n");
 
                 if (valRequest.isObject())
                   metadata = valRequest.get_obj();
                 else
-                  return false;
+                  return error("ConnectBlock(): Could not read strDZeel of Proposal\n");
 
             } catch (const UniValue& objError) {
-              return false;
+              error("ConnectBlock(): Could not read strDZeel of Proposal\n");
             } catch (const std::exception& e) {
-              return false;
-            }  // May not return ever false, as transactions were already chcked.
+              return error("ConnectBlock(): Could not read strDZeel of Proposal: %s\n", e.what());
+            }
 
             CFund::CProposal proposal;
 
@@ -2972,6 +2972,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.nFee = nProposalFee;
             proposal.hash = tx.GetHash();
 
+            LogPrintf("New Community Fund Proposal: %s\n", proposal.ToString());
+
             proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
         }
 
@@ -2980,17 +2982,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             try {
                 UniValue valRequest;
                 if (!valRequest.read(tx.strDZeel))
-                  return false;
+                  return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
 
                 if (valRequest.isObject())
                   metadata = valRequest.get_obj();
                 else
-                  return false;
+                  return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
 
             } catch (const UniValue& objError) {
-              return false;
+                return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
             } catch (const std::exception& e) {
-              return false;
+                return error("ConnectBlock(): Could not read strDZeel of Payment Request: %s\n", e.what());
             }  // May not return ever false, as transactions were already chcked.
 
             CFund::CPaymentRequest prequest;
@@ -3001,9 +3003,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             prequest.strDZeel = find_value(metadata, "i").get_str();
             prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
+            LogPrintf("New Community Fund Payment Request: %s\n", prequest.ToString());
+
             CFund::CProposal proposal;
             if(!CFund::FindProposal(prequest.proposalhash, proposal))
-                return false;
+                return error("ConnectBlock(): Could not find parent proposal of Payment Request: %s\n",
+                             proposal.hash.ToString(), prequest.proposalhash.ToString());
             proposal.vPayments.push_back(tx.hash);
 
             proposalIndex.push_back(make_pair(prequest.proposalhash, proposal));
