@@ -37,6 +37,10 @@ This PR https://github.com/NAVCoin/navcoin-core/pull/214 completely removes the 
 
 Applies https://github.com/bitcoin/bitcoin/pull/8238/files to fix ZeroMQ compatibility with Windows systems.
 
+# Transalations
+
+The Wallet GUI is now fully translated to Spanish and Italian.
+
 ### Other modifications in the NavCoin client:
 
 New RPC command `resolveopenalias` resolves an OpenAlias address to a NavCoin address
