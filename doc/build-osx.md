@@ -15,13 +15,17 @@ Then install [Homebrew](http://brew.sh).
 
 ## Dependencies
 
-```bash
-brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/core/protobuf260 --c++11 qt5 libevent curl
-```
+1. Install `brew` depends.
+
+    ```bash
+    brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/core/protobuf260 --c++11 qt5 libevent curl
+    ```
+
+2. Visit [README.md](../depends/README.md) for instructions on building the rest of the dependancies.
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
-See [README.md](../depends/README.md) for instructions on building the rest of the dependancies.
+
 
 ## Build NavCoin Core
 

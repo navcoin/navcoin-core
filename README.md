@@ -8,11 +8,11 @@ https://navcoin.org/project-roadmap/
 
 [![Build Status](https://travis-ci.org/NAVCoin/navcoin-core.svg?branch=master)](https://travis-ci.org/NAVCoin/navcoin-core)
 
-## Compiling
+## Building
 
-For building the dependencies see [depends/README.md](depends/README.md)
+For building the dependencies see [README.md](depends/README.md) in the [depends](depends) folder
 
-For compiling the wallet see the markdown files in [doc](doc)
+For building the wallet see the markdown files in [doc](doc) folder
 
 ## Coin Specifications
 

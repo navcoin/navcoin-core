@@ -1,15 +1,18 @@
 ## Usage
 
-To build dependencies for the current arch+OS:
+### Step 1. 
 
+**(These commands should be run in the `depends` folder)**
+
+To build dependencies for the current arch+OS run this:
+  
 ```bash
 make
 ```
 
-To build for another arch/OS:
-
+If you want to build for another arch/OS you need to run this command:
 ```bash
-make HOST=host-platform-triplet
+make HOST=[host-platform-triplet]
 ```
 
 For example:
@@ -18,17 +21,21 @@ For example:
 make HOST=x86_64-w64-mingw32 -j4
 ```
 
-A prefix will be generated that's suitable for plugging into NavCoin's
-configure. In the above example, a dir named x86_64-w64-mingw32 will be
-created. To use it for NavCoin:
+### Step 2. 
 
-```bash
-/configure --prefix=`pwd`/depends/x86_64-w64-mingw32 #this is in the root dir for the project, not in /depends
-```
+- A folder will be generated inside the `depends` folder by whichever command you ran.  
+- This folder's path needs to be plugged into the `configure` command. 
+- Using the above example, `make HOST=x86_64-w64-mingw32 -j4
+`, a dir named `x86_64-w64-mingw32` is generated. We would plug it into the `depends` command like this:
+
+  ```bash
+  # This command is run in the project's root folder, not in /depends or in /src
+  ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32 #this is in the root dir for the project, not in /depends
+  ```
 
 Common `host-platform-triplets` for cross compilation are:
 
-**These may differ depending on which version your operating system is on, for example the OSX folder will change with each OS update**
+**These may differ depending on which version your operating system is on, for example the OSX folder generated will change depending on the exact OSX version**
 
 | Operating System | Prefix                      |
 | ---------------- | --------------------------- |
