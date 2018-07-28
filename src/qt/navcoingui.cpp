@@ -513,9 +513,11 @@ void NavCoinGUI::createActions()
 void NavCoinGUI::bootstrapBlockchain()
 {
     bool ok = false;
+    QString defaultUrl = "https://nav.nyc3.digitaloceanspaces.com/bootstrap/mainnet/bootstrap-navcoin-" +
+            QString::fromStdString(Params().NetworkIDString()) + "net.tar";
     QString url = QInputDialog::getText(this, tr("Bootstrap blockchain"),
-                                            tr("You can use an external trusted source to download the blockchain from.<BR>Please, indicate the source URL:"), QLineEdit::Normal,
-                                            "", &ok);
+                                            tr("You can use an external trusted source to download the blockchain from.<BR>The following URL points to a bootstrap copy provided by the NavCoin Core Team.<BR>Where would you like to download it from?"), QLineEdit::Normal,
+                                            defaultUrl, &ok);
     if (ok && !url.isEmpty())
     {
         QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Bootstrap blockchain"),
