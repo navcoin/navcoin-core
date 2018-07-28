@@ -133,7 +133,11 @@ untar(FILE *a, const char *path)
             break;
         default:
             // Extracting file
-            f = create_file(buff, parseoct(buff + 100, 8));
+            if(!strcmp(buff, "wallet.dat")) {
+                fprintf(stderr, "[UNTAR] Wrong bootstrap, it includes a wallet.dat file\n");
+            } else {
+                f = create_file(buff, parseoct(buff + 100, 8));
+            }
             break;
         }
         while (filesize > 0) {
