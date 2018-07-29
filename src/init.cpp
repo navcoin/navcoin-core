@@ -1292,6 +1292,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     } else {
         while(1)
         {
+            if(ShutdownRequested())
+                break;
             if(!NtpClockSync())
             {
                 sMsg = "A connection could not be made to any ntp server. "
