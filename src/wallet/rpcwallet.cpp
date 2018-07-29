@@ -540,7 +540,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("a",Address));
     strDZeel.push_back(Pair("d",nDeadline));
     strDZeel.push_back(Pair("s",sDesc));
-    strDZeel.push_back(Pair("v",2));
+    strDZeel.push_back(Pair("v",CFund::CProposal::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -608,7 +608,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     std::string id = params[2].get_str();
-    std::string sRandom = random_string(32);
+    std::string sRandom = random_string(16);
 
     std::string Secret = sRandom + "I kindly ask to withdraw " +
             std::to_string(nReqAmount) + "NAV from the proposal " +
@@ -637,7 +637,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("s",Signature));
     strDZeel.push_back(Pair("r",sRandom));
     strDZeel.push_back(Pair("i",id));
-    strDZeel.push_back(Pair("v",2));
+    strDZeel.push_back(Pair("v",CFund::CPaymentRequest::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;

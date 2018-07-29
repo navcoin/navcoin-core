@@ -57,6 +57,8 @@ bool IsValidProposal(CTransaction tx);
 class CPaymentRequest
 {
 public:
+    static const int32_t CURRENT_VERSION=2;
+
     CAmount nAmount;
     flags fState;
     uint256 hash;
@@ -165,6 +167,8 @@ public:
 class CProposal
 {
 public:
+    static const int32_t CURRENT_VERSION=2;
+
     CAmount nAmount;
     CAmount nFee;
     std::string Address;

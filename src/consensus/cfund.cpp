@@ -226,7 +226,9 @@ bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
 }
 
 bool CFund::IsValidPaymentRequest(CTransaction tx)
-{
+{    
+    if(tx.strDZeel.length() > 1024)
+        return false;
 
     UniValue metadata(UniValue::VOBJ);
     try {
@@ -314,6 +316,9 @@ bool CFund::CPaymentRequest::IsExpired() const {
 
 bool CFund::IsValidProposal(CTransaction tx)
 {
+    if(tx.strDZeel.length() > 1024)
+        return false;
+
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
