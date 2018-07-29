@@ -474,9 +474,9 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
 
 UniValue createrawtransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 2 || params.size() > 4)
+    if (fHelp || params.size() < 2 || params.size() > 5)
         throw runtime_error(
-            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] [nout]\n"
+            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] [index] [toggle-input-dump]\n"
             "\nCreate a transaction spending the given inputs and creating new outputs.\n"
             "Outputs can be addresses or data.\n"
             "Returns hex-encoded raw transaction.\n"
@@ -500,7 +500,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             "      ...\n"
             "    }\n"
             "3. \"anon-destination\"    (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
-            "4. \"nout\"                (numeric, optional, default=-1) If greater than -1, it will only print the raw data of the output on the index \"out\"\n"
+            "4. \"index\"               (numeric, optional, default=-1) If greater than -1, it will only print the raw data of the output or input on the index \"index\"\n"
+            "4. \"toggle-input-dump\"   (bool, optional, default=false) Sets whether the input (true) or the output (false) at the index \"index\" is dumped \n"
             "\nResult:\n"
             "\"transaction\"            (string) hex string of the transaction\n"
 
@@ -533,6 +534,11 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
         if (nOut < -1 || nOut > std::numeric_limits<int>::max())
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, nout out of range");
         nout = nOut;
+    }
+
+    int dumpin = false;
+    if (params.size() > 4 && !params[4].isNull() && params[4].isBool()) {
+        dumpin = params[4].getBool();
     }
 
     rawTx.nTime = GetAdjustedTime();
@@ -589,10 +595,14 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
         }
     }
 
-    if(nout > -1 && nout >= rawTx.vout.size())
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, nout out of range");
+    if (dumpin) {
+        if(nout > -1 && nout >= rawTx.vin.size())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, index out of range");
+    } else
+        if(nout > -1 && nout >= rawTx.vout.size())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, index out of range");
 
-    return nout > -1 ? EncodeHexTxOut(rawTx.vout[nout]) : EncodeHexTx(rawTx);
+    return nout > -1 ? (dumpin ? EncodeHexTxIn(rawTx.vin[nout]) : EncodeHexTxOut(rawTx.vout[nout])) : EncodeHexTx(rawTx);
 }
 
 UniValue decoderawtransaction(const UniValue& params, bool fHelp)
