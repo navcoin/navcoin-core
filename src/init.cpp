@@ -1290,6 +1290,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     } else {
         while(1)
         {
+            if(ShutdownRequested())
+                break;
             if(!NtpClockSync())
             {
                 sMsg = "A connection could not be made to any ntp server. "
@@ -1764,8 +1766,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
 #ifdef ENABLE_WALLET
     // Generate coins in the background
-    if(GetBoolArg("-staking", true))
-        threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
+    SetStaking(GetBoolArg("-staking", true));
+    threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
 #endif
 
     uiInterface.InitMessage(_("Done loading"));

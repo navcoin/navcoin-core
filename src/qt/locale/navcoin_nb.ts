@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="nb" version="2.1">
+<TS language="nb" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Slett</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Gjenta ny adgangsfrase</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -70,299 +73,6 @@
     <message>
         <source>Banned Until</source>
         <translation>Utestengt til</translation>
-    </message>
-</context>
-<context>
-    <name>NavCoinGUI</name>
-    <message>
-        <source>Sign &amp;message...</source>
-        <translation>Signer &amp;melding...</translation>
-    </message>
-    <message>
-        <source>Synchronizing with network...</source>
-        <translation>Synkroniserer med nettverk...</translation>
-    </message>
-    <message>
-        <source>&amp;Overview</source>
-        <translation>&amp;Oversikt</translation>
-    </message>
-    <message>
-        <source>Node</source>
-        <translation>Node</translation>
-    </message>
-    <message>
-        <source>Show general overview of wallet</source>
-        <translation>Vis generell oversikt over lommeboken</translation>
-    </message>
-    <message>
-        <source>&amp;Transactions</source>
-        <translation>&amp;Transaksjoner</translation>
-    </message>
-    <message>
-        <source>Browse transaction history</source>
-        <translation>Vis transaksjonshistorikk</translation>
-    </message>
-    <message>
-        <source>E&amp;xit</source>
-        <translation>&amp;Avslutt</translation>
-    </message>
-    <message>
-        <source>Quit application</source>
-        <translation>Avslutt applikasjonen</translation>
-    </message>
-    <message>
-        <source>&amp;About %1</source>
-        <translation> &amp;Om %1</translation>
-    </message>
-    <message>
-        <source>About &amp;Qt</source>
-        <translation>Om &amp;Qt</translation>
-    </message>
-    <message>
-        <source>Show information about Qt</source>
-        <translation>Vis informasjon om Qt</translation>
-    </message>
-    <message>
-        <source>&amp;Options...</source>
-        <translation>&amp;Innstillinger...</translation>
-    </message>
-    <message>
-        <source>&amp;Encrypt Wallet...</source>
-        <translation>&amp;Krypter Lommebok...</translation>
-    </message>
-    <message>
-        <source>&amp;Backup Wallet...</source>
-        <translation>Lag &amp;Sikkerhetskopi av Lommebok...</translation>
-    </message>
-    <message>
-        <source>&amp;Change Passphrase...</source>
-        <translation>&amp;Endre Adgangsfrase...</translation>
-    </message>
-    <message>
-        <source>&amp;Sending addresses...</source>
-        <translation>&amp;Utsendingsadresser...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses...</source>
-        <translation>&amp;Mottaksadresser...</translation>
-    </message>
-    <message>
-        <source>Open &amp;URI...</source>
-        <translation>Åpne &amp;URI...</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk...</source>
-        <translation>Reindekserer blokker på harddisk...</translation>
-    </message>
-    <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Send til en NavCoin-adresse</translation>
-    </message>
-    <message>
-        <source>Backup wallet to another location</source>
-        <translation>Sikkerhetskopier lommebok til annet sted</translation>
-    </message>
-    <message>
-        <source>Change the passphrase used for wallet encryption</source>
-        <translation>Endre adgangsfrasen brukt for kryptering av lommebok</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Feilsøkingsvindu</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Åpne konsoll for feilsøk og diagnostikk</translation>
-    </message>
-    <message>
-        <source>&amp;Verify message...</source>
-        <translation>&amp;Verifiser melding...</translation>
-    </message>
-    <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Lommebok</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation>&amp;Send</translation>
-    </message>
-    <message>
-        <source>&amp;Receive</source>
-        <translation>&amp;Motta</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>&amp;Vis / Skjul</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Vis eller skjul hovedvinduet</translation>
-    </message>
-    <message>
-        <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Krypter de private nøklene som tilhører lommeboken din</translation>
-    </message>
-    <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Signer en melding med NavCoin-adressene dine for å bevise at du eier dem</translation>
-    </message>
-    <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Bekreft meldinger for å være sikker på at de ble signert av en angitt NavCoin-adresse</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Fil</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>&amp;Innstillinger</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Hjelp</translation>
-    </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>Verktøylinje for faner</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and navcoin: URIs)</source>
-        <translation>Forespør betalinger (genererer QR-koder og navcoin: URIer)</translation>
-    </message>
-    <message>
-        <source>Show the list of used sending addresses and labels</source>
-        <translation>Vis listen av brukte utsendingsadresser og merkelapper</translation>
-    </message>
-    <message>
-        <source>Show the list of used receiving addresses and labels</source>
-        <translation>Vis listen over bruke mottaksadresser og merkelapper</translation>
-    </message>
-    <message>
-        <source>Open a navcoin: URI or payment request</source>
-        <translation>Åpne en NavCoin: URI eller betalingsetterspørring</translation>
-    </message>
-    <message>
-        <source>&amp;Command-line options</source>
-        <translation>&amp;Kommandolinjevalg</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n aktiv forbindelse til NavCoin-nettverket</numerusform><numerusform>%n aktive forbindelser til NavCoin-nettverket</numerusform></translation>
-    </message>
-    <message>
-        <source>No block source available...</source>
-        <translation>Ingen kilde for blokker tilgjengelig...</translation>
-    </message>
-    <message numerus="yes">
-        <source>Processed %n block(s) of transaction history.</source>
-        <translation><numerusform>Lastet %n blokk med transaksjonshistorikk.</numerusform><numerusform>Lastet %n blokker med transaksjonshistorikk.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n time</numerusform><numerusform>%n timer</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n dag</numerusform><numerusform>%n dager</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n uke</numerusform><numerusform>%n uker</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 og %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n år</numerusform><numerusform>%n år</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 behind</source>
-        <translation>%1 bak</translation>
-    </message>
-    <message>
-        <source>Last received block was generated %1 ago.</source>
-        <translation>Siste mottatte blokk ble generert for %1 siden.</translation>
-    </message>
-    <message>
-        <source>Transactions after this will not yet be visible.</source>
-        <translation>Transaksjoner etter dette vil ikke være synlige enda.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Feil</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Advarsel</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informasjon</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>Oppdatert</translation>
-    </message>
-    <message>
-        <source>%1 client</source>
-        <translation>%1 klient</translation>
-    </message>
-    <message>
-        <source>Catching up...</source>
-        <translation>Laster ned...</translation>
-    </message>
-    <message>
-        <source>Date: %1
-</source>
-        <translation>Dato: %1
-</translation>
-    </message>
-    <message>
-        <source>Amount: %1
-</source>
-        <translation>Beløp: %1:
-</translation>
-    </message>
-    <message>
-        <source>Type: %1
-</source>
-        <translation>Type: %1
-</translation>
-    </message>
-    <message>
-        <source>Label: %1
-</source>
-        <translation>Merkelapp: %1
-</translation>
-    </message>
-    <message>
-        <source>Address: %1
-</source>
-        <translation>Adresse: %1
-</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation>Sendt transaksjon</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation>Innkommende transaksjon</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst opp&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -443,7 +153,25 @@
         <source>Priority</source>
         <translation>Prioritet</translation>
     </message>
-</context>
+    <message>
+        <source>none</source>
+        <translation>ingen</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>ja</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>nei</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -466,30 +194,13 @@
         <source>&amp;Address</source>
         <translation>&amp;Adresse</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>En ny datamappe vil bli laget.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>navn</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Mappe finnes allerede. Legg til %1 hvis du vil lage en ny mappe her.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Snarvei finnes allerede, og er ikke en mappe.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Kan ikke lage datamappe her.</translation>
-    </message>
-</context>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
 <context>
     <name>HelpMessageDialog</name>
     <message>
@@ -552,30 +263,317 @@
         <translation>Velkommen til %1.</translation>
     </message>
     <message>
-        <source>Use the default data directory</source>
-        <translation>Bruk standard datamappe</translation>
+        <source>Error</source>
+        <translation>Feil</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
+<context>
+    <name>NavCoinGUI</name>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation>Signer &amp;melding...</translation>
     </message>
     <message>
-        <source>Use a custom data directory:</source>
-        <translation>Bruk en egendefinert datamappe:</translation>
+        <source>Synchronizing with network...</source>
+        <translation>Synkroniserer med nettverk...</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Feil: Den oppgitte datamappen "%1" kan ikke opprettes.</translation>
+        <source>&amp;Overview</source>
+        <translation>&amp;Oversikt</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>Node</translation>
+    </message>
+    <message>
+        <source>Show general overview of wallet</source>
+        <translation>Vis generell oversikt over lommeboken</translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation>&amp;Transaksjoner</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation>Vis transaksjonshistorikk</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation>&amp;Avslutt</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation>Avslutt applikasjonen</translation>
+    </message>
+    <message>
+        <source>&amp;About %1</source>
+        <translation> &amp;Om %1</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>Om &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>Vis informasjon om Qt</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation>&amp;Innstillinger...</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation>&amp;Krypter Lommebok...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>Lag &amp;Sikkerhetskopi av Lommebok...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>&amp;Endre Adgangsfrase...</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses...</source>
+        <translation>&amp;Utsendingsadresser...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>&amp;Mottaksadresser...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation>Åpne &amp;URI...</translation>
+    </message>
+    <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>Klienten vil bli lukket. Ønsker du å gå videre?</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation>Reindekserer blokker på harddisk...</translation>
+    </message>
+    <message>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Send til en NavCoin-adresse</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>Sikkerhetskopier lommebok til annet sted</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation>Endre adgangsfrasen brukt for kryptering av lommebok</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>&amp;Feilsøkingsvindu</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation>Åpne konsoll for feilsøk og diagnostikk</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation>&amp;Verifiser melding...</translation>
+    </message>
+    <message>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Lommebok</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation>&amp;Send</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation>&amp;Motta</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation>&amp;Vis / Skjul</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>Vis eller skjul hovedvinduet</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>Krypter de private nøklene som tilhører lommeboken din</translation>
+    </message>
+    <message>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Signer en melding med NavCoin-adressene dine for å bevise at du eier dem</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Bekreft meldinger for å være sikker på at de ble signert av en angitt NavCoin-adresse</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Fil</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation>&amp;Innstillinger</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Hjelp</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and navcoin: URIs)</source>
+        <translation>Forespør betalinger (genererer QR-koder og navcoin: URIer)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Vis listen av brukte utsendingsadresser og merkelapper</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Vis listen over bruke mottaksadresser og merkelapper</translation>
+    </message>
+    <message>
+        <source>Open a navcoin: URI or payment request</source>
+        <translation>Åpne en NavCoin: URI eller betalingsetterspørring</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation>&amp;Kommandolinjevalg</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n aktiv forbindelse til NavCoin-nettverket</numerusform><numerusform>%n aktive forbindelser til NavCoin-nettverket</numerusform></translation>
+    </message>
+    <message>
+        <source>No block source available...</source>
+        <translation>Ingen kilde for blokker tilgjengelig...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation><numerusform>Lastet %n blokk med transaksjonshistorikk.</numerusform><numerusform>Lastet %n blokker med transaksjonshistorikk.</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation><numerusform>%n time</numerusform><numerusform>%n timer</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation><numerusform>%n dag</numerusform><numerusform>%n dager</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n week(s)</source>
+        <translation><numerusform>%n uke</numerusform><numerusform>%n uker</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 og %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n year(s)</source>
+        <translation><numerusform>%n år</numerusform><numerusform>%n år</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation>%1 bak</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>Siste mottatte blokk ble generert for %1 siden.</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>Transaksjoner etter dette vil ikke være synlige enda.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nei</translation>
     </message>
     <message>
         <source>Error</source>
         <translation>Feil</translation>
     </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB med ledig lagringsplass</numerusform><numerusform>%n GB med ledig lagringsplass</numerusform></translation>
+    <message>
+        <source>Warning</source>
+        <translation>Advarsel</translation>
     </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(av %n GB som trengs)</numerusform><numerusform>(av %n GB som trengs)</numerusform></translation>
+    <message>
+        <source>Information</source>
+        <translation>Informasjon</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>Oppdatert</translation>
+    </message>
+    <message>
+        <source>%1 client</source>
+        <translation>%1 klient</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation>Laster ned...</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation>Dato: %1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation>Beløp: %1:
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation>Type: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation>Merkelapp: %1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation>Adresse: %1
+</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation>Sendt transaksjon</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation>Innkommende transaksjon</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation>Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst opp&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation>Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst&lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -594,7 +592,7 @@
         <source>Select payment request file</source>
         <translation>Velg fil for betalingsetterspørring</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -817,74 +815,17 @@
         <translation>Skjema</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Informasjonen som vises kan være foreldet. Din lommebok synkroniseres automatisk med NavCoin-nettverket etter at tilkobling er opprettet, men denne prosessen er ikke ferdig enda.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Kun observerbar:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Tilgjengelig:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Din nåværende saldo</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Under behandling:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Totalt antall ubekreftede transaksjoner som ikke teller med i saldo</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Umoden:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Minet saldo har ikke modnet enda</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Saldoer</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Totalt:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Din nåværende saldo</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Din nåværende balanse i kun observerbare adresser</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Kan brukes:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Nylige transaksjoner</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Ubekreftede transaksjoner til kun observerbare adresser</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Utvunnet balanse i kun observerbare adresser som ennå ikke har modnet</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Nåværende totale balanse i kun observerbare adresser</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -939,6 +880,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Lagre Bilde...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1280,7 +1228,7 @@
         <source>Remove</source>
         <translation>Fjern</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1299,16 +1247,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Lagre Bilde...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Beløp</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Send NavCoins</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Myntkontroll Funksjoner</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1359,28 +1314,12 @@
         <translation>Egendefinert adresse for veksel</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Transaksjonsgebyr:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Velg...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>Legg ned gebyrinnstillinger</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>per kilobyte</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Hvis den egendefinerte avgiften er satt til 1000 satoshis og transaksjonen bare er 250 bytes, da vil "per kilobyte" bare betale 250 satoshis i gebyr, mens "minstebeløp" betaler 1000 satoshis. For transaksjoner større enn en kilobyte vil begge betale for antall kilobyte.</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Skjul</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1419,24 +1358,8 @@
         <translation>rask</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Send til flere enn en mottaker</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Legg til &amp;Mottaker</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Fjern alle felter fra skjemaet.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Støv:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Fjern &amp;Alt</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1450,7 +1373,7 @@
         <source>S&amp;end</source>
         <translation>S&amp;end</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1466,10 +1389,6 @@
         <translation>&amp;Merkelapp:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Velg tidligere brukt adresse</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Dette er en normal betaling.</translation>
     </message>
@@ -1480,14 +1399,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Lim inn adresse fra utklippstavlen</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1528,6 +1439,13 @@
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
     </message>
 </context>
 <context>
@@ -1623,7 +1541,7 @@
         <source>Reset all verify message fields</source>
         <translation>Tilbakestill alle felter for meldingsverifikasjon</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1639,12 +1557,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Beløp</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Her vises en detaljert beskrivelse av transaksjonen</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Bekreftet</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1652,6 +1599,38 @@
         <translation>Enhet å vise beløper i. Klikk for å velge en annen enhet.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Send NavCoins</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Eksporter</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Eksporter data fra nåværende fane til fil</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Skjema</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR-kode</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1951,10 +1930,6 @@
         <translation>Utfør kommando når et relevant varsel er mottatt eller vi ser en veldig lang gaffel (%s i kommando er erstattet med melding)</translation>
     </message>
     <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Gebyrer (i %s/kB) mindre enn dette anses som null gebyr for videresending, graving og laging av transaksjoner (standardverdi: %s)</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Hvis paytxfee ikke er angitt, inkluderer da nok i gebyr til at transaksjoner gjennomsnittligt bekreftes innen n blokker (standardverdi: %u)</translation>
     </message>
@@ -2231,14 +2206,6 @@
         <translation>Ugyldig -proxy adresse: '%s'</translation>
     </message>
     <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Lytt etter JSON-RPC tilkoblinger på &lt;port&gt; (standardverdi: %u eller testnett: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Lytt etter tilkoblinger på &lt;port&gt; (standardverdi: %u eller testnett: %u)</translation>
-    </message>
-    <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
         <translation>Hold maks &lt;n&gt; koblinger åpne til andre noder (standardverdi: %u)</translation>
     </message>
@@ -2335,4 +2302,18 @@
         <translation>Feil</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Skjema</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Fjern</translation>
+    </message>
+    </context>
 </TS>

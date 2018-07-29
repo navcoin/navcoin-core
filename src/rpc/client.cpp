@@ -81,6 +81,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createrawtransaction", 0 },
     { "createrawtransaction", 1 },
     { "createrawtransaction", 3 },
+    { "createrawtransaction", 4 },
     { "signrawtransaction", 1 },
     { "signrawtransaction", 2 },
     { "sendrawtransaction", 1 },
@@ -117,6 +118,12 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getaddressdeltas", 0},
     { "getaddressutxos", 0},
     { "getaddressmempool", 0},
+    { "staking", 0 },
+    { "coinbaseoutputs", 0 },
+    { "coinstakeoutputs", 0 },
+    { "coinstakeinputs", 0 },
+    { "forcetransactions", 0 },
+
 };
 
 class CRPCConvertTable

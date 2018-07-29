@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="sr" version="2.1">
+<TS language="sr" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -37,7 +37,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Избриши</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -52,9 +55,72 @@
         <source>Repeat new passphrase</source>
         <translation>Поновите нову лозинку</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>Iznos:</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>iznos</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>datum</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Potvrdjen</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Измени адресу</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Етикета</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Адреса</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>верзија</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Korišćenje:</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    </context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -139,10 +205,6 @@
         <translation>П&amp;омоћ</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Трака са картицама</translation>
-    </message>
-    <message>
         <source>Up to date</source>
         <translation>Ажурно</translation>
     </message>
@@ -168,55 +230,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Amount:</source>
-        <translation>Iznos:</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>iznos</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>datum</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Potvrdjen</translation>
-    </message>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Измени адресу</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Етикета</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Адреса</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>верзија</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Korišćenje:</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -248,6 +262,9 @@
     </message>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
@@ -256,6 +273,9 @@
         <source>Amount</source>
         <translation>iznos</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -281,6 +301,17 @@
         <source>Copy &amp;Address</source>
         <translation>Kopirajte adresu</translation>
     </message>
+    <message>
+        <source>Amount</source>
+        <translation>iznos</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>datum</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -300,7 +331,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Пошаљи</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -316,13 +347,12 @@
         <translation>Alt+</translation>
     </message>
     <message>
-        <source>Alt+P</source>
-        <translation>Alt+П</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>Poruka:</translation>
     </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -349,14 +379,67 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>datum</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>iznos</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Ovaj odeljak pokazuje detaljan opis transakcije</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>datum</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Potvrdjen</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>datum</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Слање новца</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Eksportuj podatke iz izabrane kartice u fajl</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -404,5 +487,15 @@
         <source>Done loading</source>
         <translation>Završeno učitavanje</translation>
     </message>
+    </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>
