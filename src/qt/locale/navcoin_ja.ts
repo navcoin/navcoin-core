@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="ja" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -42,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>削除(&amp;D)</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -61,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>新しいパスフレーズをもう一度</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -73,6 +75,197 @@
         <translation>以下の時間までbanする:</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>コイン選択</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>数量:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>バイト:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>総額:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>優先度:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>手数料:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>ダスト：</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>手数料差引後:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>釣り銭:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>すべて選択/選択解除</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>ツリーモード</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>リストモード</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>総額</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>ラベルに対する入金一覧</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>アドレスに対する入金一覧</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>日付</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>検証数</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>検証済み</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>優先度</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>なし</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>アドレスの編集</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>ラベル(&amp;L)</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>このアドレス帳項目に結びつけられているラベル</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>このアドレス帳項目に結びつけられているアドレス。この項目は送金用アドレスの場合のみ編集することができます。</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>アドレス帳 (&amp;A)</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>バージョン</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1ビット)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>%1 について</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>コマンドライン オプション</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>使用法:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>コマンドライン オプション</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>UIオプション:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>起動時にデータ ディレクトリを選ぶ (初期値: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>言語設定 例: "de_DE" (初期値: システムの言語)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>最小化された状態で起動する</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>支払いリクエスト用にSSLルート証明書を設定する (デフォルト：-system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>起動時にスプラッシュ画面を表示する (初期値: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>GUI で行われた設定の変更を全てリセット</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>ようこそ</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>%1 へようこそ。</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>エラー</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -160,6 +353,10 @@
         <translation>URI を開く (&amp;U)...</translation>
     </message>
     <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>クライアントを終了します。続行してもよろしいですか？</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>ディスク上のブロックのインデックスを再作成中...</translation>
     </message>
@@ -236,10 +433,6 @@
         <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>タブツールバー</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>支払いを要求する (QRコードとnavcoin:ではじまるURIを生成する)</translation>
     </message>
@@ -310,6 +503,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>この後の取引はまだ表示されません。</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>はい</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>いいえ</translation>
     </message>
     <message>
         <source>Error</source>
@@ -387,228 +588,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>コイン選択</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>数量:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>バイト:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>総額:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>優先度:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>手数料:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>ダスト：</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>手数料差引後:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>釣り銭:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>すべて選択/選択解除</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>ツリーモード</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>リストモード</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>総額</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>ラベルに対する入金一覧</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>アドレスに対する入金一覧</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>日付</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>検証数</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>検証済み</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>優先度</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>アドレスの編集</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>ラベル(&amp;L)</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>このアドレス帳項目に結びつけられているラベル</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>このアドレス帳項目に結びつけられているアドレス。この項目は送金用アドレスの場合のみ編集することができます。</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>アドレス帳 (&amp;A)</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>新しいデータ ディレクトリが作成されます。</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>name</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>ディレクトリがもうあります。 新しいのディレクトリを作るつもりなら%1を書いてください。</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>パスが存在しますがディレクトリではありません。</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>ここにデータ ディレクトリを作成することはできません。</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>バージョン</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1ビット)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>%1 について</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>コマンドライン オプション</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>使用法:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>コマンドライン オプション</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>UIオプション:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>起動時にデータ ディレクトリを選ぶ (初期値: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>言語設定 例: "de_DE" (初期値: システムの言語)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>最小化された状態で起動する</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>支払いリクエスト用にSSLルート証明書を設定する (デフォルト：-system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>起動時にスプラッシュ画面を表示する (初期値: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>GUI で行われた設定の変更を全てリセット</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>ようこそ</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>%1 へようこそ。</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>これはプログラム最初の起動です。%1 がデータを保存する場所を選択して下さい。</translation>
-    </message>
-    <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1 は、ビットコインのブロックチェーンのコピーを、ダウンロードして保存します。少なくとも %2 ギガバイトのデータが、このディレクトリに保存されます。そしてそれは時間と共に増加します。またウォレットもこのディレクトリに保存されます。</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>初期値のデータ ディレクトリを使用</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>任意のデータ ディレクトリを使用:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>エラー: 指定のデータディレクトリ "%1" を作成できません。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GBの空き容量が利用可能</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(%n GB必要)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -627,7 +608,7 @@
         <source>Select payment request file</source>
         <translation>支払いリクエストファイルを選択してください</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -870,74 +851,17 @@
         <translation>フォーム</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>表示された情報は古いかもしれません。接続が確立されると、あなたのウォレットは NavCoin ネットワークと自動的に同期しますが、このプロセスはまだ完了していません。</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>監視限定:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>利用可能:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>あなたの利用可能残高</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>検証待ち:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>未検証の取引で利用可能残高に反映されていない数</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>未完成:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>完成していない採掘された残高</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>残高</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>合計:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>あなたの現在の残高</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>監視限定アドレス内の現在の残高</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>使用可能:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>最近のトランザクション</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>監視限定アドレスに対する未検証のトランザクション</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>ウォッチオンリーアドレスの採掘された残高のうち、成熟していないもの</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>監視限定アドレス内の現在の全残高</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -992,6 +916,13 @@
         <translation>%1ミリ秒</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>画像を保存(&amp;S)</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1353,7 +1284,7 @@
         <source>Remove</source>
         <translation>削除</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1372,16 +1303,23 @@
         <source>&amp;Save Image...</source>
         <translation>画像を保存(&amp;S)</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>総額</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>日付</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>コインを送る</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>コインコントロール機能</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1432,28 +1370,12 @@
         <translation>カスタムおつりアドレス</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>トランザクション手数料：</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>選択……</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>手数料設定を折りたたむ</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>1キロバイトあたり手数料</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>カスタム手数料が1000satoshiに設定されている場合、トランザクションサイズが250バイトとすると、「1キロバイトあたり手数料」では250satoshiの手数料のみを支払いますが、「最小手数料」では1000satoshiを支払います。1キロバイトを超えるトランザクションの場合には、どちらの方法を選択したとしても1キロバイトあたりで支払われます。</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>隠す</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1492,24 +1414,8 @@
         <translation>高速</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>一度に複数の人に送る</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>受取人を追加 (&amp;R)</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>全ての入力項目をクリア</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>ダスト：</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>すべてクリア (&amp;A)</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1523,7 +1429,7 @@
         <source>S&amp;end</source>
         <translation>送金 (&amp;E)</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1539,10 +1445,6 @@
         <translation>ラベル(&amp;L):</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>前に使用したアドレスを選ぶ</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>これは通常の支払です。</translation>
     </message>
@@ -1553,14 +1455,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>クリップボードからアドレスを貼付ける</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1601,6 +1495,13 @@
     <message>
         <source>Memo:</source>
         <translation>メモ：</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>はい</translation>
     </message>
 </context>
 <context>
@@ -1700,7 +1601,7 @@
         <source>Reset all verify message fields</source>
         <translation>入力項目の内容をすべて消去します</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1716,12 +1617,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>日付</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>総額</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>ここでは取引の詳細を表示しています</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>日付</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>検証済み</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>日付</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1729,6 +1659,38 @@
         <translation>金額を表示する際の単位。クリックすることで他の単位を選択します。</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>コインを送る</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>エクスポート (&amp;E)</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>ファイルに現在のタブのデータをエクスポート</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>フォーム</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR コード</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1850,10 +1812,6 @@
     <message>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
         <translation>時間オフセット調整値のピア中央値に対する最大の許容値。ローカル時間の見込み値は、接続するピアにより前方ないし後方へ影響されます。(初期値: %u 秒)</translation>
-    </message>
-    <message>
-        <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)</source>
-        <translation>ひとつのウォレットトランザクションまたは生トランザクションで使用する合計手数料の最大値 (%s 単位)。低すぎる値を指定すると巨大なトランザクションの作成ができなくなります (規定値: %s)</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
@@ -2057,10 +2015,6 @@
         <translation>認証クッキーの場所 (デフォルト: )</translation>
     </message>
     <message>
-        <source>Minimum bytes per sigop in transactions we relay and mine (default: %u)</source>
-        <translation>中継や採掘を行ってもよい、sigopあたりの最小バイト数 (デフォルト: %u)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>使用可能なファイルディスクリプタが不足しています。</translation>
     </message>
@@ -2191,10 +2145,6 @@
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
         <translation>関連のアラートをもらってもすごく長いのフォークを見てもコマンドを実行 (コマンドの中にあるの%sはメッセージから置き換えさせる)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>トランザクションの中継、採掘および作成の際には、この値未満の手数料 (%s/kB単位) はゼロであるとみなす (デフォルト: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -2369,10 +2319,6 @@
         <translation>警告</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>警告: 未知の新しいルールが有効化されました (バージョンビット %i)</translation>
-    </message>
-    <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>ブロック限定モードにおいて動作を行うかどうか (初期値: %u)</translation>
     </message>
@@ -2465,10 +2411,6 @@
         <translation>JSON-RPC接続時のユーザ名とハッシュ化されたパスワード。&lt;userpw&gt; フィールドのフォーマットは &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;。標準的な Python スクリプトが share/rpcuser 内に含まれています。このオプションは複数回指定できます。</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>警告: 未知のバージョンのブロックが採掘されました。未知のルールが導入された可能性があります</translation>
-    </message>
-    <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>警告: ウォレットファイルが破損していましたのでデータを復旧しました！元の %s は %s として %s に保存されました; 残高やトランザクションが正しくない場合にはバックアップから復元してください。</translation>
     </message>
@@ -2491,14 +2433,6 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>無効な -proxy アドレス: '%s'</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>&lt;port&gt; で JSON-RPC 接続をリスン (初期値: %u、testnet は %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>接続のリッスンを &lt;port&gt; で行う (初期値: %u、testnet: %u)</translation>
     </message>
     <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
@@ -2597,4 +2531,18 @@
         <translation>エラー</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>フォーム</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>削除</translation>
+    </message>
+    </context>
 </TS>

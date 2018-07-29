@@ -12,6 +12,7 @@
 #include "pos.h"
 
 #include <stdint.h>
+#include <string>
 #include <memory>
 #include "boost/multi_index_container.hpp"
 #include "boost/multi_index/ordered_index.hpp"
@@ -27,6 +28,14 @@ namespace Consensus { struct Params; };
 
 static const bool DEFAULT_PRINTPRIORITY = false;
 static const int DEFAULT_GENERATE_THREADS = 1;
+
+static std::vector<std::string> vForcedTransactions;
+static std::vector<std::string> vCoinBaseOutputs;
+static std::vector<std::string> vCoinStakeOutputs;
+static std::vector<std::string> vCoinStakeInputs;
+static std::string sCoinBaseStrDZeel;
+static std::string sCoinStakeStrDZeel;
+static bool fStaking;
 
 struct CBlockTemplate
 {
@@ -218,5 +227,22 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees);
 /** Check mined proof-of-stake block */
 bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams);
 void NavCoinStaker(const CChainParams& chainparams);
+
+void SetStaking(bool mode);
+void SetCoinBaseOutputs(std::vector<std::string> v);
+void SetCoinStakeInputs(std::vector<std::string> v);
+void SetCoinStakeOutputs(std::vector<std::string> v);
+void SetForceTransactions(std::vector<std::string> v);
+void SetCoinStakeStrDZeel(std::string s);
+void SetCoinBaseStrDZeel(std::string s);
+
+bool GetStaking();
+
+std::vector<std::string> GetCoinBaseOutputs();
+std::vector<std::string> GetCoinStakeOutputs();
+std::vector<std::string> GetCoinStakeInputs();
+std::vector<std::string> GetForceTransactions();
+std::string GetCoinStakeStrDZeel();
+std::string GetCoinBaseStrDZeel();
 
 #endif // NAVCOIN_MINER_H

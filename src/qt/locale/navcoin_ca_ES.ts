@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="ca_ES" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -42,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Elimina</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -61,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Repetiu la nova contrasenya</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -71,291 +73,6 @@
     <message>
         <source>Banned Until</source>
         <translation>Bandejat fins</translation>
-    </message>
-</context>
-<context>
-    <name>NavCoinGUI</name>
-    <message>
-        <source>Sign &amp;message...</source>
-        <translation>Signa el &amp;missatge...</translation>
-    </message>
-    <message>
-        <source>Synchronizing with network...</source>
-        <translation>S'està sincronitzant amb la xarxa ...</translation>
-    </message>
-    <message>
-        <source>&amp;Overview</source>
-        <translation>&amp;Panorama general</translation>
-    </message>
-    <message>
-        <source>Node</source>
-        <translation>Node</translation>
-    </message>
-    <message>
-        <source>Show general overview of wallet</source>
-        <translation>Mostra el panorama general del moneder</translation>
-    </message>
-    <message>
-        <source>&amp;Transactions</source>
-        <translation>&amp;Transaccions</translation>
-    </message>
-    <message>
-        <source>Browse transaction history</source>
-        <translation>Cerca a l'historial de transaccions</translation>
-    </message>
-    <message>
-        <source>E&amp;xit</source>
-        <translation>S&amp;urt</translation>
-    </message>
-    <message>
-        <source>Quit application</source>
-        <translation>Surt de l'aplicació</translation>
-    </message>
-    <message>
-        <source>About &amp;Qt</source>
-        <translation>Quant a &amp;Qt</translation>
-    </message>
-    <message>
-        <source>Show information about Qt</source>
-        <translation>Mostra informació sobre Qt</translation>
-    </message>
-    <message>
-        <source>&amp;Options...</source>
-        <translation>&amp;Opcions...</translation>
-    </message>
-    <message>
-        <source>&amp;Encrypt Wallet...</source>
-        <translation>&amp;Encripta el moneder...</translation>
-    </message>
-    <message>
-        <source>&amp;Backup Wallet...</source>
-        <translation>&amp;Realitza una còpia de seguretat del moneder...</translation>
-    </message>
-    <message>
-        <source>&amp;Change Passphrase...</source>
-        <translation>&amp;Canvia la contrasenya...</translation>
-    </message>
-    <message>
-        <source>&amp;Sending addresses...</source>
-        <translation>Adreces d'e&amp;nviament...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses...</source>
-        <translation>Adreces de &amp;recepció</translation>
-    </message>
-    <message>
-        <source>Open &amp;URI...</source>
-        <translation>Obre un &amp;URI...</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk...</source>
-        <translation>S'estan reindexant els blocs al disc...</translation>
-    </message>
-    <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Envia monedes a una adreça NavCoin</translation>
-    </message>
-    <message>
-        <source>Backup wallet to another location</source>
-        <translation>Realitza una còpia de seguretat del moneder a una altra ubicació</translation>
-    </message>
-    <message>
-        <source>Change the passphrase used for wallet encryption</source>
-        <translation>Canvia la contrasenya d'encriptació del moneder</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Finestra de depuració</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Obre la consola de diagnòstic i depuració</translation>
-    </message>
-    <message>
-        <source>&amp;Verify message...</source>
-        <translation>&amp;Verifica el missatge...</translation>
-    </message>
-    <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Moneder</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation>&amp;Envia</translation>
-    </message>
-    <message>
-        <source>&amp;Receive</source>
-        <translation>&amp;Rep</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>&amp;Mostra / Amaga</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Mostra o amaga la finestra principal</translation>
-    </message>
-    <message>
-        <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Encripta les claus privades pertanyents al moneder</translation>
-    </message>
-    <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Signa el missatges amb la seva adreça de NavCoin per provar que les poseeixes</translation>
-    </message>
-    <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Verifiqueu els missatges per assegurar-vos que han estat signats amb una adreça NavCoin específica.</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Fitxer</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>&amp;Configuració</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Ajuda</translation>
-    </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>Barra d'eines de les pestanyes</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and navcoin: URIs)</source>
-        <translation>Sol·licita pagaments (genera codis QR i navcoin: URI)</translation>
-    </message>
-    <message>
-        <source>Show the list of used sending addresses and labels</source>
-        <translation>Mostra la llista d'adreces d'enviament i etiquetes utilitzades</translation>
-    </message>
-    <message>
-        <source>Show the list of used receiving addresses and labels</source>
-        <translation>Mostra la llista d'adreces de recepció i etiquetes utilitzades</translation>
-    </message>
-    <message>
-        <source>Open a navcoin: URI or payment request</source>
-        <translation>Obre una navcoin: sol·licitud d'URI o pagament</translation>
-    </message>
-    <message>
-        <source>&amp;Command-line options</source>
-        <translation>Opcions de la &amp;línia d'ordres</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n connexió activa a la xarxa NavCoin</numerusform><numerusform>%n connexions actives a la xarxa NavCoin</numerusform></translation>
-    </message>
-    <message>
-        <source>No block source available...</source>
-        <translation>No hi ha cap font de bloc disponible...</translation>
-    </message>
-    <message numerus="yes">
-        <source>Processed %n block(s) of transaction history.</source>
-        <translation><numerusform>S'han processat %n bloc de l'historial de transacció.</numerusform><numerusform>S'han processat %n blocs de l'historial de transacció.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n hora</numerusform><numerusform>%n hores</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n dia</numerusform><numerusform>%n dies</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n setmana</numerusform><numerusform>%n setmanes</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 i %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n any</numerusform><numerusform>%n anys</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 behind</source>
-        <translation>%1 darrere</translation>
-    </message>
-    <message>
-        <source>Last received block was generated %1 ago.</source>
-        <translation>El darrer bloc rebut ha estat generat fa %1.</translation>
-    </message>
-    <message>
-        <source>Transactions after this will not yet be visible.</source>
-        <translation>Les transaccions a partir d'això no seran visibles.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Error</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Avís</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informació</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>Al dia</translation>
-    </message>
-    <message>
-        <source>Catching up...</source>
-        <translation>S'està posant al dia ...</translation>
-    </message>
-    <message>
-        <source>Date: %1
-</source>
-        <translation>Data: %1
-</translation>
-    </message>
-    <message>
-        <source>Amount: %1
-</source>
-        <translation>Import: %1
-</translation>
-    </message>
-    <message>
-        <source>Type: %1
-</source>
-        <translation>Tipus: %1
-</translation>
-    </message>
-    <message>
-        <source>Label: %1
-</source>
-        <translation>Etiqueta: %1
-</translation>
-    </message>
-    <message>
-        <source>Address: %1
-</source>
-        <translation>Adreça: %1
-</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation>Transacció enviada</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation>Transacció entrant</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>El moneder està &lt;b&gt;encriptat&lt;/b&gt; i actualment &lt;b&gt;desbloquejat&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>El moneder està &lt;b&gt;encriptat&lt;/b&gt; i actualment &lt;b&gt;bloquejat&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -436,7 +153,17 @@
         <source>Priority</source>
         <translation>Prioritat</translation>
     </message>
-</context>
+    <message>
+        <source>none</source>
+        <translation>cap</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -459,30 +186,13 @@
         <source>&amp;Address</source>
         <translation>&amp;Adreça</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Es crearà un nou directori de dades.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>nom</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>El directori ja existeix. Afegeix %1 si vols crear un nou directori en aquesta ubicació.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>El camí ja existeix i no és cap directori.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>No es pot crear el directori de dades aquí.</translation>
-    </message>
-</context>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
 <context>
     <name>HelpMessageDialog</name>
     <message>
@@ -537,30 +247,309 @@
         <translation>Us donem la benviguda</translation>
     </message>
     <message>
-        <source>Use the default data directory</source>
-        <translation>Utilitza el directori de dades per defecte</translation>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
+<context>
+    <name>NavCoinGUI</name>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation>Signa el &amp;missatge...</translation>
     </message>
     <message>
-        <source>Use a custom data directory:</source>
-        <translation>Utilitza un directori de dades personalitzat:</translation>
+        <source>Synchronizing with network...</source>
+        <translation>S'està sincronitzant amb la xarxa ...</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Error: el directori de dades «%1» especificat no pot ser creat.</translation>
+        <source>&amp;Overview</source>
+        <translation>&amp;Panorama general</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>Node</translation>
+    </message>
+    <message>
+        <source>Show general overview of wallet</source>
+        <translation>Mostra el panorama general del moneder</translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation>&amp;Transaccions</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation>Cerca a l'historial de transaccions</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation>S&amp;urt</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation>Surt de l'aplicació</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>Quant a &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>Mostra informació sobre Qt</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation>&amp;Opcions...</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation>&amp;Encripta el moneder...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>&amp;Realitza una còpia de seguretat del moneder...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>&amp;Canvia la contrasenya...</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses...</source>
+        <translation>Adreces d'e&amp;nviament...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>Adreces de &amp;recepció</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation>Obre un &amp;URI...</translation>
+    </message>
+    <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>S'aturarà el client. Voleu procedir?</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation>S'estan reindexant els blocs al disc...</translation>
+    </message>
+    <message>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Envia monedes a una adreça NavCoin</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>Realitza una còpia de seguretat del moneder a una altra ubicació</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation>Canvia la contrasenya d'encriptació del moneder</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>&amp;Finestra de depuració</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation>Obre la consola de diagnòstic i depuració</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation>&amp;Verifica el missatge...</translation>
+    </message>
+    <message>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Moneder</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation>&amp;Envia</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation>&amp;Rep</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation>&amp;Mostra / Amaga</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>Mostra o amaga la finestra principal</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>Encripta les claus privades pertanyents al moneder</translation>
+    </message>
+    <message>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Signa el missatges amb la seva adreça de NavCoin per provar que les poseeixes</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verifiqueu els missatges per assegurar-vos que han estat signats amb una adreça NavCoin específica.</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Fitxer</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation>&amp;Configuració</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Ajuda</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and navcoin: URIs)</source>
+        <translation>Sol·licita pagaments (genera codis QR i navcoin: URI)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Mostra la llista d'adreces d'enviament i etiquetes utilitzades</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Mostra la llista d'adreces de recepció i etiquetes utilitzades</translation>
+    </message>
+    <message>
+        <source>Open a navcoin: URI or payment request</source>
+        <translation>Obre una navcoin: sol·licitud d'URI o pagament</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation>Opcions de la &amp;línia d'ordres</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n connexió activa a la xarxa NavCoin</numerusform><numerusform>%n connexions actives a la xarxa NavCoin</numerusform></translation>
+    </message>
+    <message>
+        <source>No block source available...</source>
+        <translation>No hi ha cap font de bloc disponible...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation><numerusform>S'han processat %n bloc de l'historial de transacció.</numerusform><numerusform>S'han processat %n blocs de l'historial de transacció.</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation><numerusform>%n hora</numerusform><numerusform>%n hores</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation><numerusform>%n dia</numerusform><numerusform>%n dies</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n week(s)</source>
+        <translation><numerusform>%n setmana</numerusform><numerusform>%n setmanes</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 i %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n year(s)</source>
+        <translation><numerusform>%n any</numerusform><numerusform>%n anys</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation>%1 darrere</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>El darrer bloc rebut ha estat generat fa %1.</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>Les transaccions a partir d'això no seran visibles.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Sí</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>No</translation>
     </message>
     <message>
         <source>Error</source>
         <translation>Error</translation>
     </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB d'espai lliure disponible</numerusform><numerusform>%n GB d'espai lliure disponible</numerusform></translation>
+    <message>
+        <source>Warning</source>
+        <translation>Avís</translation>
     </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(de %n GB necessari)</numerusform><numerusform>(de %n GB necessaris)</numerusform></translation>
+    <message>
+        <source>Information</source>
+        <translation>Informació</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>Al dia</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation>S'està posant al dia ...</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation>Data: %1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation>Import: %1
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation>Tipus: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation>Etiqueta: %1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation>Adreça: %1
+</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation>Transacció enviada</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation>Transacció entrant</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation>El moneder està &lt;b&gt;encriptat&lt;/b&gt; i actualment &lt;b&gt;desbloquejat&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation>El moneder està &lt;b&gt;encriptat&lt;/b&gt; i actualment &lt;b&gt;bloquejat&lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -579,7 +568,7 @@
         <source>Select payment request file</source>
         <translation>Selecciona un fitxer de sol·licitud de pagament</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -802,74 +791,17 @@
         <translation>Formulari</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>La informació mostrada pot no estar al día. El teu moneder es sincronitza automàticament amb la xarxa NavCoin un cop s'ha establert connexió, però aquest proces no s'ha completat encara.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Només lectura:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Disponible:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>El balanç que podeu gastar actualment</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Pendent:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Total de transaccions que encara han de confirmar-se i que encara no compten en el balanç que es pot gastar</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Immadur:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Balanç minat que encara no ha madurat</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Balances</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Total:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>El balanç total actual</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>El vostre balanç actual en adreces de només lectura</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Que es pot gastar:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Transaccions recents</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Transaccions sense confirmar a adreces de només lectura</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Balanç minat en adreces de només lectura que encara no ha madurat</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Balanç total actual en adreces de només lectura</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -924,6 +856,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>De&amp;sa la imatge...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1265,7 +1204,7 @@
         <source>Remove</source>
         <translation>Esborra</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1284,16 +1223,23 @@
         <source>&amp;Save Image...</source>
         <translation>De&amp;sa la imatge...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Import</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Envia monedes</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Característiques de control de les monedes</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1344,28 +1290,12 @@
         <translation>Personalitza l'adreça de canvi</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Comissió de transacció</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Tria...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>redueix els paràmetres de comissió</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>per kilobyte</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Si la comissió personalitzada es defineix a 1000 satoshis i la transacció és de només 250 bytes, llavors «per kilobyte» només es paguen 250 satoshis en una comissió, mentre que amb la de «total com a mínim» es pagarien 1000 satoshis. Per a transaccions superiors al kilobyte, en tots dos casos es paga per kilobyte.</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Amaga</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1404,24 +1334,8 @@
         <translation>ràpid</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Envia a múltiples destinataris al mateix temps</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Afegeix &amp;destinatari</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Netejar tots els camps del formulari.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Polsim:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Neteja-ho &amp;tot</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1435,7 +1349,7 @@
         <source>S&amp;end</source>
         <translation>E&amp;nvia</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1451,10 +1365,6 @@
         <translation>&amp;Etiqueta:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Escull una adreça feta servir anteriorment</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Això és un pagament normal.</translation>
     </message>
@@ -1465,14 +1375,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alta+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Enganxar adreça del porta-retalls</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1513,6 +1415,13 @@
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Sí</translation>
     </message>
 </context>
 <context>
@@ -1608,7 +1517,7 @@
         <source>Reset all verify message fields</source>
         <translation>Neteja tots els camps de verificació de missatge</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1624,12 +1533,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Import</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Aquest panell mostra una descripció detallada de la transacció</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Confirmat</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1637,6 +1575,38 @@
         <translation>Unitat en què mostrar els imports. Feu clic per seleccionar una altra unitat.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Envia monedes</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exporta</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Exporta les dades de la pestanya actual a un fitxer</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulari</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>Codi QR</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -2092,14 +2062,6 @@
         <translation>Adreça -proxy invalida: '%s'</translation>
     </message>
     <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Escolta les connexions JSON-RPC en &lt;port&gt; (per defecte: %u o testnet: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Escolta les connexions en &lt;port&gt; (per defecte: %u o testnet: %u)</translation>
-    </message>
-    <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
         <translation>Manté com a màxim &lt;n&gt; connexions a iguals (per defecte: %u)</translation>
     </message>
@@ -2196,4 +2158,18 @@
         <translation>Error</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulari</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Esborra</translation>
+    </message>
+    </context>
 </TS>
