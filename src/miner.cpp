@@ -1008,6 +1008,10 @@ void SetStaking(bool mode) {
     fStaking = mode;
 }
 
+bool GetStaking() {
+    return fStaking;
+}
+
 void SetCoinBaseOutputs(std::vector<std::string> v){
     vCoinBaseOutputs.clear();
     if(!v.empty())

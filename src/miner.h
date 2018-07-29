@@ -236,6 +236,8 @@ void SetForceTransactions(std::vector<std::string> v);
 void SetCoinStakeStrDZeel(std::string s);
 void SetCoinBaseStrDZeel(std::string s);
 
+bool GetStaking();
+
 std::vector<std::string> GetCoinBaseOutputs();
 std::vector<std::string> GetCoinStakeOutputs();
 std::vector<std::string> GetCoinStakeInputs();
