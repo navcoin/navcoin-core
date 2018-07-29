@@ -138,6 +138,15 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
         CValidationState state;
         if (!ProcessNewBlock(state, Params(), NULL, pblock, true, NULL))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "ProcessNewBlock, block not accepted");
+        else {
+            SetCoinBaseStrDZeel("");
+            SetCoinStakeStrDZeel("");
+            SetForceTransactions({});
+            SetCoinBaseOutputs({});
+            SetCoinStakeOutputs({});
+            SetCoinStakeInputs({});
+        }
+
         ++nHeight;
         blockHashes.push_back(pblock->GetHash().GetHex());
 
@@ -884,6 +893,166 @@ UniValue estimatesmartfee(const UniValue& params, bool fHelp)
     return result;
 }
 
+UniValue setcoinbasestrdzeel(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "setcoinbasestrdzeel string\n"
+            "Sets the value of strDZeel for the coinbase of the next generated block\n"
+            "Empty string deactivates the feature\n"
+            );
+
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
+
+    SetCoinBaseStrDZeel(params[0].get_str());
+
+    return GetCoinBaseStrDZeel();
+}
+
+UniValue setcoinstakestrdzeel(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "setcoinstakestrdzeel string\n"
+            "Sets the value of strDZeel for the coinstake of the next generated block\n"
+            "Empty string deactivates the feature\n"
+            );
+
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
+
+    SetCoinStakeStrDZeel(params[0].get_str());
+
+    return GetCoinStakeStrDZeel();
+}
+
+UniValue coinbaseoutputs(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "coinbaseoutputs [array_of_strings]\n"
+            "Adds the hex-encoded outputs to the coinbase of the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
+
+    UniValue outs = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < outs.size(); i++)
+    {
+        vTemp.push_back(outs[i].get_str());
+        ret.push_back(outs[i].get_str());
+    }
+
+    SetCoinBaseOutputs(vTemp);
+
+    return ret;
+}
+
+UniValue coinstakeoutputs(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "coinstakeoutputs [array_of_strings]\n"
+            "Adds the hex-encoded outputs to the coinstake of the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
+
+    UniValue outs = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < outs.size(); i++)
+    {
+        vTemp.push_back(outs[i].get_str());
+        ret.push_back(outs[i].get_str());
+    }
+
+    SetCoinStakeOutputs(vTemp);
+
+    return ret;
+}
+
+UniValue coinstakeinputs(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "coinstakeinputs [array_of_strings]\n"
+            "Adds the hex-encoded inputs to the coinstake of the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
+
+    UniValue ins = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < ins.size(); i++)
+    {
+        vTemp.push_back(ins[i].get_str());
+        ret.push_back(ins[i].get_str());
+    }
+
+    SetCoinStakeInputs(vTemp);
+
+    return ret;
+}
+
+UniValue forcetransactions(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "forcetransactions [array_of_strings]\n"
+            "Adds the hex-encoded transactions to the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
+
+    UniValue outs = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < outs.size(); i++)
+    {
+        vTemp.push_back(outs[i].get_str());
+        ret.push_back(outs[i].get_str());
+    }
+
+    SetForceTransactions(vTemp);
+
+    return ret;
+}
+
+UniValue staking(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "staking bool\n"
+            "Turns staking on or off\n"
+            );
+
+    if (!params[0].isBool())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be a boolean");
+
+    SetStaking(params[0].get_bool());
+
+    UniValue ret(UniValue::VBOOL);
+
+    ret = params[0].get_bool();
+
+    return ret;
+}
+
 UniValue estimatesmartpriority(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -929,8 +1098,16 @@ static const CRPCCommand commands[] =
     { "mining",             "getblocktemplate",       &getblocktemplate,       true  },
     { "mining",             "submitblock",            &submitblock,            true  },
 
+    { "generating",         "staking",                &staking,                true  },
     { "generating",         "generate",               &generate,               true  },
     { "generating",         "generatetoaddress",      &generatetoaddress,      true  },
+
+    { "hacking",            "setcoinbasestrdzeel",    &setcoinbasestrdzeel,    true  },
+    { "hacking",            "setcoinstakestrdzeel",   &setcoinstakestrdzeel,   true  },
+    { "hacking",            "forcetransactions",      &forcetransactions,      true  },
+    { "hacking",            "coinbaseoutputs",        &coinbaseoutputs,        true  },
+    { "hacking",            "coinstakeoutputs",       &coinstakeoutputs,       true  },
+    { "hacking",            "coinstakeinputs",        &coinstakeinputs,        true  },
 
     { "util",               "estimatefee",            &estimatefee,            true  },
     { "util",               "estimatepriority",       &estimatepriority,       true  },
