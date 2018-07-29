@@ -144,6 +144,7 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
             SetForceTransactions({});
             SetCoinBaseOutputs({});
             SetCoinStakeOutputs({});
+            SetCoinStakeInputs({});
         }
 
         ++nHeight;
@@ -978,6 +979,33 @@ UniValue coinstakeoutputs(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue coinstakeinputs(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "coinstakeinputs [array_of_strings]\n"
+            "Adds the hex-encoded inputs to the coinstake of the next generated block\n"
+            );
+
+    if (!params[0].isArray())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, argument 1 must be an array");
+
+    UniValue ins = params[0].get_array();
+
+    std::vector<std::string> vTemp;
+    UniValue ret(UniValue::VARR);
+
+    for (unsigned int i = 0; i < ins.size(); i++)
+    {
+        vTemp.push_back(ins[i].get_str());
+        ret.push_back(ins[i].get_str());
+    }
+
+    SetCoinStakeInputs(vTemp);
+
+    return ret;
+}
+
 UniValue forcetransactions(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1073,11 +1101,13 @@ static const CRPCCommand commands[] =
     { "generating",         "staking",                &staking,                true  },
     { "generating",         "generate",               &generate,               true  },
     { "generating",         "generatetoaddress",      &generatetoaddress,      true  },
-    { "generating",         "setcoinbasestrdzeel",    &setcoinbasestrdzeel,    true  },
-    { "generating",         "setcoinstakestrdzeel",   &setcoinstakestrdzeel,   true  },
-    { "generating",         "forcetransactions",      &forcetransactions,      true  },
-    { "generating",         "coinbaseoutputs",        &coinbaseoutputs,        true  },
-    { "generating",         "coinstakeoutputs",       &coinstakeoutputs,       true  },
+
+    { "hacking",            "setcoinbasestrdzeel",    &setcoinbasestrdzeel,    true  },
+    { "hacking",            "setcoinstakestrdzeel",   &setcoinstakestrdzeel,   true  },
+    { "hacking",            "forcetransactions",      &forcetransactions,      true  },
+    { "hacking",            "coinbaseoutputs",        &coinbaseoutputs,        true  },
+    { "hacking",            "coinstakeoutputs",       &coinstakeoutputs,       true  },
+    { "hacking",            "coinstakeinputs",        &coinstakeinputs,        true  },
 
     { "util",               "estimatefee",            &estimatefee,            true  },
     { "util",               "estimatepriority",       &estimatepriority,       true  },

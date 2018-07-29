@@ -130,6 +130,13 @@ string EncodeHexTxOut(const CTxOut& txout)
     return HexStr(ssTxout.begin(), ssTxout.end());
 }
 
+string EncodeHexTxIn(const CTxIn& txin)
+{
+    CDataStream ssTxin(SER_NETWORK, PROTOCOL_VERSION);
+    ssTxin << txin;
+    return HexStr(ssTxin.begin(), ssTxin.end());
+}
+
 void ScriptPubKeyToUniv(const CScript& scriptPubKey,
                         UniValue& out, bool fIncludeHex)
 {

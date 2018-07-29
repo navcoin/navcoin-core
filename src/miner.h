@@ -32,6 +32,7 @@ static const int DEFAULT_GENERATE_THREADS = 1;
 static std::vector<std::string> vForcedTransactions;
 static std::vector<std::string> vCoinBaseOutputs;
 static std::vector<std::string> vCoinStakeOutputs;
+static std::vector<std::string> vCoinStakeInputs;
 static std::string sCoinBaseStrDZeel;
 static std::string sCoinStakeStrDZeel;
 static bool fStaking;
@@ -229,6 +230,7 @@ void NavCoinStaker(const CChainParams& chainparams);
 
 void SetStaking(bool mode);
 void SetCoinBaseOutputs(std::vector<std::string> v);
+void SetCoinStakeInputs(std::vector<std::string> v);
 void SetCoinStakeOutputs(std::vector<std::string> v);
 void SetForceTransactions(std::vector<std::string> v);
 void SetCoinStakeStrDZeel(std::string s);
@@ -236,6 +238,7 @@ void SetCoinBaseStrDZeel(std::string s);
 
 std::vector<std::string> GetCoinBaseOutputs();
 std::vector<std::string> GetCoinStakeOutputs();
+std::vector<std::string> GetCoinStakeInputs();
 std::vector<std::string> GetForceTransactions();
 std::string GetCoinStakeStrDZeel();
 std::string GetCoinBaseStrDZeel();

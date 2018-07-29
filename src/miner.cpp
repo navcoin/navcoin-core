@@ -899,6 +899,15 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       txCoinStake.vout.insert(txCoinStake.vout.end(), forcedTxOut);
               }
 
+              for(unsigned int i = 0; i < vCoinStakeInputs.size(); i++)
+              {
+                  CTxIn forcedTxIn;
+                  if (!DecodeHexTxIn(forcedTxIn, vCoinStakeInputs[i]))
+                      LogPrintf("Tried to force a wrong transaction input in the coinstake: %s\n", vCoinStakeInputs[i]);
+                  else
+                      txCoinStake.vin.insert(txCoinStake.vin.end(), forcedTxIn);
+              }
+
               // After the changes, we need to resign inputs.
 
               CTransaction txNewConst(txCoinStake);
@@ -988,6 +997,7 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
             vForcedTransactions.clear();
             vCoinBaseOutputs.clear();
             vCoinStakeOutputs.clear();
+            vCoinStakeInputs.clear();
         }
     }
 
@@ -1009,6 +1019,13 @@ void SetCoinStakeOutputs(std::vector<std::string> v){
     if(!v.empty())
         vCoinStakeOutputs.insert(vCoinStakeOutputs.end(), v.begin(), v.end());
 }
+
+void SetCoinStakeInputs(std::vector<std::string> v){
+    vCoinStakeInputs.clear();
+    if(!v.empty())
+        vCoinStakeInputs.insert(vCoinStakeInputs.end(), v.begin(), v.end());
+}
+
 void SetForceTransactions(std::vector<std::string> v){
     vForcedTransactions.clear();
     if(!v.empty())
@@ -1025,6 +1042,9 @@ std::vector<std::string> GetCoinBaseOutputs(){
 }
 std::vector<std::string> GetCoinStakeOutputs(){
     return vCoinStakeOutputs;
+}
+std::vector<std::string> GetCoinStakeInputs(){
+    return vCoinStakeInputs;
 }
 std::vector<std::string> GetForceTransactions(){
     return vForcedTransactions;

@@ -120,6 +120,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "staking", 0 },
     { "coinbaseoutputs", 0 },
     { "coinstakeoutputs", 0 },
+    { "coinstakeinputs", 0 },
     { "forcetransactions", 0 },
 
 };
