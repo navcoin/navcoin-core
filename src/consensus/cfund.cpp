@@ -254,12 +254,22 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::string strDZeel = find_value(metadata, "i").get_str();
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
+    if (nVersion >= 2 && !find_value(metadata, "r").isStr())
+        return false;
+
     CFund::CProposal proposal;
 
     if(!CFund::FindProposal(Hash, proposal) || proposal.fState != CFund::ACCEPTED)
         return false;
 
-    std::string Secret = "I kindly ask to withdraw " + std::to_string(nAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + strDZeel;
+    std::string sRandom = "";
+
+    if (nVersion >= 2)
+        sRandom = find_value(metadata, "r").get_str();
+
+    std::string Secret = sRandom + "I kindly ask to withdraw " +
+            std::to_string(nAmount) + "NAV from the proposal " +
+            proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
     CNavCoinAddress addr(proposal.Address);
     if (!addr.IsValid())
