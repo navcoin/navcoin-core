@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="zh_HK" version="2.1">
+<TS language="zh_HK" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>刪除 &amp;D</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>重複新密碼</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,33 @@
         <translation>封鎖至</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    </context>
+<context>
+    <name>Intro</name>
+    </context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -200,19 +230,7 @@
     </message>
     </context>
 <context>
-    <name>CoinControlDialog</name>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    </context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    </context>
-<context>
-    <name>Intro</name>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -224,10 +242,16 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
     <name>QObject</name>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -239,10 +263,16 @@
     <name>ReceiveRequestDialog</name>
     </context>
 <context>
+    <name>RecentRequestsTableModel</name>
+    </context>
+<context>
     <name>SendCoinsDialog</name>
     </context>
 <context>
     <name>SendCoinsEntry</name>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -257,12 +287,47 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    </context>
+<context>
+    <name>TransactionView</name>
     </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     </context>
 <context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>匯出 &amp;E</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>把目前分頁的資料匯出至檔案</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    </context>
+<context>
     <name>navcoin-core</name>
+    </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>

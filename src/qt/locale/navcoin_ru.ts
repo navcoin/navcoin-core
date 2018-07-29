@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="ru" version="2.1">
+<TS language="ru" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Удалить</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Повторите новый пароль</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,197 @@
         <translation>Заблокировано до</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Выбор монет</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Количество:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Байт:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Сумма:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Приоритет:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Комиссия:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Пыль:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>После комиссии:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Сдача:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>Отменить выбор всего</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Режим дерева</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Режим списка</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Сумма</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Получено с пометкой</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Получено с адреса</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Подтверждений</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Подтверждено</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Приоритет</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>ничего</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Изменить адрес</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Метка</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Метка, связанная с этой записью списка адресов</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Адрес, связанный с этой записью списка адресов. Он может быть изменён только для адресов отправки.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Адрес</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>версия</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-бит)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>О %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Параметры командной строки</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Использование:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>параметры командной строки</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>Настройки интерфейса:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>Выбрать каталог данных при запуске (по умолчанию: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>Выберите язык, например "de_DE" (по умолчанию: как в системе)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Запускать свёрнутым</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Указать корневые SSL-сертификаты для запроса платежа (по умолчанию: -system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>Показывать экран-заставку при запуске (по умолчанию: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>Сбросить все настройки, измененные в графическом интерфейсе</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Добро пожаловать</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>Добро пожаловать в %1</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -159,6 +353,10 @@
         <translation>Открыть &amp;URI...</translation>
     </message>
     <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>Клиент будет выключен. Желаете продолжить?</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Идёт переиндексация блоков на диске...</translation>
     </message>
@@ -235,10 +433,6 @@
         <translation>&amp;Помощь</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Панель вкладок</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Запросить платежи (создаёт QR-коды и navcoin: ссылки)</translation>
     </message>
@@ -309,6 +503,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Транзакции после него пока не будут видны.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Нет</translation>
     </message>
     <message>
         <source>Error</source>
@@ -382,228 +584,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Выбор монет</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Количество:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Байт:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Сумма:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Приоритет:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Комиссия:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Пыль:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>После комиссии:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Сдача:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>Отменить выбор всего</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Режим дерева</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Режим списка</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Сумма</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Получено с пометкой</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Получено с адреса</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Дата</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Подтверждений</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Подтверждено</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Приоритет</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Изменить адрес</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Метка</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Метка, связанная с этой записью списка адресов</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Адрес, связанный с этой записью списка адресов. Он может быть изменён только для адресов отправки.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Адрес</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Будет создан новый каталог данных.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>имя</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Каталог уже существует. Добавьте %1, если вы хотите создать здесь новый каталог.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Путь уже существует и не является каталогом.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Не удаётся создать здесь каталог данных.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>версия</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-бит)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>О %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Параметры командной строки</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Использование:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>параметры командной строки</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Настройки интерфейса:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Выбрать каталог данных при запуске (по умолчанию: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Выберите язык, например "de_DE" (по умолчанию: как в системе)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Запускать свёрнутым</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Указать корневые SSL-сертификаты для запроса платежа (по умолчанию: -system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>Показывать экран-заставку при запуске (по умолчанию: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>Сбросить все настройки, измененные в графическом интерфейсе</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Добро пожаловать</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>Добро пожаловать в %1</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>При первом запуске программы вы можете выбрать где %1 будет хранить свои данные.</translation>
-    </message>
-    <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1 скачает и сохранит копию цепи блоков. Как минимум %2GB будут записаны в этот каталог, и со временем он будет расти. Бумажник также будет сохранен в этом каталоге.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Использовать каталог данных по умолчанию</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Использовать другой каталог данных:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Ошибка: не удалось создать указанный каталог данных "%1".</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Ошибка</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n ГБ свободного места доступно</numerusform><numerusform>%n ГБ свободного места доступно</numerusform><numerusform>%n ГБ свободного места доступно</numerusform><numerusform>%n ГБ свободного места доступно</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(из необходимых %n ГБ)</numerusform><numerusform>(из необходимых %n ГБ)</numerusform><numerusform>(из необходимых %n ГБ)</numerusform><numerusform>(из необходимых %n ГБ)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -622,7 +604,7 @@
         <source>Select payment request file</source>
         <translation>Выбрать файл запроса платежа</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -865,74 +847,17 @@
         <translation>Форма</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Отображаемая информация может быть устаревшей. Ваш бумажник автоматически синхронизируется с сетью NavCoin после подключения, но этот процесс пока не завершён.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Только наблюдение:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Доступно:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Ваш текущий расходный баланс</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>В ожидании:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Общая сумма всех транзакций, которые до сих пор не подтверждены, и до сих пор не учитываются в расходном балансе</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Незрелые:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Баланс добытых монет, который ещё не созрел</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Балансы</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Итого:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Ваш текущий общий баланс</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Ваш текущий баланс в адресах наблюдения</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Доступно:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Последние транзакции</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Неподтверждённые транзакции на адреса наблюдения</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Баланс добытых монет на адресах наблюдения, который ещё не созрел</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Текущий общий баланс на адресах наблюдения</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -987,6 +912,13 @@
         <translation>%1 мс</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Сохранить изображение...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1348,7 +1280,7 @@
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1367,16 +1299,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Сохранить изображение...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Сумма</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Отправка</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Функции Контроля Монет</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1427,28 +1366,12 @@
         <translation>Свой адрес для сдачи</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Комиссия</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Выберите...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>Свернуть настройки комиссии</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>за килобайт</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Если комиссия установлена в 1000 сатоши, а транзакция составляет лишь 250 байт, тогда комиссия "на килобайт" составит 250 сатоши, а "всего как минимум" — 1000 сатоши. Для транзакций крупнее килобайта в обоих случаях будет использоваться платёж "на килобайт".</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Скрыть</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1487,24 +1410,8 @@
         <translation>ускоренный</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Отправить нескольким получателям одновременно</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;Добавить получателя</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Очистить все поля формы</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Пыль:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Очистить &amp;всё</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1518,7 +1425,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Отправить</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1534,10 +1441,6 @@
         <translation>&amp;Метка:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Выберите ранее использованный адрес</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Это нормальный платёж.</translation>
     </message>
@@ -1548,14 +1451,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Вставить адрес из буфера обмена</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1596,6 +1491,13 @@
     <message>
         <source>Memo:</source>
         <translation>Примечание:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
     </message>
 </context>
 <context>
@@ -1695,7 +1597,7 @@
         <source>Reset all verify message fields</source>
         <translation>Сбросить все поля проверки сообщения</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1711,12 +1613,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Сумма</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Эта панель отображает детальное описание транзакции.</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Подтверждено</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1724,6 +1655,38 @@
         <translation>Единица измерения количества монет. Щёлкните для выбора другой единицы.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Отправка</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Экспорт</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Экспортировать данные из вкладки в файл</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR код</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -2027,10 +1990,6 @@
         <translation>Расположение куки входы(по умолчанию: data dir)</translation>
     </message>
     <message>
-        <source>Minimum bytes per sigop in transactions we relay and mine (default: %u)</source>
-        <translation>Минимально байт на sigop в транзакциях, которые мы ретранслируем и добываем (по умолчанию: %u)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>Недостаточно файловых дескрипторов.</translation>
     </message>
@@ -2157,10 +2116,6 @@
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
         <translation>Выполнить команду, когда приходит соответствующее сообщение о тревоге или наблюдается очень длинное расщепление цепи (%s в команде заменяется на сообщение)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Комиссии (в %s/Кб) меньшие этого значения считаются нулевыми для создания, ретрансляции, получения транзакции (по умолчанию: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -2335,10 +2290,6 @@
         <translation>Внимание</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>Внимание: неизвестные правила вступили в силу(versionbit %i)</translation>
-    </message>
-    <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>Будет работать в режиме только блоков (по умолчанию: %u)</translation>
     </message>
@@ -2431,10 +2382,6 @@
         <translation>Имя пользователя и хэш пароля для JSON-RPC соединений. Поле &lt;userpw&gt; использует формат: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Каноничный пример скрипта на питоне включен в "share/rpcuser". Эта опция может быть указана несколько раз</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>Внимание: Получена неизвестная версия блока! Возможно неизвестные правила вступили в силу.</translation>
-    </message>
-    <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>Внимание: Файл бумажника поврежден, данные восстановлены! Оригинальный %s сохранен как %s в %s; Если баланс или транзакции некорректны, вы должны восстановить файл из резервной копии.</translation>
     </message>
@@ -2457,14 +2404,6 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>Неверный адрес -proxy: '%s'</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Прослушивать подключения JSON-RPC на &lt;порту&gt; (по умолчанию: %u или %u в тестовой сети)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Принимать входящие подключения на &lt;port&gt; (по умолчанию: %u или %u в тестовой сети)</translation>
     </message>
     <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
@@ -2563,4 +2502,18 @@
         <translation>Ошибка</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    </context>
 </TS>

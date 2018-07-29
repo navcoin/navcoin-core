@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="fr_FR" version="2.1">
+<TS language="fr_FR" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Supprimer</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Répétez la phrase de passe</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,169 @@
         <translation>Banni jusque </translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Sélection de pièce </translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Quantité:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Octets:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Montant :</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Priorité:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Frais:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Poussière: </translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Après frais:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Change:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(dé)sélectionné tout:</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Mode arbre</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Mode list</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Montant</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Reçu avec : </translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Reçue avec l'adresse</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Date</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Confirmations</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Confirmée</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Priorité</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>aucun</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Éditer l'adresse</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Étiquette</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Adresse</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>version</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>A propos %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Options de ligne de commande</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Utilisation :</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>Options de ligne de commande</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>Options interface graphique:</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Démarrer sous forme minimisée</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Bienvenue </translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>Bienvenue sur %1.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Erreur</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -231,10 +397,6 @@
         <translation>&amp;Aide</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Barre d'outils des onglets</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Demander des paiements (générer QR codes et navcoin: URIs)</translation>
     </message>
@@ -293,6 +455,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Les transactions ne seront plus visible après ceci.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Oui</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Non</translation>
     </message>
     <message>
         <source>Error</source>
@@ -366,188 +536,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Sélection de pièce </translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Quantité:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Octets:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Montant :</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Priorité:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Frais:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Poussière: </translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Après frais:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Change:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(dé)sélectionné tout:</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Mode arbre</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Mode list</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Montant</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Reçu avec : </translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Reçue avec l'adresse</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Date</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Confirmations</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Confirmée</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Priorité</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Éditer l'adresse</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Étiquette</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Adresse</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Un nouveau répertoire de données sera créé. </translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>nom</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Le chemin existe déjà et ce n'est pas un répertoire. </translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Impossible de créer un répertoire ici.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>version</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>A propos %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Options de ligne de commande</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Utilisation :</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>Options de ligne de commande</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Options interface graphique:</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Démarrer sous forme minimisée</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Bienvenue </translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>Bienvenue sur %1.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Utiliser le répertoire par défaut </translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Utiliser votre propre répertoire</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Erreur: Le répertoire de données "%1" n'a pas pu être créé. </translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GO d'espace libre disponible</numerusform><numerusform>%n GO d'espace libre disponible</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(%n GB nécessaire)</numerusform><numerusform>(%n GB nécessaire)</numerusform></translation>
-    </message>
-</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -566,7 +556,7 @@
         <source>Select payment request file</source>
         <translation>Sélectionner un fichier de demande de paiement</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -717,10 +707,6 @@
         <translation>Formulaire</translation>
     </message>
     <message>
-        <source>Watch-only:</source>
-        <translation>Regarder seulement:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Disponible: </translation>
     </message>
@@ -728,30 +714,9 @@
         <source>Pending:</source>
         <translation>En attente:</translation>
     </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Immature:</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Balances</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Total:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Votre balance totale courante</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Dépensable: </translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Transactions récentes </translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -807,6 +772,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Sauvegarder image</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1064,7 +1036,7 @@
         <source>Remove</source>
         <translation>Retirer</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1083,7 +1055,18 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Sauvegarder image</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Montant</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Date</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -1131,20 +1114,8 @@
         <translation>Change:</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Frais de transaction</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Choisir...</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>par kilo octet</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Cacher</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1167,20 +1138,8 @@
         <translation>rapide</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Envoyer des pièces à plusieurs destinataires à la fois</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Nettoyer tous les champs du formulaire.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Poussière: </translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Nettoyer &amp;Tout</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1206,24 +1165,12 @@
         <translation>&amp;Étiquette :</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Choisir une adresse précédemment utilisée </translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>C'est un paiement normal.</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Coller une adresse depuis le presse-papiers</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1240,6 +1187,13 @@
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Oui</translation>
     </message>
 </context>
 <context>
@@ -1311,14 +1265,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Date</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Montant</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Ce panneau affiche une description détaillée de la transaction</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Date</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Confirmée</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Date</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Envoyer des pièces</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exporter...</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Exporter les données de l'onglet courant vers un fichier</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulaire</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR Code</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1492,4 +1507,18 @@ Importation ...</translation>
         <translation>Erreur</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulaire</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Retirer</translation>
+    </message>
+    </context>
 </TS>

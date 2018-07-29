@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="id_ID" version="2.1">
+<TS language="id_ID" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Hapus</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Ulangi kata kunci baru</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -70,291 +73,6 @@
     <message>
         <source>Banned Until</source>
         <translation>Di banned sampai</translation>
-    </message>
-</context>
-<context>
-    <name>NavCoinGUI</name>
-    <message>
-        <source>Sign &amp;message...</source>
-        <translation>Pesan &amp;penanda...</translation>
-    </message>
-    <message>
-        <source>Synchronizing with network...</source>
-        <translation>Sinkronisasi dengan jaringan...</translation>
-    </message>
-    <message>
-        <source>&amp;Overview</source>
-        <translation>&amp;Kilasan</translation>
-    </message>
-    <message>
-        <source>Node</source>
-        <translation>Node</translation>
-    </message>
-    <message>
-        <source>Show general overview of wallet</source>
-        <translation>Tampilkan gambaran umum dompet Anda</translation>
-    </message>
-    <message>
-        <source>&amp;Transactions</source>
-        <translation>&amp;Transaksi</translation>
-    </message>
-    <message>
-        <source>Browse transaction history</source>
-        <translation>Lihat riwayat transaksi</translation>
-    </message>
-    <message>
-        <source>E&amp;xit</source>
-        <translation>K&amp;eluar</translation>
-    </message>
-    <message>
-        <source>Quit application</source>
-        <translation>Keluar dari aplikasi</translation>
-    </message>
-    <message>
-        <source>About &amp;Qt</source>
-        <translation>Mengenai &amp;Qt</translation>
-    </message>
-    <message>
-        <source>Show information about Qt</source>
-        <translation>Tampilkan informasi mengenai Qt</translation>
-    </message>
-    <message>
-        <source>&amp;Options...</source>
-        <translation>&amp;Pilihan...</translation>
-    </message>
-    <message>
-        <source>&amp;Encrypt Wallet...</source>
-        <translation>&amp;Enkripsi Dompet...</translation>
-    </message>
-    <message>
-        <source>&amp;Backup Wallet...</source>
-        <translation>&amp;Cadangkan Dompet...</translation>
-    </message>
-    <message>
-        <source>&amp;Change Passphrase...</source>
-        <translation>&amp;Ubah Kata Kunci...</translation>
-    </message>
-    <message>
-        <source>&amp;Sending addresses...</source>
-        <translation>&amp;Alamat-alamat untuk mengirim...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses...</source>
-        <translation>&amp;Alamat-alamat untuk menerima...</translation>
-    </message>
-    <message>
-        <source>Open &amp;URI...</source>
-        <translation>Buka &amp;URI</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk...</source>
-        <translation>Mengindex ulang blok di dalam disk...</translation>
-    </message>
-    <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Kirim koin ke alamat NavCoin</translation>
-    </message>
-    <message>
-        <source>Backup wallet to another location</source>
-        <translation>Cadangkan dompet ke lokasi lain</translation>
-    </message>
-    <message>
-        <source>Change the passphrase used for wallet encryption</source>
-        <translation>Ubah kata kunci yang digunakan untuk enkripsi dompet</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Jendela Debug</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Buka konsol debug dan diagnosa</translation>
-    </message>
-    <message>
-        <source>&amp;Verify message...</source>
-        <translation>&amp;Verifikasi pesan...</translation>
-    </message>
-    <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Dompet</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation>&amp;Kirim</translation>
-    </message>
-    <message>
-        <source>&amp;Receive</source>
-        <translation>&amp;Menerima</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>&amp;Tampilkan / Sembunyikan</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Tampilkan atau sembunyikan jendela utama</translation>
-    </message>
-    <message>
-        <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Enkripsi private key yang dimiliki dompet Anda</translation>
-    </message>
-    <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Tanda tangani sebuah pesan menggunakan alamat NavCoin Anda untuk membuktikan bahwa Anda adalah pemilik alamat tersebut</translation>
-    </message>
-    <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Verifikasi pesan untuk memastikan bahwa pesan tersebut ditanda tangani oleh suatu alamat NavCoin tertentu</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Berkas</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>&amp;Pengaturan</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Bantuan</translation>
-    </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>Baris tab</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and navcoin: URIs)</source>
-        <translation>Permintaan pembayaran (membuat kode QR dan navcoin: URIs)</translation>
-    </message>
-    <message>
-        <source>Show the list of used sending addresses and labels</source>
-        <translation>Tampilkan daftar alamat dan label yang terkirim</translation>
-    </message>
-    <message>
-        <source>Show the list of used receiving addresses and labels</source>
-        <translation>Tampilkan daftar alamat dan label yang diterima</translation>
-    </message>
-    <message>
-        <source>Open a navcoin: URI or payment request</source>
-        <translation>Buka URI navcoin: atau permintaan pembayaran</translation>
-    </message>
-    <message>
-        <source>&amp;Command-line options</source>
-        <translation>&amp;pilihan Command-line</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n koneksi aktif ke jaringan NavCoin</numerusform></translation>
-    </message>
-    <message>
-        <source>No block source available...</source>
-        <translation>Sumber blok tidak tersedia...</translation>
-    </message>
-    <message numerus="yes">
-        <source>Processed %n block(s) of transaction history.</source>
-        <translation><numerusform>%n blok dari riwayat transaksi diproses.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n jam</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n hari</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n minggu</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 dan %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n tahun</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 behind</source>
-        <translation>kurang %1</translation>
-    </message>
-    <message>
-        <source>Last received block was generated %1 ago.</source>
-        <translation>Blok terakhir yang diterima %1 lalu.</translation>
-    </message>
-    <message>
-        <source>Transactions after this will not yet be visible.</source>
-        <translation>Transaksi setelah ini belum akan terlihat.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Terjadi sebuah kesalahan</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Peringatan</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informasi</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>Terbaru</translation>
-    </message>
-    <message>
-        <source>Catching up...</source>
-        <translation>Menyusul...</translation>
-    </message>
-    <message>
-        <source>Date: %1
-</source>
-        <translation>Tanggal: %1
-</translation>
-    </message>
-    <message>
-        <source>Amount: %1
-</source>
-        <translation>Jumlah: %1
-</translation>
-    </message>
-    <message>
-        <source>Type: %1
-</source>
-        <translation>Tipe: %1
-</translation>
-    </message>
-    <message>
-        <source>Label: %1
-</source>
-        <translation>Label: %1
-</translation>
-    </message>
-    <message>
-        <source>Address: %1
-</source>
-        <translation>Alamat: %1
-</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation>Transaksi terkirim</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation>Transaksi diterima</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>Dompet saat ini &lt;b&gt;terenkripsi&lt;/b&gt; dan &lt;b&gt;terbuka&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Dompet saat ini &lt;b&gt;terenkripsi&lt;/b&gt; dan &lt;b&gt;terkunci&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -435,7 +153,17 @@
         <source>Priority</source>
         <translation>Prioritas</translation>
     </message>
-</context>
+    <message>
+        <source>none</source>
+        <translation>tidak satupun</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -458,30 +186,13 @@
         <source>&amp;Address</source>
         <translation>&amp;Alamat</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Sebuah data direktori baru telah dibuat.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>nama</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Direktori masih ada. Tambahlah %1 apabila Anda ingin membuat direktori baru disini.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Sudah ada path, dan itu bukan direktori.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Tidak bisa membuat direktori data disini.</translation>
-    </message>
-</context>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
 <context>
     <name>HelpMessageDialog</name>
     <message>
@@ -536,30 +247,309 @@
         <translation>Selamat Datang</translation>
     </message>
     <message>
-        <source>Use the default data directory</source>
-        <translation>Gunakan direktori data default.</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Gunakan direktori pilihan Anda:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Kesalahan: Direktori data "%1" tidak dapat dibuat.</translation>
-    </message>
-    <message>
         <source>Error</source>
         <translation>Kesalahan</translation>
     </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB ruang kosong tersedia.</numerusform></translation>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
+<context>
+    <name>NavCoinGUI</name>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation>Pesan &amp;penanda...</translation>
+    </message>
+    <message>
+        <source>Synchronizing with network...</source>
+        <translation>Sinkronisasi dengan jaringan...</translation>
+    </message>
+    <message>
+        <source>&amp;Overview</source>
+        <translation>&amp;Kilasan</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>Node</translation>
+    </message>
+    <message>
+        <source>Show general overview of wallet</source>
+        <translation>Tampilkan gambaran umum dompet Anda</translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation>&amp;Transaksi</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation>Lihat riwayat transaksi</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation>K&amp;eluar</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation>Keluar dari aplikasi</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>Mengenai &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>Tampilkan informasi mengenai Qt</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation>&amp;Pilihan...</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation>&amp;Enkripsi Dompet...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>&amp;Cadangkan Dompet...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>&amp;Ubah Kata Kunci...</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses...</source>
+        <translation>&amp;Alamat-alamat untuk mengirim...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>&amp;Alamat-alamat untuk menerima...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation>Buka &amp;URI</translation>
+    </message>
+    <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>Klien akan dimatikan, apakah anda hendak melanjutkan?</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation>Mengindex ulang blok di dalam disk...</translation>
+    </message>
+    <message>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Kirim koin ke alamat NavCoin</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>Cadangkan dompet ke lokasi lain</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation>Ubah kata kunci yang digunakan untuk enkripsi dompet</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>&amp;Jendela Debug</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation>Buka konsol debug dan diagnosa</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation>&amp;Verifikasi pesan...</translation>
+    </message>
+    <message>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Dompet</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation>&amp;Kirim</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation>&amp;Menerima</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation>&amp;Tampilkan / Sembunyikan</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>Tampilkan atau sembunyikan jendela utama</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>Enkripsi private key yang dimiliki dompet Anda</translation>
+    </message>
+    <message>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Tanda tangani sebuah pesan menggunakan alamat NavCoin Anda untuk membuktikan bahwa Anda adalah pemilik alamat tersebut</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verifikasi pesan untuk memastikan bahwa pesan tersebut ditanda tangani oleh suatu alamat NavCoin tertentu</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Berkas</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation>&amp;Pengaturan</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Bantuan</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and navcoin: URIs)</source>
+        <translation>Permintaan pembayaran (membuat kode QR dan navcoin: URIs)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Tampilkan daftar alamat dan label yang terkirim</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Tampilkan daftar alamat dan label yang diterima</translation>
+    </message>
+    <message>
+        <source>Open a navcoin: URI or payment request</source>
+        <translation>Buka URI navcoin: atau permintaan pembayaran</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation>&amp;pilihan Command-line</translation>
     </message>
     <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(dari %n GB yang dibutuhkan)</numerusform></translation>
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n koneksi aktif ke jaringan NavCoin</numerusform></translation>
+    </message>
+    <message>
+        <source>No block source available...</source>
+        <translation>Sumber blok tidak tersedia...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation><numerusform>%n blok dari riwayat transaksi diproses.</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation><numerusform>%n jam</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation><numerusform>%n hari</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n week(s)</source>
+        <translation><numerusform>%n minggu</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 dan %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n year(s)</source>
+        <translation><numerusform>%n tahun</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation>kurang %1</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>Blok terakhir yang diterima %1 lalu.</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>Transaksi setelah ini belum akan terlihat.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ya</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Tidak</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Terjadi sebuah kesalahan</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Peringatan</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Informasi</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>Terbaru</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation>Menyusul...</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation>Tanggal: %1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation>Jumlah: %1
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation>Tipe: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation>Label: %1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation>Alamat: %1
+</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation>Transaksi terkirim</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation>Transaksi diterima</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation>Dompet saat ini &lt;b&gt;terenkripsi&lt;/b&gt; dan &lt;b&gt;terbuka&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation>Dompet saat ini &lt;b&gt;terenkripsi&lt;/b&gt; dan &lt;b&gt;terkunci&lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -578,7 +568,7 @@
         <source>Select payment request file</source>
         <translation>Pilih data permintaan pembayaran</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -781,45 +771,16 @@
         <translation>Formulir</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Informasi terlampir mungkin sudah kedaluwarsa. Dompet Anda secara otomatis mensinkronisasi dengan jaringan NavCoin ketika sebuah hubungan terbentuk, namun proses ini belum selesai.</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Tersedia:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Jumlah yang Anda bisa keluarkan sekarang</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Ditunda</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Jumlah keseluruhan transaksi yang belum dikonfirmasi, dan belum saatnya dihitung sebagai pengeluaran saldo yang telah dibelanjakan.</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Terlalu Muda:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Saldo ditambang yang masih terlalu muda</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Saldo:</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Jumlah:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Jumlah saldo Anda sekarang</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -849,6 +810,13 @@
     <message>
         <source>N/A</source>
         <translation>T/S</translation>
+    </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Simpan Gambaran...</translation>
     </message>
     </context>
 <context>
@@ -1070,7 +1038,7 @@
         <source>Remove</source>
         <translation>Menghapus</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1089,16 +1057,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Simpan Gambaran...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Nilai</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Tanggal</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Kirim Koin</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Cara Pengaturan Koin</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1149,10 +1124,6 @@
         <translation>Alamat uang kembali yang kustom</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Biaya Transaksi:</translation>
-    </message>
-    <message>
         <source>Recommended:</source>
         <translation>Disarankan</translation>
     </message>
@@ -1169,24 +1140,8 @@
         <translation>cepat</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Kirim ke beberapa penerima sekaligus</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Tambahlah &amp;Penerima</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Hapus informasi dari form.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Dust:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Hapus &amp;Semua</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1200,7 +1155,7 @@
         <source>S&amp;end</source>
         <translation>K&amp;irim</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1216,24 +1171,12 @@
         <translation>&amp;Label:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Pilih alamat yang telah digunakan sebelumnya</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Ini adalah pembayaran normal</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+J</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Tempel alamat dari salinan</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1254,6 +1197,13 @@
     <message>
         <source>Memo:</source>
         <translation>Catatan Peringatan:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ya</translation>
     </message>
 </context>
 <context>
@@ -1329,7 +1279,7 @@
         <source>Reset all verify message fields</source>
         <translation>Hapus semua bidang verifikasi pesan</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1345,14 +1295,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Tanggal</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Nilai</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Jendela ini menampilkan deskripsi rinci dari transaksi tersebut</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Tanggal</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Terkonfirmasi</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Tanggal</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Kirim Koin</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Ekspor</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Ekspor data dalam tab sekarang ke sebuah berkas</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulir</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>Kode QR</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1593,4 +1604,18 @@
         <translation>Gagal</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulir</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Menghapus</translation>
+    </message>
+    </context>
 </TS>

@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="ar" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -42,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;أمسح</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -61,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>ادخل كلمة المرور الجديدة مرة أخرى</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -73,6 +75,185 @@
         <translation>محظور حتى</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>اختيار العمله</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>الكمية :</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>بايت</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>القيمة :</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>افضلية :</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>رسوم :</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>غبار:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>بعد الرسوم :</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>تعديل :</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>عدم اختيار الجميع</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>صيغة الشجرة</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>صيغة القائمة</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>مبلغ</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>مستقبل مع ملصق</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>مستقبل مع عنوان</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>تاريخ</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>تأكيدات</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>تأكيد</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>أفضلية</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>لا شيء</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>عدل العنوان</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;وصف</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>الملصق المرتبط بقائمة العناوين المدخلة</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>العنوان المرتبط بقائمة العناوين المدخلة. و التي يمكن تعديلها فقط بواسطة ارسال العناوين</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;العنوان</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>النسخة</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>خيارات سطر الأوامر</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>المستخدم</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>خيارات سطر الأوامر</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>خيارات واجهة المستخدم</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>اختر دليل البيانات عند بدء التشغير (افتراضي: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>أضع لغة, على سبيل المثال " de_DE "  (افتراضي:- مكان النظام)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>الدخول مصغر</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>أضع شهادة بروتوكول الشبقة الأمنية لطلب المدفوع (افتراضي: -نظام-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>أظهر شاشة البداية عند بدء التشغيل (افتراضي: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>اعد تعديل جميع النظم المتغيرة في GUI</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>أهلا</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>خطأ</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -228,10 +409,6 @@
         <translation>&amp;مساعدة</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>شريط أدوات علامات التبويب</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>أطلب دفعات (يولد كودات الرمز المربع وبيت كوين: العناوين المعطاة)</translation>
     </message>
@@ -282,6 +459,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>المعاملات بعد ذلك لن تكون مريئة بعد.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>نعم</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>لا</translation>
     </message>
     <message>
         <source>Error</source>
@@ -335,195 +520,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>اختيار العمله</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>الكمية :</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>بايت</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>القيمة :</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>افضلية :</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>رسوم :</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>غبار:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>بعد الرسوم :</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>تعديل :</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>عدم اختيار الجميع</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>صيغة الشجرة</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>صيغة القائمة</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>مبلغ</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>مستقبل مع ملصق</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>مستقبل مع عنوان</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>تاريخ</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>تأكيدات</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>تأكيد</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>أفضلية</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>عدل العنوان</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;وصف</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>الملصق المرتبط بقائمة العناوين المدخلة</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>العنوان المرتبط بقائمة العناوين المدخلة. و التي يمكن تعديلها فقط بواسطة ارسال العناوين</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;العنوان</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>سيتم انشاء دليل بيانات جديد</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>الاسم</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>الدليل موجوج بالفعل. أضف %1 لو نويت إنشاء دليل جديد هنا.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>المسار موجود بالفعل، وهو ليس دليلاً.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>لا يمكن انشاء دليل بيانات هنا .</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>النسخة</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>خيارات سطر الأوامر</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>المستخدم</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>خيارات سطر الأوامر</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>خيارات واجهة المستخدم</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>اختر دليل البيانات عند بدء التشغير (افتراضي: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>أضع لغة, على سبيل المثال " de_DE "  (افتراضي:- مكان النظام)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>الدخول مصغر</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>أضع شهادة بروتوكول الشبقة الأمنية لطلب المدفوع (افتراضي: -نظام-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>أظهر شاشة البداية عند بدء التشغيل (افتراضي: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>اعد تعديل جميع النظم المتغيرة في GUI</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>أهلا</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>استخدام دليل البانات الافتراضي</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>استخدام دليل بيانات مخصص:</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>خطأ</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -539,7 +536,7 @@
         <source>Select payment request file</source>
         <translation>حدد ملف طلب الدفع</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -649,18 +646,9 @@
         <source>Pending:</source>
         <translation>معلق:</translation>
     </message>
-    <message>
-        <source>Immature:</source>
-        <translation>غير ناضجة</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>المجموع:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>رصيدك الكلي الحالي</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -682,6 +670,13 @@
     <message>
         <source>N/A</source>
         <translation>غير معروف</translation>
+    </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;حفظ الصورة</translation>
     </message>
     </context>
 <context>
@@ -869,7 +864,7 @@
         <source>Remove</source>
         <translation>ازل</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -888,7 +883,18 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;حفظ الصورة</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>المبلغ</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>تاريخ</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -932,14 +938,6 @@
         <translation>تعديل :</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>رسوم المعاملة:</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>إخفاء</translation>
-    </message>
-    <message>
         <source>normal</source>
         <translation>طبيعي</translation>
     </message>
@@ -948,24 +946,8 @@
         <translation>سريع</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>إرسال إلى عدة مستلمين في وقت واحد</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>أضافة &amp;مستلم</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>مسح كل حقول النموذج المطلوبة</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>غبار</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>مسح الكل</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -979,7 +961,7 @@
         <source>S&amp;end</source>
         <translation>&amp;ارسال</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -995,10 +977,6 @@
         <translation>&amp;وصف :</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>اختر عنوانا مستخدم سابقا</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>هذا دفع اعتيادي</translation>
     </message>
@@ -1009,14 +987,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>انسخ العنوان من لوحة المفاتيح</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1031,6 +1001,13 @@
         <translation>ادفع &amp;الى :</translation>
     </message>
     </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>نعم</translation>
+    </message>
+</context>
 <context>
     <name>ShutdownWindow</name>
     <message>
@@ -1100,14 +1077,75 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>تاريخ</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>المبلغ</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>يبين هذا الجزء وصفا مفصلا لهده المعاملة</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>تاريخ</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>تأكيد</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>تاريخ</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>إرسال Coins</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;تصدير</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>تحميل البيانات في علامة التبويب الحالية إلى ملف.</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>نمودج</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>رمز كيو ار</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1216,4 +1254,18 @@
         <translation>خطأ</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>نمودج</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>ازل</translation>
+    </message>
+    </context>
 </TS>

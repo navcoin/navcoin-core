@@ -69,7 +69,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
     connect(ui->voteTextField, SIGNAL(textChanged(QString)), this, SLOT(vote(QString)));
 
-    bool showVoting = GetBoolArg("-staking",true);
+    bool showVoting = GetStaking();
 
     ui->voteLabel->setVisible(showVoting);
     ui->voteTextField->setVisible(showVoting);

@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "init.h"
 #include "ntpclient.h"
 #include "random.h"
 #include "timedata.h"
@@ -132,6 +133,9 @@ bool NtpClockSync()
         string s = vNtpServers[i];
         CNtpClient ntpClient(s);
         uint64_t nTimestamp = 0;
+
+        if (ShutdownRequested())
+            return false;
 
         if(ntpClient.getTimestamp(nTimestamp))
         {
