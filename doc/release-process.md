@@ -40,7 +40,7 @@ Please note any type of network security or stability issues will be prioritized
 
 Before every release candidate:
 
-* Update translations see [translation_process.md](https://github.com/navcoin/navcoin/blob/master/doc/translation_process.md#synchronising-translations).
+* Update translations see [translation_process.md](https://github.com/navcoin/navcoin-core/blob/master/doc/translation_process.md#synchronising-translations).
 
 Before every minor and major release:
 
