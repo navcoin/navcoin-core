@@ -1808,15 +1808,10 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
         return nSubsidy;
     }
 
-    int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
-    // Force block reward to zero when right shift is undefined.
-    if (halvings >= 64)
-        return 0;
+    if (nHeight <= Params().GetConsensus().nLastPOWBlock)
+        return CAmount(50);
 
-    CAmount nSubsidy = 50 * COIN;
-    // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
-    nSubsidy >>= halvings;
-    return nSubsidy;
+    return 0;
 }
 
 bool IsInitialBlockDownload()
@@ -3029,15 +3024,69 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    if (block.IsProofOfWork())
-    {
-        CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-        if (block.vtx[0].GetValueOut() > blockReward)
-            return state.DoS(100,
-                             error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                                   block.vtx[0].GetValueOut(), blockReward),
-                                   REJECT_INVALID, "bad-cb-amount");
+    CAmount nPOWBlockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
+
+    // Coinbase output can only include outputs with value if:
+    //  - its a POW block, POW blocks are allowed and the value meets the consensus rules, or
+    //  - if it contains an accepted payment request which is correctly referred on the strDZeel.
+
+    int nPaymentRequestsCount = 0;
+    CAmount nAccValue = 0;
+    for (unsigned int i = 0; i < block.vtx[0].vout.size(); i++) {
+        bool isJson = true;
+        UniValue metadata(UniValue::VARR);
+        try {
+            UniValue valRequest;
+            if (!valRequest.read(block.vtx[0].strDZeel))
+                isJson = false;
+
+            if (valRequest.isArray())
+                metadata = valRequest.get_array();
+            else
+                isJson = false;
+
+        } catch (const UniValue& objError) {
+            isJson = false;
+        } catch (const std::exception& e) {
+            isJson = false;
+        }
+
+        nAccValue += block.vtx[0].vout[i].nValue;
+
+        if(nAccValue > nPOWBlockReward && block.vtx[0].vout[i].nValue > 0) {
+            if(!isJson)
+                return state.DoS(100, error("CheckBlock() : coinbase pays too much (%d vs %d).", block.vtx[0].GetValueOut(), nPOWBlockReward));
+            if(metadata[nPaymentRequestsCount].isStr()) {
+                CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+                if(!CFund::FindPaymentRequest(metadata[nPaymentRequestsCount].get_str(), prequest))
+                    return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
+                if(!CFund::FindProposal(prequest.proposalhash, proposal))
+                    return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
+                CTxDestination address;
+                bool fValidAddress = ExtractDestination(block.vtx[0].vout[i].scriptPubKey, address);
+                if(!fValidAddress)
+                    return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
+                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
+                if(pblockindex == NULL)
+                    continue;
+                if(!(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
+                    return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
+                if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
+                    return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
+                else {
+                    prequest.paymenthash = block.GetHash();
+                    std::vector<std::pair<uint256, CFund::CPaymentRequest>> vec;
+                    vec.push_back(make_pair(prequest.hash, prequest));
+                    if(!pblocktree->UpdatePaymentRequestIndex(vec))
+                        return AbortNode(state, "Failed to write payment request index");
+                }
+            } else {
+                return state.DoS(100, error("CheckBlock() : coinbase strdzeel array does not include a payment request hash."));
+            }
+            nPaymentRequestsCount++;
+        }
     }
+
     if (block.IsProofOfStake())
     {
         // ppcoin: coin stake tx earns reward instead of paying fee
@@ -4558,64 +4607,6 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     // failed).
     if (GetBlockWeight(block) > MAX_BLOCK_WEIGHT) {
         return state.DoS(100, error("ContextualCheckBlock(): weight limit failed"), REJECT_INVALID, "bad-blk-weight");
-    }
-
-    if (block.IsProofOfStake()) {
-        // Coinbase output should be empty if proof-of-stake block and include only accepted payment requests
-        int nPaymentRequestsCount = 0;
-        for (unsigned int i = 0; i < block.vtx[0].vout.size(); i++) {
-            bool isJson = true;
-            UniValue metadata(UniValue::VARR);
-            try {
-                UniValue valRequest;
-                if (!valRequest.read(block.vtx[0].strDZeel))
-                    isJson = false;
-
-                if (valRequest.isArray())
-                    metadata = valRequest.get_array();
-                else
-                    isJson = false;
-
-            } catch (const UniValue& objError) {
-                isJson = false;
-            } catch (const std::exception& e) {
-                isJson = false;
-            }
-
-            if(block.vtx[0].vout[i].nValue > 0) {
-                if(!isJson)
-                    return state.DoS(100, error("CheckBlock() : coinbase output amount greater than 0 for proof-of-stake block. proof of work not allowed."));
-                if(metadata[nPaymentRequestsCount].isStr()) {
-                    CFund::CPaymentRequest prequest; CFund::CProposal proposal;
-                    LogPrintf("strdzeel: %s [%d] = %s\n", block.vtx[0].strDZeel, nPaymentRequestsCount, metadata[nPaymentRequestsCount].get_str());
-                    if(!CFund::FindPaymentRequest(metadata[nPaymentRequestsCount].get_str(), prequest))
-                        return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
-                    if(!CFund::FindProposal(prequest.proposalhash, proposal))
-                        return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
-                    CTxDestination address;
-                    bool fValidAddress = ExtractDestination(block.vtx[0].vout[i].scriptPubKey, address);
-                    if(!fValidAddress)
-                        return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
-                    CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
-                    if(pblockindex == NULL)
-                        continue;
-                    if(!(pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
-                        return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
-                    if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
-                        return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
-                    else {
-                        prequest.paymenthash = block.GetHash();
-                        std::vector<std::pair<uint256, CFund::CPaymentRequest>> vec;
-                        vec.push_back(make_pair(prequest.hash, prequest));
-                        if(!pblocktree->UpdatePaymentRequestIndex(vec))
-                            return AbortNode(state, "Failed to write payment request index");
-                    }
-                } else {
-                    return state.DoS(100, error("CheckBlock() : coinbase strdzeel array does not include a payment request hash."));
-                }
-                nPaymentRequestsCount++;
-            }
-        }
     }
 
     return true;
