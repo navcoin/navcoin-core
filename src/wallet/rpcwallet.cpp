@@ -3149,7 +3149,7 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
 
     nToday = GetTime();
 
-    for(int i=0; i<4; i++)
+    for(int i=0; i<5; i++)
     {
         x.Start = nToday - GroupDays[i][0] * n1Day;
         x.End   = nToday - GroupDays[i][1] * n1Day;
