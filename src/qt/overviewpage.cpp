@@ -385,7 +385,7 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
 }
 
 
-void OverviewPage::updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64, qint64, qint64, qint64)
+void OverviewPage::updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)
 {
     OverviewPage::updateStakeReportNow();
 }
