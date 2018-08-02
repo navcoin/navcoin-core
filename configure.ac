@@ -477,9 +477,14 @@ else
   AC_SEARCH_LIBS([clock_gettime],[rt])
 fi
 
+#if test x$TARGET_OS != xwindows; then
+  # All windows code is PIC, forcing it on just adds useless compile warnings
+  #AX_CHECK_COMPILE_FLAG([-fPIC],[CFLAGS="-fPIC"])
+#fi
+
 if test x$TARGET_OS != xwindows; then
   # All windows code is PIC, forcing it on just adds useless compile warnings
-  AX_CHECK_COMPILE_FLAG([-fPIC],[CFLAGS="-fPIC"])
+  AX_CHECK_COMPILE_FLAG([-fPIC],[PIC_FLAGS="-fPIC"])
 fi
 
 if test x$use_hardening != xno; then
