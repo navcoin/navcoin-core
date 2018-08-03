@@ -796,7 +796,7 @@ if test x$use_pkgconfig = xyes; then
     [PKG_CHECK_MODULES],
     [
       PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl  not found.)])
-      PKG_CHECK_MODULES([UNBOUND], [libunbound], [have_unbound=yes], [AC_MSG_ERROR(libunbound not found)])
+      PKG_CHECK_MODULES([UNBOUND], [libunbound], [have_unbound=yes], [have_unbound=no])
       PKG_CHECK_MODULES([CURL], [libcurl],, [AC_MSG_ERROR(libcurl  not found.)])
       PKG_CHECK_MODULES([CRYPTO], [libcrypto],,[AC_MSG_ERROR(libcrypto  not found.)])
       NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([PROTOBUF], [protobuf], [have_protobuf=yes], [NAVCOIN_QT_FAIL(libprotobuf not found)])])
