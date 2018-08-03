@@ -828,7 +828,8 @@ else
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
   AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound
-	have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
+	have_unbound=yes], [AC_MSG_WARN(libunbound missing)
+	have_unbound=no])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
 
   if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
