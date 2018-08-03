@@ -335,7 +335,7 @@ case $host in
 
          openssl_prefix=`$BREW --prefix openssl 2>/dev/null`
          bdb_prefix=`$BREW --prefix berkeley-db4 2>/dev/null`
-         unbound_prefix=`$BREW --prefix unbound 2>/dev/null
+         unbound_prefix=`$BREW --prefix unbound 2>/dev/null`
          qt5_prefix=`$BREW --prefix qt5 2>/dev/null`
          if test x$openssl_prefix != x; then
            PKG_CONFIG_PATH="$openssl_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
