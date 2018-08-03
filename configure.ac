@@ -23,13 +23,13 @@ AC_CANONICAL_HOST
 
 AC_MSG_NOTICE([------------------------------------])
 AC_MSG_NOTICE([------------------------------------])
-AC_MSG_NOTICE([               __                ])
-AC_MSG_NOTICE([     |\ | _   /   _ . _       ])
-AC_MSG_NOTICE([     | \|(_|\/\__(_)|| |          ])
-AC_MSG_NOTICE([                                      ])
-AC_MSG_NOTICE([     Setting up build for $host_cpu   ])
-AC_MSG_NOTICE([------------------------------------      ])
-AC_MSG_NOTICE([------------------------------------      ])
+AC_MSG_NOTICE([               __                   ])
+AC_MSG_NOTICE([     |\ | _   /   _ . _             ])
+AC_MSG_NOTICE([     | \|(_|\/\__(_)|| |            ])
+AC_MSG_NOTICE([                                    ])
+AC_MSG_NOTICE([     Setting up build for $host     ])
+AC_MSG_NOTICE([------------------------------------])
+AC_MSG_NOTICE([------------------------------------])
 
 sleep 1
 
