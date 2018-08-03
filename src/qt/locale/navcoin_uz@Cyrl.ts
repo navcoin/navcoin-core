@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="uz@Cyrl" version="2.1">
+<TS language="uz@Cyrl" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Ўчириш</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,9 +63,152 @@
         <source>Repeat new passphrase</source>
         <translation>Янги махфий сузни такрорланг</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Quantity:</source>
+        <translation>Сони:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Байт:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Миқдори:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Муҳимлиги:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Солиқ:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Ахлат қутиси:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Солиқдан сўнг:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Ўзгартириш:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>барчасини танаш (бекор қилиш)</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Дарахт усулида</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Рўйхат усулида</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Миқдори</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Сана</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Тасдиқлашлар</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Тасдиқланди</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Муҳимлиги</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>йўқ</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Манзилларни таҳрирлаш</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Ёрлик</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Ёрлиқ ушбу манзилар рўйхати ёзуви билан боғланган</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Манзил ушбу манзиллар рўйхати ёзуви билан боғланган. Уни фақат жўнатиладиган манзиллар учун ўзгартирса бўлади.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Манзил</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>версияси</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Буйруқлар сатри мосламалари</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Фойдаланиш:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>буйруқлар қатори орқали мослаш</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Хуш келибсиз</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Хатолик</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -215,10 +361,6 @@
         <translation>&amp;Ёрдам</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Ички ойналар асбоблар панели</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Тўловлар (QR кодлари ва navcoin ёрдамида яратишлар: URI’лар) сўраш</translation>
     </message>
@@ -279,6 +421,14 @@
         <translation>Бундан кейинги пул ўтказмалари кўринмайдиган бўлади.</translation>
     </message>
     <message>
+        <source>Yes</source>
+        <translation>Ҳа</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Йўқ</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Хатолик</translation>
     </message>
@@ -316,163 +466,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Quantity:</source>
-        <translation>Сони:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Байт:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Миқдори:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Муҳимлиги:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Солиқ:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Ахлат қутиси:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Солиқдан сўнг:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Ўзгартириш:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>барчасини танаш (бекор қилиш)</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Дарахт усулида</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Рўйхат усулида</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Миқдори</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Сана</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Тасдиқлашлар</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Тасдиқланди</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Муҳимлиги</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Манзилларни таҳрирлаш</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Ёрлик</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Ёрлиқ ушбу манзилар рўйхати ёзуви билан боғланган</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Манзил ушбу манзиллар рўйхати ёзуви билан боғланган. Уни фақат жўнатиладиган манзиллар учун ўзгартирса бўлади.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Манзил</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Янги маълумотлар директорияси яратилади.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>номи</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Директория аллақачон мавжуд. Агар бу ерда янги директория яратмоқчи бўлсангиз, %1 қўшинг.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Йўл аллақачон мавжуд. У директория эмас.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Маълумотлар директориясини бу ерда яратиб бўлмайди..</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>версияси</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Буйруқлар сатри мосламалари</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Фойдаланиш:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>буйруқлар қатори орқали мослаш</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Хуш келибсиз</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Стандарт маълумотлар директориясидан фойдаланиш</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Бошқа маълумотлар директориясида фойдаланинг:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Хато: кўрсатилган "%1" маълумотлар директориясини яратиб бўлмайди.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Хатолик</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -492,7 +486,7 @@
         <source>Select payment request file</source>
         <translation>Тўлов сўрови файлини танлаш</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -619,70 +613,17 @@
         <translation>Шакл</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Кўрсатилган маълумот эскирган бўлиши мумкин. Ҳамёнингиз алоқа ўрнатилгандан сўнг NavCoin тармоқ билан автоматик тарзда синхронланади, аммо жараён ҳалигача тугалланмади.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Фақат кўришга</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Мавжуд:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Жорий сарфланадиган балансингиз</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Кутилмоқда:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Жами ўтказмалар ҳозиргача тасдиқланган ва сафланадиган баланс томонга ҳали ҳам ҳисобланмади</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Тайёр эмас:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Миналаштирилган баланс ҳалигача тайёр эмас</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Баланслар</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Жами:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Жорий умумий балансингиз</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Жорий балансингиз фақат кўринадиган манзилларда</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Сарфланадиган:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Сўнгги пул ўтказмалари</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Тасдиқланмаган ўтказмалар-фақат манзилларини кўриш</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Жорий умумий баланс фақат кўринадиган манзилларда</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -725,6 +666,13 @@
         <translation>%1 мс</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>Расмни &amp;сақлаш</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -962,7 +910,7 @@
         <source>Remove</source>
         <translation>Ўчириш</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -977,16 +925,23 @@
         <source>&amp;Save Image...</source>
         <translation>Расмни &amp;сақлаш</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Миқдори</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Сана</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Тангаларни жунат</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Танга бошқаруви ҳусусиятлари</translation>
     </message>
     <message>
         <source>automatically selected</source>
@@ -1033,14 +988,6 @@
         <translation>Бошқа ўзгартирилган манзил</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Ўтказма тўлови</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Танлов</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>Хар килобайтига</translation>
     </message>
@@ -1061,20 +1008,8 @@
         <translation>Тезкор</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Бирданига бир нечта қабул қилувчиларга жўнатиш</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Шаклнинг барча майдончаларини тозалаш</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Ахлат қутиси:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Барчасини &amp; Тозалаш</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1088,7 +1023,7 @@
         <source>S&amp;end</source>
         <translation>Жў&amp;натиш</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1104,24 +1039,12 @@
         <translation>&amp;Ёрлиқ:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Олдин фойдаланилган манзилни танла</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Бу нормал тўлов.</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Клипбоарддан манзилни қўйиш</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Message:</source>
@@ -1132,6 +1055,13 @@
         <translation>Тўлов олувчи:</translation>
     </message>
     </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ҳа</translation>
+    </message>
+</context>
 <context>
     <name>ShutdownWindow</name>
     </context>
@@ -1173,14 +1103,75 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Сана</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Миқдори</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Ушбу ойна операциянинг батафсил таърифини кўрсатади</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Сана</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Тасдиқланди</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Сана</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Тангаларни жунат</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Экспорт</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Жорий ички ойна ичидаги маълумотларни файлга экспорт қилиш</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Шакл</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR Коди</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1253,4 +1244,18 @@
         <translation>Хатолик</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Шакл</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Ўчириш</translation>
+    </message>
+    </context>
 </TS>

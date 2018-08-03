@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="pt_PT" version="2.1">
+<TS language="pt_PT" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Eliminar</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Repita a nova frase de palavra-passe</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,193 @@
         <translation>Banido Até</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Seleção de Moeda</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Quantidade:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Bytes:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Valor:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Prioridade:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Taxa:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Lixo:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Depois da taxa:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Troco:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(des)selecionar todos</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Modo de árvore</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Modo de lista</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Valor</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Recebido com etiqueta</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Recebido com endereço</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Confirmações</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Confirmada</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioridade</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>nenhum</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Editar Endereço</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Etiqueta</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>A etiqueta associada com esta entrada da lista de endereços</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>O endereço associado com o esta entrada da lista de endereços. Isto só pode ser modificado para os endereços de envio.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>E&amp;ndereço</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>versão</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>Sobre %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Opções da linha de comando</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Utilização:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>opções da linha de comando</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>Opções da IU:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>Escolha a diretoria dos dados no arranque (predefinição: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>Definir linguagem, por exemplo "pt_PT" (por defeito: linguagem do sistema)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Iniciar minimizado</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Configurar certificados SSL root para pedido de pagamento (default: -system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>Mostrar o ecrã de abertura no arranque (predefinição: %u)</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Bem-vindo</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>Bem-vindo a %1.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Erro</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -159,6 +349,10 @@
         <translation>Abrir &amp;URI...</translation>
     </message>
     <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>O cliente será desligado. Deseja continuar?</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>A reindexar os blocos no disco...</translation>
     </message>
@@ -235,10 +429,6 @@
         <translation>&amp;Ajuda</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Barra de ferramentas dos separadores</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Solicitar pagamentos (gera códigos QR e navcoin: URIs)</translation>
     </message>
@@ -311,6 +501,14 @@
         <translation>As transações depois de isto ainda não serão visíveis.</translation>
     </message>
     <message>
+        <source>Yes</source>
+        <translation>Sim</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Não</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Erro</translation>
     </message>
@@ -378,216 +576,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Seleção de Moeda</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Quantidade:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Bytes:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Valor:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioridade:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Taxa:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Lixo:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Depois da taxa:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Troco:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(des)selecionar todos</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Modo de árvore</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Modo de lista</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Valor</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Recebido com etiqueta</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Recebido com endereço</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Data</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Confirmações</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Confirmada</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioridade</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Editar Endereço</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Etiqueta</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>A etiqueta associada com esta entrada da lista de endereços</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>O endereço associado com o esta entrada da lista de endereços. Isto só pode ser modificado para os endereços de envio.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>E&amp;ndereço</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Irá ser criada uma nova diretoria de dados.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>nome</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>A pasta já existe. Adicione %1 se pretender criar aqui uma nova pasta.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Caminho já existe, e não é uma pasta.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Não é possível criar aqui uma diretoria de dados.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>versão</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>Sobre %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Opções da linha de comando</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Utilização:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>opções da linha de comando</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Opções da IU:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Escolha a diretoria dos dados no arranque (predefinição: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Definir linguagem, por exemplo "pt_PT" (por defeito: linguagem do sistema)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Iniciar minimizado</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Configurar certificados SSL root para pedido de pagamento (default: -system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>Mostrar o ecrã de abertura no arranque (predefinição: %u)</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Bem-vindo</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>Bem-vindo a %1.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Utilizar a diretoria de dados predefinida</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Utilizar uma diretoria de dados personalizada:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Erro: não pode ser criada a diretoria de dados especificada como "%1.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erro</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB de espaço livre disponível</numerusform><numerusform>%n GB de espaço livre disponível</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(de %n GB necessários)</numerusform><numerusform>(de %n GB necessário)</numerusform></translation>
-    </message>
-</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -606,7 +596,7 @@
         <source>Select payment request file</source>
         <translation>Seleccione o ficheiro de pedido de pagamento</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -842,74 +832,17 @@
         <translation>Formulário</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>A informação mostrada poderá estar desatualizada. A sua carteira sincroniza automaticamente com a rede NavCoin depois de estabelecer ligação, mas este processo ainda não está completo.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Modo-verificação:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Disponível:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>O seu saldo (gastável) disponível</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Pendente:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Total de transações por confirmar, que ainda não estão contabilizadas no seu saldo gastável</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Imaturo:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>O saldo minado ainda não amadureceu</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Balanços</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Total:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>O seu saldo total actual</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>O seu balanço atual em endereços de apenas observação</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Dispensável:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>transações recentes</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Transações não confirmadas para endereços modo-verificação</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Saldo minado ainda não disponivél de endereços modo-verificação</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Saldo disponivél em enderços modo-verificação</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -964,6 +897,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Salvar Imagem...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1317,7 +1257,7 @@
         <source>Remove</source>
         <translation>Remover</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1336,16 +1276,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Salvar Imagem...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Valor</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Enviar Moedas</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Funcionalidades do Controlo de Moedas:</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1396,28 +1343,12 @@
         <translation>Endereço de troco personalizado</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Custo da Transação:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Escolher...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>fechar definições-de custos</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>por kilobyte</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Se a taxa fixa for 1000 satoshis e a transação for somente 250 bytes, pagará somente 250 satoshis "por kilobyte" em custos se trasacionar "pelo menos" 1000 satoshis. Transações superiores a um kilobyte são cobradas por kilobyte.</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Esconder</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1456,24 +1387,8 @@
         <translation>rapido</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Enviar para múltiplos destinatários de uma vez</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Adicionar &amp;Destinatário</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Limpar todos os campos do formulário.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Lixo:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Limpar &amp;Tudo</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1487,7 +1402,7 @@
         <source>S&amp;end</source>
         <translation>E&amp;nviar</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1503,10 +1418,6 @@
         <translation>Rótu&amp;lo:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Escolha o endereço utilizado anteriormente</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Este é um pagamento normal.</translation>
     </message>
@@ -1517,14 +1428,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Cole endereço da área de transferência</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1565,6 +1468,13 @@
     <message>
         <source>Memo:</source>
         <translation>Memorando:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Sim</translation>
     </message>
 </context>
 <context>
@@ -1664,7 +1574,7 @@
         <source>Reset all verify message fields</source>
         <translation>Repor todos os campos de verificação de mensagem</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1680,12 +1590,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Valor</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Esta janela mostra uma descrição detalhada da transação</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Confirmada</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1693,6 +1632,38 @@
         <translation>Unidade de valores recebidos. Clique para selecionar outra unidade.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Enviar Moedas</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exportar</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Exportar os dados no separador atual para um ficheiro</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulário</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>Código QR</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1952,10 +1923,6 @@
         <translation>Localização de cookie de autorização (predefinição: diretoria de dados)</translation>
     </message>
     <message>
-        <source>Minimum bytes per sigop in transactions we relay and mine (default: %u)</source>
-        <translation>Mínimo de bytes por sigop nas transações que nós transmitimos e mine (predefinição: %u)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>Os descritores de ficheiros disponíveis são insuficientes.</translation>
     </message>
@@ -2054,10 +2021,6 @@
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
         <translation>Executar comando quando um alerta relevante for recebido ou em caso de uma divisão longa da cadeia de blocos (no comando, %s é substituído pela mensagem)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Taxas (em %s/kB) abaixo deste valor são consideradas nulas para propagação, mineração e criação de transacções (padrão: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -2228,10 +2191,6 @@
         <translation>Aviso</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>Aviso: ativadas novas regras desconhecidas (versionbit %i)</translation>
-    </message>
-    <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>Se operar apenas num modo de blocos (predefinição: %u)</translation>
     </message>
@@ -2324,10 +2283,6 @@
         <translation>Username e hash da password para ligações JSON-RPC. O campo &lt;userpw&gt; está no formato: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Um script python está incluido em share/rpcuser. Esta opção pode ser especificada múltiplas vezes.</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>Atenção: Versões desconhecidas de blocos estão a ser mineradas! É possível que regras desconhecias estão a ser efetuadas</translation>
-    </message>
-    <message>
         <source>(default: %s)</source>
         <translation>(predefinição: %s)</translation>
     </message>
@@ -2346,14 +2301,6 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>Endereço -proxy inválido: '%s'</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Escutar por ligações JSON-RPC na porta &lt;port&gt; (predefinição: %u ou rede de testes: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Escute ligações na porta &lt;port&gt; (por defeito: %u ou testnet: %u)</translation>
     </message>
     <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
@@ -2452,4 +2399,18 @@
         <translation>Erro</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulário</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Remover</translation>
+    </message>
+    </context>
 </TS>

@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="hr" version="2.1">
+<TS language="hr" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>Iz&amp;briši</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,9 +63,148 @@
         <source>Repeat new passphrase</source>
         <translation>Ponovite novu lozinku</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Izbor ulaza transakcije</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Količina:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Bajtova:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Iznos:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Prioriteta:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Naknada:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Prah:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Vraćeno:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>Izaberi sve/ništa</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Iznos</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Primljeno pod oznakom</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Primljeno na adresu</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Broj potvrda</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Potvrđeno</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioriteta</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Uredi adresu</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Oznaka</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Oznaka navcoin adrese</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>NavCoin adresa. Izmjene adrese su moguće samo za adrese za slanje.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Adresa</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>verzija</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Opcije programa u naredbenoj liniji</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Upotreba:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>opcije programa u naredbenoj liniji</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Dobrodošli</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Greška</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -219,10 +361,6 @@
         <translation>&amp;Pomoć</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Traka kartica</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Zatraži uplatu (stvara QR kod i navcoin: URI adresu)</translation>
     </message>
@@ -346,143 +484,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Izbor ulaza transakcije</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Količina:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Bajtova:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Iznos:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioriteta:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Naknada:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Prah:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Vraćeno:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>Izaberi sve/ništa</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Iznos</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Primljeno pod oznakom</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Primljeno na adresu</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Datum</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Broj potvrda</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Potvrđeno</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioriteta</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Uredi adresu</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Oznaka</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Oznaka navcoin adrese</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>NavCoin adresa. Izmjene adrese su moguće samo za adrese za slanje.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Adresa</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Stvoren će biti novi direktorij za podatke.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>ime</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Nije moguće stvoriti direktorij za podatke na tom mjestu.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>verzija</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Opcije programa u naredbenoj liniji</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Upotreba:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>opcije programa u naredbenoj liniji</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Dobrodošli</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -502,7 +504,7 @@
         <source>Select payment request file</source>
         <translation>Izaberi datoteku zahtjeva za plaćanje</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -632,14 +634,9 @@
         <source>Form</source>
         <translation>Oblik</translation>
     </message>
-    <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Prikazani podatci mogu biti zastarjeli. Vaš novčanik se automatski sinkronizira s NavCoin mrežom kada je veza uspostavljena, ali taj proces još nije završen.</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Ukupno:</translation>
-    </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -653,6 +650,13 @@
     <message>
         <source>N/A</source>
         <translation>N/A</translation>
+    </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Spremi sliku...</translation>
     </message>
     </context>
 <context>
@@ -791,7 +795,18 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Spremi sliku...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Iznos</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -827,28 +842,8 @@
         <translation>Vraćeno:</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Naknada za transakciju:</translation>
-    </message>
-    <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Pošalji novce većem broju primatelja u jednoj transakciji</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;Dodaj primatelja</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Obriši sva polja</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Prah:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Obriši &amp;sve</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -862,7 +857,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Pošalji</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -882,14 +877,6 @@
         <translation>Alt+A</translation>
     </message>
     <message>
-        <source>Paste address from clipboard</source>
-        <translation>Zalijepi adresu iz međuspremnika</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>Poruka:</translation>
     </message>
@@ -897,6 +884,9 @@
         <source>Pay To:</source>
         <translation>Primatelj plaćanja:</translation>
     </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -955,14 +945,75 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Iznos</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Ovaj prozor prikazuje detaljni opis transakcije</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Potvrđeno</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Slanje novca</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Izvozi</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Izvoz podataka iz trenutnog lista u datoteku</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Oblik</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR kôd</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1075,4 +1126,14 @@
         <translation>Greška</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Oblik</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

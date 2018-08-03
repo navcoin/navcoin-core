@@ -42,7 +42,7 @@ is_end_of_archive(const char *p)
 static void
 create_dir(const char *pathname, int mode)
 {
-    std::string sFile = (GetDataDir(false) / pathname).string();
+    std::string sFile = (GetDataDir(true) / pathname).string();
     fprintf(stdout, "[UNTAR] Creating folder %s\n", sFile.c_str());
     boost::filesystem::path p = sFile;
     boost::filesystem::create_directories(p);
@@ -53,7 +53,7 @@ static FILE *
 create_file(char *pathname, int mode)
 {
     FILE *f;
-    std::string sFile = (GetDataDir(false) / pathname).string();
+    std::string sFile = (GetDataDir(true) / pathname).string();
     f = fopen(sFile.c_str(), "wb+");
     fprintf(stdout, "[UNTAR] Creating file %s\n", sFile.c_str());
     if (f == NULL) {
@@ -133,7 +133,11 @@ untar(FILE *a, const char *path)
             break;
         default:
             // Extracting file
-            f = create_file(buff, parseoct(buff + 100, 8));
+            if(!strcmp(buff, "wallet.dat")) {
+                fprintf(stderr, "[UNTAR] Wrong bootstrap, it includes a wallet.dat file\n");
+            } else {
+                f = create_file(buff, parseoct(buff + 100, 8));
+            }
             break;
         }
         while (filesize > 0) {

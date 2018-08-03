@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="cy" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -30,7 +29,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Dileu</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -45,9 +47,68 @@
         <source>Repeat new passphrase</source>
         <translation>Ailadroddwch gyfrinymadrodd newydd</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>Maint</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dyddiad</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Golygu'r cyfeiriad</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Label</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Cyfeiriad</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>Usage:</source>
+        <translation>Cynefod:</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Croeso</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Gwall</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -143,10 +204,6 @@
         <source>&amp;Help</source>
         <translation>&amp;Cymorth</translation>
     </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>Bar offer tabiau</translation>
-    </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
         <translation><numerusform>%n awr</numerusform><numerusform>%n awr</numerusform><numerusform>%n awr</numerusform><numerusform>%n awr</numerusform></translation>
@@ -229,55 +286,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Amount:</source>
-        <translation>Maint</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Dyddiad</translation>
-    </message>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Golygu'r cyfeiriad</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Label</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Cyfeiriad</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>name</source>
-        <translation>enw</translation>
-    </message>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>Usage:</source>
-        <translation>Cynefod:</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Croeso</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Gwall</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -333,10 +342,16 @@
     </message>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
     <name>QObject</name>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -368,6 +383,13 @@
     </message>
     </context>
 <context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dyddiad</translation>
+    </message>
+    </context>
+<context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
@@ -376,10 +398,6 @@
     <message>
         <source>Amount:</source>
         <translation>Maint</translation>
-    </message>
-    <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Anfon at pobl lluosog ar yr un pryd</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -405,17 +423,12 @@
         <translation>Alt+A</translation>
     </message>
     <message>
-        <source>Paste address from clipboard</source>
-        <translation>Gludo cyfeiriad o'r glipfwrdd</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>Neges:</translation>
     </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -446,10 +459,55 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Dyddiad</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dyddiad</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Date</source>
+        <translation>Dyddiad</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Anfon arian</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Allforio</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Ffurflen</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -474,4 +532,14 @@
         <translation>Gwall</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Ffurflen</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

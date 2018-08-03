@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="hu" version="2.1">
+<TS language="hu" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,22 @@
         <source>&amp;Delete</source>
         <translation>&amp;Törlés</translation>
     </message>
-</context>
+    <message>
+        <source>C&amp;hoose</source>
+        <translation>Válassz</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>Címek küldése</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>Címek fogadása</translation>
+    </message>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +75,7 @@
         <source>Repeat new passphrase</source>
         <translation>Új jelszó újra</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +87,161 @@
         <translation>Kitiltás vége</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Érme Választás</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Mennyiség:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Bájtok:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Összeg:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Prioritás:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Díj:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Por-határ:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Utólagos díj:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Visszajáró:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>mindent kiválaszt/elvet</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Fa nézet</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Lista nézet</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Összeg</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Címkével érkezett</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Címmel érkezett</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dátum</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Megerősítések</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Megerősítve</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioritás</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>semmi</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Cím szerkesztése</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>Cím&amp;ke</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Ehhez a listaelemhez rendelt címke </translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Ehhez a címlistaelemhez rendelt cím. Csak a küldő címek módosíthatók.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Cím</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>verzió</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Parancssoros opciók</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Használat:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>parancssoros opciók</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Üdvözlünk</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Hiba</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -227,10 +397,6 @@
         <translation>&amp;Súgó</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Fül eszköztár</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Fizetési kérelem (QR-kódot és "navcoin:" URI azonosítót hoz létre)</translation>
     </message>
@@ -293,6 +459,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Ez utáni tranzakciók még nem lesznek láthatóak. </translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Igen</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nem</translation>
     </message>
     <message>
         <source>Error</source>
@@ -362,175 +536,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Érme Választás</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Mennyiség:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Bájtok:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Összeg:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioritás:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Díj:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Por-határ:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Utólagos díj:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Visszajáró:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>mindent kiválaszt/elvet</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Fa nézet</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Lista nézet</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Összeg</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Címkével érkezett</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Címmel érkezett</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Dátum</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Megerősítések</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Megerősítve</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioritás</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Cím szerkesztése</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>Cím&amp;ke</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Ehhez a listaelemhez rendelt címke </translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Ehhez a címlistaelemhez rendelt cím. Csak a küldő címek módosíthatók.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Cím</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Új adatkönyvtár lesz létrehozva.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>Név</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Az elérési út létezik, de nem egy könyvtáré.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Adatkönyvtár nem hozható itt létre.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>verzió</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Parancssoros opciók</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Használat:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>parancssoros opciók</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Üdvözlünk</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Az alapértelmezett adat könyvtár használata</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Saját adatkönyvtár használata:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Hiba: A megadott "%1" adatkönyvtár nem hozható létre. </translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Hiba</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB elérhető szabad hely</numerusform><numerusform>%n GB elérhető szabad hely</numerusform></translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -550,7 +556,7 @@
         <source>Select payment request file</source>
         <translation>Fizetési kérelmi fájl kiválasztása</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -709,57 +715,16 @@
         <translation>Űrlap</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>A kijelzett információ lehet, hogy elavult. A pénztárcája automatikusan szinkronizálja magát a NavCoin hálózattal miután a kapcsolat létrejön, de ez e folyamat még nem fejeződött be.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Csak megfigyelés</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Elérhető:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Jelenlegi egyenleg</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Küldés:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Még megerősítésre váró, a jelenlegi egyenlegbe be nem számított tranzakciók</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Éretlen:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Bányászott egyenleg amely még nem érett be.</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Egyenlegek</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Összesen:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Aktuális egyenleged</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Elkölthető:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>A legutóbbi tranzakciók</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -811,6 +776,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Kép mentése</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1072,7 +1044,7 @@
         <source>Remove</source>
         <translation>Eltávolítás</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1091,7 +1063,18 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Kép mentése</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Összeg</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dátum</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -1139,20 +1122,8 @@
         <translation>Visszajáró:</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Tranzakciós díj</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Válassz...</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>kilobájtonként</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Elrejtés</translation>
     </message>
     <message>
         <source>Recommended:</source>
@@ -1171,24 +1142,8 @@
         <translation>gyors</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Küldés több címzettnek egyszerre</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;Címzett hozzáadása</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Minden mező törlése</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Por-határ:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Mindent &amp;töröl</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1202,7 +1157,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Küldés</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1218,20 +1173,8 @@
         <translation>Címke:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Válassz egy korábban már használt címet</translation>
-    </message>
-    <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Cím beillesztése a vágólapról</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1248,6 +1191,13 @@
     <message>
         <source>Memo:</source>
         <translation>Jegyzet:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Igen</translation>
     </message>
 </context>
 <context>
@@ -1331,14 +1281,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Dátum</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Összeg</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Ez a mező a tranzakció részleteit mutatja</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dátum</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Megerősítve</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dátum</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Érmék küldése</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exportálás</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Jelenlegi nézet exportálása fájlba</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Űrlap</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR kód</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1573,4 +1584,18 @@
         <translation>Hiba</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Űrlap</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Eltávolítás</translation>
+    </message>
+    </context>
 </TS>
