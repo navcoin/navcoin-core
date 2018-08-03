@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="lv_LV" version="2.1">
+<TS language="lv_LV" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -37,7 +37,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Dzēst</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -56,9 +59,140 @@
         <source>Repeat new passphrase</source>
         <translation>Jaunā parole vēlreiz</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Quantity:</source>
+        <translation>Daudzums:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Baiti:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Daudzums:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Prioritāte:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Maksa:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Pēc Maksas:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Atlikums:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>iezīmēt visus</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Koka režīms</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Saraksta režīms</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Daudzums</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Datums</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Apstiprinājumi</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Apstiprināts</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioritāte</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>neviena</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Mainīt adrese</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Nosaukums</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Adrese</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>versija</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-biti)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Komandrindas iespējas</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Lietojums:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>komandrindas izvēles</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Sveiciens</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Kļūda</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -211,10 +345,6 @@
         <translation>&amp;Palīdzība</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Ciļņu rīkjosla</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Pieprasīt maksājumus (izveido QR kodu un navcoin: URIs)</translation>
     </message>
@@ -280,143 +410,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Quantity:</source>
-        <translation>Daudzums:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Baiti:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Daudzums:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioritāte:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Maksa:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Pēc Maksas:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Atlikums:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>iezīmēt visus</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Koka režīms</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Saraksta režīms</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Daudzums</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Datums</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Apstiprinājumi</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Apstiprināts</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioritāte</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Mainīt adrese</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Nosaukums</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Adrese</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Tiks izveidota jauna datu mape.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>vārds</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Šāds ceļš jau pastāv un tā nav mape.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Šeit nevar izveidot datu mapi.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>versija</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-biti)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Komandrindas iespējas</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Lietojums:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>komandrindas izvēles</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Sveiciens</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Izmantot noklusēto datu mapi</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Izmantot pielāgotu datu mapi:</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Kļūda</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -436,7 +430,7 @@
         <source>Select payment request file</source>
         <translation>Izvēlies maksājuma pieprasījuma datni</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -595,37 +589,16 @@
         <translation>Forma</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Attēlotā informācija var būt novecojusi. Jūsu maciņš pēc savienojuma izveides automātiski sinhronizējas ar NavCoin tīklu, taču šis process vēl nav beidzies.</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Pieejams:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Tava pašreizējā tērējamā bilance</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Neizšķirts:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Kopējā apstiprināmo transakciju vērtība, vēl nav ieskaitīta tērējamajā bilancē</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Nenobriedušu:</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Kopsumma:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Jūsu kopējā tekošā bilance</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -647,6 +620,13 @@
     <message>
         <source>N/A</source>
         <translation>N/A</translation>
+    </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Saglabāt Attēlu...</translation>
     </message>
     </context>
 <context>
@@ -810,7 +790,7 @@
         <source>Remove</source>
         <translation>Noņemt</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -829,16 +809,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Saglabāt Attēlu...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Daudzums</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Datums</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Sūtīt Bitkoinus</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>NavCoin Kontroles Funkcijas</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -885,26 +872,6 @@
         <translation>Pielāgota atlikuma adrese</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Transakcijas maksa:</translation>
-    </message>
-    <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Sūtīt vairākiem saņēmējiem uzreiz</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;Pievienot Saņēmēju</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Notīrīt visus laukus formā.</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>&amp;Notīrīt visu</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation>Bilance:</translation>
     </message>
@@ -916,7 +883,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Sūtīt</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -932,24 +899,12 @@
         <translation>&amp;Nosaukums:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Izvēlies iepriekš izmantoto adresi</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Šis ir parasts maksājums.</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>ielīmēt adresi no starpliktuves</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -967,7 +922,10 @@
         <source>Memo:</source>
         <translation>Memo:</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     <message>
@@ -1041,7 +999,7 @@
         <source>Reset all verify message fields</source>
         <translation>Atiestatīt visus laukus</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1057,14 +1015,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Datums</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Daudzums</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Šis panelis parāda transakcijas detaļas</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Datums</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Apstiprināts</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Datums</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Sūtīt Bitkoinus</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Eksportēt</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Datus no tekošā ieliktņa eksportēt uz failu</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Forma</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR Kods</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1237,4 +1256,18 @@
         <translation>Kļūda</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Forma</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Noņemt</translation>
+    </message>
+    </context>
 </TS>

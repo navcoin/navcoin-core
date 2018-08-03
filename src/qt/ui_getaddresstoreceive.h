@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'getaddresstoreceive.ui'
 **
-** Created by: Qt User Interface Compiler version 5.7.1
+** Created by: Qt User Interface Compiler version 5.9.5
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
@@ -27,13 +28,13 @@ QT_BEGIN_NAMESPACE
 class Ui_getAddressToReceive
 {
 public:
-    QWidget *verticalLayoutWidget;
+    QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout;
-    QSpacerItem *verticalSpacer;
     QHBoxLayout *horizontalLayout;
     QSpacerItem *horizontalSpacer;
     QLabel *label;
     QSpacerItem *horizontalSpacer_2;
+    QSpacerItem *verticalSpacer;
     QSpacerItem *verticalSpacer_2;
     QHBoxLayout *horizontalLayout_8;
     QSpacerItem *horizontalSpacer_4;
@@ -57,24 +58,25 @@ public:
     {
         if (getAddressToReceive->objectName().isEmpty())
             getAddressToReceive->setObjectName(QStringLiteral("getAddressToReceive"));
-        getAddressToReceive->resize(838, 489);
-        verticalLayoutWidget = new QWidget(getAddressToReceive);
-        verticalLayoutWidget->setObjectName(QStringLiteral("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(10, 10, 821, 471));
-        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
+        getAddressToReceive->setWindowModality(Qt::NonModal);
+        getAddressToReceive->resize(918, 581);
+        QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(getAddressToReceive->sizePolicy().hasHeightForWidth());
+        getAddressToReceive->setSizePolicy(sizePolicy);
+        gridLayout = new QGridLayout(getAddressToReceive);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        verticalLayout = new QVBoxLayout();
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Maximum);
-
-        verticalLayout->addItem(verticalSpacer);
-
+        verticalLayout->setSizeConstraint(QLayout::SetNoConstraint);
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout->addItem(horizontalSpacer);
 
-        label = new QLabel(verticalLayoutWidget);
+        label = new QLabel(getAddressToReceive);
         label->setObjectName(QStringLiteral("label"));
         QFont font;
         font.setPointSize(11);
@@ -88,6 +90,10 @@ public:
 
 
         verticalLayout->addLayout(horizontalLayout);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Maximum);
+
+        verticalLayout->addItem(verticalSpacer);
 
         verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -107,13 +113,13 @@ public:
 
         verticalLayout_3 = new QVBoxLayout();
         verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
-        lblQRCode = new QRImageWidget(verticalLayoutWidget);
+        lblQRCode = new QRImageWidget(getAddressToReceive);
         lblQRCode->setObjectName(QStringLiteral("lblQRCode"));
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(lblQRCode->sizePolicy().hasHeightForWidth());
-        lblQRCode->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(lblQRCode->sizePolicy().hasHeightForWidth());
+        lblQRCode->setSizePolicy(sizePolicy1);
         lblQRCode->setMinimumSize(QSize(300, 320));
         lblQRCode->setStyleSheet(QStringLiteral(""));
         lblQRCode->setTextFormat(Qt::PlainText);
@@ -149,22 +155,22 @@ public:
 
         horizontalLayout_7->addItem(horizontalSpacer_13);
 
-        copyClipboardButton = new QPushButton(verticalLayoutWidget);
+        copyClipboardButton = new QPushButton(getAddressToReceive);
         copyClipboardButton->setObjectName(QStringLiteral("copyClipboardButton"));
 
         horizontalLayout_7->addWidget(copyClipboardButton);
 
-        newAddressButton = new QPushButton(verticalLayoutWidget);
+        newAddressButton = new QPushButton(getAddressToReceive);
         newAddressButton->setObjectName(QStringLiteral("newAddressButton"));
 
         horizontalLayout_7->addWidget(newAddressButton);
 
-        requestPaymentButton = new QPushButton(verticalLayoutWidget);
+        requestPaymentButton = new QPushButton(getAddressToReceive);
         requestPaymentButton->setObjectName(QStringLiteral("requestPaymentButton"));
 
         horizontalLayout_7->addWidget(requestPaymentButton);
 
-        requestNewAddressButton = new QPushButton(verticalLayoutWidget);
+        requestNewAddressButton = new QPushButton(getAddressToReceive);
         requestNewAddressButton->setObjectName(QStringLiteral("requestNewAddressButton"));
 
         horizontalLayout_7->addWidget(requestNewAddressButton);
@@ -179,6 +185,9 @@ public:
         verticalSpacer_4 = new QSpacerItem(20, 80, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
         verticalLayout->addItem(verticalSpacer_4);
+
+
+        gridLayout->addLayout(verticalLayout, 0, 0, 1, 1);
 
 
         retranslateUi(getAddressToReceive);
