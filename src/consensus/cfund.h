@@ -111,10 +111,11 @@ public:
     }
 
     std::string ToString() const {
-        return strprintf("CPaymentRequest(hash=%s, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, proposalhash=%s, "
-                         "blockhash=%s, paymenthash=%s, strDZeel=%s)",
-                         hash.ToString().substr(0,10), (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo, proposalhash.ToString().substr(0,10),
-                         blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10), strDZeel);
+        return strprintf("CPaymentRequest(hash=%s, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotingCycle=%u, "
+                         " proposalhash=%s, blockhash=%s, paymenthash=%s, strDZeel=%s)",
+                         hash.ToString().substr(0,10), (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo, nVotingCycle,
+                         proposalhash.ToString().substr(0,10), blockhash.ToString().substr(0,10),
+                         paymenthash.ToString().substr(0,10), strDZeel);
     }
 
     void ToJson(UniValue& ret) const;
@@ -209,9 +210,9 @@ public:
     std::string ToString(uint32_t currentTime = 0) const {
         std::string str;
         str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
-                         "nVotesNo=%u, fState=%s, strDZeel=%s, blockhash=%s)",
+                         "nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
                          hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable()/COIN, (float)nFee/COIN, Address, nDeadline,
-                         nVotesYes, nVotesNo, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
+                         nVotesYes, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
         for (unsigned int i = 0; i < vPayments.size(); i++) {
             CFund::CPaymentRequest prequest;
             if(FindPaymentRequest(vPayments[i], prequest))
