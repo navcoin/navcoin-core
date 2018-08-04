@@ -304,7 +304,7 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount >= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
+    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
