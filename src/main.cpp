@@ -3004,7 +3004,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 return error("ConnectBlock(): Could not find parent proposal of Payment Request: %s\n",
                              proposal.hash.ToString(), prequest.proposalhash.ToString());
-            proposal.vPayments.push_back(tx.hash);
+
+            std::vector<uint256>::iterator position = std::find(proposal.vPayments.begin(), proposal.vPayments.end(), tx.hash);
+            if (position == proposal.vPayments.end())
+                proposal.vPayments.push_back(tx.hash);
 
             proposalIndex.push_back(make_pair(prequest.proposalhash, proposal));
             paymentRequestIndex.push_back(make_pair(tx.GetHash(), prequest));
