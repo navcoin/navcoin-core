@@ -41,6 +41,10 @@ Applies https://github.com/bitcoin/bitcoin/pull/8238/files to fix ZeroMQ compati
 
 Staking can now be toggled "on-the-fly" without restarting the client through the GUI or using the `staking` RPC command.
 
+# Updates secp256k1 Lib
+
+The secp256k1 lib from bitcoin 16.2 release was included into the codebase. While there are a number of improvements, the update was mainly needed due to the better build options for developers and allows newer OS's to build. This reduces the friction in getting setup and working with NavCoin
+
 # Transalations
 
 The Wallet GUI is now fully translated to Spanish and Italian.
@@ -48,13 +52,15 @@ The Wallet GUI is now fully translated to Spanish and Italian.
 ### Other modifications in the NavCoin client:
 
 - New RPC command `resolveopenalias` resolves an OpenAlias address to a NavCoin address
-- Added support for sending to OpenAlias addresses in the GUI, when parsing URIs and the RPC commands `validateaddress` and `sendtoaddress`
+- Added support for sending to OpenAlias addresses in the GUI, when parsing URIs and the RPC commands validateaddress and sendtoaddress
 - New argument `-requirednssec` to set whether DNSSEC validation is required to resolve openalias addresses (true by default)
 - New argument `-mininputvalue` to set the minimum value for an output to be considered as a possible coinstake input
-- New argument `-banversion` to ban nodes depending on their broadcasted version
+ -New argument `-banversion` to ban nodes depending on their broadcasted version
 - Added support to ban nodes with determined wallet versions using the config parameter `banversion`
 - Blocks created with the rpc command `generate` now include a correct timestamp for the coinbase transaction
 - Using the regtest will create a new genesis block on runtime
 - A new testnet has been initiated
-- The development-focused networks "regtest" and "devnet" no longer require peers for blocks generation
+- The development-focused networks regtest and devnet won't require peers for blocks generation
 - Update copyright notice
+- Updates automake to enable dev compilation on New OS's like Ubuntu 18.04
+- Updates Payment request UI to handle new OpenSSL Lib
