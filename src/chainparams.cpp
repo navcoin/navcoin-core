@@ -113,6 +113,7 @@ public:
         consensus.nCommunityFundMinAge = 50;
         consensus.nProposalMinimalFee = 10000000000;
         consensus.sigActivationTime = 1512990000;
+        consensus.nCoinbaseTimeActivationHeight = 20000;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -260,21 +261,22 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCoinbaseTimeActivationHeight = 30000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1525132800; // May 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1556712000; // May 1st, 2019
 
         // Deployment of SegWit (BIP141 and BIP143)
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 5;
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1525132800; // May 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1556712000; // May 1st, 2019
 
         // Deployment of Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1525132800; // May 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556712000; // May 1st, 2019
 
         // Deployment of Community Fund Accumulation
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].bit = 7;
@@ -292,19 +294,22 @@ public:
          * a large 32-bit integer with any alignment.
          */
         pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0xa2;
+        pchMessageStart[1] = 0xa4;
         pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x20;
+        pchMessageStart[3] = 0x22;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
-
-        genesis = CreateGenesisBlockTestnet(1527070531, 2043090631, 0x1d00ffff, 1, 0);
+    
+        uint32_t nTimestamp = 1525248575;
+        uint256 hashGenesisBlock = uint256S("0x000067f5aabadac676ce46ab5ce7cb331a2c791b279250683a323afaf517c9f0");
+        uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
+        uint32_t nNonce = 2043371346;
+	    
+        genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
-
-        uint256 hashGenesisBlock = uint256S("0x0000a8003f8dd50820bd7885af42dd63d7be0c39c0f8433b3e9397a6ce7d7a5c");
-
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114")))
+	    
+        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
         {
             printf("recalculating params for testnet.\n");
             printf("old testnet genesis nonce: %d\n", genesis.nNonce);
@@ -319,8 +324,8 @@ public:
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
         vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
 
-        assert(consensus.hashGenesisBlock == uint256S("0x0000a8003f8dd50820bd7885af42dd63d7be0c39c0f8433b3e9397a6ce7d7a5c"));
-        assert(genesis.hashMerkleRoot == uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114"));
+        assert(consensus.hashGenesisBlock == hashGenesisBlock);
+        assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -338,8 +343,8 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0,     uint256S("0xeb3e0ecb8629e887dd8cca81313c4c662c0a939f5c3ccc532b86ecd135e1b114")),
-            1527070531, // * UNIX timestamp of last checkpoint block
+            ( 0,     hashGenesisBlock),
+            1525248575, // * UNIX timestamp of last checkpoint block
             0,          // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             7000         // * estimated number of transactions per day after checkpoint
@@ -390,6 +395,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nCoinbaseTimeActivationHeight = 0;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -406,7 +412,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556668800; // May 1st, 2019
 	    
-	// Deployment of NTP Sync
+        // Deployment of NTP Sync
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
@@ -415,11 +421,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].bit = 7;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nStartTime = 1525132800; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nTimeout = 1556712000; // May 1st, 2019
-
-        // Deployment of NTP Sync
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -478,7 +479,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_dev, pnSeed6_dev + ARRAYLEN(pnSeed6_dev));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
         fMineBlocksOnDemand = false;
@@ -510,13 +511,13 @@ public:
         consensus.nMajorityWindow = 1000;
         consensus.BIP34Height = 900000;
         consensus.BIP34Hash = uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
-        consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
+        consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 1);
         consensus.nPowTargetTimespan = 30;
         consensus.nPowTargetSpacing = 30;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
-        consensus.nRuleChangeActivationThreshold = 300; // 75% of 400
-        consensus.nMinerConfirmationWindow = 400;
+        consensus.nRuleChangeActivationThreshold = 75; // 75% of 100
+        consensus.nMinerConfirmationWindow = 100;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
@@ -528,7 +529,7 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 100000;
-        consensus.nVotingPeriod = 180; // 1.5 hours
+        consensus.nVotingPeriod = 30; // 15 minutes
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
         consensus.nVotesAcceptProposal = 0.7;
@@ -537,32 +538,33 @@ public:
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
-        consensus.sigActivationTime = 1512826692;
+        consensus.sigActivationTime = 0;
+        consensus.nCoinbaseTimeActivationHeight = 0;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1525132800; // May 1st, 2017
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 2556712000;
 
         // Deployment of SegWit (BIP141 and BIP143)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 5;
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1525132800; // May 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 2556712000;
 
         // Deployment of Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1525132800; // May 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 2556712000;
 
         // Deployment of Community Fund Accumulation
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].bit = 7;
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nStartTime = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nTimeout = 2556712000;
 
         // Deployment of NTP Sync
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 2556712000;
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -577,28 +579,31 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
 
-        genesis = CreateGenesisBlockTestnet(1523869102, 2043084254, 0x1d00ffff, 1, 0);
+        uint32_t nTimestamp = GetTimeNow();
+        uint256 hashGenesisBlock = uint256S("0x0000e01b12644af6917e5aada637a609dd9590ad6bdc4828cd8df95258d85c02");
+        uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
+        uint32_t nNonce = 2043184832;
+
+        genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        uint256 hashGenesisBlock = uint256S("0x0000ebc922e5172da588766084696ec50a62006231e1d0d5d1e83b6a9cfc6e3f");
-
-        if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != uint256S("0xb8f305a4c87e0d64b20f58a1123a892f12920039d68657a5e87b940781d2338a")))
+        if ((genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
         {
-            printf("recalculating params for regtest.\n");
-            printf("old regtest genesis nonce: %d\n", genesis.nNonce);
-            printf("old regtest genesis hash:  %s\n", hashGenesisBlock.ToString().c_str());
+            nTimestamp = GetTimeNow();
             // deliberately empty for loop finds nonce value.
             for(; genesis.GetHash() > consensus.powLimit; genesis.nNonce++){ }
-            printf("new regtest genesis merkle root: %s\n", genesis.hashMerkleRoot.ToString().c_str());
-            printf("new regtest genesis nonce: %d\n", genesis.nNonce);
-            printf("new regtest genesis hash: %s\n", genesis.GetHash().ToString().c_str());
+            hashGenesisBlock = genesis.GetHash();
+            nNonce = genesis.nNonce;
+            hashMerkleRoot = genesis.hashMerkleRoot;
         }
 
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
         vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
 
-        assert(consensus.hashGenesisBlock == uint256S("0x0000ebc922e5172da588766084696ec50a62006231e1d0d5d1e83b6a9cfc6e3f"));
-        assert(genesis.hashMerkleRoot == uint256S("0xb8f305a4c87e0d64b20f58a1123a892f12920039d68657a5e87b940781d2338a"));
+        consensus.hashGenesisBlock = genesis.GetHash();
+
+        assert(consensus.hashGenesisBlock == hashGenesisBlock);
+        assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -608,7 +613,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
         fMineBlocksOnDemand = false;
@@ -616,11 +621,11 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            ( 0,     uint256S("0x00004cf7dd6edaba62f83fb97f60cb5527cf35b79f9ec6f89b3041f83630422f")),
-            1515437594, // * UNIX timestamp of last checkpoint block
+            ( 0,         hashGenesisBlock),
+            nTimestamp, // * UNIX timestamp of last checkpoint block
             0,          // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
-            7000         // * estimated number of transactions per day after checkpoint
+            7000        // * estimated number of transactions per day after checkpoint
         };
 
     }

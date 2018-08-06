@@ -38,6 +38,7 @@ public:
         Immature,           /**< Mined but waiting for maturity */
         MaturesWarning,     /**< Transaction will likely not mature because no nodes have confirmed */
         NotAccepted,        /**< Mined but not accepted */
+        Orphan              /**< Orphaned stake */
     };
 
     /// Transaction counts towards available balance
@@ -73,6 +74,7 @@ public:
     {
         Other,
         Generated,
+        Staked,
         SendToAddress,
         SendToOther,
         RecvWithAddress,
@@ -80,8 +82,7 @@ public:
         SendToSelf,
         AnonTx,
         CFund,
-        CFundPayment,
-        Orphan
+        CFundPayment
     };
 
     /** Number of confirmation recommended for accepting a transaction */

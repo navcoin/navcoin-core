@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="zh_TW" version="2.1">
+<TS language="zh_TW" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>刪掉</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>重複新密碼</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,197 @@
         <translation>禁止期限</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>選擇錢幣</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>數目:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>位元組數:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>金額:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>優先度:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>手續費:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>零散錢:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>計費後金額:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>找零金額:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>全選或全不選</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>樹狀模式</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>列表模式</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>金額</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>收款標記</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>收款位址</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>確認次數</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>已確認</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>優先度</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>無</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>編輯位址</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>標記</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>跟這個位址簿項目關聯的標記</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>跟這個位址簿項目關聯的位址。只有付款位址能被修改。</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>位址</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>版本</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1 位元)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>關於 %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>命令列選項</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>用法:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>命令列選項</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>使用介面選項:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>啓動時選擇資料目錄(預設值: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>設定語言，比如說 de_DE (預設值: 系統語系)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>啓動時縮到最小</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>設定付款請求時所使用的 SSL 根憑證(預設值: 系統憑證庫)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>顯示啓動畫面(預設值: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>重置所有在使用界面更改的設定</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>歡迎</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>歡迎使用 %1。</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>錯誤</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -159,6 +353,10 @@
         <translation>開啓 URI...</translation>
     </message>
     <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>客戶端軟體就要關掉了。繼續做下去嗎？</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>正在為磁碟裡的區塊重建索引...</translation>
     </message>
@@ -235,10 +433,6 @@
         <translation>說明</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>分頁工具列</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>要求付款(產生 QR Code 和 navcoin 付款協議的資源識別碼: URI)</translation>
     </message>
@@ -309,6 +503,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>暫時會看不到在這之後的交易。</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>是</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>否</translation>
     </message>
     <message>
         <source>Error</source>
@@ -386,228 +588,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>選擇錢幣</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>數目:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>位元組數:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>金額:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>優先度:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>手續費:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>零散錢:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>計費後金額:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>找零金額:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>全選或全不選</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>樹狀模式</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>列表模式</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>金額</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>收款標記</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>收款位址</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>日期</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>確認次數</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>已確認</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>優先度</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>編輯位址</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>標記</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>跟這個位址簿項目關聯的標記</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>跟這個位址簿項目關聯的位址。只有付款位址能被修改。</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>位址</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>就要產生新的資料目錄。</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>名稱</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>已經有這個目錄了。如果你要在裡面造出新的目錄的話，請加上 %1.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>已經有指定的路徑了，並且不是一個目錄。</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>沒辦法在這裡造出資料目錄。</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>版本</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1 位元)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>關於 %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>命令列選項</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>用法:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>命令列選項</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>使用介面選項:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>啓動時選擇資料目錄(預設值: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>設定語言，比如說 de_DE (預設值: 系統語系)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>啓動時縮到最小</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>設定付款請求時所使用的 SSL 根憑證(預設值: 系統憑證庫)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>顯示啓動畫面(預設值: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>重置所有在使用界面更改的設定</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>歡迎</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>歡迎使用 %1。</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>因為這是程式第一次啓動，你可以選擇 %1 儲存資料的地方。</translation>
-    </message>
-    <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1 會下載並儲存一份 NavCoin 區塊鏈的拷貝。至少有 %2GB 的資料會儲存到這個目錄中，並且還會持續增長。另外錢包資料也會儲存在這個目錄。</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>使用預設的資料目錄</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>使用自訂的資料目錄:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>錯誤: 無法新增指定的資料目錄: %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>錯誤</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>可用空間尚存 %n GB</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(需要 %n GB)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -626,7 +608,7 @@
         <source>Select payment request file</source>
         <translation>選擇付款要求資料檔</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -869,74 +851,17 @@
         <translation>表單</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>顯示的資訊可能是過期的。跟 NavCoin 網路的連線建立後，你的錢包會自動和網路同步，但是這個步驟還沒完成。</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>只能看:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>可用金額:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>目前可用餘額</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>未定金額:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>還沒被確認的交易的總金額，可用餘額不包含這些金額</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>未成熟金額:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>還沒成熟的開採金額</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>餘額</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>總金額:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>目前全部餘額</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>所有只能看位址的目前餘額</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>可支配:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>最近的交易</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>所有只能看位址還沒確認的交易</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>所有只能看位址還沒成熟的開採金額</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>所有只能看位址的目前全部餘額</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -991,6 +916,13 @@
         <translation>%1 毫秒</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>儲存圖片...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1352,7 +1284,7 @@
         <source>Remove</source>
         <translation>刪掉</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1371,16 +1303,23 @@
         <source>&amp;Save Image...</source>
         <translation>儲存圖片...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>金額</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>付款</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>錢幣控制功能</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1431,28 +1370,12 @@
         <translation>自訂找零位址</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>交易手續費:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>選項...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>展開手續費設定</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>每千位元組</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>如果自訂手續費設定為 1000 satoshi, 而交易資料大小只有 250 個位元組的話，那麽選擇「每千位元組」就只會付 250 satoshi 的手續費，換做選「總共至少」就會付 1000 satoshi. 但是如果交易資料大小超過一千個位元組，那麽兩者都是每千位元組的費用。</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>隱藏</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1491,24 +1414,8 @@
         <translation>快速</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>一次付給多個收款人</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>增加收款人</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>把表單中的所有欄位清空。</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>零散錢:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>全部清掉</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1522,7 +1429,7 @@
         <source>S&amp;end</source>
         <translation>付款</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1538,10 +1445,6 @@
         <translation>標記:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>選擇先前使用過的位址</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>這是一筆正常的付款。</translation>
     </message>
@@ -1552,14 +1455,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>貼上剪貼簿裡的位址</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1600,6 +1495,13 @@
     <message>
         <source>Memo:</source>
         <translation>備註:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>是</translation>
     </message>
 </context>
 <context>
@@ -1699,7 +1601,7 @@
         <source>Reset all verify message fields</source>
         <translation>重設所有訊息驗證欄位</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1715,12 +1617,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>金額</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>這個版面顯示這次交易的詳細說明</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>已確認</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1728,6 +1659,38 @@
         <translation>金額顯示單位。可以點選其他單位。</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>付款</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>匯出</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>把目前分頁的資料匯出存成檔案</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>表單</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR Code</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1850,10 +1813,6 @@
     <message>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
         <translation>跟其他節點的時間差最高可接受的中位數值。本機所認為的時間可能會被其他節點影響，往前或往後在這個值之內。(預設值: %u 秒)</translation>
-    </message>
-    <message>
-        <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)</source>
-        <translation>允許一次錢包交易或未加工交易付出的最高總手續費(單位是 %s)；設定太低的話，可能會無法進行資料量大的交易(預設值: %s)</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
@@ -2056,10 +2015,6 @@
         <translation>認證 cookie 資料的位置(預設值: 同資料目錄)</translation>
     </message>
     <message>
-        <source>Minimum bytes per sigop in transactions we relay and mine (default: %u)</source>
-        <translation>轉發和開採時，對交易資料的 sigop 平均位元組數下限(預設值: %u)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>檔案描述元不足。</translation>
     </message>
@@ -2190,10 +2145,6 @@
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
         <translation>當收到相關警示，或發現相當長的分支時，所要執行的指令(指令中的 %s 會被取代成警示訊息)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>當處理轉發的交易、挖礦、或製造交易時，如果每千位元組(kB)的手續費比這個值(單位是 %s)低，就視為沒付手續費(預設值: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -2368,10 +2319,6 @@
         <translation>警告</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>警告: 不明的交易規則被啟用了(versionbit %i)</translation>
-    </message>
-    <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>是否要用只要區塊模式運作(預設值: %u)</translation>
     </message>
@@ -2464,10 +2411,6 @@
         <translation>JSON-RPC 連線要用的使用者名稱和雜湊密碼。&lt;userpw&gt; 的格式是：&lt;使用者名稱&gt;:&lt;調味值&gt;$&lt;雜湊值&gt;。在 share/rpcuser 目錄下有一個示範的 python 程式。這個選項可以給很多次。</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>警告: 有礦工正在開採不明版本的區塊！這表示有不明的交易規則正在作用中</translation>
-    </message>
-    <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>警告: 錢包檔壞掉，但資料被救回來了！原來的檔案 %s 改儲存為 %s，在目錄 %s 下。 如果餘額或交易資料有誤的話，你應該要從備份資料復原回來。</translation>
     </message>
@@ -2490,14 +2433,6 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>無效的 -proxy 位址: '%s'</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>在通訊埠 &lt;port&gt; 聽候 JSON-RPC 連線(預設值: %u, 或若為測試網路: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>在通訊埠 &lt;port&gt; 聽候連線(預設值: %u, 或若為測試網路: %u)</translation>
     </message>
     <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
@@ -2596,4 +2531,18 @@
         <translation>錯誤</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>表單</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>刪掉</translation>
+    </message>
+    </context>
 </TS>

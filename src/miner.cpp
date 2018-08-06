@@ -14,6 +14,7 @@
 #include "consensus/consensus.h"
 #include "consensus/merkle.h"
 #include "consensus/validation.h"
+#include "core_io.h"
 #include "hash.h"
 #include "init.h"
 #include "main.h"
@@ -274,8 +275,22 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 }
             }
         }
-        coinbaseTx.strDZeel = strDZeel.write();
+        if(sCoinBaseStrDZeel == "") {
+            coinbaseTx.strDZeel = strDZeel.write();
+        } else {
+            coinbaseTx.strDZeel = sCoinBaseStrDZeel;
+        }
     }
+
+    for(unsigned int i = 0; i < vCoinBaseOutputs.size(); i++)
+    {
+        CTxOut forcedTxOut;
+        if (!DecodeHexTxOut(forcedTxOut, vCoinBaseOutputs[i]))
+            LogPrintf("Tried to force a wrong transaction output in the coinbase: %s\n", vCoinBaseOutputs[i]);
+        else
+            coinbaseTx.vout.insert(coinbaseTx.vout.end(), forcedTxOut);
+    }
+
     pblock->vtx[0] = coinbaseTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
@@ -285,6 +300,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     if (!fProofOfStake)
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    pblock->vtx[0].nTime   = pblock->nTime;
     pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
@@ -746,6 +762,11 @@ void NavCoinStaker(const CChainParams& chainparams)
                 } while (true);
             }
 
+            while (!fStaking)
+            {
+                MilliSleep(1000);
+            }
+
             while (pwalletMain->IsLocked())
             {
                 nLastCoinStakeSearchInterval = 0;
@@ -865,7 +886,27 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
               txCoinStake.nVersion = CTransaction::TXDZEEL_VERSION_V2;
-              txCoinStake.strDZeel = GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION);
+              txCoinStake.strDZeel = sCoinStakeStrDZeel == "" ?
+                          GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION) :
+                          sCoinStakeStrDZeel;
+
+              for(unsigned int i = 0; i < vCoinStakeOutputs.size(); i++)
+              {
+                  CTxOut forcedTxOut;
+                  if (!DecodeHexTxOut(forcedTxOut, vCoinStakeOutputs[i]))
+                      LogPrintf("Tried to force a wrong transaction output in the coinstake: %s\n", vCoinStakeOutputs[i]);
+                  else
+                      txCoinStake.vout.insert(txCoinStake.vout.end(), forcedTxOut);
+              }
+
+              for(unsigned int i = 0; i < vCoinStakeInputs.size(); i++)
+              {
+                  CTxIn forcedTxIn;
+                  if (!DecodeHexTxIn(forcedTxIn, vCoinStakeInputs[i]))
+                      LogPrintf("Tried to force a wrong transaction input in the coinstake: %s\n", vCoinStakeInputs[i]);
+                  else
+                      txCoinStake.vin.insert(txCoinStake.vin.end(), forcedTxIn);
+              }
 
               // After the changes, we need to resign inputs.
 
@@ -890,6 +931,16 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
               *static_cast<CTransaction*>(&txNew) = CTransaction(txCoinStake);
               pblock->vtx.insert(pblock->vtx.begin() + 1, txNew);
+
+              for(unsigned int i = 0; i < vForcedTransactions.size(); i++)
+              {
+                  CTransaction forcedTx;
+                  if (!DecodeHexTx(forcedTx, vForcedTransactions[i]))
+                      LogPrintf("Tried to force a wrong transaction in a block: %s\n", vForcedTransactions[i]);
+                  else
+                      pblock->vtx.insert(pblock->vtx.begin() + 2, forcedTx);
+              }
+
 
               pblock->vtx[0].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
@@ -940,7 +991,71 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         {
             return error("NavCoinStaker: ProcessNewBlock, block not accepted");
         }
+        else
+        {
+            sCoinBaseStrDZeel = sCoinStakeStrDZeel = "";
+            vForcedTransactions.clear();
+            vCoinBaseOutputs.clear();
+            vCoinStakeOutputs.clear();
+            vCoinStakeInputs.clear();
+        }
     }
 
     return true;
+}
+
+void SetStaking(bool mode) {
+    fStaking = mode;
+}
+
+bool GetStaking() {
+    return fStaking;
+}
+
+void SetCoinBaseOutputs(std::vector<std::string> v){
+    vCoinBaseOutputs.clear();
+    if(!v.empty())
+        vCoinBaseOutputs.insert(vCoinBaseOutputs.end(), v.begin(), v.end());
+}
+
+void SetCoinStakeOutputs(std::vector<std::string> v){
+    vCoinStakeOutputs.clear();
+    if(!v.empty())
+        vCoinStakeOutputs.insert(vCoinStakeOutputs.end(), v.begin(), v.end());
+}
+
+void SetCoinStakeInputs(std::vector<std::string> v){
+    vCoinStakeInputs.clear();
+    if(!v.empty())
+        vCoinStakeInputs.insert(vCoinStakeInputs.end(), v.begin(), v.end());
+}
+
+void SetForceTransactions(std::vector<std::string> v){
+    vForcedTransactions.clear();
+    if(!v.empty())
+        vForcedTransactions.insert(vForcedTransactions.end(), v.begin(), v.end());
+}
+void SetCoinStakeStrDZeel(std::string s){
+    sCoinStakeStrDZeel = s;
+}
+void SetCoinBaseStrDZeel(std::string s){
+    sCoinBaseStrDZeel = s;
+}
+std::vector<std::string> GetCoinBaseOutputs(){
+    return vCoinBaseOutputs;
+}
+std::vector<std::string> GetCoinStakeOutputs(){
+    return vCoinStakeOutputs;
+}
+std::vector<std::string> GetCoinStakeInputs(){
+    return vCoinStakeInputs;
+}
+std::vector<std::string> GetForceTransactions(){
+    return vForcedTransactions;
+}
+std::string GetCoinStakeStrDZeel(){
+    return sCoinStakeStrDZeel;
+}
+std::string GetCoinBaseStrDZeel(){
+    return sCoinBaseStrDZeel;
 }
