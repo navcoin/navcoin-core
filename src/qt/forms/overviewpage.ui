@@ -825,6 +825,130 @@
              </property>
             </widget>
            </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>17</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>17</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+               <stylestrategy>PreferAntialias</stylestrategy>
+               <kerning>false</kerning>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #727272</string>
+             </property>
+             <property name="text">
+              <string>1Y</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLabel" name="label1yStakingStats">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+               <stylestrategy>PreferAntialias</stylestrategy>
+               <kerning>false</kerning>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #727272</string>
+             </property>
+             <property name="text">
+              <string>132 431.41 NAV</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLabel" name="labelallStakingStats">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+               <stylestrategy>PreferAntialias</stylestrategy>
+               <kerning>false</kerning>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #727272</string>
+             </property>
+             <property name="text">
+              <string>132 431.41 NAV</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>70</width>
+               <height>17</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>17</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+               <stylestrategy>PreferAntialias</stylestrategy>
+               <kerning>false</kerning>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #727272</string>
+             </property>
+             <property name="text">
+              <string>ALL</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
