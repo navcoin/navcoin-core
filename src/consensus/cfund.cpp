@@ -189,27 +189,27 @@ bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
 bool CFund::IsValidPaymentRequest(CTransaction tx)
 {    
     if(tx.strDZeel.length() > 1024)
-        return false;
+        return error("%s: Too long strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
         if (!valRequest.read(tx.strDZeel))
-          return false;
+            return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
         if (valRequest.isObject())
-          metadata = valRequest.get_obj();
+            metadata = valRequest.get_obj();
         else
-          return false;
+            return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
     } catch (const UniValue& objError) {
-      return false;
+        return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
     } catch (const std::exception& e) {
-      return false;
+        return error("%s: Wrong strdzeel for payment request %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
     if(!(find_value(metadata, "n").isNum() && find_value(metadata, "s").isStr() && find_value(metadata, "h").isStr() && find_value(metadata, "i").isStr()))
-        return false;
+        return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
     CAmount nAmount = find_value(metadata, "n").get_int64();
     std::string Signature = find_value(metadata, "s").get_str();
@@ -218,12 +218,12 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
     if (nVersion >= 2 && !find_value(metadata, "r").isStr())
-        return false;
+        return error("%s: Missing r field for payment request %s", __func__, tx.GetHash().ToString());
 
     CFund::CProposal proposal;
 
     if(!CFund::FindProposal(Hash, proposal) || proposal.fState != CFund::ACCEPTED)
-        return false;
+        return error("%s: Could not find parent proposal %s for payment request %s", __func__, Hash.c_str(),tx.GetHash().ToString());
 
     std::string sRandom = "";
 
@@ -236,7 +236,8 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 
     CNavCoinAddress addr(proposal.Address);
     if (!addr.IsValid())
-        return false;
+        return error("%s: Address %s is not valid for payment request %s", __func__, proposal.Address, Hash.c_str(), tx.GetHash().ToString());
+
     CKeyID keyID;
     addr.GetKeyID(keyID);
 
@@ -244,7 +245,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::vector<unsigned char> vchSig = DecodeBase64(Signature.c_str(), &fInvalid);
 
     if (fInvalid)
-        return false;
+        return error("%s: Invalid signature for payment request  %s", __func__, tx.GetHash().ToString());
 
     CHashWriter ss(SER_GETHASH, 0);
     ss << strMessageMagic;
@@ -252,12 +253,17 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 
     CPubKey pubkey;
     if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID)
-        return false;
+        return error("%s: Invalid signature for payment request %s", __func__, tx.GetHash().ToString());
 
     if(nAmount > proposal.GetAvailable())
-        return false;
+        return error("%s: Invalid requested amount for payment request %s", __func__, tx.GetHash().ToString());
 
-    return nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
+    bool ret = nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
+
+    if(!ret)
+        return error("%s: Invalid version for payment request %s", __func__, tx.GetHash().ToString());
+
+    return true;
 
 }
 
@@ -278,27 +284,27 @@ bool CFund::CPaymentRequest::IsExpired() const {
 bool CFund::IsValidProposal(CTransaction tx)
 {
     if(tx.strDZeel.length() > 1024)
-        return false;
+        return error("%s: Too long strdzeel for proposal %s", __func__, tx.GetHash().ToString());
 
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
         if (!valRequest.read(tx.strDZeel))
-          return false;
+            return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
 
         if (valRequest.isObject())
           metadata = valRequest.get_obj();
         else
-          return false;
+            return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
 
     } catch (const UniValue& objError) {
-      return false;
+        return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
     } catch (const std::exception& e) {
-      return false;
+        return error("%s: Wrong strdzeel for proposal %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
     if(!(find_value(metadata, "n").isNum() && find_value(metadata, "a").isStr() && find_value(metadata, "d").isNum()))
-        return false;
+        return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
 
     CAmount nAmount = find_value(metadata, "n").get_int64();
     std::string Address = find_value(metadata, "a").get_str();
@@ -308,18 +314,23 @@ bool CFund::IsValidProposal(CTransaction tx)
 
     CNavCoinAddress address(Address);
     if (!address.IsValid())
-        return false;
+        return error("%s: Wrong address %s for proposal %s", __func__, Address.c_str(), tx.GetHash().ToString());
 
     for(unsigned int i=0;i<tx.vout.size();i++)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
-    return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+    bool ret = (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
             Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0 &&
             nVersion <= Params().GetConsensus().nProposalMaxVersion);
+
+    if (!ret)
+        return error("%s: Wrong strdzeel %s for proposal %s: %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
+
+    return true;
 
 }
 
