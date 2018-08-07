@@ -1809,7 +1809,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     }
 
     if (nHeight <= Params().GetConsensus().nLastPOWBlock)
-        return CAmount(50);
+        return CAmount(50 * COIN);
 
     return 0;
 }
@@ -2406,6 +2406,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
+
+    LogPrintf("%d\n", fClean);
 
     if (pfClean) {
         *pfClean = fClean;
