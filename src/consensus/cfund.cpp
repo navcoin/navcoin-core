@@ -8,9 +8,6 @@
 #include "rpc/server.h"
 #include "utilmoneystr.h"
 
-std::map<uint256, CFund::CProposal> mapProposal;
-std::map<uint256, CFund::CPaymentRequest> mapPaymentRequest;
-
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
     script.resize(2);
@@ -45,30 +42,12 @@ bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
 
 }
 
-void CFund::UpdateMapProposal(uint256 prophash)
-{
-    if(mapProposal.count(prophash) != 0)
-        mapProposal.erase(prophash);
-}
-
-void CFund::UpdateMapProposal(uint256 prophash, CFund::CProposal proposal)
-{
-    if(mapProposal.count(prophash) != 0)
-        mapProposal[prophash] = proposal;
-}
-
 bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 {
-
-    if(mapProposal.count(prophash) != 0) {
-        proposal = mapProposal[prophash];
-        return true;
-    }
 
     CFund::CProposal temp;
     if(pblocktree->ReadProposalIndex(prophash, temp)) {
         proposal = temp;
-        mapProposal[prophash] = temp;
         return true;
     }
 
@@ -79,32 +58,14 @@ bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
 {
 
-    if(mapPaymentRequest.count(preqhash) != 0) {
-        prequest = mapPaymentRequest[preqhash];
-        return true;
-    }
-
     CFund::CPaymentRequest temp;
     if(pblocktree->ReadPaymentRequestIndex(preqhash, temp)) {
         prequest = temp;
-        mapPaymentRequest[preqhash] = temp;
         return true;
     }
 
     return false;
 
-}
-
-void CFund::UpdateMapPaymentRequest(uint256 preqhash)
-{
-    if(mapPaymentRequest.count(preqhash) != 0)
-        mapPaymentRequest.erase(preqhash);
-}
-
-void CFund::UpdateMapPaymentRequest(uint256 preqhash, CFund::CPaymentRequest prequest)
-{
-    if(mapPaymentRequest.count(preqhash) != 0)
-        mapPaymentRequest[preqhash] = prequest;
 }
 
 bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
