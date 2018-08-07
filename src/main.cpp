@@ -1076,10 +1076,6 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
     return nSigOps;
 }
 
-
-
-
-
 bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 {
 
@@ -1105,16 +1101,6 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
-    }
-
-    if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
-        if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-            if(!CFund::IsValidProposal(tx))
-                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
-
-        if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-            if(!CFund::IsValidPaymentRequest(tx))
-                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
     }
 
     // Check for duplicate inputs
@@ -2293,7 +2279,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx))
                 proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
 
-            if(CFund::IsValidPaymentRequest(tx) && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx)) {
                 paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
                 CFund::CPaymentRequest prequest; CFund::CProposal proposal;
                 if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, proposal)) {
@@ -4612,6 +4598,15 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     BOOST_FOREACH(const CTransaction& tx, block.vtx) {
         if (!IsFinalTx(tx, nHeight, nLockTimeCutoff)) {
             return state.DoS(10, false, REJECT_INVALID, "bad-txns-nonfinal", false, "non-final transaction");
+        }
+        if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
+            if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+                if(!CFund::IsValidProposal(tx))
+                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+                if(!CFund::IsValidPaymentRequest(tx))
+                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
         }
     }
 
