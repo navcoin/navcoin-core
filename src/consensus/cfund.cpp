@@ -390,8 +390,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
-    ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
+    ret.push_back(Pair("status", GetState(chainActive.Tip()->GetMedianTimePast())));
     if(fState == ACCEPTED)
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
     if(vPayments.size() > 0) {
