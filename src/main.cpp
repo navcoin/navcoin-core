@@ -1106,16 +1106,6 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
     }
 
-    if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
-        if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-            if(!CFund::IsValidProposal(tx))
-                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
-
-        if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-            if(!CFund::IsValidPaymentRequest(tx))
-                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
-    }
-
     // Check for duplicate inputs
     set<COutPoint> vInOutPoints;
     BOOST_FOREACH(const CTxIn& txin, tx.vin)
@@ -4599,6 +4589,15 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             if (!block.vtx[i].wit.IsNull()) {
                 return state.DoS(100, error("%s : unexpected witness data found", __func__), REJECT_INVALID, "unexpected-witness", true);
             }
+        }
+        if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
+            if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+                if(!CFund::IsValidProposal(tx))
+                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+                if(!CFund::IsValidPaymentRequest(tx))
+                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
         }
     }
 
