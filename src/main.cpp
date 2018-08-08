@@ -3074,7 +3074,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         return AbortNode(state, "Failed to write payment request index");
                 }
             } else {
-                return state.DoS(100, error("CheckBlock() : coinbase strdzeel array does not include a payment request hash."));
+                return state.DoS(100, error("CheckBlock() : coinbase strdzeel %s array does not include a string (%d) at position %d",
+                                            block.vtx[0].strDZeel, metadata[nPaymentRequestsCount].type(), nPaymentRequestsCount));
             }
             nPaymentRequestsCount++;
         }
@@ -4589,15 +4590,15 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             if (!block.vtx[i].wit.IsNull()) {
                 return state.DoS(100, error("%s : unexpected witness data found", __func__), REJECT_INVALID, "unexpected-witness", true);
             }
-        }
-        if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-                if(!CFund::IsValidProposal(tx))
-                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+            if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus())) {
+                if(block.vtx[i].nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+                    if(!CFund::IsValidProposal(block.vtx[i]))
+                        return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-                if(!CFund::IsValidPaymentRequest(tx))
-                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
+                if(block.vtx[i].nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+                    if(!CFund::IsValidPaymentRequest(block.vtx[i]))
+                        return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
+            }
         }
     }
 
