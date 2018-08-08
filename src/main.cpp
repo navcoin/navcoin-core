@@ -4543,6 +4543,15 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         if (!IsFinalTx(tx, nHeight, nLockTimeCutoff)) {
             return state.DoS(10, false, REJECT_INVALID, "bad-txns-nonfinal", false, "non-final transaction");
         }
+        if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
+            if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+                if(!CFund::IsValidProposal(tx))
+                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+                if(!CFund::IsValidPaymentRequest(tx))
+                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
+        }
     }
 
     // Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
@@ -4589,15 +4598,6 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         for (size_t i = 0; i < block.vtx.size(); i++) {
             if (!block.vtx[i].wit.IsNull()) {
                 return state.DoS(100, error("%s : unexpected witness data found", __func__), REJECT_INVALID, "unexpected-witness", true);
-            }
-            if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus())) {
-                if(block.vtx[i].nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-                    if(!CFund::IsValidProposal(block.vtx[i]))
-                        return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
-
-                if(block.vtx[i].nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-                    if(!CFund::IsValidPaymentRequest(block.vtx[i]))
-                        return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
             }
         }
     }
