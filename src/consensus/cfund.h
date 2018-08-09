@@ -107,10 +107,10 @@ public:
     }
 
     std::string ToString() const {
-        return strprintf("CPaymentRequest(hash=%s, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotingCycle=%u, "
+        return strprintf("CPaymentRequest(hash=%s, nVersion=%d, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotingCycle=%u, "
                          " proposalhash=%s, blockhash=%s, paymenthash=%s, strDZeel=%s)",
-                         hash.ToString().substr(0,10), (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo, nVotingCycle,
-                         proposalhash.ToString().substr(0,10), blockhash.ToString().substr(0,10),
+                         hash.ToString().substr(0,10), nVersion, (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo,
+                         nVotingCycle, proposalhash.ToString().substr(0,10), blockhash.ToString().substr(0,10),
                          paymenthash.ToString().substr(0,10), strDZeel);
     }
 
@@ -135,7 +135,7 @@ public:
             if(nAmount < 0)
             {
                 READWRITE(nAmount);
-                READWRITE(nVersion);
+                READWRITE(this->nVersion);
             }
             else
             {
@@ -147,7 +147,7 @@ public:
             CAmount nSignalVersion = -1;
             READWRITE(nSignalVersion);
             READWRITE(nAmount);
-            READWRITE(nVersion);
+            READWRITE(this->nVersion);
         }
         READWRITE(fState);
         READWRITE(nVotesYes);
@@ -157,6 +157,10 @@ public:
         READWRITE(blockhash);
         READWRITE(paymenthash);
         READWRITE(strDZeel);
+
+        // Version-based read/write
+        if(nVersion >= 2)
+           READWRITE(nVotingCycle);
     }
 
 };
