@@ -118,6 +118,7 @@ public:
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nPaymentRequestMaxVersion = 2;
         consensus.nProposalMaxVersion = 2;
+        consensus.nMaxFutureDrift = 60;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -271,6 +272,7 @@ public:
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nPaymentRequestMaxVersion = 2;
         consensus.nProposalMaxVersion = 2;
+        consensus.nMaxFutureDrift = 60;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -410,6 +412,7 @@ public:
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nPaymentRequestMaxVersion = 2;
         consensus.nProposalMaxVersion = 2;
+        consensus.nMaxFutureDrift = 60;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -559,6 +562,7 @@ public:
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nPaymentRequestMaxVersion = 2;
         consensus.nProposalMaxVersion = 2;
+        consensus.nMaxFutureDrift = 60000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
