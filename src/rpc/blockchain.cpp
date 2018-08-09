@@ -952,7 +952,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             CFund::CProposal proposal;
             if(!CFund::FindProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
-            if(proposal.CanVote() && vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
+            if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
                 if(vCacheProposals.count(pindexblock->vProposalVotes[i].first) == 0)
                     vCacheProposals[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vProposalVotes[i].second)
@@ -972,10 +972,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if((proposal.CanRequestPayments() || (proposal.fState == CFund::EXPIRED && prequest.nVotingCycle > 0))
-                    && prequest.CanVote()
-                    && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
-                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
+            if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
                 if(vCachePaymentRequest.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)
@@ -995,9 +992,10 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
     ret.push_back(Pair("funds", cf));
     UniValue vp(UniValue::VOBJ);
-    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
+    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     vp.push_back(Pair("starting",       starting));
     vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle));
+    vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 
