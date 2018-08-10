@@ -62,7 +62,6 @@ uint64_t nLastTime = 0;
 uint64_t nLastSteadyTime = 0;
 
 bool fIncorrectTime = false;
-bool fStaking = false;
 
 class ScoreCompare
 {
