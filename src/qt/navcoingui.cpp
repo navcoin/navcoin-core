@@ -168,7 +168,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
         windowTitle += tr("Node");
     }
 
-    if(clientModel->isReleaseVersion())
+    if(clientModel->isReleaseVersion() == false)
     {
         // default to test version
         windowTitle += " " + tr("[TEST ONLY]");
