@@ -5652,7 +5652,7 @@ std::string GetWarnings(const std::string& strFor)
     if (!CLIENT_VERSION_IS_RELEASE)
     {
         strStatusBar = "This is a pre-release test build - use at your own risk - do not use for staking or merchant applications";
-        strGUI = _("This is a pre-release test build - use at your own risk - do not use for mining or merchant applications");
+        strGUI = _("This is a pre-release test build - use at your own risk - do not use for staking or merchant applications");
 
         if(CLIENT_BUILD_IS_RELEASE_CANDIDATE)
         {
