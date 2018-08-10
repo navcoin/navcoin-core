@@ -167,7 +167,23 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     } else {
         windowTitle += tr("Node");
     }
+
+    if(clientModel->isReleaseVersion() == false)
+    {
+         // default to test version
+        QString titleExtra = tr("[TEST ONLY]");
+
+        if(clientModel->isRCReleaseVersion() == true)
+        {
+            titleExtra = tr("[RELEASE CANDIDATE]");
+        }
+
+         windowTitle += " " + titleExtra;
+    }
+
     windowTitle += " " + networkStyle->getTitleAddText();
+
+
 #ifndef Q_OS_MAC
     QApplication::setWindowIcon(networkStyle->getTrayAndWindowIcon());
     setWindowIcon(networkStyle->getTrayAndWindowIcon());

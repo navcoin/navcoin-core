@@ -22,6 +22,12 @@
 //! Set to true for release, false for prerelease or test build
 #define CLIENT_VERSION_IS_RELEASE true
 
+/* Version is release */
+#define CLIENT_BUILD_IS_RELEASE_CANDIDATE false
+
+/* Build is a test release */
+#define CLIENT_BUILD_IS_TEST_RELEASE false
+
 /**
  * Copyright year (2009-this)
  * Todo: update this when changing our copyright comments in the source
