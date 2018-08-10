@@ -168,14 +168,16 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
         windowTitle += tr("Node");
     }
 
-    if(clientModel->isReleaseVersion()) {
-         if(clientModel->isRCReleaseVersion()) {
-             windowTitle += " " + tr("[RELEASE CANDIDATE]");
-         }
+    if(clientModel->isReleaseVersion())
+    {
+        // default to test version
+        windowTitle += " " + tr("[TEST ONLY]");
 
-         if(clientModel->isTestReleaseVersion()) {
-             windowTitle += tr("[TEST ONLY]");
-         }
+        if(clientModel->isRCReleaseVersion())
+        {
+            windowTitle += " " + tr("[RELEASE CANDIDATE]");
+        }
+
     }
 
     windowTitle += " " + networkStyle->getTitleAddText();
