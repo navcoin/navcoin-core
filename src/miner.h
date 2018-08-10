@@ -35,7 +35,7 @@ static std::vector<std::string> vCoinStakeOutputs;
 static std::vector<std::string> vCoinStakeInputs;
 static std::string sCoinBaseStrDZeel;
 static std::string sCoinStakeStrDZeel;
-bool fStaking;
+static bool fStaking;
 
 struct CBlockTemplate
 {
