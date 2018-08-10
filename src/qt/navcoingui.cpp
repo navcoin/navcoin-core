@@ -170,14 +170,15 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     if(clientModel->isReleaseVersion() == false)
     {
-        // default to test version
-        windowTitle += " " + tr("[TEST ONLY]");
+         // default to test version
+        QString titleExtra = tr("[TEST ONLY]");
 
         if(clientModel->isRCReleaseVersion() == true)
         {
-            windowTitle += " " + tr("[RELEASE CANDIDATE]");
+            titleExtra = tr("[RELEASE CANDIDATE]");
         }
 
+         windowTitle += " " + titleExtra;
     }
 
     windowTitle += " " + networkStyle->getTitleAddText();
