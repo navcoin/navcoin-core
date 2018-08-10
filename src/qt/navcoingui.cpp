@@ -167,7 +167,23 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     } else {
         windowTitle += tr("Node");
     }
+
+    if(clientModel->isReleaseVersion() == false)
+    {
+         // default to test version
+        QString titleExtra = tr("[TEST ONLY]");
+
+        if(clientModel->isRCReleaseVersion() == true)
+        {
+            titleExtra = tr("[RELEASE CANDIDATE]");
+        }
+
+         windowTitle += " " + titleExtra;
+    }
+
     windowTitle += " " + networkStyle->getTitleAddText();
+
+
 #ifndef Q_OS_MAC
     QApplication::setWindowIcon(networkStyle->getTrayAndWindowIcon());
     setWindowIcon(networkStyle->getTrayAndWindowIcon());
@@ -486,7 +502,7 @@ void NavCoinGUI::createActions()
 void NavCoinGUI::bootstrapBlockchain()
 {
     bool ok = false;
-    QString defaultUrl = "https://nav.nyc3.digitaloceanspaces.com/bootstrap/mainnet/bootstrap-navcoin-" +
+    QString defaultUrl = "https://nav.nyc3.digitaloceanspaces.com/bootstrap/mainnet/bootstrap-navcoin_" +
             QString::fromStdString(Params().NetworkIDString()) + "net.tar";
     QString url = QInputDialog::getText(this, tr("Bootstrap blockchain"),
                                             tr("You can use an external trusted source to download the blockchain from.<BR>The following URL points to a bootstrap copy provided by the NavCoin Core Team.<BR>Where would you like to download it from?"), QLineEdit::Normal,
