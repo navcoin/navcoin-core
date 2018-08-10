@@ -173,7 +173,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
         // default to test version
         windowTitle += " " + tr("[TEST ONLY]");
 
-        if(clientModel->isRCReleaseVersion())
+        if(clientModel->isRCReleaseVersion() == true)
         {
             windowTitle += " " + tr("[RELEASE CANDIDATE]");
         }
