@@ -3708,6 +3708,8 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                 vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
             }
         }
+    } else {
+        AbortNode(state, "Failed to read payment request index, please restart with -reindex-chainstate");
     }
 
     std::vector<CFund::CProposal> vecProposal;
@@ -3779,6 +3781,8 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             if(fUpdate)
                 vecProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
         }
+    } else {
+        AbortNode(state, "Failed to read proposal index, please restart with -reindex-chainstate");
     }
 
     if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
