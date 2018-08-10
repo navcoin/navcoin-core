@@ -187,15 +187,11 @@ bool ClientModel::isRCReleaseVersion() const
 bool ClientModel::isReleaseVersion() const
 {
     // default state is app is a release version
-    bool isRelease = true;
+    bool isRelease = CLIENT_VERSION_IS_RELEASE;
 
-    if (CLIENT_VERSION_IS_RELEASE) {
-
-        // if any other release types are flagged then override
-        if(isRCReleaseVersion() || isTestReleaseVersion()) {
-            isRelease = false;
-        }
-
+    // if any other release types are flagged then override
+    if(isRCReleaseVersion() || isTestReleaseVersion()) {
+        isRelease = false;
     }
 
     return isRelease;
