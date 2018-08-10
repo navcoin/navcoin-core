@@ -596,10 +596,10 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
     }
 
     if (dumpin) {
-        if(nout > -1 && nout >= rawTx.vin.size())
+        if(nout > -1 && (unsigned)nout >= rawTx.vin.size())
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, index out of range");
     } else
-        if(nout > -1 && nout >= rawTx.vout.size())
+        if(nout > -1 && (unsigned)nout >= rawTx.vout.size())
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, index out of range");
 
     return nout > -1 ? (dumpin ? EncodeHexTxIn(rawTx.vin[nout]) : EncodeHexTxOut(rawTx.vout[nout])) : EncodeHexTx(rawTx);
