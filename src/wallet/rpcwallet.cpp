@@ -160,7 +160,7 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
             "\nTODO"
         );
 
-    if (!IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()))
+    if (!IsColdStakingEnabled(pindexBestHeader,Params().GetConsensus()))
         throw runtime_error(
             "Cold Staking is not active yet.");
 

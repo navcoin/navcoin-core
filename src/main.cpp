@@ -1105,6 +1105,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+        if(txout.scriptPubKey.IsColdStaking() && !IsColdStakingEnabled(pindexBestHeader, Params().GetConsensus()))
+            return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
     }
 
     if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
@@ -2527,6 +2529,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
 
     if(IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
         nVersion |= nCFundAccVersionMask;
+
+    if(IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nColdStakingVersionMask;
 
     return nVersion;
 }
@@ -4340,14 +4345,12 @@ bool CheckBlockSignature(const CBlock& block)
 {
     if (block.IsProofOfWork())
     {
-        LogPrintf("CheckBlockSignature: Bad Block - can't check signature of a proof of work block\n");
-        return block.vchBlockSig.empty();
+        return block.vchBlockSig.empty() ? true : error("CheckBlockSignature: Bad Block - can't check signature of a proof of work block\n");
     }
 
     if (block.vchBlockSig.empty())
     {
-        LogPrintf("CheckBlockSignature: Bad Block - vchBlockSig empty\n");
-        return false;
+        return error("CheckBlockSignature: Bad Block - vchBlockSig empty\n");
     }
 
     vector<std::vector<unsigned char>> vSolutions;
@@ -4429,6 +4432,12 @@ bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Param
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_LOCKED_IN);
+}
+
+bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 // Compute at which vout of the block's coinbase transaction the witness
@@ -4522,6 +4531,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
+
+    if((block.nVersion & nColdStakingVersionMask) != nColdStakingVersionMask && IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected no cold-staking block");
 
     return true;
 }
