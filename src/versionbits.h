@@ -35,9 +35,9 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 *
 * ACTIVATION
 *
-* Bit 9 -> SEGWIT
-* Bit 10 -> C FUND
-* Bit 11 -> NTP SYNC
+* Bit 5 -> SEGWIT
+* Bit 6 -> C FUND
+* Bit 7 -> NTP SYNC
 * Bit 12 -> CFUND ACCUMULATION
 * Bit 13 -> COLD STAKING
 *
@@ -46,8 +46,8 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nCFundVersionMask = 0x00000040;
 static const int32_t nNSyncVersionMask = 0x00000080;
-static const int32_t nCFundAccVersionMask = 0x00000100;
-static const int32_t nColdStakingVersionMask = 0x00000200;
+static const int32_t nCFundAccVersionMask = 0x00001000;
+static const int32_t nColdStakingVersionMask = 0x00002000;
 
 enum ThresholdState {
     THRESHOLD_DEFINED,
