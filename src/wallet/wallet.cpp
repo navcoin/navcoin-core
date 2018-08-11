@@ -268,7 +268,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO &&
                                            !pcoin->vout[i].scriptPubKey.IsColdStaking()) ||
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_STAKABLE)) != ISMINE_NO &&
-                                           IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus()))));
+                                           IsColdStakingEnabled(pindexBestHeader, Params().GetConsensus()))));
                 }
         }
     }
