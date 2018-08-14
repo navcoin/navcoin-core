@@ -58,7 +58,7 @@ The Wallet GUI is now fully translated to Spanish and Italian.
  -New argument `-banversion` to ban nodes depending on their broadcasted version
 - Added support to ban nodes with determined wallet versions using the config parameter `banversion`
 - Blocks created with the rpc command `generate` now include a correct timestamp for the coinbase transaction
-- Using the regtest will create a new genesis block on runtime
+- Using the regtest will create a new genesis block on runtime if there is no existing chaindata
 - A new testnet has been initiated
 - The development-focused networks regtest and devnet won't require peers for blocks generation
 - Update copyright notice
