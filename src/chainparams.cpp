@@ -113,6 +113,7 @@ public:
         consensus.nCommunityFundMinAge = 50;
         consensus.nProposalMinimalFee = 10000000000;
         consensus.sigActivationTime = 1512990000;
+        consensus.nStaticReward = 2 * COIN;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -146,6 +147,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
+
+        // Deployment of Static Reward
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -259,6 +265,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nStaticReward = 2 * COIN;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -284,6 +291,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
+
+        // Deployment of Static Reward
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -389,6 +401,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nStaticReward = 2 * COIN;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -404,7 +417,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556668800; // May 1st, 2019
-	    
+
 	// Deployment of NTP Sync
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
@@ -419,6 +432,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
+
+        // Deployment of Static Reward
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -537,6 +555,7 @@ public:
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
         consensus.sigActivationTime = 1512826692;
+        consensus.nStaticReward = 2 * COIN;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -562,6 +581,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
+
+        // Deployment of Static Reward
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
