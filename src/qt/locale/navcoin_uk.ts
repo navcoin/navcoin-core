@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="uk" version="2.1">
+<TS language="uk" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Видалити</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Повторіть пароль</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -70,295 +73,6 @@
     <message>
         <source>Banned Until</source>
         <translation>Заблоковано До</translation>
-    </message>
-</context>
-<context>
-    <name>NavCoinGUI</name>
-    <message>
-        <source>Sign &amp;message...</source>
-        <translation>&amp;Підписати повідомлення...</translation>
-    </message>
-    <message>
-        <source>Synchronizing with network...</source>
-        <translation>Синхронізація з мережею...</translation>
-    </message>
-    <message>
-        <source>&amp;Overview</source>
-        <translation>&amp;Огляд</translation>
-    </message>
-    <message>
-        <source>Node</source>
-        <translation>Вузол</translation>
-    </message>
-    <message>
-        <source>Show general overview of wallet</source>
-        <translation>Показати стан гаманця</translation>
-    </message>
-    <message>
-        <source>&amp;Transactions</source>
-        <translation>&amp;Транзакції</translation>
-    </message>
-    <message>
-        <source>Browse transaction history</source>
-        <translation>Переглянути історію транзакцій</translation>
-    </message>
-    <message>
-        <source>E&amp;xit</source>
-        <translation>&amp;Вихід</translation>
-    </message>
-    <message>
-        <source>Quit application</source>
-        <translation>Вийти</translation>
-    </message>
-    <message>
-        <source>&amp;About %1</source>
-        <translation>П&amp;ро %1</translation>
-    </message>
-    <message>
-        <source>About &amp;Qt</source>
-        <translation>&amp;Про Qt</translation>
-    </message>
-    <message>
-        <source>Show information about Qt</source>
-        <translation>Показати інформацію про Qt</translation>
-    </message>
-    <message>
-        <source>&amp;Options...</source>
-        <translation>&amp;Параметри...</translation>
-    </message>
-    <message>
-        <source>&amp;Encrypt Wallet...</source>
-        <translation>&amp;Шифрування гаманця...</translation>
-    </message>
-    <message>
-        <source>&amp;Backup Wallet...</source>
-        <translation>&amp;Резервне копіювання гаманця...</translation>
-    </message>
-    <message>
-        <source>&amp;Change Passphrase...</source>
-        <translation>Змінити парол&amp;ь...</translation>
-    </message>
-    <message>
-        <source>&amp;Sending addresses...</source>
-        <translation>Адреси для &amp;відправлення...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses...</source>
-        <translation>Адреси для &amp;отримання...</translation>
-    </message>
-    <message>
-        <source>Open &amp;URI...</source>
-        <translation>Відкрити &amp;URI</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk...</source>
-        <translation>Переіндексація блоків на диску ...</translation>
-    </message>
-    <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Відправити монети на вказану адресу</translation>
-    </message>
-    <message>
-        <source>Backup wallet to another location</source>
-        <translation>Резервне копіювання гаманця в інше місце</translation>
-    </message>
-    <message>
-        <source>Change the passphrase used for wallet encryption</source>
-        <translation>Змінити пароль, який використовується для шифрування гаманця</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>В&amp;ікно зневадження</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Відкрити консоль зневадження і діагностики</translation>
-    </message>
-    <message>
-        <source>&amp;Verify message...</source>
-        <translation>П&amp;еревірити повідомлення...</translation>
-    </message>
-    <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Гаманець</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation>&amp;Відправити</translation>
-    </message>
-    <message>
-        <source>&amp;Receive</source>
-        <translation>&amp;Отримати</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>Показа&amp;ти / Приховати</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Показує або приховує головне вікно</translation>
-    </message>
-    <message>
-        <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Зашифрувати закриті ключі, що знаходяться у вашому гаманці</translation>
-    </message>
-    <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Підтвердіть, що Ви є власником повідомлення підписавши його Вашою NavCoin-адресою </translation>
-    </message>
-    <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Перевірте повідомлення для впевненості, що воно підписано вказаною NavCoin-адресою</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Файл</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>&amp;Налаштування</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;Довідка</translation>
-    </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>Панель вкладок</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and navcoin: URIs)</source>
-        <translation>Створити запит платежу (генерує QR-код та navcoin: URI)</translation>
-    </message>
-    <message>
-        <source>Show the list of used sending addresses and labels</source>
-        <translation>Показати список адрес і міток, що були використані для відправлення</translation>
-    </message>
-    <message>
-        <source>Show the list of used receiving addresses and labels</source>
-        <translation>Показати список адрес і міток, що були використані для отримання</translation>
-    </message>
-    <message>
-        <source>Open a navcoin: URI or payment request</source>
-        <translation>Відкрити navcoin: URI чи запит платежу</translation>
-    </message>
-    <message>
-        <source>&amp;Command-line options</source>
-        <translation>П&amp;араметри командного рядка</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n активне з'єднання з мережею NavCoin</numerusform><numerusform>%n активні з'єднання з мережею NavCoin</numerusform><numerusform>%n активних з'єднань з мережею NavCoin</numerusform></translation>
-    </message>
-    <message>
-        <source>No block source available...</source>
-        <translation>Недоступно жодного джерела блоків...</translation>
-    </message>
-    <message numerus="yes">
-        <source>Processed %n block(s) of transaction history.</source>
-        <translation><numerusform>Оброблено %n блок історії транзакцій.</numerusform><numerusform>Оброблено %n блоки історії транзакцій.</numerusform><numerusform>Оброблено %n блоків історії транзакцій.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n година</numerusform><numerusform>%n години</numerusform><numerusform>%n годин</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n день</numerusform><numerusform>%n дні</numerusform><numerusform>%n днів</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n тиждень</numerusform><numerusform>%n тижня</numerusform><numerusform>%n тижнів</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 та %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n рік</numerusform><numerusform>%n роки</numerusform><numerusform>%n років</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 behind</source>
-        <translation>%1 тому</translation>
-    </message>
-    <message>
-        <source>Last received block was generated %1 ago.</source>
-        <translation>Останній отриманий блок було згенеровано %1 тому.</translation>
-    </message>
-    <message>
-        <source>Transactions after this will not yet be visible.</source>
-        <translation>Пізніші транзакції не буде видно.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Помилка</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Попередження</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Інформація</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>Синхронізовано</translation>
-    </message>
-    <message>
-        <source>Catching up...</source>
-        <translation>Синхронізується...</translation>
-    </message>
-    <message>
-        <source>Date: %1
-</source>
-        <translation>Дата: %1
-</translation>
-    </message>
-    <message>
-        <source>Amount: %1
-</source>
-        <translation>Кількість: %1
-</translation>
-    </message>
-    <message>
-        <source>Type: %1
-</source>
-        <translation>Тип: %1
-</translation>
-    </message>
-    <message>
-        <source>Label: %1
-</source>
-        <translation>Мітка: %1
-</translation>
-    </message>
-    <message>
-        <source>Address: %1
-</source>
-        <translation>Адреса: %1
-</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation>Надіслані транзакції</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation>Отримані транзакції</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Зашифрований&lt;/b&gt; гаманець &lt;b&gt;розблоковано&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Зашифрований&lt;/b&gt; гаманець &lt;b&gt;заблоковано&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -439,7 +153,17 @@
         <source>Priority</source>
         <translation>Пріоритет</translation>
     </message>
-</context>
+    <message>
+        <source>none</source>
+        <translation>відсутні</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -462,30 +186,13 @@
         <source>&amp;Address</source>
         <translation>&amp;Адреса</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Буде створено новий каталог даних.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>назва</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Каталог вже існує. Додайте %1, якщо ви мали намір створити там новий каталог.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Шлях вже існує і не є каталогом.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Тут неможливо створити каталог даних.</translation>
-    </message>
-</context>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
 <context>
     <name>HelpMessageDialog</name>
     <message>
@@ -540,30 +247,313 @@
         <translation>Вітання</translation>
     </message>
     <message>
-        <source>Use the default data directory</source>
-        <translation>Використовувати типовий каталог даних</translation>
+        <source>Error</source>
+        <translation>Помилка</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
+<context>
+    <name>NavCoinGUI</name>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation>&amp;Підписати повідомлення...</translation>
     </message>
     <message>
-        <source>Use a custom data directory:</source>
-        <translation>Використовувати свій каталог даних:</translation>
+        <source>Synchronizing with network...</source>
+        <translation>Синхронізація з мережею...</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Помилка: неможливо створити обраний каталог даних «%1».</translation>
+        <source>&amp;Overview</source>
+        <translation>&amp;Огляд</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>Вузол</translation>
+    </message>
+    <message>
+        <source>Show general overview of wallet</source>
+        <translation>Показати стан гаманця</translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation>&amp;Транзакції</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation>Переглянути історію транзакцій</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation>&amp;Вихід</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation>Вийти</translation>
+    </message>
+    <message>
+        <source>&amp;About %1</source>
+        <translation>П&amp;ро %1</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>&amp;Про Qt</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>Показати інформацію про Qt</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation>&amp;Параметри...</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation>&amp;Шифрування гаманця...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>&amp;Резервне копіювання гаманця...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>Змінити парол&amp;ь...</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses...</source>
+        <translation>Адреси для &amp;відправлення...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>Адреси для &amp;отримання...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation>Відкрити &amp;URI</translation>
+    </message>
+    <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>Клієнт буде вимкнено. Продовжити?</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation>Переіндексація блоків на диску ...</translation>
+    </message>
+    <message>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Відправити монети на вказану адресу</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>Резервне копіювання гаманця в інше місце</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation>Змінити пароль, який використовується для шифрування гаманця</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>В&amp;ікно зневадження</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation>Відкрити консоль зневадження і діагностики</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation>П&amp;еревірити повідомлення...</translation>
+    </message>
+    <message>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Гаманець</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation>&amp;Відправити</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation>&amp;Отримати</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation>Показа&amp;ти / Приховати</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>Показує або приховує головне вікно</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>Зашифрувати закриті ключі, що знаходяться у вашому гаманці</translation>
+    </message>
+    <message>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Підтвердіть, що Ви є власником повідомлення підписавши його Вашою NavCoin-адресою </translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Перевірте повідомлення для впевненості, що воно підписано вказаною NavCoin-адресою</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Файл</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation>&amp;Налаштування</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Довідка</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and navcoin: URIs)</source>
+        <translation>Створити запит платежу (генерує QR-код та navcoin: URI)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Показати список адрес і міток, що були використані для відправлення</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Показати список адрес і міток, що були використані для отримання</translation>
+    </message>
+    <message>
+        <source>Open a navcoin: URI or payment request</source>
+        <translation>Відкрити navcoin: URI чи запит платежу</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation>П&amp;араметри командного рядка</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n активне з'єднання з мережею NavCoin</numerusform><numerusform>%n активні з'єднання з мережею NavCoin</numerusform><numerusform>%n активних з'єднань з мережею NavCoin</numerusform><numerusform>%n активних з'єднань з мережею NavCoin</numerusform></translation>
+    </message>
+    <message>
+        <source>No block source available...</source>
+        <translation>Недоступно жодного джерела блоків...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation><numerusform>Оброблено %n блок історії транзакцій.</numerusform><numerusform>Оброблено %n блоки історії транзакцій.</numerusform><numerusform>Оброблено %n блоків історії транзакцій.</numerusform><numerusform>Оброблено %n блоків історії транзакцій.</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation><numerusform>%n година</numerusform><numerusform>%n години</numerusform><numerusform>%n годин</numerusform><numerusform>%n годин</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation><numerusform>%n день</numerusform><numerusform>%n дні</numerusform><numerusform>%n днів</numerusform><numerusform>%n днів</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n week(s)</source>
+        <translation><numerusform>%n тиждень</numerusform><numerusform>%n тижня</numerusform><numerusform>%n тижнів</numerusform><numerusform>%n тижнів</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 та %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n year(s)</source>
+        <translation><numerusform>%n рік</numerusform><numerusform>%n роки</numerusform><numerusform>%n років</numerusform><numerusform>%n років</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation>%1 тому</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>Останній отриманий блок було згенеровано %1 тому.</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>Пізніші транзакції не буде видно.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Так</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Ні</translation>
     </message>
     <message>
         <source>Error</source>
         <translation>Помилка</translation>
     </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>Доступно %n ГБ вільного простору</numerusform><numerusform>Доступно %n ГБ вільного простору</numerusform><numerusform>Доступно %n ГБ вільного простору</numerusform></translation>
+    <message>
+        <source>Warning</source>
+        <translation>Попередження</translation>
     </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(в той час, як необхідно %n ГБ)</numerusform><numerusform>(в той час, як необхідно %n ГБ)</numerusform><numerusform>(в той час, як необхідно %n ГБ)</numerusform></translation>
+    <message>
+        <source>Information</source>
+        <translation>Інформація</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>Синхронізовано</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation>Синхронізується...</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation>Дата: %1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation>Кількість: %1
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation>Тип: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation>Мітка: %1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation>Адреса: %1
+</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation>Надіслані транзакції</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation>Отримані транзакції</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Зашифрований&lt;/b&gt; гаманець &lt;b&gt;розблоковано&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Зашифрований&lt;/b&gt; гаманець &lt;b&gt;заблоковано&lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -582,7 +572,7 @@
         <source>Select payment request file</source>
         <translation>Виберіть файл запиту платежу</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -805,74 +795,17 @@
         <translation>Форма</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Показана інформація вже може бути застарілою. Ваш гаманець буде автоматично синхронізовано з мережею NavCoin після встановлення підключення, але цей процес ще не завершено.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Тільки спостереження:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Наявно:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Ваш поточний підтверджений баланс</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Очікується:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Сума монет у непідтверджених транзакціях</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Незрілі:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Баланс видобутих та ще недозрілих монет</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Баланси</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Всього:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Ваш поточний сукупний баланс</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Ваш поточний баланс в адресах для спостереження</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Доступно:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Останні транзакції</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Непідтверджені транзакції на адреси для спостереження</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Баланс видобутих та ще недозрілих монет на адресах для спостереження</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Поточний сукупний баланс в адресах для спостереження</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -927,6 +860,13 @@
         <translation>%1 мс</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Зберегти зображення...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1268,7 +1208,7 @@
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1287,16 +1227,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Зберегти зображення...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Кількість</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Відправити</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Керування монетами</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1347,28 +1294,12 @@
         <translation>Вказати адресу для решти</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Комісія за передачу:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Виберіть...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>згорнути налаштування оплат</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>за кілобайт</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Якщо комісія встановлюється в 1000 сатоші і розмір транзакції лише 250 байтів, то опція "за кілобайт" встановлює комісію в 250 сатоші, в той час, як "всього щонайменше" - в 1000 сатоші. Для транзакцій більших за кілобайт в обох випадках буде знято комісію за кілобайт.</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Приховати</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1407,24 +1338,8 @@
         <translation>швидкий</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Відправити на декілька адрес</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Дод&amp;ати одержувача</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Очистити всі поля в формі</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Пил:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Очистити &amp;все</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1438,7 +1353,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Відправити</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1454,10 +1369,6 @@
         <translation>&amp;Мітка:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Обрати ранiш використовувану адресу</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Це звичайний платіж.</translation>
     </message>
@@ -1468,14 +1379,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Вставити адресу</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1516,6 +1419,13 @@
     <message>
         <source>Memo:</source>
         <translation>Нотатка:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Так</translation>
     </message>
 </context>
 <context>
@@ -1611,7 +1521,7 @@
         <source>Reset all verify message fields</source>
         <translation>Скинути всі поля перевірки повідомлення</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1627,12 +1537,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Кількість</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Даний діалог показує детальну статистику по вибраній транзакції</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Підтверджені</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1640,6 +1579,38 @@
         <translation>Одиниця виміру монет. Натисніть для вибору іншої.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Відправити</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Експорт...</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Експортувати дані з поточної вкладки в файл</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR-Код</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1943,10 +1914,6 @@
         <translation>Виконати команду при надходженні важливого сповіщення або при спостереженні тривалого розгалуження ланцюжка (замість %s буде підставлено повідомлення)</translation>
     </message>
     <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Комісії (в %s/kB), що менші за вказану, вважатимуться нульовими для зміни, аналізу та створення транзакцій (типово: %s)</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Якщо параметр paytxfee не встановлено, включити комісію для отримання перших підтверджень транзакцій протягом n блоків (типово: %u)</translation>
     </message>
@@ -2223,14 +2190,6 @@
         <translation>Помилка в адресі проксі-сервера: «%s»</translation>
     </message>
     <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Прослуховувати &lt;port&gt; для JSON-RPC з'єднань (типово: %u, для тестової мережі: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Чекати на з'єднання на &lt;port&gt; (типово: %u, для тестової мережі: %u)</translation>
-    </message>
-    <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
         <translation>Підтримувати щонайбільше &lt;n&gt; з'єднань з учасниками (типово: %u)</translation>
     </message>
@@ -2327,4 +2286,18 @@
         <translation>Помилка</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Вилучити</translation>
+    </message>
+    </context>
 </TS>

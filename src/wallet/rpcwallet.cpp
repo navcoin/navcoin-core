@@ -417,8 +417,8 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -559,6 +559,22 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     return ret;
 }
 
+std::string random_string( size_t length )
+{
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
+}
+
 UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -599,6 +615,8 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (!address.GetKeyID(keyID))
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key.");
 
+    EnsureWalletIsUnlocked();
+
     CKey key;
     if (!pwalletMain->GetKey(keyID, key))
         throw JSONRPCError(RPC_WALLET_ERROR, "You are not the owner of the proposal. Can't find the private key.");
@@ -636,8 +654,6 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
-
-    EnsureWalletIsUnlocked();
 
     SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true);
 
@@ -735,8 +751,8 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -841,8 +857,8 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -2735,6 +2751,7 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
             "  \"keypoololdest\": xxxxxx,      (numeric) the timestamp (seconds since GMT epoch) of the oldest pre-generated key in the key pool\n"
             "  \"keypoolsize\": xxxx,          (numeric) how many new keys are pre-generated\n"
             "  \"unlocked_until\": ttt,        (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
+            "  \"unlocked_for_staking\": b,    (boolean) whether the wallet is unlocked just for staking or not\n"
             "  \"paytxfee\": x.xxxx,           (numeric) the transaction fee configuration, set in " + CURRENCY_UNIT + "/kB\n"
             "  \"hdmasterkeyid\": \"<hash160>\", (string) the Hash160 of the HD master pubkey\n"
             "}\n"
@@ -2753,8 +2770,10 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("txcount",       (int)pwalletMain->mapWallet.size()));
     obj.push_back(Pair("keypoololdest", pwalletMain->GetOldestKeyPoolTime()));
     obj.push_back(Pair("keypoolsize",   (int)pwalletMain->GetKeyPoolSize()));
-    if (pwalletMain->IsCrypted())
+    if (pwalletMain->IsCrypted()) {
         obj.push_back(Pair("unlocked_until", nWalletUnlockTime));
+        obj.push_back(Pair("unlocked_for_staking", fWalletUnlockStakingOnly));
+    }
     obj.push_back(Pair("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK())));
     CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
     if (!masterKeyID.IsNull())
@@ -3144,8 +3163,8 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     }
 
     // prepare subtotal range of last 24H, 1 week, 30 days, 1 years
-    int GroupDays[4][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}};
-    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days" };
+    int GroupDays[5][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}, {99999999, 0}};
+    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days", "All" };
 
     nToday = GetTime();
 
@@ -3210,7 +3229,7 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 UniValue resolveopenalias(const UniValue& params, bool fHelp)
 {
   std::string address = params[0].get_str();
-  bool dnssec_valid;
+  bool dnssec_available; bool dnssec_valid;
   UniValue result(UniValue::VOBJ);
 
   if (!EnsureWalletIsAvailable(fHelp))
@@ -3227,9 +3246,10 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
           + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
       );
 
-  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_valid);
+  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_available, dnssec_valid);
 
-  result.push_back(Pair("dnssec",dnssec_valid));
+  result.push_back(Pair("dnssec_available",dnssec_available));
+  result.push_back(Pair("dnssec_valid",dnssec_valid));
 
   if (addresses.empty())
       result.push_back(Pair("address",""));

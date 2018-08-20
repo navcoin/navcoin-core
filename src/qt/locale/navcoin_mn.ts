@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="mn" version="2.1">
+<TS language="mn" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -37,7 +37,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Устгах</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -52,9 +55,80 @@
         <source>Repeat new passphrase</source>
         <translation>Шинэ нууц үгийг давтана уу</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>Хэмжээ:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Тѳлбѳр:</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Хэмжээ</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Огноо</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Баталгаажлаа</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Хаягийг ѳѳрчлѳх</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Шошго</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Хаяг</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>хувилбар</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Хэрэглээ:</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Error</source>
+        <translation>Алдаа</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -176,63 +250,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Amount:</source>
-        <translation>Хэмжээ:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Тѳлбѳр:</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Хэмжээ</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Огноо</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Баталгаажлаа</translation>
-    </message>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Хаягийг ѳѳрчлѳх</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Шошго</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Хаяг</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>хувилбар</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Хэрэглээ:</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Error</source>
-        <translation>Алдаа</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -276,6 +294,9 @@
     </message>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
@@ -288,6 +309,9 @@
         <source>N/A</source>
         <translation>Алга Байна</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -370,12 +394,23 @@
         <source>Remove</source>
         <translation>Устгах</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
         <source>Copy &amp;Address</source>
         <translation>Хаягийг &amp;Хуулбарлах</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Хэмжээ</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Огноо</translation>
     </message>
     </context>
 <context>
@@ -401,18 +436,6 @@
         <translation>Тѳлбѳр:</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Нэгэн зэрэг олон хүлээн авагчруу явуулах</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;Хүлээн авагчийг Нэмэх</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>&amp;Бүгдийг Цэвэрлэ</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation>Баланс:</translation>
     </message>
@@ -424,7 +447,7 @@
         <source>S&amp;end</source>
         <translation>Яв&amp;уул</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -444,14 +467,6 @@
         <translation>Alt+A</translation>
     </message>
     <message>
-        <source>Paste address from clipboard</source>
-        <translation>Копидсон хаягийг буулгах</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>Зурвас:</translation>
     </message>
@@ -459,6 +474,9 @@
         <source>Pay To:</source>
         <translation>Тѳлѳх хаяг:</translation>
     </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -493,14 +511,67 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Огноо</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Хэмжээ</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Гүйлгээний дэлгэрэнгүйг энэ бичил цонх харуулж байна</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Огноо</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Баталгаажлаа</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Огноо</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Зоос явуулах</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Экспортдлох</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Сонгогдсон таб дээрхи дата-г экспортлох</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -553,4 +624,14 @@
         <translation>Алдаа</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Устгах</translation>
+    </message>
+    </context>
 </TS>

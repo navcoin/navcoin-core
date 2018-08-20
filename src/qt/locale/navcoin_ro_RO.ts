@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="ro_RO" version="2.1">
+<TS language="ro_RO" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Şterge</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Repetaţi noua frază de acces</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -70,291 +73,6 @@
     <message>
         <source>Banned Until</source>
         <translation>Banat până la</translation>
-    </message>
-</context>
-<context>
-    <name>NavCoinGUI</name>
-    <message>
-        <source>Sign &amp;message...</source>
-        <translation>Semnează &amp;mesaj...</translation>
-    </message>
-    <message>
-        <source>Synchronizing with network...</source>
-        <translation>Se sincronizează cu reţeaua...</translation>
-    </message>
-    <message>
-        <source>&amp;Overview</source>
-        <translation>&amp;Imagine de ansamblu</translation>
-    </message>
-    <message>
-        <source>Node</source>
-        <translation>Nod</translation>
-    </message>
-    <message>
-        <source>Show general overview of wallet</source>
-        <translation>Arată o stare generală de ansamblu a portofelului</translation>
-    </message>
-    <message>
-        <source>&amp;Transactions</source>
-        <translation>&amp;Tranzacţii</translation>
-    </message>
-    <message>
-        <source>Browse transaction history</source>
-        <translation>Răsfoire istoric tranzacţii</translation>
-    </message>
-    <message>
-        <source>E&amp;xit</source>
-        <translation>Ieşire</translation>
-    </message>
-    <message>
-        <source>Quit application</source>
-        <translation>Închide aplicaţia</translation>
-    </message>
-    <message>
-        <source>About &amp;Qt</source>
-        <translation>Despre &amp;Qt</translation>
-    </message>
-    <message>
-        <source>Show information about Qt</source>
-        <translation>Arată informaţii despre Qt</translation>
-    </message>
-    <message>
-        <source>&amp;Options...</source>
-        <translation>&amp;Opţiuni...</translation>
-    </message>
-    <message>
-        <source>&amp;Encrypt Wallet...</source>
-        <translation>Cript&amp;ează portofelul...</translation>
-    </message>
-    <message>
-        <source>&amp;Backup Wallet...</source>
-        <translation>Face o copie de siguranţă a portofelului...</translation>
-    </message>
-    <message>
-        <source>&amp;Change Passphrase...</source>
-        <translation>S&amp;chimbă parola...</translation>
-    </message>
-    <message>
-        <source>&amp;Sending addresses...</source>
-        <translation>Adrese de trimitere...</translation>
-    </message>
-    <message>
-        <source>&amp;Receiving addresses...</source>
-        <translation>Adrese de p&amp;rimire...</translation>
-    </message>
-    <message>
-        <source>Open &amp;URI...</source>
-        <translation>Deschide &amp;URI...</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk...</source>
-        <translation>Se reindexează blocurile pe disc...</translation>
-    </message>
-    <message>
-        <source>Send coins to a NavCoin address</source>
-        <translation>Trimite monede către o adresă NavCoin</translation>
-    </message>
-    <message>
-        <source>Backup wallet to another location</source>
-        <translation>Creează o copie de rezervă a portofelului într-o locaţie diferită</translation>
-    </message>
-    <message>
-        <source>Change the passphrase used for wallet encryption</source>
-        <translation>Schimbă fraza de acces folosită pentru criptarea portofelului</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>Fereastra de &amp;depanare</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Deschide consola de depanare şi diagnosticare</translation>
-    </message>
-    <message>
-        <source>&amp;Verify message...</source>
-        <translation>&amp;Verifică mesaj...</translation>
-    </message>
-    <message>
-        <source>NavCoin</source>
-        <translation>NavCoin</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Portofel</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation>Trimite</translation>
-    </message>
-    <message>
-        <source>&amp;Receive</source>
-        <translation>P&amp;rimeşte</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>Arată/Ascunde</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Arată sau ascunde fereastra principală</translation>
-    </message>
-    <message>
-        <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Criptează cheile private ale portofelului dvs.</translation>
-    </message>
-    <message>
-        <source>Sign messages with your NavCoin addresses to prove you own them</source>
-        <translation>Semnaţi mesaje cu adresa dvs. NavCoin pentru a dovedi că vă aparţin</translation>
-    </message>
-    <message>
-        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
-        <translation>Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa NavCoin specificată</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;Fişier</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>&amp;Setări</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>A&amp;jutor</translation>
-    </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>Bara de unelte</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and navcoin: URIs)</source>
-        <translation>Cereţi plăţi (generează coduri QR şi navcoin-uri: URls)</translation>
-    </message>
-    <message>
-        <source>Show the list of used sending addresses and labels</source>
-        <translation>Arată lista de adrese trimise şi etichetele folosite.</translation>
-    </message>
-    <message>
-        <source>Show the list of used receiving addresses and labels</source>
-        <translation>Arată lista de adrese pentru primire şi etichetele</translation>
-    </message>
-    <message>
-        <source>Open a navcoin: URI or payment request</source>
-        <translation>Deschidere navcoin: o adresa URI sau o cerere de plată</translation>
-    </message>
-    <message>
-        <source>&amp;Command-line options</source>
-        <translation>Opţiuni linie de &amp;comandă</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n active connection(s) to NavCoin network</source>
-        <translation><numerusform>%n conexiune activă către reţeaua NavCoin</numerusform><numerusform>%n conexiuni active către reţeaua NavCoin</numerusform><numerusform>%n de conexiuni active către reţeaua NavCoin</numerusform></translation>
-    </message>
-    <message>
-        <source>No block source available...</source>
-        <translation>Nici o sursă de bloc disponibilă...</translation>
-    </message>
-    <message numerus="yes">
-        <source>Processed %n block(s) of transaction history.</source>
-        <translation><numerusform>S-a procesat %n bloc din istoricul tranzacţiilor.</numerusform><numerusform>S-au procesat %n blocuri din istoricul tranzacţiilor.</numerusform><numerusform>S-au procesat %n de blocuri din istoricul tranzacţiilor.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n oră</numerusform><numerusform>%n ore</numerusform><numerusform>%n ore</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n zi</numerusform><numerusform>%n zile</numerusform><numerusform>%n de zile</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n săptămână</numerusform><numerusform>%n săptămâni</numerusform><numerusform>%n de săptămâni</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 şi %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n an</numerusform><numerusform>%n ani</numerusform><numerusform>%n de ani</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 behind</source>
-        <translation>%1 în urmă</translation>
-    </message>
-    <message>
-        <source>Last received block was generated %1 ago.</source>
-        <translation>Ultimul bloc recepţionat a fost generat acum %1.</translation>
-    </message>
-    <message>
-        <source>Transactions after this will not yet be visible.</source>
-        <translation>Tranzacţiile după aceasta nu vor fi vizibile încă.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Eroare</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Avertisment</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>Informaţie</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>Actualizat</translation>
-    </message>
-    <message>
-        <source>Catching up...</source>
-        <translation>Se actualizează...</translation>
-    </message>
-    <message>
-        <source>Date: %1
-</source>
-        <translation>Data: %1
-</translation>
-    </message>
-    <message>
-        <source>Amount: %1
-</source>
-        <translation>Sumă: %1
-</translation>
-    </message>
-    <message>
-        <source>Type: %1
-</source>
-        <translation>Tip: %1
-</translation>
-    </message>
-    <message>
-        <source>Label: %1
-</source>
-        <translation>Etichetă: %1
-</translation>
-    </message>
-    <message>
-        <source>Address: %1
-</source>
-        <translation>Adresă: %1
-</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation>Tranzacţie expediată</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation>Tranzacţie recepţionată</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>Portofelul este &lt;b&gt;criptat&lt;/b&gt; iar în momentul de faţă este &lt;b&gt;deblocat&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Portofelul este &lt;b&gt;criptat&lt;/b&gt; iar în momentul de faţă este &lt;b&gt;blocat&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -435,7 +153,17 @@
         <source>Priority</source>
         <translation>Prioritate</translation>
     </message>
-</context>
+    <message>
+        <source>none</source>
+        <translation>nimic</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -458,30 +186,13 @@
         <source>&amp;Address</source>
         <translation>&amp;Adresă</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Va fi creat un nou dosar de date.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>nume</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Dosarul deja există. Adaugă %1 dacă intenţionaţi să creaţi un nou dosar aici.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Calea deja există şi nu este un dosar.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Nu se poate crea un dosar de date aici.</translation>
-    </message>
-</context>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
 <context>
     <name>HelpMessageDialog</name>
     <message>
@@ -540,30 +251,309 @@
         <translation>Bun venit</translation>
     </message>
     <message>
-        <source>Use the default data directory</source>
-        <translation>Foloseşte dosarul de date implicit</translation>
+        <source>Error</source>
+        <translation>Eroare</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
+<context>
+    <name>NavCoinGUI</name>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation>Semnează &amp;mesaj...</translation>
     </message>
     <message>
-        <source>Use a custom data directory:</source>
-        <translation>Foloseşte un dosar de date personalizat:</translation>
+        <source>Synchronizing with network...</source>
+        <translation>Se sincronizează cu reţeaua...</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Eroare: Directorul datelor specificate "%1" nu poate fi creat.</translation>
+        <source>&amp;Overview</source>
+        <translation>&amp;Imagine de ansamblu</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>Nod</translation>
+    </message>
+    <message>
+        <source>Show general overview of wallet</source>
+        <translation>Arată o stare generală de ansamblu a portofelului</translation>
+    </message>
+    <message>
+        <source>&amp;Transactions</source>
+        <translation>&amp;Tranzacţii</translation>
+    </message>
+    <message>
+        <source>Browse transaction history</source>
+        <translation>Răsfoire istoric tranzacţii</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation>Ieşire</translation>
+    </message>
+    <message>
+        <source>Quit application</source>
+        <translation>Închide aplicaţia</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>Despre &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>Arată informaţii despre Qt</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation>&amp;Opţiuni...</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation>Cript&amp;ează portofelul...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>Face o copie de siguranţă a portofelului...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>S&amp;chimbă parola...</translation>
+    </message>
+    <message>
+        <source>&amp;Sending addresses...</source>
+        <translation>Adrese de trimitere...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>Adrese de p&amp;rimire...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation>Deschide &amp;URI...</translation>
+    </message>
+    <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>Clientul va fi închis. Doriţi să continuaţi?</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation>Se reindexează blocurile pe disc...</translation>
+    </message>
+    <message>
+        <source>Send coins to a NavCoin address</source>
+        <translation>Trimite monede către o adresă NavCoin</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>Creează o copie de rezervă a portofelului într-o locaţie diferită</translation>
+    </message>
+    <message>
+        <source>Change the passphrase used for wallet encryption</source>
+        <translation>Schimbă fraza de acces folosită pentru criptarea portofelului</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>Fereastra de &amp;depanare</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation>Deschide consola de depanare şi diagnosticare</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation>&amp;Verifică mesaj...</translation>
+    </message>
+    <message>
+        <source>NavCoin</source>
+        <translation>NavCoin</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Portofel</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation>Trimite</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation>P&amp;rimeşte</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation>Arată/Ascunde</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>Arată sau ascunde fereastra principală</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>Criptează cheile private ale portofelului dvs.</translation>
+    </message>
+    <message>
+        <source>Sign messages with your NavCoin addresses to prove you own them</source>
+        <translation>Semnaţi mesaje cu adresa dvs. NavCoin pentru a dovedi că vă aparţin</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified NavCoin addresses</source>
+        <translation>Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa NavCoin specificată</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;Fişier</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation>&amp;Setări</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>A&amp;jutor</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and navcoin: URIs)</source>
+        <translation>Cereţi plăţi (generează coduri QR şi navcoin-uri: URls)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Arată lista de adrese trimise şi etichetele folosite.</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Arată lista de adrese pentru primire şi etichetele</translation>
+    </message>
+    <message>
+        <source>Open a navcoin: URI or payment request</source>
+        <translation>Deschidere navcoin: o adresa URI sau o cerere de plată</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation>Opţiuni linie de &amp;comandă</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n active connection(s) to NavCoin network</source>
+        <translation><numerusform>%n conexiune activă către reţeaua NavCoin</numerusform><numerusform>%n conexiuni active către reţeaua NavCoin</numerusform><numerusform>%n de conexiuni active către reţeaua NavCoin</numerusform></translation>
+    </message>
+    <message>
+        <source>No block source available...</source>
+        <translation>Nici o sursă de bloc disponibilă...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Processed %n block(s) of transaction history.</source>
+        <translation><numerusform>S-a procesat %n bloc din istoricul tranzacţiilor.</numerusform><numerusform>S-au procesat %n blocuri din istoricul tranzacţiilor.</numerusform><numerusform>S-au procesat %n de blocuri din istoricul tranzacţiilor.</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation><numerusform>%n oră</numerusform><numerusform>%n ore</numerusform><numerusform>%n ore</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation><numerusform>%n zi</numerusform><numerusform>%n zile</numerusform><numerusform>%n de zile</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n week(s)</source>
+        <translation><numerusform>%n săptămână</numerusform><numerusform>%n săptămâni</numerusform><numerusform>%n de săptămâni</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 şi %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n year(s)</source>
+        <translation><numerusform>%n an</numerusform><numerusform>%n ani</numerusform><numerusform>%n de ani</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 behind</source>
+        <translation>%1 în urmă</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>Ultimul bloc recepţionat a fost generat acum %1.</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>Tranzacţiile după aceasta nu vor fi vizibile încă.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Da</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nu</translation>
     </message>
     <message>
         <source>Error</source>
         <translation>Eroare</translation>
     </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB de spaţiu liber disponibil</numerusform><numerusform>%n GB de spaţiu liber disponibil</numerusform><numerusform>%n GB de spaţiu liber disponibil</numerusform></translation>
+    <message>
+        <source>Warning</source>
+        <translation>Avertisment</translation>
     </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(din %n GB necesar)</numerusform><numerusform>(din %n GB necesari)</numerusform><numerusform>(din %n GB necesari)</numerusform></translation>
+    <message>
+        <source>Information</source>
+        <translation>Informaţie</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation>Actualizat</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation>Se actualizează...</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation>Data: %1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation>Sumă: %1
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation>Tip: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation>Etichetă: %1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation>Adresă: %1
+</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation>Tranzacţie expediată</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation>Tranzacţie recepţionată</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation>Portofelul este &lt;b&gt;criptat&lt;/b&gt; iar în momentul de faţă este &lt;b&gt;deblocat&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation>Portofelul este &lt;b&gt;criptat&lt;/b&gt; iar în momentul de faţă este &lt;b&gt;blocat&lt;/b&gt;</translation>
     </message>
 </context>
+<context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -582,7 +572,7 @@
         <source>Select payment request file</source>
         <translation>Selectaţi fişierul cerere de plată</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -789,74 +779,17 @@
         <translation>Form</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Informaţiile afişate pot fi neactualizate. Portofelul dvs. se sincronizează automat cu reţeaua NavCoin după ce o conexiune este stabilită, dar acest proces nu a fost finalizat încă.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Doar-supraveghere:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Disponibil:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Balanţa dvs. curentă de cheltuieli</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>În aşteptare:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Totalul tranzacţiilor care nu sunt confirmate încă şi care nu sunt încă adunate la balanţa de cheltuieli</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Nematurizat:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Balanţa minertită care nu s-a maturizat încă</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Balanţă</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Total:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Balanţa totală curentă</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Soldul dvs. curent în adresele doar-supraveghere</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Cheltuibil:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Tranzacţii recente</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Tranzacţii neconfirmate la adresele doar-supraveghere</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Balanţă minată în adresele doar-supraveghere care nu s-a maturizat încă</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Soldul dvs. total în adresele doar-supraveghere</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -911,6 +844,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Salvează imaginea...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1216,7 +1156,7 @@
         <source>Remove</source>
         <translation>Înlătură</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1235,16 +1175,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Salvează imaginea...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Cantitate</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Trimite monede</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Caracteristici de control ale monedei</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1295,20 +1242,8 @@
         <translation>Adresă personalizată de rest</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Taxă tranzacţie:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Alegeţi...</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>per kilooctet</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Ascunde</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1335,24 +1270,8 @@
         <translation>rapid</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Trimite simultan către mai mulţi destinatari</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Adaugă destinata&amp;r</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Şterge toate cîmpurile formularului.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Praf:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Curăţă to&amp;ate</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1366,7 +1285,7 @@
         <source>S&amp;end</source>
         <translation>Trimit&amp;e</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1382,10 +1301,6 @@
         <translation>&amp;Etichetă:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Alegeţi adrese folosite anterior</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Aceasta este o tranzacţie normală.</translation>
     </message>
@@ -1396,14 +1311,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Lipeşte adresa din clipboard</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1428,6 +1335,13 @@
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Da</translation>
     </message>
 </context>
 <context>
@@ -1519,7 +1433,7 @@
         <source>Reset all verify message fields</source>
         <translation>Resetează toate cîmpurile mesajelor semnate</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1535,12 +1449,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Cantitate</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Acest panou arată o descriere detaliată a tranzacţiei</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Confirmat</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1548,6 +1491,38 @@
         <translation>Unitatea în care sînt arătate sumele. Faceţi clic pentru a selecta o altă unitate.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Trimite monede</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exportă</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Exportă datele din tab-ul curent într-un fişier</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>Cod QR</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1911,4 +1886,18 @@
         <translation>Eroare</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Înlătură</translation>
+    </message>
+    </context>
 </TS>
