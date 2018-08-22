@@ -14,7 +14,7 @@ https://navhub.org/roadmap/
 |:-----------|:-----------|
 | Block Spacing | `30 seconds` |
 | Stake Minimum Age | `2 hours` |
-| Stake Reward | `5% per annum` |
+| Stake Reward | `4% per annum` |
 | Port | `44440` |
 | RPC Port | `44444` |
 
@@ -38,7 +38,7 @@ https://navhub.org/roadmap/
 | Telegram | https://t.me/navcoin |
 | Reddit | http://www.reddit.com/r/navcoin |
 | Facebook | https://www.facebook.com/NAVCoin |
-| Instagram | https://www.instagram.com/nav.coin.official/ |
+| Instagram | https://www.instagram.com/navcore/ |
 | Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
 
 ## Community Resources
