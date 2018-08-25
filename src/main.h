@@ -623,7 +623,7 @@ static const unsigned int MAX_STANDARD_TX_SIZE = MAX_BLOCK_SIZE_GEN/5;
 
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
-bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock* pblock);
+void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo);
 
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
 
