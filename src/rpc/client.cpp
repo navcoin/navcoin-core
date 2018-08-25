@@ -123,6 +123,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "coinstakeoutputs", 0 },
     { "coinstakeinputs", 0 },
     { "forcetransactions", 0 },
+    { "donatefund", 1 },
 
 };
 
