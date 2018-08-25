@@ -2270,8 +2270,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
-    std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
-    std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
 
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
@@ -2280,11 +2278,17 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx)) {
+                std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
                 proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
                 LogPrint("cfund","Erasing proposal %s\n",hash.ToString());
+                if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
+                    return AbortNode(state, "Failed to write proposal index");
+                }
             }
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx)) {
+                std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
+                std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
                 paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
                 LogPrint("cfund","Erasing payment request %s\n",hash.ToString());
                 CFund::CPaymentRequest prequest; CFund::CProposal proposal;
@@ -2295,6 +2299,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         proposalIndex.push_back(make_pair(proposal.hash,proposal));
                         LogPrint("cfund","Erasing payment request %s from parent proposal\n",hash.ToString(),proposal.hash.ToString());
                     }
+                }
+                if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
+                    return AbortNode(state, "Failed to write proposal index");
+                }
+
+                if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex)) {
+                    return AbortNode(state, "Failed to write proposal index");
                 }
             }
         }
@@ -2414,14 +2425,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
             return AbortNode(state, "Failed to write address unspent index");
         }
-    }
-
-    if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
-        return AbortNode(state, "Failed to write proposal index");
-    }
-
-    if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex)) {
-        return AbortNode(state, "Failed to write proposal index");
     }
 
     return fClean;
@@ -2726,8 +2729,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
-    std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
-    std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
 
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
     std::vector<PrecomputedTransactionData> txdata;
@@ -2935,6 +2936,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION){
+            std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
+
             UniValue metadata(UniValue::VOBJ);
             try {
                 UniValue valRequest;
@@ -2963,11 +2966,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.hash = tx.GetHash();
 
             proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
+
+            if (!pblocktree->UpdateProposalIndex(proposalIndex))
+                return AbortNode(state, "Failed to write proposal index");
+
             LogPrint("cfund","New proposal %s\n",tx.GetHash().ToString());
 
         }
 
         if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION){
+            std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
+            std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
+
             UniValue metadata(UniValue::VOBJ);
             try {
                 UniValue valRequest;
@@ -3004,6 +3014,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             proposalIndex.push_back(make_pair(prequest.proposalhash, proposal));
             paymentRequestIndex.push_back(make_pair(tx.GetHash(), prequest));
+
+            if (!pblocktree->UpdateProposalIndex(proposalIndex))
+                return AbortNode(state, "Failed to write proposal index");
+
+            if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex))
+                return AbortNode(state, "Failed to write payment request index");
+
             LogPrint("cfund","New payment request %s\n",tx.GetHash().ToString());
         }
 
@@ -3071,8 +3088,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
                 else {
+                    std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
                     prequest.paymenthash = block.GetHash();
-                    paymentRequestIndex.push_back(make_pair(prequest.hash, prequest));
+                    paymentRequestIndex.push_back(make_pair(prequest.hash, prequest));                
+                    if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex))
+                        return AbortNode(state, "Failed to write payment request index");
                 }
             } else {
                 return state.DoS(100, error("CheckBlock() : coinbase strdzeel %s array does not include a string (%d) at position %d",
@@ -3161,12 +3181,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!pblocktree->WriteTimestampBlockIndex(CTimestampBlockIndexKey(pindex->GetBlockHash()), CTimestampBlockIndexValue(logicalTS)))
             return AbortNode(state, "Failed to write blockhash index");
     }
-
-    if (!pblocktree->UpdateProposalIndex(proposalIndex))
-        return AbortNode(state, "Failed to write proposal index");
-
-    if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex))
-        return AbortNode(state, "Failed to write payment request index");
 
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
