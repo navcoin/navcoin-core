@@ -2935,93 +2935,95 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
           }
         }
 
-        if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION){
-            std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
+        if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
+            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION){
+                std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
 
-            UniValue metadata(UniValue::VOBJ);
-            try {
-                UniValue valRequest;
-                if (!valRequest.read(tx.strDZeel))
-                  return error("ConnectBlock(): Could not read strDZeel of Proposal\n");
+                UniValue metadata(UniValue::VOBJ);
+                try {
+                    UniValue valRequest;
+                    if (!valRequest.read(tx.strDZeel))
+                        return error("ConnectBlock(): Could not read strDZeel of Proposal\n");
 
-                if (valRequest.isObject())
-                  metadata = valRequest.get_obj();
-                else
-                  return error("ConnectBlock(): Could not read strDZeel of Proposal\n");
+                    if (valRequest.isObject())
+                        metadata = valRequest.get_obj();
+                    else
+                        return error("ConnectBlock(): Could not read strDZeel of Proposal\n");
 
-            } catch (const UniValue& objError) {
-              error("ConnectBlock(): Could not read strDZeel of Proposal\n");
-            } catch (const std::exception& e) {
-              return error("ConnectBlock(): Could not read strDZeel of Proposal: %s\n", e.what());
+                } catch (const UniValue& objError) {
+                    error("ConnectBlock(): Could not read strDZeel of Proposal\n");
+                } catch (const std::exception& e) {
+                    return error("ConnectBlock(): Could not read strDZeel of Proposal: %s\n", e.what());
+                }
+
+                CFund::CProposal proposal;
+
+                proposal.nAmount = find_value(metadata, "n").get_int64();
+                proposal.Address = find_value(metadata, "a").get_str();
+                proposal.nDeadline = find_value(metadata, "d").get_int64();
+                proposal.strDZeel = find_value(metadata, "s").get_str();
+                proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
+                proposal.nFee = nProposalFee;
+                proposal.hash = tx.GetHash();
+
+                proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
+
+                if (!pblocktree->UpdateProposalIndex(proposalIndex))
+                    return AbortNode(state, "Failed to write proposal index");
+
+                LogPrint("cfund","New proposal %s\n",tx.GetHash().ToString());
+
             }
 
-            CFund::CProposal proposal;
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION){
+                std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
+                std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
 
-            proposal.nAmount = find_value(metadata, "n").get_int64();
-            proposal.Address = find_value(metadata, "a").get_str();
-            proposal.nDeadline = find_value(metadata, "d").get_int64();
-            proposal.strDZeel = find_value(metadata, "s").get_str();
-            proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
-            proposal.nFee = nProposalFee;
-            proposal.hash = tx.GetHash();
+                UniValue metadata(UniValue::VOBJ);
+                try {
+                    UniValue valRequest;
+                    if (!valRequest.read(tx.strDZeel))
+                        return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
 
-            proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
+                    if (valRequest.isObject())
+                        metadata = valRequest.get_obj();
+                    else
+                        return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
 
-            if (!pblocktree->UpdateProposalIndex(proposalIndex))
-                return AbortNode(state, "Failed to write proposal index");
+                } catch (const UniValue& objError) {
+                    return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
+                } catch (const std::exception& e) {
+                    return error("ConnectBlock(): Could not read strDZeel of Payment Request: %s\n", e.what());
+                }  // May not return ever false, as transactions were already chcked.
 
-            LogPrint("cfund","New proposal %s\n",tx.GetHash().ToString());
+                CFund::CPaymentRequest prequest;
 
-        }
+                prequest.hash = tx.GetHash();
+                prequest.nAmount = find_value(metadata, "n").get_int64();
+                prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
+                prequest.strDZeel = find_value(metadata, "i").get_str();
+                prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
-        if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION){
-            std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
-            std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
+                CFund::CProposal proposal;
+                if(!CFund::FindProposal(prequest.proposalhash, proposal))
+                    return error("ConnectBlock(): Could not find parent proposal of Payment Request: %s\n",
+                                 proposal.hash.ToString(), prequest.proposalhash.ToString());
 
-            UniValue metadata(UniValue::VOBJ);
-            try {
-                UniValue valRequest;
-                if (!valRequest.read(tx.strDZeel))
-                  return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
+                std::vector<uint256>::iterator position = std::find(proposal.vPayments.begin(), proposal.vPayments.end(), tx.hash);
+                if (position == proposal.vPayments.end())
+                    proposal.vPayments.push_back(tx.hash);
 
-                if (valRequest.isObject())
-                  metadata = valRequest.get_obj();
-                else
-                  return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
+                proposalIndex.push_back(make_pair(prequest.proposalhash, proposal));
+                paymentRequestIndex.push_back(make_pair(tx.GetHash(), prequest));
 
-            } catch (const UniValue& objError) {
-                return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
-            } catch (const std::exception& e) {
-                return error("ConnectBlock(): Could not read strDZeel of Payment Request: %s\n", e.what());
-            }  // May not return ever false, as transactions were already chcked.
+                if (!pblocktree->UpdateProposalIndex(proposalIndex))
+                    return AbortNode(state, "Failed to write proposal index");
 
-            CFund::CPaymentRequest prequest;
+                if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex))
+                    return AbortNode(state, "Failed to write payment request index");
 
-            prequest.hash = tx.GetHash();
-            prequest.nAmount = find_value(metadata, "n").get_int64();
-            prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
-            prequest.strDZeel = find_value(metadata, "i").get_str();
-            prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
-
-            CFund::CProposal proposal;
-            if(!CFund::FindProposal(prequest.proposalhash, proposal))
-                return error("ConnectBlock(): Could not find parent proposal of Payment Request: %s\n",
-                             proposal.hash.ToString(), prequest.proposalhash.ToString());
-
-            std::vector<uint256>::iterator position = std::find(proposal.vPayments.begin(), proposal.vPayments.end(), tx.hash);
-            if (position == proposal.vPayments.end())
-                proposal.vPayments.push_back(tx.hash);
-
-            proposalIndex.push_back(make_pair(prequest.proposalhash, proposal));
-            paymentRequestIndex.push_back(make_pair(tx.GetHash(), prequest));
-
-            if (!pblocktree->UpdateProposalIndex(proposalIndex))
-                return AbortNode(state, "Failed to write proposal index");
-
-            if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex))
-                return AbortNode(state, "Failed to write payment request index");
-
-            LogPrint("cfund","New payment request %s\n",tx.GetHash().ToString());
+                LogPrint("cfund","New payment request %s\n",tx.GetHash().ToString());
+            }
         }
 
 
