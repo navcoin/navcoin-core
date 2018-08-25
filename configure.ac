@@ -4,8 +4,10 @@ define(_CLIENT_VERSION_MAJOR, 4)
 define(_CLIENT_VERSION_MINOR, 3)
 define(_CLIENT_VERSION_REVISION, 0)
 define(_CLIENT_VERSION_BUILD, 0)
-define(_CLIENT_VERSION_IS_RELEASE, true)
-define(_COPYRIGHT_YEAR, 2017)
+define(_CLIENT_VERSION_IS_RELEASE, false)
+define(_CLIENT_BUILD_IS_TEST_RELEASE, false)
+define(_CLIENT_BUILD_IS_RELEASE_CANDIDATE, true)
+define(_COPYRIGHT_YEAR, 2018)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[NavCoin Core]])
 AC_INIT([NavCoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/navcoin/navcoin-core/issues],[navcoin],[https://navcoin.org/])
@@ -20,6 +22,20 @@ NAVCOIN_CLI_NAME=navcoin-cli
 NAVCOIN_TX_NAME=navcoin-tx
 
 AC_CANONICAL_HOST
+
+AC_MSG_NOTICE([------------------------------------])
+AC_MSG_NOTICE([------------------------------------])
+AC_MSG_NOTICE([               __                   ])
+AC_MSG_NOTICE([     |\ | _   /   _ . _             ])
+AC_MSG_NOTICE([     | \|(_|\/\__(_)|| |            ])
+AC_MSG_NOTICE([                                    ])
+AC_MSG_NOTICE([     Setting up build for     ])
+AC_MSG_NOTICE([     $host      ])
+AC_MSG_NOTICE([------------------------------------])
+AC_MSG_NOTICE([------------------------------------])
+
+sleep 1
+
 
 AH_TOP([#ifndef NAVCOIN_CONFIG_H])
 AH_TOP([#define NAVCOIN_CONFIG_H])
@@ -331,6 +347,10 @@ case $host in
            CPPFLAGS="$CPPFLAGS -I$bdb_prefix/include"
            LIBS="$LIBS -L$bdb_prefix/lib"
          fi
+         if test x$unbound_prefix != x; then
+            CPPFLAGS="$CPPFLAGS -I$unbound_prefix/include"
+            LIBS="$LIBS -L$unbound_prefix/lib"
+         fi
          if test x$qt5_prefix != x; then
            PKG_CONFIG_PATH="$qt5_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
            export PKG_CONFIG_PATH
@@ -371,6 +391,8 @@ case $host in
      LEVELDB_TARGET_FLAGS="-DOS_${OTHER_OS}"
      ;;
 esac
+
+
 
 if test x$use_pkgconfig = xyes; then
   m4_ifndef([PKG_PROG_PKG_CONFIG], [AC_MSG_ERROR(PKG_PROG_PKG_CONFIG macro not found. Please install pkg-config and re-run autogen.sh.)])
@@ -478,9 +500,21 @@ else
 fi
 
 if test x$TARGET_OS != xwindows; then
+
   # All windows code is PIC, forcing it on just adds useless compile warnings
   AX_CHECK_COMPILE_FLAG([-fPIC],[CFLAGS="-fPIC"])
+
+  # check to see if we are compiling on a x86_64-pc-linux-gnu the force fPIC for QT Build compliance
+  if test x$host == xx86_64-pc-linux-gnu ; then
+    # All windows code is PIC, forcing it on just adds useless compile warnings
+    AX_CHECK_COMPILE_FLAG([-fPIC],[PIC_FLAGS="-fPIC"])
+   fi
+
 fi
+
+
+
+
 
 if test x$use_hardening != xno; then
   AX_CHECK_COMPILE_FLAG([-Wstack-protector],[HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -Wstack-protector"])
@@ -837,6 +871,14 @@ else
   fi
 fi
 
+save_CXXFLAGS="${CXXFLAGS}"
+CXXFLAGS="${CXXFLAGS} ${CRYPTO_CFLAGS} ${SSL_CFLAGS}"
+AC_CHECK_DECLS([EVP_MD_CTX_new],,,[AC_INCLUDES_DEFAULT
+#include <openssl/x509_vfy.h>
+#include <openssl/x509_vfy.h>
+])
+CXXFLAGS="${save_CXXFLAGS}"
+
 dnl univalue check
 
 if test x$system_univalue != xno ; then
@@ -1042,6 +1084,8 @@ AC_DEFINE(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR, [Minor version])
 AC_DEFINE(CLIENT_VERSION_REVISION, _CLIENT_VERSION_REVISION, [Build revision])
 AC_DEFINE(CLIENT_VERSION_BUILD, _CLIENT_VERSION_BUILD, [Version Build])
 AC_DEFINE(CLIENT_VERSION_IS_RELEASE, _CLIENT_VERSION_IS_RELEASE, [Version is release])
+AC_DEFINE(CLIENT_BUILD_IS_TEST_RELEASE, _CLIENT_BUILD_IS_TEST_RELEASE, [Build is a test release])
+AC_DEFINE(CLIENT_BUILD_IS_RELEASE_CANDIDATE, _CLIENT_BUILD_IS_RELEASE_CANDIDATE, [Version is release])
 AC_DEFINE(COPYRIGHT_YEAR, _COPYRIGHT_YEAR, [Copyright year])
 AC_DEFINE(COPYRIGHT_HOLDERS, "_COPYRIGHT_HOLDERS", [Copyright holder(s) before %s replacement])
 AC_DEFINE(COPYRIGHT_HOLDERS_SUBSTITUTION, "_COPYRIGHT_HOLDERS_SUBSTITUTION", [Replacement for %s in copyright holders string])
@@ -1052,6 +1096,8 @@ AC_SUBST(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR)
 AC_SUBST(CLIENT_VERSION_REVISION, _CLIENT_VERSION_REVISION)
 AC_SUBST(CLIENT_VERSION_BUILD, _CLIENT_VERSION_BUILD)
 AC_SUBST(CLIENT_VERSION_IS_RELEASE, _CLIENT_VERSION_IS_RELEASE)
+AC_SUBST(CLIENT_BUILD_IS_TEST_RELEASE, _CLIENT_BUILD_IS_TEST_RELEASE)
+AC_SUBST(CLIENT_BUILD_IS_RELEASE_CANDIDATE, _CLIENT_BUILD_IS_RELEASE_CANDIDATE)
 AC_SUBST(COPYRIGHT_YEAR, _COPYRIGHT_YEAR)
 AC_SUBST(COPYRIGHT_HOLDERS, "_COPYRIGHT_HOLDERS")
 AC_SUBST(COPYRIGHT_HOLDERS_SUBSTITUTION, "_COPYRIGHT_HOLDERS_SUBSTITUTION")

@@ -590,6 +590,22 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     return ret;
 }
 
+std::string random_string( size_t length )
+{
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
+}
+
 UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -3191,12 +3207,12 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     }
 
     // prepare subtotal range of last 24H, 1 week, 30 days, 1 years
-    int GroupDays[4][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}};
-    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days" };
+    int GroupDays[5][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}, {99999999, 0}};
+    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days", "All" };
 
     nToday = GetTime();
 
-    for(int i=0; i<4; i++)
+    for(int i=0; i<5; i++)
     {
         x.Start = nToday - GroupDays[i][0] * n1Day;
         x.End   = nToday - GroupDays[i][1] * n1Day;

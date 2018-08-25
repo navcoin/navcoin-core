@@ -182,7 +182,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             "validateaddress \"navcoinaddress\"\n"
             "\nReturn information about the given navcoin address.\n"
             "\nArguments:\n"
-            "1. \"navcoinaddress\"     (string, required) The navcoin address to validate\n"
+            "1. \"navcoinaddress\"     (string, required) The navcoin address to validate. This may also be an OpenAlias address.\n"
             "\nResult:\n"
             "{\n"
             "  \"isvalid\" : true|false,       (boolean) If the address is valid or not. If not, this is the only property returned.\n"

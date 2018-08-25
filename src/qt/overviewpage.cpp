@@ -162,7 +162,7 @@ OverviewPage::~OverviewPage()
     delete ui;
 }
 
-void OverviewPage::setStakingStats(QString day, QString week, QString month)
+void OverviewPage::setStakingStats(QString day, QString week, QString month, QString year, QString all)
 {
     ui->label24hStakingStats->setText(day);
     ui->label7dStakingStats->setText(week);
@@ -391,11 +391,12 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
     ui->label24hStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
     ui->label7dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
     ui->label30dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-
+    ui->label1yStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
+    ui->labelallStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
 }
 
 
-void OverviewPage::updateStakeReportbalanceChanged(qint64, qint64, qint64, qint64, qint64, qint64, qint64)
+void OverviewPage::updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)
 {
     OverviewPage::updateStakeReportNow();
 }
