@@ -2279,17 +2279,22 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         uint256 hash = tx.GetHash();
 
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx))
+            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx)) {
                 proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
+                LogPrint("cfund","Erasing proposal %s\n",hash.ToString());
+            }
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx)) {
                 paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
+                LogPrint("cfund","Erasing payment request %s\n",hash.ToString());
                 CFund::CPaymentRequest prequest; CFund::CProposal proposal;
                 if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, proposal)) {
                     std::vector<uint256>::iterator position = std::find(proposal.vPayments.begin(), proposal.vPayments.end(), prequest.hash);
-                    if (position != proposal.vPayments.end())
+                    if (position != proposal.vPayments.end()) {
                         proposal.vPayments.erase(position);
-                    proposalIndex.push_back(make_pair(proposal.hash,proposal));
+                        proposalIndex.push_back(make_pair(proposal.hash,proposal));
+                        LogPrint("cfund","Erasing payment request %s from parent proposal\n",hash.ToString(),proposal.hash.ToString());
+                    }
                 }
             }
         }
@@ -2958,6 +2963,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             proposal.hash = tx.GetHash();
 
             proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
+            LogPrint("cfund","New proposal %s\n",tx.GetHash().ToString());
+
         }
 
         if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION){
@@ -2997,6 +3004,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             proposalIndex.push_back(make_pair(prequest.proposalhash, proposal));
             paymentRequestIndex.push_back(make_pair(tx.GetHash(), prequest));
+            LogPrint("cfund","New payment request %s\n",tx.GetHash().ToString());
         }
 
 
