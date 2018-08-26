@@ -2497,8 +2497,10 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
         nVersion |= nCFundAccVersionMask;
 
-    if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nStaticRewardVersionMask;
+    // if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
+    //     nVersion |= nStaticRewardVersionMask;
+    //
+    // LogPrintf("IsStaticRewardEnabled %s \n", IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()) ? "true" : "false");
 
     return nVersion;
 }
@@ -2875,10 +2877,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
               pindex->strDZeel = tx.strDZeel;
 
-              if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
-              return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
-                                          nStakeReward, Params().GetConsensus().nStaticReward),
-                  REJECT_INVALID, "bad-static-stake-amount");
+              // if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
+              // return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
+              //                             nStakeReward, Params().GetConsensus().nStaticReward),
+              //     REJECT_INVALID, "bad-static-stake-amount");
 
               if(IsCommunityFundAccumulationEnabled(pindex->pprev, Params().GetConsensus(), false))
               {
@@ -4433,9 +4435,13 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
 
-    if((block.nVersion & nStaticRewardVersionMask) != nStaticRewardVersionMask && IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
-       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                          "rejected no static reward block");
+    // LogPrintf("IsStaticRewardEnabled 2 %s\n", IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()) ? "true" : "false");
+    // LogPrintf("nStaticRewardVersionMask %i\n", nStaticRewardVersionMask);
+    // LogPrintf("block.nVersion %i\n", block.nVersion);
+
+    // if((block.nVersion & nStaticRewardVersionMask) != nStaticRewardVersionMask && IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
+    //    return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+    //                       "rejected no static reward block");
 
     return true;
 }
@@ -6118,7 +6124,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                   pfrom->cleanSubVer, pfrom->nVersion,
                   pfrom->nStartingHeight, addrMe.ToString(), pfrom->id,
                   remoteAddr);
-	    
+
         if (mapMultiArgs.count("-banversion") > 0)
         {
             std::vector<std::string> vBannedVersions = mapMultiArgs["-banversion"];
