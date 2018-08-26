@@ -502,14 +502,14 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
             "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
-            "3. deadline               (numeric, required) Epoch timestamp when the proposal would expire.\n"
+            "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
             "4. \"desc\"               (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 1509151016 \"Development\"")
+            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 86400 \"Development\"")
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -540,6 +540,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("a",Address));
     strDZeel.push_back(Pair("d",nDeadline));
     strDZeel.push_back(Pair("s",sDesc));
+    strDZeel.push_back(Pair("v",CFund::CProposal::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -623,8 +624,11 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     std::string id = params[2].get_str();
+    std::string sRandom = random_string(16);
 
-    std::string Secret = "I kindly ask to withdraw " + std::to_string(nReqAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + id;
+    std::string Secret = sRandom + "I kindly ask to withdraw " +
+            std::to_string(nReqAmount) + "NAV from the proposal " +
+            proposal.hash.ToString() + ". Payment request id: " + id;
 
     CHashWriter ss(SER_GETHASH, 0);
     ss << strMessageMagic;
@@ -647,7 +651,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("h",params[0].get_str()));
     strDZeel.push_back(Pair("n",nReqAmount));
     strDZeel.push_back(Pair("s",Signature));
+    strDZeel.push_back(Pair("r",sRandom));
     strDZeel.push_back(Pair("i",id));
+    strDZeel.push_back(Pair("v",CFund::CPaymentRequest::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
@@ -3268,7 +3274,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
     {
         CFund::CProposal proposal;
-        if(pcfundindex->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
         {
             if(vAddedProposalVotes[i].second)
             {
@@ -3347,7 +3353,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
         {
             if(vAddedPaymentRequestVotes[i].second)
             {
