@@ -70,7 +70,7 @@ struct Params {
     int64_t nPowTargetTimespan;
     int nLastPOWBlock;
 
-    int nVotingPeriod;
+    int nBlocksPerVotingCycle;
     int nQuorumVotes;
     float nVotesAcceptProposal;
     float nVotesRejectProposal;
@@ -81,6 +81,10 @@ struct Params {
     int64_t nProposalMinimalFee;
     int nBlockSpreadCFundAccumulation;
     CAmount nCommunityFundAmount;
+    unsigned int nCyclesProposalVoting;
+    unsigned int nCyclesPaymentRequestVoting;
+    int nPaymentRequestMaxVersion;
+    int nProposalMaxVersion;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;
@@ -92,6 +96,7 @@ struct Params {
     unsigned int nModifierInterval; // time to elapse before new modifier is computed
     int64_t sigActivationTime;
     int64_t nCoinbaseTimeActivationHeight;
+    int64_t nMaxFutureDrift;
 
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
 };
