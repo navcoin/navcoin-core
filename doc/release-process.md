@@ -29,7 +29,7 @@ E.g: `v2.5.0-rc.1`, `v2.5.0-rc.2`, `v2.5.0-rc.3`
 
 * PATCH - 2 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
-* MINOR - 6 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+* MINOR - 4 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
 * MAJOR - 8 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
@@ -40,7 +40,7 @@ Please note any type of network security or stability issues will be prioritized
 
 Before every release candidate:
 
-* Update translations see [translation_process.md](https://github.com/navcoin/navcoin/blob/master/doc/translation_process.md#synchronising-translations).
+* Update translations see [translation_process.md](https://github.com/navcoin/navcoin-core/blob/master/doc/translation_process.md#synchronising-translations).
 
 Before every minor and major release:
 

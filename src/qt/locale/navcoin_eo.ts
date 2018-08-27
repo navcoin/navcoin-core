@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="eo" version="2.1">
+<TS language="eo" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Forigi</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,9 +63,160 @@
         <source>Repeat new passphrase</source>
         <translation>Ripetu la novan pasfrazon</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Quantity:</source>
+        <translation>Kvanto:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Bajtoj:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Sumo:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Prioritato:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Krompago:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Polvo:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Post krompago:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Restmono:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(mal)elekti ĉion</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Arboreĝimo</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Listreĝimo</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Sumo</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Ricevita kun etikedo</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Ricevita kun adreso</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Konfirmoj</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Konfirmita</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioritato</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>neniu</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Redakti Adreson</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Etikedo</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>La etikedo ligita al tiu ĉi adreslistero</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>La adreso ligita al tiu ĉi adreslistero. Eblas modifi tion nur por sendaj adresoj.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Adreso</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>versio</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Komandliniaj agordaĵoj</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Uzado:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>komandliniaj agordaĵoj</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>Uzantinterfaco ebloj:</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Bonvenon</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Eraro</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -215,10 +369,6 @@
         <translation>&amp;Helpo</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Langeto-breto</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Peti pagon (kreas QR-kodojn kaj URI-ojn kun prefikso navcoin:)</translation>
     </message>
@@ -342,171 +492,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Quantity:</source>
-        <translation>Kvanto:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Bajtoj:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Sumo:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioritato:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Krompago:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Polvo:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Post krompago:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Restmono:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(mal)elekti ĉion</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Arboreĝimo</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Listreĝimo</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Sumo</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Ricevita kun etikedo</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Ricevita kun adreso</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Dato</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Konfirmoj</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Konfirmita</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioritato</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Redakti Adreson</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Etikedo</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>La etikedo ligita al tiu ĉi adreslistero</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>La adreso ligita al tiu ĉi adreslistero. Eblas modifi tion nur por sendaj adresoj.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Adreso</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Kreiĝos nova dosierujo por la datumoj.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>nomo</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Tiu dosierujo jam ekzistas. Aldonu %1 si vi volas krei novan dosierujon ĉi tie.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Vojo jam ekzistas, kaj ne estas dosierujo.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Ne eblas krei dosierujon por datumoj ĉi tie.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>versio</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Komandliniaj agordaĵoj</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Uzado:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>komandliniaj agordaĵoj</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Uzantinterfaco ebloj:</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Bonvenon</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Uzi la defaŭltan dosierujon por datumoj</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Uzi alian dosierujon por datumoj:</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Eraro</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n gigabajto de libera loko disponeble</numerusform><numerusform>%n gigabajtoj de libera loko disponebla.</numerusform></translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -526,7 +512,7 @@
         <source>Select payment request file</source>
         <translation>Elektu la dosieron de la pagpeto</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -668,46 +654,9 @@
         <source>Form</source>
         <translation>Formularo</translation>
     </message>
-    <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Eblas, ke la informoj videblaj ĉi tie estas eksdataj. Via monujo aŭtomate sinkoniĝas kun la bitmona reto kiam ili konektiĝas, sed tiu procezo ankoraŭ ne finfariĝis.</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>via aktuala elspezebla saldo</translation>
-    </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>la sumo de transakcioj ankoraŭ ne konfirmitaj, kiuj ankoraŭ ne elspezeblas</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Nematura:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Minita saldo, kiu ankoraŭ ne maturiĝis</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Saldoj</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Totalo:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>via aktuala totala saldo</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Elspezebla:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Lastaj transakcioj</translation>
-    </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -737,6 +686,13 @@
     <message>
         <source>N/A</source>
         <translation>neaplikebla</translation>
+    </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Konservi Bildon...</translation>
     </message>
     </context>
 <context>
@@ -920,7 +876,7 @@
         <source>Remove</source>
         <translation>Forigi</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -939,16 +895,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Konservi Bildon...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Sumo</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Sendi Bitmonon</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Monregaj Opcioj</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -987,28 +950,8 @@
         <translation>Restmono:</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Krompago:</translation>
-    </message>
-    <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Sendi samtempe al pluraj ricevantoj</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Aldoni &amp;Ricevonton</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Malplenigi ĉiujn kampojn de la formularo.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Polvo:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>&amp;Forigi Ĉion</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1022,7 +965,7 @@
         <source>S&amp;end</source>
         <translation>Ŝendi</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1038,24 +981,12 @@
         <translation>&amp;Etikedo:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Elektu la jam uzitan adreson</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Tio estas normala pago.</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Alglui adreson de tondejo</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1077,7 +1008,10 @@
         <source>Memo:</source>
         <translation>Memorando:</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     <message>
@@ -1155,7 +1089,7 @@
         <source>Reset all verify message fields</source>
         <translation>Reagordigi ĉiujn prikontrolajn kampojn</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1171,14 +1105,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Sumo</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Tiu ĉi panelo montras detalan priskribon de la transakcio</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Konfirmita</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Sendi Bitmonon</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Eksporti</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Eksporti la datumojn el la aktuala langeto al dosiero</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Formularo</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR-kodo</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1415,4 +1410,18 @@
         <translation>Eraro</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formularo</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Forigi</translation>
+    </message>
+    </context>
 </TS>

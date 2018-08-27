@@ -66,7 +66,7 @@ CFeeRate CWallet::fallbackFee = CFeeRate(DEFAULT_FALLBACK_FEE);
 
 
 int64_t nReserveBalance = 0;
-int64_t nMinimumInputValue = 0;
+int64_t nMinimumInputValue = GetArg("-mininputvalue", 1 * COIN);
 
 const uint256 CMerkleTx::ABANDON_HASH(uint256S("0000000000000000000000000000000000000000000000000000000000000001"));
 
@@ -1759,7 +1759,8 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
     if (nDebit > 0) // debit>0 means we signed/sent this transaction
     {
         CAmount nValueOut = GetValueOut();
-        nFee = nDebit - nValueOut;
+        CAmount nValueOutCFund = GetValueOutCFund();
+        nFee = nDebit - nValueOut + nValueOutCFund;
     }
 
     // Sent/received.

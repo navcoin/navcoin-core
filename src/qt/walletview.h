@@ -133,7 +133,7 @@ public Q_SLOTS:
 
     void showLockStaking(bool status);
     void setStakingStatus(QString text);
-    void setStakingStats(QString day, QString week, QString month);
+    void setStakingStats(QString day, QString week, QString month, QString year, QString all);
     void requestAddressHistory();
 
 Q_SIGNALS:

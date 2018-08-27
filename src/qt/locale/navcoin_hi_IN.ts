@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="hi_IN" version="2.1">
+<TS language="hi_IN" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -13,7 +13,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;मिटाए !!</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -28,9 +31,76 @@
         <source>Repeat new passphrase</source>
         <translation>दोबारा नया पहचान शब्द/अक्षर डालिए !</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>राशि :</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>राशि</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>taareek</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>पक्का</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>पता एडिट करना</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;लेबल</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;पता</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>संस्करण</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>खपत :</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Error</source>
+        <translation>भूल</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -96,10 +166,6 @@
         <translation>&amp;मदद</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>टैबस टूलबार</translation>
-    </message>
-    <message>
         <source>%1 behind</source>
         <translation>%1 पीछे</translation>
     </message>
@@ -137,59 +203,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Amount:</source>
-        <translation>राशि :</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>राशि</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>taareek</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>पक्का</translation>
-    </message>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>पता एडिट करना</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;लेबल</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;पता</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>संस्करण</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>खपत :</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Error</source>
-        <translation>भूल</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -221,6 +235,9 @@
     </message>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
@@ -234,6 +251,9 @@
         <translation>लागू नही
 </translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -264,6 +284,17 @@
         <source>Copy &amp;Address</source>
         <translation>&amp;पता कॉपी करे</translation>
     </message>
+    <message>
+        <source>Amount</source>
+        <translation>राशि</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>taareek</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -274,10 +305,6 @@
     <message>
         <source>Amount:</source>
         <translation>राशि :</translation>
-    </message>
-    <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>एक साथ कई प्राप्तकर्ताओं को भेजें</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -307,17 +334,12 @@
         <translation>Alt-A</translation>
     </message>
     <message>
-        <source>Paste address from clipboard</source>
-        <translation>Clipboard से एड्रेस paste करें</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt-P</translation>
-    </message>
-    <message>
         <source>Pay To:</source>
         <translation>प्राप्तकर्ता:</translation>
     </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -352,14 +374,63 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>taareek</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>राशि</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation> ये खिड़की आपको लेन-देन का विस्तृत विवरण देगी !</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>taareek</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>पक्का</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>taareek</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>सिक्के भेजें|</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>फार्म</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -416,4 +487,14 @@
         <translation>भूल</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>फार्म</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>
