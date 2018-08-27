@@ -174,9 +174,27 @@ QString ClientModel::formatSubVersion() const
     return QString::fromStdString(strSubVersion);
 }
 
+bool ClientModel::isTestReleaseVersion() const
+{
+    return CLIENT_BUILD_IS_TEST_RELEASE;
+}
+
+bool ClientModel::isRCReleaseVersion() const
+{
+    return CLIENT_BUILD_IS_RELEASE_CANDIDATE;
+}
+
 bool ClientModel::isReleaseVersion() const
 {
-    return CLIENT_VERSION_IS_RELEASE;
+    // default state is app is a release version
+    bool isRelease = CLIENT_VERSION_IS_RELEASE;
+
+    // if any other release types are flagged then override
+    if(isRCReleaseVersion() || isTestReleaseVersion()) {
+        isRelease = false;
+    }
+
+    return isRelease;
 }
 
 QString ClientModel::formatClientStartupTime() const

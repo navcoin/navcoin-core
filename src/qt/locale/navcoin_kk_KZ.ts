@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="kk_KZ" version="2.1">
+<TS language="kk_KZ" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -25,7 +25,10 @@
         <source>&amp;Delete</source>
         <translation>Жою</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -40,9 +43,88 @@
         <source>Repeat new passphrase</source>
         <translation>Жаңа құпия сөзді қайта енгізу</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>Саны</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Басымдық</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Комиссия</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Шаң</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Комиссия алу кейін</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Саны</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Күні</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Растау саны</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Растық</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Басымдық</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>&amp;Label</source>
+        <translation>таңба</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>Адрес</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Error</source>
+        <translation>қате</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -92,15 +174,15 @@
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
-        <translation><numerusform>%n сағат</numerusform></translation>
+        <translation><numerusform>%n сағат</numerusform><numerusform>%n сағат</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
-        <translation><numerusform>%n күн</numerusform></translation>
+        <translation><numerusform>%n күн</numerusform><numerusform>%n күн</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>%n week(s)</source>
-        <translation><numerusform>%n апта</numerusform></translation>
+        <translation><numerusform>%n апта</numerusform><numerusform>%n апта</numerusform></translation>
     </message>
     <message>
         <source>%1 and %2</source>
@@ -108,7 +190,7 @@
     </message>
     <message numerus="yes">
         <source>%n year(s)</source>
-        <translation><numerusform>%n жыл</numerusform></translation>
+        <translation><numerusform>%n жыл</numerusform><numerusform>%n жыл</numerusform></translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -132,71 +214,7 @@
     </message>
     </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Amount:</source>
-        <translation>Саны</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Басымдық</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Комиссия</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Шаң</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Комиссия алу кейін</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Саны</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Күні</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Растау саны</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Растық</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Басымдық</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>&amp;Label</source>
-        <translation>таңба</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>Адрес</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Error</source>
-        <translation>қате</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -212,6 +230,9 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
@@ -220,6 +241,9 @@
         <source>Amount</source>
         <translation>Саны</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -237,6 +261,17 @@
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
+    <message>
+        <source>Amount</source>
+        <translation>Саны</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Күні</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -269,6 +304,9 @@
     </message>
     </context>
 <context>
+    <name>SendConfirmationDialog</name>
+    </context>
+<context>
     <name>ShutdownWindow</name>
     </context>
 <context>
@@ -281,10 +319,55 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Күні</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Саны</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Күні</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Растық</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Күні</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>Экспорт</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -309,4 +392,10 @@
         <translation>қате</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>
