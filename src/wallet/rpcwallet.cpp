@@ -3228,7 +3228,6 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 
 UniValue resolveopenalias(const UniValue& params, bool fHelp)
 {
-  std::string address = params[0].get_str();
   bool dnssec_available; bool dnssec_valid;
   UniValue result(UniValue::VOBJ);
 
@@ -3237,14 +3236,16 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
   if ((fHelp || params.size() != 1))
       throw runtime_error(
-          "resolveopenalias \"address\"\n"
-          "\nResolves the give OpenAlias address to a NavCoin address.\n"
+          "resolveopenallias \"openAlias\"\n"
+          "\nResolves the given OpenAlias address to a NavCoin address.\n"
           "\nArguments:\n"
           "1. \"address\"    (string) The OpenAlias address.\n"
           "\nExamples:\n"
           "\nGet information about an OpenAlias address\n"
           + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
       );
+
+  std::string address = params[0].get_str();
 
   std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_available, dnssec_valid);
 
