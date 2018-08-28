@@ -23,6 +23,8 @@ static const int32_t nCFundVersionMask = 0x00000040;
 static const int32_t nNSyncVersionMask = 0x00000080;
 static const int32_t nCFundAccVersionMask = 0x00000100;
 
+static const int32_t nStaticRewardVersionMask = 0x00008000;
+
 enum ThresholdState {
     THRESHOLD_DEFINED,
     THRESHOLD_STARTED,

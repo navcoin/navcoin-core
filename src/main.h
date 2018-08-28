@@ -506,6 +506,10 @@ bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Para
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict = true);
 
+/** Check whether the static reward has been activated **/
+bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
