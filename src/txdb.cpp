@@ -20,13 +20,12 @@ static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
 static const char DB_PROPINDEX = 'p';
-static const char DB_PROP_TIP_HEIGHT = 't';
 static const char DB_PREQINDEX = 'r';
 static const char DB_ADDRESSINDEX = 'a';
 static const char DB_ADDRESSUNSPENTINDEX = 'u';
 static const char DB_TIMESTAMPINDEX = 's';
 static const char DB_BLOCKHASHINDEX = 'z';
-static const char DB_SPENTINDEX = 'p';
+static const char DB_SPENTINDEX = 'P';
 static const char DB_BLOCK_INDEX = 'b';
 
 static const char DB_BEST_BLOCK = 'B';
