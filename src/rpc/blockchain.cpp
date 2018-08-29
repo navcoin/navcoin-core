@@ -968,6 +968,8 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
                 continue;
             if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 continue;
+            if (mapBlockIndex.count(proposal.blockhash) == 0)
+                continue;
 
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
