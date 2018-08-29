@@ -6,6 +6,7 @@
 #ifndef NAVCOIN_CONSENSUS_PARAMS_H
 #define NAVCOIN_CONSENSUS_PARAMS_H
 
+#include "amount.h"
 #include "uint256.h"
 #include <map>
 #include <string>
@@ -22,6 +23,7 @@ enum DeploymentPos
     DEPLOYMENT_SEGWIT_LEGACY,
     DEPLOYMENT_COMMUNITYFUND,
     DEPLOYMENT_COMMUNITYFUND_ACCUMULATION,
+    DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD,
     DEPLOYMENT_NTPSYNC,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
@@ -77,6 +79,8 @@ struct Params {
     float nMinimumQuorum;
     int nCommunityFundMinAge;
     int64_t nProposalMinimalFee;
+    int nBlockSpreadCFundAccumulation;
+    CAmount nCommunityFundAmount;
     unsigned int nCyclesProposalVoting;
     unsigned int nCyclesPaymentRequestVoting;
     int nPaymentRequestMaxVersion;
