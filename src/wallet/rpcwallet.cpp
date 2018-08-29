@@ -73,7 +73,10 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     {
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
         entry.push_back(Pair("blockindex", wtx.nIndex));
-        entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        if (mapBlockIndex.count(wtx.hashBlock) > 0)
+            entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        else
+            entry.push_back(Pair("blocktime", 0));
     } else {
         entry.push_back(Pair("trusted", wtx.IsTrusted()));
     }

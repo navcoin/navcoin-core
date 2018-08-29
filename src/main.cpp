@@ -2760,6 +2760,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         votes[hash] = vote;
                         CFund::CPaymentRequest prequest; CFund::CProposal proposal;
                         if(CFund::FindPaymentRequest(hash, prequest) && CFund::FindProposal(prequest.proposalhash, proposal)) {
+                            if (mapBlockIndex.count(proposal.blockhash) == 0)
+                                continue;
                             CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                             if(pblockindex == NULL)
                                 continue;
@@ -3082,6 +3084,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 bool fValidAddress = ExtractDestination(block.vtx[0].vout[i].scriptPubKey, address);
                 if(!fValidAddress)
                     return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
+                if (mapBlockIndex.count(prequest.blockhash) == 0)
+                    continue;
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
                 if(pblockindex == NULL)
                     continue;
@@ -3582,6 +3586,8 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
             if(!CFund::FindProposal(prequest.proposalhash, proposal))
+                continue;
+            if (mapBlockIndex.count(proposal.blockhash) == 0)
                 continue;
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
