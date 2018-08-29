@@ -2522,6 +2522,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nColdStakingVersionMask;
 
+    if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nCFundAccSpreadVersionMask;
+
     return nVersion;
 }
 
@@ -2905,17 +2908,24 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
               if(IsCommunityFundAccumulationEnabled(pindex->pprev, Params().GetConsensus(), false))
               {
+                  int nMultiplier = 1;
 
-                if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution())
-                  return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
-                                   REJECT_INVALID, "no-cf-amount");
+                  if(IsCommunityFundAccumulationSpreadEnabled(pindex->pprev, Params().GetConsensus()))
+                  {
+                      nMultiplier = (pindex->nHeight % Params().GetConsensus().nBlockSpreadCFundAccumulation) == 0 ? Params().GetConsensus().nBlockSpreadCFundAccumulation : 0;
 
-                if(tx.vout[tx.vout.size() - 1].nValue != COMMUNITY_FUND_AMOUNT)
-                  return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
-                                              tx.vout[tx.vout.size() - 1].nValue, COMMUNITY_FUND_AMOUNT),
-                      REJECT_INVALID, "bad-cf-amount");
+                  }
 
-                nStakeReward -= COMMUNITY_FUND_AMOUNT;
+                  if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution() && nMultiplier > 0)
+                    return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
+                                     REJECT_INVALID, "no-cf-amount");
+
+                  if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmount * nMultiplier && nMultiplier > 0)
+                    return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
+                                                tx.vout[tx.vout.size() - 1].nValue, Params().GetConsensus().nCommunityFundAmount * nMultiplier),
+                        REJECT_INVALID, "bad-cf-amount");
+
+                  nStakeReward -= Params().GetConsensus().nCommunityFundAmount * nMultiplier;
 
               }
 
@@ -4510,6 +4520,12 @@ bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Con
           (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -4620,6 +4636,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
             return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                                "rejected no cold-staking block");
     }
+
+    if((block.nVersion & nCFundAccSpreadVersionMask) != nCFundAccSpreadVersionMask && IsCommunityFundAccumulationSpreadEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                           "rejected no cfund accumulation spread block");
 
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),

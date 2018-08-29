@@ -316,7 +316,7 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
 
 bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key)
 {
-    CBlockIndex* pindexPrev = pindexBestHeader;
+    CBlockIndex* pindexPrev = chainActive.Tip();
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
 
@@ -549,10 +549,23 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     // Adds Community Fund output if enabled
     if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
     {
-        int fundIndex = txNew.vout.size() + 1;
-        txNew.vout.resize(fundIndex);
-        CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
-        txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
+        if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev, Params().GetConsensus()))
+        {
+            if((pindexPrev->nHeight + 1) % Params().GetConsensus().nBlockSpreadCFundAccumulation == 0)
+            {
+                int fundIndex = txNew.vout.size() + 1;
+                txNew.vout.resize(fundIndex);
+                CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+                txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+            }
+        }
+        else
+        {
+            int fundIndex = txNew.vout.size() + 1;
+            txNew.vout.resize(fundIndex);
+            CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+            txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount;
+        }
     }
 
     txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;

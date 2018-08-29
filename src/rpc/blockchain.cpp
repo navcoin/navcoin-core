@@ -1278,6 +1278,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION);
     BIP9SoftForkDescPushBack(bip9_softforks, "ntpsync", consensusParams, Consensus::DEPLOYMENT_NTPSYNC);
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING);
+    BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 
