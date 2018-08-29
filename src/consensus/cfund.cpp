@@ -326,7 +326,7 @@ bool CFund::IsValidProposal(CTransaction tx)
             nVersion <= Params().GetConsensus().nProposalMaxVersion);
 
     if (!ret)
-        return error("%s: Wrong strdzeel %s for proposal %s: %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
+        return error("%s: Wrong strdzeel %s for proposal %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
 
     return true;
 

@@ -73,7 +73,10 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     {
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
         entry.push_back(Pair("blockindex", wtx.nIndex));
-        entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        if (mapBlockIndex.count(wtx.hashBlock) > 0)
+            entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        else
+            entry.push_back(Pair("blocktime", 0));
     } else {
         entry.push_back(Pair("trusted", wtx.IsTrusted()));
     }
@@ -562,6 +565,10 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
+
+    if(nDeadline <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong deadline");
+
     string sDesc = params[3].get_str();
 
     UniValue strDZeel(UniValue::VOBJ);
@@ -3276,7 +3283,6 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 
 UniValue resolveopenalias(const UniValue& params, bool fHelp)
 {
-  std::string address = params[0].get_str();
   bool dnssec_available; bool dnssec_valid;
   UniValue result(UniValue::VOBJ);
 
@@ -3285,14 +3291,16 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
   if ((fHelp || params.size() != 1))
       throw runtime_error(
-          "resolveopenalias \"address\"\n"
-          "\nResolves the give OpenAlias address to a NavCoin address.\n"
+          "resolveopenallias \"openAlias\"\n"
+          "\nResolves the given OpenAlias address to a NavCoin address.\n"
           "\nArguments:\n"
           "1. \"address\"    (string) The OpenAlias address.\n"
           "\nExamples:\n"
           "\nGet information about an OpenAlias address\n"
           + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
       );
+
+  std::string address = params[0].get_str();
 
   std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_available, dnssec_valid);
 
