@@ -2500,7 +2500,11 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nStaticRewardVersionMask;
 
+    if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
+        LogPrintf("Static Reward Enabled \n");
 
+    if(IsStaticRewardLocked(pindexPrev,Params().GetConsensus()))
+        LogPrintf("Static Reward Locked In \n");
 
     return nVersion;
 }
@@ -8379,9 +8383,14 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
 
     int64_t nSubsidy;
 
+    if(IsStaticRewardLocked(pindexPrev, Params().GetConsensus()))
+        LogPrintf("STATIC REWARD LOCKED IN\n");
+
     if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
         nSubsidy = Params().GetConsensus().nStaticReward;
+        LogPrintf("STATIC REWARD ENABLED\n");
     } else {
+        LogPrintf("PERCENT BASED REWARDS \n");
         int64_t nRewardCoinYear;
         nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
