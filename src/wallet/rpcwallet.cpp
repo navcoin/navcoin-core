@@ -532,6 +532,10 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
+
+    if(nDeadline <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong deadline");
+
     string sDesc = params[3].get_str();
 
     UniValue strDZeel(UniValue::VOBJ);
