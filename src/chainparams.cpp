@@ -250,12 +250,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
         consensus.nStakeMinAge = 2;	// minimum for coin age: 2 seconds
-        consensus.nTargetSpacing = 30; // Blocktime: 30 secs
+        consensus.nTargetSpacing = 1; // Blocktime: 1 secs
         consensus.nStakeCombineThreshold = 1000 * COIN;
         consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
-        consensus.nTargetTimespan = 25 * 30;
+        consensus.nTargetTimespan = 25 * 1; // Blocktime: 1 secs
         consensus.nLastPOWBlock = 100000;
         consensus.nVotingPeriod = 180; // 1.5 hours
         consensus.nMinimumQuorum = 0.5;

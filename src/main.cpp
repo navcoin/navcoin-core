@@ -2500,12 +2500,6 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nStaticRewardVersionMask;
 
-    if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
-        LogPrintf("Static Reward Enabled \n");
-
-    if(IsStaticRewardLocked(pindexPrev,Params().GetConsensus()))
-        LogPrintf("Static Reward Locked In \n");
-
     return nVersion;
 }
 
@@ -2881,10 +2875,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
               pindex->strDZeel = tx.strDZeel;
 
-              if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
-              return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
-                                          nStakeReward, Params().GetConsensus().nStaticReward),
-                  REJECT_INVALID, "bad-static-stake-amount");
 
               if(IsCommunityFundAccumulationEnabled(pindex->pprev, Params().GetConsensus(), false))
               {
@@ -2901,6 +2891,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 nStakeReward -= COMMUNITY_FUND_AMOUNT;
 
               }
+
+              if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
+              return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
+                                          nStakeReward, Params().GetConsensus().nStaticReward),
+                  REJECT_INVALID, "bad-static-stake-amount");
 
             }
 
@@ -3347,6 +3342,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
         }
     }
     hashBestChain = chainActive.Tip()->GetBlockHash();
+
 
     LogPrintf("%s: new best=%s height=%d version=0x%08x log2_work=%.8g tx=%lu date='%s' progress=%f cache=%.1fMiB(%utx)", __func__,
       chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), chainActive.Tip()->nVersion,
@@ -8383,14 +8379,9 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
 
     int64_t nSubsidy;
 
-    if(IsStaticRewardLocked(pindexPrev, Params().GetConsensus()))
-        LogPrintf("STATIC REWARD LOCKED IN\n");
-
     if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
         nSubsidy = Params().GetConsensus().nStaticReward;
-        LogPrintf("STATIC REWARD ENABLED\n");
     } else {
-        LogPrintf("PERCENT BASED REWARDS \n");
         int64_t nRewardCoinYear;
         nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
