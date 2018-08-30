@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="tr" version="2.1">
+<TS language="tr" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Sil</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Yeni parolayı tekrarlayınız</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,197 @@
         <translation>Şu vakte kadar yasaklı:</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>NavCoin Seçimi</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Miktar:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Bayt:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Meblağ:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Öncelik:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Ücret:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Toz:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Ücretten sonra:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Para üstü:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>tümünü seç(me)</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Ağaç kipi</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Liste kipi</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Meblağ</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Şu etiketle alındı</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Şu adresle alındı</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Tarih</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Doğrulamalar</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Doğrulandı</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Öncelik</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>boş</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Adresi düzenle</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Etiket</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Bu adres listesi girdisi ile ilişkili etiket</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Bu adres listesi girdisi ile ilişkili adres. Sadece gönderme adresleri için değiştirilebilir.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Adres</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>sürüm</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>%1 Hakkında</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Komut satırı seçenekleri</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Kullanım:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>komut satırı seçenekleri</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>Arayüz Seçenekleri:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>Başlangıçta veri klasörü seç (varsayılan: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>Lisan belirt, mesela "de_De" (varsayılan: sistem dili)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Küçültülmüş olarak başlat</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Ödeme talebi için SSL kök sertifikalarını belirle (varsayılan: -system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>Başlatıldığında başlangıç ekranını göster (varsayılan: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>Grafik arayüzde yapılan tüm seçenek değişikliklerini sıfırla</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Hoş geldiniz</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>%1'a hoş geldiniz.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Hata</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -159,6 +353,10 @@
         <translation>&amp;URI aç...</translation>
     </message>
     <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>İstemci kapanacaktır. Devam etmek istiyor musunuz?</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Diskteki bloklar yeniden endeksleniyor...</translation>
     </message>
@@ -235,10 +433,6 @@
         <translation>&amp;Yardım</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Sekme araç çubuğu</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Ödeme talep et (QR kodu ve navcoin URI'si oluşturur)</translation>
     </message>
@@ -309,6 +503,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Bundan sonraki muameleler henüz görüntülenemez.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Evet</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Hayır</translation>
     </message>
     <message>
         <source>Error</source>
@@ -386,228 +588,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>NavCoin Seçimi</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Miktar:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Bayt:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Meblağ:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Öncelik:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Ücret:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Toz:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Ücretten sonra:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Para üstü:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>tümünü seç(me)</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Ağaç kipi</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Liste kipi</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Meblağ</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Şu etiketle alındı</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Şu adresle alındı</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Tarih</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Doğrulamalar</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Doğrulandı</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Öncelik</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Adresi düzenle</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Etiket</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Bu adres listesi girdisi ile ilişkili etiket</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Bu adres listesi girdisi ile ilişkili adres. Sadece gönderme adresleri için değiştirilebilir.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Adres</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Yeni bir veri klasörü oluşturulacaktır.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>isim</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Klasör hâlihazırda mevcuttur. Burada yeni bir klasör oluşturmak istiyorsanız, %1 ilâve ediniz.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Erişim yolu zaten mevcuttur ve klasör değildir.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Burada veri klasörü oluşturulamaz.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>sürüm</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>%1 Hakkında</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Komut satırı seçenekleri</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Kullanım:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>komut satırı seçenekleri</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Arayüz Seçenekleri:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Başlangıçta veri klasörü seç (varsayılan: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Lisan belirt, mesela "de_De" (varsayılan: sistem dili)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Küçültülmüş olarak başlat</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Ödeme talebi için SSL kök sertifikalarını belirle (varsayılan: -system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>Başlatıldığında başlangıç ekranını göster (varsayılan: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>Grafik arayüzde yapılan tüm seçenek değişikliklerini sıfırla</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Hoş geldiniz</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>%1'a hoş geldiniz.</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>Bu programın ilk kez başlatılmasından dolayı %1 yazılımının verilerini nerede saklayacağını seçebilirsiniz.</translation>
-    </message>
-    <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1, NavCoin blok zincirinin bir kopyasını indirecek ve saklayacaktır. Bu klasörde en az %2GB veri saklanacak ve bu zamanla artacaktır. Cüzdan da bu klasörde saklanacaktır.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Varsayılan veri klasörünü kullan</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Özel bir veri klasörü kullan:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Hata: belirtilen "%1" veri klasörü oluşturulamaz.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Hata</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB boş alan mevcuttur</numerusform><numerusform>%n GB boş alan mevcuttur</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(gereken %n GB alandan)</numerusform><numerusform>(gereken %n GB alandan)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -626,7 +608,7 @@
         <source>Select payment request file</source>
         <translation>Ödeme talebi dosyasını seç</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -869,74 +851,17 @@
         <translation>Form</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Görüntülenen veriler zaman aşımına uğramış olabilir. Bağlantı kurulduğunda cüzdanınız otomatik olarak şebeke ile eşleşir ancak bu işlem henüz tamamlanmamıştır.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Sadece-izlenen:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Mevcut:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Güncel harcanabilir bakiyeniz</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Beklemede:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Henüz teyit edilmemiş ve harcanabilir bakiyeye eklenmemiş muamelelerin toplamı</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Olgunlaşmamış:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Oluşturulan bakiye henüz olgunlaşmamıştır</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Bakiyeler</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Toplam:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Güncel toplam bakiyeniz</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Sadece izlenen adreslerdeki güncel bakiyeniz</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Harcanabilir:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Son muameleler</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Sadece izlenen adreslere gelen teyit edilmemiş muameleler</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Sadece izlenen adreslerin henüz olgunlaşmamış oluşturulan bakiyeleri</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Sadece izlenen adreslerdeki güncel toplam bakiye</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -991,6 +916,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>Resmi ka&amp;ydet...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1352,7 +1284,7 @@
         <source>Remove</source>
         <translation>Kaldır</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1371,16 +1303,23 @@
         <source>&amp;Save Image...</source>
         <translation>Resmi ka&amp;ydet...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Meblağ</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Tarih</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>NavCoin yolla</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Para kontrolü özellikleri</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1431,28 +1370,12 @@
         <translation>Özel para üstü adresi</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Muamele ücreti:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Seç...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>ücret-ayarlarını-küçült</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>kilobayt başı</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Eğer özel ücret 1000 satoşi olarak ayarlandıysa ve muamele sadece 250 baytsa, "kilobayt başı" ücret olarak sadece 250 satoşi öder ve "toplam asgari" 1000 satoşi öder. Bir kilobayttan yüksek muameleler için ikisi de kilobayt başı ödeme yapar.</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Sakla</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1491,24 +1414,8 @@
         <translation>çabuk</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Birçok alıcıya aynı anda gönder</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;Alıcı ekle</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Formdaki tüm alanları temizle.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Toz:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Tümünü &amp;temizle</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1522,7 +1429,7 @@
         <source>S&amp;end</source>
         <translation>G&amp;önder</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1538,10 +1445,6 @@
         <translation>&amp;Etiket:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Önceden kullanılmış adres seç</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Bu, normal bir ödemedir.</translation>
     </message>
@@ -1552,14 +1455,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Panodan adres yapıştır</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1600,6 +1495,13 @@
     <message>
         <source>Memo:</source>
         <translation>Not:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Evet</translation>
     </message>
 </context>
 <context>
@@ -1699,7 +1601,7 @@
         <source>Reset all verify message fields</source>
         <translation>Tüm mesaj kontrolü alanlarını sıfırla</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1715,12 +1617,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Tarih</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Meblağ</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Bu pano muamelenin ayrıntılı açıklamasını gösterir</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Tarih</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Doğrulandı</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Tarih</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1728,6 +1659,38 @@
         <translation>Meblağları göstermek için birim. Başka bir birim seçmek için tıklayınız.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>NavCoin yolla</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Dışa aktar</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Açık olan sekmedeki verileri bir dosyaya aktar</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR Kodu</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1849,10 +1812,6 @@
     <message>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
         <translation>Müsaade edilen azami medyan eş zamanı değişiklik sınırının ayarlaması. Zamanın yerel perspektifi bu miktar kadar ileri ya da geri eşler tarafından etkilenebilir. (Varsayılan %u saniye)</translation>
-    </message>
-    <message>
-        <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)</source>
-        <translation>Tek cüzdan muamelesinde ya da ham muamelede kullanılacak azami toplam ücret (%s olarak); bunu çok düşük olarak ayarlamak büyük muameleleri iptal edebilir (varsayılan: %s)</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
@@ -2055,10 +2014,6 @@
         <translation>auth çerezinin konumu (varsayılan: veri klasörü)</translation>
     </message>
     <message>
-        <source>Minimum bytes per sigop in transactions we relay and mine (default: %u)</source>
-        <translation>Aktardığımız ve oluşturduğumuz muamelelerdeki sigop başına asgari bayt (varsayılan: %u)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>Kafi derecede dosya tanımlayıcıları mevcut değil.</translation>
     </message>
@@ -2189,10 +2144,6 @@
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
         <translation>İlgili bir uyarı alındığında ya da gerçekten uzun bir çatallama gördüğümüzde komutu çalıştır (komuttaki %s mesaj ile değiştirilir)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Bundan düşük ücretler (%s/kB olarak) aktarma, oluşturma ve muamele yaratma için sıfır değerinde ücret olarak kabul edilir (varsayılan: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -2367,10 +2318,6 @@
         <translation>Uyarı</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>İkaz: bilinmeyen yeni kurallar etkinleştirilmiştir (versionbit %i)</translation>
-    </message>
-    <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>Salt blok kipinde çalışılıp çalışılmayacağı (varsayılan: %u)</translation>
     </message>
@@ -2463,10 +2410,6 @@
         <translation>JSON-RPC bağlantıları için kullanıcı ismi ve karmalanmış parola. &lt;userpw&gt; alanı şu biçimdedir: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Kanonik bir Python betiği share/rpcuser klasöründe bulunabilir. Bu seçenek birden çok kez belirtilebilir.</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>İkaz: bilinmeyen blok sürümü oluşturulmaya çalışılıyor. Bilinmeyen kuralların işlemesi mümkündür.</translation>
-    </message>
-    <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>Uyarı: wallet.dat bozuk, veriler geri kazanıldı! Özgün %s, %s olarak %s klasörüne kaydedildi; bakiyeniz ya da muameleleriniz yanlışsa bir yedeklemeden tekrar yüklemeniz gerekir.</translation>
     </message>
@@ -2489,14 +2432,6 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>Geçersiz -proxy adresi: '%s'</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>JSON-RPC bağlantılarını &lt;port&gt; üzerinde dinle (varsayılan: %u veya tesnet: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Bağlantılar için dinlenecek &lt;port&gt; (varsayılan: %u ya da testnet: %u)</translation>
     </message>
     <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
@@ -2595,4 +2530,18 @@
         <translation>Hata</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Kaldır</translation>
+    </message>
+    </context>
 </TS>

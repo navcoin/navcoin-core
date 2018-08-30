@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="bg" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -42,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Изтриване</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -61,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Въведете новата парола повторно</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -73,6 +75,197 @@
         <translation>Със забранен достъп до</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Избор на монета</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Количество:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Байтове:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Сума:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Приоритет:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Такса:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Прах:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>След прилагане на ДДС</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Ресто</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(Пре)махни всички</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Дървовиден режим</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Списъчен режим</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Сума</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Получени с име</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Получени с адрес</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Потвърждения</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Потвърдени</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Приоритет</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>нищо</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Редактиране на адрес</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Име</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Етикетът свързан с това въведение в листа с адреси</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Адресът свързан с това въведение в листа с адреси. Това може да бъде променено само за адреси за изпращане.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Адрес</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>версия</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-битов)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>Относно %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Списък с команди</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Използване:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>Списък с налични команди</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>Опции на интерфейс:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>Избери директория за данни при стартирване (по подразбиране: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>Избери език, примерно "de_DE" (по подразбиране: system locale)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Стартирай минимизиран</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Задай SSL root сертификат за молба за изплащане (по подразбиране: -system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>Покажи splash екран при стартирване (по подразбиране %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>Нулиране на всички настройки променени в GUI</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Добре дошли</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>Добре дошли в %1.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Грешка</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -236,10 +429,6 @@
         <translation>&amp;Помощ</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Раздели</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Изискване на плащания(генерира QR кодове и биткойн: URIs)</translation>
     </message>
@@ -310,6 +499,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Транзакции след това няма все още да бъдат видими.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Не</translation>
     </message>
     <message>
         <source>Error</source>
@@ -387,216 +584,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Избор на монета</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Количество:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Байтове:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Сума:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Приоритет:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Такса:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Прах:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>След прилагане на ДДС</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Ресто</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(Пре)махни всички</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Дървовиден режим</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Списъчен режим</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Сума</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Получени с име</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Получени с адрес</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Дата</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Потвърждения</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Потвърдени</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Приоритет</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Редактиране на адрес</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Име</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Етикетът свързан с това въведение в листа с адреси</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Адресът свързан с това въведение в листа с адреси. Това може да бъде променено само за адреси за изпращане.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Адрес</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Ще се създаде нова папка за данни.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>име</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Директорията вече съществува.Добавете %1 ако желаете да добавите нова директория тук.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Пътят вече съществува и не е папка.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Не може да се създаде директория тук.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>версия</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-битов)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>Относно %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Списък с команди</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Използване:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>Списък с налични команди</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Опции на интерфейс:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Избери директория за данни при стартирване (по подразбиране: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Избери език, примерно "de_DE" (по подразбиране: system locale)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Стартирай минимизиран</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Задай SSL root сертификат за молба за изплащане (по подразбиране: -system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>Покажи splash екран при стартирване (по подразбиране %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>Нулиране на всички настройки променени в GUI</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Добре дошли</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>Добре дошли в %1.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Използване на директория по подразбиране</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Използване на директория ръчно</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Грешка</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB свободно пространство на разположение</numerusform><numerusform>%n GB свободно пространство на разположение</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(%n GB е нужен)</numerusform><numerusform>(%n GB са нужни)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -782,53 +771,16 @@
         <translation>Формуляр</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Текущата информация на екрана може да не е актуална. Вашият портфейл ще се синхронизира автоматично с мрежата на Биткоин, щом поне една връзката с нея се установи; този процес все още не е приключил.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>В наблюдателен режим:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Налично:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Вашата текуща сметка за изразходване</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Изчакващо:</translation>
     </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Неразвит:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Миниран баланс,който все още не се е развил</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Баланс</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Общо:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Текущият ви общ баланс</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>За харчене:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Скорошни транзакции</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -880,6 +832,13 @@
         <translation>%1 милисекунда</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Запиши изображение...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1113,7 +1072,7 @@
         <source>Remove</source>
         <translation>Премахване</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1132,16 +1091,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Запиши изображение...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Сума</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Изпращане</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Настройки за контрол на монетите</translation>
     </message>
     <message>
         <source>automatically selected</source>
@@ -1184,20 +1150,8 @@
         <translation>Ако тази опция е активирана,но адресът на промяна е празен или невалиден,промяната ще бъде изпратена на новосъздаден адрес.</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Такса за транзакцията:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Избери...</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>за килобайт</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Скрий</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1224,24 +1178,8 @@
         <translation>бърз</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Изпращане към повече от един получател</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Добави &amp;получател</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Изчисти всички полета от формуляра.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Прах:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>&amp;Изчисти</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1255,7 +1193,7 @@
         <source>S&amp;end</source>
         <translation>И&amp;зпрати</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1271,24 +1209,12 @@
         <translation>&amp;Име:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Изберете използван преди адрес</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Това е нормално плащане.</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Вмъкни от клипборда</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1305,6 +1231,13 @@
     <message>
         <source>Memo:</source>
         <translation>Бележка:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
     </message>
 </context>
 <context>
@@ -1392,14 +1325,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Сума</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Описание на транзакцията</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Потвърдени</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Изпращане</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>Изнеси</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Запишете данните от текущия раздел във файл</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Формуляр</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR код</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1556,4 +1550,18 @@
         <translation>Грешка</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Формуляр</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Премахване</translation>
+    </message>
+    </context>
 </TS>

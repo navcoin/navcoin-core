@@ -1,4 +1,4 @@
-NavCoin Core 4.2.0
+NavCoin Core 4.3.0
 =====================
 
 Intro

@@ -165,7 +165,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             "validateaddress \"navcoinaddress\"\n"
             "\nReturn information about the given navcoin address.\n"
             "\nArguments:\n"
-            "1. \"navcoinaddress\"     (string, required) The navcoin address to validate\n"
+            "1. \"navcoinaddress\"     (string, required) The navcoin address to validate. This may also be an OpenAlias address.\n"
             "\nResult:\n"
             "{\n"
             "  \"isvalid\" : true|false,       (boolean) If the address is valid or not. If not, this is the only property returned.\n"
@@ -194,11 +194,11 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
     string address_str = params[0].get_str();
 
     utils::DNSResolver *DNS = nullptr;
-    bool dnssec_valid;
+    bool dnssec_available; bool dnssec_valid;
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");

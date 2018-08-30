@@ -29,7 +29,7 @@ E.g: `v2.5.0-rc.1`, `v2.5.0-rc.2`, `v2.5.0-rc.3`
 
 * PATCH - 2 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
-* MINOR - 6 Weeks minimum from the time of notification to the community, via signaling by the PR date.
+* MINOR - 4 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
 * MAJOR - 8 Weeks minimum from the time of notification to the community, via signaling by the PR date.
 
@@ -68,7 +68,7 @@ Update the following:
     - `_CLIENT_VERSION_MAJOR`
     - `_CLIENT_VERSION_MINOR`
     - `_CLIENT_VERSION_REVISION`
-    - Don't forget to set `_CLIENT_VERSION_IS_RELEASE` to `true`
+    - Don't forget to set `_CLIENT_VERSION_IS_RELEASE` to `true`, `_CLIENT_BUILD_IS_TEST_RELEASE` to `false` and `_CLIENT_BUILD_IS_RELEASE_CANDIDATE` to `false`
 - `src/clientversion.h`: (this mirrors `configure.ac` - see issue #3539)
     - `CLIENT_VERSION_MAJOR`
     - `CLIENT_VERSION_MINOR`

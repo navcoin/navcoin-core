@@ -370,6 +370,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-maxmempool=<n>", strprintf(_("Keep the transaction memory pool below <n> megabytes (default: %u)"), DEFAULT_MAX_MEMPOOL_SIZE));
     strUsage += HelpMessageOpt("-mempoolexpiry=<n>", strprintf(_("Do not keep transactions in the mempool longer than <n> hours (default: %u)"), DEFAULT_MEMPOOL_EXPIRY));
     strUsage += HelpMessageOpt("-minersleep=<n>", strprintf(_("Sets the default sleep for the staking thread (default: %u)"), 500));
+    strUsage += HelpMessageOpt("-mininputvalue=<n>", strprintf(_("Sets the minimum value for an output to be considered as a coinstake kernel candidate")));
     strUsage += HelpMessageOpt("-par=<n>", strprintf(_("Set the number of script verification threads (%u to %d, 0 = auto, <0 = leave that many cores free, default: %d)"),
                                                      -GetNumCores(), MAX_SCRIPTCHECK_THREADS, DEFAULT_SCRIPTCHECK_THREADS));
 #ifndef WIN32
@@ -401,6 +402,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-addanonserver=<ip>", _("Add a NavTech node to use for private transactions"));
     strUsage += HelpMessageOpt("-banscore=<n>", strprintf(_("Threshold for disconnecting misbehaving peers (default: %u)"), DEFAULT_BANSCORE_THRESHOLD));
     strUsage += HelpMessageOpt("-bantime=<n>", strprintf(_("Number of seconds to keep misbehaving peers from reconnecting (default: %u)"), DEFAULT_MISBEHAVING_BANTIME));
+    strUsage += HelpMessageOpt("-banversion=<string>", strprintf(_("Version of wallet to be banned")));
     strUsage += HelpMessageOpt("-bind=<addr>", _("Bind to given address and always listen on it. Use [host]:port notation for IPv6"));
     strUsage += HelpMessageOpt("-connect=<ip>", _("Connect only to the specified node(s)"));
     strUsage += HelpMessageOpt("-devnet", _("Uses the devnet network"));
@@ -1290,6 +1292,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     } else {
         while(1)
         {
+            if(ShutdownRequested())
+                break;
             if(!NtpClockSync())
             {
                 sMsg = "A connection could not be made to any ntp server. "
@@ -1781,8 +1785,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
 #ifdef ENABLE_WALLET
     // Generate coins in the background
-    if(GetBoolArg("-staking", true))
-        threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
+    SetStaking(GetBoolArg("-staking", true));
+    threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
 #endif
 
     uiInterface.InitMessage(_("Done loading"));
