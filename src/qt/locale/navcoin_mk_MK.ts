@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="mk_MK" version="2.1">
+<TS language="mk_MK" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Избриши</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -56,9 +59,104 @@
         <source>Repeat new passphrase</source>
         <translation>Повторете ја новата тајна фраза</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Bytes:</source>
+        <translation>Бајти:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Сума:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Приоритет:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Провизија:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Прашина:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>После Провизија:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Кусур:</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Сума</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Приоритет</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>нема</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Измени Адреса</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Етикета</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Адреса</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>верзија</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-бит)</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Error</source>
+        <translation>Грешка</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -246,87 +344,7 @@
     </message>
     </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Bytes:</source>
-        <translation>Бајти:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Сума:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Приоритет:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Провизија:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Прашина:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>После Провизија:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Кусур:</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Сума</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Дата</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Приоритет</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Измени Адреса</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Етикета</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Адреса</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>name</source>
-        <translation>име</translation>
-    </message>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>верзија</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-бит)</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Error</source>
-        <translation>Грешка</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -376,10 +394,9 @@
     </context>
 <context>
     <name>OverviewPage</name>
-    <message>
-        <source>Total:</source>
-        <translation>Вкупно:</translation>
-    </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -411,6 +428,13 @@
         <translation>%1 мс</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Сними Слика...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -495,7 +519,18 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Сними Слика...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Сума</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -543,6 +578,9 @@
     </message>
     </context>
 <context>
+    <name>SendConfirmationDialog</name>
+    </context>
+<context>
     <name>ShutdownWindow</name>
     </context>
 <context>
@@ -555,10 +593,59 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Сума</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Експорт</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Експортирај ги податоците од активното јазиче во датотека</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>QR Code</source>
+        <translation>QR Код</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -579,4 +666,10 @@
         <translation>Грешка</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

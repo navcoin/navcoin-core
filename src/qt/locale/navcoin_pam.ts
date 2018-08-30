@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="pam" version="2.1">
+<TS language="pam" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -33,7 +33,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Ilako</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -52,9 +55,88 @@
         <source>Repeat new passphrase</source>
         <translation>Pasibayuan ya ing bayung passphrase</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>Alaga:</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Alaga</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Kaaldauan</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Me-kumpirma</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Alilan ing Address</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Label</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Address</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>bersion</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Pipamilian command-line</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Pamanggamit:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>pipamilian command-line</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Malaus ka</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Mali</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -171,10 +253,6 @@
         <translation>&amp;Saup</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Gamit para king Tabs</translation>
-    </message>
-    <message>
         <source>&amp;Command-line options</source>
         <translation>Pipamilian command-line</translation>
     </message>
@@ -224,71 +302,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Amount:</source>
-        <translation>Alaga:</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Alaga</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Kaaldauan</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Me-kumpirma</translation>
-    </message>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Alilan ing Address</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Label</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Address</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>bersion</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Pipamilian command-line</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Pamanggamit:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>pipamilian command-line</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Malaus ka</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Mali</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -382,34 +396,9 @@
         <source>Form</source>
         <translation>Form</translation>
     </message>
-    <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Ing makaltong impormasion mapalyaring luma ne. Ing kekang wallet otomatiku yang mag-synchronize keng NavCoin network istung mekakonekta ne king network, oneng ing prosesung ini ali ya pa kumpletu.</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Ing kekang kasalungsungan balanse a malyari mung gastusan</translation>
-    </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Ing kabuuan dareng transaksion a kasalungsungan ali pa me-kumpirma, at kasalungsungan ali pa mebilang kareng kekang balanseng malyari mung gastusan</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Immature:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Reng me-minang balanse a epa meg-matured</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Kabuuan:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Ing kekang kasalungsungan kabuuang balanse</translation>
-    </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -424,6 +413,9 @@
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -509,6 +501,17 @@
         <source>Copy &amp;Address</source>
         <translation>&amp;Kopyan ing address</translation>
     </message>
+    <message>
+        <source>Amount</source>
+        <translation>Alaga</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Kaaldauan</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -525,22 +528,6 @@
         <translation>Alaga:</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Bayad king Transaksion:</translation>
-    </message>
-    <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Misanang magpadala kareng alialiuang tumanggap</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Maglage &amp;Tumanggap</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>I-Clear &amp;Eganagana</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation>Balanse:</translation>
     </message>
@@ -552,7 +539,7 @@
         <source>S&amp;end</source>
         <translation>Ipadala</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -572,14 +559,6 @@
         <translation>Alt+A</translation>
     </message>
     <message>
-        <source>Paste address from clipboard</source>
-        <translation>Idikit ing address menibat king clipboard</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>Mensayi:</translation>
     </message>
@@ -587,6 +566,9 @@
         <source>Pay To:</source>
         <translation>Ibayad kang:</translation>
     </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -657,7 +639,7 @@
         <source>Reset all verify message fields</source>
         <translation>Ibalik king dati reng ngan fields na ning pamag beripikang mensayi</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -669,14 +651,63 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Kaaldauan</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Alaga</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Ining pane a ini magpakit yang detalyadung description ning transaksion</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Kaaldauan</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Me-kumpirma</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Kaaldauan</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Magpadalang Barya</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -825,4 +856,14 @@
         <translation>Mali</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

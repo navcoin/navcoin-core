@@ -1,13 +1,50 @@
-<!DOCTYPE TS>
 <TS language="zh" version="2.1">
 <context>
     <name>AddressBookPage</name>
+    </context>
+<context>
+    <name>AddressTableModel</name>
     </context>
 <context>
     <name>AskPassphraseDialog</name>
     </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Error</source>
+        <translation>错误</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -21,27 +58,7 @@
     </message>
     </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Date</source>
-        <translation>日期</translation>
-    </message>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    </context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Error</source>
-        <translation>错误</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -53,10 +70,16 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
     <name>QObject</name>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -68,18 +91,24 @@
     <name>ReceiveRequestDialog</name>
     </context>
 <context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
+<context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Insufficient funds!</source>
         <translation>余额不足</translation>
     </message>
-    <message>
-        <source>Choose...</source>
-        <translation>选择...</translation>
-    </message>
     </context>
 <context>
     <name>SendCoinsEntry</name>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -94,10 +123,43 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Date</source>
+        <translation>日期</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -142,4 +204,10 @@
         <translation>错误</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

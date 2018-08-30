@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="es_CO" version="2.1">
+<TS language="es_CO" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -37,7 +37,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Borrar</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -56,9 +59,44 @@
         <source>Repeat new passphrase</source>
         <translation>Repetir nueva contraseña</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>bienvenido</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -184,27 +222,7 @@
     </message>
     </context>
 <context>
-    <name>CoinControlDialog</name>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    </context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>bienvenido</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Error</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -216,10 +234,16 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
     <name>QObject</name>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -231,10 +255,16 @@
     <name>ReceiveRequestDialog</name>
     </context>
 <context>
+    <name>RecentRequestsTableModel</name>
+    </context>
+<context>
     <name>SendCoinsDialog</name>
     </context>
 <context>
     <name>SendCoinsEntry</name>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -249,10 +279,35 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    </context>
+<context>
+    <name>TransactionView</name>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exportar</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -285,4 +340,10 @@
         <translation>Error</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

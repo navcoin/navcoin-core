@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="vi" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -22,15 +21,15 @@
         <source>&amp;Delete</source>
         <translation>&amp;Xóa</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     </context>
 <context>
     <name>BanTableModel</name>
-    </context>
-<context>
-    <name>NavCoinGUI</name>
     </context>
 <context>
     <name>CoinControlDialog</name>
@@ -44,6 +43,12 @@
     </message>
     </context>
 <context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
     <name>EditAddressDialog</name>
     <message>
         <source>&amp;Label</source>
@@ -53,15 +58,27 @@
         <source>&amp;Address</source>
         <translation>Địa chỉ</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
     </context>
 <context>
     <name>HelpMessageDialog</name>
     </context>
 <context>
     <name>Intro</name>
+    </context>
+<context>
+    <name>IntroPage</name>
+    </context>
+<context>
+    <name>NavCoinGUI</name>
+    </context>
+<context>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -73,6 +90,9 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
@@ -81,6 +101,9 @@
         <source>Amount</source>
         <translation>Số lượng</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -94,6 +117,13 @@
         <source>Copy &amp;Address</source>
         <translation>Sao chép địa chỉ</translation>
     </message>
+    <message>
+        <source>Amount</source>
+        <translation>Số lượng</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -104,6 +134,9 @@
     </context>
 <context>
     <name>SendCoinsEntry</name>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -118,12 +151,43 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Amount</source>
+        <translation>Số lượng</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    </context>
+<context>
+    <name>TransactionView</name>
     </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     </context>
 <context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    </context>
+<context>
     <name>navcoin-core</name>
+    </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
     </context>
 </TS>

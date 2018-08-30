@@ -38,6 +38,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     int64_t nTime = wtx.GetTxTime();
     CAmount nCredit = wtx.GetCredit(ISMINE_ALL);
     CAmount nDebit = wtx.GetDebit(ISMINE_ALL);
+    CAmount nCFundCredit = wtx.GetDebit(ISMINE_ALL);
     CAmount nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash(), hashPrev = uint256();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
@@ -79,7 +80,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (wtx.IsCoinBase())
                 {
                     // Generated
-                    sub.type = wtx.IsInMainChain() ? TransactionRecord::Generated : TransactionRecord::Orphan;;
+                    sub.type = TransactionRecord::Generated;
                     if(i > 0)
                         sub.type = TransactionRecord::CFundPayment;
                 }
@@ -90,8 +91,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     if (hashPrev == hash)
                         continue; // last coinstake output
 
-                    sub.type = wtx.IsInMainChain() ? TransactionRecord::Generated : TransactionRecord::Orphan;
-                    sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit;
+                    sub.type = TransactionRecord::Staked;
+                    sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit - wtx.GetValueOutCFund();
                     hashPrev = hash;
                 }
                 if(wtx.fAnon)
@@ -241,7 +242,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
         }
     }
     // For generated transactions, determine maturity
-    else if(type == TransactionRecord::Generated)
+    else if(type == TransactionRecord::Generated || type == TransactionRecord::Staked)
     {
         if (wtx.GetBlocksToMaturity() > 0)
         {
@@ -257,7 +258,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
             }
             else
             {
-                status.status = TransactionStatus::NotAccepted;
+                status.status = TransactionStatus::Orphan;
             }
         }
         else
