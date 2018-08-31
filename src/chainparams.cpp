@@ -269,7 +269,7 @@ public:
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
-        consensus.nLastPOWBlock = 100000;
+        consensus.nLastPOWBlock = 1000000;
         consensus.nBlocksPerVotingCycle = 180; // 1.5 hours
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nBlocksPerVotingCycle * consensus.nMinimumQuorum;
@@ -337,10 +337,10 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
-        uint32_t nTimestamp = 1525248575;
-        uint256 hashGenesisBlock = uint256S("0x000067f5aabadac676ce46ab5ce7cb331a2c791b279250683a323afaf517c9f0");
-        uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
-        uint32_t nNonce = 2043371346;
+        uint32_t nTimestamp = 1535727262;
+        uint256 hashGenesisBlock = uint256S("0x00006f7464b3c2eb79b99878d6d92d815be7662d1eba485babb6328b3d3b327f");
+        uint256 hashMerkleRoot = uint256S("0x58a4826e64f486bc438f1553cf1dafffc338aa22f8fc2487cb8a378eef37056b");
+        uint32_t nNonce = 2043455443;
 	    
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
