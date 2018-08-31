@@ -17,22 +17,24 @@ void CFund::SetScriptForCommunityFundContribution(CScript &script)
 
 void CFund::SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote)
 {
-    script.resize(36);
+    script.resize(37);
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PROP;
     script[3] = vote ? OP_YES : OP_NO;
-    memcpy(&script[4], proposalhash.begin(), 32);
+    script[4] = 0x20;
+    memcpy(&script[5], proposalhash.begin(), 32);
 }
 
 void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash, bool vote)
 {
-    script.resize(36);
+    script.resize(37);
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PREQ;
     script[3] = vote ? OP_YES : OP_NO;
-    memcpy(&script[4], prequesthash.begin(), 32);
+    script[4] = 0x20;
+    memcpy(&script[5], prequesthash.begin(), 32);
 }
 
 bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
