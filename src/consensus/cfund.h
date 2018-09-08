@@ -59,6 +59,7 @@ public:
     flags fState;
     uint256 hash;
     uint256 proposalhash;
+    uint256 txblockhash;
     uint256 blockhash;
     uint256 paymenthash;
     int nVotesYes;
@@ -75,6 +76,8 @@ public:
         nVotesYes = 0;
         nVotesNo = 0;
         hash = uint256();
+        blockhash = uint256();
+        txblockhash = uint256();
         proposalhash = uint256();
         paymenthash = uint256();
         strDZeel = "";
@@ -157,6 +160,7 @@ public:
         READWRITE(blockhash);
         READWRITE(paymenthash);
         READWRITE(strDZeel);
+        READWRITE(txblockhash);
 
         // Version-based read/write
         if(nVersion >= 2)
@@ -181,6 +185,7 @@ public:
     std::string strDZeel;
     uint256 hash;
     uint256 blockhash;
+    uint256 txblockhash;
     int nVersion;
     unsigned int nVotingCycle;
 
@@ -197,6 +202,7 @@ public:
         vPayments.clear();
         strDZeel = "";
         hash = uint256();
+        blockhash = uint256();
         blockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
@@ -313,10 +319,12 @@ public:
         READWRITE(strDZeel);
         READWRITE(hash);
         READWRITE(blockhash);
+        READWRITE(txblockhash);
 
         // Version-based read/write
-        if(nVersion >= 2)
+        if(nVersion >= 2) {
            READWRITE(nVotingCycle);
+        }
 
     }
 
