@@ -998,6 +998,16 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     vp.push_back(Pair("starting",       starting));
     vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle));
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
+    UniValue consensus(UniValue::VOBJ);
+    consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
+    consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nQuorumVotes));
+    consensus.push_back(Pair("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting));
+    consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting));
+    consensus.push_back(Pair("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100));
+    consensus.push_back(Pair("votesRejectProposalPercentage",Params().GetConsensus().nVotesRejectProposal*100));
+    consensus.push_back(Pair("votesAcceptPaymentRequestPercentage",Params().GetConsensus().nVotesAcceptPaymentRequest*100));
+    consensus.push_back(Pair("votesRejectPaymentRequestPercentage",Params().GetConsensus().nVotesRejectPaymentRequest*100));
+    ret.push_back(Pair("consensus", consensus));
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 
@@ -1022,7 +1032,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             continue;
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("hash", proposal.hash.ToString()));
-        op.push_back(Pair("proposaldesc", proposal.strDZeel));
+        op.push_back(Pair("proposalDesc", proposal.strDZeel));
         op.push_back(Pair("desc", proposal.strDZeel));
         op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
