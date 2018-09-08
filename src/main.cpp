@@ -3029,6 +3029,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
                 proposal.nFee = nProposalFee;
                 proposal.hash = tx.GetHash();
+                proposal.txblockhash = block.GetHash();
 
                 proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
 
@@ -3067,6 +3068,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
                 prequest.strDZeel = find_value(metadata, "i").get_str();
                 prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
+                prequest.txblockhash = block.GetHash();
 
                 CFund::CProposal proposal;
                 if(!CFund::FindProposal(prequest.proposalhash, proposal))
@@ -3695,16 +3697,13 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             bool fUpdate = false;
             prequest = vecPaymentRequest[i];
 
-            CTransaction tx;
-            uint256 hashBlock = uint256();
-
-            if (!GetTransaction(prequest.hash, tx, Params().GetConsensus(), hashBlock, true))
+            if (mapBlockIndex.count(prequest.txblockhash) == 0){
+                LogPrintf("%s: Can't find block %s of payment request %s\n",
+                          __func__, prequest.txblockhash.ToString(), prequest.hash.ToString());
                 continue;
+            }
 
-            if (mapBlockIndex.count(hashBlock) == 0)
-                continue;
-
-            CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+            CBlockIndex* pblockindex = mapBlockIndex[prequest.txblockhash];
 
             auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nCurrentCycle = (unsigned )((pindexNew->nHeight + 1)/ Params().GetConsensus().nBlocksPerVotingCycle);
@@ -3734,18 +3733,17 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                 } else if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
                     prequest.fState = CFund::REJECTED;
                     fUpdate = true;
-                }
+                } else if(prequest.fState == CFund::NIL){
+                    if(!CFund::FindProposal(prequest.proposalhash, proposal))
+                        continue;
 
-                if(!CFund::FindProposal(prequest.proposalhash, proposal))
-                    continue;
-
-                if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()
-                        && prequest.fState != CFund::ACCEPTED) {
-                    if(prequest.nAmount <= pindexNew->nCFLocked) {
-                        pindexNew->nCFLocked -= prequest.nAmount;
-                        prequest.fState = CFund::ACCEPTED;
-                        prequest.blockhash = pindexNew->GetBlockHash();
-                        fUpdate = true;
+                    if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()) {
+                        if(prequest.nAmount <= pindexNew->nCFLocked) {
+                            pindexNew->nCFLocked -= prequest.nAmount;
+                            prequest.fState = CFund::ACCEPTED;
+                            prequest.blockhash = pindexNew->GetBlockHash();
+                            fUpdate = true;
+                        }
                     }
                 }
             }
@@ -3764,22 +3762,13 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             bool fUpdate = false;
             proposal = vecProposal[i];
 
-            CTransaction tx;
-            uint256 hashBlock = uint256();
-
-            if (!GetTransaction(proposal.hash, tx, Params().GetConsensus(), hashBlock, true)) {
-                LogPrintf("%s: Can't find transaction of proposal %s\n",
-                          __func__, proposal.hash.ToString());
-                continue;
-            }
-
-            if (mapBlockIndex.count(hashBlock) == 0) {
+            if (mapBlockIndex.count(proposal.txblockhash) == 0) {
                 LogPrintf("%s: Can't find block %s of proposal %s\n",
-                          __func__, hashBlock.ToString(), proposal.hash.ToString());
+                          __func__, proposal.txblockhash.ToString(), proposal.hash.ToString());
                 continue;
             }
 
-            CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+            CBlockIndex* pblockindex = mapBlockIndex[proposal.txblockhash];
 
             auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nCurrentCycle = (unsigned int)((pindexNew->nHeight + 1) / Params().GetConsensus().nBlocksPerVotingCycle);
@@ -3792,7 +3781,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             }
 
             if((pindexNew->nHeight + nBlockOffset) % Params().GetConsensus().nBlocksPerVotingCycle == 0) {
-                if((!proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState == CFund::EXPIRED) ||
+                if((!proposal.IsExpired(pindexNew->GetBlockTime()) && proposal.fState == CFund::EXPIRED) ||
                         (!proposal.IsRejected() && proposal.fState == CFund::REJECTED)){
                     proposal.fState = CFund::NIL;
                     fUpdate = true;
@@ -3803,7 +3792,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     fUpdate = true;
                 }
 
-                if(proposal.IsExpired(pindexNew->GetMedianTimePast()) && proposal.fState != CFund::EXPIRED) {
+                if(proposal.IsExpired(pindexNew->GetBlockTime()) && proposal.fState != CFund::EXPIRED) {
                     if(proposal.fState == CFund::ACCEPTED) {
                         pindexNew->nCFSupply += proposal.GetAvailable();
                         pindexNew->nCFLocked -= proposal.GetAvailable();
@@ -3814,9 +3803,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                 else if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
                     proposal.fState = CFund::REJECTED;
                     fUpdate = true;
-                }
-
-                if(proposal.IsAccepted() && proposal.fState != CFund::ACCEPTED) {
+                } else if(proposal.IsAccepted() && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_FUNDS)) {
                     if(pindexNew->nCFSupply >= proposal.GetAvailable()) {
                         pindexNew->nCFSupply -= proposal.GetAvailable();
                         pindexNew->nCFLocked += proposal.GetAvailable();

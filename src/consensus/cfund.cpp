@@ -374,6 +374,7 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
 void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
+    ret.push_back(Pair("blockHash", txblockhash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
@@ -390,7 +391,9 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
+    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
     ret.push_back(Pair("status", GetState(chainActive.Tip()->GetMedianTimePast())));
+    ret.push_back(Pair("state", (uint64_t)fState));
     if(fState == ACCEPTED)
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
     if(vPayments.size() > 0) {
@@ -410,12 +413,14 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
 void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
+    ret.push_back(Pair("blockHash", txblockhash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
     ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
     ret.push_back(Pair("status", GetState()));
+    ret.push_back(Pair("state", (uint64_t)fState));
     if(fState == ACCEPTED) {
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
         ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
