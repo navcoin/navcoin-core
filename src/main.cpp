@@ -3767,11 +3767,17 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             CTransaction tx;
             uint256 hashBlock = uint256();
 
-            if (!GetTransaction(proposal.hash, tx, Params().GetConsensus(), hashBlock, true))
+            if (!GetTransaction(proposal.hash, tx, Params().GetConsensus(), hashBlock, true)) {
+                LogPrintf("%s: Can't find transaction of proposal %s\n",
+                          __func__, proposal.hash.ToString());
                 continue;
+            }
 
-            if (mapBlockIndex.count(hashBlock) == 0)
+            if (mapBlockIndex.count(hashBlock) == 0) {
+                LogPrintf("%s: Can't find block %s of proposal %s\n",
+                          __func__, hashBlock.ToString(), proposal.hash.ToString());
                 continue;
+            }
 
             CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
