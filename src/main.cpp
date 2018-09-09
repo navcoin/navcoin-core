@@ -3714,6 +3714,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                 LogPrintf("%s: Can't find block %s of proposal %s\n",
                           __func__, proposal.txblockhash.ToString(), proposal.hash.ToString());
                 continue;
+            }
 
             CBlockIndex* pblockindex = mapBlockIndex[proposal.txblockhash];
 
