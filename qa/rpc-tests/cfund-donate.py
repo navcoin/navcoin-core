@@ -8,7 +8,7 @@ from test_framework.util import *
 
 
 class DonateCommunityFundTest(NavCoinTestFramework):
-    """Tests RPC commands for signing and verifying messages."""
+    """Tests RPC commands for donating coins to the Community Fund."""
 
     def __init__(self):
         super().__init__()

@@ -74,7 +74,7 @@ class CommunityFundVotesTest(NavCoinTestFramework):
         # Move to the end of the cycle
         self.nodes[0].generate(self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
 
-        time.sleep(0.1)
+        time.sleep(0.5)
 
         # Check we are still in the first cycle
         assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 0)
