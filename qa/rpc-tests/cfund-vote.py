@@ -8,7 +8,7 @@ from test_framework.util import *
 
 import time
 
-class CommunityFundVotes(NavCoinTestFramework):
+class CommunityFundVotesTest(NavCoinTestFramework):
     """Tests the voting procedures of the Community fund."""
 
     def __init__(self):
