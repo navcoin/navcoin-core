@@ -3646,6 +3646,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
     std::map<uint256, bool> vSeen;
 
+    vCacheProposalsToUpdate.clear();
+    vCachePaymentRequestToUpdate.clear();
+
     while(nBlocks > 0 && pindexblock != NULL) {
         vSeen.clear();
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
@@ -3717,7 +3720,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
 
     std::vector<CFund::CPaymentRequest> vecPaymentRequest;
 
-    auto nBlockOffset = fUndo ? 2 : 1;
+    auto nBlockOffset = fUndo ? 1 : 0;
 
     if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
         for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
@@ -3733,7 +3736,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             CBlockIndex* pblockindex = mapBlockIndex[prequest.txblockhash];
 
             auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned )((pindexNew->nHeight + 1)/ Params().GetConsensus().nBlocksPerVotingCycle);
+            auto nCurrentCycle = (unsigned )(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
 
@@ -3771,7 +3774,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                             prequest.blockhash = pindexNew->GetBlockHash();
                             fUpdate = true;
                         }
-                    } else {
+                    } else if (!vSeen.count(prequest.hash)){
                         prequest.nVotesYes = 0;
                         prequest.nVotesNo = 0;
                         fUpdate = true;
@@ -3802,7 +3805,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             CBlockIndex* pblockindex = mapBlockIndex[proposal.txblockhash];
 
             auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned int)((pindexNew->nHeight + 1) / Params().GetConsensus().nBlocksPerVotingCycle);
+            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesProposalVoting + 1);
 
@@ -3844,7 +3847,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                         proposal.fState = CFund::PENDING_FUNDS;
                         fUpdate = true;
                     }
-                } else if(proposal.fState == CFund::NIL){
+                } else if(proposal.fState == CFund::NIL && !vSeen.count(proposal.hash)){
                     proposal.nVotesYes = 0;
                     proposal.nVotesNo = 0;
                     fUpdate = true;
