@@ -427,7 +427,7 @@ public:
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nPaymentRequestMaxVersion = 2;
         consensus.nProposalMaxVersion = 2;
-        consensus.nMaxFutureDrift = 60;
+        consensus.nMaxFutureDrift = 60000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
