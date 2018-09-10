@@ -146,6 +146,7 @@ testScripts = [
 #    'importprunedfunds.py',
 #    'signmessages.py',
     'cfund-donate.py',
+    'cfund-vote.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
