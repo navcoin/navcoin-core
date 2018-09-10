@@ -7,7 +7,7 @@ from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
 
 
-class SignMessagesTest(NavCoinTestFramework):
+class DonateCommunityFundTest(NavCoinTestFramework):
     """Tests RPC commands for signing and verifying messages."""
 
     def __init__(self):
@@ -28,4 +28,4 @@ class SignMessagesTest(NavCoinTestFramework):
         assert(self.nodes[0].cfundstats()["funds"]["available"] == 100)
 
 if __name__ == '__main__':
-    SignMessagesTest().main()
+    DonateCommunityFundTest().main()
