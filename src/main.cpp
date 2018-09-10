@@ -3533,7 +3533,6 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
             AbortNode(state, "Negative amount of votes when disconnecting tip, possible corrupted DB");
         proposal.nVotesYes = it->second.first;
         proposal.nVotesNo = it->second.second;
-        LogPrintf("Updating %s\n", proposal.ToString());
         vecProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
     }
     for(it = vCachePaymentRequestToUpdate.begin(); it != vCachePaymentRequestToUpdate.end(); it++) {
