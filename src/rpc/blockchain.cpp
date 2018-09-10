@@ -996,7 +996,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     UniValue vp(UniValue::VOBJ);
     int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     vp.push_back(Pair("starting",       starting));
-    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle));
+    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle-1));
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
     UniValue consensus(UniValue::VOBJ);
     consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
