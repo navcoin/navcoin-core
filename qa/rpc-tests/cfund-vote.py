@@ -8,7 +8,7 @@ from test_framework.util import *
 
 import time
 
-class SignMessagesTest(NavCoinTestFramework):
+class CommunityFundVotes(NavCoinTestFramework):
     """Tests the voting procedures of the Community fund."""
 
     def __init__(self):
@@ -121,4 +121,4 @@ class SignMessagesTest(NavCoinTestFramework):
 
 
 if __name__ == '__main__':
-    SignMessagesTest().main()
+    CommunityFundVotesTest().main()
