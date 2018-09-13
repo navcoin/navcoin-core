@@ -2676,10 +2676,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
     }
 
-    // Timebased checkpoint
-    if(!IsSigHFEnabled(Params().GetConsensus(), pindex->pprev))
-        fScriptChecks = false;
-
     int64_t nTime1 = GetTimeMicros(); nTimeCheck += nTime1 - nTimeStart;
     LogPrint("bench", "    - Sanity checks: %.2fms [%.2fs]\n", 0.001 * (nTime1 - nTimeStart), nTimeCheck * 0.000001);
 
@@ -3522,21 +3518,87 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     UpdateTip(pindexDelete->pprev, chainparams);
 
     std::vector<CFund::CPaymentRequest> vecPaymentRequest;
-    std::vector<pair<uint256,CFund::CPaymentRequest>> vPRequestsToUpdate;
-    CFund::CPaymentRequest prequest;
+    std::vector<std::pair<uint256, CFund::CProposal>> vecProposalsToUpdate;
+    std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdate;
+    std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
+    std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
+    CFund::CProposal proposal; CFund::CPaymentRequest prequest;
+    std::map<uint256, bool> vSeen;
 
     if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
         for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
             prequest = vecPaymentRequest[i];
-
             if(prequest.paymenthash == pindexDelete->GetBlockHash()) {
                 prequest.paymenthash = uint256();
-                vPRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
             }
         }
-        if (!pblocktree->UpdatePaymentRequestIndex(vPRequestsToUpdate)) {
-            AbortNode(state, "Failed to write payment request index");
+    }
+
+    for(unsigned int i = 0; i < pindexDelete->vProposalVotes.size(); i++) {
+        if(!CFund::FindProposal(pindexDelete->vProposalVotes[i].first, proposal))
+            continue;
+        if(vSeen.count(pindexDelete->vProposalVotes[i].first) == 0) {
+            if(vCacheProposalsToUpdate.count(pindexDelete->vProposalVotes[i].first) == 0)
+                vCacheProposalsToUpdate[pindexDelete->vProposalVotes[i].first] = make_pair(proposal.nVotesYes, proposal.nVotesNo);
+            if(pindexDelete->vProposalVotes[i].second)
+                vCacheProposalsToUpdate[pindexDelete->vProposalVotes[i].first].first -= 1;
+            else
+                vCacheProposalsToUpdate[pindexDelete->vProposalVotes[i].first].second -= 1;
+            vSeen[pindexDelete->vProposalVotes[i].first]=true;
         }
+    }
+
+    vSeen.clear();
+
+    for(unsigned int i = 0; i < pindexDelete->vPaymentRequestVotes.size(); i++) {
+        if(!CFund::FindPaymentRequest(pindexDelete->vPaymentRequestVotes[i].first, prequest))
+            continue;
+        if(!CFund::FindProposal(prequest.proposalhash, proposal))
+            continue;
+        if (mapBlockIndex.count(proposal.blockhash) == 0)
+            continue;
+        CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
+        if(pindexblockparent == NULL)
+            continue;
+        if(vSeen.count(pindexDelete->vPaymentRequestVotes[i].first) == 0) {
+            if(vCachePaymentRequestToUpdate.count(pindexDelete->vPaymentRequestVotes[i].first) == 0)
+                vCachePaymentRequestToUpdate[pindexDelete->vPaymentRequestVotes[i].first] = make_pair(prequest.nVotesYes, prequest.nVotesNo);
+            if(pindexDelete->vPaymentRequestVotes[i].second)
+                vCachePaymentRequestToUpdate[pindexDelete->vPaymentRequestVotes[i].first].first -= 1;
+            else
+                vCachePaymentRequestToUpdate[pindexDelete->vPaymentRequestVotes[i].first].second -= 1;
+            vSeen[pindexDelete->vPaymentRequestVotes[i].first]=true;
+        }
+    }
+
+    std::map<uint256, std::pair<int, int>>::iterator it;
+
+    for(it = vCacheProposalsToUpdate.begin(); it != vCacheProposalsToUpdate.end(); it++) {
+        if(!CFund::FindProposal(it->first, proposal))
+            continue;
+        if(it->second.first < 0 || it->second.second < 0)
+            AbortNode(state, "Negative amount of votes when disconnecting tip, possible corrupted DB");
+        proposal.nVotesYes = it->second.first;
+        proposal.nVotesNo = it->second.second;
+        vecProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
+    }
+    for(it = vCachePaymentRequestToUpdate.begin(); it != vCachePaymentRequestToUpdate.end(); it++) {
+        if(!CFund::FindPaymentRequest(it->first, prequest))
+            continue;
+        if(it->second.first < 0 || it->second.second < 0)
+            AbortNode(state, "Negative amount of votes when disconnecting tip, possible corrupted DB");
+        prequest.nVotesYes = it->second.first;
+        prequest.nVotesNo = it->second.second;
+        vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+    }
+
+    if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
+        AbortNode(state, "Failed to write payment request index");
+    }
+
+    if (!pblocktree->UpdateProposalIndex(vecProposalsToUpdate)) {
+        AbortNode(state, "Failed to write proposal index");
     }
 
     CountVotes(state, pindexDelete->pprev, true);
@@ -3624,12 +3686,16 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     int64_t nTimeStart = GetTimeMicros();
     CFund::CPaymentRequest prequest; CFund::CProposal proposal;
 
+
     int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
     CBlockIndex* pindexblock = pindexNew;
 
     std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
     std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
     std::map<uint256, bool> vSeen;
+
+    vCacheProposalsToUpdate.clear();
+    vCachePaymentRequestToUpdate.clear();
 
     while(nBlocks > 0 && pindexblock != NULL) {
         vSeen.clear();
@@ -3670,6 +3736,8 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
         nBlocks--;
     }
 
+    vSeen.clear();
+
     std::map<uint256, std::pair<int, int>>::iterator it;
     std::vector<std::pair<uint256, CFund::CProposal>> vecProposalsToUpdate;
     std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdate;
@@ -3678,6 +3746,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             continue;
         proposal.nVotesYes = it->second.first;
         proposal.nVotesNo = it->second.second;
+        vSeen[proposal.hash]=true;
         vecProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
     }
     for(it = vCachePaymentRequestToUpdate.begin(); it != vCachePaymentRequestToUpdate.end(); it++) {
@@ -3685,12 +3754,21 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             continue;
         prequest.nVotesYes = it->second.first;
         prequest.nVotesNo = it->second.second;
+        vSeen[prequest.hash]=true;
         vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+    }
+
+    if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
+        AbortNode(state, "Failed to write payment request index");
+    }
+
+    if (!pblocktree->UpdateProposalIndex(vecProposalsToUpdate)) {
+        AbortNode(state, "Failed to write proposal index");
     }
 
     std::vector<CFund::CPaymentRequest> vecPaymentRequest;
 
-    auto nBlockOffset = fUndo ? 2 : 1;
+    auto nBlockOffset = fUndo ? 1 : 0;
 
     if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
         for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
@@ -3706,7 +3784,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             CBlockIndex* pblockindex = mapBlockIndex[prequest.txblockhash];
 
             auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned )((pindexNew->nHeight + 1)/ Params().GetConsensus().nBlocksPerVotingCycle);
+            auto nCurrentCycle = (unsigned )(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
 
@@ -3744,6 +3822,10 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                             prequest.blockhash = pindexNew->GetBlockHash();
                             fUpdate = true;
                         }
+                    } else if (!vSeen.count(prequest.hash)){
+                        prequest.nVotesYes = 0;
+                        prequest.nVotesNo = 0;
+                        fUpdate = true;
                     }
                 }
             }
@@ -3771,7 +3853,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             CBlockIndex* pblockindex = mapBlockIndex[proposal.txblockhash];
 
             auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned int)((pindexNew->nHeight + 1) / Params().GetConsensus().nBlocksPerVotingCycle);
+            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesProposalVoting + 1);
 
@@ -3799,8 +3881,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     }
                     proposal.fState = CFund::EXPIRED;
                     fUpdate = true;
-                }
-                else if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
+                } else if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
                     proposal.fState = CFund::REJECTED;
                     fUpdate = true;
                 } else if(proposal.IsAccepted() && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_FUNDS)) {
@@ -3814,6 +3895,10 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                         proposal.fState = CFund::PENDING_FUNDS;
                         fUpdate = true;
                     }
+                } else if(proposal.fState == CFund::NIL && !vSeen.count(proposal.hash)){
+                    proposal.nVotesYes = 0;
+                    proposal.nVotesNo = 0;
+                    fUpdate = true;
                 }
             }
             if(fUpdate)
