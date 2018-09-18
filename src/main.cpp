@@ -3525,19 +3525,19 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     for(it = vCacheProposalsToUpdate.begin(); it != vCacheProposalsToUpdate.end(); it++) {
         if(!CFund::FindProposal(it->first, proposal))
             continue;
-        if(it->second.first < 0 || it->second.second < 0)
-            AbortNode(state, strprintf("Negative amount of votes when disconnecting tip, possible corrupted DB %d -", pindexDelete->nHeight));
-        proposal.nVotesYes = it->second.first;
-        proposal.nVotesNo = it->second.second;
+        if((it->second.first < 0 || it->second.second < 0) && (pindexDelete->nHeight % Params().GetConsensus().nBlocksPerVotingCycle != 0))
+            AbortNode(state,"Negative amount of votes when disconnecting tip, possible corrupted DB");
+        proposal.nVotesYes = std::max(it->second.first, 0);
+        proposal.nVotesNo = std::max(it->second.second, 0);
         vecProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
     }
     for(it = vCachePaymentRequestToUpdate.begin(); it != vCachePaymentRequestToUpdate.end(); it++) {
         if(!CFund::FindPaymentRequest(it->first, prequest))
             continue;
-        if(it->second.first < 0 || it->second.second < 0)
-            AbortNode(state, strprintf("Negative amount of votes when disconnecting tip, possible corrupted DB %d -", pindexDelete->nHeight));
-        prequest.nVotesYes = it->second.first;
-        prequest.nVotesNo = it->second.second;
+        if((it->second.first < 0 || it->second.second < 0) && (pindexDelete->nHeight % Params().GetConsensus().nBlocksPerVotingCycle != 0))
+            AbortNode(state,"Negative amount of votes when disconnecting tip, possible corrupted DB");
+        prequest.nVotesYes = std::max(it->second.first, 0);
+        prequest.nVotesNo = std::max(it->second.second, 0);
         vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
     }
 
