@@ -3526,7 +3526,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         if(!CFund::FindProposal(it->first, proposal))
             continue;
         if(it->second.first < 0 || it->second.second < 0)
-            AbortNode(state, "Negative amount of votes when disconnecting tip, possible corrupted DB");
+            AbortNode(state, strprintf("Negative amount of votes when disconnecting tip, possible corrupted DB %d -", pindexDelete->nHeight));
         proposal.nVotesYes = it->second.first;
         proposal.nVotesNo = it->second.second;
         vecProposalsToUpdate.push_back(make_pair(proposal.hash, proposal));
@@ -3535,7 +3535,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         if(!CFund::FindPaymentRequest(it->first, prequest))
             continue;
         if(it->second.first < 0 || it->second.second < 0)
-            AbortNode(state, "Negative amount of votes when disconnecting tip, possible corrupted DB");
+            AbortNode(state, strprintf("Negative amount of votes when disconnecting tip, possible corrupted DB %d -", pindexDelete->nHeight));
         prequest.nVotesYes = it->second.first;
         prequest.nVotesNo = it->second.second;
         vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
