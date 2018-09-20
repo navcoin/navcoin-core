@@ -24,6 +24,7 @@ enum DeploymentPos
     DEPLOYMENT_COMMUNITYFUND,
     DEPLOYMENT_COMMUNITYFUND_ACCUMULATION,
     DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD,
+    DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2,
     DEPLOYMENT_NTPSYNC,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
@@ -81,6 +82,7 @@ struct Params {
     int64_t nProposalMinimalFee;
     int nBlockSpreadCFundAccumulation;
     CAmount nCommunityFundAmount;
+    CAmount nCommunityFundAmountV2;
     unsigned int nCyclesProposalVoting;
     unsigned int nCyclesPaymentRequestVoting;
     int nPaymentRequestMaxVersion;
