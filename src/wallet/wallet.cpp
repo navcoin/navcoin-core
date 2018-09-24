@@ -556,7 +556,12 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 int fundIndex = txNew.vout.size() + 1;
                 txNew.vout.resize(fundIndex);
                 CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
-                txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+
+                if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
+                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2 * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+                } else {
+                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+                }
             }
         }
         else
@@ -564,7 +569,12 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             int fundIndex = txNew.vout.size() + 1;
             txNew.vout.resize(fundIndex);
             CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
-            txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount;
+
+             if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
+                txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2;
+             } else {
+                txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount;
+             }
         }
     }
 

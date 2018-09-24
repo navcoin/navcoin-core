@@ -505,6 +505,8 @@ bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Para
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict = true);
 bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
 
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
