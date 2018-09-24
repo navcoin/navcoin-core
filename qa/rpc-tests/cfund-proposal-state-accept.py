@@ -112,6 +112,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
+        self.nodes[0].cfundstats()
 
         # Vote again
 
@@ -126,17 +127,19 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.start_new_cycle()
         blocks=self.slow_gen(1)
 
-        # Proposal must be accepted now
+        # Proposal must be accepted waiting for fund now
+        assert(self.nodes[0].getproposal(proposalid0)["state"] == 4)
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted waiting for enough coins in fund")
+
+        self.nodes[0].donatefund(1)
+
+        self.slow_gen(1)
+        self.start_new_cycle()
 
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 1)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
 
 
-        # Revert last block and check status
-
-        self.nodes[0].invalidateblock(blocks[-1])
-        assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted waiting for end of voting period")
 
     def start_new_cycle(self):
         # Move to the end of the cycle
