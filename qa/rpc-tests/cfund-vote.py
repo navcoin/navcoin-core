@@ -106,7 +106,7 @@ class CommunityFundVotesTest(NavCoinTestFramework):
         assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 2)
 
         # Check the number of votes
-        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 1 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
+        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 0 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending" and self.nodes[0].getproposal(proposalid0)["state"] == 0)
 
         # Move back to the end of the previous cycle
