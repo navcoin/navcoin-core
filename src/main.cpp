@@ -73,6 +73,7 @@ CConditionVariable cvBlockChange;
 int nScriptCheckThreads = 0;
 bool fImporting = false;
 bool fReindex = false;
+bool fIgnoreHeaders = true;
 bool fTxIndex = false;
 bool fAddressIndex = false;
 bool fTimestampIndex = false;
@@ -2616,8 +2617,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         hashProof = UintToArith256(block.GetPoWHash());
     }
 
-
-
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
         return state.DoS(1,error("ContextualCheckBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
 
@@ -4416,6 +4415,26 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     return true;
 }
 
+bool ContextualCheckBlockStake(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindexPrev, int64_t nAdjustedTime, const CTransaction& coinstake, bool fCheckSig)
+{
+
+    if (block.nBits != GetNextTargetRequired(pindexPrev, true)){
+        return state.DoS(1,error("ContextualCheckBlockStake() : incorrect proof-of-stake at height %d (%d)", pindexPrev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
+    }
+
+    arith_uint256 targetProofOfStake;
+    arith_uint256 hashProof;
+
+    if (!CheckProofOfStake(pindexPrev, coinstake, block.nBits, hashProof, targetProofOfStake, NULL, fCheckSig))
+    {
+          return error("ContextualCheckBlockStake() : check proof-of-stake failed for block %s", block.GetHash().GetHex());
+    }
+
+    return true;
+
+}
+
+
 bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIndex * const pindexPrev, bool fProofOfStake)
 {
     const int nHeight = pindexPrev == NULL ? 0 : pindexPrev->nHeight + 1;
@@ -4567,7 +4586,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     return true;
 }
 
-static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex=NULL)
+static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex=NULL, const CTransaction* coinstake=NULL)
 {
     AssertLockHeld(cs_main);
     // Check for duplicate
@@ -4605,6 +4624,19 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
         if (!ContextualCheckBlockHeader(block, state, chainparams.GetConsensus(), pindexPrev, GetAdjustedTime()))
             return error("%s: Consensus::ContextualCheckBlockHeader: %s, %s", __func__, hash.ToString(), FormatStateMessage(state));
 
+        bool fScriptChecks = true;
+        if (fCheckpointsEnabled) {
+            if (pindexPrev->nHeight < Checkpoints::GetLatestCheckpoint(chainparams.Checkpoints())) {
+                // This block would be an ancestor of a checkpoint: disable script checks
+                fScriptChecks = false;
+            }
+            if(!Checkpoints::CheckHardened(chainparams.Checkpoints(), pindexPrev->nHeight+1, block.GetHash()))
+                return error("%s: Checkpoints::CheckHardened: %s, wrong checkpoint hash", __func__, hash.ToString());
+        }
+
+        if (coinstake != NULL && !ContextualCheckBlockStake(block, state, chainparams.GetConsensus(), pindexPrev, GetAdjustedTime(), *coinstake, fScriptChecks))
+            return AbortNode(strprintf("%s: Consensus::ContextualCheckBlockStake: %s, %s", __func__, hash.ToString(), FormatStateMessage(state)));
+
     }
 
     if (pindex == NULL)
@@ -4625,7 +4657,7 @@ static bool AcceptBlock(const CBlock& block, CValidationState& state, const CCha
     CBlockIndex *pindexDummy = NULL;
     CBlockIndex *&pindex = ppindex ? *ppindex : pindexDummy;
 
-    if (!AcceptBlockHeader(block, state, chainparams, &pindex))
+    if (!AcceptBlockHeader(block, state, chainparams, &pindex, block.IsProofOfStake() ? &block.vtx[1] : NULL))
         return false;
 
     // Try to process all requested blocks that we don't have, but only
@@ -6151,7 +6183,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             State(pfrom->GetId())->fCurrentlyConnected = true;
         }
 
-        if (pfrom->nVersion >= SENDHEADERS_VERSION) {
+        if (pfrom->nVersion >= SENDHEADERS_VERSION && !fIgnoreHeaders) {
             // Tell our peer we prefer to receive headers rather than inv's
             // We send this to non-NODE NETWORK peers as well, because even
             // non-NODE NETWORK peers can announce blocks (such as pruning
@@ -6293,7 +6325,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
             if (inv.type == MSG_BLOCK) {
                 UpdateBlockAvailability(pfrom->GetId(), inv.hash);
-                if (!fAlreadyHave && !fImporting && !fReindex && !mapBlocksInFlight.count(inv.hash)) {
+                bool fIsInFlight = mapBlocksInFlight.count(inv.hash) && mapBlocksInFlight[inv.hash].first == pfrom->GetId();
+                if (!fAlreadyHave && !fImporting && !fReindex && !fIsInFlight) {
                     // First request the headers preceding the announced block. In the normal fully-synced
                     // case where a new block is announced that succeeds the current tip (no reorganization),
                     // there are no such headers.
@@ -6302,21 +6335,25 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                     // time the block arrives, the header chain leading up to it is already validated. Not
                     // doing this will result in the received block being rejected as an orphan in case it is
                     // not a direct successor.
-                    pfrom->PushMessage(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), inv.hash);
+                    if(!fIgnoreHeaders)
+                        pfrom->PushMessage(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), inv.hash);
+                    else
+                        LogPrint("net", "getblock (%d) %s to peer=%d\n", pindexBestHeader->nHeight, inv.hash.ToString(), pfrom->id);
+
                     CNodeState *nodestate = State(pfrom->GetId());
-                    if (CanDirectFetch(chainparams.GetConsensus()) &&
+
+                    if ((CanDirectFetch(chainparams.GetConsensus()) &&
                         nodestate->nBlocksInFlight < MAX_BLOCKS_IN_TRANSIT_PER_PEER &&
-                        (!IsWitnessEnabled(chainActive.Tip(), chainparams.GetConsensus()) || State(pfrom->GetId())->fHaveWitness)) {
+                        (!IsWitnessEnabled(chainActive.Tip(), chainparams.GetConsensus()) || State(pfrom->GetId())->fHaveWitness))
+                        || fIgnoreHeaders) {
                         inv.type |= nFetchFlags;
-//                        if (nodestate->fProvidesHeaderAndIDs && !(nLocalServices & NODE_WITNESS))
-//                            vToFetch.push_back(CInv(MSG_CMPCT_BLOCK, inv.hash));
-//                        else
-                            vToFetch.push_back(inv);
+                        vToFetch.push_back(inv);
                         // Mark block as in flight already, even though the actual "getdata" message only goes out
                         // later (within the same cs_main lock, though).
                         MarkBlockAsInFlight(pfrom->GetId(), inv.hash, chainparams.GetConsensus());
                     }
-                    LogPrint("net", "getheaders (%d) %s to peer=%d\n", pindexBestHeader->nHeight, inv.hash.ToString(), pfrom->id);
+                    if(!fIgnoreHeaders)
+                        LogPrint("net", "getheaders (%d) %s to peer=%d\n", pindexBestHeader->nHeight, inv.hash.ToString(), pfrom->id);
                 }
             }
             else
@@ -6324,7 +6361,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                 pfrom->AddInventoryKnown(inv);
                 if (fBlocksOnly)
                     LogPrint("net", "transaction (%s) inv sent in violation of protocol peer=%d\n", inv.hash.ToString(), pfrom->id);
-                else if (!fAlreadyHave && !fImporting && !fReindex && !IsInitialBlockDownload())
+                else if (!fAlreadyHave && !fImporting && !fReindex && (!IsInitialBlockDownload() && !fIgnoreHeaders))
                     pfrom->AskFor(inv);
             }
 
@@ -6656,7 +6693,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     }
 
 
-    else if (strCommand == NetMsgType::CMPCTBLOCK && !fImporting && !fReindex) // Ignore blocks received while importing
+    else if (strCommand == NetMsgType::CMPCTBLOCK && !fImporting && !fReindex && !fIgnoreHeaders) // Ignore blocks received while importing
     {
         CBlockHeaderAndShortTxIDs cmpctblock;
         vRecv >> cmpctblock;
@@ -6672,7 +6709,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         CBlockIndex *pindex = NULL;
         CValidationState state;
-        if (!AcceptBlockHeader(cmpctblock.header, state, chainparams, &pindex)) {
+        if (!AcceptBlockHeader(cmpctblock.header, state, chainparams, &pindex, NULL)) {
             int nDoS;
             if (state.IsInvalid(nDoS)) {
                 if (nDoS > 0)
@@ -6823,7 +6860,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     }
 
 
-    else if (strCommand == NetMsgType::HEADERS && !fImporting && !fReindex) // Ignore headers received while importing
+    else if (strCommand == NetMsgType::HEADERS && !fImporting && !fReindex && !fIgnoreHeaders) // Ignore headers received while importing
     {
         std::vector<CBlock> headers;
 
@@ -6890,7 +6927,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                 return error("non-continuous headers sequence");
             }
             CBlockHeader pblockheader = CBlockHeader(header);
-            if (!AcceptBlockHeader(pblockheader, state, chainparams, &pindexLast)) {
+            if (!AcceptBlockHeader(pblockheader, state, chainparams, &pindexLast, NULL)) {
 
                 int nDoS;
                 if (state.IsInvalid(nDoS)) {
@@ -6987,20 +7024,32 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         LogPrint("net", "received block %s peer=%d\n%s\n", block.GetHash().ToString(), pfrom->id, block.ToString());
 
         CValidationState state;
-        // Process all blocks from whitelisted peers, even if not requested,
-        // unless we're still syncing with the network.
-        // Such an unrequested block may still be processed, subject to the
-        // conditions in AcceptBlock().
-        bool forceProcessing = pfrom->fWhitelisted && !IsInitialBlockDownload();
-        ProcessNewBlock(state, chainparams, pfrom, &block, forceProcessing, NULL);
-        int nDoS;
-        if (state.IsInvalid(nDoS)) {
-            assert (state.GetRejectCode() < REJECT_INTERNAL); // Blocks are never rejected with internal reject codes
-            pfrom->PushMessage(NetMsgType::REJECT, strCommand, (unsigned char)state.GetRejectCode(),
-                               state.GetRejectReason().substr(0, MAX_REJECT_MESSAGE_LENGTH), block.GetHash());
-            if (nDoS > 0) {
-                LOCK(cs_main);
-                Misbehaving(pfrom->GetId(), nDoS);
+        if (mapBlockIndex.find(block.hashPrevBlock) == mapBlockIndex.end()) {
+            // If we can't find the previous block, we need to ask for more blocks
+            pfrom->PushMessage(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBestHeader), block.GetHash());
+            LogPrint("net", "received block %s: missing prev block %s, sending getblock (%d) to end (peer=%d)\n",
+                    block.GetHash().ToString(),
+                    block.hashPrevBlock.ToString(),
+                    pindexBestHeader->nHeight,
+                    pfrom->id);
+
+            return true;
+        } else {
+            // Process all blocks from whitelisted peers, even if not requested,
+            // unless we're still syncing with the network.
+            // Such an unrequested block may still be processed, subject to the
+            // conditions in AcceptBlock().
+            bool forceProcessing = pfrom->fWhitelisted && !IsInitialBlockDownload();
+            ProcessNewBlock(state, chainparams, pfrom, &block, forceProcessing, NULL);
+            int nDoS;
+            if (state.IsInvalid(nDoS)) {
+                assert (state.GetRejectCode() < REJECT_INTERNAL); // Blocks are never rejected with internal reject codes
+                pfrom->PushMessage(NetMsgType::REJECT, strCommand, (unsigned char)state.GetRejectCode(),
+                                   state.GetRejectReason().substr(0, MAX_REJECT_MESSAGE_LENGTH), block.GetHash());
+                if (nDoS > 0) {
+                    LOCK(cs_main);
+                    Misbehaving(pfrom->GetId(), nDoS);
+                }
             }
         }
 
@@ -7084,6 +7133,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         size_t nAvail = vRecv.in_avail();
         bool bPingFinished = false;
         std::string sProblem;
+
+        if (fIgnoreHeaders && IsInitialBlockDownload()) {
+            pfrom->PushMessage(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBestHeader), uint256());
+        }
 
         if (nAvail >= sizeof(nonce)) {
             vRecv >> nonce;
@@ -8259,7 +8312,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockInd
 }
 
 //Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, bool fCHeckSignature)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, bool fCheckSignature)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -8277,7 +8330,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
 
     CCoinsViewCache inputs(pcoinsTip);
 
-    if(fCHeckSignature)
+    if(fCheckSignature)
     {
         PrecomputedTransactionData txdata(tx);
         const COutPoint &prevout = tx.vin[0].prevout;
@@ -8285,7 +8338,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
         assert(coins);
 
         // Verify signature
-        CScriptCheck check(*coins, tx, 0, SCRIPT_VERIFY_NONE, false, &txdata);
+        CScriptCheck check(*coins, tx, 0, MANDATORY_SCRIPT_VERIFY_FLAGS, false, &txdata);
         if (pvChecks) {
             pvChecks->push_back(CScriptCheck());
             check.swap(pvChecks->back());
