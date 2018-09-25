@@ -4626,7 +4626,7 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
 
         bool fScriptChecks = true;
         if (fCheckpointsEnabled) {
-            if (pindexPrev->nHeight < Checkpoints::GetLatestCheckpoint(chainparams.Checkpoints())) {
+            if (pindexPrev->nHeight < Checkpoints::GetTotalBlocksEstimate(chainparams.Checkpoints())) {
                 // This block would be an ancestor of a checkpoint: disable script checks
                 fScriptChecks = false;
             }
@@ -7020,8 +7020,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     {
         CBlock block;
         vRecv >> block;
-
-        LogPrint("net", "received block %s peer=%d\n%s\n", block.GetHash().ToString(), pfrom->id, block.ToString());
 
         CValidationState state;
         if (mapBlockIndex.find(block.hashPrevBlock) == mapBlockIndex.end()) {
