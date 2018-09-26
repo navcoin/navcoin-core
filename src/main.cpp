@@ -4635,7 +4635,7 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
         }
 
         if (coinstake != NULL && !ContextualCheckBlockStake(block, state, chainparams.GetConsensus(), pindexPrev, GetAdjustedTime(), *coinstake, fScriptChecks))
-            return error(strprintf("%s: Consensus::ContextualCheckBlockStake: %s, %s", __func__, hash.ToString(), FormatStateMessage(state)));
+            return error("%s: Consensus::ContextualCheckBlockStake: %s, %s", __func__, hash.ToString(), FormatStateMessage(state));
 
     }
 
