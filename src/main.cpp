@@ -8336,7 +8336,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
         assert(coins);
 
         // Verify signature
-        CScriptCheck check(*coins, tx, 0, MANDATORY_SCRIPT_VERIFY_FLAGS, false, &txdata);
+        CScriptCheck check(*coins, tx, 0, SCRIPT_VERIFY_NONE, false, &txdata);
         if (pvChecks) {
             pvChecks->push_back(CScriptCheck());
             check.swap(pvChecks->back());
