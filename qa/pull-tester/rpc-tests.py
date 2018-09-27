@@ -149,6 +149,7 @@ testScripts = [
     'cfund-vote.py',
     'cfund-proposal-state-accept.py',
     'cfund-proposal-state-expired.py',
+    'reject-version-bit.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
