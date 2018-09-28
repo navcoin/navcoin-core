@@ -256,7 +256,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
             "\nArguments:\n"
             "1. \"txid\"      (string, required) The transaction id\n"
-            "2. verbose       (numeric|boolean, optional, default=0) If 0, return a string, other return a json object\n"
+            "2. verbose       (numeric|boolean, optional, default=0) If 0|false, return a string, other return a json object\n"
 
             "\nResult (if verbose is not set or set to 0):\n"
             "\"data\"      (string) The serialized, hex-encoded data for 'txid'\n"
@@ -317,17 +317,15 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
     uint256 hash = ParseHashV(params[0], "parameter 1");
 
     bool fVerbose = false;
-        if (params.size() > 1) {
-        if (!params[1].isNull()) {
-            if (params[1].isNum() && params[1].get_int() != 0) {
-                fVerbose = true;
-            }
-            else if(params[1].isBool() && params[1].isTrue()) {
-                fVerbose = true;
-            }
-            else {
-                throw JSONRPCError(RPC_TYPE_ERROR, "Invalid type provided. Verbose parameter must be an int or boolean.");
-            }
+    if (params.size() > 1 && !params[1].isNull()) {
+        if (params[1].isNum() && params[1].get_int() != 0) {
+            fVerbose = true;
+        }
+        else if(params[1].isBool() && params[1].isTrue()) {
+            fVerbose = true;
+        }
+        else {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid type provided. Verbose parameter must be an int or boolean.");
         }
     }
 
