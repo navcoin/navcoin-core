@@ -318,7 +318,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
     bool fVerbose = false;
     if (params.size() > 1 && !params[1].isNull()) {
-        if (params[1].isNum() && params[1].get_int() != 0) {
+        if (params[1].isNum() && params[1].get_int() == 1) {
             fVerbose = true;
         }
         else if(params[1].isBool() && params[1].isTrue()) {
