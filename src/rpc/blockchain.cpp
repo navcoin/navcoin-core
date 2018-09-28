@@ -1007,6 +1007,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     consensus.push_back(Pair("votesRejectProposalPercentage",Params().GetConsensus().nVotesRejectProposal*100));
     consensus.push_back(Pair("votesAcceptPaymentRequestPercentage",Params().GetConsensus().nVotesAcceptPaymentRequest*100));
     consensus.push_back(Pair("votesRejectPaymentRequestPercentage",Params().GetConsensus().nVotesRejectPaymentRequest*100));
+    consensus.push_back(Pair("proposalMinimalFee",ValueFromAmount(Params().GetConsensus().nProposalMinimalFee)));
     ret.push_back(Pair("consensus", consensus));
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
