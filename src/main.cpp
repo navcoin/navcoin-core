@@ -2279,8 +2279,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx)) {
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
                 proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
-                LogPrint("cfund","Erasing proposal %s\n",hash.ToString());
-                if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
+                if (!pfClean && !pblocktree->UpdateProposalIndex(proposalIndex)) {
                     return AbortNode(state, "Failed to write proposal index");
                 }
             }
@@ -2289,21 +2288,19 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
                 std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
                 paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
-                LogPrint("cfund","Erasing payment request %s\n",hash.ToString());
                 CFund::CPaymentRequest prequest; CFund::CProposal proposal;
                 if(CFund::FindPaymentRequest(tx.hash, prequest) && CFund::FindProposal(prequest.proposalhash, proposal)) {
                     std::vector<uint256>::iterator position = std::find(proposal.vPayments.begin(), proposal.vPayments.end(), prequest.hash);
                     if (position != proposal.vPayments.end()) {
                         proposal.vPayments.erase(position);
                         proposalIndex.push_back(make_pair(proposal.hash,proposal));
-                        LogPrint("cfund","Erasing payment request %s from parent proposal\n",hash.ToString(),proposal.hash.ToString());
                     }
                 }
-                if (!pblocktree->UpdateProposalIndex(proposalIndex)) {
+                if (!pfClean && !pblocktree->UpdateProposalIndex(proposalIndex)) {
                     return AbortNode(state, "Failed to write proposal index");
                 }
 
-                if (!pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex)) {
+                if (!pfClean && !pblocktree->UpdatePaymentRequestIndex(paymentRequestIndex)) {
                     return AbortNode(state, "Failed to write proposal index");
                 }
             }
@@ -2502,7 +2499,8 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
 
     for (int i = 0; i < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++) {
         ThresholdState state = VersionBitsState(pindexPrev, params, (Consensus::DeploymentPos)i, versionbitscache);
-        if (state == THRESHOLD_LOCKED_IN || state == THRESHOLD_STARTED || state == THRESHOLD_ACTIVE) {
+        if ((state == THRESHOLD_LOCKED_IN || state == THRESHOLD_ACTIVE  ||
+             (state == THRESHOLD_STARTED && !IsVersionBitRejected(params, (Consensus::DeploymentPos)i)))) {
             nVersion |= VersionBitsMask(params, (Consensus::DeploymentPos)i);
         }
     }
@@ -2587,6 +2585,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     pindex->nCFSupply = pindex->pprev != NULL ? pindex->pprev->nCFSupply : 0;
     pindex->nCFLocked = pindex->pprev != NULL ? pindex->pprev->nCFLocked : 0;
+
+    pindex->vProposalVotes.clear();
+    pindex->vPaymentRequestVotes.clear();
 
     if (block.IsProofOfStake())
     {
