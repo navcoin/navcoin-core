@@ -2637,15 +2637,23 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         setDirtyBlockIndex.insert(pindex);
     }
 
-
     bool fScriptChecks = true;
-    if (fCheckpointsEnabled) {
-        CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
-        if (pindexLastCheckpoint && pindexLastCheckpoint->GetAncestor(pindex->nHeight) == pindex) {
-            // This block is an ancestor of a checkpoint: disable script checks
-            fScriptChecks = false;
-        }
-    }
+     if (fCheckpointsEnabled) {
+         if(fIgnoreHeaders) {
+             if (pindex->nHeight < Checkpoints::GetTotalBlocksEstimate(chainparams.Checkpoints())) {
+                 // This block would be an ancestor of a checkpoint: disable script checks
+                 fScriptChecks = false;
+             }
+             if(!Checkpoints::CheckHardened(chainparams.Checkpoints(), pindex->nHeight, block.GetHash()))
+                 return error("%s: Checkpoints::CheckHardened: %s, wrong checkpoint hash at height %d", __func__, block.GetHash().ToString(), pindex->nHeight);
+         } else {
+             CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
+             if (pindexLastCheckpoint && pindexLastCheckpoint->GetAncestor(pindex->nHeight) == pindex) {
+                 // This block is an ancestor of a checkpoint: disable script checks
+                 fScriptChecks = false;
+             }
+         }
+     }
 
     // Timebased checkpoint
     if(!IsSigHFEnabled(Params().GetConsensus(), pindex->pprev))
@@ -3431,7 +3439,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
-            return error("ConnectTip(): ConnectBlock %s failed: ", pindexNew->GetBlockHash().ToString());
+            return error("ConnectTip(): ConnectBlock %s failed: ", pindexNew->GetBlockHash().ToString(), FormatStateMessage(state));
         }
         else
         {
