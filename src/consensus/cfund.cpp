@@ -395,7 +395,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
     ret.push_back(Pair("state", (uint64_t)fState));
     if(fState == ACCEPTED)
-        ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
+        ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
     if(vPayments.size() > 0) {
         UniValue arr(UniValue::VARR);
         for(unsigned int i = 0; i < vPayments.size(); i++) {
@@ -421,8 +421,8 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
     ret.push_back(Pair("status", GetState()));
     ret.push_back(Pair("state", (uint64_t)fState));
-    if(fState == ACCEPTED) {
-        ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
+    ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
+    if(fState == ACCEPTED) {        
         ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
     }
 }
