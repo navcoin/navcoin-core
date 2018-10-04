@@ -51,8 +51,8 @@ void URITests::uriTests()
     QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
     QVERIFY(rv.label == QString());
 
-    QVERIFY(GUIUtil::parseNavCoinURI("navcoin://175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?message=Wikipedia Example Address", &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(GUIUtil::parseNavCoinURI("navcoin:Nh1usoEV5PHbyzTk5qiJwmpoPFEik76DtT?message=Wikipedia Example Address", &rv));
+    QVERIFY(rv.address == QString("Nh1usoEV5PHbyzTk5qiJwmpoPFEik76DtT"));
     QVERIFY(rv.label == QString());
 
     uri.setUrl(QString("navcoin:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?req-message=Wikipedia Example Address"));

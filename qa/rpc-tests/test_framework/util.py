@@ -247,7 +247,7 @@ def initialize_chain(test_dir, num_nodes):
             for peer in range(4):
                 for j in range(25):
                     set_node_times(rpcs, block_time)
-                    rpcs[peer].generate(1)
+                    slow_gen(rpcs[peer], 1)
                     block_time += 10*60
                 # Must sync before next peer starts generating blocks
                 sync_blocks(rpcs)
@@ -639,3 +639,14 @@ def create_lots_of_big_transactions(node, txouts, utxos, fee):
 def get_bip9_status(node, key):
     info = node.getblockchaininfo()
     return info['bip9_softforks'][key]
+
+
+def slow_gen(node, count):
+    total = count
+    blocks = []
+    while total > 0:
+        now = min(total, 10)
+        blocks.extend(node.generate(now))
+        total -= now
+        time.sleep(0.1)
+    return blocks

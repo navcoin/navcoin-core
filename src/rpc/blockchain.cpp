@@ -1034,7 +1034,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("hash", proposal.hash.ToString()));
         op.push_back(Pair("proposalDesc", proposal.strDZeel));
-        op.push_back(Pair("desc", proposal.strDZeel));
+        op.push_back(Pair("desc", prequest.strDZeel));
         op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
