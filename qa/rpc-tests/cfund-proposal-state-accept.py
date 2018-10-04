@@ -131,15 +131,28 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 4)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted waiting for enough coins in fund")
 
-        self.nodes[0].donatefund(1)
+        # Check the available and locked funds
+        assert(self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
+        assert(self.nodes[0].cfundstats()["funds"]["locked"] == 0)
 
+        # Donate to the fund
+        self.nodes[0].donatefund(1)
         self.slow_gen(1)
+
+        # Check the available and locked funds
+        assert (self.nodes[0].cfundstats()["funds"]["available"] == 1+self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
+        assert (self.nodes[0].cfundstats()["funds"]["locked"] == 0)
+
+        # Move to the end of the cycle
         self.start_new_cycle()
 
+        # Validate that the proposal is accepted
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 1)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
 
-
+        # Check the available and locked funds
+        assert (self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
+        assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
 
     def start_new_cycle(self):
         # Move to the end of the cycle
