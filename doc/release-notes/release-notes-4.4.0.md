@@ -74,7 +74,7 @@ On success, the daemon responds with the hash(id) of the proposal that is used t
 ### Vote for a Community Fund proposal
 
 ```
-proposalvote proposal_hash amount command
+proposalvote proposal_hash command
 
 Arguments:
 1. "proposal_hash" (string, required) The proposal hash
