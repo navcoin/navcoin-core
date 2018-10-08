@@ -105,7 +105,7 @@ testScripts = [
    # 'p2p-fullblocktest.py',
 #    'walletbackup.py',
 #    'bip68-112-113-p2p.py',
-   'wallet.py',
+#    'wallet.py',
 #    'wallet-hd.py',
 #    'listtransactions.py',
 #    'receivedby.py',
