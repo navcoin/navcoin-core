@@ -111,3 +111,50 @@ void SetNtpTimeOffset(uint64_t nTimeOffsetIn)
 {
     nNtpTimeOffset = nTimeOffsetIn;
 }
+
+std::string StringifySeconds(uint64_t n)
+{
+    using namespace std::chrono;
+    std::chrono::seconds input_seconds{n};
+    typedef duration<int, std::ratio<30 * 86400>> months;
+    auto M = duration_cast<months>(input_seconds);
+    input_seconds -= M;
+    typedef duration<int, std::ratio<86400>> days;
+    auto d = duration_cast<days>(input_seconds);
+    input_seconds -= d;
+    auto h = duration_cast<hours>(input_seconds);
+    input_seconds -= h;
+    auto m = duration_cast<minutes>(input_seconds);
+    input_seconds -= m;
+    auto s = duration_cast<seconds>(input_seconds);
+
+    auto Mc = M.count();
+    auto dc = d.count();
+    auto hc = h.count();
+    auto mc = m.count();
+    auto sc = s.count();
+
+    std::stringstream ss;
+    ss.fill('0');
+    if (Mc) {
+        ss << M.count() << " months ";
+    }
+
+    if (Mc || dc) {
+        ss << d.count() << " days ";
+    }
+    if (Mc || dc || hc) {
+        if (Mc || dc) { ss << std::setw(2); }
+        ss << h.count() << " hours ";
+    }
+    if (Mc || dc || hc || mc) {
+        if (Mc || dc || hc) { ss << std::setw(2); }
+        ss << m.count() << " minutes ";
+    }
+    if (Mc || dc || hc || mc || sc) {
+        if (Mc || dc || hc || mc) { ss << std::setw(2); }
+        ss << s.count() << " seconds";
+    }
+
+    return ss.str();
+}

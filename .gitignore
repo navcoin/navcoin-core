@@ -8,6 +8,7 @@ src/navcoin-tx
 src/test/test_navcoin
 src/qt/test/test_navcoin-qt
 src/qt/ui_*.h
+*.autosave
 
 # autoreconf
 Makefile.in
@@ -128,3 +129,6 @@ src/secp256k1/build-aux/m4/ltsugar.m4
 src/secp256k1/build-aux/m4/ltversion.m4
 src/secp256k1/build-aux/m4/lt~obsolete.m4
 src/NavCoin4-Qt.creator.user
+
+
+.idea/*
