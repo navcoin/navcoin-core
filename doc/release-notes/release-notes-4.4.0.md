@@ -17,6 +17,7 @@ It introduces the changes neccesary in the protocol to activate the claims mecha
 - Maximum number of full elapsed Voting Cycles for a Proposal: 6 Voting Cycles (1 month and a half)
 - Maximum number of full elapsed Voting Cycles for a Payment Request: 8 Voting Cycles (2 months)
 
+
 ## Community Fund Accumulation Spread
 
 The Version Bit 14 will signal for the soft fork to activate NPIP0003.
@@ -45,6 +46,94 @@ A new config concept has been added called `rejectversionbit`. Users can signal 
 rejectversionbit=15
 rejectversionbit=16
 rejectversionbit=17
+```
+
+
+## Community Fund RPC Commands
+
+With the release of the community fund additional RPC commands are included
+
+### Create a Community Fund proposal
+
+```
+createproposal navcoinaddress amount duration "desc" fee
+
+Arguments:
+1. "navcoinaddress" (string, required) The navcoin address where coins would be sent if the proposal is approved.
+2. "amount" The amount in NAV to request. eg 100
+3. duration: Number of seconds the proposal will exist after being accepted.
+4. "desc": Short description of the proposal.
+5. fee (optional): Contribution to the fund used as a fee.
+
+
+Result:
+On success, the daemon responds with the hash(id) of the proposal that is used to reference it in other commands
+
+```
+
+### Vote for a Community Fund proposal
+
+```
+proposalvote proposal_hash amount command
+
+Arguments:
+1. "proposal_hash" (string, required) The proposal hash
+2. "command"       (string, required) 'yes' to vote yes, 'no' to vote no,'remove' to remove a proposal from the list
+
+
+Resp:
+On success, the daemon responds with the hash(id) of the proposal that is used to reference it in other commands
+
+```
+
+### Create a payment request
+
+```
+createpaymentrequest proposal_hash amount id
+
+Arguments:
+1. "hash" (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.
+2. "amount" (numeric or string, required) The amount in NAV to withdraw. eg 10
+3. "id" (string, required) Unique id to identify the payment request
+
+Result:
+{ 
+    hash: prequestid, (string) The payment request id.
+    strDZeel: string  (string) The attached strdzeel property.
+}  
+
+```
+
+### Vote a payment request
+
+```
+paymentrequestvote "request_hash" "command"
+
+Adds/removes a proposal to the list of votes.
+
+Arguments:
+1. "request_hash" (string, required) The payment request hash
+2. "command"      (string, required) 'yes' to vote yes, 'no' to vote no, 'remove' to remove a proposal from the list
+
+```
+
+###  Donate to the community fund
+
+```
+donatefund amount
+
+Donate NAV from your wallet to the commnuity fund
+
+Arguments:
+1. "amount" (string, required) The amount of NAV to donate
+```
+
+###  Community fund stats
+
+```
+cfundstats
+
+Returns the current status of the Community Fund
 ```
 
 ### Other modifications in the NavCoin client:
