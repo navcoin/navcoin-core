@@ -254,7 +254,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID)
         return error("%s: Invalid signature for payment request %s", __func__, tx.GetHash().ToString());
 
-    if(nAmount > proposal.GetAvailable())
+    if(nAmount > proposal.GetAvailable(true))
         return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
                      __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable());
     

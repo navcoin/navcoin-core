@@ -3778,6 +3778,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
 
     if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
         for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
+            vecPaymentRequestsToUpdate.clear();
             bool fUpdate = false;
             prequest = vecPaymentRequest[i];
 
@@ -3825,7 +3826,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     fUpdate = true;
                 } else if(prequest.fState == CFund::NIL){
                     if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()) {
-                        if(prequest.nAmount <= pindexNew->nCFLocked) {
+                        if(prequest.nAmount <= pindexNew->nCFLocked && prequest.nAmount <= proposal.GetAvailable()) {
                             pindexNew->nCFLocked -= prequest.nAmount;
                             prequest.fState = CFund::ACCEPTED;
                             prequest.blockhash = pindexNew->GetBlockHash();
@@ -3845,6 +3846,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             }
             if(fUpdate) {
                 vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
+                    AbortNode(state, "Failed to write payment request index");
+                }
             }
         }
     } else {
