@@ -36,7 +36,7 @@ You can read more about [NPIP0004 on the NPIP GitHub](https://github.com/NAVCoin
 
 This release introduces the concept of bit version rejection. 
 
-It is designed to make it easier for the network to reject individual soft forks when they are bundled together in 1 release. 
+It is designed to make it easier for the network to reject individual soft forks when they are bundled together in one release. 
 
 As soft forks come within the software signaling by default only the converse was needed for people to reject soft forks they did not agree with.
 
