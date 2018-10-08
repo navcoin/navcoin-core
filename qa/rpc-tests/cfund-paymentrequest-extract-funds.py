@@ -52,12 +52,47 @@ class CommunityFundPaymentRequestExtractFundsTest(NavCoinTestFramework):
 
         self.slow_gen(1)
 
+        # One of them should have been rejected at creation
+        valid = 0
+        invalid = 0
+        invalid_pos = -1
+
+        for paymentReq in paymentRequests:
+            try:
+                assert(self.nodes[0].getpaymentrequest(paymentReq)["state"] == 0)
+                assert(self.nodes[0].getpaymentrequest(paymentReq)["status"] == "pending")
+                valid = valid + 1
+            except JSONRPCException:
+                invalid = invalid + 1
+                invalid_pos = valid 
+                continue
+
+        assert(valid == 5)
+        assert(invalid == 1)
+
+        paymentRequests.pop(invalid_pos)
+
+        assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
+        
+        self.start_new_cycle()
+
+        # Lets reject one of them with votes
+        preqid = paymentRequests.pop(0)
+        self.nodes[0].paymentrequestvote(preqid, "no")
+
+        self.slow_gen(1)
+        self.start_new_cycle()
+
+        assert(self.nodes[0].getpaymentrequest(preqid)["state"] == 2)
+        assert(self.nodes[0].getpaymentrequest(preqid)["status"] == "rejected")
+
+        # Add a new payment request
+        paymentRequests.append(self.nodes[0].createpaymentrequest(proposalid0, 20, "test0")["hash"])
+        self.slow_gen(1)
+
         for paymentReq in paymentRequests:
             assert(self.nodes[0].getpaymentrequest(paymentReq)["state"] == 0)
             assert(self.nodes[0].getpaymentrequest(paymentReq)["status"] == "pending")
-            assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
-
-        self.start_new_cycle()
 
         # vote for all payment requests
         for paymentReq in paymentRequests:
@@ -71,46 +106,14 @@ class CommunityFundPaymentRequestExtractFundsTest(NavCoinTestFramework):
         self.start_new_cycle()
         time.sleep(0.2)
 
-        # only 5 of the 6 payment requests should be accepted
-        allAccepeted = True
+        # the 5 payment requests should be accepted
+        allAccepted = True
         for paymentReq in paymentRequests:
             if self.nodes[0].getpaymentrequest(paymentReq)["state"] != 1:
-                allAccepeted = False
+                allAccepted = False
 
-        # not all the payment requests should have been validated
-        assert(allAccepeted is False)
-
-
-        # create a new propsal and test for the funds extraction edge case described
-        # https://github.com/NAVCoin/navcoin-core/issues/307
-        proposalid1 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 100, 36000, "test")["hash"]
-        locked_before = self.nodes[0].cfundstats()["funds"]["locked"]
-        self.slow_gen(1)
-
-        self.nodes[0].proposalvote(proposalid1, "yes")
-        self.slow_gen(1)
-        self.start_new_cycle()
-        locked_accepted = self.nodes[0].cfundstats()["funds"]["locked"]
-
-
-        assert(self.nodes[0].getproposal(proposalid1)["state"] == 1)
-        assert(self.nodes[0].getproposal(proposalid1)["status"] == "accepted")
-        assert(self.nodes[0].cfundstats()["funds"]["locked"] == float(locked_before) + float(self.nodes[0].getproposal(proposalid1)["requestedAmount"]))
-
-
-        self.slow_gen(400)
-        self.start_new_cycle()
-
-        # only 5 of the 6 payment requests should be accepted
-        allAccepeted = True
-        for paymentReq in paymentRequests:
-            if self.nodes[0].getpaymentrequest(paymentReq)["state"] != 1:
-                allAccepeted = False
-
-        # not all the payment requests should have been validated
-        assert(allAccepeted is False)
-
-
+        # all the payment requests should have been validated
+        assert(allAccepted is True)
 
     def start_new_cycle(self):
         # Move to the end of the cycle
