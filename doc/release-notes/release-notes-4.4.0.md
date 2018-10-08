@@ -24,7 +24,7 @@ The Version Bit 14 will signal for the soft fork to activate NPIP0003.
 
 This is largely a technical improvement which consolidates mined Community Fund contributions to every 500th block instead of every block to reduce blockchain bloat.
 
-You can read more about NPIP0003 on the NPIP GitHub.
+You can read more about [NPIP0003 on the NPIP GitHub](https://github.com/NAVCoin/npips/blob/master/npip-0003.mediawiki).
 
 ## Community Fund Contribution Increase
 
