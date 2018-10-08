@@ -151,6 +151,7 @@ testScripts = [
     'cfund-proposal-state-expired.py',
     'cfund-paymentrequest-state-accept.py',
     'cfund-paymentrequest-state-expired.py',
+    'cfund-paymentrequest-extract-funds.py',
     'cfund-listproposals.py',
     'reject-version-bit.py',
 ]
