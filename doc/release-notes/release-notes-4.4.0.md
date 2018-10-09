@@ -49,11 +49,11 @@ rejectversionbit=17
 ```
 
 
-## Community Fund RPC Commands
+## Community fund RPC commands
 
 With the release of the community fund additional RPC commands are included
 
-### Create a Community Fund proposal
+### Create a community fund proposal
 
 ```
 createproposal navcoinaddress amount duration "desc" fee
@@ -71,7 +71,7 @@ On success, the daemon responds with the hash(id) of the proposal that is used t
 
 ```
 
-### Vote for a Community Fund proposal
+### Vote for a community fund proposal
 
 ```
 proposalvote proposal_hash command
