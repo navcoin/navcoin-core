@@ -154,6 +154,7 @@ testScripts = [
     'cfund-paymentrequest-extract-funds.py',
     'cfund-listproposals.py',
     'reject-version-bit.py',
+    'cfund-paymentrequest-raw-injection.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')

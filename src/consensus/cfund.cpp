@@ -219,6 +219,10 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::string strDZeel = find_value(metadata, "i").get_str();
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
+    if(nAmount < 0) {
+         return error("%s: Payment Request cannot have amount less than 0: %s", __func__, tx.GetHash().ToString());
+    }
+
     CFund::CProposal proposal;
 
     if(!CFund::FindProposal(Hash, proposal) || proposal.fState != CFund::ACCEPTED)
@@ -311,6 +315,12 @@ bool CFund::IsValidProposal(CTransaction tx)
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
+
+
+    if(nAmount < 0) {
+         return error("%s: Proposal cannot have amount less than 0: %s", __func__, tx.GetHash().ToString());
+    }
+
 
     CNavCoinAddress address(Address);
     if (!address.IsValid())
