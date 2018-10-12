@@ -35,6 +35,7 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
 
 
         self.test_happy_path()
+        self.test_negative_value()
 
         # proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, 3600, "test")["hash"]
         # self.slow_gen(1)
@@ -156,6 +157,34 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
         # # Check the available and locked funds
         # assert (self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
         # assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
+
+    def test_negative_value(self):
+
+        address = self.nodes[0].getnewaddress()
+
+        description = "this should not WORK"
+        duration = 360000
+        amount = -100
+
+        # Create new payment request for more than the amount
+        propHash = ""
+        try:
+            propHash = self.send_raw_propsalrequest(address, amount, duration, description)
+        except Exception as e:
+            assert(propHash == "")
+
+
+        #check a gen - should still only have the last good prop
+        blocks = slow_gen(self.nodes[0], 1)
+        propsalList = self.nodes[0].listproposals()
+
+        #should still only have 1 proposal from the good test run
+        assert(len(propsalList) == 1)
+        assert(propsalList[0]['description'] == "these are not the NAV Droids you are looking for")
+
+
+
+
 
     # Test everything the way it should be
     def test_happy_path(self):
