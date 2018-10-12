@@ -78,34 +78,6 @@ class CommunityFundPaymentRequestStateTest(NavCoinTestFramework):
             assert(paymentrequestid1 == "")
 
 
-        # self.slow_gen(1)
-        #
-        # # Vote yes
-        # self.nodes[0].paymentrequestvote(paymentrequestid1, "yes")
-        #
-        # # Start new cycle
-        # self.start_new_cycle()
-        # for paymentrequest in self.nodes[0].listproposals()[0]['paymentRequests']:
-        #     self.nodes[0].paymentrequestvote(paymentrequest['hash'], "remove")
-        #
-        # # Wait for maturing
-        # self.slow_gen(20)
-        #
-        # # Pay out the positive payment request
-        # raw_payment_tx = self.nodes[0].createrawtransaction(
-        #     [],
-        #     {address: 1000},
-        #     "", 0
-        # )
-        # self.nodes[0].coinbaseoutputs([raw_payment_tx])
-        # self.nodes[0].setcoinbasestrdzeel(json.dumps([paymentrequestid1]))
-        #
-        # # Generate block and receive payment
-        # payblockhash = self.nodes[0].generate(1)[0]
-        #
-        # # Verify it was paid out
-        # assert (self.nodes[0].getpaymentrequest(paymentrequestid1)["paidOnBlock"] == payblockhash)
-
     def send_raw_paymentrequest(self, amount, address, proposal_hash, description):
         amount = amount * 100000000
         privkey = self.nodes[0].dumpprivkey(address)
