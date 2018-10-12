@@ -8,7 +8,7 @@ from test_framework.util import *
 
 import time
 
-class CommunityFundProposalRawStateTest(NavCoinTestFramework):
+class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
     """Tests the state transition of proposals of the Community fund."""
 
     def __init__(self):
@@ -21,26 +21,20 @@ class CommunityFundProposalRawStateTest(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
-        self.slow_gen(100)
+        slow_gen(self.nodes[0], 100)
         # Verify the Community Fund is started
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
 
-        self.slow_gen(100)
+        slow_gen(self.nodes[0], 100)
         # Verify the Community Fund is locked_in
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
 
-        self.slow_gen(100)
+        slow_gen(self.nodes[0], 100)
         # Verify the Community Fund is active
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
 
-        # Get address
-        address = self.nodes[0].getnewaddress()
 
-        propsalData = self.send_raw_propsalrequest(address, 100, 360000, "these are not the driods you are looking for")
-
-        self.slow_gen(1)
-
-        print(self.nodes[0].listproposals())
+        self.test_happy_path()
 
         # proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, 3600, "test")["hash"]
         # self.slow_gen(1)
@@ -163,48 +157,70 @@ class CommunityFundProposalRawStateTest(NavCoinTestFramework):
         # assert (self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
         # assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
 
+    # Test everything the way it should be
+    def test_happy_path(self):
+
+        address = self.nodes[0].getnewaddress()
+
+        description = "these are not the NAV Droids you are looking for"
+        duration = 360000
+        amount = 100
+        propHash = self.send_raw_propsalrequest(address, amount, duration, description)
+
+        blocks = slow_gen(self.nodes[0], 1)
+        propsalList = self.nodes[0].listproposals()
+
+        #should only have 1 propsal
+        assert(len(propsalList) == 1)
+
+        # The proposal should have all the same required fields
+        proposal = propsalList[0]
+        assert (proposal['votingCycle'] == 0)
+        assert (proposal['version'] == 2)
+        assert (proposal['blockHash'] == blocks[0])
+        assert (proposal['paymentAddress'] == address)
+        assert (proposal['proposalDuration'] == duration)
+        assert (proposal['description'] == description)
+        assert (proposal['votesYes'] == 0)
+        assert (proposal['votesNo'] == 0)
+        assert (proposal['status'] == 'pending')
+        assert (proposal['state'] == 0)
+        assert (proposal['hash'] == propHash)
+        assert (float(proposal['requestedAmount']) == float(amount))
+        assert (float(proposal['notPaidYet']) == float(amount))
+        assert (float(proposal['userPaidFee']) == float(1))
+
+
 
     def send_raw_propsalrequest(self,  address, amount, time, description):
 
-
         amount = amount * 100000000
 
-        # Create a raw payment request
+        # Create a raw proposal tx
         raw_proposal_tx = self.nodes[0].createrawtransaction(
             [],
             {"6ac1": 1},
             json.dumps({"v": 2, "n": amount, "a": address,  "d": time, "s": description})
         )
 
-
-
-        # Modify version for payreq creation
+        # Modify version
         raw_proposal_tx = "04" + raw_proposal_tx[2:]
 
-        # Fund raw transacion
+        # Fund raw transaction
         raw_proposal_tx = self.nodes[0].fundrawtransaction(raw_proposal_tx)['hex']
 
-        # Sign raw transacion
+        # Sign raw transaction
         raw_proposal_tx = self.nodes[0].signrawtransaction(raw_proposal_tx)['hex']
 
-        # Send raw transacion
+        # Send raw transaction
+        return self.nodes[0].sendrawtransaction(raw_proposal_tx)
 
-        self.nodes[0].sendrawtransaction(raw_proposal_tx)
+
 
     def start_new_cycle(self):
         # Move to the end of the cycle
         self.slow_gen(self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
-        
-    def slow_gen(self, count):
-        total = count
-        blocks = []
-        while total > 0:
-            now = min(total, 5)
-            blocks.extend(self.nodes[0].generate(now))
-            total -= now
-            time.sleep(0.1)
-        return blocks
 
 
 if __name__ == '__main__':
-    CommunityFundProposalRawStateTest().main()
+    CommunityFundCreateProposalRawTX().main()
