@@ -16,6 +16,13 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
 
+
+        self.goodDescription = "these are not the NAV Droids you are looking for"
+        self.goodDuration = 360000
+        self.goodAmount = 100
+        self.goodPropHash = ""
+        self.goodAddress = ""
+
     def setup_network(self, split=False):
         self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
         self.is_network_split = False
@@ -37,130 +44,8 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
         self.test_happy_path()
         self.test_negative_value()
 
-        # proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, 3600, "test")["hash"]
-        # self.slow_gen(1)
-        #
-        # self.start_new_cycle()
-        #
-        # time.sleep(0.2)
-        #
-        # # Proposal initial state at beginning of cycle
-        #
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
-        #
-        # # Vote enough yes votes, without enough quorum
-        #
-        # total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"]
-        # min_yes_votes = self.nodes[0].cfundstats()["consensus"]["votesAcceptProposalPercentage"]/100
-        # yes_votes = int(total_votes * min_yes_votes) + 1
-        #
-        # self.nodes[0].proposalvote(proposalid0, "yes")
-        # self.slow_gen(yes_votes)
-        # self.nodes[0].proposalvote(proposalid0, "no")
-        # self.slow_gen(total_votes - yes_votes)
-        # self.nodes[0].proposalvote(proposalid0, "remove")
-        #
-        # # Should still be in pending
-        #
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
-        #
-        # self.start_new_cycle()
-        # time.sleep(0.2)
-        #
-        # # Proposal initial state at beginning of cycle
-        #
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
-        #
-        # # Vote enough quorum, but not enough positive votes
-        # total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"] + 1
-        # yes_votes = int(total_votes * min_yes_votes)
-        #
-        # self.nodes[0].proposalvote(proposalid0, "yes")
-        # self.slow_gen(yes_votes)
-        # self.nodes[0].proposalvote(proposalid0, "no")
-        # self.slow_gen(total_votes - yes_votes)
-        # self.nodes[0].proposalvote(proposalid0, "remove")
-        #
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
-        #
-        # self.start_new_cycle()
-        # time.sleep(0.2)
-        #
-        # # Proposal initial state at beginning of cycle
-        #
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
-        #
-        # # Vote enough quorum and enough positive votes
-        #
-        # total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"] + 1
-        # yes_votes = int(total_votes * min_yes_votes) + 1
-        #
-        # self.nodes[0].proposalvote(proposalid0, "yes")
-        # self.slow_gen(yes_votes)
-        # self.nodes[0].proposalvote(proposalid0, "no")
-        # blocks = self.slow_gen(total_votes - yes_votes)
-        # self.nodes[0].proposalvote(proposalid0, "remove")
-        #
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted waiting for end of voting period")
-        #
-        # time.sleep(0.2)
-        #
-        # # Revert last vote and check status
-        #
-        # self.nodes[0].invalidateblock(blocks[-1])
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
-        # self.nodes[0].cfundstats()
-        #
-        # # Vote again
-        #
-        # self.nodes[0].proposalvote(proposalid0, "yes")
-        # self.slow_gen(1)
-        # self.nodes[0].proposalvote(proposalid0, "remove")
-        #
-        #
-        # # Move to a new cycle...
-        # time.sleep(0.2)
-        #
-        # self.start_new_cycle()
-        # blocks=self.slow_gen(1)
-        #
-        # # Proposal must be accepted waiting for fund now
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 4)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted waiting for enough coins in fund")
-        #
-        # # Check the available and locked funds
-        # assert(self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
-        # assert(self.nodes[0].cfundstats()["funds"]["locked"] == 0)
-        #
-        # # Donate to the fund
-        # self.nodes[0].donatefund(1)
-        # self.slow_gen(1)
-        #
-        # # Check the available and locked funds
-        # assert (self.nodes[0].cfundstats()["funds"]["available"] == 1+self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
-        # assert (self.nodes[0].cfundstats()["funds"]["locked"] == 0)
-        #
-        # # Move to the end of the cycle
-        # self.start_new_cycle()
-        #
-        # # Validate that the proposal is accepted
-        # assert(self.nodes[0].getproposal(proposalid0)["state"] == 1)
-        # assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
-        #
-        # # Check the available and locked funds
-        # assert (self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
-        # assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
 
     def test_negative_value(self):
-
-        address = self.nodes[0].getnewaddress()
 
         description = "this should not WORK"
         duration = 360000
@@ -169,7 +54,7 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
         # Create new payment request for more than the amount
         propHash = ""
         try:
-            propHash = self.send_raw_propsalrequest(address, amount, duration, description)
+            propHash = self.send_raw_propsalrequest(self.goodAddress, amount, duration, description)
         except Exception as e:
             assert(propHash == "")
 
@@ -180,7 +65,7 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
 
         #should still only have 1 proposal from the good test run
         assert(len(propsalList) == 1)
-        assert(propsalList[0]['description'] == "these are not the NAV Droids you are looking for")
+        self.checkGoodPropsal(propsalList[0])
 
 
 
@@ -189,12 +74,9 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
     # Test everything the way it should be
     def test_happy_path(self):
 
-        address = self.nodes[0].getnewaddress()
+        self.goodAddress = self.nodes[0].getnewaddress()
 
-        description = "these are not the NAV Droids you are looking for"
-        duration = 360000
-        amount = 100
-        propHash = self.send_raw_propsalrequest(address, amount, duration, description)
+        self.goodPropHash = self.send_raw_propsalrequest(self.goodAddress, self.goodAmount, self.goodDuration, self.goodDescription)
 
         blocks = slow_gen(self.nodes[0], 1)
         propsalList = self.nodes[0].listproposals()
@@ -203,25 +85,29 @@ class CommunityFundCreateProposalRawTX(NavCoinTestFramework):
         assert(len(propsalList) == 1)
 
         # The proposal should have all the same required fields
-        proposal = propsalList[0]
+        assert (propsalList[0]['blockHash'] == blocks[0])
+        self.checkGoodPropsal(propsalList[0])
+
+
+
+    def checkGoodPropsal(self, proposal):
+
         assert (proposal['votingCycle'] == 0)
         assert (proposal['version'] == 2)
-        assert (proposal['blockHash'] == blocks[0])
-        assert (proposal['paymentAddress'] == address)
-        assert (proposal['proposalDuration'] == duration)
-        assert (proposal['description'] == description)
+        assert (proposal['paymentAddress'] == self.goodAddress)
+        assert (proposal['proposalDuration'] == self.goodDuration)
+        assert (proposal['description'] == self.goodDescription)
         assert (proposal['votesYes'] == 0)
         assert (proposal['votesNo'] == 0)
         assert (proposal['status'] == 'pending')
         assert (proposal['state'] == 0)
-        assert (proposal['hash'] == propHash)
-        assert (float(proposal['requestedAmount']) == float(amount))
-        assert (float(proposal['notPaidYet']) == float(amount))
+        assert (proposal['hash'] == self.goodPropHash)
+        assert (float(proposal['requestedAmount']) == float(self.goodAmount))
+        assert (float(proposal['notPaidYet']) == float(self.goodAmount))
         assert (float(proposal['userPaidFee']) == float(1))
 
 
-
-    def send_raw_propsalrequest(self,  address, amount, time, description):
+    def send_raw_propsalrequest(self, address, amount, time, description):
 
         amount = amount * 100000000
 
