@@ -158,7 +158,7 @@ def initialize_datadir(dirname, n):
         os.makedirs(datadir)
     rpc_u, rpc_p = rpc_auth_pair(n)
     with open(os.path.join(datadir, "navcoin.conf"), 'w') as f:
-        f.write("regtest=1\n")
+        f.write("devnet=1\n")
         f.write("rpcuser=" + rpc_u + "\n")
         f.write("rpcpassword=" + rpc_p + "\n")
         f.write("port="+str(p2p_port(n))+"\n")
@@ -247,7 +247,7 @@ def initialize_chain(test_dir, num_nodes):
             for peer in range(4):
                 for j in range(25):
                     set_node_times(rpcs, block_time)
-                    rpcs[peer].generate(1)
+                    slow_gen(rpcs[peer], 1)
                     block_time += 10*60
                 # Must sync before next peer starts generating blocks
                 sync_blocks(rpcs)
@@ -336,7 +336,7 @@ def start_nodes(num_nodes, dirname, extra_args=None, rpchost=None, binary=None):
     return rpcs
 
 def log_filename(dirname, n_node, logname):
-    return os.path.join(dirname, "node"+str(n_node), "regtest", logname)
+    return os.path.join(dirname, "node"+str(n_node), "devnet", logname)
 
 def stop_node(node, i):
     try:
@@ -639,3 +639,14 @@ def create_lots_of_big_transactions(node, txouts, utxos, fee):
 def get_bip9_status(node, key):
     info = node.getblockchaininfo()
     return info['bip9_softforks'][key]
+
+
+def slow_gen(node, count):
+    total = count
+    blocks = []
+    while total > 0:
+        now = min(total, 10)
+        blocks.extend(node.generate(now))
+        total -= now
+        time.sleep(0.1)
+    return blocks

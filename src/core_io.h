@@ -11,6 +11,8 @@
 class CBlock;
 class CScript;
 class CTransaction;
+class CTxIn;
+class CTxOut;
 class uint256;
 class UniValue;
 
@@ -18,6 +20,8 @@ class UniValue;
 extern CScript ParseScript(const std::string& s);
 extern std::string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode = false);
 extern bool DecodeHexTx(CTransaction& tx, const std::string& strHexTx, bool fTryNoWitness = false);
+extern bool DecodeHexTxOut(CTxOut& txout, const std::string& strHexTxOut);
+extern bool DecodeHexTxIn(CTxIn& txin, const std::string& strHexTxIn);
 extern bool DecodeHexBlk(CBlock&, const std::string& strHexBlk);
 extern uint256 ParseHashUV(const UniValue& v, const std::string& strName);
 extern uint256 ParseHashStr(const std::string&, const std::string& strName);
@@ -26,6 +30,8 @@ extern std::vector<unsigned char> ParseHexUV(const UniValue& v, const std::strin
 // core_write.cpp
 extern std::string FormatScript(const CScript& script);
 extern std::string EncodeHexTx(const CTransaction& tx);
+extern std::string EncodeHexTxOut(const CTxOut& txout);
+extern std::string EncodeHexTxIn(const CTxIn& txin);
 extern void ScriptPubKeyToUniv(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 extern void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry);
 

@@ -319,9 +319,9 @@ void WalletView::changePassphrase()
     dlg.exec();
 }
 
-void WalletView::setStakingStats(QString day, QString week, QString month)
+void WalletView::setStakingStats(QString day, QString week, QString month, QString year, QString all)
 {
-    overviewPage->setStakingStats(day,week,month);
+    overviewPage->setStakingStats(day,week,month,year,all);
 }
 
 void WalletView::unlockWallet()

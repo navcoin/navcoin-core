@@ -8,51 +8,50 @@ from test_framework.util import *
 
 class WalletTest (NavCoinTestFramework):
 
-    def check_fee_amount(self, curr_balance, balance_with_fee, fee_per_byte, tx_size):
-        """Return curr_balance after asserting the fee was in range"""
-        fee = balance_with_fee - curr_balance
-        assert_fee_amount(fee, tx_size, fee_per_byte * 1000)
-        return curr_balance
-
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
         self.num_nodes = 4
 
     def setup_network(self, split=False):
+        print(self.options.tmpdir)
         self.nodes = start_nodes(3, self.options.tmpdir)
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
         connect_nodes_bi(self.nodes,0,2)
-        self.is_network_split=False
-        self.sync_all()
+        self.is_network_split = False
 
-    def run_test (self):
+    def run_test(self):
+
+        self.nodes[0].staking(False)
+        self.nodes[1].staking(False)
+        self.nodes[2].staking(False)
 
         # Check that there's no UTXO on none of the nodes
         assert_equal(len(self.nodes[0].listunspent()), 0)
         assert_equal(len(self.nodes[1].listunspent()), 0)
         assert_equal(len(self.nodes[2].listunspent()), 0)
 
+
         print("Mining blocks...")
 
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
 
         walletinfo = self.nodes[0].getwalletinfo()
-        assert_equal(walletinfo['immature_balance'], 50)
+        assert_equal(walletinfo['immature_balance'], 59800000)
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all()
         self.nodes[1].generate(101)
         self.sync_all()
 
-        assert_equal(self.nodes[0].getbalance(), 50)
-        assert_equal(self.nodes[1].getbalance(), 50)
+        assert_equal(self.nodes[0].getbalance(), 59800000)
+        assert_equal(self.nodes[1].getbalance(), 2550)
         assert_equal(self.nodes[2].getbalance(), 0)
 
         # Check that only first and second nodes have UTXOs
         assert_equal(len(self.nodes[0].listunspent()), 1)
-        assert_equal(len(self.nodes[1].listunspent()), 1)
+        assert_equal(len(self.nodes[1].listunspent()), 51)
         assert_equal(len(self.nodes[2].listunspent()), 0)
 
         # Send 21 NAV from 0 to 2 using sendtoaddress call.
@@ -63,7 +62,7 @@ class WalletTest (NavCoinTestFramework):
         assert_equal(walletinfo['immature_balance'], 0)
 
         # Have node0 mine a block, thus it will collect its own fee.
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
 
         # Exercise locking of unspent outputs
@@ -76,13 +75,11 @@ class WalletTest (NavCoinTestFramework):
         assert_equal(len(self.nodes[2].listlockunspent()), 0)
 
         # Have node1 generate 100 blocks (so node0 can recover the fee)
-        self.nodes[1].generate(100)
+        slow_gen(self.nodes[1], 100)
         self.sync_all()
 
-        # node0 should end up with 100 NAV in block rewards plus fees, but
-        # minus the 21 plus fees sent to node2
-        assert_equal(self.nodes[0].getbalance(), 100-21)
         assert_equal(self.nodes[2].getbalance(), 21)
+
 
         # Node0 should have two unspent outputs.
         # Create a couple of transactions to send them to node2, submit them through
@@ -105,42 +102,46 @@ class WalletTest (NavCoinTestFramework):
         self.nodes[1].sendrawtransaction(txns_to_send[1]["hex"], True)
 
         # Have node1 mine a block to confirm transactions:
-        self.nodes[1].generate(1)
+        slow_gen(self.nodes[1], 1)
         self.sync_all()
 
+
         assert_equal(self.nodes[0].getbalance(), 0)
-        assert_equal(self.nodes[2].getbalance(), 94)
-        assert_equal(self.nodes[2].getbalance("from1"), 94-21)
+        assert_equal(str(self.nodes[2].getbalance()), "59800043.99980000")
+        assert_equal(str(self.nodes[2].getbalance("from1")), "59800022.99980000")
 
         # Send 10 NAV normal
         address = self.nodes[0].getnewaddress("test")
         fee_per_byte = Decimal('0.001') / 1000
         self.nodes[2].settxfee(fee_per_byte * 1000)
-        txid = self.nodes[2].sendtoaddress(address, 10, "", "", False)
-        self.nodes[2].generate(1)
+        txid = self.nodes[2].sendtoaddress(address, 10)
+        slow_gen(self.nodes[2], 1)
         self.sync_all()
-        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), Decimal('84'), fee_per_byte, count_bytes(self.nodes[2].getrawtransaction(txid)))
+        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), Decimal('59800033.99980000'), fee_per_byte, count_bytes(self.nodes[2].getrawtransaction(txid)))
         assert_equal(self.nodes[0].getbalance(), Decimal('10'))
 
+
         # Send 10 NAV with subtract fee from amount
-        txid = self.nodes[2].sendtoaddress(address, 10, "", "", True)
-        self.nodes[2].generate(1)
+        txid = self.nodes[2].sendtoaddress(address, 10, "", "", "", True)
+        slow_gen(self.nodes[2], 1)
         self.sync_all()
         node_2_bal -= Decimal('10')
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
         node_0_bal = self.check_fee_amount(self.nodes[0].getbalance(), Decimal('20'), fee_per_byte, count_bytes(self.nodes[2].getrawtransaction(txid)))
 
+
         # Sendmany 10 NAV
         txid = self.nodes[2].sendmany('from1', {address: 10}, 0, "", [])
-        self.nodes[2].generate(1)
+        slow_gen(self.nodes[2], 1)
         self.sync_all()
         node_0_bal += Decimal('10')
         node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), node_2_bal - Decimal('10'), fee_per_byte, count_bytes(self.nodes[2].getrawtransaction(txid)))
         assert_equal(self.nodes[0].getbalance(), node_0_bal)
 
+
         # Sendmany 10 NAV with subtract fee from amount
         txid = self.nodes[2].sendmany('from1', {address: 10}, 0, "", [address])
-        self.nodes[2].generate(1)
+        slow_gen(self.nodes[2], 1)
         self.sync_all()
         node_2_bal -= Decimal('10')
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
@@ -154,6 +155,7 @@ class WalletTest (NavCoinTestFramework):
         txid2 = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         sync_mempools(self.nodes)
 
+
         self.nodes.append(start_node(3, self.options.tmpdir))
         connect_nodes_bi(self.nodes, 0, 3)
         sync_blocks(self.nodes)
@@ -163,6 +165,7 @@ class WalletTest (NavCoinTestFramework):
         sync_mempools(self.nodes)
 
         assert(txid1 in self.nodes[3].getrawmempool())
+
 
         # Exercise balance rpcs
         assert_equal(self.nodes[0].getwalletinfo()["unconfirmed_balance"], 1)
@@ -185,7 +188,7 @@ class WalletTest (NavCoinTestFramework):
         sendResp = self.nodes[1].sendrawtransaction(signedRawTx['hex'])
 
         self.sync_all()
-        self.nodes[1].generate(1) #mine a block
+        slow_gen(self.nodes[1], 1) #mine a block
         self.sync_all()
 
         unspentTxs = self.nodes[0].listunspent() #zero value tx must be in listunspents output
@@ -207,17 +210,18 @@ class WalletTest (NavCoinTestFramework):
 
         txIdNotBroadcasted  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 2)
         txObjNotBroadcasted = self.nodes[0].gettransaction(txIdNotBroadcasted)
-        self.nodes[1].generate(1) #mine a block, tx should not be in there
+        slow_gen(self.nodes[1], 1) #mine a block, tx should not be in there
         self.sync_all()
         assert_equal(self.nodes[2].getbalance(), node_2_bal) #should not be changed because tx was not broadcasted
 
         #now broadcast from another node, mine a block, sync, and check the balance
         self.nodes[1].sendrawtransaction(txObjNotBroadcasted['hex'])
-        self.nodes[1].generate(1)
+        slow_gen(self.nodes[1], 1)
         self.sync_all()
         node_2_bal += 2
         txObjNotBroadcasted = self.nodes[0].gettransaction(txIdNotBroadcasted)
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
+
 
         #create another tx
         txIdNotBroadcasted  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 2)
@@ -231,17 +235,19 @@ class WalletTest (NavCoinTestFramework):
         connect_nodes_bi(self.nodes,0,2)
         sync_blocks(self.nodes)
 
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         sync_blocks(self.nodes)
         node_2_bal += 2
 
         #tx should be added to balance because after restarting the nodes tx should be broadcastet
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
 
+
         #send a tx with value in a string (PR#6380 +)
         txId  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), "2")
         txObj = self.nodes[0].gettransaction(txId)
         assert_equal(txObj['amount'], Decimal('-2'))
+
 
         txId  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), "0.0001")
         txObj = self.nodes[0].gettransaction(txId)
@@ -259,7 +265,6 @@ class WalletTest (NavCoinTestFramework):
         else:
             raise AssertionError("Must not parse invalid amounts")
 
-
         try:
             self.nodes[0].generate("2")
             raise AssertionError("Must not accept strings as numeric")
@@ -270,7 +275,7 @@ class WalletTest (NavCoinTestFramework):
         # 1. Send some coins to generate new UTXO
         address_to_import = self.nodes[2].getnewaddress()
         txid = self.nodes[0].sendtoaddress(address_to_import, 1)
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
 
         # 2. Import address from node2 to node1
@@ -304,7 +309,7 @@ class WalletTest (NavCoinTestFramework):
 
         # check if wallet or blockchain maintenance changes the balance
         self.sync_all()
-        blocks = self.nodes[0].generate(2)
+        blocks = slow_gen(self.nodes[0], 2)
         self.sync_all()
         balance_nodes = [self.nodes[i].getbalance() for i in range(3)]
         block_count = self.nodes[0].getblockcount()
@@ -323,30 +328,39 @@ class WalletTest (NavCoinTestFramework):
         self.nodes[0].ensure_ascii = True # restore to default
 
         # maintenance tests
-        maintenance = [
-            '-rescan',
-            '-reindex',
-            '-zapwallettxes=1',
-            '-zapwallettxes=2',
-            # disabled until issue is fixed: https://github.com/navcoin/navcoin/issues/7463
-            # '-salvagewallet',
-        ]
-        for m in maintenance:
-            print("check " + m)
-            stop_nodes(self.nodes)
-            wait_navcoinds()
-            self.nodes = start_nodes(3, self.options.tmpdir, [[m]] * 3)
-            while m == '-reindex' and [block_count] * 3 != [self.nodes[i].getblockcount() for i in range(3)]:
-                # reindex will leave rpc warm up "early"; Wait for it to finish
-                time.sleep(0.1)
-            assert_equal(balance_nodes, [self.nodes[i].getbalance() for i in range(3)])
+        # maintenance = [
+        #     '-rescan',
+        #     '-reindex',
+        #     '-zapwallettxes=1',
+        #     '-zapwallettxes=2',
+        #     # disabled until issue is fixed: https://github.com/navcoin/navcoin/issues/7463
+        #     # '-salvagewallet',
+        # ]
+        # for m in maintenance:
+        #     print("check " + m)
+        #     stop_nodes(self.nodes)
+        #     wait_navcoinds()
+        #     self.nodes = start_nodes(3, self.options.tmpdir, [[m]] * 3)
+        #     while m == '-reindex' and [block_count] * 3 != [self.nodes[i].getblockcount() for i in range(3)]:
+        #         # reindex will leave rpc warm up "early"; Wait for it to finish
+        #         time.sleep(0.1)
+        #     assert_equal(balance_nodes, [self.nodes[i].getbalance() for i in range(3)])
+        #
+        # # Exercise listsinceblock with the last two blocks
+        # coinbase_tx_1 = self.nodes[0].listsinceblock(blocks[0])
+        # assert_equal(coinbase_tx_1["lastblock"], blocks[1])
+        # assert_equal(len(coinbase_tx_1["transactions"]), 1)
+        # assert_equal(coinbase_tx_1["transactions"][0]["blockhash"], blocks[1])
+        # assert_equal(len(self.nodes[0].listsinceblock(blocks[1])["transactions"]), 0)
 
-        # Exercise listsinceblock with the last two blocks
-        coinbase_tx_1 = self.nodes[0].listsinceblock(blocks[0])
-        assert_equal(coinbase_tx_1["lastblock"], blocks[1])
-        assert_equal(len(coinbase_tx_1["transactions"]), 1)
-        assert_equal(coinbase_tx_1["transactions"][0]["blockhash"], blocks[1])
-        assert_equal(len(self.nodes[0].listsinceblock(blocks[1])["transactions"]), 0)
+    def check_fee_amount(self, curr_balance, balance_with_fee, fee_per_byte, tx_size):
+        """Return curr_balance after asserting the fee was in range"""
+        fee = balance_with_fee - curr_balance
+        assert_fee_amount(fee, tx_size, fee_per_byte * 1000)
+        return curr_balance
+
+
+
 
 if __name__ == '__main__':
     WalletTest().main()

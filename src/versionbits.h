@@ -18,10 +18,40 @@ static const int32_t VERSIONBITS_TOP_MASK = 0xF0000000UL;
 /** Total bits available for versionbits */
 static const int32_t VERSIONBITS_NUM_BITS = 29;
 
+/***
+*
+* NavCoin Version Bits
+*
+* SIGNAL
+*
+* Bit 0 -> CSV
+* Bit 1 -> RESERVED LEGACY
+* Bit 2 -> RESERVED LEGACY
+* Bit 3 -> COLD STAKING
+* Bit 4 -> SEGWIT
+* Bit 6 -> C FUND
+* Bit 7 -> C FUND ACCUMULATION
+* Bit 8 -> NTP SYNC
+* Bit 14 -> C FUND ACCUMULATION SPREAD
+*
+* ACTIVATION
+*
+* Bit 5 -> SEGWIT
+* Bit 6 -> C FUND
+* Bit 7 -> NTP SYNC
+* Bit 8 -> CFUND ACCUMULATION
+* Bit 13 -> COLD STAKING
+* Bit 14 -> C FUND ACCUMULATION SPREAD
+* Bit 16 -< C FUND ACCUMULATION AMOUNT V2
+*
+***/
+
 static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nCFundVersionMask = 0x00000040;
 static const int32_t nNSyncVersionMask = 0x00000080;
 static const int32_t nCFundAccVersionMask = 0x00000100;
+static const int32_t nCFundAccSpreadVersionMask = 0x00004000;
+static const int32_t nCFundAmountV2Mask = 0x00010000;
 
 enum ThresholdState {
     THRESHOLD_DEFINED,
@@ -71,5 +101,7 @@ struct VersionBitsCache
 
 ThresholdState VersionBitsState(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos pos, VersionBitsCache& cache);
 uint32_t VersionBitsMask(const Consensus::Params& params, Consensus::DeploymentPos pos);
+bool IsVersionBitRejected(const Consensus::Params& params, Consensus::DeploymentPos pos);
+
 
 #endif
