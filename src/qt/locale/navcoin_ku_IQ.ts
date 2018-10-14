@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="ku_IQ" version="2.1">
+<TS language="ku_IQ" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -25,43 +25,15 @@
         <source>&amp;Delete</source>
         <translation>&amp;سڕینەوە</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     </context>
 <context>
     <name>BanTableModel</name>
-    </context>
-<context>
-    <name>NavCoinGUI</name>
-    <message>
-        <source>&amp;Send</source>
-        <translation>&amp;ناردن</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>&amp;پەرگە</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>&amp;سازکارییەکان</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>&amp;یارمەتی</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>هەڵە</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>ئاگاداری</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>زانیاری</translation>
-    </message>
     </context>
 <context>
     <name>CoinControlDialog</name>
@@ -89,16 +61,21 @@
         <source>Priority</source>
         <translation>لەپێشی</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
 <context>
     <name>EditAddressDialog</name>
     </context>
 <context>
     <name>FreespaceChecker</name>
-    <message>
-        <source>name</source>
-        <translation>ناو</translation>
-    </message>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
     </context>
 <context>
     <name>HelpMessageDialog</name>
@@ -117,6 +94,51 @@
         <source>Error</source>
         <translation>هەڵە</translation>
     </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
+<context>
+    <name>NavCoinGUI</name>
+    <message>
+        <source>&amp;Send</source>
+        <translation>&amp;ناردن</translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation>&amp;پەرگە</translation>
+    </message>
+    <message>
+        <source>&amp;Settings</source>
+        <translation>&amp;سازکارییەکان</translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation>&amp;یارمەتی</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>بەڵێ</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>نەخێر</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>هەڵە</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>ئاگاداری</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>زانیاری</translation>
+    </message>
+    </context>
+<context>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -130,10 +152,9 @@
     </context>
 <context>
     <name>OverviewPage</name>
-    <message>
-        <source>Total:</source>
-        <translation>گشتی</translation>
-    </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -144,6 +165,9 @@
         <source>Amount</source>
         <translation>سەرجەم</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -202,9 +226,20 @@
         <source>Remove</source>
         <translation>سڕینەوە</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
+    <message>
+        <source>Amount</source>
+        <translation>سەرجەم</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>رێکەت</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -233,6 +268,13 @@
     </message>
     </context>
 <context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>بەڵێ</translation>
+    </message>
+</context>
+<context>
     <name>ShutdownWindow</name>
     </context>
 <context>
@@ -245,10 +287,51 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>رێکەت</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>سەرجەم</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>رێکەت</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Date</source>
+        <translation>رێکەت</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;هەناردن</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -269,4 +352,14 @@
         <translation>هەڵە</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>سڕینەوە</translation>
+    </message>
+    </context>
 </TS>

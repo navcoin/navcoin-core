@@ -150,8 +150,8 @@ bool SendCoinsEntry::validate()
     if(DNS->check_address_syntax(ui->payTo->text().toStdString().c_str()))
     {
 
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(ui->payTo->text().toStdString().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(ui->payTo->text().toStdString().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty() || (!dnssec_valid && GetBoolArg("-requirednssec",true)))
           retval = false;

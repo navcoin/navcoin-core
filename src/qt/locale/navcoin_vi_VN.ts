@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="vi_VN" version="2.1">
+<TS language="vi_VN" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Xó&amp;a</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Điền lại passphrase</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,145 @@
         <translation>Bị cấm đến</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Quantity:</source>
+        <translation>Lượng:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Bytes:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Lượng:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Tầm quan trọng:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Phí:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Sau thuế, phí:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Thay đổi:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(bỏ)chọn tất cả</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Chế độ cây</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Chế độ danh sách</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Lượng</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Ngày tháng</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Lần xác nhận</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Đã xác nhận</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Tầm quan trọng</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>Trống</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Thay đổi địa chỉ</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>Nhãn</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>Địa chỉ</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>version</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>&amp;Tùy chọn dòng lệnh</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Mức sử dụng</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>tùy chọn dòng lệnh</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>Chọn ngôn ngữ, ví dụ "de_DE" (mặc định: Vị trí hệ thống)</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Đặt chứng nhận SSL gốc cho yêu cầu giao dịch (mặc định: -hệ thống-)</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Chào mừng</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Lỗi</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -231,10 +373,6 @@
         <translation>Trợ &amp;giúp</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Thanh công cụ (toolbar)</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Yêu cầu thanh toán(tạo mã QR và địa chỉ NavCoin: URLs)</translation>
     </message>
@@ -354,135 +492,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Quantity:</source>
-        <translation>Lượng:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Bytes:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Lượng:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Tầm quan trọng:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Phí:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Sau thuế, phí:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Thay đổi:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(bỏ)chọn tất cả</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Chế độ cây</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Chế độ danh sách</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Lượng</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Ngày tháng</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Lần xác nhận</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Đã xác nhận</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Tầm quan trọng</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Thay đổi địa chỉ</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>Nhãn</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>Địa chỉ</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>name</source>
-        <translation>tên</translation>
-    </message>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>version</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>&amp;Tùy chọn dòng lệnh</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Mức sử dụng</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>tùy chọn dòng lệnh</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Chọn ngôn ngữ, ví dụ "de_DE" (mặc định: Vị trí hệ thống)</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Đặt chứng nhận SSL gốc cho yêu cầu giao dịch (mặc định: -hệ thống-)</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Chào mừng</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Sử dụng vị trí dữ liệu mặc định</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Lỗi</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -592,10 +602,9 @@
         <source>Pending:</source>
         <translation>Đang chờ</translation>
     </message>
-    <message>
-        <source>Total:</source>
-        <translation>Tổng:</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -610,6 +619,9 @@
         <source>Amount</source>
         <translation>Lượng</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -650,6 +662,17 @@
     <message>
         <source>Copy &amp;Address</source>
         <translation>&amp;Copy Địa Chỉ</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Lượng</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Ngày tháng</translation>
     </message>
     </context>
 <context>
@@ -695,6 +718,9 @@
     </message>
     </context>
 <context>
+    <name>SendConfirmationDialog</name>
+    </context>
+<context>
     <name>ShutdownWindow</name>
     </context>
 <context>
@@ -707,10 +733,63 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Ngày tháng</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Lượng</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Ngày tháng</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Đã xác nhận</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Ngày tháng</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>X&amp;uất</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Xuất dữ liệu trong mục hiện tại ra file</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -779,4 +858,14 @@
         <translation>Lỗi</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

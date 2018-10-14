@@ -83,7 +83,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if(scriptPubKey.IsProposalVoteYes())
     {
         typeRet = TX_PROPOSALYESVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
@@ -91,7 +91,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if(scriptPubKey.IsProposalVoteNo())
     {
         typeRet = TX_PROPOSALNOVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
@@ -99,7 +99,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if(scriptPubKey.IsPaymentRequestVoteYes())
     {
         typeRet = TX_PAYMENTREQUESTYESVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
@@ -107,7 +107,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if(scriptPubKey.IsPaymentRequestVoteNo())
     {
         typeRet = TX_PAYMENTREQUESTNOVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
