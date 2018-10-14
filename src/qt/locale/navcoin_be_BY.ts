@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="be_BY" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -42,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>Выдаліць</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -61,9 +63,140 @@
         <source>Repeat new passphrase</source>
         <translation>Паўтарыце новую кодавую фразу</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Quantity:</source>
+        <translation>Колькасць:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Байтаў:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Колькасць:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Прыярытэт:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Камісія:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Пыл:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Пасля камісіі:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(не)выбраць ўсё</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Рэжым дрэва</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Рэжым спіса</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Колькасць</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Прыняць праз метку</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Прыняць праз адрас</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Пацверджанняў</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Пацверджана</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Прыярытэт</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Рэдагаваць Адрас</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>Метка</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>Адрас</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-біт)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Опцыі каманднага радка</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Ужыванне:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>опцыі каманднага радка</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Вітаем</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Памылка</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -347,144 +480,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Quantity:</source>
-        <translation>Колькасць:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Байтаў:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Колькасць:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Прыярытэт:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Камісія:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Пыл:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Пасля камісіі:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(не)выбраць ўсё</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Рэжым дрэва</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Рэжым спіса</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Колькасць</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Прыняць праз метку</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Прыняць праз адрас</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Дата</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Пацверджанняў</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Пацверджана</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Прыярытэт</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Рэдагаваць Адрас</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>Метка</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>Адрас</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Будзе створаны новы каталог з данымі.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>імя</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Каталог ужо існуе. Дадайце %1 калі вы збіраецеся стварыць тут новы каталог.</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-біт)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Опцыі каманднага радка</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Ужыванне:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>опцыі каманднага радка</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Вітаем</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Памылка</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n Гб вольнага месца даступна</numerusform><numerusform>%n Гб вольнага месца даступна</numerusform><numerusform>%n Гб вольнага месца даступна</numerusform><numerusform>%n Гб вольнага месца даступна</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(з %n Гб патрэбна)</numerusform><numerusform>(з %n Гб патрэбна)</numerusform><numerusform>(з %n Гб патрэбна)</numerusform><numerusform>(з %n Гб патрэбна)</numerusform></translation>
-    </message>
-</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -515,6 +512,9 @@
     </message>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
@@ -523,6 +523,9 @@
         <source>Amount</source>
         <translation>Колькасць</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -551,6 +554,17 @@
     <message>
         <source>Copy &amp;Address</source>
         <translation>Капіяваць адрас</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Колькасць</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
     </message>
     </context>
 <context>
@@ -588,10 +602,6 @@
         <translation>Пасля камісіі:</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Даслаць адразу некалькім атрымальнікам</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Пыл:</translation>
     </message>
@@ -623,14 +633,6 @@
         <translation>Alt+A</translation>
     </message>
     <message>
-        <source>Paste address from clipboard</source>
-        <translation>Уставіць адрас з буферу абмена</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>Паведамленне:</translation>
     </message>
@@ -642,7 +644,10 @@
         <source>Memo:</source>
         <translation>Памятка:</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     </context>
@@ -676,14 +681,71 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Колькасць</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Гэтая панэль паказвае дэтальнае апісанне транзакцыі</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Пацверджана</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Даслаць Манеты</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>Экспарт</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Экспартаваць гэтыя звесткі у файл</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -832,4 +894,14 @@
         <translation>Памылка</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

@@ -73,7 +73,10 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     {
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
         entry.push_back(Pair("blockindex", wtx.nIndex));
-        entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        if (mapBlockIndex.count(wtx.hashBlock) > 0)
+            entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        else
+            entry.push_back(Pair("blocktime", 0));
     } else {
         entry.push_back(Pair("trusted", wtx.IsTrusted()));
     }
@@ -417,8 +420,8 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -502,14 +505,14 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
             "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
-            "3. deadline               (numeric, required) Epoch timestamp when the proposal would expire.\n"
+            "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
             "4. \"desc\"               (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 1509151016 \"Development\"")
+            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 86400 \"Development\"")
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -532,6 +535,10 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
+
+    if(nDeadline <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong deadline");
+
     string sDesc = params[3].get_str();
 
     UniValue strDZeel(UniValue::VOBJ);
@@ -540,6 +547,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("a",Address));
     strDZeel.push_back(Pair("d",nDeadline));
     strDZeel.push_back(Pair("s",sDesc));
+    strDZeel.push_back(Pair("v",CFund::CProposal::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -557,6 +565,22 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     ret.push_back(Pair("strDZeel",wtx.strDZeel));
 
     return ret;
+}
+
+std::string random_string( size_t length )
+{
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
 }
 
 UniValue createpaymentrequest(const UniValue& params, bool fHelp)
@@ -607,8 +631,11 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     std::string id = params[2].get_str();
+    std::string sRandom = random_string(16);
 
-    std::string Secret = "I kindly ask to withdraw " + std::to_string(nReqAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + id;
+    std::string Secret = sRandom + "I kindly ask to withdraw " +
+            std::to_string(nReqAmount) + "NAV from the proposal " +
+            proposal.hash.ToString() + ". Payment request id: " + id;
 
     CHashWriter ss(SER_GETHASH, 0);
     ss << strMessageMagic;
@@ -631,7 +658,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("h",params[0].get_str()));
     strDZeel.push_back(Pair("n",nReqAmount));
     strDZeel.push_back(Pair("s",Signature));
+    strDZeel.push_back(Pair("r",sRandom));
     strDZeel.push_back(Pair("i",id));
+    strDZeel.push_back(Pair("v",CFund::CPaymentRequest::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
@@ -735,8 +764,8 @@ UniValue anonsend(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -841,8 +870,8 @@ UniValue getanondestination(const UniValue& params, bool fHelp)
 
     if(DNS->check_address_syntax(params[0].get_str().c_str()))
     {
-        bool dnssec_valid;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_valid);
+        bool dnssec_valid; bool dnssec_available;
+        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
           throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
@@ -3147,12 +3176,12 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     }
 
     // prepare subtotal range of last 24H, 1 week, 30 days, 1 years
-    int GroupDays[4][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}};
-    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days" };
+    int GroupDays[5][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}, {99999999, 0}};
+    std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days", "All" };
 
     nToday = GetTime();
 
-    for(int i=0; i<4; i++)
+    for(int i=0; i<5; i++)
     {
         x.Start = nToday - GroupDays[i][0] * n1Day;
         x.End   = nToday - GroupDays[i][1] * n1Day;
@@ -3212,8 +3241,7 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 
 UniValue resolveopenalias(const UniValue& params, bool fHelp)
 {
-  std::string address = params[0].get_str();
-  bool dnssec_valid;
+  bool dnssec_available; bool dnssec_valid;
   UniValue result(UniValue::VOBJ);
 
   if (!EnsureWalletIsAvailable(fHelp))
@@ -3221,8 +3249,8 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
   if ((fHelp || params.size() != 1))
       throw runtime_error(
-          "resolveopenalias \"address\"\n"
-          "\nResolves the give OpenAlias address to a NavCoin address.\n"
+          "resolveopenallias \"openAlias\"\n"
+          "\nResolves the given OpenAlias address to a NavCoin address.\n"
           "\nArguments:\n"
           "1. \"address\"    (string) The OpenAlias address.\n"
           "\nExamples:\n"
@@ -3230,9 +3258,12 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
           + HelpExampleCli("resolveopenalias", "\"donate@navcoin.org\"")
       );
 
-  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_valid);
+  std::string address = params[0].get_str();
 
-  result.push_back(Pair("dnssec",dnssec_valid));
+  std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_available, dnssec_valid);
+
+  result.push_back(Pair("dnssec_available",dnssec_available));
+  result.push_back(Pair("dnssec_valid",dnssec_valid));
 
   if (addresses.empty())
       result.push_back(Pair("address",""));
@@ -3251,7 +3282,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
     {
         CFund::CProposal proposal;
-        if(pcfundindex->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
         {
             if(vAddedProposalVotes[i].second)
             {
@@ -3330,7 +3361,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
         {
             if(vAddedPaymentRequestVotes[i].second)
             {

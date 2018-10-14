@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="ta" version="2.1">
+<TS language="ta" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -25,7 +25,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;அழி</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     </context>
@@ -35,6 +38,89 @@
         <source>IP/Netmask</source>
         <translation>IP/Netmask</translation>
     </message>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Quantity:</source>
+        <translation>அளவு</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>விலை:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>முன்னுரிமை</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>கட்டணம்:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>கட்டணத்திறகுப் பின்:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>மாற்று:</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>விலை</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>தேதி</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>உறுதிப்படுத்தல்கள்</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>உறுதியாக</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>முன்னுரிமை</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>none</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>நல்வரவு</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>தவறு</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -119,6 +205,14 @@
         <translation>%1 பின்னால்</translation>
     </message>
     <message>
+        <source>Yes</source>
+        <translation>ஆம்</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>மறு</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>தவறு</translation>
     </message>
@@ -160,75 +254,7 @@
     </message>
     </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Quantity:</source>
-        <translation>அளவு</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>விலை:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>முன்னுரிமை</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>கட்டணம்:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>கட்டணத்திறகுப் பின்:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>மாற்று:</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>விலை</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>தேதி</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>உறுதிப்படுத்தல்கள்</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>உறுதியாக</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>முன்னுரிமை</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    </context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>name</source>
-        <translation>பெயர்</translation>
-    </message>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>நல்வரவு</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>தவறு</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -318,18 +344,9 @@
         <source>Pending:</source>
         <translation>நிலுவையில்:</translation>
     </message>
-    <message>
-        <source>Immature:</source>
-        <translation>முதிராத:</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>மீதி</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>மொத்தம்:</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -369,6 +386,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;படத்தை சேமி...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -530,7 +554,7 @@
         <source>Remove</source>
         <translation>நீக்கு</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -549,7 +573,18 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;படத்தை சேமி...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>விலை</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>தேதி</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -577,14 +612,6 @@
         <translation>மாற்று:</translation>
     </message>
     <message>
-        <source>Choose...</source>
-        <translation>தேர்ந்தெடு...</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>மறை</translation>
-    </message>
-    <message>
         <source>normal</source>
         <translation>இயல்பான</translation>
     </message>
@@ -600,7 +627,7 @@
         <source>S&amp;end</source>
         <translation>&amp;அனுப்பு</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -616,14 +643,17 @@
         <translation>Alt+A</translation>
     </message>
     <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>செய்தி:</translation>
     </message>
     </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>ஆம்</translation>
+    </message>
+</context>
 <context>
     <name>ShutdownWindow</name>
     </context>
@@ -653,10 +683,63 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>தேதி</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>விலை</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>தேதி</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>உறுதியாக</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>தேதி</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;ஏற்றுமதி</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>படிவம்</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR குறியீடு</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -685,4 +768,18 @@
         <translation>தவறு</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>படிவம்</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>நீக்கு</translation>
+    </message>
+    </context>
 </TS>

@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2017 The NavCoin developers
+// Copyright (c) 2018 The NavCoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -265,8 +265,6 @@ void Shutdown()
         pcoinsdbview = NULL;
         delete pblocktree;
         pblocktree = NULL;
-        delete pcfundindex;
-        pcfundindex = NULL;
     }
 #ifdef ENABLE_WALLET
     if (pwalletMain)
@@ -424,6 +422,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-port=<port>", strprintf(_("Listen for connections on <port> (default: %u or testnet: %u or devnet: %u)"), Params(CBaseChainParams::MAIN).GetDefaultPort(), Params(CBaseChainParams::TESTNET).GetDefaultPort(), Params(CBaseChainParams::DEVNET).GetDefaultPort()));
     strUsage += HelpMessageOpt("-proxy=<ip:port>", _("Connect through SOCKS5 proxy"));
     strUsage += HelpMessageOpt("-proxyrandomize", strprintf(_("Randomize credentials for every proxy connection. This enables Tor stream isolation (default: %u)"), DEFAULT_PROXYRANDOMIZE));
+    strUsage += HelpMessageOpt("-rejectversionbit=<n>", _("Reject a suggested version bit"));
     strUsage += HelpMessageOpt("-requirednssec", _("Requires DNS Sec for OpenAlias requests (default: true)"));
     strUsage += HelpMessageOpt("-seednode=<ip>", _("Connect to a node to retrieve peer addresses, and disconnect"));
 #ifdef ENABLE_WALLET
@@ -866,7 +865,7 @@ void DownloadBlockchain(std::string url)
     if (curl)
     {
 
-        std::string sDownload = (GetDataDir(false).string() + "/bootstrap_temp.tar");
+        std::string sDownload = (GetDataDir(true).string() + "/bootstrap_temp.tar");
         fp = fopen(sDownload.c_str(),"wb");
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
@@ -906,9 +905,9 @@ void DownloadBlockchain(std::string url)
                 else
                 {
 
-                    boost::filesystem::remove_all(GetDataDir(false) / "blocks");
-                    boost::filesystem::remove_all(GetDataDir(false) / "chainstate");
-                    boost::filesystem::remove_all(GetDataDir(false) / "cfund");
+                    boost::filesystem::remove_all(GetDataDir(true) / "blocks");
+                    boost::filesystem::remove_all(GetDataDir(true) / "chainstate");
+                    boost::filesystem::remove_all(GetDataDir(true) / "cfund");
                     bool fOk = untar(a, sDownload.c_str());
                     fclose(a);
                     boost::filesystem::remove_all(sDownload);
@@ -1292,6 +1291,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     } else {
         while(1)
         {
+            if(ShutdownRequested())
+                break;
             if(!NtpClockSync())
             {
                 sMsg = "A connection could not be made to any ntp server. "
@@ -1504,27 +1505,22 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     // cache size calculations
     int64_t nTotalCache = (GetArg("-dbcache", nDefaultDbCache) << 20);
     nTotalCache = std::max(nTotalCache, nMinDbCache << 20); // total cache cannot be less than nMinDbCache
-    nTotalCache = std::min(nTotalCache, nMaxDbCache << 20); // total cache cannot be greated than nMaxDbcache
-    int64_t nBlockTreeDBCache = nTotalCache / 8;
-    if (GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX) || GetBoolArg("-spentindex", DEFAULT_SPENTINDEX)) {
-        // enable 3/4 of the cache if addressindex and/or spentindex is enabled
-        nBlockTreeDBCache = nTotalCache * 3 / 4;
-    } else {
-        nBlockTreeDBCache = std::min(nBlockTreeDBCache, (GetBoolArg("-txindex", DEFAULT_TXINDEX) ? nMaxBlockDBAndTxIndexCache : nMaxBlockDBCache) << 20);
-    }
+    nTotalCache = std::min(nTotalCache, nMaxDbCache << 20); // total cache cannot be greater than nMaxDbcache
+    int64_t nBlockTreeDBCache = std::min(nTotalCache / 8, nMaxBlockDBCache << 20);
     nTotalCache -= nBlockTreeDBCache;
+    int64_t nTxIndexCache = std::min(nTotalCache / 8, GetBoolArg("-txindex", DEFAULT_TXINDEX) ? nMaxTxIndexCache << 20 : 0);
+    nTotalCache -= nTxIndexCache;
     int64_t nCoinDBCache = std::min(nTotalCache / 2, (nTotalCache / 4) + (1 << 23)); // use 25%-50% of the remainder for disk cache
     nCoinDBCache = std::min(nCoinDBCache, nMaxCoinsDBCache << 20); // cap total coins db cache
     nTotalCache -= nCoinDBCache;
-    nCoinCacheUsage = nTotalCache / 2; // the half goes to in-memory cache
-    nTotalCache -= nCoinCacheUsage;
-    int64_t nCFundCache = nTotalCache; // the rest goes to community fund
+    nCoinCacheUsage = nTotalCache; // the rest goes to in-memory cache
     LogPrintf("Cache configuration:\n");
-    LogPrintf("* Max cache setting possible %.1fMiB\n", nMaxDbCache);
     LogPrintf("* Using %.1fMiB for block index database\n", nBlockTreeDBCache * (1.0 / 1024 / 1024));
+    if (GetBoolArg("-txindex", DEFAULT_TXINDEX)) {
+        LogPrintf("* Using %.1fMiB for transaction index database\n", nTxIndexCache * (1.0 / 1024 / 1024));
+    }
     LogPrintf("* Using %.1fMiB for chain state database\n", nCoinDBCache * (1.0 / 1024 / 1024));
-    LogPrintf("* Using %.1fMiB for in-memory UTXO set\n", nCoinCacheUsage * (1.0 / 1024 / 1024));
-    LogPrintf("* Using %.1fMiB for community fund database\n", nCFundCache * (1.0 / 1024 / 1024));
+    LogPrintf("* Using %.1fMiB for in-memory UTXO set (plus up to %.1fMiB of unused mempool space)\n", nCoinCacheUsage * (1.0 / 1024 / 1024), nMempoolSizeMax * (1.0 / 1024 / 1024));
 
     bool fLoaded = false;
     while (!fLoaded) {
@@ -1541,10 +1537,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 delete pcoinsdbview;
                 delete pcoinscatcher;
                 delete pblocktree;
-                delete pcfundindex;
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex, dbCompression, dbMaxOpenFiles);
-                pcfundindex = new CCFundDB(nCFundCache, false, fReindex || fReindexChainState, dbCompression, dbMaxOpenFiles);
                 pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex || fReindexChainState);
 
                 pcoinscatcher = new CCoinsViewErrorCatcher(pcoinsdbview);
@@ -1625,16 +1619,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                         strLoadError = _("The block database contains a block which appears to be from the future. "
                                          "This may be due to your computer's date and time being set incorrectly. "
                                          "Only rebuild the block database if you are sure that your computer's date and time are correct");
-                        break;
-                    }
-                    int nTipHeight = 0;
-                    bool fCFEnabled = false;
-                    pblocktree->ReadFlag("CFEnabled", fCFEnabled);
-                    if(tip)
-                        nTipHeight = tip->nHeight;
-                    if(nTipHeight > 0 && nTipHeight != pcfundindex->ReadTipHeight() && fCFEnabled) {
-                        strLoadError = _("The community fund database looks to be corrupted. "
-                                         "You will need to rebuild the block database.");
                         break;
                     }
                 }
@@ -1783,8 +1767,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
 #ifdef ENABLE_WALLET
     // Generate coins in the background
-    if(GetBoolArg("-staking", true))
-        threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
+    SetStaking(GetBoolArg("-staking", true));
+    threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
 #endif
 
     uiInterface.InitMessage(_("Done loading"));

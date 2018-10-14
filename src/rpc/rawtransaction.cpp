@@ -256,7 +256,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
             "\nArguments:\n"
             "1. \"txid\"      (string, required) The transaction id\n"
-            "2. verbose       (numeric, optional, default=0) If 0, return a string, other return a json object\n"
+            "2. verbose       (numeric|boolean, optional, default=0) If 0|false, return a string, other return a json object\n"
 
             "\nResult (if verbose is not set or set to 0):\n"
             "\"data\"      (string) The serialized, hex-encoded data for 'txid'\n"
@@ -310,13 +310,29 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
             + HelpExampleCli("getrawtransaction", "\"mytxid\"")
             + HelpExampleCli("getrawtransaction", "\"mytxid\" 1")
             + HelpExampleRpc("getrawtransaction", "\"mytxid\", 1")
+            + HelpExampleRpc("getrawtransaction", "\"mytxid\" true")
+            + HelpExampleRpc("getrawtransaction", "\"mytxid\", true")
         );
 
     uint256 hash = ParseHashV(params[0], "parameter 1");
 
     bool fVerbose = false;
-    if (params.size() > 1)
-        fVerbose = (params[1].get_int() != 0);
+    if (params.size() > 1 && !params[1].isNull()) {
+        if (params[1].isNum()) {
+            if (params[1].get_int() != 0) {
+                fVerbose = true;
+            }
+        }
+        else if(params[1].isBool()) {
+            if (params[1].isTrue()) {
+                fVerbose = true;
+            }
+        }
+        else {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid type provided. Verbose parameter must be an int or boolean.");
+        }
+    }
+
 
     CTransaction tx;
 
@@ -474,9 +490,9 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
 
 UniValue createrawtransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 2 || params.size() > 4)
+    if (fHelp || params.size() < 2 || params.size() > 5)
         throw runtime_error(
-            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] ( locktime )\n"
+            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] [index] [toggle-input-dump]\n"
             "\nCreate a transaction spending the given inputs and creating new outputs.\n"
             "Outputs can be addresses or data.\n"
             "Returns hex-encoded raw transaction.\n"
@@ -496,19 +512,20 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             "2. \"outputs\"             (string, required) a json object with outputs\n"
             "    {\n"
             "      \"address\": x.xxx   (numeric or string, required) The key is the navcoin address, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
-            "      \"data\": \"hex\",     (string, required) The key is \"data\", the value is hex encoded data\n"
+            "      \"data\": x.xxx,     (string, required) The key is hex encoded data, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
             "      ...\n"
             "    }\n"
-            "3. \"anon-destination\"  (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
-            "4. locktime                (numeric, optional, default=0) Raw locktime. Non-0 value also locktime-activates inputs\n"
+            "3. \"anon-destination\"    (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "4. \"index\"               (numeric, optional, default=-1) If greater than -1, it will only print the raw data of the output or input on the index \"index\"\n"
+            "4. \"toggle-input-dump\"   (bool, optional, default=false) Sets whether the input (true) or the output (false) at the index \"index\" is dumped \n"
             "\nResult:\n"
             "\"transaction\"            (string) hex string of the transaction\n"
 
             "\nExamples\n"
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"address\\\":0.01}\"")
-            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"data\\\":\\\"00010203\\\"}\"")
+            + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"00010203\\\":\\\"0.01\\\"}\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"address\\\":0.01}\"")
-            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"data\\\":\\\"00010203\\\"}\"")
+            + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"00010203\\\":\\\"0.01\\\"}\"")
         );
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VSTR)(UniValue::VNUM), true);
@@ -526,11 +543,18 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
     rawTx.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
 
+    int nout = -1;
+
     if (params.size() > 3 && !params[3].isNull()) {
-        int64_t nLockTime = params[3].get_int64();
-        if (nLockTime < 0 || nLockTime > std::numeric_limits<uint32_t>::max())
-            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, locktime out of range");
-        rawTx.nLockTime = nLockTime;
+        int nOut = params[3].get_int();
+        if (nOut < -1 || nOut > std::numeric_limits<int>::max())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, nout out of range");
+        nout = nOut;
+    }
+
+    int dumpin = false;
+    if (params.size() > 4 && !params[4].isNull() && params[4].isBool()) {
+        dumpin = params[4].getBool();
     }
 
     rawTx.nTime = GetAdjustedTime();
@@ -568,17 +592,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
     set<CNavCoinAddress> setAddress;
     vector<string> addrList = sendTo.getKeys();
     BOOST_FOREACH(const string& name_, addrList) {
-
-        if (name_ == "data") {
-            std::vector<unsigned char> data = ParseHexV(sendTo[name_].getValStr(),"Data");
-
-            CTxOut out(0, CScript() << OP_RETURN << data);
-            rawTx.vout.push_back(out);
-        } else {
-            CNavCoinAddress address(name_);
-            if (!address.IsValid())
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid NavCoin address: ")+name_);
-
+        CNavCoinAddress address(name_);
+        if (address.IsValid()) {
             if (setAddress.count(address))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
             setAddress.insert(address);
@@ -588,10 +603,22 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
             CTxOut out(nAmount, scriptPubKey);
             rawTx.vout.push_back(out);
+        } else {
+            std::vector<unsigned char> data = ParseHex(name_);
+
+            CTxOut out(AmountFromValue(sendTo[name_]), CScript(data.begin(), data.end()));
+            rawTx.vout.push_back(out);
         }
     }
 
-    return EncodeHexTx(rawTx);
+    if (dumpin) {
+        if(nout > -1 && (unsigned)nout >= rawTx.vin.size())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, index out of range");
+    } else
+        if(nout > -1 && (unsigned)nout >= rawTx.vout.size())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, index out of range");
+
+    return nout > -1 ? (dumpin ? EncodeHexTxIn(rawTx.vin[nout]) : EncodeHexTxOut(rawTx.vout[nout])) : EncodeHexTx(rawTx);
 }
 
 UniValue decoderawtransaction(const UniValue& params, bool fHelp)
