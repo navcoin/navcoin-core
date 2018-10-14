@@ -121,6 +121,43 @@ bool DecodeHexTx(CTransaction& tx, const std::string& strHexTx, bool fTryNoWitne
     return true;
 }
 
+bool DecodeHexTxOut(CTxOut& txout, const std::string& strHexTxOut)
+{
+    if (!IsHex(strHexTxOut))
+        return false;
+
+    vector<unsigned char> txData(ParseHex(strHexTxOut));
+
+    CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+    try {
+        ssData >> txout;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+
+    return true;
+}
+
+
+bool DecodeHexTxIn(CTxIn& txin, const std::string& strHexTxIn)
+{
+    if (!IsHex(strHexTxIn))
+        return false;
+
+    vector<unsigned char> txData(ParseHex(strHexTxIn));
+
+    CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+    try {
+        ssData >> txin;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+
+    return true;
+}
+
 bool DecodeHexBlk(CBlock& block, const std::string& strHexBlk)
 {
     if (!IsHex(strHexBlk))

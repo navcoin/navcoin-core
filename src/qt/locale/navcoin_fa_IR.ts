@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="fa_IR" version="2.1">
+<TS language="fa_IR" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -37,7 +37,10 @@
         <source>&amp;Delete</source>
         <translation>حذف</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -56,9 +59,76 @@
         <source>Repeat new passphrase</source>
         <translation>رمز/پَس فرِیز را دوباره وارد کنید</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>میزان وجه:</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>میزان</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>تایید شده</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>ویرایش حساب</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>و برچسب</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>حساب&amp;</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>نسخه</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>میزان استفاده:</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Error</source>
+        <translation>خطا</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -159,10 +229,6 @@
         <translation>و راهنما</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>نوار ابزار</translation>
-    </message>
-    <message>
         <source>Error</source>
         <translation>خطا</translation>
     </message>
@@ -192,59 +258,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Amount:</source>
-        <translation>میزان وجه:</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>میزان</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>تاریخ</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>تایید شده</translation>
-    </message>
-    </context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>ویرایش حساب</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>و برچسب</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>حساب&amp;</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    </context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>نسخه</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>میزان استفاده:</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Error</source>
-        <translation>خطا</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -282,10 +296,9 @@
         <source>Form</source>
         <translation>فرم</translation>
     </message>
-    <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>اطلاعات نمایش داده شده ممکن است روزآمد نباشد. wallet شما به صورت خودکار بعد از برقراری اتصال با شبکه navcoin به روز می شود اما این فرایند هنوز تکمیل نشده است.</translation>
-    </message>
+    </context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -296,6 +309,9 @@
         <source>Amount</source>
         <translation>میزان</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -341,6 +357,17 @@
         <source>Copy &amp;Address</source>
         <translation>کپی آدرس</translation>
     </message>
+    <message>
+        <source>Amount</source>
+        <translation>میزان</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -357,10 +384,6 @@
         <translation>میزان وجه:</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>ارسال همزمان به گیرنده های متعدد</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation>مانده حساب:</translation>
     </message>
@@ -372,7 +395,7 @@
         <source>S&amp;end</source>
         <translation>و ارسال</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -392,14 +415,6 @@
         <translation>Alt و A</translation>
     </message>
     <message>
-        <source>Paste address from clipboard</source>
-        <translation>آدرس را بر کلیپ بورد کپی کنید</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt و P</translation>
-    </message>
-    <message>
         <source>Message:</source>
         <translation>پیام:</translation>
     </message>
@@ -411,7 +426,10 @@
         <source>Memo:</source>
         <translation>یادداشت:</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     <message>
@@ -453,14 +471,71 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>میزان</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>این بخش جزئیات تراکنش را نشان می دهد</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>تایید شده</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>تاریخ</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>سکه های ارسالی</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>صدور</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>صدور داده نوار جاری به یک فایل</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>فرم</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -561,4 +636,14 @@
         <translation>خطا</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>فرم</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

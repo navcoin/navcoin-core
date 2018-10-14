@@ -1,4 +1,3 @@
-<!DOCTYPE TS>
 <TS language="da" version="2.1">
 <context>
     <name>AddressBookPage</name>
@@ -42,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Slet</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -61,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Gentag ny adgangskode</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -73,6 +75,197 @@
         <translation>Bandlyst indtil</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Coin-styring</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Mængde:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Byte:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Beløb:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Prioritet:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Gebyr:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Støv:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Efter gebyr:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Byttepenge:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(af)vælg alle</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Trætilstand</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Listetilstand</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Beløb</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Modtaget med mærke</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Modtaget med adresse</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Bekræftelser</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Bekræftet</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioritet</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>ingen</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Redigér adresse</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Mærkat</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Mærkatet, der er associeret med denne indgang i adresselisten</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Adressen, der er associeret med denne indgang i adresselisten. Denne kan kune ændres for afsendelsesadresser.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Adresse</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>version</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>Om %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Kommandolinjetilvalg</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Anvendelse:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>kommandolinjetilvalg</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>Indstillinger for brugergrænseflade:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>Vælg datamappe under opstart (standard: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>Vælg sprog; fx "da_DK" (standard: systemsprog)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Start minimeret</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Opsæt SSL-rodcertifikater til betalingsadmodninger (standard: -system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>Vis startskærm under opstart (standard: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>Nulstil alle indstillinger, der er foretaget i den grafiske brugerflade</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Velkommen</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>Velkommen til %1.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fejl</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -160,6 +353,10 @@
         <translation>&amp;Åbn URI…</translation>
     </message>
     <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>Klienten vil lukke ned. Vil du fortsætte?</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Genindekserer blokke på disken…</translation>
     </message>
@@ -236,10 +433,6 @@
         <translation>&amp;Hjælp</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Faneværktøjslinje</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Anmod om betalinger (genererer QR-koder og "navcoin:"-URI'er)</translation>
     </message>
@@ -310,6 +503,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Transaktioner herefter vil endnu ikke være synlige.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
     </message>
     <message>
         <source>Error</source>
@@ -387,228 +588,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Coin-styring</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Mængde:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Byte:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Beløb:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioritet:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Gebyr:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Støv:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Efter gebyr:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Byttepenge:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(af)vælg alle</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Trætilstand</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Listetilstand</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Beløb</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Modtaget med mærke</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Modtaget med adresse</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Dato</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Bekræftelser</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Bekræftet</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioritet</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Redigér adresse</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Mærkat</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Mærkatet, der er associeret med denne indgang i adresselisten</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Adressen, der er associeret med denne indgang i adresselisten. Denne kan kune ændres for afsendelsesadresser.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Adresse</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>En ny datamappe vil blive oprettet.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>navn</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Mappe eksisterer allerede. Tilføj %1, hvis du vil oprette en ny mappe her.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Sti eksisterer allerede og er ikke en mappe.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Kan ikke oprette en mappe her.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>version</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>Om %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Kommandolinjetilvalg</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Anvendelse:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>kommandolinjetilvalg</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>Indstillinger for brugergrænseflade:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Vælg datamappe under opstart (standard: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Vælg sprog; fx "da_DK" (standard: systemsprog)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Start minimeret</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Opsæt SSL-rodcertifikater til betalingsadmodninger (standard: -system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>Vis startskærm under opstart (standard: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>Nulstil alle indstillinger, der er foretaget i den grafiske brugerflade</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Velkommen</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>Velkommen til %1.</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>Siden dette er første gang, programmet startes, kan du vælge, hvor %1 skal gemme sin data.</translation>
-    </message>
-    <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1 vil downloade og gemme et kopi af NavCoin-blokkæden. Mindst %2 GB data vil blive gemt i denne mappe, og den vil vokse over tid. Tegnebogen vil også blive gemt i denne mappe.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Brug standardmappen for data</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Brug tilpasset mappe for data:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Fejl: Angivet datamappe "%1" kan ikke oprettes.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fejl</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB fri plads tilgængelig</numerusform><numerusform>%n GB fri plads tilgængelig</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(ud af %n GB behøvet)</numerusform><numerusform>(ud af %n GB behøvet)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -627,7 +608,7 @@
         <source>Select payment request file</source>
         <translation>Vælg fil for betalingsanmodning</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -870,74 +851,17 @@
         <translation>Formular</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Den viste information kan være forældet. Din tegnebog synkroniserer automatisk med NavCoin-netværket, når en forbindelse etableres, men denne proces er ikke gennemført endnu.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Kigge:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Tilgængelig:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Din nuværende tilgængelige saldo</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Afventende:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Total saldo for transaktioner, som ikke er blevet bekræftet endnu, og som ikke endnu er en del af den tilgængelige saldo</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Umodne:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Minet saldo, som endnu ikke er modnet</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Saldi:</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Total:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Din nuværende totale saldo</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Din nuværende saldo på kigge-adresser</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Spendérbar:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Nylige transaktioner</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Ubekræftede transaktioner til kigge-adresser</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Minet saldo på kigge-adresser, som endnu ikke er modnet</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Nuværende totalsaldo på kigge-adresser</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -992,6 +916,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Gem billede…</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1353,7 +1284,7 @@
         <source>Remove</source>
         <translation>Fjern</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1372,16 +1303,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Gem billede…</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Beløb</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Send navcoins</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Egenskaber for coin-styring</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1432,28 +1370,12 @@
         <translation>Tilpasset byttepengeadresse</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Transaktionsgebyr:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Vælg…</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>sammenfold gebyropsætning</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>pr. kilobyte</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Hvis det brugertilpassede gebyr er sat til 1000 satoshis, og transaktionen kun fylder 250 byte, betaler "pr. kilobyte" kun 250 satoshis i gebyr, mens "total mindst" betaler 1000 satoshis. For transaktioner større end en kilobyte betaler begge pr. kilobyte.</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Skjul</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1492,24 +1414,8 @@
         <translation>hurtig</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Send til flere modtagere på en gang</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Tilføj &amp;modtager</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Ryd alle felter af formen.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Støv:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Ryd &amp;alle</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1523,7 +1429,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Afsend</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1539,10 +1445,6 @@
         <translation>&amp;Mærkat:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Vælg tidligere brugt adresse</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Dette er en normal betaling.</translation>
     </message>
@@ -1553,14 +1455,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Indsæt adresse fra udklipsholderen</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1601,6 +1495,13 @@
     <message>
         <source>Memo:</source>
         <translation>Memo:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
     </message>
 </context>
 <context>
@@ -1700,7 +1601,7 @@
         <source>Reset all verify message fields</source>
         <translation>Nulstil alle "verificér besked"-felter</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1716,12 +1617,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Beløb</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Denne rude viser en detaljeret beskrivelse af transaktionen</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Bekræftet</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Dato</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1729,6 +1659,38 @@
         <translation>Enhed, som beløb vises i. Klik for at vælge en anden enhed.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Send navcoins</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Eksportér</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Eksportér den aktuelle visning til en fil</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR-kode</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1850,10 +1812,6 @@
     <message>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
         <translation>Justering af maksimalt tilladt gennemsnitlig afvigelse fra peer-tid. Den lokale opfattelse af tid kan blive påvirket frem eller tilbage af peers med denne mængde tid. (standard: %u sekunder)</translation>
-    </message>
-    <message>
-        <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)</source>
-        <translation>Maksimalt totalgebyr (i %s) der må bruges i en enkelt tegnebogstransaktion eller rå transaktion; en for lav en værdi kan afbryde store transaktioner (standard: %s)</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
@@ -2056,10 +2014,6 @@
         <translation>Placering for autentificerings-cookie (standard: datamappe)</translation>
     </message>
     <message>
-        <source>Minimum bytes per sigop in transactions we relay and mine (default: %u)</source>
-        <translation>Minimum bytes pr. sigop i transaktioner, vi videresender og miner (standard: %u)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>For få tilgængelige fildeskriptorer.</translation>
     </message>
@@ -2190,10 +2144,6 @@
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
         <translation>Udfør kommando, når en relevant alarm modtages eller vi ser en virkelig lang udsplitning (%s i cmd erstattes af besked)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Gebyrer (i %s/kB) mindre end dette opfattes som intet gebyr for videresendelse, mining og oprettelse af transaktioner (standard: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -2368,10 +2318,6 @@
         <translation>Advarsel</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>Advarsel: Ukendte nye regler aktiveret (versionsbit %i)</translation>
-    </message>
-    <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>Hvorvidt der skal arbejdes i kun-blokke-tilstand (standard: %u)</translation>
     </message>
@@ -2464,10 +2410,6 @@
         <translation>Brugernavn og hashet adgangskode for JSON-RPC-forbindelser. Feltet &lt;userpw&gt; er i formatet: &lt;BRUGERNAVN&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Et kanonisk Python-skript inkluderes i share/rpcuser. Dette tilvalg kan angives flere gange</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>Advarsel: Ukendte blokversioner bliver minet! Det er muligt, at ukendte regler er i brug</translation>
-    </message>
-    <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>Advarsel: Tegnebogsfil ødelagt, data reddet! Oprindelig %s gemt som %s i %s; hvis din saldo eller dine transaktioner er forkert, bør du genskabe fra en sikkerhedskopi.</translation>
     </message>
@@ -2490,14 +2432,6 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>Ugyldig -proxy adresse: "%s"</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Lyt efter JSON-RPC-forbindelser på &lt;port&gt; (standard: %u eller testnet: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Lyt efter forbindelser på &lt;port&gt; (standard: %u eller testnet: %u)</translation>
     </message>
     <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
@@ -2597,4 +2531,18 @@
         <translation>Fejl</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formular</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Fjern</translation>
+    </message>
+    </context>
 </TS>

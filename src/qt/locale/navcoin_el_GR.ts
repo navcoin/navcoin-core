@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="el_GR" version="2.1">
+<TS language="el_GR" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Διαγραφή</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,9 +63,164 @@
         <source>Repeat new passphrase</source>
         <translation>Επανέλαβε τον νέο κωδικό πρόσβασης</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Επιλογή κερμάτων</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Ποσότητα:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Bytes:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Ποσό:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Προτεραιότητα:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Ταρίφα</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Σκόνη</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Ταρίφα αλλαγής</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Ρέστα:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(από)επιλογή όλων</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Εμφάνιση τύπου δέντρο</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Λίστα εντολών</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Ποσό</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Παραλήφθηκε με επιγραφή</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Παραλείφθηκε με την εξής διεύθυνση</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Ημερομηνία</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Επικυρώσεις</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Επικυρωμένες</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Προτεραιότητα</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>κανένα</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Επεξεργασία Διεύθυνσης</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Επιγραφή</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Η ετικέτα που συνδέεται με αυτήν την καταχώρηση στο βιβλίο διευθύνσεων</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Η διεύθυνση σχετίζεται με αυτή την καταχώρηση του βιβλίου διευθύνσεων. Μπορεί να τροποποιηθεί μόνο για τις διευθύνσεις αποστολής.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Διεύθυνση</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>έκδοση</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>επιλογής γραμμής εντολών</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Χρήση:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>επιλογής γραμμής εντολών</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Καλώς ήρθατε</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Σφάλμα</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -219,10 +377,6 @@
         <translation>&amp;Βοήθεια</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Εργαλειοθήκη καρτελών</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Αίτηση πληρωμών (δημιουργεί QR codes και διευθύνσεις navcoin: )</translation>
     </message>
@@ -330,184 +484,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Επιλογή κερμάτων</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Ποσότητα:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Bytes:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Ποσό:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Προτεραιότητα:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Ταρίφα</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Σκόνη</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Ταρίφα αλλαγής</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Ρέστα:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(από)επιλογή όλων</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Εμφάνιση τύπου δέντρο</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Λίστα εντολών</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Ποσό</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Παραλήφθηκε με επιγραφή</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Παραλείφθηκε με την εξής διεύθυνση</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Ημερομηνία</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Επικυρώσεις</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Επικυρωμένες</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Προτεραιότητα</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Επεξεργασία Διεύθυνσης</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Επιγραφή</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Η ετικέτα που συνδέεται με αυτήν την καταχώρηση στο βιβλίο διευθύνσεων</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Η διεύθυνση σχετίζεται με αυτή την καταχώρηση του βιβλίου διευθύνσεων. Μπορεί να τροποποιηθεί μόνο για τις διευθύνσεις αποστολής.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Διεύθυνση</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>Θα δημιουργηθεί ένας νέος φάκελος δεδομένων.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>όνομα</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Κατάλογος ήδη υπάρχει. Προσθήκη %1, αν σκοπεύετε να δημιουργήσετε έναν νέο κατάλογο εδώ.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Η διαδρομή υπάρχει ήδη αλλά δεν είναι φάκελος</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Δεν μπορεί να δημιουργηθεί φάκελος δεδομένων εδώ.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>έκδοση</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>επιλογής γραμμής εντολών</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Χρήση:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>επιλογής γραμμής εντολών</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Καλώς ήρθατε</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Χρήση του προεπιλεγμένου φακέλου δεδομένων</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Προσαρμογή του φακέλου δεδομένων: </translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Σφάλμα: Ο καθορισμένος φάκελος δεδομένων "%1" δεν μπορεί να δημιουργηθεί.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Σφάλμα</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB ελεύθερου χώρου διαθέσιμα</numerusform><numerusform>%n GB ελεύθερου χώρου διαθέσιμα</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(από το %n GB που απαιτείται)</numerusform><numerusform>(από τα %n GB που απαιτούνται)</numerusform></translation>
-    </message>
-</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -526,7 +504,7 @@
         <source>Select payment request file</source>
         <translation>Επιλέξτε πληρωμή αρχείου αίτησης</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -718,74 +696,17 @@
         <translation>Φόρμα</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Οι πληροφορίες που εμφανίζονται μπορεί να είναι ξεπερασμένες. Το πορτοφόλι σας συγχρονίζεται αυτόματα με το δίκτυο NavCoin μετά από μια σύνδεση, αλλά αυτή η διαδικασία δεν έχει ακόμη ολοκληρωθεί. </translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Επίβλεψη μόνο:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Διαθέσιμο:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Το τρέχον διαθέσιμο υπόλοιπο</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Εκκρεμούν:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Το άθροισμα των συναλλαγών που δεν έχουν ακόμα επιβεβαιωθεί και δεν προσμετρώνται στο τρέχον διαθέσιμο υπόλοιπό σας</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Ανώριμος</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Εξορυγμενο υπόλοιπο που δεν έχει ακόμα ωριμάσει </translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Υπόλοιπο:</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Σύνολο:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Το τρέχον συνολικό υπόλοιπο</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Το τρέχον υπόλοιπο σας σε διευθύνσεις παρακολούθησης μόνο</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Ξοδεμένα:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Πρόσφατες συναλλαγές</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Μη επικυρωμένες συναλλαγές σε διευθύνσεις παρακολούθησης μόνο</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Εξορυγμένο υπόλοιπο σε διευθύνσεις παρακολούθησης μόνο που δεν έχει ωριμάσει ακόμα</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Το τρέχον συνολικό υπόλοιπο σε διευθύνσεις παρακολούθησης μόνο</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -832,6 +753,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Αποθήκευση εικόνας...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1053,7 +981,7 @@
         <source>Remove</source>
         <translation>Αφαίρεση</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1072,16 +1000,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Αποθήκευση εικόνας...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Ποσό</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Ημερομηνία</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Αποστολή νομισμάτων</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Χαρακτηρηστικά επιλογής κερμάτων</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1132,20 +1067,8 @@
         <translation>Προσαρμοσμένη διεύθυνση ρέστων</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Τέλος συναλλαγής:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Επιλογή...</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>ανά kilobyte</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Απόκρυψη</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1172,24 +1095,8 @@
         <translation>Γρήγορο</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Αποστολή σε πολλούς αποδέκτες ταυτόχρονα</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;Προσθήκη αποδέκτη</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Καθαρισμός όλων των πεδίων της φόρμας.</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Σκόνη</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Καθαρισμός &amp;Όλων</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1203,7 +1110,7 @@
         <source>S&amp;end</source>
         <translation>Αποστολη</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1219,10 +1126,6 @@
         <translation>&amp;Επιγραφή</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Επιλογή διεύθυνσης που έχει ήδη χρησιμοποιηθεί</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Αυτή είναι μια απλή πληρωμή.</translation>
     </message>
@@ -1233,14 +1136,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Επικόλληση διεύθυνσης από το βιβλίο διευθύνσεων</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1262,7 +1157,10 @@
         <source>Memo:</source>
         <translation>Σημείωση:</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     <message>
@@ -1348,7 +1246,7 @@
         <source>Reset all verify message fields</source>
         <translation>Επαναφορά όλων επαλήθευμενων πεδίων μήνυματος </translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1364,12 +1262,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Ημερομηνία</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Ποσό</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Αυτό το παράθυρο δείχνει μια λεπτομερή περιγραφή της συναλλαγής</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Ημερομηνία</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Επικυρωμένες</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Ημερομηνία</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1377,6 +1304,38 @@
         <translation>Μονάδα μέτρησης προβολής ποσών. Κάντε κλικ για επιλογή άλλης μονάδας.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Αποστολή νομισμάτων</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Εξαγωγή</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Εξαγωγή δεδομένων καρτέλας σε αρχείο</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Φόρμα</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>Κώδικας QR</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1672,4 +1631,18 @@
         <translation>Σφάλμα</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Φόρμα</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Αφαίρεση</translation>
+    </message>
+    </context>
 </TS>

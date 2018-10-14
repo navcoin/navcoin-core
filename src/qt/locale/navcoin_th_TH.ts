@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="th_TH" version="2.1">
+<TS language="th_TH" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;ลบ</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>กรุณากรอกรหัสผ่านใหม่อีกครั้งหนึ่ง</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,193 @@
         <translation>ห้าม จนถึง</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>การเลือก Coin</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>จำนวน:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>ไบต์:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>จำนวน:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>ความเร่งด่วน:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>ค่าธรรมเนียม:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>เศษ:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>ส่วนที่เหลือจากค่าธรรมเนียม:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>เงินทอน:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(ไม่)เลือกทั้งหมด</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>โหมดแบบต้นไม้</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>โหมดแบบรายการ</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>จำนวน</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>รับโดยป้ายชื่อ (label)</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>รับโดยที่เก็บ</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>วันที่</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>การยืนยัน</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>ยืนยันแล้ว</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>ระดับความสำคัญ</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>แก้ไขที่อยู่</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;ป้ายชื่อ</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>รายการแสดง ป้ายชื่อที่เกี่ยวข้องกับที่เก็บนี้</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>ที่เก็บที่เกี่ยวข้องกับ ที่เก็บที่แสดงรายการนี้ การปรับปรุงนี้ทำได้สำหรับ ที่เก็บเงินที่จะใช่ส่งเงิน เท่านั้น</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;ที่เก็บ</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>เวอร์ชั่น</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-บิท)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>เกี่ยวกับ %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>ตัวเลือก Command-line</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>วิธีใช้งาน:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>ตัวเลือก command-line</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>ตัวเลือก UI:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>เลือกไดเร็กทอรี่ข้อมูลตั้งแต่เริ่มต้นสตาร์ทอัพ (ค่าเริ่มต้น: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>ตั้งค่าภาษา ยกตัวอย่าง "de_DE" (ค่าเริ่มต้น: ภาษาท้องถิ่นของระบบ)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>เริ่มต้นมินิไมซ์</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>ตั้งค่า SSL root certificates สำหรับเรียกการชำระเงิน (ค่าเริ่มต้น: -system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>แสดง splash screen ตอนเริ่มต้น (ค่าเริ่มต้น: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>รีเซตการเปลี่ยนการตั้งค่าทั้งหมดใน GUI</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>ยินดีต้อนรับ</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>ยินดีต้องรับสู่ %1</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>ข้อผิดพลาด</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -235,10 +425,6 @@
         <translation>&amp;ช่วยเหลือ</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>แถบเครื่องมือ</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>เรียกเก็บ การชำระเงิน (สร้าง QR codes และ navcoin: URIs)</translation>
     </message>
@@ -386,224 +572,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>การเลือก Coin</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>จำนวน:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>ไบต์:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>จำนวน:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>ความเร่งด่วน:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>ค่าธรรมเนียม:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>เศษ:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>ส่วนที่เหลือจากค่าธรรมเนียม:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>เงินทอน:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(ไม่)เลือกทั้งหมด</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>โหมดแบบต้นไม้</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>โหมดแบบรายการ</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>จำนวน</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>รับโดยป้ายชื่อ (label)</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>รับโดยที่เก็บ</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>วันที่</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>การยืนยัน</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>ยืนยันแล้ว</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>ระดับความสำคัญ</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>แก้ไขที่อยู่</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;ป้ายชื่อ</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>รายการแสดง ป้ายชื่อที่เกี่ยวข้องกับที่เก็บนี้</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>ที่เก็บที่เกี่ยวข้องกับ ที่เก็บที่แสดงรายการนี้ การปรับปรุงนี้ทำได้สำหรับ ที่เก็บเงินที่จะใช่ส่งเงิน เท่านั้น</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;ที่เก็บ</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>ไดเร็กทอรี่ใหม่ที่ใช้เก็บข้อมูลจะถูกสร้างขึ้นมา</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>ชื่อ</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>พาธ มีอยู่แล้ว พาธนี่ไม่ใช่ไดเร็กทอรี่</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>ไม่สามารถสร้างไดเร็กทอรี่ข้อมูลที่นี่</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>เวอร์ชั่น</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-บิท)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>เกี่ยวกับ %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>ตัวเลือก Command-line</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>วิธีใช้งาน:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>ตัวเลือก command-line</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>ตัวเลือก UI:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>เลือกไดเร็กทอรี่ข้อมูลตั้งแต่เริ่มต้นสตาร์ทอัพ (ค่าเริ่มต้น: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>ตั้งค่าภาษา ยกตัวอย่าง "de_DE" (ค่าเริ่มต้น: ภาษาท้องถิ่นของระบบ)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>เริ่มต้นมินิไมซ์</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>ตั้งค่า SSL root certificates สำหรับเรียกการชำระเงิน (ค่าเริ่มต้น: -system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>แสดง splash screen ตอนเริ่มต้น (ค่าเริ่มต้น: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>รีเซตการเปลี่ยนการตั้งค่าทั้งหมดใน GUI</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>ยินดีต้อนรับ</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>ยินดีต้องรับสู่ %1</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>นี่เป็นการรันโปรแกรมครั้งแรก ท่านสามารถเลือก ว่าจะเก็บข้อมูลไว้ที่ %1</translation>
-    </message>
-    <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1 จะดาวน์โหลดและเก็บกอปปี้ชุดหนึ่งของ บล็อกเชน NavCoin ไว้ ข้อมูลขนานอย่างน้อย %2GB จะเก็บไว้ในไดเร็กทอรี่นี้ และข้อมูลจะมีขนาดใหญ่ขึ้นเรื่อยๆ กระเป๋าเงิน จะเก็บไว้ในไดเร็กทอรี่นี้ด้วย</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>ใช้ไดเร็กทอรี่ข้อมูล ที่เป็นค่าเริ่มต้น</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>ใช้ไดเร็กทอรี่ข้อมูลที่ตั้งค่าเอง:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>ข้อผิดพลาด: ไดเร็กทอรี่ข้อมูลที่ต้องการ "%1" ไม่สามารถสร้างได้</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>ข้อผิดพลาด</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB พื้นที่ว่างบนดิสก์ที่ใช้ได้</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(ต้องการพื้นที่ %n GB)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -622,7 +592,7 @@
         <source>Select payment request file</source>
         <translation>เลือก ไฟล์การเรียกการชำระเงิน</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -798,6 +768,9 @@
     </message>
     </context>
 <context>
+    <name>PaymentServer</name>
+    </context>
+<context>
     <name>PeerTableModel</name>
     </context>
 <context>
@@ -806,6 +779,9 @@
         <source>Amount</source>
         <translation>จำนวน</translation>
     </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -819,6 +795,17 @@
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
+    <message>
+        <source>Amount</source>
+        <translation>จำนวน</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>วันที่</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -867,6 +854,9 @@
     </message>
     </context>
 <context>
+    <name>SendConfirmationDialog</name>
+    </context>
+<context>
     <name>ShutdownWindow</name>
     </context>
 <context>
@@ -883,10 +873,67 @@
     <name>TrafficGraphWidget</name>
     </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>วันที่</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>จำนวน</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     </context>
 <context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>วันที่</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>ยืนยันแล้ว</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>วันที่</translation>
+    </message>
+    </context>
+<context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>ส่งเหรียญ</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;ส่งออก</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>ส่งออกข้อมูลที่อยู่ในแท็บไปที่ไฟล์</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>รูป</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -907,4 +954,14 @@
         <translation>ข้อผิดพลาด</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>รูป</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    </context>
 </TS>

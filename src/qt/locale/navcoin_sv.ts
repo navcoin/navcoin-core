@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="sv" version="2.1">
+<TS language="sv" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -41,7 +41,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;Radera</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -60,7 +63,7 @@
         <source>Repeat new passphrase</source>
         <translation>Upprepa nytt lösenord</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -72,6 +75,197 @@
         <translation>Bannad tills</translation>
     </message>
 </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Coin Selection</source>
+        <translation>Myntval</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Kvantitet:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>Antal byte:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Belopp:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Prioritet:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Avgift:</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation>Damm:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Efter avgift:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Växel:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>(av)markera allt</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Trädvy</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Listvy</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Mängd</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Mottagen med etikett</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Mottagen med adress</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>Bekräftelser</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Bekräftad</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Prioritet</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>ingen</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>Redigera adress</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>&amp;Etikett</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Etiketten associerad med denna adresslistas post</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Adressen associerad med denna adresslistas post. Detta kan bara ändras för sändningsadresser.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>&amp;Adress</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>version</translation>
+    </message>
+    <message>
+        <source>(%1-bit)</source>
+        <translation>(%1-bit)</translation>
+    </message>
+    <message>
+        <source>About %1</source>
+        <translation>Om %1</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>Kommandoradsalternativ</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>Användning:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>kommandoradsalternativ</translation>
+    </message>
+    <message>
+        <source>UI Options:</source>
+        <translation>UI-inställningar:</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: %u)</source>
+        <translation>Välj datakatalog vid uppstart (standard: %u)</translation>
+    </message>
+    <message>
+        <source>Set language, for example "de_DE" (default: system locale)</source>
+        <translation>Ange språk, till exempel "de_DE" (standard: systemspråk)</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Starta minimerad</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Ange SSL rotcertifikat för betalningsansökan (standard: -system-)</translation>
+    </message>
+    <message>
+        <source>Show splash screen on startup (default: %u)</source>
+        <translation>Visa startbild vid uppstart (standard: %u)</translation>
+    </message>
+    <message>
+        <source>Reset all settings changed in the GUI</source>
+        <translation>Återställ alla inställningar som gjorts i GUI</translation>
+    </message>
+</context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>Välkommen</translation>
+    </message>
+    <message>
+        <source>Welcome to %1.</source>
+        <translation>Välkommen till %1.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fel</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
+    </context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -159,6 +353,10 @@
         <translation>Öppna &amp;URI...</translation>
     </message>
     <message>
+        <source>Client will be shut down. Do you want to proceed?</source>
+        <translation>Programmet kommer att stängas. Vill du fortsätta?</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Återindexerar block på disken...</translation>
     </message>
@@ -235,10 +433,6 @@
         <translation>&amp;Hjälp</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>Verktygsfält för tabbar</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>Begär betalning (genererar QR-koder och navcoin-URI)</translation>
     </message>
@@ -309,6 +503,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Transaktioner efter denna kommer inte ännu vara synliga.</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nej</translation>
     </message>
     <message>
         <source>Error</source>
@@ -386,228 +588,8 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>Myntval</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>Kvantitet:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>Antal byte:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Belopp:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioritet:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>Avgift:</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>Damm:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>Efter avgift:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>Växel:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(av)markera allt</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>Trädvy</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>Listvy</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Mängd</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>Mottagen med etikett</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>Mottagen med adress</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>Datum</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>Bekräftelser</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>Bekräftad</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioritet</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>Redigera adress</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>&amp;Etikett</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>Etiketten associerad med denna adresslistas post</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>Adressen associerad med denna adresslistas post. Detta kan bara ändras för sändningsadresser.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>&amp;Adress</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>En ny datakatalog kommer att skapas.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>namn</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Katalogen finns redan. Läggtill %1 om du vill skapa en ny katalog här.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>Sökvägen finns redan, och är inte en katalog.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>Kan inte skapa datakatalog här.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>version</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>Om %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>Kommandoradsalternativ</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>Användning:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>kommandoradsalternativ</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>UI-inställningar:</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>Välj datakatalog vid uppstart (standard: %u)</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>Ange språk, till exempel "de_DE" (standard: systemspråk)</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>Starta minimerad</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>Ange SSL rotcertifikat för betalningsansökan (standard: -system-)</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>Visa startbild vid uppstart (standard: %u)</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>Återställ alla inställningar som gjorts i GUI</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Välkommen</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>Välkommen till %1.</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>Eftersom detta är första gången programmet startas får du välja var %1 skall lagra sitt data.</translation>
-    </message>
-    <message>
-        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>%1 kommer att ladda ner och spara en kopia av NavCoin blockkedjan. Åtminstone %2GB av data kommer att sparas i denna katalog, och den kommer att växa över tiden. Plånboken kommer också att sparas i denna katalog.</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>Använd den förvalda datakatalogen</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>Använd en anpassad datakatalog:</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation>Fel: Den angivna datakatalogen "%1" kan inte skapas.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fel</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation><numerusform>%n GB fritt utrymme kvar</numerusform><numerusform>%n GB fritt utrymme kvar</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation><numerusform>(av %n GB behövs)</numerusform><numerusform>(av %n GB behövs)</numerusform></translation>
-    </message>
-</context>
+    <name>NavTechInit</name>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -626,7 +608,7 @@
         <source>Select payment request file</source>
         <translation>Välj betalningsbegäransfil</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -869,74 +851,17 @@
         <translation>Formulär</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Den visade informationen kan vara inaktuell. Plånboken synkroniseras automatiskt med NavCoin-nätverket efter att anslutningen är upprättad, men denna process har inte slutförts ännu.</translation>
-    </message>
-    <message>
-        <source>Watch-only:</source>
-        <translation>Granska-bara:</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Tillgängligt:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>Ditt tillgängliga saldo</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>Pågående:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Totalt antal transaktioner som ännu inte bekräftats, och som ännu inte räknas med i aktuellt saldo</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>Omogen:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>Den genererade balansen som ännu inte har mognat</translation>
-    </message>
-    <message>
-        <source>Balances</source>
-        <translation>Balanser</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>Totalt:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>Ditt nuvarande totala saldo</translation>
-    </message>
-    <message>
-        <source>Your current balance in watch-only addresses</source>
-        <translation>Ditt nuvarande saldo i granska-bara adresser</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation>Spenderbar:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation>Nyligen genomförda transaktioner</translation>
-    </message>
-    <message>
-        <source>Unconfirmed transactions to watch-only addresses</source>
-        <translation>Okonfirmerade transaktioner till granska-bara adresser</translation>
-    </message>
-    <message>
-        <source>Mined balance in watch-only addresses that has not yet matured</source>
-        <translation>Den genererade balansen i granska-bara adresser som ännu inte har mognat</translation>
-    </message>
-    <message>
-        <source>Current total balance in watch-only addresses</source>
-        <translation>Nuvarande total balans i granska-bara adresser</translation>
-    </message>
 </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -991,6 +916,13 @@
         <translation>%1 ms</translation>
     </message>
 </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Spara Bild...</translation>
+    </message>
+    </context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1352,7 +1284,7 @@
         <source>Remove</source>
         <translation>Ta bort</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1371,16 +1303,23 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Spara Bild...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>Mängd</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>Skicka pengar</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>Myntkontrollfunktioner</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -1431,28 +1370,12 @@
         <translation>Specialväxeladress</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>Transaktionsavgift:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation>Välj...</translation>
-    </message>
-    <message>
-        <source>collapse fee-settings</source>
-        <translation>Fäll ihop avgiftsinställningarna</translation>
-    </message>
-    <message>
         <source>per kilobyte</source>
         <translation>per kilobyte</translation>
     </message>
     <message>
         <source>If the custom fee is set to 1000 satoshis and the transaction is only 250 bytes, then "per kilobyte" only pays 250 satoshis in fee, while "total at least" pays 1000 satoshis. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Om den anpassad avgiften är satt till 1000 satoshi och transaktionen bara är 250 byte, betalar "per kilobyte" bara 250 satoshi i avgift, medans "totalt minst" betalar 1000 satoshi. För transaktioner större än en kilobyte betalar både per kilobyte.</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation>Göm</translation>
     </message>
     <message>
         <source>total at least</source>
@@ -1491,24 +1414,8 @@
         <translation>snabb</translation>
     </message>
     <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>Skicka till flera mottagare samtidigt</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>Lägg till &amp;mottagare</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>Rensa alla formulärfälten</translation>
-    </message>
-    <message>
         <source>Dust:</source>
         <translation>Damm:</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>Rensa &amp;alla</translation>
     </message>
     <message>
         <source>Balance:</source>
@@ -1522,7 +1429,7 @@
         <source>S&amp;end</source>
         <translation>&amp;Skicka</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1538,10 +1445,6 @@
         <translation>&amp;Etikett:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>Välj tidigare använda adresser</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>Detta är en normal betalning.</translation>
     </message>
@@ -1552,14 +1455,6 @@
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>Klistra in adress från Urklipp</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1600,6 +1495,13 @@
     <message>
         <source>Memo:</source>
         <translation>PM:</translation>
+    </message>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Yes</source>
+        <translation>Ja</translation>
     </message>
 </context>
 <context>
@@ -1699,7 +1601,7 @@
         <source>Reset all verify message fields</source>
         <translation>Rensa alla fält</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1715,12 +1617,41 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Mängd</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Den här panelen visar en detaljerad beskrivning av transaktionen</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>Bekräftad</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1728,6 +1659,38 @@
         <translation>&amp;Enhet att visa belopp i. Klicka för att välja annan enhet.</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Skicka pengar</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Exportera</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Exportera informationen i den nuvarande fliken till en fil</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulär</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR-kod</translation>
+    </message>
+    </context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1845,10 +1808,6 @@
     <message>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
         <translation>Maximalt tillåten median-peer tidsoffset justering. Lokalt perspektiv av tiden kan bli påverkad av partners, framåt eller bakåt denna tidsrymd. (förvalt: %u sekunder)</translation>
-    </message>
-    <message>
-        <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)</source>
-        <translation>Maximal total avgift (i %s) att använda i en plånbokstransaktion eller råa transaktioner. Sätts denna för lågt kan stora transaktioner avbrytas (förvalt: %s)</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
@@ -2051,10 +2010,6 @@
         <translation>Plats för authcookie (förvalt: datamapp)</translation>
     </message>
     <message>
-        <source>Minimum bytes per sigop in transactions we relay and mine (default: %u)</source>
-        <translation>Minimum antal byte per sigop i transaktioner som vi reläar och bryter (förvalt: %u)</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation>Inte tillräckligt med filbeskrivningar tillgängliga.</translation>
     </message>
@@ -2181,10 +2136,6 @@
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
         <translation>Exekvera kommando när ett relevant meddelande är mottagen eller när vi ser en väldigt lång förgrening (%s i cmd är utbytt med ett meddelande)</translation>
-    </message>
-    <message>
-        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
-        <translation>Avgifter (i %s/kB) mindre än detta betraktas som nollavgift för vidarebefordran, mining och transaktionsskapande (förvalt: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -2359,10 +2310,6 @@
         <translation>Varning</translation>
     </message>
     <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation>Varning: okända nya regler aktiverade (versionsbit %i)</translation>
-    </message>
-    <message>
         <source>Whether to operate in a blocks only mode (default: %u)</source>
         <translation>Ska allt göras i endast block-läge (förval: %u)</translation>
     </message>
@@ -2455,10 +2402,6 @@
         <translation>Användarnamn och hashat lösenord för JSON-RPC-anslutningar. Fältet &lt;userpw&gt; kommer i formatet: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Ett kanoniskt pythonskript finns inkluderat i share/rpcuser. Detta alternativ kan anges flera gånger</translation>
     </message>
     <message>
-        <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
-        <translation>Varning: Okända blockversioner bryts! Det är möjligt att okända regler används</translation>
-    </message>
-    <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>Varning: Plånboksfilen var korrupt, datat har räddats! Den ursprungliga %s har sparas som %s i %s. Om ditt saldo eller transaktioner är felaktiga bör du återställa från en säkerhetskopia.</translation>
     </message>
@@ -2481,14 +2424,6 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>Ogiltig -proxy adress: '%s'</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Lyssna på JSON-RPC-anslutningar på &lt;port&gt; (förval: %u eller testnet: %u)</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u)</source>
-        <translation>Lyssna efter anslutningar på &lt;port&gt; (förvalt: %u eller testnet: %u)</translation>
     </message>
     <message>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
@@ -2587,4 +2522,18 @@
         <translation>Fel</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulär</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>Ta bort</translation>
+    </message>
+    </context>
 </TS>

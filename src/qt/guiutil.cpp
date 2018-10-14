@@ -132,7 +132,7 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
 #if QT_VERSION >= 0x040700
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
-    widget->setPlaceholderText(QObject::tr("Enter a NavCoin address (e.g. %1)").arg(
+    widget->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address (e.g. %1)").arg(
         QString::fromStdString(DummyAddress(Params()))));
 #endif
     widget->setValidator(new NavCoinAddressEntryValidator(parent));
@@ -211,14 +211,6 @@ bool parseNavCoinURI(const QUrl &uri, SendCoinsRecipient *out)
 
 bool parseNavCoinURI(QString uri, SendCoinsRecipient *out)
 {
-    // Convert navcoin:// to navcoin:
-    //
-    //    Cannot handle this later, because navcoin:// will cause Qt to see the part after // as host,
-    //    which will lower-case it (and thus invalidate the address).
-    if(uri.startsWith("navcoin://", Qt::CaseInsensitive))
-    {
-        uri.replace(0, 10, "navcoin:");
-    }
     QUrl uriInstance(uri);
     return parseNavCoinURI(uriInstance, out);
 }
