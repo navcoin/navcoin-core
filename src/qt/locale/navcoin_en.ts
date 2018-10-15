@@ -1980,7 +1980,7 @@
 <context>
     <name>PaymentServer</name>
     <message>
-        <location filename="../paymentserver.cpp" line="+448"/>
+        <location filename="../paymentserver.cpp" line="+453"/>
         <location line="+7"/>
         <location line="+8"/>
         <location line="+8"/>
@@ -2022,7 +2022,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="-59"/>
+        <location line="+86"/>
         <location line="+23"/>
         <location line="+3"/>
         <location line="+8"/>
@@ -2031,7 +2032,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-40"/>
+        <location line="-127"/>
+        <source>&apos;navcoin://&apos; is not a valid URI. Use &apos;navcoin:&apos; instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+87"/>
         <source>Payment request fetch URL is invalid: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2192,7 +2198,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+774"/>
+        <location line="+766"/>
         <source>%1 d</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4353,32 +4359,32 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <location filename="../navcoinstrings.cpp" line="+384"/>
+        <location filename="../navcoinstrings.cpp" line="+381"/>
         <source>Options:</source>
         <translation>Options:</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+33"/>
         <source>Specify data directory</source>
         <translation>Specify data directory</translation>
     </message>
     <message>
-        <location line="-94"/>
+        <location line="-95"/>
         <source>Connect to a node to retrieve peer addresses, and disconnect</source>
         <translation>Connect to a node to retrieve peer addresses, and disconnect</translation>
     </message>
     <message>
-        <location line="+97"/>
+        <location line="+98"/>
         <source>Specify your own public address</source>
         <translation>Specify your own public address</translation>
     </message>
     <message>
-        <location line="-117"/>
+        <location line="-118"/>
         <source>Accept command line and JSON-RPC commands</source>
         <translation>Accept command line and JSON-RPC commands</translation>
     </message>
     <message>
-        <location line="-168"/>
+        <location line="-165"/>
         <source>If &lt;category&gt; is not supplied or if &lt;category&gt; = 1, output all debugging information.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4403,7 +4409,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+150"/>
+        <location line="+147"/>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4418,7 +4424,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>Run in the background as a daemon and accept commands</source>
         <translation>Run in the background as a daemon and accept commands</translation>
     </message>
@@ -4428,12 +4434,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-131"/>
+        <location line="-132"/>
         <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
         <translation>Accept connections from outside (default: 1 if no -proxy or -connect)</translation>
     </message>
     <message>
-        <location line="-291"/>
+        <location line="-288"/>
         <source>NavCoin Core</source>
         <translation type="unfinished">NavCoin Core</translation>
     </message>
@@ -4538,12 +4544,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>The community fund database looks to be corrupted. You will need to rebuild the block database.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+21"/>
+        <location line="+23"/>
         <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4873,7 +4874,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+2"/>
+        <source>Reject a suggested version bit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Requires DNS Sec for OpenAlias requests (default: true)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4993,7 +4999,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-380"/>
+        <location line="-378"/>
         <source>Allow JSON-RPC connections from specified source. Valid for &lt;ip&gt; are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5193,7 +5199,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+8"/>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5298,7 +5304,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Rescan the block chain for missing wallet transactions on startup</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5403,17 +5409,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-69"/>
+        <location line="-70"/>
         <source>Password for JSON-RPC connections</source>
         <translation>Password for JSON-RPC connections</translation>
     </message>
     <message>
-        <location line="-265"/>
+        <location line="-262"/>
         <source>Execute command when the best block changes (%s in cmd is replaced by block hash)</source>
         <translation>Execute command when the best block changes (%s in cmd is replaced by block hash)</translation>
     </message>
     <message>
-        <location line="+189"/>
+        <location line="+186"/>
         <source>Allow DNS lookups for -addnode, -seednode and -connect</source>
         <translation>Allow DNS lookups for -addnode, -seednode and -connect</translation>
     </message>
@@ -5423,7 +5429,7 @@
         <translation>Loading addresses...</translation>
     </message>
     <message>
-        <location line="-324"/>
+        <location line="-321"/>
         <source>(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5473,7 +5479,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+22"/>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5558,7 +5564,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+11"/>
         <source>Relay and mine data carrier transactions (default: %u)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5608,7 +5614,7 @@
         <translation>Unknown network specified in -onlynet: &apos;%s&apos;</translation>
     </message>
     <message>
-        <location line="-75"/>
+        <location line="-76"/>
         <source>Insufficient funds</source>
         <translation>Insufficient funds</translation>
     </message>
@@ -5638,12 +5644,12 @@
         <translation>Cannot write default address</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+84"/>
         <source>Rescanning...</source>
         <translation>Rescanning...</translation>
     </message>
     <message>
-        <location line="-69"/>
+        <location line="-70"/>
         <source>Done loading</source>
         <translation>Done loading</translation>
     </message>

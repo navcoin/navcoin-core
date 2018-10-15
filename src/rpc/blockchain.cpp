@@ -894,6 +894,19 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
 
 UniValue listproposals(const UniValue& params, bool fHelp)
 {
+
+     if (fHelp)
+        throw runtime_error(
+            "listproposals filter\n"
+            "\nList the proposals and all the relating data including payment requests and status.\n"
+            "\nNote passing no argument returns all proposals regardless of state.\n"
+            "\nArguments:\n"
+            "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\"\n"
+            "\nExamples:\n"
+            + HelpExampleCli("listproposal", "accepted")
+            + HelpExampleRpc("listproposal", "")
+        );
+
     UniValue ret(UniValue::VARR);
 
     bool showAll = true;
@@ -940,6 +953,15 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
+
+    if (fHelp)
+        throw runtime_error(
+            "cfundstats\n"
+            "\nReturns statistics about the community fund.\n"
+            + HelpExampleCli("cfundstats", "")
+            + HelpExampleRpc("cfundstats", "")
+        );
+
     int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
     CBlockIndex* pindexblock = pindexBestHeader;
 
@@ -1034,7 +1056,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("hash", proposal.hash.ToString()));
         op.push_back(Pair("proposalDesc", proposal.strDZeel));
-        op.push_back(Pair("desc", proposal.strDZeel));
+        op.push_back(Pair("desc", prequest.strDZeel));
         op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));

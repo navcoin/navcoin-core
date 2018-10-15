@@ -1163,6 +1163,16 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
       return state.DoS(100, false, REJECT_INVALID, "old-version");
 
+    if (IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
+        if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+            if(!CFund::IsValidProposal(tx))
+                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+
+        if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+            if(!CFund::IsValidPaymentRequest(tx))
+                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
+    }
+
     // Coinbase is only valid in a block, not as a loose transaction
     if (tx.IsCoinBase())
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
@@ -3017,7 +3027,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
-            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION){
+            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx)){
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
 
                 UniValue metadata(UniValue::VOBJ);
@@ -3050,6 +3060,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 proposalIndex.push_back(make_pair(tx.GetHash(),proposal));
 
+                if(proposal.nAmount < 0) {
+                    return error("ConnectBlock(): Proposal cannot have an amount less than 0\n");
+                }
+
                 if (!pblocktree->UpdateProposalIndex(proposalIndex))
                     return AbortNode(state, "Failed to write proposal index");
 
@@ -3057,7 +3071,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION){
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx)){
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
                 std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
 
@@ -3086,6 +3100,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 prequest.strDZeel = find_value(metadata, "i").get_str();
                 prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
                 prequest.txblockhash = block.GetHash();
+
+                if(prequest.nAmount < 0) {
+                    return error("ConnectBlock(): Payment request cannot have an amount less than 0\n");
+                }
 
                 CFund::CProposal proposal;
                 if(!CFund::FindProposal(prequest.proposalhash, proposal))
@@ -3820,6 +3838,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
 
     if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
         for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
+            vecPaymentRequestsToUpdate.clear();
             bool fUpdate = false;
             prequest = vecPaymentRequest[i];
 
@@ -3867,7 +3886,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     fUpdate = true;
                 } else if(prequest.fState == CFund::NIL){
                     if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()) {
-                        if(prequest.nAmount <= pindexNew->nCFLocked) {
+                        if(prequest.nAmount <= pindexNew->nCFLocked && prequest.nAmount <= proposal.GetAvailable()) {
                             pindexNew->nCFLocked -= prequest.nAmount;
                             prequest.fState = CFund::ACCEPTED;
                             prequest.blockhash = pindexNew->GetBlockHash();
@@ -3887,6 +3906,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             }
             if(fUpdate) {
                 vecPaymentRequestsToUpdate.push_back(make_pair(prequest.hash, prequest));
+                if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
+                    AbortNode(state, "Failed to write payment request index");
+                }
             }
         }
     } else {

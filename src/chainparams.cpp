@@ -111,14 +111,14 @@ public:
         consensus.nVotesAcceptPaymentRequest = 0.7;
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 50;
-        consensus.nProposalMinimalFee = 10000000000;
+        consensus.nProposalMinimalFee = 5000000000;
         consensus.sigActivationTime = 1512990000;
         consensus.nCoinbaseTimeActivationHeight = 20000;
         consensus.nBlockSpreadCFundAccumulation = 500;
         consensus.nCommunityFundAmount = 0.25 * COIN;
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
-        consensus.nCyclesProposalVoting = 4;
-        consensus.nCyclesPaymentRequestVoting = 4;
+        consensus.nCyclesProposalVoting = 6;
+        consensus.nCyclesPaymentRequestVoting = 8;
         consensus.nPaymentRequestMaxVersion = 2;
         consensus.nProposalMaxVersion = 2;
 	consensus.nMaxFutureDrift = 60;
@@ -150,6 +150,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1525132800; // May 1st, 2018
+
+        // Deployment of Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556668800; // May 1st, 2019
 
         // Deployment of Community Fund Accumulation
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].bit = 7;
