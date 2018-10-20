@@ -307,18 +307,20 @@ bool CFund::IsValidProposal(CTransaction tx)
         return error("%s: Wrong strdzeel for proposal %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
-    if(!(find_value(metadata, "n").isNum() && find_value(metadata, "a").isStr() && find_value(metadata, "d").isNum()))
+    if(!(find_value(metadata, "n").isNum() &&
+            find_value(metadata, "a").isStr() &&
+            find_value(metadata, "d").isNum() &&
+            find_value(metadata, "s").isStr()))
+    {
+
         return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
+    }
 
     CAmount nAmount = find_value(metadata, "n").get_int64();
     std::string Address = find_value(metadata, "a").get_str();
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
-
-    if (nAmount < 0) {
-         return error("%s: Proposal cannot have amount less than 0: %s", __func__, tx.GetHash().ToString());
-    }
 
     CNavCoinAddress address(Address);
     if (!address.IsValid())
