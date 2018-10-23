@@ -48,34 +48,62 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
         paymentrequestid1 = self.nodes[0].createpaymentrequest(proposalid0, 1, "test1")["hash"]
         slow_gen(self.nodes[0], 1)
 
+        # pre-flight tests
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 0)
+
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesYes'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
+
         # Create valid vote tx's
         pr0_vote_tx_yes = self.create_vote_tx('c3', 'c4', paymentrequestid0)
         pr0_vote_tx_no = self.create_vote_tx('c3', 'c5', paymentrequestid0)
         pr1_vote_tx_yes = self.create_vote_tx('c3', 'c4', paymentrequestid1)
 
-        # Make a proper good vote
+        # Make a proper good vote - yes
         self.nodes[0].coinbaseoutputs([pr0_vote_tx_yes])
         slow_gen(self.nodes[0], 1)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 1)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 0)
 
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesYes'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
+
+        # Make a proper good vote - no
+        self.nodes[0].coinbaseoutputs([pr0_vote_tx_no])
+        slow_gen(self.nodes[0], 1)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 1)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 1)
+
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesYes'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
+
         # Insert multiple yes votes
         self.nodes[0].coinbaseoutputs([pr0_vote_tx_yes, pr0_vote_tx_yes, pr0_vote_tx_yes])
         slow_gen(self.nodes[0], 1)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 2)
-        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 1)
+
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesYes'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
 
         # Insert yes and no votes
         self.nodes[0].coinbaseoutputs([pr0_vote_tx_yes, pr0_vote_tx_no])
         slow_gen(self.nodes[0], 1)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 3)
-        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 1)
+
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesYes'] == 0)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
 
         # Insert votes for multiple payment requests
         self.nodes[0].coinbaseoutputs([pr0_vote_tx_yes, pr1_vote_tx_yes])
         slow_gen(self.nodes[0], 1)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 4)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesNo'] == 1)
+
         assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesYes'] == 1)
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
 
         # Insert bad vote tx with double vote in string
         pr0_bad_vote_tx = self.create_vote_tx('c3', 'c4c4', paymentrequestid0)
