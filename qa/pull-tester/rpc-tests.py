@@ -146,17 +146,19 @@ testScripts = [
 #    'importprunedfunds.py',
 #    'signmessages.py',
     'cfund-donate.py',
-    'cfund-vote.py',
-    'cfund-proposal-state-accept.py',
-    'cfund-proposal-state-expired.py',
+    'cfund-listproposals.py',
+    'cfund-paymentrequest-extract-funds.py',
     'cfund-paymentrequest-state-accept.py',
     'cfund-paymentrequest-state-expired.py',
-    'cfund-paymentrequest-extract-funds.py',
-    'cfund-listproposals.py',
-    'reject-version-bit.py',
-    'cfund-create-proposal-rawtx.py',
+    'cfund-proposal-state-accept.py',
+    'cfund-proposal-state-expired.py',
+    'cfund-rawtx-create-proposal.py',
     'cfund-rawtx-paymentrequest-create.py',
     'cfund-rawtx-paymentrequest-vote.py',
+    'cfund-rawtx-proposal-vote.py',
+    'cfund-vote.py',
+    'reject-version-bit.py',
+
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
