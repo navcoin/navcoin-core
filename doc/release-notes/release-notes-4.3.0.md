@@ -62,5 +62,5 @@ The Wallet GUI is now fully translated to Spanish and Italian.
 - A new testnet has been initiated
 - The development-focused networks regtest and devnet won't require peers for blocks generation
 - Update copyright notice
-- Updates automake to enable dev compilation on New OS's like Ubuntu 18.04
+- Updates automake to enable dev compilation on new OS's like Ubuntu 18.04
 - Updates Payment request UI to handle new OpenSSL Lib
