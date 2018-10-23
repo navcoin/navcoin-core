@@ -43,7 +43,7 @@ static const int64_t nMaxBlockDBCache = 2;
 //! Max memory allocated to block tree DB specific cache, if -txindex (MiB)
 // Unlike for the UTXO database, for the txindex scenario the leveldb cache make
 // a meaningful difference: https://github.com/navcoin/navcoin/pull/8273#issuecomment-229601991
-static const int64_t nMaxBlockDBAndTxIndexCache = 1024;
+static const int64_t nMaxTxIndexCache = 1024;
 //! Max memory allocated to coin DB specific cache (MiB)
 static const int64_t nMaxCoinsDBCache = 8;
 
@@ -162,17 +162,6 @@ public:
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex);
-};
-
-/** Access to the community fund database */
-class CCFundDB : public CDBWrapper
-{
-public:
-    CCFundDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false, bool compression = true, int maxOpenFiles = 1000);
-private:
-    CCFundDB(const CCFundDB&);
-    void operator=(const CCFundDB&);
-public:
     bool ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal);
     bool WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
     bool GetProposalIndex(std::vector<CFund::CProposal>&vect);
@@ -181,8 +170,6 @@ public:
     bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
     bool GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&vect);
     bool UpdatePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
-    bool WriteTipHeight(int nHeight);
-    int ReadTipHeight();
 };
 
 #endif // NAVCOIN_TXDB_H
