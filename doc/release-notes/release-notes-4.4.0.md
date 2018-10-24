@@ -117,17 +117,6 @@ Arguments:
 
 ```
 
-###  Donate to the community fund
-
-```
-donatefund amount
-
-Donate NAV from your wallet to the commnuity fund
-
-Arguments:
-1. "amount" (string, required) The amount of NAV to donate
-```
-
 ###  List the community fund proposals
 
 ```
