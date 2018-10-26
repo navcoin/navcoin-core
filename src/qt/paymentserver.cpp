@@ -424,7 +424,12 @@ void PaymentServer::handleURIOrFile(const QString& s)
         return;
     }
 
-    if (s.startsWith(NAVCOIN_IPC_PREFIX, Qt::CaseInsensitive)) // navcoin: URI
+    if (s.startsWith("navcoin://", Qt::CaseInsensitive))
+    {
+        Q_EMIT message(tr("URI handling"), tr("'navcoin://' is not a valid URI. Use 'navcoin:' instead."),
+                       CClientUIInterface::MSG_ERROR);
+    }
+    else if (s.startsWith(NAVCOIN_IPC_PREFIX, Qt::CaseInsensitive)) // navcoin: URI
     {
 #if QT_VERSION < 0x050000
         QUrl uri(s);

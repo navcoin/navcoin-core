@@ -223,13 +223,13 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "rebuild the block database if you are sure that your computer's date and "
 "time are correct"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
-"The community fund database looks to be corrupted. You will need to rebuild "
-"the block database."),
-QT_TRANSLATE_NOOP("navcoin-core", ""
 "The transaction amount is too small to send after the fee has been deducted"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
-"This is a pre-release test build - use at your own risk - do not use for "
-"mining or merchant applications"),
+"This is a Release Candidate build - use at your own risk - please make sure "
+"your wallet is backed up"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"This is a pre-release Test build - use at your own risk - please make sure "
+"your wallet is backed up"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "This product includes software developed by the OpenSSL Project for use in "
 "the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software "
@@ -390,6 +390,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "RPC server options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Rebuild chain state and block index from the blk*.dat files on disk"),
 QT_TRANSLATE_NOOP("navcoin-core", "Rebuild chain state from the currently indexed blocks"),
 QT_TRANSLATE_NOOP("navcoin-core", "Reducing -maxconnections from %d to %d, because of system limitations."),
+QT_TRANSLATE_NOOP("navcoin-core", "Reject a suggested version bit"),
 QT_TRANSLATE_NOOP("navcoin-core", "Relay and mine data carrier transactions (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Relay non-P2SH multisig (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Requires DNS Sec for OpenAlias requests (default: true)"),
