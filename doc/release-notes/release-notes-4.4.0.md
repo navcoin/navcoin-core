@@ -30,7 +30,7 @@ You can read more about [NPIP0003 on the NPIP GitHub](https://github.com/NAVCoin
 
 The Version Bit 16 will signal for the soft fork to increase the Community Fund contribution from 0.25 NAV to 0.50 NAV per block. 
 
-You can read more about [NPIP0004 on the NPIP GitHub](https://github.com/NAVCoin/npips/blob/master/npip-0004.mediawiki).
+You can read more about [NPIP0005 on the NPIP GitHub](https://github.com/NAVCoin/npips/blob/master/npip-0005.mediawiki).
 
 ## Reject specific version bits 
 
