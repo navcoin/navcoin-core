@@ -17,8 +17,8 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-        self.is_network_split = False
+        self.nodes = self.setup_nodes()
+        self.is_network_split = split
 
     def run_test(self):
         activate_cfund(self.nodes[0])
