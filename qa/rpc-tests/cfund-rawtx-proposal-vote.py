@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 import time
 
@@ -22,7 +22,7 @@ class CommunityFundRawTXProposalVoteTest(NavCoinTestFramework):
 
     def run_test(self):
         # Make sure cfund is active
-        self.activate_cfund()
+        activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(1000)
 
         # Get address
@@ -30,7 +30,7 @@ class CommunityFundRawTXProposalVoteTest(NavCoinTestFramework):
 
         proposalid0 = self.nodes[0].createproposal(address, 1, 3600, "test proposal 0")["hash"]
         proposalid1 = self.nodes[0].createproposal(address, 1, 3600, "test proposal 1")["hash"]
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
         slow_gen(self.nodes[0], 1)
 
         # pre-flight checks
@@ -176,24 +176,6 @@ class CommunityFundRawTXProposalVoteTest(NavCoinTestFramework):
             "", 0
         )
         return vote_tx
-
-    def start_new_cycle(self):
-        # Move to the end of the cycle
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
-
-    def activate_cfund(self):
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is started
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is locked_in
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is active
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
-
 
 
 if __name__ == '__main__':

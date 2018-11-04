@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 
 class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
@@ -21,7 +21,7 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
 
     def run_test(self):
         # Make sure cfund is active
-        self.activate_cfund()
+        activate_cfund(self.nodes[0])
 
         # Donate to the cfund
         self.nodes[0].donatefund(100)
@@ -31,11 +31,11 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
 
         # Create a proposal
         proposalid0 = self.nodes[0].createproposal(address, 10, 3600, "testprop")["hash"]
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Accept the proposal
         self.nodes[0].proposalvote(proposalid0, "yes")
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
         self.nodes[0].proposalvote(proposalid0, "remove")
         slow_gen(self.nodes[0], 5)
 
@@ -138,29 +138,6 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
             "", 0
         )
         return vote_tx
-
-    def activate_cfund(self):
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is started
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is locked_in
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is active
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
-
-    def end_cycle(self):
-        # Move to the end of the cycle
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"][
-            "current"])
-
-    def start_new_cycle(self):
-        # Move one past the end of the cycle
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"][
-            "current"] + 1)
 
 
 if __name__ == '__main__':

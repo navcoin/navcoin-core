@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 import time
 
@@ -30,17 +30,7 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is started
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is locked_in
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is active
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
+        activate_cfund(self.nodes[0])
 
         # creates a good proposal and sets things we use later
         self.test_happy_path()
@@ -242,12 +232,6 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
 
         # Send raw transaction
         return self.nodes[0].sendrawtransaction(raw_proposal_tx)
-
-
-
-    def start_new_cycle(self):
-        # Move to the end of the cycle
-        self.slow_gen(self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
 
 
     def allDescTextOptions(self):
