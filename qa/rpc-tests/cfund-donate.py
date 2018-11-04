@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 
 class DonateCommunityFundTest(NavCoinTestFramework):
@@ -20,9 +20,9 @@ class DonateCommunityFundTest(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
-        self.nodes[0].generate(300)
+        activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100)
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
 
         # Verify the available coins in the fund
         assert(self.nodes[0].cfundstats()["funds"]["available"] == 100)
