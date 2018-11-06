@@ -234,6 +234,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             {
                 if(!CFund::FindProposal(prequest.proposalhash, proposal))
                     continue;
+                if (mapBlockIndex.count(proposal.blockhash) == 0)
+                    continue;
                 CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
                 if(pblockindex == NULL)
                     continue;
@@ -254,6 +256,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         if(pblocktree->GetPaymentRequestIndex(vec))
         {
             BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+                if (mapBlockIndex.count(prequest.blockhash) == 0)
+                    continue;
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
                 if(pblockindex == NULL)
                     continue;
@@ -963,6 +967,9 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
 
     if(!pblock->IsProofOfStake())
         return error("CheckStake() : %s is not a proof-of-stake block", hashBlock.GetHex());
+
+    if (mapBlockIndex.count(pblock->hashPrevBlock) == 0)
+        return error("CheckStake(): could not find previous block");
 
     // verify hash target and signature of coinstake tx
     if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], pblock->vtx[1], pblock->nBits, proofHash, hashTarget, NULL))

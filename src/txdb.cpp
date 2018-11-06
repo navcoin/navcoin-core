@@ -19,14 +19,13 @@ using namespace std;
 static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
-static const char DB_PROPINDEX = 'p';
-static const char DB_PROP_TIP_HEIGHT = 't';
+static const char DB_PROPINDEX = 'o';
 static const char DB_PREQINDEX = 'r';
 static const char DB_ADDRESSINDEX = 'a';
 static const char DB_ADDRESSUNSPENTINDEX = 'u';
 static const char DB_TIMESTAMPINDEX = 's';
 static const char DB_BLOCKHASHINDEX = 'z';
-static const char DB_SPENTINDEX = 'P';
+static const char DB_SPENTINDEX = 'q';
 static const char DB_BLOCK_INDEX = 'b';
 
 static const char DB_BEST_BLOCK = 'B';
@@ -182,9 +181,7 @@ bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CFun
     for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
             batch.Erase(make_pair(DB_PROPINDEX, it->first));
-            CFund::UpdateMapProposal(it->first);
         } else {
-            CFund::UpdateMapProposal(it->first, it->second);
             batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
         }
     }
@@ -232,10 +229,8 @@ bool CBlockTreeDB::UpdatePaymentRequestIndex(const std::vector<std::pair<uint256
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CPaymentRequest> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
-            CFund::UpdateMapPaymentRequest(it->first);
             batch.Erase(make_pair(DB_PREQINDEX, it->first));
         } else {
-            CFund::UpdateMapPaymentRequest(it->first, it->second);
             batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
         }
     }

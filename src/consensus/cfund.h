@@ -39,10 +39,6 @@ bool FindProposal(string propstr, CFund::CProposal &proposal);
 bool FindProposal(uint256 prophash, CFund::CProposal &proposal);
 bool FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest);
 bool FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest);
-void UpdateMapPaymentRequest(uint256 preqhash, CFund::CPaymentRequest prequest);
-void UpdateMapPaymentRequest(uint256 preqhash);
-void UpdateMapProposal(uint256 preqhash, CFund::CProposal prequest);
-void UpdateMapProposal(uint256 preqhash);
 bool VoteProposal(string strProp, bool vote, bool &duplicate);
 bool VoteProposal(uint256 proposalHash, bool vote, bool &duplicate);
 bool RemoveVoteProposal(string strProp);
@@ -57,10 +53,13 @@ bool IsValidProposal(CTransaction tx);
 class CPaymentRequest
 {
 public:
+    static const int32_t CURRENT_VERSION=2;
+
     CAmount nAmount;
     flags fState;
     uint256 hash;
     uint256 proposalhash;
+    uint256 txblockhash;
     uint256 blockhash;
     uint256 paymenthash;
     int nVotesYes;
@@ -77,6 +76,8 @@ public:
         nVotesYes = 0;
         nVotesNo = 0;
         hash = uint256();
+        blockhash = uint256();
+        txblockhash = uint256();
         proposalhash = uint256();
         paymenthash = uint256();
         strDZeel = "";
@@ -109,10 +110,11 @@ public:
     }
 
     std::string ToString() const {
-        return strprintf("CPaymentRequest(hash=%s, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, proposalhash=%s, "
-                         "blockhash=%s, paymenthash=%s, strDZeel=%s)",
-                         hash.ToString().substr(0,10), (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo, proposalhash.ToString().substr(0,10),
-                         blockhash.ToString().substr(0,10), paymenthash.ToString().substr(0,10), strDZeel);
+        return strprintf("CPaymentRequest(hash=%s, nVersion=%d, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotingCycle=%u, "
+                         " proposalhash=%s, blockhash=%s, paymenthash=%s, strDZeel=%s)",
+                         hash.ToString().substr(0,10), nVersion, (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo,
+                         nVotingCycle, proposalhash.ToString().substr(0,10), blockhash.ToString().substr(0,10),
+                         paymenthash.ToString().substr(0,10), strDZeel);
     }
 
     void ToJson(UniValue& ret) const;
@@ -136,7 +138,7 @@ public:
             if(nAmount < 0)
             {
                 READWRITE(nAmount);
-                READWRITE(nVersion);
+                READWRITE(this->nVersion);
             }
             else
             {
@@ -148,7 +150,7 @@ public:
             CAmount nSignalVersion = -1;
             READWRITE(nSignalVersion);
             READWRITE(nAmount);
-            READWRITE(nVersion);
+            READWRITE(this->nVersion);
         }
         READWRITE(fState);
         READWRITE(nVotesYes);
@@ -158,6 +160,11 @@ public:
         READWRITE(blockhash);
         READWRITE(paymenthash);
         READWRITE(strDZeel);
+        READWRITE(txblockhash);
+
+        // Version-based read/write
+        if(nVersion >= 2)
+           READWRITE(nVotingCycle);
     }
 
 };
@@ -165,6 +172,8 @@ public:
 class CProposal
 {
 public:
+    static const int32_t CURRENT_VERSION=2;
+
     CAmount nAmount;
     CAmount nFee;
     std::string Address;
@@ -176,6 +185,7 @@ public:
     std::string strDZeel;
     uint256 hash;
     uint256 blockhash;
+    uint256 txblockhash;
     int nVersion;
     unsigned int nVotingCycle;
 
@@ -204,10 +214,10 @@ public:
 
     std::string ToString(uint32_t currentTime = 0) const {
         std::string str;
-        str += strprintf("CProposal(hash=%s, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
-                         "nVotesNo=%u, fState=%s, strDZeel=%s, blockhash=%s)",
-                         hash.ToString(), (float)nAmount/COIN, (float)GetAvailable()/COIN, (float)nFee/COIN, Address, nDeadline,
-                         nVotesYes, nVotesNo, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
+        str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
+                         "nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
+                         hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable()/COIN, (float)nFee/COIN, Address, nDeadline,
+                         nVotesYes, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
         for (unsigned int i = 0; i < vPayments.size(); i++) {
             CFund::CPaymentRequest prequest;
             if(FindPaymentRequest(vPayments[i], prequest))
@@ -261,7 +271,7 @@ public:
         {
             CFund::CPaymentRequest prequest;
             if(FindPaymentRequest(vPayments[i], prequest))
-                if(fIncludeRequests || (!fIncludeRequests && prequest.fState == ACCEPTED))
+                if((fIncludeRequests && prequest.fState != REJECTED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
                     initial -= prequest.nAmount;
         }
         return initial;
@@ -284,7 +294,7 @@ public:
             if(nFee < 0)
             {
                 READWRITE(nFee);
-                READWRITE(nVersion);
+                READWRITE(this->nVersion);
             }
             else
             {
@@ -296,7 +306,7 @@ public:
             CAmount nSignalVersion = -1;
             READWRITE(nSignalVersion);
             READWRITE(nFee);
-            READWRITE(nVersion);
+            READWRITE(this->nVersion);
         }
 
         READWRITE(Address);
@@ -308,10 +318,12 @@ public:
         READWRITE(strDZeel);
         READWRITE(hash);
         READWRITE(blockhash);
+        READWRITE(txblockhash);
 
         // Version-based read/write
-        if(nVersion >= 2)
+        if(nVersion >= 2) {
            READWRITE(nVotingCycle);
+        }
 
     }
 
