@@ -34,4 +34,32 @@ def start_new_cycle(node):
     end_cycle(node)
     slow_gen(node, 1)
 
+def reverse_byte_str(hex_str):
+    return ''.join([c for t in zip(hex_str[-2::-2], hex_str[::-2]) for c in t])
+
+def create_vote_tx(node, vote_type, vote, p_hash):
+    """
+    Creates voting hex to be included into the coinbase.
+    Args:
+        node: self.nodes[0]
+        vote_type: proposal:'c2', payment request: 'c3'
+        vote: yes: 'c4', no:'c5'
+        p_hash: hash of the proposal/payment request
+
+    Returns:
+        str: hex data to include into the coinbase
+    """
+    # Byte-reverse hash
+    reversed_hash = reverse_byte_str(p_hash)
+
+    # Create voting string
+    vote_str = '6a' + 'c1' + vote_type + vote + '20' + reversed_hash
+
+    # Create raw vote tx
+    vote_tx = node.createrawtransaction(
+        [],
+        {vote_str: 0},
+        "", 0
+    )
+    return vote_tx
 
