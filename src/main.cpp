@@ -6330,6 +6330,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             if (inv.type == MSG_BLOCK) {
                 UpdateBlockAvailability(pfrom->GetId(), inv.hash);
                 bool fIsInFlight = mapBlocksInFlight.count(inv.hash) && mapBlocksInFlight[inv.hash].first == pfrom->GetId();
+                LogPrintf("%d %d %d %d\n", !fAlreadyHave, !fImporting, !fReindex, !fIsInFlight);
                 if (!fAlreadyHave && !fImporting && !fReindex && !fIsInFlight) {
                     // First request the headers preceding the announced block. In the normal fully-synced
                     // case where a new block is announced that succeeds the current tip (no reorganization),
@@ -6345,12 +6346,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                         LogPrint("net", "getblock (%d) %s to peer=%d\n", pindexBestHeader->nHeight, inv.hash.ToString(), pfrom->id);
 
                     CNodeState *nodestate = State(pfrom->GetId());
-
                     if ((CanDirectFetch(chainparams.GetConsensus()) &&
                         nodestate->nBlocksInFlight < MAX_BLOCKS_IN_TRANSIT_PER_PEER &&
                         (!IsWitnessEnabled(chainActive.Tip(), chainparams.GetConsensus()) || State(pfrom->GetId())->fHaveWitness))
                         || fIgnoreHeaders) {
                         inv.type |= nFetchFlags;
+                        LogPrint("net", "Asking for %s\n", inv.hash.ToString());
                         vToFetch.push_back(inv);
                         // Mark block as in flight already, even though the actual "getdata" message only goes out
                         // later (within the same cs_main lock, though).
@@ -7028,7 +7029,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CValidationState state;
         if (mapBlockIndex.find(block.hashPrevBlock) == mapBlockIndex.end()) {
             // If we can't find the previous block, we need to ask for more blocks
-            pfrom->PushMessage(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBestHeader), block.GetHash());
+            pfrom->PushMessage(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBestHeader->pprev ? pindexBestHeader->pprev : pindexBestHeader), block.GetHash());
             LogPrint("net", "received block %s: missing prev block %s, sending getblock (%d) to end (peer=%d)\n",
                     block.GetHash().ToString(),
                     block.hashPrevBlock.ToString(),
@@ -7551,8 +7552,12 @@ bool SendMessages(CNode* pto)
                    got back an empty response.  */
                 if (pindexStart->pprev)
                     pindexStart = pindexStart->pprev;
-                LogPrint("net", "initial getheaders (%d) to peer=%d (startheight:%d)\n", pindexStart->nHeight, pto->id, pto->nStartingHeight);
-                pto->PushMessage(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexStart), uint256());
+                if (fIgnoreHeaders) {
+                    pto->PushMessage(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBestHeader), uint256());
+                } else {
+                    LogPrint("net", "initial getheaders (%d) to peer=%d (startheight:%d)\n", pindexStart->nHeight, pto->id, pto->nStartingHeight);
+                    pto->PushMessage(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexStart), uint256());
+                }
             }
         }
 
