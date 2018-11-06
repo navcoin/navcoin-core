@@ -59,7 +59,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
 
         # The proposal should have all the same required fields
         assert (goodPaymentRequest['blockHash'] == blocks[0])
-        self.checkGoodPaymentRequest(goodPaymentRequest)
+        self.check_good_paymentrequest(goodPaymentRequest)
 
 
         # Create payment request with negative amount
@@ -187,7 +187,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
             assert ("bad-cfund-payment-request" in e.error['message'])
 
 
-    def checkGoodPaymentRequest(self, paymentRequest):
+    def check_good_paymentrequest(self, paymentRequest):
         assert (paymentRequest['version'] == 2)
         assert (paymentRequest['hash'] == self.goodPayreqHash)
         assert (paymentRequest['description'] == self.goodDescription)

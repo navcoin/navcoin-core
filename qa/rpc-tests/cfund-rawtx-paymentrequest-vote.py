@@ -56,9 +56,9 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
         assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
 
         # Create valid vote tx's
-        pr0_vote_tx_yes = self.create_vote_tx('c3', 'c4', paymentrequestid0)
-        pr0_vote_tx_no = self.create_vote_tx('c3', 'c5', paymentrequestid0)
-        pr1_vote_tx_yes = self.create_vote_tx('c3', 'c4', paymentrequestid1)
+        pr0_vote_tx_yes = create_vote_tx(self.nodes[0], 'c3', 'c4', paymentrequestid0)
+        pr0_vote_tx_no = create_vote_tx(self.nodes[0], 'c3', 'c5', paymentrequestid0)
+        pr1_vote_tx_yes = create_vote_tx(self.nodes[0], 'c3', 'c4', paymentrequestid1)
 
         # Make a proper good vote - yes
         self.nodes[0].coinbaseoutputs([pr0_vote_tx_yes])
@@ -106,38 +106,10 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
         assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
 
         # Insert bad vote tx with double vote in string
-        pr0_bad_vote_tx = self.create_vote_tx('c3', 'c4c4', paymentrequestid0)
+        pr0_bad_vote_tx = create_vote_tx(self.nodes[0], 'c3', 'c4c4', paymentrequestid0)
         self.nodes[0].coinbaseoutputs([pr0_bad_vote_tx])
         slow_gen(self.nodes[0], 1)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 4)
-
-    def reverse_byte_str(self, hex_str):
-        return ''.join([c for t in zip(hex_str[-2::-2], hex_str[::-2]) for c in t])
-
-    def create_vote_tx(self, vote_type, vote, p_hash):
-        """
-        Creates voting hex to be included into the coinbase.
-        Args:
-            vote_type: proposal:'c2', payment request: 'c3'
-            vote: yes: 'c4', no:'c5'
-            p_hash: hash of the proposal/payment request
-
-        Returns:
-            str: hex data to include into the coinbase
-        """
-        # Byte-reverse hash
-        reversed_hash = self.reverse_byte_str(p_hash)
-
-        # Create voting string
-        vote_str = '6a' + 'c1' + vote_type + vote + '20' + reversed_hash
-
-        # Create raw vote tx
-        vote_tx = self.nodes[0].createrawtransaction(
-            [],
-            {vote_str: 0},
-            "", 0
-        )
-        return vote_tx
 
 
 if __name__ == '__main__':
