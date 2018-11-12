@@ -6,7 +6,6 @@
 #ifndef NAVCOIN_CONSENSUS_PARAMS_H
 #define NAVCOIN_CONSENSUS_PARAMS_H
 
-#include "amount.h"
 #include "uint256.h"
 #include <map>
 #include <string>
@@ -27,6 +26,7 @@ enum DeploymentPos
     DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD,
     DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2,
     DEPLOYMENT_NTPSYNC,
+    DEPLOYMENT_STATIC_REWARD,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
@@ -100,6 +100,7 @@ struct Params {
     int64_t sigActivationTime;
     int64_t nCoinbaseTimeActivationHeight;
     int64_t nMaxFutureDrift;
+    CAmount nStaticReward;
 
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
 };

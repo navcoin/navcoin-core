@@ -894,19 +894,6 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
 
 UniValue listproposals(const UniValue& params, bool fHelp)
 {
-
-     if (fHelp)
-        throw runtime_error(
-            "listproposals filter\n"
-            "\nList the proposals and all the relating data including payment requests and status.\n"
-            "\nNote passing no argument returns all proposals regardless of state.\n"
-            "\nArguments:\n"
-            "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\"\n"
-            "\nExamples:\n"
-            + HelpExampleCli("listproposal", "accepted")
-            + HelpExampleRpc("listproposal", "")
-        );
-
     UniValue ret(UniValue::VARR);
 
     bool showAll = true;
@@ -934,7 +921,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     }
 
     std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
+    if(pcfundindex->GetProposalIndex(vec))
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
             if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
@@ -953,16 +940,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
-
-    if (fHelp)
-        throw runtime_error(
-            "cfundstats\n"
-            "\nReturns statistics about the community fund.\n"
-            + HelpExampleCli("cfundstats", "")
-            + HelpExampleRpc("cfundstats", "")
-        );
-
-    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
+    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nVotingPeriod);
     CBlockIndex* pindexblock = pindexBestHeader;
 
     std::map<uint256, std::pair<int, int>> vCacheProposals;
@@ -974,7 +952,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             CFund::CProposal proposal;
             if(!CFund::FindProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
-            if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
+            if(proposal.CanVote() && vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
                 if(vCacheProposals.count(pindexblock->vProposalVotes[i].first) == 0)
                     vCacheProposals[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vProposalVotes[i].second)
@@ -985,18 +963,17 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             }
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
-            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+            CFund::CPaymentRequest prequest; CFund::CProposal parent;
             if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
-            if(!CFund::FindProposal(prequest.proposalhash, proposal))
+            if(!CFund::FindProposal(prequest.proposalhash, parent))
                 continue;
-            if (mapBlockIndex.count(proposal.blockhash) == 0)
-                continue;
-
-            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
+            CBlockIndex* pindexblockparent = mapBlockIndex[parent.blockhash];
             if(pindexblockparent == NULL)
                 continue;
-            if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
+            if(parent.CanRequestPayments() && prequest.CanVote()
+                    && vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0
+                    && pindexblock->nHeight - pindexblockparent->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                 if(vCachePaymentRequest.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)
@@ -1016,21 +993,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
     ret.push_back(Pair("funds", cf));
     UniValue vp(UniValue::VOBJ);
-    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
+    int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nVotingPeriod);
     vp.push_back(Pair("starting",       starting));
-    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle-1));
-    vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
-    UniValue consensus(UniValue::VOBJ);
-    consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
-    consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nQuorumVotes));
-    consensus.push_back(Pair("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting));
-    consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting));
-    consensus.push_back(Pair("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100));
-    consensus.push_back(Pair("votesRejectProposalPercentage",Params().GetConsensus().nVotesRejectProposal*100));
-    consensus.push_back(Pair("votesAcceptPaymentRequestPercentage",Params().GetConsensus().nVotesAcceptPaymentRequest*100));
-    consensus.push_back(Pair("votesRejectPaymentRequestPercentage",Params().GetConsensus().nVotesRejectPaymentRequest*100));
-    consensus.push_back(Pair("proposalMinimalFee",ValueFromAmount(Params().GetConsensus().nProposalMinimalFee)));
-    ret.push_back(Pair("consensus", consensus));
+    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nVotingPeriod));
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 
@@ -1048,14 +1013,14 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         votesProposals.push_back(op);
     }
     for(it = vCachePaymentRequest.begin(); it != vCachePaymentRequest.end(); it++) {
-        CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+        CFund::CPaymentRequest prequest; CFund::CProposal parent;
         if(!CFund::FindPaymentRequest(it->first, prequest))
             continue;
-        if(!CFund::FindProposal(prequest.proposalhash, proposal))
+        if(!CFund::FindProposal(prequest.proposalhash, parent))
             continue;
         UniValue op(UniValue::VOBJ);
-        op.push_back(Pair("hash", proposal.hash.ToString()));
-        op.push_back(Pair("proposalDesc", proposal.strDZeel));
+        op.push_back(Pair("hash", prequest.hash.ToString()));
+        op.push_back(Pair("proposaldesc", parent.strDZeel));
         op.push_back(Pair("desc", prequest.strDZeel));
         op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
         op.push_back(Pair("yes", it->second.first));
@@ -1313,6 +1278,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING);
     BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
+    BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 
