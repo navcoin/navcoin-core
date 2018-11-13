@@ -25,6 +25,8 @@ int GetTotalBlocksEstimate(const CCheckpointData& data);
 //! Returns last CBlockIndex* in mapBlockIndex that is a checkpoint
 CBlockIndex* GetLastCheckpoint(const CCheckpointData& data);
 
+bool CheckHardened(const CCheckpointData& data, int nHeight, const uint256& hash);
+
 double GuessVerificationProgress(const CCheckpointData& data, CBlockIndex* pindex, bool fSigchecks = true);
 
 } //namespace Checkpoints

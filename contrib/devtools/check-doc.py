@@ -21,7 +21,7 @@ CMD_GREP_DOCS = r"egrep -r -I 'HelpMessageOpt\(\"\-[^\"=]+?(=|\")' %s" % (CMD_RO
 REGEX_ARG = re.compile(r'(?:map(?:Multi)?Args(?:\.count\(|\[)|Get(?:Bool)?Arg\()\"(\-[^\"]+?)\"')
 REGEX_DOC = re.compile(r'HelpMessageOpt\(\"(\-[^\"=]+?)(?:=|\")')
 # list unsupported, deprecated and duplicate args as they need no documentation
-SET_DOC_OPTIONAL = set(['-firstrun', '-rpcssl', '-benchmark', '-h', '-help', '-socks', '-tor', '-debugnet', '-whitelistalwaysrelay', '-prematurewitness', '-walletprematurewitness', '-promiscuousmempoolflags', '-blockminsize', '-dbmaxopenfiles', '-dbcompression', '-repairwallet', '-votefunding', '-dnsserver'])
+SET_DOC_OPTIONAL = set(['-firstrun', '-rpcssl', '-benchmark', '-h', '-help', '-socks', '-tor', '-debugnet', '-whitelistalwaysrelay', '-prematurewitness', '-walletprematurewitness', '-promiscuousmempoolflags', '-blockminsize', '-dbmaxopenfiles', '-dbcompression', '-repairwallet', '-votefunding', '-dnsserver', '-ignoreheaders'])
 
 def main():
   used = check_output(CMD_GREP_ARGS, shell=True)
