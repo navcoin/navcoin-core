@@ -256,7 +256,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
             "\nArguments:\n"
             "1. \"txid\"      (string, required) The transaction id\n"
-            "2. verbose       (numeric, optional, default=0) If 0, return a string, other return a json object\n"
+            "2. verbose       (numeric|boolean, optional, default=0) If 0|false, return a string, other return a json object\n"
 
             "\nResult (if verbose is not set or set to 0):\n"
             "\"data\"      (string) The serialized, hex-encoded data for 'txid'\n"
@@ -310,13 +310,29 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
             + HelpExampleCli("getrawtransaction", "\"mytxid\"")
             + HelpExampleCli("getrawtransaction", "\"mytxid\" 1")
             + HelpExampleRpc("getrawtransaction", "\"mytxid\", 1")
+            + HelpExampleRpc("getrawtransaction", "\"mytxid\" true")
+            + HelpExampleRpc("getrawtransaction", "\"mytxid\", true")
         );
 
     uint256 hash = ParseHashV(params[0], "parameter 1");
 
     bool fVerbose = false;
-    if (params.size() > 1)
-        fVerbose = (params[1].get_int() != 0);
+    if (params.size() > 1 && !params[1].isNull()) {
+        if (params[1].isNum()) {
+            if (params[1].get_int() != 0) {
+                fVerbose = true;
+            }
+        }
+        else if(params[1].isBool()) {
+            if (params[1].isTrue()) {
+                fVerbose = true;
+            }
+        }
+        else {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid type provided. Verbose parameter must be an int or boolean.");
+        }
+    }
+
 
     CTransaction tx;
 

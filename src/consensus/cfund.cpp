@@ -8,9 +8,6 @@
 #include "rpc/server.h"
 #include "utilmoneystr.h"
 
-std::map<uint256, CFund::CProposal> mapProposal;
-std::map<uint256, CFund::CPaymentRequest> mapPaymentRequest;
-
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
     script.resize(2);
@@ -20,22 +17,24 @@ void CFund::SetScriptForCommunityFundContribution(CScript &script)
 
 void CFund::SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote)
 {
-    script.resize(36);
+    script.resize(37);
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PROP;
     script[3] = vote ? OP_YES : OP_NO;
-    memcpy(&script[4], proposalhash.begin(), 32);
+    script[4] = 0x20;
+    memcpy(&script[5], proposalhash.begin(), 32);
 }
 
 void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash, bool vote)
 {
-    script.resize(36);
+    script.resize(37);
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PREQ;
     script[3] = vote ? OP_YES : OP_NO;
-    memcpy(&script[4], prequesthash.begin(), 32);
+    script[4] = 0x20;
+    memcpy(&script[5], prequesthash.begin(), 32);
 }
 
 bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
@@ -45,30 +44,12 @@ bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
 
 }
 
-void CFund::UpdateMapProposal(uint256 prophash)
-{
-    if(mapProposal.count(prophash) != 0)
-        mapProposal.erase(prophash);
-}
-
-void CFund::UpdateMapProposal(uint256 prophash, CFund::CProposal proposal)
-{
-    if(mapProposal.count(prophash) != 0)
-        mapProposal[prophash] = proposal;
-}
-
 bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 {
 
-    if(mapProposal.count(prophash) != 0) {
-        proposal = mapProposal[prophash];
-        return true;
-    }
-
     CFund::CProposal temp;
-    if(pcfundindex->ReadProposalIndex(prophash, temp)) {
+    if(pblocktree->ReadProposalIndex(prophash, temp)) {
         proposal = temp;
-        mapProposal[prophash] = temp;
         return true;
     }
 
@@ -79,32 +60,14 @@ bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
 bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
 {
 
-    if(mapPaymentRequest.count(preqhash) != 0) {
-        prequest = mapPaymentRequest[preqhash];
-        return true;
-    }
-
     CFund::CPaymentRequest temp;
-    if(pcfundindex->ReadPaymentRequestIndex(preqhash, temp)) {
+    if(pblocktree->ReadPaymentRequestIndex(preqhash, temp)) {
         prequest = temp;
-        mapPaymentRequest[preqhash] = temp;
         return true;
     }
 
     return false;
 
-}
-
-void CFund::UpdateMapPaymentRequest(uint256 preqhash)
-{
-    if(mapPaymentRequest.count(preqhash) != 0)
-        mapPaymentRequest.erase(preqhash);
-}
-
-void CFund::UpdateMapPaymentRequest(uint256 preqhash, CFund::CPaymentRequest prequest)
-{
-    if(mapPaymentRequest.count(preqhash) != 0)
-        mapPaymentRequest[preqhash] = prequest;
 }
 
 bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
@@ -226,43 +189,57 @@ bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
 }
 
 bool CFund::IsValidPaymentRequest(CTransaction tx)
-{
+{    
+    if(tx.strDZeel.length() > 1024)
+        return error("%s: Too long strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
         if (!valRequest.read(tx.strDZeel))
-          return false;
+            return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
         if (valRequest.isObject())
-          metadata = valRequest.get_obj();
+            metadata = valRequest.get_obj();
         else
-          return false;
+            return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
     } catch (const UniValue& objError) {
-      return false;
+        return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
     } catch (const std::exception& e) {
-      return false;
+        return error("%s: Wrong strdzeel for payment request %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
     if(!(find_value(metadata, "n").isNum() && find_value(metadata, "s").isStr() && find_value(metadata, "h").isStr() && find_value(metadata, "i").isStr()))
-        return false;
+        return error("%s: Wrong strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
     CAmount nAmount = find_value(metadata, "n").get_int64();
     std::string Signature = find_value(metadata, "s").get_str();
     std::string Hash = find_value(metadata, "h").get_str();
     std::string strDZeel = find_value(metadata, "i").get_str();
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
+
+    if (nAmount < 0) {
+         return error("%s: Payment Request cannot have amount less than 0: %s", __func__, tx.GetHash().ToString());
+    }
 
     CFund::CProposal proposal;
 
     if(!CFund::FindProposal(Hash, proposal) || proposal.fState != CFund::ACCEPTED)
-        return false;
+        return error("%s: Could not find parent proposal %s for payment request %s", __func__, Hash.c_str(),tx.GetHash().ToString());
 
-    std::string Secret = "I kindly ask to withdraw " + std::to_string(nAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + strDZeel;
+    std::string sRandom = "";
+
+    if (nVersion >= 2 && find_value(metadata, "r").isStr())
+        sRandom = find_value(metadata, "r").get_str();
+
+    std::string Secret = sRandom + "I kindly ask to withdraw " +
+            std::to_string(nAmount) + "NAV from the proposal " +
+            proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
     CNavCoinAddress addr(proposal.Address);
     if (!addr.IsValid())
-        return false;
+        return error("%s: Address %s is not valid for payment request %s", __func__, proposal.Address, Hash.c_str(), tx.GetHash().ToString());
 
     CKeyID keyID;
     addr.GetKeyID(keyID);
@@ -271,7 +248,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
     std::vector<unsigned char> vchSig = DecodeBase64(Signature.c_str(), &fInvalid);
 
     if (fInvalid)
-        return false;
+        return error("%s: Invalid signature for payment request  %s", __func__, tx.GetHash().ToString());
 
     CHashWriter ss(SER_GETHASH, 0);
     ss << strMessageMagic;
@@ -279,12 +256,18 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
 
     CPubKey pubkey;
     if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID)
-        return false;
+        return error("%s: Invalid signature for payment request %s", __func__, tx.GetHash().ToString());
 
-    if(nAmount > proposal.GetAvailable())
-        return false;
+    if(nAmount > proposal.GetAvailable(true))
+        return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
+                     __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable());
+    
+    bool ret = nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
 
-    return true;
+    if(!ret)
+        return error("%s: Invalid version for payment request %s", __func__, tx.GetHash().ToString());
+
+    return nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
 
 }
 
@@ -292,48 +275,72 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount >= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED;
+    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
+}
+
+bool CFund::CPaymentRequest::IsExpired() const {
+    if(nVersion >= 2)
+        return ( nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting &&
+                fState != ACCEPTED && fState != REJECTED);
+    return false;
 }
 
 bool CFund::IsValidProposal(CTransaction tx)
 {
+    if(tx.strDZeel.length() > 1024)
+        return error("%s: Too long strdzeel for proposal %s", __func__, tx.GetHash().ToString());
+
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
         if (!valRequest.read(tx.strDZeel))
-          return false;
+            return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
 
         if (valRequest.isObject())
           metadata = valRequest.get_obj();
         else
-          return false;
+            return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
 
     } catch (const UniValue& objError) {
-      return false;
+        return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
     } catch (const std::exception& e) {
-      return false;
+        return error("%s: Wrong strdzeel for proposal %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
-    if(!(find_value(metadata, "n").isNum() && find_value(metadata, "a").isStr() && find_value(metadata, "d").isNum()))
-        return false;
+    if(!(find_value(metadata, "n").isNum() &&
+            find_value(metadata, "a").isStr() &&
+            find_value(metadata, "d").isNum() &&
+            find_value(metadata, "s").isStr()))
+    {
+
+        return error("%s: Wrong strdzeel for proposal %s", __func__, tx.GetHash().ToString());
+    }
 
     CAmount nAmount = find_value(metadata, "n").get_int64();
     std::string Address = find_value(metadata, "a").get_str();
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
     CNavCoinAddress address(Address);
     if (!address.IsValid())
-        return false;
+        return error("%s: Wrong address %s for proposal %s", __func__, Address.c_str(), tx.GetHash().ToString());
 
     for(unsigned int i=0;i<tx.vout.size();i++)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
-    return (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+    bool ret = (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+            Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
-            nDeadline > 0);
+            nDeadline > 0 &&
+            nVersion <= Params().GetConsensus().nProposalMaxVersion);
+
+    if (!ret)
+        return error("%s: Wrong strdzeel %s for proposal %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
+
+    return true;
 
 }
 
@@ -361,19 +368,43 @@ bool CFund::CProposal::IsRejected() const {
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
 }
 
+bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
+    if(nVersion >= 2) {
+        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+            return (pblockindex->GetBlockTime() + nDeadline < currentTime);
+        }
+        return (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (CanVote() || fState == EXPIRED));
+    } else {
+        return (nDeadline < currentTime);
+    }
+}
+
 void CFund::CProposal::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
+    ret.push_back(Pair("blockHash", txblockhash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
     ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
-    ret.push_back(Pair("deadline", (uint64_t)nDeadline));
+    if(nVersion >= 2) {
+        ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
+        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+            ret.push_back(Pair("expiresOn", pblockindex->GetBlockTime() + (uint64_t)nDeadline));
+        }
+    } else {
+        ret.push_back(Pair("expiresOn", (uint64_t)nDeadline));
+    }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("status", GetState(pindexBestHeader->GetMedianTimePast())));
+    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
+    ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
+    ret.push_back(Pair("state", (uint64_t)fState));
     if(fState == ACCEPTED)
-        ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
+        ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
     if(vPayments.size() > 0) {
         UniValue arr(UniValue::VARR);
         for(unsigned int i = 0; i < vPayments.size(); i++) {
@@ -389,14 +420,18 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
 }
 
 void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
+    ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
+    ret.push_back(Pair("blockHash", txblockhash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
+    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
     ret.push_back(Pair("status", GetState()));
-    if(fState == ACCEPTED) {
-        ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
+    ret.push_back(Pair("state", (uint64_t)fState));
+    ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
+    if(fState == ACCEPTED) {        
         ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
     }
 }

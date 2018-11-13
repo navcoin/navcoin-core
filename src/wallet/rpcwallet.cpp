@@ -73,7 +73,10 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     {
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
         entry.push_back(Pair("blockindex", wtx.nIndex));
-        entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        if (mapBlockIndex.count(wtx.hashBlock) > 0)
+            entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        else
+            entry.push_back(Pair("blocktime", 0));
     } else {
         entry.push_back(Pair("trusted", wtx.IsTrusted()));
     }
@@ -149,6 +152,36 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
     pwalletMain->SetAddressBook(keyID, strAccount, "receive");
 
     return CNavCoinAddress(keyID).ToString();
+}
+
+UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
+{
+
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\"\n"
+            "\nTODO"
+        );
+
+    if (!IsColdStakingEnabled(pindexBestHeader,Params().GetConsensus()))
+        throw runtime_error(
+            "Cold Staking is not active yet.");
+
+    CNavCoinAddress stakingAddress(params[0].get_str());
+    if (!stakingAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Staking address is not a valid NavCoin address");
+
+    CKeyID stakingKeyID;
+    stakingAddress.GetKeyID(stakingKeyID);
+
+    CNavCoinAddress spendingAddress(params[1].get_str());
+    if (!spendingAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address is not a valid NavCoin address");
+
+    CKeyID spendingKeyID;
+    spendingAddress.GetKeyID(spendingKeyID);
+
+    return CNavCoinAddress(stakingKeyID, spendingKeyID).ToString();
 }
 
 
@@ -502,14 +535,14 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
             "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
-            "3. deadline               (numeric, required) Epoch timestamp when the proposal would expire.\n"
+            "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
             "4. \"desc\"               (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 1509151016 \"Development\"")
+            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 86400 \"Development\"")
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -532,6 +565,10 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
+
+    if(nDeadline <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong deadline");
+
     string sDesc = params[3].get_str();
 
     UniValue strDZeel(UniValue::VOBJ);
@@ -540,6 +577,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("a",Address));
     strDZeel.push_back(Pair("d",nDeadline));
     strDZeel.push_back(Pair("s",sDesc));
+    strDZeel.push_back(Pair("v",CFund::CProposal::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -623,8 +661,11 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     std::string id = params[2].get_str();
+    std::string sRandom = random_string(16);
 
-    std::string Secret = "I kindly ask to withdraw " + std::to_string(nReqAmount) + "NAV from the proposal " + proposal.hash.ToString() + ". Payment request id: " + id;
+    std::string Secret = sRandom + "I kindly ask to withdraw " +
+            std::to_string(nReqAmount) + "NAV from the proposal " +
+            proposal.hash.ToString() + ". Payment request id: " + id;
 
     CHashWriter ss(SER_GETHASH, 0);
     ss << strMessageMagic;
@@ -647,7 +688,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("h",params[0].get_str()));
     strDZeel.push_back(Pair("n",nReqAmount));
     strDZeel.push_back(Pair("s",Signature));
+    strDZeel.push_back(Pair("r",sRandom));
     strDZeel.push_back(Pair("i",id));
+    strDZeel.push_back(Pair("v",CFund::CPaymentRequest::CURRENT_VERSION));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
@@ -1480,6 +1523,8 @@ public:
 
     bool operator()(const CNoDestination &dest) const { return false; }
 
+    bool operator()(const pair<CKeyID, CKeyID> &dest) const { return false; }
+
     bool operator()(const CKeyID &keyID) {
         CPubKey pubkey;
         if (pwalletMain && pwalletMain->GetPubKey(keyID, pubkey)) {
@@ -1765,8 +1810,9 @@ UniValue listreceivedbyaccount(const UniValue& params, bool fHelp)
 static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
 {
     CNavCoinAddress addr;
-    if (addr.Set(dest))
+    if (addr.Set(dest)) {
         entry.push_back(Pair("address", addr.ToString()));
+    }
 }
 
 void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter)
@@ -1846,6 +1892,10 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                     entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
                     stop = true; // only one coinstake output
                 }
+                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
+                                                  (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
+                                                   !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
+                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false));
                 if (pwalletMain->mapAddressBook.count(r.destination))
                     entry.push_back(Pair("label", account));
                 entry.push_back(Pair("vout", r.vout));
@@ -1890,6 +1940,7 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
             "2. count          (numeric, optional, default=10) The number of transactions to return\n"
             "3. from           (numeric, optional, default=0) The number of transactions to skip\n"
             "4. includeWatchonly (bool, optional, default=false) Include transactions to watchonly addresses (see 'importaddress')\n"
+            "5. includeColdStaking (bool, optional, default=true) Include transactions to cold staking addresses\n"
             "\nResult:\n"
             "[\n"
             "  {\n"
@@ -1951,10 +2002,13 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
     int nFrom = 0;
     if (params.size() > 2)
         nFrom = params[2].get_int();
-    isminefilter filter = ISMINE_SPENDABLE;
+    isminefilter filter = ISMINE_SPENDABLE | ISMINE_STAKABLE;
     if(params.size() > 3)
         if(params[3].get_bool())
             filter = filter | ISMINE_WATCH_ONLY;
+    if(params.size() > 4)
+        if(!params[4].get_bool())
+            filter &= ~ISMINE_WATCH_ONLY;
 
     if (nCount < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Negative count");
@@ -2765,6 +2819,7 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
     obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
+    obj.push_back(Pair("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance())));
     obj.push_back(Pair("unconfirmed_balance", ValueFromAmount(pwalletMain->GetUnconfirmedBalance())));
     obj.push_back(Pair("immature_balance",    ValueFromAmount(pwalletMain->GetImmatureBalance())));
     obj.push_back(Pair("txcount",       (int)pwalletMain->mapWallet.size()));
@@ -3269,7 +3324,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
     {
         CFund::CProposal proposal;
-        if(pcfundindex->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
+        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
         {
             if(vAddedProposalVotes[i].second)
             {
@@ -3348,7 +3403,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(pcfundindex->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
+        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
         {
             if(vAddedPaymentRequestVotes[i].second)
             {
@@ -3431,7 +3486,7 @@ extern UniValue removeprunedfunds(const UniValue& params, bool fHelp);
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           okSafeMode
-    //  --------------------- ------------------------    -----------------------    ----------
+  //  --------------------- ------------------------    -----------------------    ----------
     { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false },
     { "hidden",             "resendwallettransactions", &resendwallettransactions, true  },
     { "wallet",             "abandontransaction",       &abandontransaction,       false },
@@ -3447,6 +3502,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
     { "wallet",             "getbalance",               &getbalance,               false },
     { "wallet",             "getnewaddress",            &getnewaddress,            true  },
+    { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
     { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true  },
     { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false },
     { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false },

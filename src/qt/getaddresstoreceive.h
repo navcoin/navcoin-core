@@ -19,6 +19,7 @@ public:
 
 public Q_SLOTS:
     void getNewAddress();
+    void getColdStakingAddress();
     void showQR();
 
 private:
