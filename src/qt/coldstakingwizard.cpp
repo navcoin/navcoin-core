@@ -73,8 +73,10 @@ bool GetAddressesPage::validatePage()
 
     CNavCoinAddress stakingAddress(stakingAddressStr.toStdString());
     CNavCoinAddress spendingAddress(spendingAddressStr.toStdString());
+    CKeyID stakingKeyID;
+    CKeyID spendingKeyID;
 
-    return stakingAddress.IsValid() && spendingAddress.IsValid();
+    return stakingAddress.IsValid() && stakingAddress.GetKeyID(stakingKeyID) && spendingAddress.IsValid() && spendingAddress.GetKeyID(spendingKeyID);
 }
 
 ColdStakingAddressPage::ColdStakingAddressPage(QWidget *parent)
