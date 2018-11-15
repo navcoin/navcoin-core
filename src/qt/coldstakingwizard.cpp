@@ -75,7 +75,8 @@ bool GetAddressesPage::validatePage()
     CNavCoinAddress spendingAddress(spendingAddressStr.toStdString());
     CKeyID stakingKeyID;
     CKeyID spendingKeyID;
-
+    if (field("stakingAddress").toString() == field("spendingAddress").toString()) 
+        return false;
     return stakingAddress.IsValid() && stakingAddress.GetKeyID(stakingKeyID) && spendingAddress.IsValid() && spendingAddress.GetKeyID(spendingKeyID);
 }
 

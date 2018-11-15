@@ -167,6 +167,12 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
         throw runtime_error(
             "Cold Staking is not active yet.");
 
+    if (params[0].get_str() == params[1].get_str()) 
+        throw runtime_error(
+            "The staking address should be different to the spending address"
+        );
+
+
     CNavCoinAddress stakingAddress(params[0].get_str());
     CKeyID stakingKeyID;
     if (!stakingAddress.IsValid() || !stakingAddress.GetKeyID(stakingKeyID))
