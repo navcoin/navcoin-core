@@ -3754,7 +3754,6 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     int64_t nTimeStart = GetTimeMicros();
     CFund::CPaymentRequest prequest; CFund::CProposal proposal;
 
-
     int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
     CBlockIndex* pindexblock = pindexNew;
 

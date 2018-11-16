@@ -796,7 +796,7 @@
               <string notr="true">color: #727272</string>
              </property>
              <property name="text">
-              <string>30D</string>
+              <string>132 431.41 NAV</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -858,7 +858,7 @@
               <string notr="true">color: #727272</string>
              </property>
              <property name="text">
-              <string>1Y</string>
+              <string>ALL</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -917,18 +917,31 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>70</width>
-               <height>17</height>
-              </size>
+             <property name="styleSheet">
+              <string notr="true">color: #727272</string>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>70</width>
-               <height>17</height>
-              </size>
+             <property name="text">
+              <string>Cold Staking</string>
              </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="labelColdStaking">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #727272</string>
+             </property>
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="label30dStakingStats">
              <property name="font">
               <font>
                <pointsize>10</pointsize>
@@ -942,7 +955,7 @@
               <string notr="true">color: #727272</string>
              </property>
              <property name="text">
-              <string>ALL</string>
+              <string>132 431.41 NAV</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

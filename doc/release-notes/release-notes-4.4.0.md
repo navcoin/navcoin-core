@@ -28,9 +28,9 @@ You can read more about [NPIP0003 on the NPIP GitHub](https://github.com/NAVCoin
 
 ## Community Fund Contribution Increase
 
-The Version Bit 15 will signal for the soft fork to increase the Community Fund contribution from 0.25 NAV to 0.50 NAV per block. 
+The Version Bit 16 will signal for the soft fork to increase the Community Fund contribution from 0.25 NAV to 0.50 NAV per block. 
 
-You can read more about [NPIP0004 on the NPIP GitHub](https://github.com/NAVCoin/npips/blob/master/npip-0004.mediawiki).
+You can read more about [NPIP0005 on the NPIP GitHub](https://github.com/NAVCoin/npips/blob/master/npip-0005.mediawiki).
 
 ## Reject specific version bits 
 
@@ -115,17 +115,6 @@ Arguments:
 1. "request_hash" (string, required) The payment request hash
 2. "command"      (string, required) 'yes' to vote yes, 'no' to vote no, 'remove' to remove a proposal from the list
 
-```
-
-###  Donate to the community fund
-
-```
-donatefund amount
-
-Donate NAV from your wallet to the commnuity fund
-
-Arguments:
-1. "amount" (string, required) The amount of NAV to donate
 ```
 
 ###  List the community fund proposals
