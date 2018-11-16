@@ -55,21 +55,24 @@ GetAddressesPage::GetAddressesPage(QWidget *parent)
     spendingAddressLineEdit = new QLineEdit;
     spendingAddressLabel->setBuddy(spendingAddressLineEdit);
 
-    descriptionLabel = new QLabel(tr("Your Spending address and Staking address must be different."))
+    descriptionLabel = new QLabel(tr("Your Spending address and Staking address must be different."));
+    errorLabel = new QLabel();
+    errorLabel->setStyleSheet("QLabel { color : red }");
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(stakingAddressLabel, 0, 0);
     layout->addWidget(stakingAddressLineEdit, 0, 1);
     layout->addWidget(spendingAddressLabel, 1, 0);
     layout->addWidget(spendingAddressLineEdit, 1, 1);
-    layout->addWidget(descriptionLabel, 2, 0);
+    layout->addWidget(descriptionLabel, 2, 0, 1, 2);
+    layout->addWidget(errorLabel, 4, 0, 1, 2);
     setLayout(layout);
 
-    registerField("stakingAddress", stakingAddressLineEdit);
-    registerField("spendingAddress", spendingAddressLineEdit);
+    registerField("stakingAddress*", stakingAddressLineEdit);
+    registerField("spendingAddress*", spendingAddressLineEdit);
 }
 
-bool GetAddressesPage::isComplete()
+bool GetAddressesPage::validatePage()
 {
     QString stakingAddressStr = field("stakingAddress").toString();
     QString spendingAddressStr = field("spendingAddress").toString();
@@ -79,9 +82,20 @@ bool GetAddressesPage::isComplete()
 
     CKeyID stakingKeyID;
     CKeyID spendingKeyID;
-    if (field("stakingAddress").toString() == field("spendingAddress").toString()) 
+    QString strError = "";
+    if (field("stakingAddress").toString() == field("spendingAddress").toString())  {
+        errorLabel->setText(tr("The addresses can't be the same!"));
         return false;
-    return stakingAddress.IsValid() && stakingAddress.GetKeyID(stakingKeyID) && spendingAddress.IsValid() && spendingAddress.GetKeyID(spendingKeyID);
+    }
+    if(!(stakingAddress.IsValid() && stakingAddress.GetKeyID(stakingKeyID))) {
+        errorLabel->setText("The staking address is not valid.");
+        return false;
+    }
+    if(!(spendingAddress.IsValid() && spendingAddress.GetKeyID(spendingKeyID))) {
+        errorLabel->setText("The spending address is not valid.");
+        return false;
+    }
+    return true;
 }
 
 ColdStakingAddressPage::ColdStakingAddressPage(QWidget *parent)
