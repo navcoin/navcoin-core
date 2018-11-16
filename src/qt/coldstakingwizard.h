@@ -53,6 +53,7 @@ public:
 private:
     QLabel *spendingAddressLabel;
     QLabel *stakingAddressLabel;
+    QLabel *descriptionLabel;
     QLineEdit *spendingAddressLineEdit;
     QLineEdit *stakingAddressLineEdit;
 };
