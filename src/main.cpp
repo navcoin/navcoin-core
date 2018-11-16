@@ -2530,7 +2530,7 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nColdStakingVersionMask;
 
-  if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev,Params().GetConsensus()))
+    if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nCFundAccSpreadVersionMask;
 
     if(IsCommunityFundAmountV2Enabled(pindexPrev,Params().GetConsensus()))

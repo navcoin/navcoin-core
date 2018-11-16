@@ -121,7 +121,7 @@ public:
         consensus.nCyclesPaymentRequestVoting = 8;
         consensus.nPaymentRequestMaxVersion = 2;
         consensus.nProposalMaxVersion = 2;
-        consensus.nMaxFutureDrift = 60;
+      	consensus.nMaxFutureDrift = 60;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -151,7 +151,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1525132800; // May 1st, 2018
 
-      // Deployment of Community Fund
+        // Deployment of Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556668800; // May 1st, 2019
@@ -281,7 +281,7 @@ public:
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
-        consensus.nLastPOWBlock = 100000;
+        consensus.nLastPOWBlock = 1000000;
         consensus.nBlocksPerVotingCycle = 180; // 1.5 hours
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nBlocksPerVotingCycle * consensus.nMinimumQuorum;
@@ -355,10 +355,10 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
-        uint32_t nTimestamp = 1535727262;
-        uint256 hashGenesisBlock = uint256S("0x00006f7464b3c2eb79b99878d6d92d815be7662d1eba485babb6328b3d3b327f");
-        uint256 hashMerkleRoot = uint256S("0x58a4826e64f486bc438f1553cf1dafffc338aa22f8fc2487cb8a378eef37056b");
-        uint32_t nNonce = 2043455443;
+        uint32_t nTimestamp = 1541978905;
+        uint256 hashGenesisBlock = uint256S("0x0000c493d0f928a9f0a0eb0e0d88d871f4f5ab8bacc308f77bb0e8c7adee1307");
+        uint256 hashMerkleRoot = uint256S("0xf3f3286d731fc322d34f6a7c4df3eecfc1abaa6032350acf6cd363eb34edf574");
+        uint32_t nNonce = 2043537527;
 	    
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -636,8 +636,8 @@ public:
 
         // Deployment of Cold Staking
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].bit = 3;
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nStartTime = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 2556712000;
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nStartTime = 1525132800; // May 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 1556712000; // May 1st, 2019
 
         // Deployment of SegWit (BIP141 and BIP143)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 5;

@@ -167,18 +167,22 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
         throw runtime_error(
             "Cold Staking is not active yet.");
 
+    if (params[0].get_str() == params[1].get_str()) 
+        throw runtime_error(
+            "The staking address should be different to the spending address"
+        );
+
+
     CNavCoinAddress stakingAddress(params[0].get_str());
-    if (!stakingAddress.IsValid())
+    CKeyID stakingKeyID;
+    if (!stakingAddress.IsValid() || !stakingAddress.GetKeyID(stakingKeyID))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Staking address is not a valid NavCoin address");
 
-    CKeyID stakingKeyID;
-    stakingAddress.GetKeyID(stakingKeyID);
-
     CNavCoinAddress spendingAddress(params[1].get_str());
-    if (!spendingAddress.IsValid())
+    CKeyID spendingKeyID;
+    if (!spendingAddress.IsValid() || !spendingAddress.GetKeyID(spendingKeyID))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address is not a valid NavCoin address");
 
-    CKeyID spendingKeyID;
     spendingAddress.GetKeyID(spendingKeyID);
 
     return CNavCoinAddress(stakingKeyID, spendingKeyID).ToString();
