@@ -65,7 +65,7 @@ GetAddressesPage::GetAddressesPage(QWidget *parent)
     layout->addWidget(spendingAddressLabel, 1, 0);
     layout->addWidget(spendingAddressLineEdit, 1, 1);
     layout->addWidget(descriptionLabel, 2, 0, 1, 2);
-    layout->addWidget(errorLabel, 4, 0, 1, 2);
+    layout->addWidget(errorLabel, 3, 0, 1, 2);
     setLayout(layout);
 
     registerField("stakingAddress*", stakingAddressLineEdit);
@@ -82,7 +82,6 @@ bool GetAddressesPage::validatePage()
 
     CKeyID stakingKeyID;
     CKeyID spendingKeyID;
-    QString strError = "";
     if (field("stakingAddress").toString() == field("spendingAddress").toString())  {
         errorLabel->setText(tr("The addresses can't be the same!"));
         return false;
