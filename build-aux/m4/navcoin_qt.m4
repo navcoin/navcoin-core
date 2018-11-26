@@ -160,35 +160,45 @@ AC_DEFUN([NAVCOIN_QT_CONFIGURE],[
     fi
   fi
 
-  if test x$use_hardening != xno; then
-    NAVCOIN_QT_CHECK([
-    AC_MSG_CHECKING(whether -fPIE can be used with this Qt config)
-    TEMP_CPPFLAGS=$CPPFLAGS
-    TEMP_CXXFLAGS=$CXXFLAGS
-    CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
-    CXXFLAGS="$PIE_FLAGS $CXXFLAGS"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <QtCore/qconfig.h>]],
-      [[
-          #if defined(QT_REDUCE_RELOCATIONS)
-              choke;
+  if test "x$use_hardening" != xno; then
+      NAVCOIN_QT_CHECK([
+      AC_MSG_CHECKING(whether -fPIE can be used with this Qt config)
+      TEMP_CPPFLAGS=$CPPFLAGS
+      TEMP_CXXFLAGS=$CXXFLAGS
+      CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
+      CXXFLAGS="$PIE_FLAGS $CXXFLAGS"
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+          #include <QtCore/qconfig.h>
+          #ifndef QT_VERSION
+          #  include <QtCore/qglobal.h>
           #endif
-      ]])],
-      [ AC_MSG_RESULT(yes); QT_PIE_FLAGS=$PIE_FLAGS ],
-      [ AC_MSG_RESULT(no); QT_PIE_FLAGS=$PIC_FLAGS]
-    )
-    CPPFLAGS=$TEMP_CPPFLAGS
-    CXXFLAGS=$TEMP_CXXFLAGS
-    ])
+        ]],
+        [[
+          #if defined(QT_REDUCE_RELOCATIONS)
+          choke
+          #endif
+        ]])],
+        [ AC_MSG_RESULT(yes); QT_PIE_FLAGS=$PIE_FLAGS ],
+        [ AC_MSG_RESULT(no); QT_PIE_FLAGS=$PIC_FLAGS]
+      )
+      CPPFLAGS=$TEMP_CPPFLAGS
+      CXXFLAGS=$TEMP_CXXFLAGS
+      ])
   else
     NAVCOIN_QT_CHECK([
     AC_MSG_CHECKING(whether -fPIC is needed with this Qt config)
     TEMP_CPPFLAGS=$CPPFLAGS
     CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <QtCore/qconfig.h>]],
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <QtCore/qconfig.h>
+        #ifndef QT_VERSION
+        #  include <QtCore/qglobal.h>
+        #endif
+      ]],
       [[
-          #if defined(QT_REDUCE_RELOCATIONS)
-              choke;
-          #endif
+        #if defined(QT_REDUCE_RELOCATIONS)
+        choke
+        #endif
       ]])],
       [ AC_MSG_RESULT(no)],
       [ AC_MSG_RESULT(yes); QT_PIE_FLAGS=$PIC_FLAGS]

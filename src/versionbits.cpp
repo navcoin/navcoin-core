@@ -136,6 +136,31 @@ public:
 
 }
 
+bool IsVersionBitRejected(const Consensus::Params& params, Consensus::DeploymentPos pos){
+
+    bool isRejected = false;
+
+    std::vector<std::string>& versionBitVotes = mapMultiArgs["-rejectversionbit"];
+
+    int bitTest = params.vDeployments[pos].bit;
+
+     BOOST_FOREACH(std::string rejectedBit, versionBitVotes) {
+         if (isdigit(rejectedBit[0])) {
+
+           int rBit =  stoi(rejectedBit);
+           if(rBit == bitTest) {
+                isRejected = true;
+
+                return isRejected;
+
+           }
+         }
+     }
+
+    return isRejected;
+
+}
+
 ThresholdState VersionBitsState(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos pos, VersionBitsCache& cache)
 {
     return VersionBitsConditionChecker(pos).GetStateFor(pindexPrev, params, cache.caches[pos]);
