@@ -340,6 +340,7 @@ static Stacks CombineSignatures(const CScript& scriptPubKey, const BaseSignature
         return sigs2;
     case TX_PUBKEY:
     case TX_PUBKEYHASH:
+    case TX_COLDSTAKING:
         // Signatures are bigger than placeholders or empty scripts:
         if (sigs1.script.empty() || sigs1.script[0].empty())
             return sigs2;
