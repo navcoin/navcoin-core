@@ -47,7 +47,6 @@ static const int64_t MAX_MINT_PROOF_OF_STAKE = 0.1 * COIN;
 
 class CBlockIndex;
 class CBlockTreeDB;
-class CCFundDB;
 class CBloomFilter;
 class CChainParams;
 class CInv;
@@ -507,6 +506,9 @@ bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& par
 bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict = true);
+bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
 
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
@@ -554,7 +556,6 @@ extern CCoinsViewCache *pcoinsTip;
 
 /** Global variable that points to the active block tree (protected by cs_main) */
 extern CBlockTreeDB *pblocktree;
-extern CCFundDB *pcfundindex;
 extern uint256 hashBestChain;
 
 /**
@@ -624,7 +625,7 @@ static const unsigned int MAX_STANDARD_TX_SIZE = MAX_BLOCK_SIZE_GEN/5;
 
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
-bool CountVotes(CValidationState& state, CBlockIndex *pindexNew, const CBlock* pblock);
+void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo);
 
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
 
