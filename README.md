@@ -1,6 +1,6 @@
 ![NavCoin](./img/logo-extended.png)
 
-This is the working repository for NAV Coin 4.2.0, our fork of bitcoin-core 0.13.
+This is the working repository for NAV Coin 4.4.0, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
@@ -14,7 +14,7 @@ https://navhub.org/roadmap/
 |:-----------|:-----------|
 | Block Spacing | `30 seconds` |
 | Stake Minimum Age | `2 hours` |
-| Stake Reward | `5% per annum` |
+| Stake Reward | `4% per annum` |
 | Port | `44440` |
 | RPC Port | `44444` |
 
@@ -38,7 +38,7 @@ https://navhub.org/roadmap/
 | Telegram | https://t.me/navcoin |
 | Reddit | http://www.reddit.com/r/navcoin |
 | Facebook | https://www.facebook.com/NAVCoin |
-| Instagram | https://www.instagram.com/nav.coin.official/ |
+| Instagram | https://www.instagram.com/navcore/ |
 | Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
 
 ## Community Resources

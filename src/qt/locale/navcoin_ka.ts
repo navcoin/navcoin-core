@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS language="ka" version="2.1">
+<TS language="ka" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -37,7 +37,10 @@
         <source>&amp;Delete</source>
         <translation>&amp;წაშლა</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>AddressTableModel</name>
+    </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -56,9 +59,144 @@
         <source>Repeat new passphrase</source>
         <translation>გაიმეორეთ ახალი ფრაზა-პაროლი</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>BanTableModel</name>
+    </context>
+<context>
+    <name>CoinControlDialog</name>
+    <message>
+        <source>Quantity:</source>
+        <translation>რაოდენობა:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>ბაიტები:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>თანხა:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>პრიორიტეტი:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>საკომისიო:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>დამატებითი საკომისიო:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>ხურდა:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>ყველას მონიშვნა/(მოხსნა)</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>განტოტვილი</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>სია</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>თანხა</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>თარიღი</translation>
+    </message>
+    <message>
+        <source>Confirmations</source>
+        <translation>დადასტურება</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>დადასტურებულია</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>პრიორიტეტი</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>ცარიელი</translation>
+    </message>
+    </context>
+<context>
+    <name>ColdStakingAddressPage</name>
+    </context>
+<context>
+    <name>ColdStakingWizard</name>
+    </context>
+<context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation>მისამართის შეცვლა</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation>ნიშნუ&amp;ლი</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>მისამართების სიის ამ ჩანაწერთან ასოცირებული ნიშნული</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>მისამართების სიის ამ ჩანაწერთან მისამართი ასოცირებული. მისი შეცვლა შეიძლება მხოლოდ გაგზავნის მისამართის შემთხვევაში.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation>მის&amp;ამართი</translation>
+    </message>
+    </context>
+<context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>GetAddressesPage</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    <message>
+        <source>version</source>
+        <translation>ვერსია</translation>
+    </message>
+    <message>
+        <source>Command-line options</source>
+        <translation>კომანდების ზოლის ოპციები</translation>
+    </message>
+    <message>
+        <source>Usage:</source>
+        <translation>გამოყენება:</translation>
+    </message>
+    <message>
+        <source>command-line options</source>
+        <translation>კომანდების ზოლის ოპციები</translation>
+    </message>
+    </context>
+<context>
+    <name>Intro</name>
+    <message>
+        <source>Welcome</source>
+        <translation>მოგესალმებით</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>შეცდომა</translation>
+    </message>
+</context>
+<context>
+    <name>IntroPage</name>
     </context>
 <context>
     <name>NavCoinGUI</name>
@@ -211,10 +349,6 @@
         <translation>&amp;დახმარება</translation>
     </message>
     <message>
-        <source>Tabs toolbar</source>
-        <translation>ბარათების პანელი</translation>
-    </message>
-    <message>
         <source>Request payments (generates QR codes and navcoin: URIs)</source>
         <translation>გადახდის მოთხოვნა (შეიქმნება QR-კოდები და navcoin: ბმულები)</translation>
     </message>
@@ -292,151 +426,7 @@
     </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Quantity:</source>
-        <translation>რაოდენობა:</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>ბაიტები:</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>თანხა:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>პრიორიტეტი:</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>საკომისიო:</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>დამატებითი საკომისიო:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>ხურდა:</translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>ყველას მონიშვნა/(მოხსნა)</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>განტოტვილი</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>სია</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>თანხა</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>თარიღი</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>დადასტურება</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>დადასტურებულია</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>პრიორიტეტი</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>მისამართის შეცვლა</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>ნიშნუ&amp;ლი</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>მისამართების სიის ამ ჩანაწერთან ასოცირებული ნიშნული</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>მისამართების სიის ამ ჩანაწერთან მისამართი ასოცირებული. მისი შეცვლა შეიძლება მხოლოდ გაგზავნის მისამართის შემთხვევაში.</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>მის&amp;ამართი</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>შეიქმნება ახალი მონაცემთა კატალოგი.</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>სახელი</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>კატალოგი უკვე არსებობს. დაამატეთ %1 თუ გინდათ ახალი კატალოგის აქვე შექმნა.</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>მისამართი უკვე არსებობს და არ წარმოადგენს კატალოგს.</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>კატალოგის აქ შექმნა შეუძლებელია.</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>ვერსია</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>კომანდების ზოლის ოპციები</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>გამოყენება:</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>კომანდების ზოლის ოპციები</translation>
-    </message>
-    </context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>მოგესალმებით</translation>
-    </message>
-    <message>
-        <source>Use the default data directory</source>
-        <translation>ნაგულისხმევი კატალოგის გამოყენება</translation>
-    </message>
-    <message>
-        <source>Use a custom data directory:</source>
-        <translation>მითითებული კატალოგის გამოყენება:</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>შეცდომა</translation>
-    </message>
+    <name>NavTechInit</name>
     </context>
 <context>
     <name>OpenURIDialog</name>
@@ -456,7 +446,7 @@
         <source>Select payment request file</source>
         <translation>გადახდის მოთხოვნის ფაილის არჩევა</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -603,41 +593,16 @@
         <translation>ფორმა</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NavCoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>ნაჩვენები ინფორმაცია შეიძლება მოძველებული იყოს. თქვენი საფულე ავტომატურად სინქრონიზდება NavCoin-ის ქსელთან კავშირის დამყარების შემდეგ, ეს პროცესი ჯერ არ არის დასრულებული.</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>ხელმისაწვდომია:</translation>
-    </message>
-    <message>
-        <source>Your current spendable balance</source>
-        <translation>თქვენი ხელმისაწვდომი ნაშთი</translation>
     </message>
     <message>
         <source>Pending:</source>
         <translation>იგზავნება:</translation>
     </message>
-    <message>
-        <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>დასადასტურებელი ტრანსაქციების საერთო რაოდენობა, რომლებიც ჯერ არ არის ასახული ბალანსში</translation>
-    </message>
-    <message>
-        <source>Immature:</source>
-        <translation>მოუმზადებელია:</translation>
-    </message>
-    <message>
-        <source>Mined balance that has not yet matured</source>
-        <translation>მოპოვებული თანხა, რომელიც ჯერ არ არის მზადყოფნაში</translation>
-    </message>
-    <message>
-        <source>Total:</source>
-        <translation>სულ:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation>თქვენი სრული მიმდინარე ბალანსი</translation>
-    </message>
+</context>
+<context>
+    <name>PaymentServer</name>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -659,6 +624,13 @@
     <message>
         <source>N/A</source>
         <translation>მიუწვდ.</translation>
+    </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>გამო&amp;სახულების შენახვა...</translation>
     </message>
     </context>
 <context>
@@ -842,7 +814,7 @@
         <source>Remove</source>
         <translation>წაშლა</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -861,16 +833,23 @@
         <source>&amp;Save Image...</source>
         <translation>გამო&amp;სახულების შენახვა...</translation>
     </message>
-</context>
+    <message>
+        <source>Amount</source>
+        <translation>თანხა</translation>
+    </message>
+    </context>
+<context>
+    <name>RecentRequestsTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>თარიღი</translation>
+    </message>
+    </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
         <translation>მონეტების გაგზავნა</translation>
-    </message>
-    <message>
-        <source>Coin Control Features</source>
-        <translation>მონეტების კონტროლის პარამეტრები</translation>
     </message>
     <message>
         <source>Inputs...</source>
@@ -921,26 +900,6 @@
         <translation>ხურდის მისამართი</translation>
     </message>
     <message>
-        <source>Transaction Fee:</source>
-        <translation>ტრანსაქციის საფასური - საკომისიო:</translation>
-    </message>
-    <message>
-        <source>Send to multiple recipients at once</source>
-        <translation>გაგზავნა რამდენიმე რეციპიენტთან ერთდროულად</translation>
-    </message>
-    <message>
-        <source>Add &amp;Recipient</source>
-        <translation>&amp;რეციპიენტის დამატება</translation>
-    </message>
-    <message>
-        <source>Clear all fields of the form.</source>
-        <translation>ფორმის ყველა ველის წაშლა</translation>
-    </message>
-    <message>
-        <source>Clear &amp;All</source>
-        <translation>გ&amp;ასუფთავება</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation>ბალანსი:</translation>
     </message>
@@ -952,7 +911,7 @@
         <source>S&amp;end</source>
         <translation>გაგ&amp;ზავნა</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -968,24 +927,12 @@
         <translation>ნიშნუ&amp;ლი:</translation>
     </message>
     <message>
-        <source>Choose previously used address</source>
-        <translation>აირჩიეთ ადრე გამოყენებული მისამართი</translation>
-    </message>
-    <message>
         <source>This is a normal payment.</source>
         <translation>ეს არის ჩვეულებრივი გადახდა.</translation>
     </message>
     <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>Paste address from clipboard</source>
-        <translation>მისამართის ჩასმა კლიპბორდიდან</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -1011,7 +958,10 @@
         <source>Memo:</source>
         <translation>შენიშვნა:</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>SendConfirmationDialog</name>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     <message>
@@ -1089,7 +1039,7 @@
         <source>Reset all verify message fields</source>
         <translation>ვერიფიკაციის ყველა ველის წაშლა</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1105,14 +1055,75 @@
     </message>
 </context>
 <context>
+    <name>TransactionDesc</name>
+    <message>
+        <source>Date</source>
+        <translation>თარიღი</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>თანხა</translation>
+    </message>
+    </context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>ტრანსაქციის დაწვრილებითი აღწერილობა</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>თარიღი</translation>
+    </message>
+    </context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>Confirmed</source>
+        <translation>დადასტურებულია</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>თარიღი</translation>
+    </message>
+    </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>მონეტების გაგზავნა</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;ექსპორტი</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>ამ ბარათიდან მონაცემების ექსპორტი ფაილში</translation>
+    </message>
+    </context>
+<context>
+    <name>getAddressToReceive</name>
+    <message>
+        <source>Form</source>
+        <translation>ფორმა</translation>
+    </message>
+    <message>
+        <source>QR Code</source>
+        <translation>QR-კოდი</translation>
+    </message>
     </context>
 <context>
     <name>navcoin-core</name>
@@ -1361,4 +1372,18 @@
         <translation>შეცდომა</translation>
     </message>
 </context>
+<context>
+    <name>navtechitem</name>
+    <message>
+        <source>Form</source>
+        <translation>ფორმა</translation>
+    </message>
+    </context>
+<context>
+    <name>navtechsetup</name>
+    <message>
+        <source>Remove</source>
+        <translation>წაშლა</translation>
+    </message>
+    </context>
 </TS>

@@ -69,7 +69,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     connect(ui->connectSocksTor, SIGNAL(toggled(bool)), this, SLOT(updateProxyValidationState()));
     connect(ui->voteTextField, SIGNAL(textChanged(QString)), this, SLOT(vote(QString)));
 
-    bool showVoting = GetBoolArg("-staking",true);
+    bool showVoting = GetStaking();
 
     ui->voteLabel->setVisible(showVoting);
     ui->voteTextField->setVisible(showVoting);
@@ -121,7 +121,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         }
     }
 #if QT_VERSION >= 0x040700
-    ui->thirdPartyTxUrls->setPlaceholderText("https://chainz.cryptoid.info/nav/tx.dws?%s.htm");
+    ui->thirdPartyTxUrls->setPlaceholderText("https://www.navexplorer.com/tx/%s");
 #endif
 
     ui->unit->setModel(new NavCoinUnits(this));

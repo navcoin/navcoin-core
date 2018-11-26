@@ -66,7 +66,7 @@ CFeeRate CWallet::fallbackFee = CFeeRate(DEFAULT_FALLBACK_FEE);
 
 
 int64_t nReserveBalance = 0;
-int64_t nMinimumInputValue = 0;
+int64_t nMinimumInputValue = GetArg("-mininputvalue", 1 * COIN);
 
 const uint256 CMerkleTx::ABANDON_HASH(uint256S("0000000000000000000000000000000000000000000000000000000000000001"));
 
@@ -313,7 +313,7 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
 
 bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key)
 {
-    CBlockIndex* pindexPrev = pindexBestHeader;
+    CBlockIndex* pindexPrev = chainActive.Tip();
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
 
@@ -534,10 +534,33 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     // Adds Community Fund output if enabled
     if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
     {
-        int fundIndex = txNew.vout.size() + 1;
-        txNew.vout.resize(fundIndex);
-        CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
-        txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
+        if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev, Params().GetConsensus()))
+        {
+            if((pindexPrev->nHeight + 1) % Params().GetConsensus().nBlockSpreadCFundAccumulation == 0)
+            {
+                int fundIndex = txNew.vout.size() + 1;
+                txNew.vout.resize(fundIndex);
+                CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+
+                if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
+                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2 * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+                } else {
+                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+                }
+            }
+        }
+        else
+        {
+            int fundIndex = txNew.vout.size() + 1;
+            txNew.vout.resize(fundIndex);
+            CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+
+             if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
+                txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2;
+             } else {
+                txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount;
+             }
+        }
     }
 
     // Sign
@@ -1759,7 +1782,8 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
     if (nDebit > 0) // debit>0 means we signed/sent this transaction
     {
         CAmount nValueOut = GetValueOut();
-        nFee = nDebit - nValueOut;
+        CAmount nValueOutCFund = GetValueOutCFund();
+        nFee = nDebit - nValueOut + nValueOutCFund;
     }
 
     // Sent/received.
