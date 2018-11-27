@@ -23,23 +23,19 @@ class StaticRAmountTest(NavCoinTestFramework):
     def run_test(self):
         activate_staticr(self.nodes[0])
 
-        print("blockcount: " + str(self.nodes[0].getblockcount()))
         blockcount = self.nodes[0].getblockcount()
         wallet_info = self.nodes[0].getwalletinfo()
-        print(wallet_info)
 
+        # wait for a new block to be mined
         while self.nodes[0].getblockcount() == blockcount:
-            print("No new block, going back to sleep...")
             time.sleep(5)
 
-        print("Sometime later...")
         assert(blockcount != self.nodes[0].getblockcount())
 
         wallet_info2 = self.nodes[0].getwalletinfo()
-        print(wallet_info2)
-
         balance_diff = wallet_info['balance'] - wallet_info2['balance']
 
+        # check that only 2 new NAV were created
         assert(wallet_info2['immature_balance'] == wallet_info['immature_balance'] + balance_diff + 2)
 
 if __name__ == '__main__':
