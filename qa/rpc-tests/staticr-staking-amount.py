@@ -21,22 +21,45 @@ class StaticRAmountTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
+
+        #check it's percentage based
+
+        preblockcount = self.nodes[0].getblockcount()
+        prewallet_info1 = self.nodes[0].getwalletinfo()
+
+        # wait for a new block to be mined
+        while self.nodes[0].getblockcount() == preblockcount:
+            print("waiting for a new block...")
+            time.sleep(5)
+
+        assert(blockcount != self.nodes[0].getblockcount())
+
+        prewallet_info2 = self.nodes[0].getwalletinfo()
+        prebalance_diff = prewallet_info1['balance'] - prewallet_info2['balance']
+
+        print(prebalance_diff)
+        print(prewallet_info1)
+        print(prewallet_info2)
+
+        #check its now static after the softfork
+
         activate_staticr(self.nodes[0])
 
         blockcount = self.nodes[0].getblockcount()
-        wallet_info = self.nodes[0].getwalletinfo()
+        wallet_info1 = self.nodes[0].getwalletinfo()
 
         # wait for a new block to be mined
         while self.nodes[0].getblockcount() == blockcount:
+            print("waiting for a new block...")
             time.sleep(5)
 
         assert(blockcount != self.nodes[0].getblockcount())
 
         wallet_info2 = self.nodes[0].getwalletinfo()
-        balance_diff = wallet_info['balance'] - wallet_info2['balance']
+        balance_diff = wallet_info1['balance'] - wallet_info2['balance']
 
         # check that only 2 new NAV were created
-        assert(wallet_info2['immature_balance'] == wallet_info['immature_balance'] + balance_diff + 2)
+        assert(wallet_info2['immature_balance'] == wallet_info1['immature_balance'] + balance_diff + 2)
 
 if __name__ == '__main__':
     StaticRAmountTest().main()
