@@ -24,17 +24,22 @@ class StaticRAmountTest(NavCoinTestFramework):
         activate_staticr(self.nodes[0])
 
         print("blockcount: " + str(self.nodes[0].getblockcount()))
+        blockcount = self.nodes[0].getblockcount())
         wallet_info = self.nodes[0].getwalletinfo()
         print(wallet_info)
 
-        time.sleep(60)
-        print("One minute later...")
+        while self.nodes[0].getblockcount() == blockcount:
+            time.sleep(5)
 
-        print("blockcount: " + str(self.nodes[0].getblockcount()))
+        print("Sometime later...")
+        assert(blockcount != self.nodes[0].getblockcount())
+
         wallet_info2 = self.nodes[0].getwalletinfo()
         print(wallet_info2)
 
-        assert(wallet_info2['immature_balance'] == wallet_info['immature_balance'] + 2)
+        balance_diff = wallet_info['balance'] - wallet_info2['balance']
+
+        assert(wallet_info2['immature_balance'] == wallet_info['immature_balance'] + balance_diff + 2)
 
 if __name__ == '__main__':
     StaticRAmountTest().main()
