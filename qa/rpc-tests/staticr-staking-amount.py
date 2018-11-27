@@ -22,7 +22,7 @@ class StaticRAmountTest(NavCoinTestFramework):
 
     def run_test(self):
 
-        #check it's percentage based
+        slow_gen(self.nodes[0], 20)
 
         preblockcount = self.nodes[0].getblockcount()
         prewallet_info1 = self.nodes[0].getwalletinfo()
