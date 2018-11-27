@@ -29,6 +29,7 @@ class StaticRAmountTest(NavCoinTestFramework):
         print(wallet_info)
 
         while self.nodes[0].getblockcount() == blockcount:
+            print("No new block, going back to sleep...")
             time.sleep(5)
 
         print("Sometime later...")
