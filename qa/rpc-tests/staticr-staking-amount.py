@@ -24,7 +24,7 @@ class StaticRAmountTest(NavCoinTestFramework):
         activate_staticr(self.nodes[0])
 
         print("blockcount: " + str(self.nodes[0].getblockcount()))
-        blockcount = self.nodes[0].getblockcount())
+        blockcount = self.nodes[0].getblockcount()
         wallet_info = self.nodes[0].getwalletinfo()
         print(wallet_info)
 
