@@ -22,26 +22,7 @@ class StaticRAmountTest(NavCoinTestFramework):
 
     def run_test(self):
 
-        slow_gen(self.nodes[0], 20)
-
-        preblockcount = self.nodes[0].getblockcount()
-        prewallet_info1 = self.nodes[0].getwalletinfo()
-
-        # wait for a new block to be mined
-        while self.nodes[0].getblockcount() == preblockcount:
-            print("waiting for a new block...")
-            time.sleep(5)
-
-        assert(blockcount != self.nodes[0].getblockcount())
-
-        prewallet_info2 = self.nodes[0].getwalletinfo()
-        prebalance_diff = prewallet_info1['balance'] - prewallet_info2['balance']
-
-        print(prebalance_diff)
-        print(prewallet_info1)
-        print(prewallet_info2)
-
-        #check its now static after the softfork
+        #check the block reward is 2 NAV after the softfork
 
         activate_staticr(self.nodes[0])
 
