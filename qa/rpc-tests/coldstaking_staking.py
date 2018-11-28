@@ -75,8 +75,6 @@ class ColdStakingStaking(NavCoinTestFramework):
         # assert(staking_weight_one / 100000000.0 >= staking_weight_before / 100000000.0 - 1) #need to adjust the coinage before testing
 
 
-        
-
         # Test spending from a cold staking wallet with the staking key
         spending_fail = True
 
@@ -136,9 +134,13 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         
         # Staking
+        self.nodes[0].staking(True)
+        current_balance = self.nodes[0].getbalance()
+        time.sleep(60)
+        assert(self.nodes[0].getbalance() > current_balance)
+        # Try staking with mature coins
         # Try staking with zero balance
         # Try staking with only immature coins
-        # Try staking with mature coins
 
     def send_raw_transaction(self, txinfo, to_address, change_address, amount):
         # Create a raw tx
