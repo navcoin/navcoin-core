@@ -39,8 +39,6 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         address_one_public_key = self.nodes[0].getnewaddress()
         address_one_private_key = self.nodes[0].dumpprivkey(address_one_public_key)
-#        address_two_public_key = self.nodes[1].getnewaddress()
-#        address_two_private_key = self.nodes[1].dumpprivkey(address_two_public_key)
 
         # Third party addresses and keys
         address_X_public_key = "mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW"
@@ -53,7 +51,7 @@ class ColdStakingSpending(NavCoinTestFramework):
 
 
         ## Our wallet holds the spending address key
-        coldstaking_address_two = self.nodes[0].getcoldstakingaddress(address_X_public_key, address_one_public_key)
+        coldstaking_address_spending = self.nodes[0].getcoldstakingaddress(address_X_public_key, address_one_public_key)
         
         # Sending to cold address:
             # Success case:
@@ -67,13 +65,13 @@ class ColdStakingSpending(NavCoinTestFramework):
         assert(round(staking_weight_before / 100000000.0, -5) == round(balance_before, -5))
 
         # Send funds to the cold staking address (leave some NAV for fees)
-        self.nodes[0].sendtoaddress(coldstaking_address_two, self.nodes[0].getbalance() - 1)
+        self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
         slow_gen(self.nodes[0], 1)
 
         balance_step_one = self.nodes[0].getbalance()
         staking_weight_one = self.nodes[0].getstakinginfo()["weight"]
         print(balance_step_one, self.nodes[0].listunspent())
-        txids = [ n["txid"] for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_two]
+        txids = [ n["txid"] for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
         print(txids)
 
         # We expect our balance to decrease by just the fees
@@ -87,8 +85,11 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         # Test spending from a cold staking wallet with the spending key
             # Send funds to a third party address using a signed raw transaction
-        listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_two]
-        self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_two, float(balance_step_one) * 0.5)
+        listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
+        
+        # ToDo: Fix this failing test
+        self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_spending, float(balance_step_one) * 0.5)
+
         slow_gen(self.nodes[0], 1)
 
         balance_step_two = self.nodes[0].getbalance()
