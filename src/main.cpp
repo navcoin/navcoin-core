@@ -7320,13 +7320,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CValidationState state;
         if (mapBlockIndex.find(block.hashPrevBlock) == mapBlockIndex.end()) {
             // If we can't find the previous block, we need to ask for more blocks
-            pfrom->PushMessage(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBestHeader->pprev ? pindexBestHeader->pprev : pindexBestHeader), block.GetHash());
+            pfrom->PushMessage(NetMsgType::GETBLOCKS, chainActive.GetLocator(pindexBestHeader->pprev ? pindexBestHeader->pprev : pindexBestHeader), uint256());
             LogPrint("net", "received block %s: missing prev block %s, sending getblock (%d) to end (peer=%d)\n",
                     block.GetHash().ToString(),
                     block.hashPrevBlock.ToString(),
                     pindexBestHeader->nHeight,
                     pfrom->id);
-
+            MarkBlockAsReceived(block.GetHash());
             return true;
         } else {
             // Process all blocks from whitelisted peers, even if not requested,
