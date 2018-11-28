@@ -143,7 +143,7 @@ class ColdStakingStaking(NavCoinTestFramework):
             time.sleep(10)
             loop_num += 1
 
-        print('blockheight', self.nodes[0].getblockchaininfo()["blocks"]
+        print('blockheight', self.nodes[0].getblockchaininfo()["blocks"])
         print('curbal', current_balance)
         print('new bal',self.nodes[0].getbalance())
         assert(self.nodes[0].getbalance() > current_balance)
