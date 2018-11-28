@@ -46,68 +46,66 @@ class ColdStakingSpending(NavCoinTestFramework):
         address_Y_public_key = "mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv"
         address_Y_private_key = "cST2mj1kXtiRyk8VSXU3F9pnTp7GrGpyqHRv4Gtap8jo4LGUMvqo"
 
+        # ToDo: might not need this, potentially remove
         addr1_info = self.nodes[0].validateaddress(address_one_public_key)
-
-
 
         ## Our wallet holds the spending address key
         coldstaking_address_spending = self.nodes[0].getcoldstakingaddress(address_X_public_key, address_one_public_key)
         
         # Sending to cold address:
             # Success case:
-                # Available balance increase (or stay the same if sending wallet = spending wallet)
-                # Staking weight decrease (if our wallet is the spending wallet)
+            # Available balance decrease by fees
+            # Staking weight decrease (We don't hold the staking key)
 
-        balance_before = self.nodes[0].getbalance()
-        staking_weight_before = self.nodes[0].getstakinginfo()["weight"]
+        balance_before_send = self.nodes[0].getbalance()
+        staking_weight_before_send = self.nodes[0].getstakinginfo()["weight"]
 
         # Check wallet weight roughly equals wallet balance
-        assert(round(staking_weight_before / 100000000.0, -5) == round(balance_before, -5))
+        assert(round(staking_weight_before_send / 100000000.0, -5) == round(balance_before_send, -5))
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
         slow_gen(self.nodes[0], 1)
 
-        balance_step_one = self.nodes[0].getbalance()
-        staking_weight_one = self.nodes[0].getstakinginfo()["weight"]
-        print(balance_step_one, self.nodes[0].listunspent())
+        balance_post_send_one = self.nodes[0].getbalance()
+        staking_weight_post_send = self.nodes[0].getstakinginfo()["weight"]
+
+        print(balance_post_send_one, self.nodes[0].listunspent())
         txids = [ n["txid"] for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
         print(txids)
 
         # We expect our balance to decrease by just the fees
-        # We expect our staking weight to decrease
-        print(staking_weight_before, staking_weight_one)
+        # We expect our staking weight to decrease (We don't hold the staking key)
 
-        assert(balance_step_one >= balance_before - 1)
-        assert(staking_weight_one / 100000000.0 <= 1)
-
-
+        assert(balance_post_send_one >= balance_before_send - 1)
+        assert(staking_weight_post_send / 100000000.0 <= 1)
 
         # Test spending from a cold staking wallet with the spending key
-            # Send funds to a third party address using a signed raw transaction
-        listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
         
+        # Send funds to a third party address with sendtoaddress()
+        self.nodes[0].sendtoaddress(address_Y_public_key, balance_post_send_one / 2 - 1)
+        slow_gen(self.nodes[0], 1)  
+        balance_post_send_two = self.nodes[0].getbalance()
+        assert(balance_post_send_two >= balance_post_send_one / 2 - 1)
+
+        
+        # Send funds to a third party address using a signed raw transaction    
+        # get unspent tx inputs
+            
+        listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
+        # construct
+        # send rawtx
         # ToDo: Fix this failing test
-        self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_spending, float(balance_step_one) * 0.5)
+        self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_spending, float(balance_post_send_one) * 0.5)
+        slow_gen(self.nodes[0], 1)  
 
-        slow_gen(self.nodes[0], 1)
-
-        balance_step_two = self.nodes[0].getbalance()
-
+        # check bal >= bal - sending - 1
+        balance_post_send_three = self.nodes[0].getbalance()
+        
         # We expect our balance to be half spent (less some fees)
-        assert(balance_step_two <= float(balance_step_one) * 0.5)
+        assert(balance_post_send_three <= float(balance_post_send_one) * 0.5)
 
-
-            # Send funds using rpc (leave some NAV for fees)
-        self.nodes[0].sendtoaddress(address_Y_public_key, balance_step_two - 1)
-
-        balance_step_three = self.nodes[0].getbalance()
-
-        print(balance_step_one, balance_step_two, self.nodes[0].getbalance())
-
-        # We expect our balance to be mostly spent
-        assert(balance_step_three <= 1)
-
+        
 
 #        self.nodes[0].generate(1)
 #        block_height = self.nodes[0].getblockcount()
