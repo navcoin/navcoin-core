@@ -6622,7 +6622,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             if (inv.type == MSG_BLOCK) {
                 UpdateBlockAvailability(pfrom->GetId(), inv.hash);
                 bool fIsInFlight = mapBlocksInFlight.count(inv.hash) && mapBlocksInFlight[inv.hash].first == pfrom->GetId();
-                LogPrintf("%d %d %d %d\n", !fAlreadyHave, !fImporting, !fReindex, !fIsInFlight);
                 if (!fAlreadyHave && !fImporting && !fReindex && !fIsInFlight) {
                     // First request the headers preceding the announced block. In the normal fully-synced
                     // case where a new block is announced that succeeds the current tip (no reorganization),
