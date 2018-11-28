@@ -14,14 +14,13 @@ class ColdStakingStaking(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
-        self.num_nodes = 2
+        self.num_nodes = 1
 
     def setup_network(self, split=False):
         self.nodes = self.setup_nodes()
         self.is_network_split = split
 
     def run_test(self):
-        self.nodes[0].staking(False)
 
         slow_gen(self.nodes[0], 100)
         # Verify the Cold Staking is started
@@ -134,16 +133,14 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         
         # Staking
-        self.nodes[0].staking(True)
         current_balance = self.nodes[0].getbalance()
-        block_height = self.nodes[0].getblockchaininfo()["blocks"]
+        block_height = self.nodes[0].getblockcount()
+
         loop_num = 0
+        while (block_height == self.nodes[0].getblockcount()):
+            time.sleep(5)
 
-        while (block_height == self.nodes[0].getblockchaininfo()["blocks"] and loop_num < 30):
-            time.sleep(10)
-            loop_num += 1
-
-        print('blockheight', self.nodes[0].getblockchaininfo()["blocks"])
+        print('blockheight', self.nodes[0].getblockcount())
         print('curbal', current_balance)
         print('new bal',self.nodes[0].getbalance())
         assert(self.nodes[0].getbalance() > current_balance)
