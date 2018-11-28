@@ -37,20 +37,20 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         SENDING_FEE= 0.00010000
 
-        address_one_public_key = self.nodes[0].getnewaddress()
-        address_one_private_key = self.nodes[0].dumpprivkey(address_one_public_key)
+        spending_address_public_key = self.nodes[0].getnewaddress()
+        spending_address_private_key = self.nodes[0].dumpprivkey(spending_address_public_key)
 
         # Third party addresses and keys
-        address_X_public_key = "mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW"
-        address_X_private_key = "cMuNajSALbixZvApkcYVE4KgJoeQY92umhEVdQwqX9wSJUzkmdvF"
+        staking_address_public_key = "mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW"
+        staking_address_private_key = "cMuNajSALbixZvApkcYVE4KgJoeQY92umhEVdQwqX9wSJUzkmdvF"
         address_Y_public_key = "mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv"
         address_Y_private_key = "cST2mj1kXtiRyk8VSXU3F9pnTp7GrGpyqHRv4Gtap8jo4LGUMvqo"
 
         # ToDo: might not need this, potentially remove
-        addr1_info = self.nodes[0].validateaddress(address_one_public_key)
+        addr1_info = self.nodes[0].validateaddress(spending_address_public_key)
 
         ## Our wallet holds the spending address key
-        coldstaking_address_spending = self.nodes[0].getcoldstakingaddress(address_X_public_key, address_one_public_key)
+        coldstaking_address_spending = self.nodes[0].getcoldstakingaddress(staking_address_public_key, spending_address_public_key)
         
         # Sending to cold address:
             # Success case:
@@ -65,7 +65,7 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
-        slow_gen(self.nodes[0], 1)
+        slow_gen(self.nodes[1], 1)
 
         balance_post_send_one = self.nodes[0].getbalance()
         staking_weight_post_send = self.nodes[0].getstakinginfo()["weight"]
@@ -83,113 +83,64 @@ class ColdStakingSpending(NavCoinTestFramework):
         # Test spending from a cold staking wallet with the spending key
         
         # Send funds to a third party address with sendtoaddress()
-        self.nodes[0].sendtoaddress(address_Y_public_key, balance_post_send_one / 2 - 1)
-        slow_gen(self.nodes[0], 1)  
+        self.nodes[0].sendtoaddress(address_Y_public_key, balance_post_send_one * 0.5 - 1)
+        slow_gen(self.nodes[1], 1)  
         balance_post_send_two = self.nodes[0].getbalance()
-        assert(balance_post_send_two >= balance_post_send_one / 2 - 1)
-
+        assert(balance_post_send_two >= balance_post_send_one * 0.5 - 1)
         
+
         # Send funds to a third party address using a signed raw transaction    
         # get unspent tx inputs
             
         listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
-        # construct
-        # send rawtx
-        # ToDo: Fix this failing test
-        self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_spending, float(balance_post_send_one) * 0.5)
-        slow_gen(self.nodes[0], 1)  
+        # construct and send rawtx
+        self.send_raw_transaction(txinfo = listunspent_txs[0], \
+                                to_address = address_Y_public_key, \
+                                change_address = coldstaking_address_spending, \
+                                amount = float(balance_post_send_two) - 1)
 
-        # check bal >= bal - sending - 1
+        slow_gen(self.nodes[1], 1)  
+
         balance_post_send_three = self.nodes[0].getbalance()
         
-        # We expect our balance to be half spent (less some fees)
-        assert(balance_post_send_three <= float(balance_post_send_one) * 0.5)
+        # We expect our balance more or less gone (less some fees)
+        assert(balance_post_send_three <= 1)
 
+        # generate some new coins and send them to our cold staking address
+        slow_gen(self.nodes[0], 2)
+        self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
+
+
+        # send to our spending address (should work)
+        send_worked = False
+        current_balance = self.nodes[0].getbalance()
+
+        try:
+            self.nodes[0].sendtoaddress(spending_address_public_key, current_balance * 0.5 - 1)
+            # Our balance should be the same minus fees, as we own the address we sent to
+            assert(self.nodes[0].getbalance() >= current_balance - 1) 
+            send_worked = True
+        except Exception as e:
+            print(e['message'])
+
+        assert(send_worked == True)
         
+        slow_gen(self.nodes[1], 1)
 
-#        self.nodes[0].generate(1)
-#        block_height = self.nodes[0].getblockcount()
+        # send to our staking address
+        send_worked = False
+        current_balance = self.nodes[0].getbalance()
 
-#        block_hash = self.nodes[0].getblockhash(block_height)
-#        spending_tx_block = self.nodes[0].getblock(block_hash)
-        
-#        try:
-#            tx = self.nodes[0].getrawtransaction(spending_tx_block["tx"][1])
+        try:
+            self.nodes[0].sendtoaddress(staking_address_public_key, self.nodes[0].getbalance() * 0.5 - 1)
+            # Our balance should be half minus fees, as we dont own the address we sent to
+            assert(self.nodes[0].getbalance() <= current_balance * 0.5 - 1) 
+            send_worked = True
+        except Exception as e:
+            print(e['message'])
             
-#            print('PRINTING DECODED RAW TX FROM BLOCK')
-#            print(self.nodes[0].decoderawtransaction(tx))
-#            print('****')
-
-#            raw_tx = self.nodes[0].createrawtransaction(
-#                [{
-#                    "txid": tx,
-#                    "vout": 1
-#                }],
-#                {address_two_public_key: 9.9999}
-#            )
-
-#            print('PRINTING OUR NEW RAW TX')
-#            print(self.nodes[0].decoderawtransaction(raw_tx))
-#            print('****')
-
-#            signed_raw_tx = self.nodes[0].signrawtransaction(raw_tx)
-
-#            print('PRINTING OUR SIGNED RAW TX')
-#            print(signed_raw_tx)
-#            print('****')
-
-#            print('PRINTING OUR DECODED RAW TX')
-#            print(self.nodes[0].decoderawtransaction(str(signed_raw_tx)))
-#            print('****')
-
-#            self.nodes[0].sendrawtransaction(str(signed_raw_tx))
-            
-#            print("sending worked")
-#        except JSONRPCException as e:
-#            print('hey look error')
-#            print(e.error['message'])
-#            assert(1==2)
-
-
+        assert(send_worked == True)
         
-    #     spending_tx_block = self.nodes[0].getblock(self.nodes[0].getblockhash(block_height))
-
-
-    #     # Sending from spending address:
-    #         # From wallet that controls staking address only :
-        
-
-    #         # Sending coins (should fail) 
-    #         # Sending coins rawtx w/signing (should fail) 
-    #         # Sending to original staking address (not combined cold address) (should fail) 
-    #         # Sending to original spending address (not combined cold address) (should fail) 
-    #         # when staking a cold staking output coins should not be able to move to a different cold staking address (should fail)
-
-
-    #     # Try and spend from the cold staking address, 
-    #     # The only utxo big enough for this tx belongs to the coldstaking address, we can't access that so this should fail
-    #     try:
-    #         self.nodes[0].sendtoaddress(address_one_public_key, 10) 
-    #     except JSONRPCException as e:   
-    #         assert("Insufficient funds" in e.error['message'])
-        
-    #     # Staking
-    #         # Try staking with zero balance in immature staking address, balance in spending
-    #         # Try staking with balance in immature staking address, balance in spending (should fail)
-    #         # Try staking with zero balance in staking wallet, balance in spending
-    #         # Try staking with balance in staking wallet, balance in spending, 
-    #         # Try staking with balance in staking wallet, zero balance in spending
-    #         # Try staking with balance in staking wallet, zero balance in immature address for spending (should fail?
-    #         # Try staking with rawtx w/signing
-
-    #     # From wallet that controls spending address only:
-    #         # Sending coins 
-    #         # Sending coins rawtx w/signing
-    #         # Sending to original staking address (not combined cold address)
-    #         # Sending to original spending address (not combined cold address)
-    #         # Staking rawtx (should fail)
-    #         # Staking rawtx w/signing (should fail)
-
 
     def send_raw_transaction(self, txinfo, to_address, change_address, amount):
         # Create a raw tx
