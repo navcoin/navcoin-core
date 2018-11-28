@@ -136,7 +136,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         # Staking
         self.nodes[0].staking(True)
         current_balance = self.nodes[0].getbalance()
-        block_height = self.nodes[0].getblockchaininfo()["blocks"])
+        block_height = self.nodes[0].getblockchaininfo()["blocks"]
         loop_num = 0
 
         while (block_height == self.nodes[0].getblockchaininfo()["blocks"]) and loop_num < 30):
