@@ -136,7 +136,11 @@ class ColdStakingStaking(NavCoinTestFramework):
         # Staking
         self.nodes[0].staking(True)
         current_balance = self.nodes[0].getbalance()
+        print('old block height',self.nodes[0].getblockchaininfo["blocks"])
         time.sleep(60)
+        print('blockheight',self.nodes[0].getblockchaininfo["blocks"])
+        print('curbal',current_balance)
+        print('new bal',self.nodes[0].getbalance())
         assert(self.nodes[0].getbalance() > current_balance)
         # Try staking with mature coins
         # Try staking with zero balance
