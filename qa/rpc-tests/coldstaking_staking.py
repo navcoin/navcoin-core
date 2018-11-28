@@ -48,8 +48,6 @@ class ColdStakingStaking(NavCoinTestFramework):
         address_Y_public_key = "mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv"
         address_Y_private_key = "cST2mj1kXtiRyk8VSXU3F9pnTp7GrGpyqHRv4Gtap8jo4LGUMvqo"
 
-        staking_address_public_key = self.nodes[0].validateaddress(staking_address_public_key)
-
         ## Our wallet holds the staking address
         coldstaking_address_staking = self.nodes[0].getcoldstakingaddress(staking_address_public_key, spending_address_public_key)
 
