@@ -67,14 +67,24 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         # Check wallet weight roughly equals wallet balance
         assert(round(staking_weight_before / 100000000.0, -5) == round(balance_before, -5))
-        print(self.nodes[0].listunspent())
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_staking, balance_before - 1)
         self.nodes[1].generate(1)
+        
+        # get block height
+        # getbockhash
+        #getblock
+        cs_tx_block = self.nodes[0].getblock(self.nodes[0].getblockhash(self.nodes[0].getblockcount()))
+        cs_tx_id = cs_tx_block["tx"][1]
+        print(self.nodes[0].gettxout(cs_tx_id))
+        assert(False)
+        #get txid
+        #gettxout 'txid' 1 true
+
         addr_string = "[\"" + coldstaking_address_staking + "\"]" 
-        print(self.nodes[0].listunspent(1, 9999999, addr_string))
-        unspent_tx = self.nodes[0].listunspent(1, 9999999, addr_string)
+        print(self.nodes[0].listunspent(1 9999999 addr_string))
+        unspent_tx = self.nodes[0].listunspent(1 9999999 addr_string)
 
         balance_step_one = self.nodes[0].getbalance()
         staking_weight_one = self.nodes[0].getstakinginfo()["weight"]
@@ -169,9 +179,9 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         print('current bal', current_balance)
         print('new bal',self.nodes[0].getbalance())
-        unspent_tx_new = self.nodes[0].listunspent(1, 9999999, addr_string)
+        unspent_tx_new = self.nodes[0].listunspent(1 9999999 addr_string)
         print(unspent_tx, unspent_tx_new)
-        assert(unspent_tx_new != unspent_tx)
+        assert(unspent_tx_new > current_balance)
         
         # Try staking with mature coins
         # Try staking with zero balance
