@@ -73,13 +73,17 @@ class ColdStakingStaking(NavCoinTestFramework):
         assert(balance_step_one <= 1)
         # assert(staking_weight_one / 100000000.0 >= staking_weight_before / 100000000.0 - 1) #need to adjust the coinage before testing
 
+        slow_gen(self.nodes[1], 300)
 
         # Test spending from a cold staking wallet with the staking key
         spending_fail = True
 
         # Send funds to a third party address using a signed raw transaction
+        listunspent_txs = []
         try:
+            print(self.nodes[0].listunspent())
             listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
+            print('utxo: ', listunspent_txs)
             self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
             spending_fail = False
         except IndexError:
@@ -135,7 +139,6 @@ class ColdStakingStaking(NavCoinTestFramework):
         # Staking
         slow_gen(self.nodes[1], 300)
 
-        
         current_balance = self.nodes[0].getbalance()
         print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
         block_height = self.nodes[0].getblockcount()
