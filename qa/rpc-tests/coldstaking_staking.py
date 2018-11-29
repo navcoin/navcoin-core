@@ -70,21 +70,19 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_staking, balance_before - 1)
-        self.nodes[1].generate(1)
-        
+        self.nodes[0].generate(1)
+        self.sync_all()
         # get block height
         # getbockhash
         #getblock
         cs_tx_block = self.nodes[0].getblock(self.nodes[0].getblockhash(self.nodes[0].getblockcount()))
         cs_tx_id = cs_tx_block["tx"][1]
-        print(self.nodes[0].gettxout(cs_tx_id))
+        print(self.nodes[0].gettxout(cs_tx_id 0 True))
         assert(False)
         #get txid
         #gettxout 'txid' 1 true
 
         addr_string = "[\"" + coldstaking_address_staking + "\"]" 
-        print(self.nodes[0].listunspent(1 9999999 addr_string))
-        unspent_tx = self.nodes[0].listunspent(1 9999999 addr_string)
 
         balance_step_one = self.nodes[0].getbalance()
         staking_weight_one = self.nodes[0].getstakinginfo()["weight"]
@@ -104,7 +102,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         # TODO: Fix this test so we actually use a utxo, at the moment it passes in an empty array
         listunspent_txs = []
         try:
-            print(self.nodes[0].listunspent())
+            # print(self.nodes[0].listunspent())
             listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
 
             listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
@@ -179,7 +177,6 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         print('current bal', current_balance)
         print('new bal',self.nodes[0].getbalance())
-        unspent_tx_new = self.nodes[0].listunspent(1 9999999 addr_string)
         print(unspent_tx, unspent_tx_new)
         assert(unspent_tx_new > current_balance)
         
