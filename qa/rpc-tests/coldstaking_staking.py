@@ -71,6 +71,10 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_staking, balance_before - 1)
+        self.nodes[1].generate(1)
+        addr_string = "[\"" + coldstaking_address_staking + "\"]" 
+        print(self.nodes[0].listunspent(1 9999999 addr_string))
+        unspent_tx = self.nodes[0].listunspent(1 9999999 addr_string)
 
         balance_step_one = self.nodes[0].getbalance()
         staking_weight_one = self.nodes[0].getstakinginfo()["weight"]
@@ -81,16 +85,18 @@ class ColdStakingStaking(NavCoinTestFramework):
         assert(balance_step_one <= 1)
         # assert(staking_weight_one / 100000000.0 >= staking_weight_before / 100000000.0 - 1) #need to adjust the coinage before testing
 
-        slow_gen(self.nodes[1], 300)
         self.sync_all()
 
         # Test spending from a cold staking wallet with the staking key
         spending_fail = True
 
         # Send funds to a third party address using a signed raw transaction
+        # TODO: Fix this test so we actually use a utxo, at the moment it passes in an empty array
         listunspent_txs = []
         try:
             print(self.nodes[0].listunspent())
+            listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
+
             listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
             print('utxo: ', listunspent_txs)
             self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
@@ -148,7 +154,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         # Staking
         slow_gen(self.nodes[1], 300)
         self.sync_all()
-        print(self.nodes[1].listunspent())
+
 
         current_balance = self.nodes[0].getbalance()
         print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
@@ -160,10 +166,13 @@ class ColdStakingStaking(NavCoinTestFramework):
             time.sleep(5)
 
         print('blockheight', self.nodes[0].getblockcount())
-        print('unspent tx', listunspent_txs[0])
+
         print('current bal', current_balance)
         print('new bal',self.nodes[0].getbalance())
-        assert(self.nodes[0].getbalance() > current_balance)
+        unspent_tx_new = self.nodes[0].listunspent(1 9999999 addr_string)
+        print(unspent_tx, unspent_tx_new)
+        assert(unspent_tx_new != unspent_tx)
+        
         # Try staking with mature coins
         # Try staking with zero balance
         # Try staking with only immature coins
