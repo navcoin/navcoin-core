@@ -14,14 +14,14 @@ class ColdStakingStaking(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
-        self.num_nodes = 1
+        self.num_nodes = 2
 
     def setup_network(self, split=False):
         self.nodes = self.setup_nodes()
         self.is_network_split = split
 
     def run_test(self):
-
+        self.nodes[1].staking(False)
         slow_gen(self.nodes[0], 100)
         # Verify the Cold Staking is started
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["coldstaking"]["status"] == "started")
@@ -133,17 +133,22 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         
         # Staking
+        slow_gen(self.nodes[1], 300)
+
+        
         current_balance = self.nodes[0].getbalance()
-        block_height = self.nodes[0].getblockcount()
         print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
-        slow_gen(self.nodes[0], 300)
+        block_height = self.nodes[0].getblockcount()
         loop_num = 0
+        print('unspent tx', listunspent_txs[0])
+
         print("weight after:",self.nodes[0].getstakinginfo()["weight"])
         while (block_height == self.nodes[0].getblockcount()):
             time.sleep(5)
 
         print('blockheight', self.nodes[0].getblockcount())
-        print('curbal', current_balance)
+        print('unspent tx', listunspent_txs[0])
+        print('current bal', current_balance)
         print('new bal',self.nodes[0].getbalance())
         assert(self.nodes[0].getbalance() > current_balance)
         # Try staking with mature coins
