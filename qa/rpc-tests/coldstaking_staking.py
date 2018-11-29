@@ -60,6 +60,7 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         # Check wallet weight roughly equals wallet balance
         assert(round(staking_weight_before / 100000000.0, -5) == round(balance_before, -5))
+        print(self.nodes[0].listunspent())
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_staking, balance_before - 1)
@@ -138,6 +139,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         
         # Staking
         slow_gen(self.nodes[1], 300)
+        print(self.nodes[1].listunspent())
 
         current_balance = self.nodes[0].getbalance()
         print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
