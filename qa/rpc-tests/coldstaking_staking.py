@@ -77,7 +77,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         #getblock
         cs_tx_block = self.nodes[0].getblock(self.nodes[0].getblockhash(self.nodes[0].getblockcount()))
         cs_tx_id = cs_tx_block["tx"][1]
-        print(self.nodes[0].gettxout(cs_tx_id 0 True))
+        print(self.nodes[0].gettxout(cs_tx_id, 0, True))
         assert(False)
         #get txid
         #gettxout 'txid' 1 true
