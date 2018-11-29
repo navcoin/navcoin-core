@@ -73,8 +73,8 @@ class ColdStakingStaking(NavCoinTestFramework):
         self.nodes[0].sendtoaddress(coldstaking_address_staking, balance_before - 1)
         self.nodes[1].generate(1)
         addr_string = "[\"" + coldstaking_address_staking + "\"]" 
-        print(self.nodes[0].listunspent(1 9999999 addr_string))
-        unspent_tx = self.nodes[0].listunspent(1 9999999 addr_string)
+        print(self.nodes[0].listunspent(1, 9999999, addr_string))
+        unspent_tx = self.nodes[0].listunspent(1, 9999999, addr_string)
 
         balance_step_one = self.nodes[0].getbalance()
         staking_weight_one = self.nodes[0].getstakinginfo()["weight"]
@@ -169,7 +169,7 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         print('current bal', current_balance)
         print('new bal',self.nodes[0].getbalance())
-        unspent_tx_new = self.nodes[0].listunspent(1 9999999 addr_string)
+        unspent_tx_new = self.nodes[0].listunspent(1, 9999999, addr_string)
         print(unspent_tx, unspent_tx_new)
         assert(unspent_tx_new != unspent_tx)
         
