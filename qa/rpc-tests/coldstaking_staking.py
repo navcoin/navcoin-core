@@ -135,8 +135,10 @@ class ColdStakingStaking(NavCoinTestFramework):
         # Staking
         current_balance = self.nodes[0].getbalance()
         block_height = self.nodes[0].getblockcount()
-
+        print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
+        slow_gen(self.nodes[0], 300)
         loop_num = 0
+        print("weight after:",self.nodes[0].getstakinginfo()["weight"])
         while (block_height == self.nodes[0].getblockcount()):
             time.sleep(5)
 
