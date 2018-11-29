@@ -146,7 +146,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         block_height = self.nodes[0].getblockcount()
         loop_num = 0
         print('unspent tx', listunspent_txs[0])
-
+        assert(False)
         print("weight after:",self.nodes[0].getstakinginfo()["weight"])
         while (block_height == self.nodes[0].getblockcount()):
             time.sleep(5)
