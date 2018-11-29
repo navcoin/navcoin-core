@@ -77,8 +77,8 @@ class ColdStakingStaking(NavCoinTestFramework):
         #getblock
         cs_tx_block = self.nodes[0].getblock(self.nodes[0].getblockhash(self.nodes[0].getblockcount()))
         cs_tx_id = cs_tx_block["tx"][1]
+        utxo_before = self.nodes[0].gettxout(cs_tx_id, 0, True)
         print(self.nodes[0].gettxout(cs_tx_id, 0, True))
-        assert(False)
         #get txid
         #gettxout 'txid' 1 true
 
@@ -168,16 +168,16 @@ class ColdStakingStaking(NavCoinTestFramework):
         print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
         block_height = self.nodes[0].getblockcount()
         loop_num = 0
-        print('unspent tx', listunspent_txs[0])
         print("weight after:",self.nodes[0].getstakinginfo()["weight"])
-        while (block_height == self.nodes[0].getblockcount()):
+        while (block_height  >= self.nodes[0].getblockcount()):
             time.sleep(5)
 
         print('blockheight', self.nodes[0].getblockcount())
 
         print('current bal', current_balance)
         print('new bal',self.nodes[0].getbalance())
-        print(unspent_tx, unspent_tx_new)
+        utxo_after = self.nodes[0].gettxout(cs_tx_id, 0, True)
+        print(utxo_before, utxo_after)
         assert(unspent_tx_new > current_balance)
         
         # Try staking with mature coins
