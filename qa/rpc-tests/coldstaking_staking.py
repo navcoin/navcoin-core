@@ -22,6 +22,8 @@ class ColdStakingStaking(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
+        RAW_TX_EXCEPTION = "Failed to construct a valid Raw Tx"
+        
         self.nodes[1].staking(False)
         slow_gen(self.nodes[0], 100)
         self.sync_all()
@@ -99,7 +101,6 @@ class ColdStakingStaking(NavCoinTestFramework):
         spending_fail = True
 
         # Send funds to a third party address using a signed raw transaction
-        # TODO: Fix this test so we actually use a utxo, at the moment it passes in an empty array
         listunspent_txs = []
         try:
             listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
@@ -107,8 +108,10 @@ class ColdStakingStaking(NavCoinTestFramework):
             spending_fail = False
         except IndexError:
             pass
-        # except JSONRPCException as e:
-            # pass
+        except Exception as e:
+            if e["message"] == RAW_TX_EXCEPTION:
+                pass
+            raise e    
 
         # We expect our balance and weight to be unchanged
         assert(self.nodes[0].getbalance() == balance_step_one)
@@ -121,8 +124,10 @@ class ColdStakingStaking(NavCoinTestFramework):
             spending_fail = False
         except IndexError:
             pass
-        # except JSONRPCException as e:
-        #     pass
+        except Exception as e:
+            if e["message"] == RAW_TX_EXCEPTION:
+                pass
+            raise e
         
         # We expect our balance and weight to be unchanged
         assert(self.nodes[0].getbalance() == balance_step_one)
@@ -201,7 +206,8 @@ class ColdStakingStaking(NavCoinTestFramework):
         # Sign raw transaction
         signresult = self.nodes[0].signrawtransaction(rawtx)
         print(signresult)
-        assert(signresult["complete"])
+        if !signresult["complete"]:    
+            Raise Exception(RAW_TX_EXCEPTION) 
 
         # Send raw transaction
         return self.nodes[0].sendrawtransaction(signresult['hex'])
