@@ -206,8 +206,12 @@ class ColdStakingStaking(NavCoinTestFramework):
         # Sign raw transaction
         signresult = self.nodes[0].signrawtransaction(rawtx)
         print(signresult)
-        if !signresult["complete"]:    
-            Raise Exception(RAW_TX_EXCEPTION) 
+        try:
+            signresult["complete"]:    
+        except Exception as e:        
+            if str(type(e)).index("KeyError"):
+                raise Exception(RAW_TX_EXCEPTION) 
+            raise e
 
         # Send raw transaction
         return self.nodes[0].sendrawtransaction(signresult['hex'])
