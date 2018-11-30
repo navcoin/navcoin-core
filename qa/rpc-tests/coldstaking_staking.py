@@ -109,7 +109,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         except IndexError:
             pass
         except Exception as e:
-            if e["message"] == RAW_TX_EXCEPTION:
+            if e.error["message"] == RAW_TX_EXCEPTION:
                 pass
             raise e    
 
@@ -125,7 +125,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         except IndexError:
             pass
         except Exception as e:
-            if e["message"] == RAW_TX_EXCEPTION:
+            if e.error["message"] == RAW_TX_EXCEPTION:
                 pass
             raise e
         
