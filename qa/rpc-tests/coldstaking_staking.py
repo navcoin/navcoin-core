@@ -90,7 +90,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         # We expect our balance to decrease by tx amount + fees
         # We expect our staking weight to remain the same
         print(staking_weight_before, staking_weight_one)
-        assert(balance_step_one <= 1)
+        assert(balance_step_one <= 51)
         # assert(staking_weight_one / 100000000.0 >= staking_weight_before / 100000000.0 - 1) #need to adjust the coinage before testing
 
         self.sync_all()
@@ -102,15 +102,10 @@ class ColdStakingStaking(NavCoinTestFramework):
         # TODO: Fix this test so we actually use a utxo, at the moment it passes in an empty array
         listunspent_txs = []
         try:
-            # print(self.nodes[0].listunspent())
-            listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
-
-            listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
-            print('utxo: ', listunspent_txs)
-            self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
+            self.send_raw_transaction(utxo_before, address_Y_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
             spending_fail = False
-        except IndexError:
-            pass
+        # except IndexError:
+            # pass
         except JSONRPCException as e:
             pass
 
@@ -119,6 +114,18 @@ class ColdStakingStaking(NavCoinTestFramework):
         assert(spending_fail)
         assert(self.nodes[0].getstakinginfo()["weight"] / 100000000.0 >= staking_weight_one / 100000000.0 - 1)
 
+        try:
+            self.send_raw_transaction(utxo_before, staking_address_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
+            spending_fail = False
+        # except IndexError:
+            # pass
+        except JSONRPCException as e:
+            pass
+        
+        # We expect our balance and weight to be unchanged
+        assert(self.nodes[0].getbalance() == balance_step_one)
+        assert(spending_fail)
+        assert(self.nodes[0].getstakinginfo()["weight"] / 100000000.0 >= staking_weight_one / 100000000.0 - 1)
 
         # Send funds using rpc to third party
         try:
@@ -177,12 +184,11 @@ class ColdStakingStaking(NavCoinTestFramework):
         print('current bal', current_balance)
         print('new bal',self.nodes[0].getbalance())
         utxo_after = self.nodes[0].gettxout(cs_tx_id, 0, True)
-        print(utxo_before, utxo_after)
-        assert(unspent_tx_new > current_balance)
+        utxo_after_two = self.nodes[0].gettxout(cs_tx_id, 1, True)
+
+        print(utxo_before, utxo_after, utxo_after_two)
+        assert(utxo_before != utxo_after)
         
-        # Try staking with mature coins
-        # Try staking with zero balance
-        # Try staking with only immature coins
 
     def send_raw_transaction(self, txinfo, to_address, change_address, amount):
         # Create a raw tx
