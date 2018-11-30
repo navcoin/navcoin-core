@@ -109,9 +109,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         except IndexError:
             pass
         except Exception as e:
-            if e.error["message"] == RAW_TX_EXCEPTION:
-                pass
-            raise e    
+            pass
 
         # We expect our balance and weight to be unchanged
         assert(self.nodes[0].getbalance() == balance_step_one)
@@ -125,9 +123,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         except IndexError:
             pass
         except Exception as e:
-            if e.error["message"] == RAW_TX_EXCEPTION:
-                pass
-            raise e
+            pass
         
         # We expect our balance and weight to be unchanged
         assert(self.nodes[0].getbalance() == balance_step_one)
@@ -205,13 +201,7 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         # Sign raw transaction
         signresult = self.nodes[0].signrawtransaction(rawtx)
-        print(signresult)
-        try:
-            signresult["complete"]   
-        except Exception as e:        
-            if str(type(e)).index("KeyError"):
-                raise Exception(RAW_TX_EXCEPTION) 
-            raise e
+        # signresult["complete"]   
 
         # Send raw transaction
         return self.nodes[0].sendrawtransaction(signresult['hex'])
