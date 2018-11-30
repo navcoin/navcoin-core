@@ -102,13 +102,13 @@ class ColdStakingStaking(NavCoinTestFramework):
         # TODO: Fix this test so we actually use a utxo, at the moment it passes in an empty array
         listunspent_txs = []
         try:
-            print(utxo_before)
-            self.send_raw_transaction(utxo_before, address_Y_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
+            listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
+            self.send_raw_transaction(listunspent_txs[0], address_Y_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
             spending_fail = False
-        # except IndexError:
-            # pass
-        except JSONRPCException as e:
+        except IndexError:
             pass
+        # except JSONRPCException as e:
+            # pass
 
         # We expect our balance and weight to be unchanged
         assert(self.nodes[0].getbalance() == balance_step_one)
@@ -116,12 +116,13 @@ class ColdStakingStaking(NavCoinTestFramework):
         assert(self.nodes[0].getstakinginfo()["weight"] / 100000000.0 >= staking_weight_one / 100000000.0 - 1)
 
         try:
-            self.send_raw_transaction(utxo_before, staking_address_public_keygit , coldstaking_address_staking, float(balance_step_one) * 0.5)
+            listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
+            self.send_raw_transaction(listunspent_txs[0], staking_address_public_keygit , coldstaking_address_staking, float(balance_step_one) * 0.5)
             spending_fail = False
-        # except IndexError:
-            # pass
-        except JSONRPCException as e:
+        except IndexError:
             pass
+        # except JSONRPCException as e:
+        #     pass
         
         # We expect our balance and weight to be unchanged
         assert(self.nodes[0].getbalance() == balance_step_one)
@@ -191,10 +192,10 @@ class ColdStakingStaking(NavCoinTestFramework):
         assert(utxo_before != utxo_after)
         
 
-    def send_raw_transaction(self, txinfo, to_address, change_address, amount):
+    def send_raw_transaction(self, decoded_raw_transaction, to_address, change_address, amount):
         # Create a raw tx
-        inputs = [{ "txid" : txinfo["txid"], "vout" : 1}]
-        outputs = { to_address : amount, change_address : float(txinfo["amount"]) - amount - 0.01 }
+        inputs = [{ "txid" : decoded_raw_transaction["txid"], "vout" : 1}]
+        outputs = { to_address : amount, change_address : float(decoded_raw_transaction["amount"]) - amount - 0.01 }
         rawtx = self.nodes[0].createrawtransaction(inputs, outputs)
 
         # Sign raw transaction

@@ -94,7 +94,7 @@ class ColdStakingSpending(NavCoinTestFramework):
             
         listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
         # construct and send rawtx
-        self.send_raw_transaction(txinfo = listunspent_txs[0], \
+        self.send_raw_transaction(decoded_raw_transaction = listunspent_txs[0], \
                                 to_address = address_Y_public_key, \
                                 change_address = coldstaking_address_spending, \
                                 amount = float(balance_post_send_two) - 1)
@@ -142,10 +142,10 @@ class ColdStakingSpending(NavCoinTestFramework):
         assert(send_worked == True)
         
 
-    def send_raw_transaction(self, txinfo, to_address, change_address, amount):
+    def send_raw_transaction(self, decoded_raw_transaction, to_address, change_address, amount):
         # Create a raw tx
-        inputs = [{ "txid" : txinfo["txid"], "vout" : 1}]
-        outputs = { to_address : amount, change_address : float(txinfo["amount"]) - amount - 0.01 }
+        inputs = [{ "txid" : decoded_raw_transaction["txid"], "vout" : 1}]
+        outputs = { to_address : amount, change_address : float(decoded_raw_transaction["amount"]) - amount - 0.01 }
         rawtx = self.nodes[0].createrawtransaction(inputs, outputs)
 
         # Sign raw transaction
