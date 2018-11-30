@@ -102,6 +102,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         # TODO: Fix this test so we actually use a utxo, at the moment it passes in an empty array
         listunspent_txs = []
         try:
+            print(utxo_before)
             self.send_raw_transaction(utxo_before, address_Y_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
             spending_fail = False
         # except IndexError:
@@ -115,7 +116,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         assert(self.nodes[0].getstakinginfo()["weight"] / 100000000.0 >= staking_weight_one / 100000000.0 - 1)
 
         try:
-            self.send_raw_transaction(utxo_before, staking_address_public_key, coldstaking_address_staking, float(balance_step_one) * 0.5)
+            self.send_raw_transaction(utxo_before, staking_address_public_keygit , coldstaking_address_staking, float(balance_step_one) * 0.5)
             spending_fail = False
         # except IndexError:
             # pass
