@@ -2536,6 +2536,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsCommunityFundAmountV2Enabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nCFundAmountV2Mask;
 
+    if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nStaticRewardVersionMask;
+
     return nVersion;
 }
 
@@ -2954,6 +2957,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 
               }
+
+              if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
+                return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
+                nStakeReward, Params().GetConsensus().nStaticReward),
+                REJECT_INVALID, "bad-static-stake-amount");
 
             }
 
@@ -4713,6 +4721,18 @@ bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_LOCKED_IN);
+}
+
+bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 // Compute at which vout of the block's coinbase transaction the witness
 // commitment occurs, or -1 if not found.
 static int GetWitnessCommitmentIndex(const CBlock& block)
@@ -4817,6 +4837,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
+
+   if((block.nVersion & nStaticRewardVersionMask) != nStaticRewardVersionMask && IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
+     return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                        "rejected no static reward block");
 
     return true;
 }
@@ -8712,23 +8736,29 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 // staker's coin stake reward based on coin age spent (coin-days)
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev)
 {
-    int64_t nRewardCoinYear;
-    nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
+  int64_t nSubsidy;
 
-    if(nHeight-1 < 7 * Params().GetConsensus().nDailyBlockCount)
-        nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight-1 < (365 * Params().GetConsensus().nDailyBlockCount))
-        nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
-        nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
-        nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
-    else
-        nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+  if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
+      nSubsidy = Params().GetConsensus().nStaticReward;
+  } else {
+      int64_t nRewardCoinYear;
+      nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
-    int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365;
+      if(nHeight-1 < 7 * Params().GetConsensus().nDailyBlockCount)
+          nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
+      else if(nHeight-1 < (365 * Params().GetConsensus().nDailyBlockCount))
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+      else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+      else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
+          nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
+      else
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
 
-    return  nSubsidy + nFees;
+       nSubsidy = nCoinAge * nRewardCoinYear / 365;
+  }
+
+  return  nSubsidy + nFees;
 }
 
 unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int64_t nTime)
