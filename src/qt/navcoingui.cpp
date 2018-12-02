@@ -17,6 +17,7 @@
 #include "notificator.h"
 #include "openuridialog.h"
 #include "optionsdialog.h"
+#include "forms/cfund_voting.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
 #include "rpcconsole.h"
@@ -130,6 +131,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     receiveCoinsAction(0),
     receiveCoinsMenuAction(0),
     optionsAction(0),
+    cfundProposalsAction(0),
+    cfundPaymentRequestsAction(0),
     toggleHideAction(0),
     encryptWalletAction(0),
     backupWalletAction(0),
@@ -420,6 +423,8 @@ void NavCoinGUI::createActions()
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(tr(PACKAGE_NAME)));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
+    cfundProposalsAction = new QAction(tr("Voting of Proposals"), this);
+    cfundPaymentRequestsAction = new QAction(tr("Voting of Payment Requests"), this);
     toggleHideAction = new QAction(platformStyle->TextColorIcon(":/icons/about"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
@@ -470,6 +475,8 @@ void NavCoinGUI::createActions()
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
+    connect(cfundProposalsAction, SIGNAL(triggered()), this, SLOT(cfundProposalsClicked()));
+    connect(cfundPaymentRequestsAction, SIGNAL(triggered()), this, SLOT(cfundPaymentRequestsClicked()));
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
@@ -572,6 +579,9 @@ void NavCoinGUI::createMenuBar()
         }
         connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
         settings->addAction(updatePriceAction);
+        QMenu *cfund = appMenuBar->addMenu(tr("&Community Fund"));
+        cfund->addAction(cfundProposalsAction);
+        cfund->addAction(cfundPaymentRequestsAction);
     }
     settings->addAction(optionsAction);
 
@@ -866,6 +876,24 @@ void NavCoinGUI::optionsClicked()
 
     OptionsDialog dlg(this, enableWallet);
     dlg.setModel(clientModel->getOptionsModel());
+    dlg.exec();
+}
+
+void NavCoinGUI::cfundProposalsClicked()
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, false);
+    dlg.exec();
+}
+
+void NavCoinGUI::cfundPaymentRequestsClicked()
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, true);
     dlg.exec();
 }
 

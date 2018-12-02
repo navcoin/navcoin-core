@@ -117,6 +117,8 @@ private:
     QAction *receiveCoinsAction;
     QAction *receiveCoinsMenuAction;
     QAction *optionsAction;
+    QAction *cfundProposalsAction;
+    QAction *cfundPaymentRequestsAction;
     QAction *toggleHideAction;
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
@@ -241,6 +243,9 @@ private Q_SLOTS:
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
     void optionsClicked();
+    /** Community Fund related */
+    void cfundProposalsClicked();
+    void cfundPaymentRequestsClicked();
     /** Show about dialog */
     void aboutClicked();
     /** Show debug window */
