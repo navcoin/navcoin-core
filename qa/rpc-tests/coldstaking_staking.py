@@ -22,8 +22,7 @@ class ColdStakingStaking(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
-        RAW_TX_EXCEPTION = "Failed to construct a valid Raw Tx"
-        
+
         self.nodes[1].staking(False)
         slow_gen(self.nodes[0], 100)
         self.sync_all()
@@ -80,20 +79,14 @@ class ColdStakingStaking(NavCoinTestFramework):
         cs_tx_block = self.nodes[0].getblock(self.nodes[0].getblockhash(self.nodes[0].getblockcount()))
         cs_tx_id = cs_tx_block["tx"][1]
         utxo_before = self.nodes[0].gettxout(cs_tx_id, 0, True)
-        print(self.nodes[0].gettxout(cs_tx_id, 0, True))
-        #get txid
-        #gettxout 'txid' 1 true
-
-        addr_string = "[\"" + coldstaking_address_staking + "\"]" 
+        # print(self.nodes[0].gettxout(cs_tx_id, 0, True))
 
         balance_step_one = self.nodes[0].getbalance()
         staking_weight_one = self.nodes[0].getstakinginfo()["weight"]
 
         # We expect our balance to decrease by tx amount + fees
         # We expect our staking weight to remain the same
-        print(staking_weight_before, staking_weight_one)
-        print('balance_before', balance_before)
-        print('balance_step_one', balance_step_one)
+        # print(staking_weight_before, staking_weight_one)
         assert(balance_step_one <= 51 - SENDING_FEE )
 
         self.sync_all()
@@ -176,21 +169,20 @@ class ColdStakingStaking(NavCoinTestFramework):
 
 
         current_balance = self.nodes[0].getbalance()
-        print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
+        # print("weight b4:",self.nodes[0].getstakinginfo()["weight"])
         block_height = self.nodes[0].getblockcount()
-        loop_num = 0
-        print("weight after:",self.nodes[0].getstakinginfo()["weight"])
+        # print("weight after:",self.nodes[0].getstakinginfo()["weight"])
         while (block_height  >= self.nodes[0].getblockcount()):
             time.sleep(5)
 
-        print('blockheight', self.nodes[0].getblockcount())
+        # print('blockheight', self.nodes[0].getblockcount())
 
-        print('current bal', current_balance)
-        print('new bal',self.nodes[0].getbalance())
+        # print('current bal', current_balance)
+        # print('new bal',self.nodes[0].getbalance())
         utxo_after = self.nodes[0].gettxout(cs_tx_id, 0, True)
         utxo_after_two = self.nodes[0].gettxout(cs_tx_id, 1, True)
 
-        print(utxo_before, utxo_after, utxo_after_two)
+        # print(utxo_before, utxo_after, utxo_after_two)
         assert(utxo_before != utxo_after)
         
 
