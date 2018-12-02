@@ -46,8 +46,6 @@ class ColdStakingSpending(NavCoinTestFramework):
         address_Y_public_key = "mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv"
         address_Y_private_key = "cST2mj1kXtiRyk8VSXU3F9pnTp7GrGpyqHRv4Gtap8jo4LGUMvqo"
 
-        # ToDo: might not need this, potentially remove
-        addr1_info = self.nodes[0].validateaddress(spending_address_public_key)
 
         ## Our wallet holds the spending address key
         coldstaking_address_spending = self.nodes[0].getcoldstakingaddress(staking_address_public_key, spending_address_public_key)
@@ -70,9 +68,9 @@ class ColdStakingSpending(NavCoinTestFramework):
         balance_post_send_one = self.nodes[0].getbalance()
         staking_weight_post_send = self.nodes[0].getstakinginfo()["weight"]
 
-        print(balance_post_send_one, self.nodes[0].listunspent())
-        txids = [ n["txid"] for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
-        print(txids)
+        # print(balance_post_send_one, self.nodes[0].listunspent())
+        # txids = [ n["txid"] for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
+        # print(txids)
 
         # We expect our balance to decrease by just the fees
         # We expect our staking weight to decrease (We don't hold the staking key)
@@ -109,7 +107,6 @@ class ColdStakingSpending(NavCoinTestFramework):
         # generate some new coins and send them to our cold staking address
         slow_gen(self.nodes[0], 2)
         self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
-
 
         # send to our spending address (should work)
         send_worked = False
@@ -150,7 +147,6 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         # Sign raw transaction
         signresult = self.nodes[0].signrawtransaction(rawtx)
-        print(signresult)
         assert(signresult["complete"])
 
         # Send raw transaction

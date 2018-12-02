@@ -33,7 +33,7 @@ class GetColdStakingAddress(NavCoinTestFramework):
 
         # Success cases 
         
-        # (two valid inputs) 
+        # Two valid inputs
 
         address_one = "n1xHh1rPngXNCr2ZbyP9wveFPh4e14YfX2" 
         address_two = "midAY8TW8TpRY4i8ZEyagSeon3LZFjjMyN"
@@ -104,11 +104,11 @@ class GetColdStakingAddress(NavCoinTestFramework):
         except JSONRPCException as e:
             assert("Staking address is not a valid NavCoin address" in e.error['message'])
 
-        # try:
-        #     self.nodes[0].getcoldstakingaddress(address_one)
-#            make_addr_fail = False
-        # except JSONRPCException as e:
-        #     assert("Arguments" in e.error['message']) # Check if we print out the help docs
+        try:
+            self.nodes[0].getcoldstakingaddress(address_one)
+            make_addr_fail = False
+        except JSONRPCException as e:
+            assert("TODO: Add documentation to rpc command and check for it here" in e.error['message']) # Check if we print out the help docs
 
         assert(make_addr_fail)
 
