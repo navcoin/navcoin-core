@@ -22,14 +22,20 @@ class ColdStakingSpending(NavCoinTestFramework):
         self.nodes[0].staking(False)
 
         slow_gen(self.nodes[0], 100)
+        self.sync_all()
+
         # Verify the Cold Staking is started
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["coldstaking"]["status"] == "started")
 
         slow_gen(self.nodes[0], 100)
+        self.sync_all()
+
         # Verify the Cold Staking is locked_in
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["coldstaking"]["status"] == "locked_in")
 
         slow_gen(self.nodes[0], 100)
+        self.sync_all()
+
         # Verify the Cold Staking is active
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["coldstaking"]["status"] == "active")
 
@@ -64,6 +70,8 @@ class ColdStakingSpending(NavCoinTestFramework):
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
         slow_gen(self.nodes[1], 1)
+        self.sync_all()
+
 
         balance_post_send_one = self.nodes[0].getbalance()
         staking_weight_post_send = self.nodes[0].getstakinginfo()["weight"]
@@ -83,6 +91,8 @@ class ColdStakingSpending(NavCoinTestFramework):
         # Send funds to a third party address with sendtoaddress()
         self.nodes[0].sendtoaddress(address_Y_public_key, balance_post_send_one * 0.5 - 1)
         slow_gen(self.nodes[1], 1)  
+        self.sync_all()
+
         balance_post_send_two = self.nodes[0].getbalance()
         assert(balance_post_send_two >= balance_post_send_one * 0.5 - 1)
         
@@ -98,6 +108,8 @@ class ColdStakingSpending(NavCoinTestFramework):
                                 amount = float(balance_post_send_two) - 1)
 
         slow_gen(self.nodes[1], 1)  
+        self.sync_all()
+
 
         balance_post_send_three = self.nodes[0].getbalance()
         
@@ -106,6 +118,8 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         # generate some new coins and send them to our cold staking address
         slow_gen(self.nodes[0], 2)
+        self.sync_all()
+
         self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
 
         # send to our spending address (should work)
@@ -123,6 +137,8 @@ class ColdStakingSpending(NavCoinTestFramework):
         assert(send_worked == True)
         
         slow_gen(self.nodes[1], 1)
+        self.sync_all()
+
 
         # send to our staking address
         send_worked = False
