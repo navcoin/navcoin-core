@@ -92,8 +92,9 @@ class ColdStakingStaking(NavCoinTestFramework):
         # We expect our balance to decrease by tx amount + fees
         # We expect our staking weight to remain the same
         print(staking_weight_before, staking_weight_one)
-        assert(balance_step_one <= 51)
-        # assert(staking_weight_one / 100000000.0 >= staking_weight_before / 100000000.0 - 1) #need to adjust the coinage before testing
+        print('balance_before', balance_before)
+        print('balance_step_one', balance_step_one)
+        assert(balance_step_one <= 51 - SENDING_FEE )
 
         self.sync_all()
 
@@ -118,7 +119,7 @@ class ColdStakingStaking(NavCoinTestFramework):
 
         try:
             listunspent_txs = [ n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_staking]
-            self.send_raw_transaction(listunspent_txs[0], staking_address_public_keygit , coldstaking_address_staking, float(balance_step_one) * 0.5)
+            self.send_raw_transaction(listunspent_txs[0], staking_address_public_key , coldstaking_address_staking, float(balance_step_one) * 0.5)
             spending_fail = False
         except IndexError:
             pass
