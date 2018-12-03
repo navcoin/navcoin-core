@@ -87,9 +87,9 @@ class ColdStakingSpending(NavCoinTestFramework):
         assert(staking_weight_post_send / 100000000.0 <= 1)
 
         # Test spending from a cold staking wallet with the spending key
-        
+        print(balance_post_send_one)
         # Send funds to a third party address with sendtoaddress()
-        self.nodes[0].sendtoaddress(address_Y_public_key, balance_post_send_one * 0.5 - 1)
+        self.nodes[0].sendtoaddress(address_Y_public_key, (balance_post_send_one * 0.5 - 1))
         slow_gen(self.nodes[1], 1)  
         # self.sync_all()
 
