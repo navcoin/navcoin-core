@@ -10,17 +10,16 @@ CFund_Voting::CFund_Voting(QWidget *parent, bool fPaymentRequests) :
     fSettings(fPaymentRequests)
 {
     ui->setupUi(this);
-    setWindowTitle(tr("Community Fund: ") + (fSettings ? tr("Payment Requests") : tr("Proposals")));
 
     connect(ui->closeBtn, SIGNAL(clicked(bool)), this, SLOT(closeDialog()));
     connect(ui->voteyesBtn, SIGNAL(clicked(bool)), this, SLOT(voteYes()));
     connect(ui->votenoBtn, SIGNAL(clicked(bool)), this, SLOT(voteNo()));
     connect(ui->stopvotingBtn, SIGNAL(clicked(bool)), this, SLOT(stopVoting()));
     connect(ui->viewdetailsBtn, SIGNAL(clicked(bool)), this, SLOT(viewDetails()));
+    connect(ui->switchBtn, SIGNAL(clicked(bool)), this, SLOT(switchView()));
     connect(ui->votingyesList, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(selectedFromYes(QListWidgetItem*)));
     connect(ui->votingnoList, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(selectedFromNo(QListWidgetItem*)));
     connect(ui->notvotingList, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(selectedFromNotVoting(QListWidgetItem*)));
-
     Refresh();
 }
 
@@ -70,6 +69,11 @@ void CFund_Voting::viewDetails() {
     QDesktopServices::openUrl(QUrl(link));
 }
 
+void CFund_Voting::switchView() {
+    fSettings = !fSettings;
+    Refresh();
+}
+
 void CFund_Voting::selectedFromYes(QListWidgetItem* item) {
    ui->notvotingList->clearSelection();
    ui->votingnoList->clearSelection();
@@ -93,9 +97,12 @@ void CFund_Voting::selectedFromNotVoting(QListWidgetItem* item) {
 
 void CFund_Voting::Refresh()
 {
+    setWindowTitle(tr("Community Fund: ") + (fSettings ? tr("Payment Requests") : tr("Proposals")));
+
     ui->votingnoList->clear();
     ui->votingyesList->clear();
     ui->notvotingList->clear();
+    ui->switchBtn->setText(fSettings ? tr("Switch to Proposals") : tr("Switch to Payment Requests"));
     if (!fSettings)
     {
         std::vector<CFund::CProposal> vec;

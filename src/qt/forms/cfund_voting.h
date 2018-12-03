@@ -28,6 +28,7 @@ public Q_SLOTS:
     void voteNo();
     void stopVoting();
     void viewDetails();
+    void switchView();
     void selectedFromYes(QListWidgetItem* item);
     void selectedFromNo(QListWidgetItem* item);
     void selectedFromNotVoting(QListWidgetItem* item);
