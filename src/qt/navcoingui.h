@@ -145,6 +145,9 @@ private:
     int prevBlocks;
     int spinnerFrame;
 
+    bool fNotShowAgain;
+    int64_t lastDialogShown;
+
     uint64_t nWeight;
 
     const PlatformStyle *platformStyle;

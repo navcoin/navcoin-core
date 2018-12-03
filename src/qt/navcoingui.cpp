@@ -52,6 +52,7 @@
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
+#include <QCheckBox>
 #include <QInputDialog>
 #include <QListWidget>
 #include <QMenuBar>
@@ -148,6 +149,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     helpMessageDialog(0),
     prevBlocks(0),
     spinnerFrame(0),
+    fNotShowAgain(false),
+    lastDialogShown(0),
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
@@ -280,7 +283,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
     connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
-    timerStakingIcon->start(150 * 1000);
+    timerStakingIcon->start(45 * 1000);
     updateStakingStatus();
 
     if (GetArg("-zapwallettxes",0) == 2 && GetArg("-repairwallet",0) == 1)
@@ -1794,6 +1797,62 @@ void NavCoinGUI::updateStakingStatus()
         }
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
+            bool fFound = false;
+            std::vector<CFund::CProposal> vec;
+            if(pblocktree->GetProposalIndex(vec))
+            {
+                BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+                    if (proposal.fState != CFund::NIL)
+                        continue;
+                    auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                        [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
+                    if (it == vAddedProposalVotes.end()) {
+                        fFound = true;
+                        break;
+                    }
+                }
+            }
+
+            std::vector<CFund::CPaymentRequest> vec2;
+            if(!fFound && pblocktree->GetPaymentRequestIndex(vec2))
+            {
+                BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec2) {
+                    if (prequest.fState != CFund::NIL)
+                        continue;
+                    auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                        [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
+                    if (it == vAddedPaymentRequestVotes.end()) {
+                        fFound = true;
+                        break;
+                    }
+                }
+            }
+            if (fFound && !this->fNotShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
+                QCheckBox *cb = new QCheckBox("Do not show this message again during this session.");
+                QMessageBox msgbox;
+                msgbox.setText(tr("There are new proposals or payment requests from the Community Fund.<br><br>As a staker it's very important you engadge in the voting process.<br><br>Please cast your vote using the voting dialog!"));
+                msgbox.setIcon(QMessageBox::Icon::Warning);
+                msgbox.setCheckBox(cb);
+                QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
+                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Voting Window"), QMessageBox::YesRole);
+                this->lastDialogShown = GetTimeNow();
+
+                msgbox.exec();
+
+                if(cb->isChecked()) {
+                    this->fNotShowAgain = true;
+                } else {
+                    this->fNotShowAgain = false;
+                }
+
+                if (msgbox.clickedButton()==pButtonOpen) {
+                    cfundProposalsClicked();
+                }
+                if (msgbox.clickedButton()==pButtonInfo) {
+                    QString link = QString("https://navcoin.org/en/community-fund/");
+                    QDesktopServices::openUrl(QUrl(link));
+                }
+            }
 
             uint64_t nWeight = this->nWeight;
             uint64_t nNetworkWeight = GetPoSKernelPS();

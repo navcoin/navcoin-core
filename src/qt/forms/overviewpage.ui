@@ -142,31 +142,6 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="labelWalletStatus">
-           <property name="maximumSize">
-            <size>
-             <width>22</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>22</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border: 0</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="flat">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <spacer name="horizontalSpacer_10">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -510,6 +485,26 @@
           </spacer>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelWalletStatus">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:#cc2222</string>
+         </property>
+         <property name="text">
+          <string>Wallet syncing, the balance won't be accurate until the process finishes</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer_5">
