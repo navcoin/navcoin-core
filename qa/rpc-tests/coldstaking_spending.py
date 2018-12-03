@@ -42,6 +42,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         # Generate our addresses
 
         SENDING_FEE= 0.00010000
+        BLOCK_REWARD = 50
 
         spending_address_public_key = self.nodes[0].getnewaddress()
         spending_address_private_key = self.nodes[0].dumpprivkey(spending_address_public_key)
@@ -69,7 +70,7 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance() - 1)
-        slow_gen(self.nodes[1], 1)
+        slow_gen(self.nodes[0], 1)
         # self.sync_all()
 
 
@@ -83,18 +84,18 @@ class ColdStakingSpending(NavCoinTestFramework):
         # We expect our balance to decrease by just the fees
         # We expect our staking weight to decrease (We don't hold the staking key)
 
-        assert(balance_post_send_one >= balance_before_send - 1)
+        assert(balance_post_send_one - BLOCK_REWARD >= balance_before_send - 1)
         assert(staking_weight_post_send / 100000000.0 <= 1)
 
         # Test spending from a cold staking wallet with the spending key
         print(balance_post_send_one)
         # Send funds to a third party address with sendtoaddress()
         self.nodes[0].sendtoaddress(address_Y_public_key, (float(balance_post_send_one) * float(0.5) - float(1)))
-        slow_gen(self.nodes[1], 1)  
+        slow_gen(self.nodes[0], 1)  
         # self.sync_all()
 
         balance_post_send_two = self.nodes[0].getbalance()
-        assert(balance_post_send_two >= (float(balance_post_send_one) * float(0.5) - float(1)))
+        assert(balance_post_send_two - BLOCK_REWARD >= (float(balance_post_send_one) * float(0.5) - float(1)))
         
 
         # Send funds to a third party address using a signed raw transaction    
@@ -104,14 +105,14 @@ class ColdStakingSpending(NavCoinTestFramework):
         # construct and send rawtx
         self.send_raw_transaction(decoded_raw_transaction = listunspent_txs[0], to_address = address_Y_public_key, change_address = coldstaking_address_spending, amount = float(balance_post_send_two) - 1)
 
-        slow_gen(self.nodes[1], 1)  
+        slow_gen(self.nodes[0], 1)  
         # self.sync_all()
 
 
         balance_post_send_three = self.nodes[0].getbalance()
         
         # We expect our balance more or less gone (less some fees)
-        assert(balance_post_send_three <= 1)
+        assert(balance_post_send_three - BLOCK_REWARD <= 1)
 
         # generate some new coins and send them to our cold staking address
         slow_gen(self.nodes[0], 2)
