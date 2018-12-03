@@ -22,19 +22,19 @@ class ColdStakingSpending(NavCoinTestFramework):
         self.nodes[0].staking(False)
 
         slow_gen(self.nodes[0], 100)
-        self.sync_all()
+        
 
         # Verify the Cold Staking is started
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["coldstaking"]["status"] == "started")
 
         slow_gen(self.nodes[0], 100)
-        self.sync_all()
+        
 
         # Verify the Cold Staking is locked_in
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["coldstaking"]["status"] == "locked_in")
 
         slow_gen(self.nodes[0], 100)
-        self.sync_all()
+        
 
         # Verify the Cold Staking is active
         assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["coldstaking"]["status"] == "active")
