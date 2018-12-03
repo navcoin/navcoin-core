@@ -132,7 +132,7 @@ class ColdStakingSpending(NavCoinTestFramework):
             assert(self.nodes[0].getbalance() >= current_balance - 1) 
             send_worked = True
         except Exception as e:
-            print(e['message'])
+            print(e)
 
         assert(send_worked == True)
         
@@ -150,7 +150,7 @@ class ColdStakingSpending(NavCoinTestFramework):
             assert(self.nodes[0].getbalance() <= current_balance * 0.5 - 1) 
             send_worked = True
         except Exception as e:
-            print(e['message'])
+            print(e)
             
         assert(send_worked == True)
         
