@@ -1022,7 +1022,12 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
     UniValue consensus(UniValue::VOBJ);
     consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
-    consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nQuorumVotes));
+    if (!IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus())){
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorum));
+    } else {
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumFirstHalf));
+        consensus.push_back(Pair("minSumVotesPerVotingCycleSecondHalf",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumSecondHalf));
+    }
     consensus.push_back(Pair("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting));
     consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting));
     consensus.push_back(Pair("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100));

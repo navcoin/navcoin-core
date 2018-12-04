@@ -1165,12 +1165,16 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
       return state.DoS(100, false, REJECT_INVALID, "old-version");
 
     if (IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
+        bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
+        int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
+        int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
+
         if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-            if(!CFund::IsValidProposal(tx))
+            if(!CFund::IsValidProposal(tx, nMaxVersionProposal))
                 return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
         if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-            if(!CFund::IsValidPaymentRequest(tx))
+            if(!CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest))
                 return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
     }
 
@@ -2287,7 +2291,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         uint256 hash = tx.GetHash();
 
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx)) {
+            bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
+            int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
+            int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
+
+            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)) {
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
                 proposalIndex.push_back(make_pair(hash,CFund::CProposal()));
                 if (!pfClean && !pblocktree->UpdateProposalIndex(proposalIndex)) {
@@ -2295,7 +2303,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 }
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx)) {
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest)) {
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
                 std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
                 paymentRequestIndex.push_back(make_pair(hash,CFund::CPaymentRequest()));
@@ -2505,6 +2513,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
 
     if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nStaticRewardVersionMask;
+
+    if(IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nCFundReducedQuorumMask;
 
     return nVersion;
 }
@@ -2983,7 +2994,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
-            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx)){
+            bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
+            int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
+            int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
+
+            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
 
                 UniValue metadata(UniValue::VOBJ);
@@ -3027,7 +3042,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx)){
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest)){
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
                 std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
 
@@ -4625,6 +4640,12 @@ bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Para
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_QUORUM_CFUND, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict)
 {
     LOCK(cs_main);
@@ -4774,6 +4795,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
      return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                         "rejected no static reward block");
 
+   if((block.nVersion & nCFundReducedQuorumMask) != nCFundReducedQuorumMask && IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
+     return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                        "rejected no reduced quorum block");
+
     return true;
 }
 
@@ -4808,12 +4833,16 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             return state.DoS(10, false, REJECT_INVALID, "bad-txns-nonfinal", false, "non-final transaction");
         }
         if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
+            bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
+            int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
+            int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
+
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-                if(!CFund::IsValidProposal(tx))
+                if(!CFund::IsValidProposal(tx, nMaxVersionProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-                if(!CFund::IsValidPaymentRequest(tx))
+                if(!CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
         }
     }
