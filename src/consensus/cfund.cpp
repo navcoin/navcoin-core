@@ -368,7 +368,7 @@ bool CFund::CProposal::IsAccepted() const {
     int nTotalVotes = nVotesYes + nVotesNo;
     int nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
     if (nVersion >= 3) {
-        nMinimumQuorum = (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting) ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumSecondHalf;
+        nMinimumQuorum = (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting / 2) ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumSecondHalf;
     }
     return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
            && ((float)nVotesYes > ((float)(nTotalVotes) * Params().GetConsensus().nVotesAcceptProposal));
@@ -378,7 +378,7 @@ bool CFund::CProposal::IsRejected() const {
     int nTotalVotes = nVotesYes + nVotesNo;
     int nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
     if (nVersion >= 3) {
-        nMinimumQuorum = (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting) ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumSecondHalf;
+        nMinimumQuorum = (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting / 2) ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumSecondHalf;
     }
     return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
