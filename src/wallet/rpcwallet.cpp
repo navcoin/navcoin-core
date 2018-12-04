@@ -3275,28 +3275,51 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
 UniValue proposalvotelist(const UniValue& params, bool fHelp)
 {
+
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if ((fHelp || params.size() != 1))
+        throw runtime_error(
+                "proposalvotelist"
+
+                "Returns a list containing the wallets current voting status for all active proposals."
+
+                "Result:"
+                "{"
+                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for."
+                "      \"no\":    List of proposals this wallet is casting a 'no' vote for."
+                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for."
+                "}")
+        );
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
+    UniValue nullvotes(UniValue::VARR);
 
-    for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
-    {
-        CFund::CProposal proposal;
-        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
-        {
-            if(vAddedProposalVotes[i].second)
-            {
-                yesvotes.push_back(proposal.ToString());
-            }
-            else
-            {
-                novotes.push_back(proposal.ToString());
-            }
-        }
-    }
+    std::vector<CFund::CProposal> vec;
+     if(pblocktree->GetProposalIndex(vec))
+     {
+         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+             if (proposal.fState != CFund::NIL)
+                 continue;
+             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                 [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+             if (it != vAddedProposalVotes.end()) {
+                 if (it->second)
+                     yesvotes.push_back(proposal.ToString());
+                 else
+                     novotes.push_back(proposal.ToString());
+             } else {
+                 nullvotes.push_back(proposal.ToString());
+             }
+         }
+     }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));
+    ret.push_back(Pair("null",nullvotes));
 
     return ret;
 }
@@ -3354,28 +3377,47 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
 
 UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
 {
+    if ((fHelp || params.size() != 1))
+        throw runtime_error(
+                "paymentrequestvotelist"
+
+                "Returns a list containing the wallets current voting status for all active payment requests."
+
+                "Result:"
+                "{"
+                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for."
+                "      \"no\":    List of proposals this wallet is casting a 'no' vote for."
+                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for."
+                "}")
+        );
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
+    UniValue nullvotes(UniValue::VARR);
 
-    for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
-    {
-        CFund::CPaymentRequest prequest;
-        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
-        {
-            if(vAddedPaymentRequestVotes[i].second)
-            {
-                yesvotes.push_back(prequest.ToString());
-            }
-            else
-            {
-                novotes.push_back(prequest.ToString());
-            }
-        }
-    }
+    std::vector<CFund::CProposal> vec;
+     if(pblocktree->GetPaymentRequestIndex(vec))
+     {
+         BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+             if (prequest.fState != CFund::NIL)
+                 continue;
+             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                 [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+             if (it != vAddedPaymentRequestVotes.end()) {
+                 if (it->second)
+                     yesvotes.push_back(prequest.ToString());
+                 else
+                     novotes.push_back(prequest.ToString());
+             } else {
+                 nullvotes.push_back(prequest.ToString());
+             }
+         }
+     }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));
+    ret.push_back(Pair("null",nullvotes));
 
     return ret;
 }
