@@ -3290,7 +3290,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
                 "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for."
                 "      \"no\":    List of proposals this wallet is casting a 'no' vote for."
                 "      \"null\":  List of proposals this wallet has NOT yet cast a vote for."
-                "}")
+                "}"
         );
 
     UniValue ret(UniValue::VOBJ);
@@ -3388,7 +3388,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
                 "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for."
                 "      \"no\":    List of proposals this wallet is casting a 'no' vote for."
                 "      \"null\":  List of proposals this wallet has NOT yet cast a vote for."
-                "}")
+                "}"
         );
 
     UniValue ret(UniValue::VOBJ);
@@ -3396,7 +3396,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue novotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    std::vector<CFund::CProposal> vec;
+    std::vector<CFund::CPaymentRequest> vec;
      if(pblocktree->GetPaymentRequestIndex(vec))
      {
          BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
@@ -3528,14 +3528,14 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendfrom",                 &sendfrom,                 false },
     { "wallet",             "sendmany",                 &sendmany,                 false },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
-    { "wallet",             "donatefund",               &donatefund,               false },
-    { "wallet",             "createpaymentrequest",     &createpaymentrequest,     false },
-    { "wallet",             "createproposal",           &createproposal,           false },
+    { "communityfund",      "donatefund",               &donatefund,               false },
+    { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
+    { "communityfund",      "createproposal",           &createproposal,           false },
     { "wallet",             "stakervote",               &stakervote,               false },
-    { "wallet",             "proposalvote",             &proposalvote,             false },
-    { "wallet",             "proposalvotelist",         &proposalvotelist,         false },
-    { "wallet",             "paymentrequestvote",       &paymentrequestvote,       false },
-    { "wallet",             "paymentrequestvotelist",   &paymentrequestvotelist,   false },
+    { "communityfund",      "proposalvote",             &proposalvote,             false },
+    { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
+    { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
+    { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
