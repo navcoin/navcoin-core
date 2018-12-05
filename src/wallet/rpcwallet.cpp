@@ -499,12 +499,12 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 4)
         throw runtime_error(
-            "createproposal address amount deadline\n"
+            "createproposal \"address\" \"amount\" deadline \"desc\"\n"
             "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
-            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
+            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to request. eg 0.1\n"
             "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
             "4. \"desc\"               (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
@@ -590,7 +590,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 3)
         throw runtime_error(
-            "createpaymentrequest hash amount id\n"
+            "createpaymentrequest \"hash\" \"amount\" \"id\"\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -685,7 +685,7 @@ UniValue donatefund(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "donatefund amount ( subtractfeefromamount )\n"
+            "donatefund \"amount\" ( subtractfeefromamount )\n"
             "\nDonates an amount to the community fund.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -3279,18 +3279,18 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if ((fHelp || params.size() != 1))
+    if (fHelp || params.size() != 0)
         throw runtime_error(
-                "proposalvotelist"
+                "proposalvotelist\n"
 
-                "Returns a list containing the wallets current voting status for all active proposals."
+                "\nReturns a list containing the wallet's current voting status for all active proposals.\n"
 
-                "Result:"
-                "{"
-                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for."
-                "      \"no\":    List of proposals this wallet is casting a 'no' vote for."
-                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for."
-                "}"
+                "\nResult:\n"
+                "{\n"
+                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for.\n"
+                "      \"no\":    List of proposals this wallet is casting a 'no' vote for.\n"
+                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for.\n"
+                "}\n"
         );
 
     UniValue ret(UniValue::VOBJ);
@@ -3377,18 +3377,18 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
 
 UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
 {
-    if ((fHelp || params.size() != 1))
+    if (fHelp || params.size() != 0)
         throw runtime_error(
-                "paymentrequestvotelist"
+                "paymentrequestvotelist\n"
 
-                "Returns a list containing the wallets current voting status for all active payment requests."
+                "\nReturns a list containing the wallet's current voting status for all active payment requests.\n"
 
-                "Result:"
-                "{"
-                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for."
-                "      \"no\":    List of proposals this wallet is casting a 'no' vote for."
-                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for."
-                "}"
+                "\nResult:\n"
+                "{\n"
+                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for.\n"
+                "      \"no\":    List of proposals this wallet is casting a 'no' vote for.\n"
+                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for.\n"
+                "}\n"
         );
 
     UniValue ret(UniValue::VOBJ);

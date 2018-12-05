@@ -897,7 +897,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
      if (fHelp)
         throw runtime_error(
-            "listproposals filter\n"
+            "listproposals \"filter\"\n"
             "\nList the proposals and all the relating data including payment requests and status.\n"
             "\nNote passing no argument returns all proposals regardless of state.\n"
             "\nArguments:\n"
@@ -954,7 +954,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
 
-    if (fHelp)
+    if (fHelp || params.size() != 0)
         throw runtime_error(
             "cfundstats\n"
             "\nReturns statistics about the community fund.\n"
