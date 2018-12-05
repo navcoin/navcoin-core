@@ -286,15 +286,11 @@ public:
         maxAvg = GetArg("-headerspamfiltermaxavg", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG);
     }
 
-    bool addHeaders(const CBlockIndex *pindexFirst, const CBlockIndex *pindexLast)
+    bool addHeaders(int nBegin, int nEnd)
     {
-        if(pindexFirst && pindexLast && maxSize && maxAvg)
-        {
-            // Get the begin block index
-            int nBegin = pindexFirst->nHeight;
 
-            // Get the end block index
-            int nEnd = pindexLast->nHeight;
+        if(nBegin > 0 && nEnd > 0 && maxSize && maxAvg)
+        {
 
             for(int point = nBegin; point<= nEnd; point++)
             {
@@ -7284,11 +7280,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
 
         bool ret = true;
+        bool bFirst = true;
         string strError = "";
 
-        CBlockIndex *pindexFirst = NULL;
+        int nFirst = 0;
+        int nLast = 0;
+
         CBlockIndex *pindexLast = NULL;
-        bool bFirst = true;
 
         BOOST_FOREACH(const CBlock& header, headers) {
             CValidationState state;
@@ -7309,10 +7307,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                     break;
                 }
             }
-            if(bFirst && pindexFirst)
-            {
-                *pindexFirst = *pindexLast;
-                bFirst = false;
+            if (pindexLast) {
+                nLast = pindexLast->nHeight;
+                if (bFirst){
+                    nFirst = pindexLast->nHeight;
+                    bFirst = false;
+                }
             }
         }
 
@@ -7321,7 +7321,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             LOCK(cs_main);
             CValidationState state;
             CNodeState *nodestate = State(pfrom->GetId());
-            nodestate->headers.addHeaders(pindexFirst, pindexLast);
+            nodestate->headers.addHeaders(nFirst, nLast);
             int nDoS;
             ret = nodestate->headers.updateState(state, ret);
             if (state.IsInvalid(nDoS)) {
