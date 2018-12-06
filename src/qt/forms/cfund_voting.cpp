@@ -83,6 +83,7 @@ void CFund_Voting::selectedFromYes(QListWidgetItem* item) {
    ui->votingnoList->clearSelection();
 
    setSelection(item->data(1).toString());
+   ui->voteyesBtn->setEnabled(false);
 }
 
 void CFund_Voting::selectedFromNo(QListWidgetItem* item) {
@@ -90,6 +91,7 @@ void CFund_Voting::selectedFromNo(QListWidgetItem* item) {
    ui->votingyesList->clearSelection();
 
    setSelection(item->data(1).toString());
+   ui->votenoBtn->setEnabled(false);
 }
 
 void CFund_Voting::selectedFromNotVoting(QListWidgetItem* item) {
@@ -97,6 +99,7 @@ void CFund_Voting::selectedFromNotVoting(QListWidgetItem* item) {
     ui->votingyesList->clearSelection();
 
     setSelection(item->data(1).toString());
+    ui->stopvotingBtn->setEnabled(false);
 }
 
 void CFund_Voting::setSelection(QString selection) {
@@ -112,10 +115,10 @@ void CFund_Voting::enableDisableButtons() {
         ui->stopvotingBtn->setEnabled(false);
         ui->viewdetailsBtn->setEnabled(false);
     } else {
-        ui->voteyesBtn->setEnabled(true);
+        ui->viewdetailsBtn->setEnabled(true);
+        ui->votingyesListui->voteyesBtn->setEnabled(true);
         ui->votenoBtn->setEnabled(true);
         ui->stopvotingBtn->setEnabled(true);
-        ui->viewdetailsBtn->setEnabled(true);
     }
 }
 
