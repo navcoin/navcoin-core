@@ -1,5 +1,5 @@
 # Modified client testing for cold-staking v4.5.0
-*Date: 2018-12-03, 2018-12-04, 2018-12-05*
+*Date: 2018-12-03, 2018-12-04, 2018-12-05*  
 
 
 ## 1. Modified spending wallet to stake inputs
@@ -21,7 +21,7 @@ Coins are held in the cold-staking address only. There are no other coins in any
 - This will still return false from ProduceSignature() and cause the staking to fail because it will fail the checks in VerifyScript(), namely OP_EQUALSVERIFY, so
 		- changed EvalScript() in interpreter.cpp (line 732) when entering conditional statement `if (opcode == OP_EQUALVERIFY)`, always `popstack(stack);` instead of `return set_error(serror, SCRIPT_ERR_EQUALVERIFY);`
 
-At the time or writing, the changes can be viewed here:  
+At the time of writing, the changes can be viewed here:  
 <https://github.com/matt-auckland/navcoin-core/compare/cold-staking...marcus290:modified-spending-wallet>
 
 #### Result:
@@ -84,7 +84,7 @@ Coins are held in the cold-staking address only. There are no other coins in any
 - changed CreateCoinStake() in wallet.cpp (line 390) scripting for cold-staking from `scriptPubKeyOut = scriptPubKeyKernel;` to `scriptPubKeyOut = CScript(ToByteVector([newkey].GetPubKey())); scriptPubKeyOut << OP_CHECKSIG;` where `[newkey]` is the key to Address X.
 - changed CheckProofOfStake() in main.cpp (lines 8655-8659) removing all checks for when IsColdStaking() is true.
 
-At the time or writing, the changes can be viewed here:  
+At the time of writing, the changes can be viewed here:  
 <https://github.com/matt-auckland/navcoin-core/compare/cold-staking...marcus290:modified-staking-wallet-stake>
 
 #### Result:
