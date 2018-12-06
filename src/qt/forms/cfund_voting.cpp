@@ -134,6 +134,7 @@ void CFund_Voting::Refresh()
     ui->windowMainTitle->setText(fSettings ? tr("Payment Request Voting") : tr("Proposal Voting"));
 
     enableDisableButtons();
+    
     if (!fSettings)
     {
         std::vector<CFund::CProposal> vec;
