@@ -149,7 +149,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     helpMessageDialog(0),
     prevBlocks(0),
     spinnerFrame(0),
-    fNotShowAgain(false),
+    fDontShowAgain(false),
     lastDialogShown(0),
     unlockWalletAction(0),
     lockWalletAction(0),
@@ -426,8 +426,8 @@ void NavCoinGUI::createActions()
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(tr(PACKAGE_NAME)));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
-    cfundProposalsAction = new QAction(tr("Voting of Proposals"), this);
-    cfundPaymentRequestsAction = new QAction(tr("Voting of Payment Requests"), this);
+    cfundProposalsAction = new QAction(tr("Vote for Proposals"), this);
+    cfundPaymentRequestsAction = new QAction(tr("Vote for Payment Requests"), this);
     toggleHideAction = new QAction(platformStyle->TextColorIcon(":/icons/about"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
@@ -1827,10 +1827,10 @@ void NavCoinGUI::updateStakingStatus()
                     }
                 }
             }
-            if (fFound && !this->fNotShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
-                QCheckBox *cb = new QCheckBox("Do not show this message again during this session.");
+            if (fFound && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
+                QCheckBox *cb = new QCheckBox("Don't show this notification again until wallet is restarted.");
                 QMessageBox msgbox;
-                msgbox.setText(tr("There are new proposals or payment requests from the Community Fund.<br><br>As a staker it's very important you engadge in the voting process.<br><br>Please cast your vote using the voting dialog!"));
+                msgbox.setText(tr("There are new proposals or payment requests from the Community Fund.<br><br>As a staker it's very important you engage in the voting process.<br><br>Please cast your vote using the voting dialog!"));
                 msgbox.setIcon(QMessageBox::Icon::Warning);
                 msgbox.setCheckBox(cb);
                 QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
@@ -1840,9 +1840,9 @@ void NavCoinGUI::updateStakingStatus()
                 msgbox.exec();
 
                 if(cb->isChecked()) {
-                    this->fNotShowAgain = true;
+                    this->fDontShowAgain = true;
                 } else {
-                    this->fNotShowAgain = false;
+                    this->fDontShowAgain = false;
                 }
 
                 if (msgbox.clickedButton()==pButtonOpen) {

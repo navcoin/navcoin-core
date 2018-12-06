@@ -102,7 +102,9 @@ void CFund_Voting::Refresh()
     ui->votingnoList->clear();
     ui->votingyesList->clear();
     ui->notvotingList->clear();
-    ui->switchBtn->setText(fSettings ? tr("Switch to Proposals") : tr("Switch to Payment Requests"));
+    ui->switchBtn->setText(fSettings ? tr("Switch to Proposal View") : tr("Switch to Payment Request View"));
+    ui->windowMainTitle->setText(fSettings ? tr("Proposal Voting") : tr("Payment Request Voting"));
+
     if (!fSettings)
     {
         std::vector<CFund::CProposal> vec;
