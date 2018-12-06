@@ -116,7 +116,7 @@ void CFund_Voting::enableDisableButtons() {
         ui->viewdetailsBtn->setEnabled(false);
     } else {
         ui->viewdetailsBtn->setEnabled(true);
-        ui->votingyesListui->voteyesBtn->setEnabled(true);
+        ui->voteyesBtn->setEnabled(true);
         ui->votenoBtn->setEnabled(true);
         ui->stopvotingBtn->setEnabled(true);
     }
