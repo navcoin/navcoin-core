@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>822</width>
-    <height>674</height>
+    <height>690</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -499,7 +499,7 @@
           <string notr="true">color:#cc2222</string>
          </property>
          <property name="text">
-          <string>Wallet syncing, the balance won't be accurate until the process finishes</string>
+          <string>This wallet is currently syncing. Your balance may not be accurate until it has completed</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

@@ -32,6 +32,8 @@ public Q_SLOTS:
     void selectedFromYes(QListWidgetItem* item);
     void selectedFromNo(QListWidgetItem* item);
     void selectedFromNotVoting(QListWidgetItem* item);
+    void enableDisableButtons();
+    void setSelection(QString selection);
 
 private:
     Ui::CFund_Voting *ui;

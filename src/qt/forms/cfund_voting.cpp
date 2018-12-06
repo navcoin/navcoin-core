@@ -36,6 +36,7 @@ void CFund_Voting::voteYes() {
     } else {
         CFund::VotePaymentRequest(selected.toStdString(), true, d);
     }
+    setSelection("");
     Refresh();
 }
 
@@ -48,6 +49,7 @@ void CFund_Voting::voteNo() {
     } else {
         CFund::VotePaymentRequest(selected.toStdString(), false, d);
     }
+    setSelection("");
     Refresh();
 }
 
@@ -59,6 +61,7 @@ void CFund_Voting::stopVoting() {
     } else {
         CFund::RemoveVotePaymentRequest(selected.toStdString());
     }
+    setSelection("");
     Refresh();
 }
 
@@ -70,6 +73,7 @@ void CFund_Voting::viewDetails() {
 }
 
 void CFund_Voting::switchView() {
+    setSelection("");
     fSettings = !fSettings;
     Refresh();
 }
@@ -78,21 +82,44 @@ void CFund_Voting::selectedFromYes(QListWidgetItem* item) {
    ui->notvotingList->clearSelection();
    ui->votingnoList->clearSelection();
 
-   selected = item->data(1).toString();;
+   setSelection(item->data(1).toString());
+   ui->voteyesBtn->setEnabled(false);
 }
 
 void CFund_Voting::selectedFromNo(QListWidgetItem* item) {
    ui->notvotingList->clearSelection();
    ui->votingyesList->clearSelection();
 
-   selected = item->data(1).toString();
+   setSelection(item->data(1).toString());
+   ui->votenoBtn->setEnabled(false);
 }
 
 void CFund_Voting::selectedFromNotVoting(QListWidgetItem* item) {
     ui->votingnoList->clearSelection();
     ui->votingyesList->clearSelection();
 
-    selected = item->data(1).toString();
+    setSelection(item->data(1).toString());
+    ui->stopvotingBtn->setEnabled(false);
+}
+
+void CFund_Voting::setSelection(QString selection) {
+    selected = selection;
+    enableDisableButtons();
+}
+
+void CFund_Voting::enableDisableButtons() {
+
+    if(selected == "") {
+        ui->voteyesBtn->setEnabled(false);
+        ui->votenoBtn->setEnabled(false);
+        ui->stopvotingBtn->setEnabled(false);
+        ui->viewdetailsBtn->setEnabled(false);
+    } else {
+        ui->viewdetailsBtn->setEnabled(true);
+        ui->voteyesBtn->setEnabled(true);
+        ui->votenoBtn->setEnabled(true);
+        ui->stopvotingBtn->setEnabled(true);
+    }
 }
 
 void CFund_Voting::Refresh()
@@ -102,7 +129,12 @@ void CFund_Voting::Refresh()
     ui->votingnoList->clear();
     ui->votingyesList->clear();
     ui->notvotingList->clear();
-    ui->switchBtn->setText(fSettings ? tr("Switch to Proposals") : tr("Switch to Payment Requests"));
+    ui->switchBtn->setText(fSettings ? tr("Switch to Proposal View") : tr("Switch to Payment Request View"));
+    ui->viewdetailsBtn->setText(fSettings ? tr("View Payment Request Details") : tr("View Proposal Details"));
+    ui->windowMainTitle->setText(fSettings ? tr("Payment Request Voting") : tr("Proposal Voting"));
+
+    enableDisableButtons();
+
     if (!fSettings)
     {
         std::vector<CFund::CProposal> vec;
