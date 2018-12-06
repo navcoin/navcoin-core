@@ -145,7 +145,7 @@ private:
     int prevBlocks;
     int spinnerFrame;
 
-    bool fNotShowAgain;
+    bool fDontShowAgain;
     int64_t lastDialogShown;
 
     uint64_t nWeight;
