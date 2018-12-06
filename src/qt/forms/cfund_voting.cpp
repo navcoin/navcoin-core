@@ -130,7 +130,9 @@ void CFund_Voting::Refresh()
     ui->votingyesList->clear();
     ui->notvotingList->clear();
     ui->switchBtn->setText(fSettings ? tr("Switch to Proposal View") : tr("Switch to Payment Request View"));
+    ui->viewdetailsBtn->setText(fSettings ? tr("View Payment Request Details") : tr("View Proposal Details"));
     ui->windowMainTitle->setText(fSettings ? tr("Payment Request Voting") : tr("Proposal Voting"));
+
     enableDisableButtons();
 
     if (!fSettings)
