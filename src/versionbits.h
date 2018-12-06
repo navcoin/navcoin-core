@@ -57,7 +57,7 @@ static const int32_t nCFundAmountV2Mask = 0x00010000;
 static const int32_t nCFundReducedQuorumMask = 0x00020000;
 static const int32_t nStaticRewardVersionMask = 0x00008000;
 
-static const std::vector<int> rejectedVersionBitsByDefault = {};
+static const std::vector<int> rejectedVersionBitsByDefault = {17};
 
 enum ThresholdState {
     THRESHOLD_DEFINED,
