@@ -136,29 +136,43 @@ public:
 
 }
 
-bool IsVersionBitRejected(const Consensus::Params& params, Consensus::DeploymentPos pos){
+bool IsVersionBitRejected(const Consensus::Params& params, Consensus::DeploymentPos pos)
+{
 
     bool isRejected = false;
 
-    std::vector<std::string>& versionBitVotes = mapMultiArgs["-rejectversionbit"];
+    std::vector<std::string>& versionBitVotesRejected = mapMultiArgs["-rejectversionbit"];
+    std::vector<std::string>& versionBitVotesAccepted = mapMultiArgs["-acceptversionbit"];
 
     int bitTest = params.vDeployments[pos].bit;
 
-     BOOST_FOREACH(std::string rejectedBit, versionBitVotes) {
-         if (isdigit(rejectedBit[0])) {
+    BOOST_FOREACH(std::string acceptedBit, versionBitVotesAccepted)
+    {
+        if (isdigit(acceptedBit[0]))
+        {
+          int rBit =  stoi(acceptedBit);
+          if(rBit == bitTest)
+              return false;
+        }
+    }
 
-           int rBit =  stoi(rejectedBit);
-           if(rBit == bitTest) {
-                isRejected = true;
+    for (unsigned int i = 0; i < rejectedVersionBitsByDefault.size(); i++)
+    {
+        if (rejectedVersionBitsByDefault[i] == bitTest)
+            return true;
+    }
 
-                return isRejected;
-
-           }
-         }
-     }
+    BOOST_FOREACH(std::string rejectedBit, versionBitVotesRejected)
+    {
+        if (isdigit(rejectedBit[0]))
+        {
+            int rBit =  stoi(rejectedBit);
+            if(rBit == bitTest)
+                return true;
+        }
+    }
 
     return isRejected;
-
 }
 
 ThresholdState VersionBitsState(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos pos, VersionBitsCache& cache)
