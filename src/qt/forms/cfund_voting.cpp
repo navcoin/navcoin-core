@@ -99,7 +99,7 @@ void CFund_Voting::selectedFromNotVoting(QListWidgetItem* item) {
     setSelection(item->data(1).toString());
 }
 
-void CFund_Voting::setSelection(String selection) {
+void CFund_Voting::setSelection(QString selection) {
     selected = selection;
     enableDisableButtons();
 }
@@ -107,15 +107,15 @@ void CFund_Voting::setSelection(String selection) {
 void CFund_Voting::enableDisableButtons() {
 
     if(selected == "") {
-        ui->voteyesBtn.setEnabled(false);
-        ui->votenoBtn.setEnabled(false);
-        ui->stopvotingBtn.setEnabled(false);
-        ui->viewdetailsBtn.setEnabled(false);
+        ui->voteyesBtn->setEnabled(false);
+        ui->votenoBtn->setEnabled(false);
+        ui->stopvotingBtn->setEnabled(false);
+        ui->viewdetailsBtn->setEnabled(false);
     } else {
-        ui->voteyesBtn.setEnabled(true);
-        ui->votenoBtn.setEnabled(true);
-        ui->stopvotingBtn.setEnabled(true);
-        ui->viewdetailsBtn.setEnabled(true);
+        ui->voteyesBtn->setEnabled(true);
+        ui->votenoBtn->setEnabled(true);
+        ui->stopvotingBtn->setEnabled(true);
+        ui->viewdetailsBtn->setEnabled(true);
     }
 }
 
