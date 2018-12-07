@@ -50,15 +50,31 @@ The wallet will vote this Protocol Upgrade with `YES` by default.
 To reject this Protocol Upgrade, add the following line to your `navcoin.conf` file:
 `rejectversionbit=15`.
 
+## Dynamic Community Fund Quorum Protocol Upgrade
+
+<[Pull Request 328](https://github.com/NAVCoin/navcoin-core/pull/333)>
+<[Commit 9601f85](https://github.com/NAVCoin/navcoin-core/commit/c1ea4ac484401d17230cb82481fe17beea168979)>
+
+This Protocol Upgrade would introduce a reduction of the required quorum for the Community Fund in the second half of the votings from 50% to 40%.
+
+The wallet will vote this Protocol Upgrade with `NO` by default.
+
+- Signaled by version bit 17.
+
+### Accept this Protocol Upgrade
+
+To accept this Protocol Upgrade, add the following line to your `navcoin.conf` file:
+`acceptversionbit=17`.
+
 ## Reject specific version bits by default
 
 <[Pull Request 336](https://github.com/NAVCoin/navcoin-core/pull/336)>
 <[Commit eb6a1a2](https://github.com/NAVCoin/navcoin-core/commit/eb6a1a27903a477306a7ef73d3d85bd52ff1f3c4)>
 
-By default the wallet votes yes for the Protocol Upgrades included in the wallet. This changes adds a list (empty at the moment) of version bits which will be voted no by default, while also adding an option to manually vote yes for those bits.
+By default the wallet votes yes for the Protocol Upgrades included in the wallet. This changes adds a list of version bits which will be voted no by default, while also adding an option to manually vote yes for those bits.
 
-To manually vote yes for a version bit add the following to  your `navcoin.conf` file:
-`acceptversionbit=15`
+To manually vote yes for a version bit add the following to your `navcoin.conf` file:
+`acceptversionbit=17`
 
 ## Block header spam protection
 
