@@ -499,12 +499,12 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 4)
         throw runtime_error(
-            "createproposal address amount deadline\n"
+            "createproposal \"address\" \"amount\" deadline \"desc\"\n"
             "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
-            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to requesst. eg 0.1\n"
+            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to request. eg 0.1\n"
             "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
             "4. \"desc\"               (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
@@ -590,7 +590,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 3)
         throw runtime_error(
-            "createpaymentrequest hash amount id\n"
+            "createpaymentrequest \"hash\" \"amount\" \"id\"\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -685,7 +685,7 @@ UniValue donatefund(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "donatefund amount ( subtractfeefromamount )\n"
+            "donatefund \"amount\" ( subtractfeefromamount )\n"
             "\nDonates an amount to the community fund.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -3275,28 +3275,51 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
 UniValue proposalvotelist(const UniValue& params, bool fHelp)
 {
+
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "proposalvotelist\n"
+
+                "\nReturns a list containing the wallet's current voting status for all active proposals.\n"
+
+                "\nResult:\n"
+                "{\n"
+                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for.\n"
+                "      \"no\":    List of proposals this wallet is casting a 'no' vote for.\n"
+                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for.\n"
+                "}\n"
+        );
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
+    UniValue nullvotes(UniValue::VARR);
 
-    for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
-    {
-        CFund::CProposal proposal;
-        if(pblocktree->ReadProposalIndex(uint256S("0x"+vAddedProposalVotes[i].first), proposal))
-        {
-            if(vAddedProposalVotes[i].second)
-            {
-                yesvotes.push_back(proposal.ToString());
-            }
-            else
-            {
-                novotes.push_back(proposal.ToString());
-            }
-        }
-    }
+    std::vector<CFund::CProposal> vec;
+     if(pblocktree->GetProposalIndex(vec))
+     {
+         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+             if (proposal.fState != CFund::NIL)
+                 continue;
+             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                 [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+             if (it != vAddedProposalVotes.end()) {
+                 if (it->second)
+                     yesvotes.push_back(proposal.ToString());
+                 else
+                     novotes.push_back(proposal.ToString());
+             } else {
+                 nullvotes.push_back(proposal.ToString());
+             }
+         }
+     }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));
+    ret.push_back(Pair("null",nullvotes));
 
     return ret;
 }
@@ -3354,28 +3377,47 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
 
 UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
 {
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "paymentrequestvotelist\n"
+
+                "\nReturns a list containing the wallet's current voting status for all active payment requests.\n"
+
+                "\nResult:\n"
+                "{\n"
+                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for.\n"
+                "      \"no\":    List of proposals this wallet is casting a 'no' vote for.\n"
+                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for.\n"
+                "}\n"
+        );
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
+    UniValue nullvotes(UniValue::VARR);
 
-    for (unsigned int i = 0; i < vAddedPaymentRequestVotes.size(); i++)
-    {
-        CFund::CPaymentRequest prequest;
-        if(pblocktree->ReadPaymentRequestIndex(uint256S("0x"+vAddedPaymentRequestVotes[i].first), prequest))
-        {
-            if(vAddedPaymentRequestVotes[i].second)
-            {
-                yesvotes.push_back(prequest.ToString());
-            }
-            else
-            {
-                novotes.push_back(prequest.ToString());
-            }
-        }
-    }
+    std::vector<CFund::CPaymentRequest> vec;
+     if(pblocktree->GetPaymentRequestIndex(vec))
+     {
+         BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+             if (prequest.fState != CFund::NIL)
+                 continue;
+             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                 [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+             if (it != vAddedPaymentRequestVotes.end()) {
+                 if (it->second)
+                     yesvotes.push_back(prequest.ToString());
+                 else
+                     novotes.push_back(prequest.ToString());
+             } else {
+                 nullvotes.push_back(prequest.ToString());
+             }
+         }
+     }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));
+    ret.push_back(Pair("null",nullvotes));
 
     return ret;
 }
@@ -3486,14 +3528,14 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendfrom",                 &sendfrom,                 false },
     { "wallet",             "sendmany",                 &sendmany,                 false },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
-    { "wallet",             "donatefund",               &donatefund,               false },
-    { "wallet",             "createpaymentrequest",     &createpaymentrequest,     false },
-    { "wallet",             "createproposal",           &createproposal,           false },
+    { "communityfund",      "donatefund",               &donatefund,               false },
+    { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
+    { "communityfund",      "createproposal",           &createproposal,           false },
     { "wallet",             "stakervote",               &stakervote,               false },
-    { "wallet",             "proposalvote",             &proposalvote,             false },
-    { "wallet",             "proposalvotelist",         &proposalvotelist,         false },
-    { "wallet",             "paymentrequestvote",       &paymentrequestvote,       false },
-    { "wallet",             "paymentrequestvotelist",   &paymentrequestvotelist,   false },
+    { "communityfund",      "proposalvote",             &proposalvote,             false },
+    { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
+    { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
+    { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
