@@ -37,7 +37,6 @@ You can also pass this as a launch argument:
 
 ## Community Fund Voting GUI
 
-A part of the Cold Staking PR above, this adds two things:
 
 - A GUI interface that can be used to vote for community fund proposals and payment requests
 - A new notification that will appear when a new community fund proposal or payment request is found on the blockchain
