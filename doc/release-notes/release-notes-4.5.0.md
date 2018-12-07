@@ -22,6 +22,7 @@ Full list of updated RPC commands:
 
 (To be written)
 
+
 ### Reject this soft fork
 
 To not vote for this soft fork, add the following line to your `navcoin.conf` file:
@@ -29,6 +30,13 @@ To not vote for this soft fork, add the following line to your `navcoin.conf` fi
 
 You can also pass this as a launch argument:  
 `./navcoin-qt -rejectversionbit=3`
+
+## Community Fund Voting GUI
+
+A part of the Cold Staking PR above, this adds two things:
+
+- A GUI interface that can be used to vote for community fund proposals and payment requests
+- A new notification that will appear when a new community fund proposal or payment request is found on the blockchain
 
 ## Static rewards softfork
 
