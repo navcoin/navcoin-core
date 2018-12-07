@@ -22,6 +22,10 @@ Full list of updated RPC commands:
 
 (To be written)
 
+### Manual testing with a maliciously modified wallet client
+
+We also performed a number of tests against the cold staking code using a maliciously modified wallet client in an attempt to exploit potential weakness in the code. None of these attempts managed to find an exploit.  
+Details can be found under [release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md](release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md)
 
 ### Reject this soft fork
 
@@ -38,7 +42,7 @@ A part of the Cold Staking PR above, this adds two things:
 - A GUI interface that can be used to vote for community fund proposals and payment requests
 - A new notification that will appear when a new community fund proposal or payment request is found on the blockchain
 - Also added a new warning to the wallet screen to inform users when their wallet is syncing that their balance may not be displaying accurately
-- The wallet GUI now checks if the wallet is staking more often (is this correct?)
+- The wallet GUI now checks if the wallet is staking more often
 
 ## Static rewards softfork
 
@@ -77,7 +81,7 @@ You can also pass this as a launch argument:
 <[Pull Request 335](https://github.com/NAVCoin/navcoin-core/pull/335)>
 <[Commit 210a22d](https://github.com/NAVCoin/navcoin-core/commit/210a22daaffbd36d90a5ee0121c0c4ce3de0ed75)>
 
-The wallet will now only accept a minumum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
+The wallet will now only accept a maximum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
 
 The new launch arguments are:  
 

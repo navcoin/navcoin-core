@@ -102,7 +102,7 @@ if ENABLE_ZMQ:
 #Tests
 testScripts = [
     # longest test should go first, to favor running tests in parallel
-   # 'p2p-fullblocktest.py',
+# 'p2p-fullblocktest.py',
 #    'walletbackup.py',
 #    'bip68-112-113-p2p.py',
 #    'wallet.py',
@@ -160,8 +160,10 @@ testScripts = [
     'cfund-proposalvotelist.py',
     'cfund-paymentrequestvotelist.py',
     'reject-version-bit.py',
+    'getcoldstakingaddress.py',
+    'coldstaking_staking.py',
+    'coldstaking_spending.py',
     'staticr-staking-amount.py',
-
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
