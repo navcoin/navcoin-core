@@ -76,7 +76,7 @@ class SendingFromColdStaking(NavCoinTestFramework):
         # asserts that the number of utxo recieved is only 1:
         assert(len(listunspent_txs) == 1)
         # asserts if amount recieved is what it should be; ~59812449.99711600 NAV
-        assert(listunspent_txs[0]["amount"] == Decimal('59812449.99711600'))
+        assert(int(listunspent_txs[0]["amount"]) == 59812449)
         # grabs updated wallet balance and staking weight
         balance_post_send_one = self.nodes[0].getbalance()
         staking_weight_post_send = self.nodes[0].getstakinginfo()["weight"]
@@ -87,7 +87,7 @@ class SendingFromColdStaking(NavCoinTestFramework):
         # values are converted to string and "00" is added to right of == operand because values must have equal num of 
         # decimals
         time.sleep(1)
-        assert(str(balance_post_send_one - BLOCK_REWARD) == (str(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
+        assert(int(balance_post_send_one - BLOCK_REWARD) == int(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE))
         
         """check staking weight now == 0 (we don't hold the staking key)"""
         
