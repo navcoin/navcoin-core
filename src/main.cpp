@@ -276,6 +276,89 @@ struct CBlockReject {
     uint256 hashBlock;
 };
 
+class CNodeHeaders
+{
+public:
+    CNodeHeaders():
+        maxSize(0),
+        maxAvg(0)
+    {
+        maxSize = GetArg("-headerspamfiltermaxsize", DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE);
+        maxAvg = GetArg("-headerspamfiltermaxavg", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG);
+    }
+
+    bool addHeaders(int nBegin, int nEnd)
+    {
+
+        if(nBegin > 0 && nEnd > 0 && maxSize && maxAvg)
+        {
+
+            for(int point = nBegin; point<= nEnd; point++)
+            {
+                addPoint(point);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool updateState(CValidationState& state, bool ret)
+    {
+        // No headers
+        size_t size = points.size();
+        if(size == 0)
+            return ret;
+
+        // Compute the number of the received headers
+        size_t nHeaders = 0;
+        for(auto point : points)
+        {
+            nHeaders += point.second;
+        }
+
+        // Compute the average value per height
+        double nAvgValue = (double)nHeaders / size;
+
+        // Ban the node if try to spam
+        bool banNode = (nAvgValue >= 1.5 * maxAvg && size >= maxAvg) ||
+                (nAvgValue >= maxAvg && nHeaders >= maxSize) ||
+                (nHeaders >= maxSize * 3);
+        if(banNode)
+        {
+            // Clear the points and ban the node
+            points.clear();
+            return state.DoS(100, false, REJECT_INVALID, "header-spam", false, "ban node for sending spam");
+        }
+
+        return ret;
+    }
+
+private:
+    void addPoint(int height)
+    {
+        // Erace the last element in the list
+        if(points.size() == maxSize)
+        {
+            points.erase(points.begin());
+        }
+
+        // Add the point to the list
+        int occurrence = 0;
+        auto mi = points.find(height);
+         if (mi != points.end())
+             occurrence = (*mi).second;
+         occurrence++;
+         points[height] = occurrence;
+     }
+
+ private:
+     std::map<int,int> points;
+     size_t maxSize;
+     size_t maxAvg;
+ };
+
 /**
  * Maintain validation-specific state about nodes, protected by cs_main, instead
  * by CNode's own locks. This simplifies asynchronous operation, where
@@ -324,6 +407,8 @@ struct CNodeState {
     bool fProvidesHeaderAndIDs;
     //! Whether this peer can give us witnesses
     bool fHaveWitness;
+
+    CNodeHeaders headers;
 
     CNodeState() {
         fCurrentlyConnected = false;
@@ -2536,6 +2621,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsCommunityFundAmountV2Enabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nCFundAmountV2Mask;
 
+    if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nStaticRewardVersionMask;
+
     return nVersion;
 }
 
@@ -2954,6 +3042,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 
               }
+
+              if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
+                return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
+                nStakeReward, Params().GetConsensus().nStaticReward),
+                REJECT_INVALID, "bad-static-stake-amount");
 
             }
 
@@ -4713,6 +4806,18 @@ bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_LOCKED_IN);
+}
+
+bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 // Compute at which vout of the block's coinbase transaction the witness
 // commitment occurs, or -1 if not found.
 static int GetWitnessCommitmentIndex(const CBlock& block)
@@ -4817,6 +4922,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
+
+   if((block.nVersion & nStaticRewardVersionMask) != nStaticRewardVersionMask && IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
+     return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                        "rejected no static reward block");
 
     return true;
 }
@@ -7238,24 +7347,62 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             return true;
         }
 
+        bool ret = true;
+        bool bFirst = true;
+        string strError = "";
+
+        int nFirst = 0;
+        int nLast = 0;
+
         CBlockIndex *pindexLast = NULL;
+
         BOOST_FOREACH(const CBlock& header, headers) {
             CValidationState state;
             if (pindexLast != NULL && header.hashPrevBlock != pindexLast->GetBlockHash()) {
                 Misbehaving(pfrom->GetId(), 20);
-                return error("non-continuous headers sequence");
+                ret = false;
+                strError = "non-continuous headers sequence";
+                break;
             }
             CBlockHeader pblockheader = CBlockHeader(header);
             if (!AcceptBlockHeader(pblockheader, state, chainparams, &pindexLast)) {
-
                 int nDoS;
                 if (state.IsInvalid(nDoS)) {
                     if (nDoS > 0)
                         Misbehaving(pfrom->GetId(), nDoS);
-                    return error("invalid header received");
+                    ret = false;
+                    strError = "invalid header received";
+                    break;
+                }
+            }
+            if (pindexLast) {
+                nLast = pindexLast->nHeight;
+                if (bFirst){
+                    nFirst = pindexLast->nHeight;
+                    bFirst = false;
                 }
             }
         }
+
+        if(GetBoolArg("-headerspamfilter", DEFAULT_HEADER_SPAM_FILTER))
+        {
+            LOCK(cs_main);
+            CValidationState state;
+            CNodeState *nodestate = State(pfrom->GetId());
+            nodestate->headers.addHeaders(nFirst, nLast);
+            int nDoS;
+            ret = nodestate->headers.updateState(state, ret);
+            if (state.IsInvalid(nDoS)) {
+                if (nDoS > 0)
+                    Misbehaving(pfrom->GetId(), nDoS);
+                ret = false;
+                strError = strError!="" ? strError + " / ": "";
+                strError = "header spam protection";
+            }
+        }
+
+        if (!ret)
+            return error(strError.c_str());
 
         if (nodestate->nUnconnectingHeaders > 0) {
             LogPrint("net", "peer=%d: resetting nUnconnectingHeaders (%d -> 0)\n", pfrom->id, nodestate->nUnconnectingHeaders);
@@ -8712,23 +8859,29 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
 // staker's coin stake reward based on coin age spent (coin-days)
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev)
 {
-    int64_t nRewardCoinYear;
-    nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
+  int64_t nSubsidy;
 
-    if(nHeight-1 < 7 * Params().GetConsensus().nDailyBlockCount)
-        nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight-1 < (365 * Params().GetConsensus().nDailyBlockCount))
-        nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
-        nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-    else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
-        nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
-    else
-        nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+  if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
+      nSubsidy = Params().GetConsensus().nStaticReward;
+  } else {
+      int64_t nRewardCoinYear;
+      nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
-    int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365;
+      if(nHeight-1 < 7 * Params().GetConsensus().nDailyBlockCount)
+          nRewardCoinYear = 1 * MAX_MINT_PROOF_OF_STAKE;
+      else if(nHeight-1 < (365 * Params().GetConsensus().nDailyBlockCount))
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+      else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+      else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
+          nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
+      else
+          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
 
-    return  nSubsidy + nFees;
+       nSubsidy = nCoinAge * nRewardCoinYear / 365;
+  }
+
+  return  nSubsidy + nFees;
 }
 
 unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int64_t nTime)

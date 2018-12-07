@@ -55,6 +55,9 @@ static const int32_t nCFundAccVersionMask = 0x00001000;
 static const int32_t nColdStakingVersionMask = 0x00002000;
 static const int32_t nCFundAccSpreadVersionMask = 0x00004000;
 static const int32_t nCFundAmountV2Mask = 0x00010000;
+static const int32_t nStaticRewardVersionMask = 0x00008000;
+
+static const std::vector<int> rejectedVersionBitsByDefault = {};
 
 enum ThresholdState {
     THRESHOLD_DEFINED,

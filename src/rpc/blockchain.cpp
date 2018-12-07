@@ -897,7 +897,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
      if (fHelp)
         throw runtime_error(
-            "listproposals filter\n"
+            "listproposals \"filter\"\n"
             "\nList the proposals and all the relating data including payment requests and status.\n"
             "\nNote passing no argument returns all proposals regardless of state.\n"
             "\nArguments:\n"
@@ -954,7 +954,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
 
-    if (fHelp)
+    if (fHelp || params.size() != 0)
         throw runtime_error(
             "cfundstats\n"
             "\nReturns statistics about the community fund.\n"
@@ -1313,6 +1313,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING);
     BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
+    BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 
@@ -1602,7 +1603,7 @@ UniValue reconsiderblock(const UniValue& params, bool fHelp)
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         okSafeMode
   //  --------------------- ------------------------  -----------------------  ----------
-    { "blockchain",         "cfundstats",             &cfundstats,             true  },
+    { "communityfund",      "cfundstats",             &cfundstats,             true  },
     { "blockchain",         "getblockchaininfo",      &getblockchaininfo,      true  },
     { "blockchain",         "getbestblockhash",       &getbestblockhash,       true  },
     { "blockchain",         "getblockcount",          &getblockcount,          true  },
@@ -1617,13 +1618,13 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getmempooldescendants",  &getmempooldescendants,  true  },
     { "blockchain",         "getmempoolentry",        &getmempoolentry,        true  },
     { "blockchain",         "getmempoolinfo",         &getmempoolinfo,         true  },
-    { "blockchain",         "getproposal",            &getproposal,            true  },
-    { "blockchain",         "getpaymentrequest",      &getpaymentrequest,      true  },
+    { "communityfund",      "getproposal",            &getproposal,            true  },
+    { "communityfund",      "getpaymentrequest",      &getpaymentrequest,      true  },
     { "blockchain",         "getrawmempool",          &getrawmempool,          true  },
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-    { "blockchain",         "listproposals",          &listproposals,          true  },
+    { "communityfund",      "listproposals",          &listproposals,          true  },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },
