@@ -39,7 +39,7 @@ class SendingFromColdStaking(NavCoinTestFramework):
 
         # declare transaction-related constants
         SENDING_FEE= 0.00010000
-        MIN_COLDSTAKING_SENDING_FEE = 0.00288400
+        MIN_COLDSTAKING_SENDING_FEE = 0.00388400
         BLOCK_REWARD = 50
         # generate address owned by the wallet
         spending_address_public_key = self.nodes[0].getnewaddress()
