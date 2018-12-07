@@ -47,13 +47,13 @@ bool VotePaymentRequest(string strProp, bool vote, bool &duplicate);
 bool VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate);
 bool RemoveVotePaymentRequest(string strProp);
 bool RemoveVotePaymentRequest(uint256 proposalHash);
-bool IsValidPaymentRequest(CTransaction tx);
-bool IsValidProposal(CTransaction tx);
+bool IsValidPaymentRequest(CTransaction tx, int nMaxVersion);
+bool IsValidProposal(CTransaction tx, int nMaxVersion);
 
 class CPaymentRequest
 {
 public:
-    static const int32_t CURRENT_VERSION=2;
+    static const int32_t CURRENT_VERSION=3;
 
     CAmount nAmount;
     flags fState;
@@ -172,7 +172,7 @@ public:
 class CProposal
 {
 public:
-    static const int32_t CURRENT_VERSION=2;
+    static const int32_t CURRENT_VERSION=3;
 
     CAmount nAmount;
     CAmount nFee;

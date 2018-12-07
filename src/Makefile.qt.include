@@ -109,6 +109,7 @@ QT_FORMS_UI = \
   qt/navtechinit.ui \
   qt/navtechitem.ui \
   qt/navtechsetup.ui \
+  qt/forms/cfund_voting.ui \
   qt/getaddresstoreceive.ui
 
 QT_MOC_CPP = \
@@ -132,6 +133,7 @@ QT_MOC_CPP = \
   qt/moc_macnotificationhandler.cpp \
   qt/moc_navtechinit.cpp \
   qt/moc_navtechsetup.cpp \
+  qt/forms/moc_cfund_voting.cpp \
   qt/moc_navtechitem.cpp \
   qt/moc_getaddresstoreceive.cpp \
   qt/moc_notificator.cpp \
@@ -206,6 +208,7 @@ NAVCOIN_QT_H = \
   qt/navtechinit.h \
   qt/navtechitem.h \
   qt/navtechsetup.h \
+  qt/forms/cfund_voting.h \
   qt/getaddresstoreceive.h \
   qt/networkstyle.h \
   qt/notificator.h \
@@ -327,6 +330,7 @@ NAVCOIN_QT_CPP = \
   qt/navtechinit.cpp \
   qt/navtechitem.cpp \
   qt/navtechsetup.cpp \
+  qt/forms/cfund_voting.cpp \
   qt/getaddresstoreceive.cpp \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
