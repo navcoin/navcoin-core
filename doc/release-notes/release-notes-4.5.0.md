@@ -72,7 +72,7 @@ You can also pass this as a launch argument:
 <[Pull Request 335](https://github.com/NAVCoin/navcoin-core/pull/335)>
 <[Commit 210a22d](https://github.com/NAVCoin/navcoin-core/commit/210a22daaffbd36d90a5ee0121c0c4ce3de0ed75)>
 
-The wallet will now only accept a minumum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
+The wallet will now only accept a maximum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
 
 The new launch arguments are:  
 
