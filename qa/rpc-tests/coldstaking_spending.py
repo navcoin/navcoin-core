@@ -3,6 +3,7 @@
 # distributed under the mit software license, see the accompanying
 # file copying or http://www.opensource.org/licenses/mit-license.php.
 import decimal
+import time
 from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
 
@@ -61,6 +62,8 @@ class SendingFromColdStaking(NavCoinTestFramework):
 
         """send navcoin to our coldstaking address, grab balance & staking weight"""
 
+        time.sleep(1)
+
         # send funds to the cold staking address (leave some nav for fees) -- we specifically require
         # a transaction fee of minimum 0.002884 navcoin due to the complexity of this transaction
         self.nodes[0].sendtoaddress(coldstaking_address_spending, float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE)
@@ -83,6 +86,7 @@ class SendingFromColdStaking(NavCoinTestFramework):
         # difference between balance after sending and previous balance is the same when block reward is removed
         # values are converted to string and "00" is added to right of == operand because values must have equal num of 
         # decimals
+        time.sleep(1)
         assert(str(balance_post_send_one - BLOCK_REWARD) == (str(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
         
         """check staking weight now == 0 (we don't hold the staking key)"""
@@ -115,6 +119,7 @@ class SendingFromColdStaking(NavCoinTestFramework):
         listunspent_txs = [n for n in self.nodes[0].listunspent() if n["address"] == coldstaking_address_spending]
         # send funds to a third party address using a signed raw transaction    
         # get unspent tx inputs
+        time.sleep(1)
         self.send_raw_transaction(decoded_raw_transaction = listunspent_txs[0], \
         to_address = address_Y_public_key, \
         change_address = coldstaking_address_spending, \
@@ -129,6 +134,7 @@ class SendingFromColdStaking(NavCoinTestFramework):
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 2)
         # send our entire wallet balance - minimum fee required to coldstaking address
+        time.sleep(1)
         self.nodes[0].sendtoaddress(coldstaking_address_spending, float(str(float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
