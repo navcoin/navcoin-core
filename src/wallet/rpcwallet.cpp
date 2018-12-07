@@ -160,7 +160,17 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 2)
         throw runtime_error(
             "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\"\n"
-            "\nTODO"
+            "Returns a coldstaking address based on two address inputs\n"
+            "Arguments:\n"
+            "1. \"stakingaddress\"  (string, required) The navcoin staking address.\n"
+            "2. \"spendingaddress\" (string, required) The navcoin spending address.\n\n"
+            "Result:\n"
+            "coldstakingaddress (string) The coldstaking address\n\n"
+            "Examples:\n\n"
+            "> navcoin-cli getcoldstakingaddress \"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"\n"
+            "As a json rpc call:\n"
+       
+            
         );
 
     if (!IsColdStakingEnabled(pindexBestHeader,Params().GetConsensus()))
