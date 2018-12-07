@@ -1022,7 +1022,12 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
     UniValue consensus(UniValue::VOBJ);
     consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
-    consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nQuorumVotes));
+    if (!IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus())){
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorum));
+    } else {
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumFirstHalf));
+        consensus.push_back(Pair("minSumVotesPerVotingCycleSecondHalf",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumSecondHalf));
+    }
     consensus.push_back(Pair("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting));
     consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting));
     consensus.push_back(Pair("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100));
@@ -1221,10 +1226,7 @@ static UniValue BIP9SoftForkDesc(const Consensus::Params& consensusParams, Conse
     case THRESHOLD_ACTIVE: rv.push_back(Pair("status", "active")); break;
     case THRESHOLD_FAILED: rv.push_back(Pair("status", "failed")); break;
     }
-    if (THRESHOLD_STARTED == thresholdState)
-    {
-        rv.push_back(Pair("bit", consensusParams.vDeployments[id].bit));
-    }
+    rv.push_back(Pair("bit", consensusParams.vDeployments[id].bit));
     rv.push_back(Pair("startTime", consensusParams.vDeployments[id].nStartTime));
     rv.push_back(Pair("timeout", consensusParams.vDeployments[id].nTimeout));
 
@@ -1314,6 +1316,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
+    BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 

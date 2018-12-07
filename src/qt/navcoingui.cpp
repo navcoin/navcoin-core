@@ -17,6 +17,7 @@
 #include "notificator.h"
 #include "openuridialog.h"
 #include "optionsdialog.h"
+#include "forms/cfund_voting.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
 #include "rpcconsole.h"
@@ -51,6 +52,7 @@
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
+#include <QCheckBox>
 #include <QInputDialog>
 #include <QListWidget>
 #include <QMenuBar>
@@ -130,6 +132,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     receiveCoinsAction(0),
     receiveCoinsMenuAction(0),
     optionsAction(0),
+    cfundProposalsAction(0),
+    cfundPaymentRequestsAction(0),
     toggleHideAction(0),
     encryptWalletAction(0),
     backupWalletAction(0),
@@ -145,6 +149,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     helpMessageDialog(0),
     prevBlocks(0),
     spinnerFrame(0),
+    fDontShowAgain(false),
+    lastDialogShown(0),
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
@@ -277,7 +283,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
     connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
-    timerStakingIcon->start(150 * 1000);
+    timerStakingIcon->start(45 * 1000);
     updateStakingStatus();
 
     if (GetArg("-zapwallettxes",0) == 2 && GetArg("-repairwallet",0) == 1)
@@ -420,6 +426,8 @@ void NavCoinGUI::createActions()
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(tr(PACKAGE_NAME)));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
+    cfundProposalsAction = new QAction(tr("Vote for Proposals"), this);
+    cfundPaymentRequestsAction = new QAction(tr("Vote for Payment Requests"), this);
     toggleHideAction = new QAction(platformStyle->TextColorIcon(":/icons/about"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
@@ -470,6 +478,8 @@ void NavCoinGUI::createActions()
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
+    connect(cfundProposalsAction, SIGNAL(triggered()), this, SLOT(cfundProposalsClicked()));
+    connect(cfundPaymentRequestsAction, SIGNAL(triggered()), this, SLOT(cfundPaymentRequestsClicked()));
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
@@ -572,6 +582,9 @@ void NavCoinGUI::createMenuBar()
         }
         connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
         settings->addAction(updatePriceAction);
+        QMenu *cfund = appMenuBar->addMenu(tr("&Community Fund"));
+        cfund->addAction(cfundProposalsAction);
+        cfund->addAction(cfundPaymentRequestsAction);
     }
     settings->addAction(optionsAction);
 
@@ -866,6 +879,24 @@ void NavCoinGUI::optionsClicked()
 
     OptionsDialog dlg(this, enableWallet);
     dlg.setModel(clientModel->getOptionsModel());
+    dlg.exec();
+}
+
+void NavCoinGUI::cfundProposalsClicked()
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, false);
+    dlg.exec();
+}
+
+void NavCoinGUI::cfundPaymentRequestsClicked()
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, true);
     dlg.exec();
 }
 
@@ -1766,6 +1797,62 @@ void NavCoinGUI::updateStakingStatus()
         }
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
+            bool fFound = false;
+            std::vector<CFund::CProposal> vec;
+            if(pblocktree->GetProposalIndex(vec))
+            {
+                BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+                    if (proposal.fState != CFund::NIL)
+                        continue;
+                    auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                        [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
+                    if (it == vAddedProposalVotes.end()) {
+                        fFound = true;
+                        break;
+                    }
+                }
+            }
+
+            std::vector<CFund::CPaymentRequest> vec2;
+            if(!fFound && pblocktree->GetPaymentRequestIndex(vec2))
+            {
+                BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec2) {
+                    if (prequest.fState != CFund::NIL)
+                        continue;
+                    auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                        [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
+                    if (it == vAddedPaymentRequestVotes.end()) {
+                        fFound = true;
+                        break;
+                    }
+                }
+            }
+            if (fFound && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
+                QCheckBox *cb = new QCheckBox("Don't show this notification again until wallet is restarted.");
+                QMessageBox msgbox;
+                msgbox.setText(tr("There are new proposals or payment requests in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the voting dialog!"));
+                msgbox.setIcon(QMessageBox::Icon::Warning);
+                msgbox.setCheckBox(cb);
+                QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
+                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Voting Window"), QMessageBox::YesRole);
+                this->lastDialogShown = GetTimeNow();
+
+                msgbox.exec();
+
+                if(cb->isChecked()) {
+                    this->fDontShowAgain = true;
+                } else {
+                    this->fDontShowAgain = false;
+                }
+
+                if (msgbox.clickedButton()==pButtonOpen) {
+                    cfundProposalsClicked();
+                }
+                if (msgbox.clickedButton()==pButtonInfo) {
+                    QString link = QString("https://navcoin.org/en/community-fund/");
+                    QDesktopServices::openUrl(QUrl(link));
+                }
+            }
 
             uint64_t nWeight = this->nWeight;
             uint64_t nNetworkWeight = GetPoSKernelPS();

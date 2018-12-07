@@ -33,6 +33,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 7 -> C FUND ACCUMULATION
 * Bit 8 -> NTP SYNC
 * Bit 14 -> C FUND ACCUMULATION SPREAD
+* Bit 17 -< C FUND REDUCED QUORUM
 *
 * ACTIVATION
 *
@@ -45,6 +46,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 13 -> COLD STAKING
 * Bit 14 -> C FUND ACCUMULATION SPREAD
 * Bit 16 -< C FUND ACCUMULATION AMOUNT V2
+* Bit 17 -< C FUND REDUCED QUORUM
 *
 ***/
 
@@ -55,9 +57,10 @@ static const int32_t nCFundAccVersionMask = 0x00001000;
 static const int32_t nColdStakingVersionMask = 0x00002000;
 static const int32_t nCFundAccSpreadVersionMask = 0x00004000;
 static const int32_t nCFundAmountV2Mask = 0x00010000;
+static const int32_t nCFundReducedQuorumMask = 0x00020000;
 static const int32_t nStaticRewardVersionMask = 0x00008000;
 
-static const std::vector<int> rejectedVersionBitsByDefault = {};
+static const std::vector<int> rejectedVersionBitsByDefault = {17};
 
 enum ThresholdState {
     THRESHOLD_DEFINED,
