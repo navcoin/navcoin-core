@@ -21,17 +21,9 @@ class CommunityFundVotesTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is started
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is locked_in
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is active
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
+        # Make sure cfund is active
+        activate_cfund(self.nodes[0])
+        self.nodes[0].donatefund(1000)
 
         proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, 3600, "test")["hash"]
         slow_gen(self.nodes[0], 1)
