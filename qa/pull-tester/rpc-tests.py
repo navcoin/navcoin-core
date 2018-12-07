@@ -157,6 +157,8 @@ testScripts = [
     'cfund-rawtx-paymentrequest-vote.py',
     'cfund-rawtx-proposal-vote.py',
     'cfund-vote.py',
+    'cfund-proposalvotelist.py',
+    'cfund-paymentrequestvotelist.py',
     'reject-version-bit.py',
     'staticr-staking-amount.py',
 
