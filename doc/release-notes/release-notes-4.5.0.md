@@ -5,7 +5,7 @@
 <[Pull Request 328](https://github.com/NAVCoin/navcoin-core/pull/328)>
 <[Commit 9601f85](https://github.com/NAVCoin/navcoin-core/commit/9601f8501526cba19ded59ae685e393345ef430c)>
 
-This softfork will change the NavCoin Staking block reward to a fixed amount of 2 NAV per block. You can read more about this softfork at it's NPIP page, [NPIP_04](https://github.com/NAVCoin/npips/blob/master/npip-0004.mediawiki)
+This softfork will change the NavCoin Staking block reward to a fixed amount of 2 NAV per block. You can read more about this softfork at it's NPIP page, [NPIP_0004](https://github.com/NAVCoin/npips/blob/master/npip-0004.mediawiki)
 
 - Adds static rewards softfork
 - Adds version bit 15
@@ -37,17 +37,20 @@ You can also pass this as a launch argument:
 
 The wallet will now only accept a minumum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
 
-The new launch arguments are:
-`-headerspamfilter=_` - Replace `_` with a 1 or 0. 1 will turn the filter on (it is on by default), and 0 will turn it off.
-`-headerspamfiltermaxsize=_` - Replace `_` with a the number you wish to set as the new max size.
-`-headerspamfiltermaxavg=_` - Replace `_` with a the number you wish to set as the new max average.
+The new launch arguments are:  
+
+`-headerspamfilter=<0 or 1>` -  1 will turn the filter on (it is on by default), and 0 will turn it off.
+
+`-headerspamfiltermaxsize=<number>` - The number you wish to set as the new max size.
+
+`-headerspamfiltermaxavg=<number>` - The number you wish to set as the new max average.
 
 ## Community Fund RPC commands
 
 <[Pull Request 334](https://github.com/NAVCoin/navcoin-core/pull/334)>
 <[Commit cc8e213](https://github.com/NAVCoin/navcoin-core/commit/cc8e21306cb804671676c6e10c0c2751061e7cc8)>
 
-- Shows help for proposalvotelist and paymentrequestvotelist
+- Shows help for `proposalvotelist` and `paymentrequestvotelist`
 - Shows proposals and payment requests in pending state without vote
 - Categorises cfund rpc commands under own category
 - Updates RPC tests for these commands
