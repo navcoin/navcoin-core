@@ -11,12 +11,24 @@ This softfork will change the NavCoin Staking block reward to a fixed amount of 
 - Adds version bit 15
 - Adds RPC tests for Static Rewards
 
+To not vote for this soft fork, add the following line to your `navcoin.conf` file:
+`rejectversionbit=15`
+
+You can also pass this as a launch argument:  
+`./navcoin-qt -rejectversionbit=15`
+
 ## Reject specific version bits by default
 
 <[Pull Request 336](https://github.com/NAVCoin/navcoin-core/pull/336)>
 <[Commit eb6a1a2](https://github.com/NAVCoin/navcoin-core/commit/eb6a1a27903a477306a7ef73d3d85bd52ff1f3c4)>
 
 By default the wallet votes yes for soft forks included in the wallet. This changes adds a list (empty at the moment) of version bits which will be voted no by default, while also adding an option to manually vote yes for those bits.
+
+To manually vote yes for a version bit add the following to  your `navcoin.conf` file:
+`acceptversionbit=15`
+
+You can also pass this as a launch argument:  
+`./navcoin-qt -acceptversionbit=15`
 
 ### Other modifications in the NavCoin client
 
