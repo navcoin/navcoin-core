@@ -30,6 +30,28 @@ To manually vote yes for a version bit add the following to  your `navcoin.conf`
 You can also pass this as a launch argument:  
 `./navcoin-qt -acceptversionbit=15`
 
+## Block header spam protection fixes
+
+<[Pull Request 335](https://github.com/NAVCoin/navcoin-core/pull/335)>
+<[Commit 210a22d](https://github.com/NAVCoin/navcoin-core/commit/210a22daaffbd36d90a5ee0121c0c4ce3de0ed75)>
+
+The wallet will now only accept a minumum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
+
+The new launch arguments are:
+`-headerspamfilter=_` - Replace `_` with a 1 or 0. 1 will turn the filter on (it is on by default), and 0 will turn it off.
+`-headerspamfiltermaxsize=_` - Replace `_` with a the number you wish to set as the new max size.
+`-headerspamfiltermaxavg=_` - Replace `_` with a the number you wish to set as the new max average.
+
+## Community Fund RPC commands
+
+<[Pull Request 334](https://github.com/NAVCoin/navcoin-core/pull/334)>
+<[Commit cc8e213](https://github.com/NAVCoin/navcoin-core/commit/cc8e21306cb804671676c6e10c0c2751061e7cc8)>
+
+- Shows help for proposalvotelist and paymentrequestvotelist
+- Shows proposals and payment requests in pending state without vote
+- Categorises cfund rpc commands under own category
+- Updates RPC tests for these commands
+
 ### Other modifications in the NavCoin client
 
 - Community Fund RPC Tests clean up. <[Pull Request 318](https://github.com/NAVCoin/navcoin-core/pull/318)> <[Commit 7730c7b](https://github.com/NAVCoin/navcoin-core/commit/7730c7bc84256ddb995408c1bc775015f0219d2d)>
