@@ -27,6 +27,12 @@ Details can be found under [release-notes-4.5.0-additional-testing-notes/modifie
 To not vote for this Protocol Upgrade, add the following line to your `navcoin.conf` file:
 `rejectversionbit=3`
 
+## Community Fund Voting GUI
+
+- A GUI interface that can be used to vote for community fund proposals and payment requests.
+- A new notification that will appear when a new community fund proposal or payment request is found on the blockchain.
+- Also added a new warning to the wallet screen to inform users when their wallet is syncing that their balance may not be displaying accurately.
+
 ## Static Rewards Protocol Upgrade
 
 <[Pull Request 328](https://github.com/NAVCoin/navcoin-core/pull/328)>
