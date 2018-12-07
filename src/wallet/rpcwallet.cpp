@@ -591,7 +591,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("a",Address));
     strDZeel.push_back(Pair("d",nDeadline));
     strDZeel.push_back(Pair("s",sDesc));
-    strDZeel.push_back(Pair("v",CFund::CProposal::CURRENT_VERSION));
+    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -704,7 +704,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("s",Signature));
     strDZeel.push_back(Pair("r",sRandom));
     strDZeel.push_back(Pair("i",id));
-    strDZeel.push_back(Pair("v",CFund::CPaymentRequest::CURRENT_VERSION));
+    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
