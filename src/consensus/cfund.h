@@ -112,8 +112,8 @@ public:
     std::string ToString() const {
         return strprintf("CPaymentRequest(hash=%s, nVersion=%d, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotingCycle=%u, "
                          " proposalhash=%s, blockhash=%s, paymenthash=%s, strDZeel=%s)",
-                         hash.ToString().substr(0,10), nVersion, (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo,
-                         nVotingCycle, proposalhash.ToString().substr(0,10), blockhash.ToString().substr(0,10),
+                         hash.ToString(), nVersion, (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo,
+                         nVotingCycle, proposalhash.ToString(), blockhash.ToString().substr(0,10),
                          paymenthash.ToString().substr(0,10), strDZeel);
     }
 
@@ -202,7 +202,6 @@ public:
         vPayments.clear();
         strDZeel = "";
         hash = uint256();
-        blockhash = uint256();
         blockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;

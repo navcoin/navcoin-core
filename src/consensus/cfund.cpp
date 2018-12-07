@@ -267,7 +267,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
     if(!ret)
         return error("%s: Invalid version for payment request %s", __func__, tx.GetHash().ToString());
 
-    return true;
+    return nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
 
 }
 

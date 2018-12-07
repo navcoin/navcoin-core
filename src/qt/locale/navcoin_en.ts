@@ -605,6 +605,32 @@
     </message>
 </context>
 <context>
+    <name>ColdStakingAddressPage</name>
+    <message>
+        <location filename="../coldstakingwizard.cpp" line="+84"/>
+        <source>Generated address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Error encoding URI into QR Code.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColdStakingWizard</name>
+    <message>
+        <location line="-110"/>
+        <source>Create a Cold Staking address</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EditAddressDialog</name>
     <message>
         <location filename="../forms/editaddressdialog.ui" line="+14"/>
@@ -687,6 +713,24 @@
     <message>
         <location line="+7"/>
         <source>Cannot read wallet.dat file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GetAddressesPage</name>
+    <message>
+        <location filename="../coldstakingwizard.cpp" line="+32"/>
+        <source>Specify the addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Staking Address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>S&amp;pending Address:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -803,6 +847,19 @@
     </message>
 </context>
 <context>
+    <name>IntroPage</name>
+    <message>
+        <location filename="../coldstakingwizard.cpp" line="-27"/>
+        <source>Introduction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>This wizard will help you generating a cold staking&lt;br&gt;address where you can safely store coins while&lt;br&gt;staking them.&lt;br&gt;Two addresses will be required:&lt;br&gt; - an spending address: authorised to spend the coins&lt;br&gt;      sent to the cold staking address&lt;br&gt; - an staking address: authorised to stake the coins&lt;br&gt;      sent to the cold staking address&lt;br&gt;As a result a new address will be given.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>NavCoinGUI</name>
     <message>
         <location filename="../navcoingui.cpp" line="+436"/>
@@ -810,12 +867,12 @@
         <translation>Sign &amp;message...</translation>
     </message>
     <message>
-        <location line="+603"/>
+        <location line="+582"/>
         <source>Synchronizing with network...</source>
         <translation>Synchronizing with network...</translation>
     </message>
     <message>
-        <location line="-693"/>
+        <location line="-691"/>
         <source>&amp;Overview</source>
         <translation>&amp;Overview</translation>
     </message>
@@ -825,33 +882,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1432"/>
-        <source>Staking</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Staking has been enabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Staking has been disabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+157"/>
+        <location line="+103"/>
+        <location line="+1487"/>
         <source>Staking is turned off.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1469"/>
-        <location line="+472"/>
+        <location line="-1479"/>
+        <location line="+470"/>
         <source>Repair wallet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-471"/>
+        <location line="-469"/>
         <source>Wallet has been repaired.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -992,7 +1035,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+195"/>
+        <location line="+202"/>
         <source>Client restart required to repair the wallet.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1074,7 +1117,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1451"/>
+        <location line="-1461"/>
         <source>Send coins to a NavCoin address</source>
         <translation>Send coins to a NavCoin address</translation>
     </message>
@@ -1104,12 +1147,12 @@
         <translation>&amp;Verify message...</translation>
     </message>
     <message>
-        <location line="+767"/>
+        <location line="+746"/>
         <source>NavCoin</source>
         <translation>NavCoin</translation>
     </message>
     <message>
-        <location line="-1039"/>
+        <location line="-1028"/>
         <source>Wallet</source>
         <translation>Wallet</translation>
     </message>
@@ -1231,7 +1274,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="+498"/>
+        <location line="+528"/>
         <source>%n active connection(s) to NavCoin network</source>
         <translation>
             <numerusform>%n active connection to NavCoin network</numerusform>
@@ -1373,12 +1416,12 @@
         <translation>Up to date</translation>
     </message>
     <message>
-        <location line="-615"/>
+        <location line="-597"/>
         <source>Show the %1 help message to get a list with possible NavCoin command-line options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+332"/>
+        <location line="+314"/>
         <source>%1 client</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1840,28 +1883,29 @@
         <location line="+126"/>
         <location line="+60"/>
         <location line="+60"/>
-        <location line="+81"/>
+        <location line="+21"/>
+        <location line="+433"/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-102"/>
+        <location line="-475"/>
         <source>Immature</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+141"/>
         <source>Total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="-39"/>
         <source>labelTotal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+60"/>
-        <location line="+56"/>
+        <location line="-21"/>
+        <location line="+116"/>
         <source>Staking</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1898,17 +1942,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-84"/>
-        <source>1Y</source>
+        <location line="+18"/>
+        <source>Cold Staking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+62"/>
-        <source>ALL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+180"/>
+        <location line="+170"/>
         <source>Transactions</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1928,7 +1967,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1000"/>
+        <location line="-906"/>
         <source>Available:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2834,7 +2873,7 @@
     <name>SendCoinsDialog</name>
     <message>
         <location filename="../forms/sendcoinsdialog.ui" line="+14"/>
-        <location filename="../sendcoinsdialog.cpp" line="+743"/>
+        <location filename="../sendcoinsdialog.cpp" line="+762"/>
         <source>Send Coins</source>
         <translation>Send Coins</translation>
     </message>
@@ -2947,7 +2986,7 @@
     </message>
     <message>
         <location line="+12"/>
-        <location filename="../sendcoinsdialog.cpp" line="-492"/>
+        <location filename="../sendcoinsdialog.cpp" line="-510"/>
         <source>Private payment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2997,7 +3036,7 @@
         <translation>S&amp;end</translation>
     </message>
     <message>
-        <location filename="../sendcoinsdialog.cpp" line="-186"/>
+        <location filename="../sendcoinsdialog.cpp" line="-187"/>
         <source>Copy quantity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3037,7 +3076,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+181"/>
+        <location line="+182"/>
         <source>NAVTech server returned a different number of addresses.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3073,6 +3112,11 @@
     </message>
     <message>
         <location line="+73"/>
+        <source>This transaction will spend coins stored in a cold staking address.&lt;br&gt;You did not set any cold staking address as custom change destination, so those coins won&apos;t be locked anymore by the cold staking smart contract.&lt;br&gt;&lt;br&gt;Do you still want to send this transaction?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
         <source>Are you sure you want to send?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3115,12 +3159,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-110"/>
+        <location line="+112"/>
         <source>Confirm send coins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+219"/>
+        <location line="+221"/>
         <source>The recipient address is not valid. Please recheck.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3183,7 +3228,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+23"/>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4137,7 +4182,7 @@
 <context>
     <name>WalletFrame</name>
     <message>
-        <location filename="../walletframe.cpp" line="+52"/>
+        <location filename="../walletframe.cpp" line="+45"/>
         <source>No wallet has been loaded.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4145,7 +4190,7 @@
 <context>
     <name>WalletModel</name>
     <message>
-        <location filename="../walletmodel.cpp" line="+330"/>
+        <location filename="../walletmodel.cpp" line="+341"/>
         <source>Send Coins</source>
         <translation type="unfinished">Send Coins</translation>
     </message>
@@ -4261,12 +4306,12 @@
         <translation type="unfinished">Form</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+47"/>
         <source>Use the following address to receive NavCoins:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+95"/>
+        <location line="+79"/>
         <source>QR Code</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4276,12 +4321,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+51"/>
         <source>Generate a new address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
+        <source>Create a Cold Staking address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-51"/>
         <source>Request payment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4291,7 +4341,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../getaddresstoreceive.cpp" line="+86"/>
+        <location filename="../getaddresstoreceive.cpp" line="+81"/>
+        <source>Action not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>Resulting URI too long, try to reduce the text for label / message.</source>
         <translation type="unfinished"></translation>
     </message>
