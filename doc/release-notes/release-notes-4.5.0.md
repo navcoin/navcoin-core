@@ -22,6 +22,11 @@ Full list of updated RPC commands:
 
 (To be written)
 
+### Manual testing with a maliciously modified wallet client
+
+We also performed a number of tests against the cold staking code using a maliciously modified wallet client in an attempt to exploit potential weakness in the code. None of these attempts managed to find an exploit.  
+Details can be found under [release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md](release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md)
+
 ### Reject this soft fork
 
 To not vote for this soft fork, add the following line to your `navcoin.conf` file:
