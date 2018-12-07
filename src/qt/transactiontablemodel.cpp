@@ -394,7 +394,7 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     case TransactionRecord::Generated:
         return tr(wtx->status.status == TransactionStatus::Orphan || !(wtx->status.depth > 0) ? "Orphan" : "Generated");
     default:
-        return QString();
+        return QString("Other");
     }
 }
 
