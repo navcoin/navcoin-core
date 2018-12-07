@@ -203,7 +203,6 @@ public:
         strDZeel = "";
         hash = uint256();
         blockhash = uint256();
-        blockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
     }

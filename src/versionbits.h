@@ -39,6 +39,8 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 5 -> SEGWIT
 * Bit 6 -> C FUND
 * Bit 7 -> NTP SYNC
+* Bit 12 -> CFUND ACCUMULATION
+* Bit 13 -> COLD STAKING
 * Bit 8 -> CFUND ACCUMULATION
 * Bit 13 -> COLD STAKING
 * Bit 14 -> C FUND ACCUMULATION SPREAD
@@ -49,7 +51,8 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nCFundVersionMask = 0x00000040;
 static const int32_t nNSyncVersionMask = 0x00000080;
-static const int32_t nCFundAccVersionMask = 0x00000100;
+static const int32_t nCFundAccVersionMask = 0x00001000;
+static const int32_t nColdStakingVersionMask = 0x00002000;
 static const int32_t nCFundAccSpreadVersionMask = 0x00004000;
 static const int32_t nCFundAmountV2Mask = 0x00010000;
 static const int32_t nStaticRewardVersionMask = 0x00008000;

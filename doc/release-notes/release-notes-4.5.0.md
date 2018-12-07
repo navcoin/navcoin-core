@@ -1,5 +1,40 @@
 # NavCoin v4.5.0 Release Notes
 
+## Cold staking softfork
+
+<[Pull Request 249](https://github.com/NAVCoin/navcoin-core/pull/249)>
+<[Commit ?](https://github.com/NAVCoin/navcoin-core/commit/ ? )>
+
+This softfork will implement the [NPIP_0002](https://github.com/NAVCoin/npips/blob/master/npip-0002.mediawiki) which will allow for the creation of "cold staking" addresses.
+
+[short explanation of cold staking]
+
+- Adds cold staking softfork
+- Adds version bit 3
+- Adds new gui wizard for the creation of cold staking addresses
+- Adds new rpc command `getcoldstakingaddress`
+- Updates several rpc commands to provide results relating to cold staking.
+- Adds new RPC tests to test cold staking address creation and use
+- Added a 'Cold Staking' balance display to the wallet GUI
+- Restarted test net??
+  
+Full list of updated RPC commands:
+
+(To be written)
+
+### Manual testing with a maliciously modified wallet client
+
+We also performed a number of tests against the cold staking code using a maliciously modified wallet client in an attempt to exploit potential weakness in the code. None of these attempts managed to find an exploit.  
+Details can be found under [release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md](release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md)
+
+### Reject this soft fork
+
+To not vote for this soft fork, add the following line to your `navcoin.conf` file:
+`rejectversionbit=3`
+
+You can also pass this as a launch argument:  
+`./navcoin-qt -rejectversionbit=3`
+
 ## Static rewards softfork
 
 <[Pull Request 328](https://github.com/NAVCoin/navcoin-core/pull/328)>
@@ -10,6 +45,8 @@ This softfork will change the NavCoin Staking block reward to a fixed amount of 
 - Adds static rewards softfork
 - Adds version bit 15
 - Adds RPC tests for Static Rewards
+
+### Reject this soft fork
 
 To not vote for this soft fork, add the following line to your `navcoin.conf` file:
 `rejectversionbit=15`
@@ -35,7 +72,7 @@ You can also pass this as a launch argument:
 <[Pull Request 335](https://github.com/NAVCoin/navcoin-core/pull/335)>
 <[Commit 210a22d](https://github.com/NAVCoin/navcoin-core/commit/210a22daaffbd36d90a5ee0121c0c4ce3de0ed75)>
 
-The wallet will now only accept a minumum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
+The wallet will now only accept a maximum number of block headers from a single peer before banning them for misbehaving. This is an anti-spam measure and is customizable via the config file or via launch arguments.
 
 The new launch arguments are:  
 
