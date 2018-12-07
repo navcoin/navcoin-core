@@ -37,6 +37,8 @@ A part of the Cold Staking PR above, this adds two things:
 
 - A GUI interface that can be used to vote for community fund proposals and payment requests
 - A new notification that will appear when a new community fund proposal or payment request is found on the blockchain
+- Also added a new warning to the wallet screen to inform users when their wallet is syncing that their balance may not be displaying accurately
+- The wallet GUI now checks if the wallet is staking more often (is this correct?)
 
 ## Static rewards softfork
 
