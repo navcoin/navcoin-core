@@ -162,7 +162,7 @@ testScripts = [
     'coldstaking_staking.py',
     'coldstaking_spending.py',
     'staticr-staking-amount.py',
-
+    'sending-from-coldstaking.py'
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
