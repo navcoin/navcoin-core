@@ -103,7 +103,7 @@ The new launch arguments are:
 
 ### Other modifications in the NavCoin client
 
-- Updated link to bootstrap file in wallet gui. <[Pull Request 338](https://github.com/NAVCoin/navcoin-core/pull/338)> .
+- Updated link to bootstrap file in wallet gui. <[Pull Request 338](https://github.com/NAVCoin/navcoin-core/pull/338)> <[Commit 8aa7cdd](https://github.com/NAVCoin/navcoin-core/commit/8aa7cddc74acac9d1e8e5f7eb50627ec064896fe)>.
 - Community Fund RPC Tests clean up. <[Pull Request 318](https://github.com/NAVCoin/navcoin-core/pull/318)> <[Commit 7730c7b](https://github.com/NAVCoin/navcoin-core/commit/7730c7bc84256ddb995408c1bc775015f0219d2d)>.
 - Fixed changelog link to NPIP. <[Pull Request 317](https://github.com/NAVCoin/navcoin-core/pull/317)> <[Commit f0ea24c](https://github.com/NAVCoin/navcoin-core/commit/f0ea24c2228107f765735ec2136f9f20e6eda456)>.
 - Updated link to NavCoin github repo. <[Pull Request 314](https://github.com/NAVCoin/navcoin-core/pull/314)> <[Commit dcdece2](https://github.com/NAVCoin/navcoin-core/commit/dcdece2be47b4ab55b6231024aef2bc20e7d3b0c)>
