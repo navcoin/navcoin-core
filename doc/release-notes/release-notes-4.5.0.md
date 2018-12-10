@@ -19,7 +19,7 @@ The wallet will vote this Protocol Upgrade with `YES` by default.
 
 ### Manual testing with a modified wallet client
 
-We also performed a number of tests against the cold staking code using amodified wallet client in an attempt to exploit potential weakness in the code. None of these attempts managed to find an exploit.  
+We also performed a number of tests against the cold staking code using a modified wallet client in an attempt to exploit potential weakness in the code. None of these attempts managed to find an exploit.
 Details can be found under [release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md](release-notes-4.5.0-additional-testing-notes/modified-coldstaking-client-notes-4.5.0.md).
 
 ### Reject this Protocol Upgrade
@@ -71,7 +71,7 @@ To accept this Protocol Upgrade, add the following line to your `navcoin.conf` f
 <[Pull Request 336](https://github.com/NAVCoin/navcoin-core/pull/336)>
 <[Commit eb6a1a2](https://github.com/NAVCoin/navcoin-core/commit/eb6a1a27903a477306a7ef73d3d85bd52ff1f3c4)>
 
-By default the wallet votes yes for the Protocol Upgrades included in the wallet. This changes adds a list of version bits which will be voted no by default, while also adding an option to manually vote yes for those bits.
+By default the wallet votes yes for the Protocol Upgrades included in the wallet. This change adds a list of version bits which will be voted no by default, while also adding an option to manually vote yes for those bits.
 
 To manually vote yes for a version bit add the following to your `navcoin.conf` file:
 `acceptversionbit=17`
@@ -101,8 +101,9 @@ The new launch arguments are:
 - Categorises cfund rpc commands under own category.
 - Updates RPC tests for these commands.
 
-### Other modifications in the NavCoin client
+### Other modifications in the NavCoin client, docs and codebase
 
+- Added github issue and pull request templates. <[Pull Request 347](https://github.com/NAVCoin/navcoin-core/pull/347)> <[Commit ce2e282](https://github.com/NAVCoin/navcoin-core/commit/ce2e28295e97398d538f23d795cf20b0544973b2)>.
 - Updated link to bootstrap file in wallet gui. <[Pull Request 338](https://github.com/NAVCoin/navcoin-core/pull/338)> <[Commit 8aa7cdd](https://github.com/NAVCoin/navcoin-core/commit/8aa7cddc74acac9d1e8e5f7eb50627ec064896fe)>.
 - Community Fund RPC Tests clean up. <[Pull Request 318](https://github.com/NAVCoin/navcoin-core/pull/318)> <[Commit 7730c7b](https://github.com/NAVCoin/navcoin-core/commit/7730c7bc84256ddb995408c1bc775015f0219d2d)>.
 - Fixed changelog link to NPIP. <[Pull Request 317](https://github.com/NAVCoin/navcoin-core/pull/317)> <[Commit f0ea24c](https://github.com/NAVCoin/navcoin-core/commit/f0ea24c2228107f765735ec2136f9f20e6eda456)>.
