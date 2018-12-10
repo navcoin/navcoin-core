@@ -90,7 +90,6 @@ class ColdStakingSpending(NavCoinTestFramework):
         # sent ~all funds to coldstaking address where we do not own the staking key hence our 
         # staking weight will be 0 as our recieved BLOCK_REWARD navcoin isn't mature enough to count towards
         # our staking weight
-        print("staking weight is {}".format(staking_weight_post_send / 100000000.0- BLOCK_REWARD))
         assert((staking_weight_post_send / 100000000.0) - BLOCK_REWARD <= 1)
 
         """test spending from a cold staking address with the spending key"""
@@ -166,9 +165,6 @@ class ColdStakingSpending(NavCoinTestFramework):
             print(e)
             
         assert(send_worked == True)
-
-        """print block count"""
-        print("BLOCK COUNT: {}".format(self.nodes[0].getblockcount()))        
 
     def send_raw_transaction(self, decoded_raw_transaction, to_address, change_address, amount):
         # create a raw tx
