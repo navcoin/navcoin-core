@@ -5,10 +5,9 @@
 import decimal
 from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
-#/TODO leave comments for how much is sent in each func call
 class ColdStakingSpending(NavCoinTestFramework):
     """Tests spending and staking to/from a spending wallet."""
-
+    
     # set up num of nodes
     def __init__(self):
         super().__init__()
@@ -148,8 +147,6 @@ class ColdStakingSpending(NavCoinTestFramework):
         assert(send_worked == True)
         
         slow_gen(self.nodes[0], 1)
-        # self.sync_all()
-
 
         # send to our staking address
         send_worked = False
