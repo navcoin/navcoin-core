@@ -543,7 +543,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 4)
         throw runtime_error(
-            "createproposal \"address\" \"amount\" deadline \"desc\"\n"
+            "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee )\n"
             "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -557,6 +557,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
             + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 1000 86400 \"Development\"")
+            + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 12000 3600 \"Promotional stickers for everyone\" 100")
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
