@@ -7,7 +7,6 @@ from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
 class ColdStakingSpending(NavCoinTestFramework):
     """Tests spending and staking to/from a spending wallet."""
-    
     # set up num of nodes
     def __init__(self):
         super().__init__()
