@@ -2006,6 +2006,17 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
             debit += nDebitCached;
         }
     }
+    else if (filter & ISMINE_STAKABLE)
+    {
+        if (fColdStakingDebitCached)
+            debit += nColdStakingDebitCached;
+        else
+        {
+            nColdStakingDebitCached = pwallet->GetDebit(*this, ISMINE_STAKABLE);
+            fColdStakingDebitCached = true;
+            debit += nColdStakingDebitCached;
+        }
+    }
     if(filter & ISMINE_WATCH_ONLY)
     {
         if(fWatchDebitCached)
@@ -2015,17 +2026,6 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
             nWatchDebitCached = pwallet->GetDebit(*this, ISMINE_WATCH_ONLY);
             fWatchDebitCached = true;
             debit += nWatchDebitCached;
-        }
-    }
-    if (filter & ISMINE_STAKABLE)
-    {
-        if (fColdStakingDebitCached)
-            debit += nColdStakingDebitCached;
-        else
-        {
-            nColdStakingDebitCached = pwallet->GetDebit(*this, ISMINE_STAKABLE);
-            fColdStakingDebitCached = true;
-            debit += nColdStakingDebitCached;
         }
     }
     return debit;
@@ -2050,6 +2050,17 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
             credit += nCreditCached;
         }
     }
+    else if (filter & ISMINE_STAKABLE)
+    {
+        if (fColdStakingCreditCached)
+            credit += nColdStakingCreditCached;
+        else
+        {
+            nColdStakingCreditCached = pwallet->GetCredit(*this, ISMINE_STAKABLE);
+            fColdStakingCreditCached = true;
+            credit += nColdStakingCreditCached;
+        }
+    }
     if (filter & ISMINE_WATCH_ONLY)
     {
         if (fWatchCreditCached)
@@ -2061,17 +2072,7 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
             credit += nWatchCreditCached;
         }
     }
-    if (filter & ISMINE_STAKABLE)
-    {
-        if (fColdStakingCreditCached)
-            credit += nColdStakingCreditCached;
-        else
-        {
-            nColdStakingCreditCached = pwallet->GetCredit(*this, ISMINE_STAKABLE);
-            fColdStakingCreditCached = true;
-            credit += nColdStakingCreditCached;
-        }
-    }
+
     return credit;
 }
 
