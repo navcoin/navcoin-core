@@ -1833,9 +1833,10 @@ void NavCoinGUI::updateStakingStatus()
                 msgbox.setText(tr("There are new proposals or payment requests in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the voting dialog!"));
                 msgbox.setIcon(QMessageBox::Icon::Warning);
                 msgbox.setCheckBox(cb);
-                QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
                 QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
                 QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Voting Window"), QMessageBox::YesRole);
+                QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
+                pButtonClose>setVisible(false);
                 this->lastDialogShown = GetTimeNow();
 
                 msgbox.exec();
