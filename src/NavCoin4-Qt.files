@@ -91,6 +91,9 @@ protocol.cpp
 protocol.h
 pubkey.cpp
 pubkey.h
+qt/forms/cfund_voting.cpp
+qt/forms/cfund_voting.h
+qt/forms/cfund_voting.ui
 random.cpp
 random.h
 rest.cpp
