@@ -1836,7 +1836,7 @@ void NavCoinGUI::updateStakingStatus()
                 QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
                 QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Voting Window"), QMessageBox::YesRole);
                 QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
-                pButtonClose>setVisible(false);
+                pButtonClose->setVisible(false);
                 this->lastDialogShown = GetTimeNow();
 
                 msgbox.exec();
