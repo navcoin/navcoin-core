@@ -90,6 +90,8 @@ class SegWitTest(NavCoinTestFramework):
         connect_nodes(self.nodes[0], 2)
         self.is_network_split = False
         self.sync_all()
+        self.nodes[0].staking(False)
+        self.nodes[1].staking(False)
 
     def success_mine(self, node, txid, sign, redeem_script=""):
         send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal("49.998"), sign, redeem_script)
@@ -122,10 +124,11 @@ class SegWitTest(NavCoinTestFramework):
         sync_blocks(self.nodes)
 
     def run_test(self):
-        self.nodes[0].generate(161) #block 161
+        slow_gen(self.nodes[0], 161) #block 161
 
         print("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
+        print("self.nodes[0].getblocktemplate({}) | {}".format(str(self.nodes[0].getblocktemplate())))
         tmpl = self.nodes[0].getblocktemplate({})
         assert(tmpl['sigoplimit'] == 20000)
         assert(tmpl['transactions'][0]['hash'] == txid)
@@ -158,7 +161,7 @@ class SegWitTest(NavCoinTestFramework):
                     wit_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], 50), self.pubkey[n], False, Decimal("49.999")))
                     p2sh_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], 50), self.pubkey[n], True, Decimal("49.999")))
 
-        self.nodes[0].generate(1) #block 163
+        slow_gen(self.nodes[0], 1) #block 163
         sync_blocks(self.nodes)
 
         # Make sure all nodes recognize the transactions as theirs
@@ -166,7 +169,7 @@ class SegWitTest(NavCoinTestFramework):
         assert_equal(self.nodes[1].getbalance(), 20*Decimal("49.999"))
         assert_equal(self.nodes[2].getbalance(), 20*Decimal("49.999"))
 
-        self.nodes[0].generate(260) #block 423
+        slow_gen(self.nodes[0], 260) #block 423
         sync_blocks(self.nodes)
 
         print("Verify default node can't accept any witness format txs before fork")
