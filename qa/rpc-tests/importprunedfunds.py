@@ -19,17 +19,18 @@ class ImportPrunedFundsTest(NavCoinTestFramework):
         connect_nodes_bi(self.nodes,0,1)
         self.is_network_split=False
         self.sync_all()
+        self.nodes[0].staking(False)
+        self.nodes[1].staking(False)
 
     def run_test (self):
         import time
         begintime = int(time.time())
 
         print("Mining blocks...")
-        self.nodes[0].generate(101)
+        slow_gen(self.nodes[0], 101)
 
         # sync
         self.sync_all()
-        
         # address
         address1 = self.nodes[0].getnewaddress()
         # pubkey
@@ -63,18 +64,18 @@ class ImportPrunedFundsTest(NavCoinTestFramework):
 
         #Send funds to self
         txnid1 = self.nodes[0].sendtoaddress(address1, 0.1)
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         rawtxn1 = self.nodes[0].gettransaction(txnid1)['hex']
         proof1 = self.nodes[0].gettxoutproof([txnid1])
 
         txnid2 = self.nodes[0].sendtoaddress(address2, 0.05)
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         rawtxn2 = self.nodes[0].gettransaction(txnid2)['hex']
         proof2 = self.nodes[0].gettxoutproof([txnid2])
 
 
         txnid3 = self.nodes[0].sendtoaddress(address3, 0.025)
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         rawtxn3 = self.nodes[0].gettransaction(txnid3)['hex']
         proof3 = self.nodes[0].gettxoutproof([txnid3])
 
