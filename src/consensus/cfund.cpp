@@ -386,8 +386,8 @@ bool CFund::CProposal::IsRejected() const {
 
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
     if(nVersion >= 2) {
-        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+        if (fState == ACCEPTED && mapBlockIndex.count(txblockhash) > 0) {
+            CBlockIndex* pblockindex = mapBlockIndex[txblockhash];
             return (pblockindex->GetBlockTime() + nDeadline < currentTime);
         }
         return (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (CanVote() || fState == EXPIRED));
@@ -407,8 +407,8 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("paymentAddress", Address));
     if(nVersion >= 2) {
         ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
-        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+        if (fState == ACCEPTED && mapBlockIndex.count(txblockhash) > 0) {
+            CBlockIndex* pblockindex = mapBlockIndex[txblockhash];
             ret.push_back(Pair("expiresOn", pblockindex->GetBlockTime() + (uint64_t)nDeadline));
         }
     } else {
