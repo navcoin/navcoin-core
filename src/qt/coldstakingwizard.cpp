@@ -32,7 +32,7 @@ IntroPage::IntroPage(QWidget *parent)
                           "You will need to provide two addresses from different wallets:<br>"
                           " - a staking address: this address will be authorised to stake the<br>"
                           "      coins sent to the cold staking address.<br>"
-                          " - a spending address: this address will authorised to spend the<br>"
+                          " - a spending address: this address will be authorised to spend the<br>"
                           "      coins sent to the cold staking address.<br>"
                           "These addresses will be used to generate a cold staking address."));
     label->setWordWrap(true);
