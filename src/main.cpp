@@ -4066,7 +4066,6 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                         pindexNew->nCFLocked -= proposal.GetAvailable();
                     }
                     proposal.fState = CFund::EXPIRED;
-                    proposal.blockhash = pindexNew->GetBlockHash();
                     fUpdate = true;
                 } else if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
                     proposal.fState = CFund::REJECTED;
