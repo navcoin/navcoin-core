@@ -126,7 +126,7 @@ testScripts = [
 #    'fundrawtransaction.py',
 #    'signrawtransactions.py',
 #    'nodehandling.py',
-#    'reindex.py',
+     'reindex.py',
 #    'addressindex.py',
 #    'timestampindex.py',
 #    'spentindex.py',
