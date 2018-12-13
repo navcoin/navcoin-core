@@ -452,7 +452,7 @@ SIGPATH=/some/root/path/navcoin-detached-sigs
 Building with Debian 9.5.0
 -------------------
 
-Following the instructions on Debian 9.5.0 will require several modified steps:
+Building with Debian 9.5.0 using the above instructions will require several modified steps:
 - [Enabling SSH login for root users](gitian-building.md#after-installation) will not work with `sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config`.
 You can manually modify `/etc/ssh/sshd_config` by adding `PermitRootLogin yes`.
 - [The rc.local script to set up a bridge between guest and host](gitian-building.md#setting-up-debian-for-gitian-building) will not work. Instead, use:
