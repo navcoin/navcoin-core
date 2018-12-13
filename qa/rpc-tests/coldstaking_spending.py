@@ -118,8 +118,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         self.send_raw_transaction(decoded_raw_transaction = listunspent_txs[0], \
         to_address = address_Y_public_key, \
         change_address = coldstaking_address_spending, \
-        amount = float(str(float(listunspent_txs[0]["amount"]) - MIN_COLDSTAKING_SENDING_FEE) + "00")\
-        )
+        amount = satoshi_round(float(listunspent_txs[0]["amount"]) - MIN_COLDSTAKING_SENDING_FEE))
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
         # get new balance  
