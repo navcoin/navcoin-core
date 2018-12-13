@@ -128,7 +128,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 2)
         # send our entire wallet balance - minimum fee required to coldstaking address
-        self.nodes[0].sendtoaddress(coldstaking_address_spending, float(str(float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
+        self.nodes[0].sendtoaddress(coldstaking_address_spending, satoshi_round(float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE))
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
         # send to our spending address (should work)
