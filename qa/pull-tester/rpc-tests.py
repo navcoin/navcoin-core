@@ -136,7 +136,7 @@ testScripts = [
 #    'disablewallet.py',
 #    'sendheaders.py',
 #    'keypool.py',
-#    'prioritise_transaction.py',
+    'prioritise_transaction.py',
 #    'invalidblockrequest.py',
 #    'invalidtxrequest.py',
 #    'abandonconflict.py',

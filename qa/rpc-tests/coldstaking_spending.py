@@ -81,7 +81,9 @@ class ColdStakingSpending(NavCoinTestFramework):
         # difference between balance after sending and previous balance is the same when block reward is removed
         # values are converted to string and "00" is added to right of == operand because values must have equal num of 
         # decimals
-        assert(str(balance_post_send_one - BLOCK_REWARD) <= (str(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
+        print("str(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE)" + \
+        "|  {}".format(satoshi_round(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE)))
+        assert((balance_post_send_one - BLOCK_REWARD) <= (satoshi_round(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE)))
         
         """check staking weight now == 0 (we don't hold the staking key)"""
         
