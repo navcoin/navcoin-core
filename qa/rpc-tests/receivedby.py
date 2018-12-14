@@ -34,13 +34,22 @@ class ReceivedByTest(NavCoinTestFramework):
 
     def setup_nodes(self):
         #This test requires mocktime
-        enable_mocktime()
+        #enable_mocktime()
         return start_nodes(self.num_nodes, self.options.tmpdir)
+        self.nodes[0].staking(False)
+        self.nodes[1].staking(False)
+        self.nodes[2].staking(False)
+        self.nodes[3].staking(False)
+        self.is_network_split=False
+        self.sync_all()
 
     def run_test(self):
         '''
         listreceivedbyaddress Test
         '''
+        # Generate for genesis block reward
+        slow_gen(self.nodes[0], 51)
+        self.sync_all()
         # Send from node 0 to 1
         addr = self.nodes[1].getnewaddress()
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
@@ -52,7 +61,8 @@ class ReceivedByTest(NavCoinTestFramework):
                            { },
                            True)
         #Bury Tx under 10 block so it will be returned by listreceivedbyaddress
-        self.nodes[1].generate(10)
+        #self.nodes[1].generate(10)
+        slow_gen(self.nodes[1], 10)
         self.sync_all()
         assert_array_result(self.nodes[1].listreceivedbyaddress(),
                            {"address":addr},
@@ -74,9 +84,13 @@ class ReceivedByTest(NavCoinTestFramework):
             getreceivedbyaddress Test
         '''
         # Send from node 0 to 1
+        self.sync_all()
+        block_before = self.nodes[0].getblockcount()
         addr = self.nodes[1].getnewaddress()
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
         self.sync_all()
+        block_after = self.nodes[0].getblockcount()
+        print("Line 89 Block heights: " + str(block_before) + ", " + str(block_after))
 
         #Check balance is 0 because of 0 confirmations
         balance = self.nodes[1].getreceivedbyaddress(addr)
@@ -84,12 +98,14 @@ class ReceivedByTest(NavCoinTestFramework):
             raise AssertionError("Wrong balance returned by getreceivedbyaddress, %0.2f"%(balance))
 
         #Check balance is 0.1
-        balance = self.nodes[1].getreceivedbyaddress(addr,0)
+        balance = satoshi_round(self.nodes[1].getreceivedbyaddress(addr,0))
+        #print(balance)
         if balance != Decimal("0.1"):
             raise AssertionError("Wrong balance returned by getreceivedbyaddress, %0.2f"%(balance))
 
         #Bury Tx under 10 block so it will be returned by the default getreceivedbyaddress
-        self.nodes[1].generate(10)
+        #self.nodes[1].generate(10)
+        slow_gen(self.nodes[1], 10)
         self.sync_all()
         balance = self.nodes[1].getreceivedbyaddress(addr)
         if balance != Decimal("0.1"):
@@ -106,8 +122,13 @@ class ReceivedByTest(NavCoinTestFramework):
             raise AssertionError("No accounts found in node")
         balance_by_account = rec_by_accountArr = self.nodes[1].getreceivedbyaccount(account)
 
+        self.sync_all()
+        block_before1 = self.nodes[0].getblockcount()
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
         self.sync_all()
+        block_after1 = self.nodes[0].getblockcount()
+        print("Line 127 Block heights: " + str(block_before1) + ", " + str(block_after1))
+
 
         # listreceivedbyaccount should return received_by_account_json because of 0 confirmations
         assert_array_result(self.nodes[1].listreceivedbyaccount(),
@@ -119,7 +140,8 @@ class ReceivedByTest(NavCoinTestFramework):
         if balance != balance_by_account:
             raise AssertionError("Wrong balance returned by getreceivedbyaccount, %0.2f"%(balance))
 
-        self.nodes[1].generate(10)
+        #self.nodes[1].generate(10)
+        slow_gen(self.nodes[1], 10)
         self.sync_all()
         # listreceivedbyaccount should return updated account balance
         assert_array_result(self.nodes[1].listreceivedbyaccount(),
