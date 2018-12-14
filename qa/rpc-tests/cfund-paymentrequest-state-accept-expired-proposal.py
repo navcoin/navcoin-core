@@ -23,6 +23,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
     def run_test(self):
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100)
+        self.nodes[0].staking(False)
 
         proposal_duration = 3
         proposal_amount = 10
