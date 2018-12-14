@@ -295,8 +295,11 @@ class RESTTest (NavCoinTestFramework):
         # let's make 3 tx and mine them on node 1
         txs = []
         txs.append(self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11))
+        time.sleep(2)
         txs.append(self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11))
+        time.sleep(2)
         txs.append(self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11))
+        time.sleep(2)
         self.sync_all()
 
         # check that there are exactly 3 transactions in the TX memory pool before generating the block
