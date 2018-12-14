@@ -3983,14 +3983,18 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     fUpdate = true;
                 }
 
-                if(prequest.IsExpired() && prequest.fState != CFund::EXPIRED) {
-                    prequest.fState = CFund::EXPIRED;
-                    prequest.blockhash = pindexNew->GetBlockHash();
-                    fUpdate = true;
-                } else if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
-                    prequest.fState = CFund::REJECTED;
-                    prequest.blockhash = pindexNew->GetBlockHash();
-                    fUpdate = true;
+                if(prequest.IsExpired()) {
+                    if (prequest.fState != CFund::EXPIRED) {
+                        prequest.fState = CFund::EXPIRED;
+                        prequest.blockhash = pindexNew->GetBlockHash();
+                        fUpdate = true;
+                    }
+                } else if(prequest.IsRejected()) {
+                    if (prequest.fState != CFund::REJECTED) {
+                        prequest.fState = CFund::REJECTED;
+                        prequest.blockhash = pindexNew->GetBlockHash();
+                        fUpdate = true;
+                    }
                 } else if(prequest.fState == CFund::NIL){
                     if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()) {
                         if(prequest.nAmount <= pindexNew->nCFLocked && prequest.nAmount <= proposal.GetAvailable()) {
