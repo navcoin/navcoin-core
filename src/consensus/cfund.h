@@ -31,6 +31,7 @@ static const flags ACCEPTED = 0x1;
 static const flags REJECTED = 0x2;
 static const flags EXPIRED = 0x3;
 static const flags PENDING_FUNDS = 0x4;
+static const flags PENDING_VOTING_PREQ = 0x5;
 
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
@@ -262,6 +263,17 @@ public:
 
     bool CanRequestPayments() const {
         return fState == ACCEPTED;
+    }
+
+    bool HasPendingPaymentRequests() const {
+        for (unsigned int i = 0; i < vPayments.size(); i++)
+        {
+            CFund::CPaymentRequest prequest;
+            if(FindPaymentRequest(vPayments[i], prequest))
+                if(prequest.CanVote())
+                    return true;
+        }
+        return false;
     }
 
     CAmount GetAvailable(bool fIncludeRequests = false) const
