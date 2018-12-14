@@ -891,6 +891,15 @@ void NavCoinGUI::cfundProposalsClicked()
     dlg.exec();
 }
 
+void NavCoinGUI::cfundProposalsOpen(bool fMode)
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, fMode);
+    dlg.exec();
+}
+
 void NavCoinGUI::cfundPaymentRequestsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
@@ -1798,6 +1807,7 @@ void NavCoinGUI::updateStakingStatus()
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
             bool fFound = false;
+            bool fFoundPaymentRequest = false;
             std::vector<CFund::CProposal> vec;
             if(pblocktree->GetProposalIndex(vec))
             {
@@ -1823,6 +1833,7 @@ void NavCoinGUI::updateStakingStatus()
                         [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
                     if (it == vAddedPaymentRequestVotes.end()) {
                         fFound = true;
+                        fFoundPaymentRequest = true;
                         break;
                     }
                 }
@@ -1848,7 +1859,7 @@ void NavCoinGUI::updateStakingStatus()
                 }
 
                 if (msgbox.clickedButton()==pButtonOpen) {
-                    cfundProposalsClicked();
+                    cfundProposalsOpen(fFoundPaymentRequest);
                 }
                 if (msgbox.clickedButton()==pButtonInfo) {
                     QString link = QString("https://navcoin.org/en/community-fund/");
