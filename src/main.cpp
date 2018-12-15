@@ -3054,11 +3054,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
               }
 
-              if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
-                return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
-                nStakeReward, Params().GetConsensus().nStaticReward),
-                REJECT_INVALID, "bad-static-stake-amount");
-
             }
 
             std::vector<CScriptCheck> vChecks;
