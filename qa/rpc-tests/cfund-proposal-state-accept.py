@@ -226,8 +226,6 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert_equal(self.nodes[1].getblockcount(), blockcount)
 
         # Both should still be expired
-        print(self.nodes[1].getproposal(proposalid0)["status"])
-
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
         assert(self.nodes[1].getproposal(proposalid0)["status"] == "expired")
 
