@@ -35,7 +35,7 @@ class StaticRTxSend(NavCoinTestFramework):
             print("waiting for a new block...")
             time.sleep(5)
 
-        transaction = self.gettransaction(txid)
+        transaction = self.nodes[0].gettransaction(txid)
 
         print(transaction)
 
