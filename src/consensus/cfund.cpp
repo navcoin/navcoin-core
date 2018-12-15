@@ -390,7 +390,7 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
             CBlockIndex* pblockindex = mapBlockIndex[blockhash];
             return (pblockindex->GetBlockTime() + nDeadline < currentTime);
         }
-        return (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (CanVote() || fState == EXPIRED));
+        return (fState == EXPIRED) || (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (CanVote() || fState == EXPIRED));
     } else {
         return (nDeadline < currentTime);
     }
