@@ -37,8 +37,6 @@ class StaticRTxSend(NavCoinTestFramework):
 
         transaction = self.nodes[0].gettransaction(txid)
 
-        print(transaction)
-
         # check the transaction confirmed
         assert(transaction["confirmations"] > 0)
 
