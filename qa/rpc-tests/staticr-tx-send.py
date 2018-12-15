@@ -26,6 +26,7 @@ class StaticRTxSend(NavCoinTestFramework):
 
         activate_staticr(self.nodes[0])
 
+        blockcount = self.nodes[0].getblockcount()
         address = self.nodes[0].getnewaddress()
         txid = self.nodes[0].sendtoaddress(address, 100)
 
