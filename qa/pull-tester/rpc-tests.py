@@ -160,6 +160,7 @@ testScripts = [
     'cfund-vote.py',
     'cfund-proposalvotelist.py',
     'cfund-paymentrequestvotelist.py',
+    'cfund-payment-request-expiry.py',
     'reject-version-bit.py',
     'getcoldstakingaddress.py',
     'coldstaking_staking.py',
