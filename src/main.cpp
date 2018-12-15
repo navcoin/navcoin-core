@@ -4064,7 +4064,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     if (proposal.HasPendingPaymentRequests()) {
                         proposal.fState = CFund::PENDING_VOTING_PREQ;
                     } else {
-                        if(proposal.fState == CFund::ACCEPTED) {
+                        if(proposal.fState == CFund::ACCEPTED || proposal.fState == CFund::PENDING_VOTING_PREQ) {
                             pindexNew->nCFSupply += proposal.GetAvailable();
                             pindexNew->nCFLocked -= proposal.GetAvailable();
                         }
