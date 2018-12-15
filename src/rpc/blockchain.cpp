@@ -937,11 +937,8 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     if(pblocktree->GetProposalIndex(vec))
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-            if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
-                            || proposal.fState == CFund::PENDING_VOTING_PREQ
-                            || proposal.fState == CFund::PENDING_FUNDS))
-               || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
-                                    || proposal.fState == CFund::PENDING_FUNDS))
+            if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
+               || (showPending  &&  proposal.fState == CFund::NIL)
                || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
                || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
                || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
