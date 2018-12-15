@@ -59,6 +59,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
           time.sleep(1)
 
         slow_gen(self.nodes[0], 1)
+        end_cycle(self.nodes[0])
 
         # Check the state of the proposal is expired waiting for payment request (aka pending)
         print("proposal status", self.nodes[0].getproposal(proposal_one_hash)["status"])
