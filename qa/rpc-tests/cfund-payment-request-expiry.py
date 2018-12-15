@@ -8,7 +8,7 @@ from test_framework.cfund_util import *
 
 import time
 
-class CommunityFundExpiredProposalLockedFundsBugTest(NavCoinTestFramework):
+class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
     """Tests the payment request procedures of the Community fund."""
 
     def __init__(self):
@@ -74,4 +74,4 @@ class CommunityFundExpiredProposalLockedFundsBugTest(NavCoinTestFramework):
 
 
 if __name__ == '__main__':
-    CommunityFundExpiredProposalLockedFundsBugTest().main()
+    CommunityFundPaymentRequestsTest().main()
