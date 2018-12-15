@@ -1062,7 +1062,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         op.push_back(Pair("hash", prequest.hash.ToString()));
         op.push_back(Pair("proposalDesc", proposal.strDZeel));
         op.push_back(Pair("desc", prequest.strDZeel));
-        op.push_back(Pair("amount", ValueFromAmount(prequest.nAmount));
+        op.push_back(Pair("amount", ValueFromAmount(prequest.nAmount)));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesPaymentRequests.push_back(op);
