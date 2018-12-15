@@ -25,7 +25,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].donatefund(100)
 
         # Create a proposal and accept it
-        proposal_one_hash = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 3600, "test proposal")["hash"]        
+        proposal_one_hash = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 60, "test proposal")["hash"]        
         locked_before = self.nodes[0].cfundstats()["funds"]["locked"]
         end_cycle(self.nodes[0])
 
@@ -57,9 +57,13 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         # Wait for proposal to expire
         while int(time.time()) <= int(self.nodes[0].getproposal(proposal_one_hash)["expiresOn"]):
           time.sleep(1)
+
         slow_gen(self.nodes[0], 1)
 
         # Check the state of the proposal is expired waiting for payment request (aka pending)
+        print("proposal status", self.nodes[0].getproposal(proposal_one_hash)["status"])
+        print("payment request status", self.nodes[0].getpaymentrequest(payment_request_one_hash)["status"])
+        print("cfund stats", self.nodes[0].cfundstats())
         assert(self.nodes[0].getproposal(proposal_one_hash)["status"] == "pending")
 
 
