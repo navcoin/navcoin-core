@@ -150,9 +150,9 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_after_payment)
 
-        # Check that paymentrequest remains in accepted state after 4 cycles (pending paymentrequests would normally expire after 4 cycles on devnet)
+        # Check that paymentrequest remains in accepted state after the max number of cycles
 
-        cycles_to_expire = 4
+        cycles_to_expire = self.nodes[0].cfundstats()["consensus"]["maxCountVotingCyclePaymentRequests"]
 
         for idx in range(cycles_to_expire):
             end_cycle(self.nodes[0])
