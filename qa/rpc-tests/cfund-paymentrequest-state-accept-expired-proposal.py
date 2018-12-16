@@ -75,6 +75,15 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0], 1)
 
+        # No more payment requests are allowed as the proposal deadline has passed
+        payment_request_not_created = True
+        try:
+            paymentrequestid1 = self.nodes[0].createpaymentrequest(proposalid0, 2, "test1")["hash"]
+            payment_request_not_created = False
+        except JSONRPCException:
+            pass
+        assert(payment_request_not_created)
+
         # Vote enough yes votes, without enough quorum
 
         total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"]
@@ -126,7 +135,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "pending")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired pending voting of payment requests")
 
         # Vote enough quorum and enough positive votes
 
@@ -175,10 +184,13 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
 
         # No more payment requests are allowed as the proposal is expired
+        payment_request_not_created = True
         try:
-            paymentrequestid1 = self.nodes[0].createpaymentrequest(proposalid0, 2, "test3")["hash"]
+            paymentrequestid2 = self.nodes[0].createpaymentrequest(proposalid0, 2, "test2")["hash"]
+            payment_request_not_created = False
         except JSONRPCException:
             pass
+        assert(payment_request_not_created)
 
 if __name__ == '__main__':
     CommunityFundPaymentRequestsTest().main()

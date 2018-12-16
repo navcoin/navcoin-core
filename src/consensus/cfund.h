@@ -246,6 +246,9 @@ public:
             if(fState != EXPIRED)
                 sFlags += " waiting for end of voting period";
         }
+        if(fState == PENDING_VOTING_PREQ) {
+            sFlags = "expired pending voting of payment requests";
+        }
         return sFlags;
     }
 
