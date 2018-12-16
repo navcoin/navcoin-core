@@ -3057,11 +3057,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
               }
 
-              if(IsStaticRewardEnabled(pindex->pprev, Params().GetConsensus()) && nStakeReward != Params().GetConsensus().nStaticReward)
-                return state.DoS(100, error("ConnectBlock(): block has incorrect block reward (actual=%d vs consensus=%d)",
-                nStakeReward, Params().GetConsensus().nStaticReward),
-                REJECT_INVALID, "bad-static-stake-amount");
-
             }
 
             std::vector<CScriptCheck> vChecks;
@@ -3989,14 +3984,18 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     fUpdate = true;
                 }
 
-                if(prequest.IsExpired() && prequest.fState != CFund::EXPIRED) {
-                    prequest.fState = CFund::EXPIRED;
-                    prequest.blockhash = pindexNew->GetBlockHash();
-                    fUpdate = true;
-                } else if(prequest.IsRejected() && prequest.fState != CFund::REJECTED) {
-                    prequest.fState = CFund::REJECTED;
-                    prequest.blockhash = pindexNew->GetBlockHash();
-                    fUpdate = true;
+                if(prequest.IsExpired()) {
+                    if (prequest.fState != CFund::EXPIRED) {
+                        prequest.fState = CFund::EXPIRED;
+                        prequest.blockhash = pindexNew->GetBlockHash();
+                        fUpdate = true;
+                    }
+                } else if(prequest.IsRejected()) {
+                    if (prequest.fState != CFund::REJECTED) {
+                        prequest.fState = CFund::REJECTED;
+                        prequest.blockhash = pindexNew->GetBlockHash();
+                        fUpdate = true;
+                    }
                 } else if(prequest.fState == CFund::NIL){
                     if(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted()) {
                         if(prequest.nAmount <= pindexNew->nCFLocked && prequest.nAmount <= proposal.GetAvailable()) {
@@ -4066,29 +4065,35 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     fUpdate = true;
                 }
 
-                if(proposal.IsExpired(pindexNew->GetBlockTime()) && proposal.fState != CFund::EXPIRED) {
-                    if(proposal.fState == CFund::ACCEPTED) {
-                        pindexNew->nCFSupply += proposal.GetAvailable();
-                        pindexNew->nCFLocked -= proposal.GetAvailable();
-                    }
-                    proposal.fState = CFund::EXPIRED;
-                    proposal.blockhash = pindexNew->GetBlockHash();
-                    fUpdate = true;
-                } else if(proposal.IsRejected() && proposal.fState != CFund::REJECTED) {
-                    proposal.fState = CFund::REJECTED;
-                    proposal.blockhash = pindexNew->GetBlockHash();
-                    fUpdate = true;
-                } else if(proposal.IsAccepted() && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_FUNDS)) {
-                    if(pindexNew->nCFSupply >= proposal.GetAvailable()) {
-                        pindexNew->nCFSupply -= proposal.GetAvailable();
-                        pindexNew->nCFLocked += proposal.GetAvailable();
-                        proposal.fState = CFund::ACCEPTED;
+                if(proposal.IsExpired(pindexNew->GetBlockTime())) {
+                    if (proposal.fState != CFund::EXPIRED) {
+                        if (proposal.fState == CFund::ACCEPTED) {
+                            pindexNew->nCFSupply += proposal.GetAvailable();
+                            pindexNew->nCFLocked -= proposal.GetAvailable();
+                        }
+                        proposal.fState = CFund::EXPIRED;
                         proposal.blockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
-                    } else if(proposal.fState != CFund::PENDING_FUNDS) {
-                        proposal.fState = CFund::PENDING_FUNDS;
-                        proposal.blockhash = uint256();
+                    }
+                } else if(proposal.IsRejected()) {
+                    if (proposal.fState != CFund::REJECTED) {
+                        proposal.fState = CFund::REJECTED;
+                        proposal.blockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
+                    }
+                } else if(proposal.IsAccepted()) {
+                    if((proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_FUNDS)) {
+                        if(pindexNew->nCFSupply >= proposal.GetAvailable()) {
+                            pindexNew->nCFSupply -= proposal.GetAvailable();
+                            pindexNew->nCFLocked += proposal.GetAvailable();
+                            proposal.fState = CFund::ACCEPTED;
+                            proposal.blockhash = pindexNew->GetBlockHash();
+                            fUpdate = true;
+                        } else if(proposal.fState != CFund::PENDING_FUNDS) {
+                            proposal.fState = CFund::PENDING_FUNDS;
+                            proposal.blockhash = uint256();
+                            fUpdate = true;
+                        }
                     }
                 }
             }
