@@ -3966,7 +3966,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             }
 
             if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0) {
-                if((!prequest.IsExpired() && proposal.fState == CFund::EXPIRED) ||
+                if((!prequest.IsExpired() && prequest.fState == CFund::EXPIRED) ||
                         (!prequest.IsRejected() && prequest.fState == CFund::REJECTED)){
                     prequest.fState = CFund::NIL;
                     prequest.blockhash = uint256();
@@ -4004,7 +4004,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
                 if (!vSeen.count(prequest.hash) && prequest.fState == CFund::NIL
-                        && !(proposal.fState == CFund::ACCEPTED && prequest.IsAccepted())){
+                        && !((proposal.fState == CFund::ACCEPTED || proposal.fState == CFund::PENDING_VOTING_PREQ) && prequest.IsAccepted())){
                     prequest.nVotesYes = 0;
                     prequest.nVotesNo = 0;
                     fUpdate = true;
