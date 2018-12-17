@@ -4,7 +4,7 @@ This is the working repository for NAV Coin 4.5.0, our fork of bitcoin-core 0.13
 
 For more information please visit the website:
 
-https://navcoin.org/en/roadmap
+https://navhub.org/roadmap/
 
 [![Build Status](https://travis-ci.org/NAVCoin/navcoin-core.svg?branch=master)](https://travis-ci.org/NAVCoin/navcoin-core)
 
@@ -14,7 +14,7 @@ https://navcoin.org/en/roadmap
 |:-----------|:-----------|
 | Block Spacing | `30 seconds` |
 | Stake Minimum Age | `2 hours` |
-| Stake Reward | `2 NAV per block` |
+| Stake Reward | `4% per annum` |
 | Port | `44440` |
 | RPC Port | `44444` |
 
