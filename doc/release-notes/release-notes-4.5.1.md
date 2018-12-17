@@ -1,6 +1,6 @@
 # NavCoin v4.5.1 Release Notes
 
-4.5.1 contains a hard fork which explicitly rejects blocks from obsolete versions (4.5.0 and below) signalled by version bit 20. Upgrading to 4.5.1 will avoid the potential fork issue and ensure you remain on the same blockchain as the rest of the network.
+4.5.1 contains a hard fork which explicitly rejects blocks from obsolete versions (4.5.0 and below) signalled by version bit 20. Upgrading to 4.5.1 will avoid a potential network fork (as described below) and ensure you remain on the same blockchain as the rest of the network.
 
 ## Community Fund Hotfixes
 
