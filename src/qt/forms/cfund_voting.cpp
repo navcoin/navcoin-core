@@ -134,50 +134,70 @@ void CFund_Voting::Refresh()
     ui->windowMainTitle->setText(fSettings ? tr("Payment Request Voting") : tr("Proposal Voting"));
 
     enableDisableButtons();
-    if (!fSettings)
+
+    int nCount = 0;
+
     {
-        std::vector<CFund::CProposal> vec;
-        if(pblocktree->GetProposalIndex(vec))
-        {
-            BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-                if (proposal.fState != CFund::NIL)
-                    continue;
-                QListWidget* whereToAdd = ui->notvotingList;
-                auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-                if (it != vAddedProposalVotes.end()) {
-                    if (it->second)
-                        whereToAdd = ui->votingyesList;
-                    else
-                        whereToAdd = ui->votingnoList;
-                }
+    std::vector<CFund::CProposal> vec;
+    if(pblocktree->GetProposalIndex(vec))
+    {
+        BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+            if (proposal.fState != CFund::NIL)
+                continue;
+            QListWidget* whereToAdd = ui->notvotingList;
+            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+            if (it != vAddedProposalVotes.end()) {
+                if (it->second)
+                    whereToAdd = ui->votingyesList;
+                else
+                    whereToAdd = ui->votingnoList;
+            }
+            if (!fSettings)
+            {
                 QListWidgetItem *item = new QListWidgetItem(QString::fromStdString(proposal.strDZeel), whereToAdd);
                 item->setData(1, QString::fromStdString(proposal.hash.ToString()));
+            } else {
+                if (whereToAdd == ui->notvotingList)
+                    nCount++;
             }
         }
     }
-    else
+    }
+
     {
-        std::vector<CFund::CPaymentRequest> vec;
-        if(pblocktree->GetPaymentRequestIndex(vec))
-        {
-            BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-                if (prequest.fState != CFund::NIL)
-                    continue;
-                QListWidget* whereToAdd = ui->notvotingList;
-                auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                    [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-                if (it != vAddedPaymentRequestVotes.end()) {
-                    if (it->second)
-                        whereToAdd = ui->votingyesList;
-                    else
-                        whereToAdd = ui->votingnoList;
-                }
+    std::vector<CFund::CPaymentRequest> vec;
+    if(pblocktree->GetPaymentRequestIndex(vec))
+    {
+        BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+            if (prequest.fState != CFund::NIL)
+                continue;
+            QListWidget* whereToAdd = ui->notvotingList;
+            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                                    [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
+            if (it != vAddedPaymentRequestVotes.end()) {
+                if (it->second)
+                    whereToAdd = ui->votingyesList;
+                else
+                    whereToAdd = ui->votingnoList;
+            }
+            if (fSettings)
+            {
                 QListWidgetItem *item = new QListWidgetItem(QString::fromStdString(prequest.strDZeel), whereToAdd);
                 item->setData(1, QString::fromStdString(prequest.hash.ToString()));
+            } else {
+                if (whereToAdd == ui->notvotingList)
+                    nCount++;
             }
         }
     }
+    }
+
+    if (nCount > 0)
+        ui->otherViewLabel->setText(fSettings ? tr("There are %1 new Proposals on the other view.").arg(nCount) : tr("There are %1 new Payment Requests on the other view.").arg(nCount));
+    else
+        ui->otherViewLabel->setText("");
+
 }
 
 CFund_Voting::~CFund_Voting()
