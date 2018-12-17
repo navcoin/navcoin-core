@@ -1,13 +1,14 @@
 # NavCoin v4.5.1 Release Notes
 
+4.5.1 contains a hard fork which explicitly rejects blocks from obsolete versions (4.5.0 and below) signalled by version bit 20. Upgrading to 4.5.1 will avoid the potential fork issue and ensure you remain on the same blockchain as the rest of the network.
+
 ## Community Fund Hotfixes
 
-Some hotfixes have been applied to fix bugs in the implementation of the Community Fund.
+Currently if a node reindexes their chainstate db locally, the node would recalculate the deadline of expired proposals and rewrite such proposals as accepted. A node which reindexes will end up with a different state and potentially reject blocks containing payment requests causing some users to end up on their own fork of the blockchain.
 
 <[Pull Request 367](https://github.com/NAVCoin/navcoin-core/pull/367)>
 <[Commit c59cd80](https://github.com/NAVCoin/navcoin-core/commit/c59cd802e43960ab4ff88dece294dbcecc6bce8e)>
 
-Previously if a local node reindexed their chainstate db, the deadline of expired proposals would be recalculated and the expired proposal would be rewritten as accepted. A node which reindexes will end up with the expired proposal in a different state and potentially reject blocks containing payment requests causing some users to end up on their own fork of the blockchain.
 - This patch ensures the state of previously expired proposals are not rewritten as accepted when a chainstate db is reindexed locally.
 - Ensures proper expiry of proposals after their duration has been exceeded.
 - Adds tests to check the proper expiry of proposals.
@@ -31,4 +32,3 @@ Previously if a block included both a static reward and some transaction(s), the
 - Minor typo fix to coldstaking wizard. <[Pull Request 364](https://github.com/NAVCoin/navcoin-core/pull/364)> <[Commit 769ff16](https://github.com/NAVCoin/navcoin-core/commit/769ff16b05f70ccfa24adcaf589bfa5a4157c067)>
 
 
-4.5.1 contains a hard fork which explicitly rejects blocks from obsolete versions (4.5.0 and below) signalled by version bit 20. Upgrading to 4.5.1 will avoid the potential fork issue and ensure you remain on the same blockchain as the rest of the network.
