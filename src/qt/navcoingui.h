@@ -177,6 +177,9 @@ private:
 
     void updateWeight();
 
+    void cfundProposalsOpen(bool fMode);
+
+
 
 Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
