@@ -891,6 +891,15 @@ void NavCoinGUI::cfundProposalsClicked()
     dlg.exec();
 }
 
+void NavCoinGUI::cfundProposalsOpen(bool fMode)
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, fMode);
+    dlg.exec();
+}
+
 void NavCoinGUI::cfundPaymentRequestsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
@@ -1797,40 +1806,45 @@ void NavCoinGUI::updateStakingStatus()
         }
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
-            bool fFound = false;
-            std::vector<CFund::CProposal> vec;
-            if(pblocktree->GetProposalIndex(vec))
+            bool fFoundProposal = false;
+            bool fFoundPaymentRequest = false;
             {
-                BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-                    if (proposal.fState != CFund::NIL)
-                        continue;
-                    auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                        [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-                    if (it == vAddedProposalVotes.end()) {
-                        fFound = true;
-                        break;
+                std::vector<CFund::CProposal> vec;
+                if(pblocktree->GetProposalIndex(vec))
+                {
+                    BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+                        if (proposal.fState != CFund::NIL)
+                            continue;
+                        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                                [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
+                        if (it == vAddedProposalVotes.end()) {
+                            fFoundProposal = true;
+                            break;
+                        }
                     }
                 }
             }
-
-            std::vector<CFund::CPaymentRequest> vec2;
-            if(!fFound && pblocktree->GetPaymentRequestIndex(vec2))
             {
-                BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec2) {
-                    if (prequest.fState != CFund::NIL)
-                        continue;
-                    auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                        [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-                    if (it == vAddedPaymentRequestVotes.end()) {
-                        fFound = true;
-                        break;
+                std::vector<CFund::CPaymentRequest> vec;
+                if(pblocktree->GetPaymentRequestIndex(vec))
+                {
+                    BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+                        if (prequest.fState != CFund::NIL)
+                            continue;
+                        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                                                [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
+                        if (it == vAddedPaymentRequestVotes.end()) {
+                            fFoundPaymentRequest = true;
+                            break;
+                        }
                     }
                 }
             }
-            if (fFound && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
+            if ((fFoundPaymentRequest || fFoundProposal) && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
                 QCheckBox *cb = new QCheckBox("Don't show this notification again until wallet is restarted.");
                 QMessageBox msgbox;
-                msgbox.setText(tr("There are new proposals or payment requests in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the voting dialog!"));
+                QString sWhat = fFoundProposal && fFoundPaymentRequest ? tr("Proposals and Payment Requests") : (fFoundProposal ? tr("Proposals") : tr("Payment Requests"));
+                msgbox.setText(tr("There are new %1 in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the voting dialog!").arg(sWhat));
                 msgbox.setIcon(QMessageBox::Icon::Warning);
                 msgbox.setCheckBox(cb);
                 QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
@@ -1848,7 +1862,7 @@ void NavCoinGUI::updateStakingStatus()
                 }
 
                 if (msgbox.clickedButton()==pButtonOpen) {
-                    cfundProposalsClicked();
+                    cfundProposalsOpen(fFoundPaymentRequest);
                 }
                 if (msgbox.clickedButton()==pButtonInfo) {
                     QString link = QString("https://navcoin.org/en/community-fund/");
