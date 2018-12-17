@@ -107,7 +107,7 @@ testScripts = [
 #    'bip68-112-113-p2p.py',
 #    'wallet.py',
 #    'wallet-hd.py',
-#    'listtransactions.py',
+     'listtransactions.py',
 #    'receivedby.py',
 #    'mempool_resurrect_test.py',
 #    'txn_doublespend.py --mineblock',
