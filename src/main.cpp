@@ -2635,6 +2635,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nCFundReducedQuorumMask;
 
+    if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
+        nVersion |= nV451ForkMask;
+
     return nVersion;
 }
 
@@ -3594,6 +3597,9 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
             strMiscWarning = _("A new version of the wallet has been released. Please update as soon as possible.");
             warningMessages.push_back("A new version of the wallet has been released. Please update as soon as possible.");
             if (!fWarned) {
+                uiInterface.ThreadSafeMessageBox(
+                    strMiscWarning,
+                    "", CClientUIInterface::MSG_WARNING);
                 AlertNotify(strMiscWarning);
                 fWarned = true;
             }
@@ -4959,8 +4965,12 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
                         "rejected no static reward block");
 
    if((block.nVersion & nCFundReducedQuorumMask) != nCFundReducedQuorumMask && IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
-     return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                         "rejected no reduced quorum block");
+
+   if((block.nVersion & nV451ForkMask) != nV451ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
+       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                        "rejected, block version isn't v4.5.1");
 
     return true;
 }
