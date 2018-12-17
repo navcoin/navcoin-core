@@ -4965,7 +4965,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 
    if((block.nVersion & nV451ForkMask) != nV451ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                        "rejected no v4.5.1 block");
+                        "rejected, block version isn't v4.5.1");
 
     return true;
 }
