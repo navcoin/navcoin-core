@@ -124,6 +124,7 @@ public:
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
+        consensus.nHeightv451Fork = 2722100;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -314,6 +315,7 @@ public:
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
+        consensus.nHeightv451Fork = 100000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -484,6 +486,7 @@ public:
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
+        consensus.nHeightv451Fork = 1000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -664,6 +667,7 @@ public:
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
+        consensus.nHeightv451Fork = 1000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
