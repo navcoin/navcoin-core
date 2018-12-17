@@ -36,6 +36,7 @@ class ReceivedByTest(NavCoinTestFramework):
         #This test requires mocktime
         #enable_mocktime()
         return start_nodes(self.num_nodes, self.options.tmpdir)
+        '''
         self.nodes[0].staking(False)
         self.nodes[1].staking(False)
         self.nodes[2].staking(False)
@@ -43,7 +44,15 @@ class ReceivedByTest(NavCoinTestFramework):
         self.is_network_split=False
         self.sync_all()
 
+        return a'''
+
     def run_test(self):
+        self.nodes[0].staking(False)
+        self.nodes[1].staking(False)
+        self.nodes[2].staking(False)
+        self.nodes[3].staking(False)
+        self.is_network_split=False
+        self.sync_all()
         '''
         listreceivedbyaddress Test
         '''
@@ -90,7 +99,7 @@ class ReceivedByTest(NavCoinTestFramework):
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
         self.sync_all()
         block_after = self.nodes[0].getblockcount()
-        print("Line 89 Block heights: " + str(block_before) + ", " + str(block_after))
+        #print("Line 89 Block heights: " + str(block_before) + ", " + str(block_after))
 
         #Check balance is 0 because of 0 confirmations
         balance = self.nodes[1].getreceivedbyaddress(addr)
@@ -127,7 +136,7 @@ class ReceivedByTest(NavCoinTestFramework):
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
         self.sync_all()
         block_after1 = self.nodes[0].getblockcount()
-        print("Line 127 Block heights: " + str(block_before1) + ", " + str(block_after1))
+        #print("Line 127 Block heights: " + str(block_before1) + ", " + str(block_after1))
 
 
         # listreceivedbyaccount should return received_by_account_json because of 0 confirmations
