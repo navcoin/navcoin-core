@@ -155,6 +155,11 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
 
         self.nodes[0].invalidateblock(blocks[-1])
+        print("\nProposal status: ", self.nodes[0].getproposal(proposalid0)["status"])
+        print("listproposals output:\n", self.nodes[0].listproposals())
+        print("cfundstats output:\n", self.nodes[0].cfundstats())
+        print("This block has just been invalidated: ", blocks[-1])
+        print("getblockchaininfo output:\n", self.nodes[0].getblockchaininfo(), "\n")
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
 
         slow_gen(self.nodes[0], 1)
