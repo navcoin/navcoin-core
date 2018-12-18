@@ -36,7 +36,6 @@ class MerkleBlockTest(NavCoinTestFramework):
         print("Mining blocks...")
         slow_gen(self.nodes[0], 105)
         self.sync_all()
-
         chain_height = self.nodes[1].getblockcount()
         assert_equal(chain_height, 105)
         assert_equal(self.nodes[1].getbalance(), 0)
