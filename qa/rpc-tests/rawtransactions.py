@@ -52,7 +52,6 @@ class RawTransactionsTest(NavCoinTestFramework):
         #self.nodes[0].generate(5)
         self.sync_all()
 
-        #########################################
         # sendrawtransaction with missing input #
         #########################################
         inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1}] #won't exists
