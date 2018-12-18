@@ -3363,13 +3363,15 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
                  continue;
              auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
                  [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+             UniValue p(UniValue::VOBJ);
+             proposal.ToJson(p);
              if (it != vAddedProposalVotes.end()) {
                  if (it->second)
-                     yesvotes.push_back(proposal.ToString());
+                     yesvotes.push_back(p);
                  else
-                     novotes.push_back(proposal.ToString());
+                     novotes.push_back(p);
              } else {
-                 nullvotes.push_back(proposal.ToString());
+                 nullvotes.push_back(p);
              }
          }
      }
@@ -3461,13 +3463,15 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
                  continue;
              auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
                  [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+             UniValue p(UniValue::VOBJ);
+             prequest.ToJson(p);
              if (it != vAddedPaymentRequestVotes.end()) {
                  if (it->second)
-                     yesvotes.push_back(prequest.ToString());
+                     yesvotes.push_back(p);
                  else
-                     novotes.push_back(prequest.ToString());
+                     novotes.push_back(p);
              } else {
-                 nullvotes.push_back(prequest.ToString());
+                 nullvotes.push_back(p);
              }
          }
      }
