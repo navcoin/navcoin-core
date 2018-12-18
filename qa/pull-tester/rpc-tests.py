@@ -149,6 +149,7 @@ testScripts = [
     'cfund-listproposals.py',
     'cfund-paymentrequest-extract-funds.py',
     'cfund-paymentrequest-state-accept.py',
+    'cfund-paymentrequest-state-accept-expired-proposal.py',
     'cfund-paymentrequest-state-expired.py',
     'cfund-proposal-state-accept.py',
     'cfund-proposal-state-expired.py',
@@ -164,6 +165,7 @@ testScripts = [
     'coldstaking_staking.py',
     'coldstaking_spending.py',
     'staticr-staking-amount.py',
+    'hardfork-451.py',
     'staticr-tx-send.py',
 ]
 #if ENABLE_ZMQ:

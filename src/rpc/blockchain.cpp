@@ -937,8 +937,11 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     if(pblocktree->GetProposalIndex(vec))
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-            if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
-               || (showPending  &&  proposal.fState == CFund::NIL)
+            if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
+                            || proposal.fState == CFund::PENDING_VOTING_PREQ
+                            || proposal.fState == CFund::PENDING_FUNDS))
+               || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
+                                    || proposal.fState == CFund::PENDING_FUNDS))
                || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
                || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
                || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
@@ -1047,7 +1050,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("str", proposal.strDZeel));
         op.push_back(Pair("hash", proposal.hash.ToString()));
-        op.push_back(Pair("amount", proposal.nAmount));
+        op.push_back(Pair("amount", ValueFromAmount(proposal.nAmount)));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesProposals.push_back(op);
@@ -1059,10 +1062,10 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         if(!CFund::FindProposal(prequest.proposalhash, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
-        op.push_back(Pair("hash", proposal.hash.ToString()));
+        op.push_back(Pair("hash", prequest.hash.ToString()));
         op.push_back(Pair("proposalDesc", proposal.strDZeel));
         op.push_back(Pair("desc", prequest.strDZeel));
-        op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
+        op.push_back(Pair("amount", ValueFromAmount(prequest.nAmount)));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesPaymentRequests.push_back(op);
