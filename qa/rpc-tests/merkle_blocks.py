@@ -34,7 +34,7 @@ class MerkleBlockTest(NavCoinTestFramework):
 
     def run_test(self):
         print("Mining blocks...")
-        self.nodes[0].generate(105)
+        slow_gen(self.nodes[0], 105)
         self.sync_all()
 
         chain_height = self.nodes[1].getblockcount()
@@ -49,7 +49,7 @@ class MerkleBlockTest(NavCoinTestFramework):
         txid2 = self.nodes[0].sendrawtransaction(self.nodes[0].signrawtransaction(tx2)["hex"])
         assert_raises(JSONRPCException, self.nodes[0].gettxoutproof, [txid1])
 
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         blockhash = self.nodes[0].getblockhash(chain_height + 1)
         self.sync_all()
 
@@ -65,7 +65,7 @@ class MerkleBlockTest(NavCoinTestFramework):
         txin_spent = self.nodes[1].listunspent(1).pop()
         tx3 = self.nodes[1].createrawtransaction([txin_spent], {self.nodes[0].getnewaddress(): 49.98})
         self.nodes[0].sendrawtransaction(self.nodes[1].signrawtransaction(tx3)["hex"])
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
 
         txid_spent = txin_spent["txid"]
