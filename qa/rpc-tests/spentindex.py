@@ -107,7 +107,6 @@ class SpentIndexTest(NavCoinTestFramework):
         assert_equal(txVerbose3["vin"][0]["valueSat"], amount + feeSatoshis)
         assert_equal(float(txVerbose3["vin"][0]["value"]), (amount + feeSatoshis) / 100000000)
 
-
         # Check the database index
         #block_hash = self.nodes[0].generate(1)
         block_hash = slow_gen(self.nodes[0], 1)
