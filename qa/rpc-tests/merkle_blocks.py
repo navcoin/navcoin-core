@@ -66,7 +66,6 @@ class MerkleBlockTest(NavCoinTestFramework):
         self.nodes[0].sendrawtransaction(self.nodes[1].signrawtransaction(tx3)["hex"])
         slow_gen(self.nodes[0], 1)
         self.sync_all()
-
         txid_spent = txin_spent["txid"]
         txid_unspent = txid1 if txin_spent["txid"] != txid1 else txid2
 
