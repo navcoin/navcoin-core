@@ -32,13 +32,12 @@ confirm 1/2/3/4 balances are same as before.
 Shutdown again, restore using importwallet,
 and confirm again balances are correct.
 """
-
+import sys
 from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
 from random import randint
 import logging
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO, stream=sys.stdout)
-
 class WalletBackupTest(NavCoinTestFramework):
 
     def __init__(self):
@@ -75,12 +74,13 @@ class WalletBackupTest(NavCoinTestFramework):
         a1 = self.nodes[1].getnewaddress()
         a2 = self.nodes[2].getnewaddress()
 
-        self.one_send(0, a1)
-        self.one_send(0, a2)
-        self.one_send(1, a0)
-        self.one_send(1, a2)
-        self.one_send(2, a0)
-        self.one_send(2, a1)
+        #send 10 coins between addresses
+        self.one_send(0, a1, 10)
+        self.one_send(0, a2, 10)
+        self.one_send(1, a0, 10)
+        self.one_send(1, a2, 10)
+        self.one_send(2, a0, 10)
+        self.one_send(2, a1, 10)
 
         # Have the miner (node3) mine a block.
         # Must sync mempools before mining.
@@ -104,9 +104,9 @@ class WalletBackupTest(NavCoinTestFramework):
         stop_node(self.nodes[2], 2)
 
     def erase_three(self):
-        os.remove(self.options.tmpdir + "/node0/regtest/wallet.dat")
-        os.remove(self.options.tmpdir + "/node1/regtest/wallet.dat")
-        os.remove(self.options.tmpdir + "/node2/regtest/wallet.dat")
+        os.remove(self.options.tmpdir + "/node0/devnet/wallet.dat")
+        os.remove(self.options.tmpdir + "/node1/devnet/wallet.dat")
+        os.remove(self.options.tmpdir + "/node2/devnet/wallet.dat")
 
     def run_test(self):
         logging.info("Generating initial blockchain")
@@ -123,12 +123,14 @@ class WalletBackupTest(NavCoinTestFramework):
         # Generate 50 instead of 100 for regnet
         slow_gen(self.nodes[3], 50)
         sync_blocks(self.nodes)
+       
 
         # Node 0 mines genesis block, reward is mature, should be 59800000
         assert_equal(self.nodes[0].getbalance(), 59800000)
         assert_equal(self.nodes[1].getbalance(), 50)
         assert_equal(self.nodes[2].getbalance(), 50)
-        assert_equal(self.nodes[3].getbalance(), 0)
+        assert_equal(self.nodes[3].getbalance(), 2500) #50 blocks are required for maturity, check wallet info, see balance:2500, immature-balance:2500
+        #print(self.nodes[3].getwalletinfo())
 
         logging.info("Creating transactions")
         # Five rounds of sending each other transactions.
@@ -222,7 +224,5 @@ class WalletBackupTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getbalance(), balance0)
         assert_equal(self.nodes[1].getbalance(), balance1)
         assert_equal(self.nodes[2].getbalance(), balance2)
-
-
 if __name__ == '__main__':
     WalletBackupTest().main()
