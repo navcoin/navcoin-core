@@ -28,7 +28,6 @@ class KeyPoolTest(NavCoinTestFramework):
         print('validateaddress ' + addr_before_encrypting_data['hdmasterkeyid'])
         assert_equal(addr_before_encrypting_data['hdmasterkeyid'],  wallet_info_old['hdmasterkeyid'])
         
-        
         # Encrypt wallet and wait to terminate
         print('Encypting wallet...')
         self.nodes[0].encryptwallet('test')
