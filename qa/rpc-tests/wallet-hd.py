@@ -76,7 +76,6 @@ class WalletHDTest(NavCoinTestFramework):
             assert_equal(hd_info_2["hdkeypath"], "m/0'/0'/"+str(_+2)+"'")
             assert_equal(hd_info_2["hdmasterkeyid"], masterkeyid)
         assert_equal(hd_add, hd_add_2)
-
         # Needs rescan
         self.stop_node(1)
         self.nodes[1] = start_node(1, self.options.tmpdir, self.node_args[1] + ['-rescan'])
