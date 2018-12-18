@@ -48,17 +48,26 @@ class WalletBackupTest(NavCoinTestFramework):
     # This mirrors how the network was setup in the bash test
     def setup_network(self, split=False):
         # nodes 1, 2,3 are spenders, let's give them a keypool=100
-        extra_args = [["-keypool=100", "-staking=0"], ["-keypool=100", "-staking=0"], ["-keypool=100", "-staking=0"],  ["-staking=0"]]
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, extra_args)
+        #extra_args = [["-keypool=100", "-staking=0"], ["-keypool=100", "-staking=0"], ["-keypool=100 -staking=0"], ["-staking=0"]]
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
         connect_nodes(self.nodes[0], 3)
         connect_nodes(self.nodes[1], 3)
         connect_nodes(self.nodes[2], 3)
         connect_nodes(self.nodes[2], 0)
         self.is_network_split=False
         self.sync_all()
+        self.nodes[0].staking(False)
+        self.nodes[1].staking(False)
+        self.nodes[2].staking(False)
+        self.nodes[3].staking(False)
 
-    def one_send(self, from_node, to_address, amount):
-        self.nodes[from_node].sendtoaddress(to_address, amount)
+    def one_send(self, from_node, to_address):
+        if (randint(1,2) == 1):
+            amount = Decimal(randint(1,10)) / Decimal(10)
+            self.nodes[from_node].sendtoaddress(to_address, amount)
+            '''print("Amount sent: " + str(amount) + " from " + str(from_node) + " (" + str(self.nodes[from_node].getbalance()) + " remaining)")
+        else :
+            print("Sent nothing from " + str(from_node))'''
 
     def do_one_round(self):
         a0 = self.nodes[0].getnewaddress()
@@ -76,7 +85,8 @@ class WalletBackupTest(NavCoinTestFramework):
         # Have the miner (node3) mine a block.
         # Must sync mempools before mining.
         sync_mempools(self.nodes)
-        slow_gen(self.nodes[3],1)
+        #self.nodes[3].generate(1)
+        slow_gen(self.nodes[3], 1)
 
     # As above, this mirrors the original bash test.
     def start_three(self):
@@ -100,20 +110,24 @@ class WalletBackupTest(NavCoinTestFramework):
 
     def run_test(self):
         logging.info("Generating initial blockchain")
-        print('temp' + str(self.options.tmpdir)) 
+        #self.nodes[0].generate(1)
         slow_gen(self.nodes[0], 1)
         sync_blocks(self.nodes)
+        #self.nodes[1].generate(1)
         slow_gen(self.nodes[1], 1)
         sync_blocks(self.nodes)
+        #self.nodes[2].generate(1)
         slow_gen(self.nodes[2], 1)
         sync_blocks(self.nodes)
-        slow_gen(self.nodes[3], 100)
+        #self.nodes[3].generate(100)
+        # Generate 50 instead of 100 for regnet
+        slow_gen(self.nodes[3], 50)
         sync_blocks(self.nodes)
        
 
-        #genesis block generates 59800000 coins, rewards after this block are 50 
+        # Node 0 mines genesis block, reward is mature, should be 59800000
         assert_equal(self.nodes[0].getbalance(), 59800000)
-        assert_equal(self.nodes[1].getbalance(), 50) 
+        assert_equal(self.nodes[1].getbalance(), 50)
         assert_equal(self.nodes[2].getbalance(), 50)
         assert_equal(self.nodes[3].getbalance(), 2500) #50 blocks are required for maturity, check wallet info, see balance:2500, immature-balance:2500
         #print(self.nodes[3].getwalletinfo())
@@ -136,29 +150,38 @@ class WalletBackupTest(NavCoinTestFramework):
         for i in range(5):
             self.do_one_round()
 
-        # Generate 50 more blocks, so any fees paid mature
-        self.nodes[3].generate(50)
+        # Generate 101 more blocks, so any fees paid mature
+        #self.nodes[3].generate(101)
+        slow_gen(self.nodes[3], 101)
         self.sync_all()
 
+        # Expected to be 59800000
         balance0 = self.nodes[0].getbalance()
+        #print("Balance 0: " + str(balance0))
+        # Expected to be 50
         balance1 = self.nodes[1].getbalance()
+        #print("Balance 1: " + str(balance1))
+        # Expected to be 50
         balance2 = self.nodes[2].getbalance()
+        #print("Balance 2: " + str(balance2))
+        # Expected to be 8050
         balance3 = self.nodes[3].getbalance()
+        #print("Balance 3: " + str(balance3))
         total = balance0 + balance1 + balance2 + balance3
-       
-        sys.exit(0)
-        # At this point, there are 214 blocks (103 for setup, then 10 rounds, then 101.)
-        # 114 are mature, so the sum of all wallets should be 114 * 50 = 5700.
-        assert_equal(round(float(total),3), 59805599.994)
+
+        # At this point, there are 164 blocks (53 for setup, then 10 rounds, then 101.)
+        # 114 are mature, so the sum of all wallets should be 113 * 50 + 59800000 = 59,805,650.
+        assert_equal(satoshi_round(round(total, 2)), satoshi_round(59805650.0))
+        print("Sanity check complete")
+
         ##
         # Test restoring spender wallets from backups
         ##
         logging.info("Restoring using wallet.dat")
         self.stop_three()
         self.erase_three()
-        
-        print('UWU whATS THIS???')
-        return
+        print("Restoring wallet")
+
         # Start node2 with no chain
         shutil.rmtree(self.options.tmpdir + "/node2/regtest/blocks")
         shutil.rmtree(self.options.tmpdir + "/node2/regtest/chainstate")
@@ -167,6 +190,8 @@ class WalletBackupTest(NavCoinTestFramework):
         shutil.copyfile(tmpdir + "/node0/wallet.bak", tmpdir + "/node0/regtest/wallet.dat")
         shutil.copyfile(tmpdir + "/node1/wallet.bak", tmpdir + "/node1/regtest/wallet.dat")
         shutil.copyfile(tmpdir + "/node2/wallet.bak", tmpdir + "/node2/regtest/wallet.dat")
+        print("Restored wallets from backup")
+
         logging.info("Re-starting nodes")
         self.start_three()
         sync_blocks(self.nodes)
@@ -174,6 +199,7 @@ class WalletBackupTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getbalance(), balance0)
         assert_equal(self.nodes[1].getbalance(), balance1)
         assert_equal(self.nodes[2].getbalance(), balance2)
+        print("Balances are correct after node restart")
 
         logging.info("Restoring using dumped wallet")
         self.stop_three()

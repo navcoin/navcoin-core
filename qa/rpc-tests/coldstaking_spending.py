@@ -79,9 +79,8 @@ class ColdStakingSpending(NavCoinTestFramework):
         """check balance decreased by just the fees"""
         
         # difference between balance after sending and previous balance is the same when block reward is removed
-        # values are converted to string and "00" is added to right of == operand because values must have equal num of 
-        # decimals
-        assert(str(balance_post_send_one - BLOCK_REWARD) <= (str(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
+
+        assert((balance_post_send_one - BLOCK_REWARD) <= (satoshi_round(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE)))
         
         """check staking weight now == 0 (we don't hold the staking key)"""
         
@@ -116,8 +115,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         self.send_raw_transaction(decoded_raw_transaction = listunspent_txs[0], \
         to_address = address_Y_public_key, \
         change_address = coldstaking_address_spending, \
-        amount = float(str(float(listunspent_txs[0]["amount"]) - MIN_COLDSTAKING_SENDING_FEE) + "00")\
-        )
+        amount = satoshi_round(float(listunspent_txs[0]["amount"]) - MIN_COLDSTAKING_SENDING_FEE))
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
         # get new balance  
@@ -127,7 +125,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 2)
         # send our entire wallet balance - minimum fee required to coldstaking address
-        self.nodes[0].sendtoaddress(coldstaking_address_spending, float(str(float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
+        self.nodes[0].sendtoaddress(coldstaking_address_spending, satoshi_round(float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE))
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
         # send to our spending address (should work)

@@ -562,7 +562,7 @@ def satoshi_round(amount):
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
 def create_confirmed_utxos(fee, node, count):
-    node.generate(int(0.5*count)+101)
+    slow_gen(node,(int(0.5*count)+101))
     utxos = node.listunspent()
     iterations = count - len(utxos)
     addr1 = node.getnewaddress()
@@ -629,12 +629,27 @@ def create_lots_of_big_transactions(node, txouts, utxos, fee):
         send_value = t['amount'] - fee
         outputs[addr] = satoshi_round(send_value)
         rawtx = node.createrawtransaction(inputs, outputs)
+        print("created raw tx")
         newtx = rawtx[0:92]
+        print("spliced")
         newtx = newtx + txouts
+        print("NEWTX {}".format(newtx))
+        print("added")
         newtx = newtx + rawtx[94:]
-        signresult = node.signrawtransaction(newtx, None, None, "NONE")
+        print("added newtx to rawtx remaining")
+        print("inputs: {}".format(inputs))
+        address_owned = node.decoderawtransaction(node.getrawtransaction(inputs[0]["txid"]))["vout"][0]["scriptPubKey"]["addresses"][0]
+        address_owned_priv = node.dumpprivkey(address_owned)
+        print("send to address :", addr)
+        print("outputs {}".format(outputs))
+        print("[node.dumpprivkey(addr)] : {}".format([node.dumpprivkey(addr)]))
+        signresult = node.signrawtransaction(newtx, inputs, [address_owned_priv], "NONE") #fails here -remove None, None -trying to sign with address sending from
+        print("signed raw tx")
         txid = node.sendrawtransaction(signresult["hex"], True)
+        print("sent raw tx")
         txids.append(txid)
+        print("appended txid")
+        print
     return txids
 
 def get_bip9_status(node, key):
