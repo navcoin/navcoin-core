@@ -224,7 +224,6 @@ class WalletBackupTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getbalance(), balance0)
         assert_equal(self.nodes[1].getbalance(), balance1)
         assert_equal(self.nodes[2].getbalance(), balance2)
-        return
 
 if __name__ == '__main__':
     WalletBackupTest().main()
