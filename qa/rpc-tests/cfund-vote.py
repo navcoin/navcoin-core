@@ -21,7 +21,7 @@ class CommunityFundVotesTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
-        # Make sure cfund is active
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(1000)
 

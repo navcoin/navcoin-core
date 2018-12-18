@@ -21,6 +21,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
 
         proposal_duration = 3
