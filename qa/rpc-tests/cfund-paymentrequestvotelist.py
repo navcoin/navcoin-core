@@ -86,7 +86,7 @@ class CommunityFundPaymentRequestVoteListTest(NavCoinTestFramework):
 
         # Check the new payment request has been added to "null" of payment request vote list
         assert(len(self.nodes[0].paymentrequestvotelist()["null"]) == 1)
-        assert(preq0_d == self.nodes[0].paymentrequestvotelist()["null"][0["hash"]])
+        assert(preq0_d == self.nodes[0].paymentrequestvotelist()["null"][0]["hash"])
 
 
 if __name__ == '__main__':
