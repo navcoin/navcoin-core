@@ -36,9 +36,10 @@ class PrioritiseTransactionTest(NavCoinTestFramework):
         # Create 3 batches of transactions at 3 different fee rate levels
         range_size = utxo_count // 3
         for i in range(3):
-            txids.append([])
+            #txids.append([]) #kind of redundant adding this?
             start_range = i * range_size
             end_range = start_range + range_size
+            print("creating raw tx")
             txids[i] = create_lots_of_big_transactions(self.nodes[0], self.txouts, utxos[start_range:end_range], (i+1)*base_fee)
 
         # Make sure that the size of each group of transactions exceeds

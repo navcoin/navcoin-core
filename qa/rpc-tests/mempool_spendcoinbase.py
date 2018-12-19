@@ -32,6 +32,7 @@ class MempoolSpendCoinbaseTest(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
+        slow_gen(self.nodes[0], 200)
         chain_height = self.nodes[0].getblockcount()
         assert_equal(chain_height, 200)
         node0_address = self.nodes[0].getnewaddress()
@@ -39,7 +40,7 @@ class MempoolSpendCoinbaseTest(NavCoinTestFramework):
         # Coinbase at height chain_height-100+1 ok in mempool, should
         # get mined. Coinbase at height chain_height-100+2 is
         # is too immature to spend.
-        b = [ self.nodes[0].getblockhash(n) for n in range(101, 103) ]
+        b = [ self.nodes[0].getblockhash(n) for n in range(151, 153) ]
         coinbase_txids = [ self.nodes[0].getblock(h)['tx'][0] for h in b ]
         spends_raw = [ create_tx(self.nodes[0], txid, node0_address, 49.99) for txid in coinbase_txids ]
 
@@ -52,7 +53,8 @@ class MempoolSpendCoinbaseTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getrawmempool(), [ spend_101_id ])
 
         # mine a block, spend_101 should get confirmed
-        self.nodes[0].generate(1)
+        #self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         assert_equal(set(self.nodes[0].getrawmempool()), set())
 
         # ... and now height 102 can be spent:

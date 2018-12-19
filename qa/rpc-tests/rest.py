@@ -64,16 +64,19 @@ class RESTTest (NavCoinTestFramework):
         url = urllib.parse.urlparse(self.nodes[0].url)
         print("Mining blocks...")
 
-        self.nodes[0].generate(1)
+        #self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
-        self.nodes[2].generate(100)
+        #self.nodes[2].generate(100)
+        slow_gen(self.nodes[2], 100)
         self.sync_all()
 
-        assert_equal(self.nodes[0].getbalance(), 50)
+        assert_equal(self.nodes[0].getbalance(), 59800000)
 
         txid = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.1)
         self.sync_all()
-        self.nodes[2].generate(1)
+        #self.nodes[2].generate(1)
+        slow_gen(self.nodes[2], 1)
         self.sync_all()
         bb_hash = self.nodes[0].getbestblockhash()
 
@@ -203,7 +206,8 @@ class RESTTest (NavCoinTestFramework):
         response = http_post_call(url.hostname, url.port, '/rest/getutxos'+json_request+self.FORMAT_SEPARATOR+'json', '', True)
         assert_equal(response.status, 200) #must be a 500 because we exceeding the limits
 
-        self.nodes[0].generate(1) #generate block to not affect upcoming tests
+        #self.nodes[0].generate(1) #generate block to not affect upcoming tests
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
 
         ################
@@ -266,7 +270,8 @@ class RESTTest (NavCoinTestFramework):
         assert_equal(json_obj[0]['previousblockhash'],  rpc_block_json['previousblockhash'])
 
         #see if we can get 5 headers in one response
-        self.nodes[1].generate(5)
+        #self.nodes[1].generate(5)
+        slow_gen(self.nodes[1], 5)
         self.sync_all()
         response_header_json = http_get_call(url.hostname, url.port, '/rest/headers/5/'+bb_hash+self.FORMAT_SEPARATOR+"json", True)
         assert_equal(response_header_json.status, 200)
@@ -290,8 +295,11 @@ class RESTTest (NavCoinTestFramework):
         # let's make 3 tx and mine them on node 1
         txs = []
         txs.append(self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11))
+        time.sleep(2)
         txs.append(self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11))
+        time.sleep(2)
         txs.append(self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11))
+        time.sleep(2)
         self.sync_all()
 
         # check that there are exactly 3 transactions in the TX memory pool before generating the block
@@ -308,7 +316,8 @@ class RESTTest (NavCoinTestFramework):
             assert_equal(tx in json_obj, True)
 
         # now mine the transactions
-        newblockhash = self.nodes[1].generate(1)
+        #newblockhash = self.nodes[1].generate(1)
+        newblockhash = slow_gen(self.nodes[1], 1)
         self.sync_all()
 
         #check if the 3 tx show up in the new block
