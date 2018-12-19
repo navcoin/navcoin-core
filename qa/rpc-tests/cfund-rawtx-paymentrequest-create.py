@@ -28,10 +28,8 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
-        # Make sure cfund is active
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
-
-        # Donate to the cfund
         self.nodes[0].donatefund(100)
 
         # Get address
