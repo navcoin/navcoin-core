@@ -30,6 +30,7 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
 
         # creates a good proposal and sets things we use later
@@ -120,7 +121,7 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         callSucceed = False
         try:
             proposal = self.send_raw_proposalrequest(address, amount, duration, description)
-            print(proposal)
+            #print(proposal)
             callSucceed = True
         except :
             pass
@@ -146,8 +147,8 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         propHash = ""
         callSucceed = True
 
-        print("Test Description: -------------------------")
-        print(descriptionTxt)
+        #print("Test Description: -------------------------")
+        #print(descriptionTxt)
         try:
             propHash = self.send_raw_proposalrequest(self.goodAddress, self.goodAmount, self.goodDuration, descriptionTxt)
             #print(propHash)
