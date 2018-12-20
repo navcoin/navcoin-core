@@ -131,7 +131,7 @@ testScripts = [
 #    'timestampindex.py',
 #    'spentindex.py',
 #    'txindex.py',
-#    'decodescript.py',
+     'decodescript.py',
 #    'blockchain.py',
 #    'disablewallet.py',
 #    'sendheaders.py',
