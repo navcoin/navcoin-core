@@ -103,12 +103,12 @@ if ENABLE_ZMQ:
 testScripts = [
     # longest test should go first, to favor running tests in parallel
 # 'p2p-fullblocktest.py',
-     'walletbackup.py',
+#    'walletbackup.py',
 #    'bip68-112-113-p2p.py',
-#    'wallet.py',
+     'wallet.py',
 #    'wallet-hd.py',
-     'listtransactions.py',
-#    'receivedby.py',
+#    'listtransactions.py',
+     'receivedby.py',
 #    'mempool_resurrect_test.py',
 #    'txn_doublespend.py --mineblock',
 #    'txn_clone.py',
@@ -119,7 +119,7 @@ testScripts = [
 #    'mempool_reorg.py',
 #    'mempool_limit.py',
 #    'httpbasics.py',
-#    'multi_rpc.py',
+     'multi_rpc.py',
      'zapwallettxes.py',
 #    'proxy_test.py',
 #    'merkle_blocks.py',
@@ -136,7 +136,7 @@ testScripts = [
 #    'disablewallet.py',
 #    'sendheaders.py',
 #    'keypool.py',
-#    'prioritise_transaction.py', /TODO fix this later
+#    'prioritise_transaction.py', #TODO fix this later
 #    'invalidblockrequest.py',
 #    'invalidtxrequest.py',
 #    'abandonconflict.py',
