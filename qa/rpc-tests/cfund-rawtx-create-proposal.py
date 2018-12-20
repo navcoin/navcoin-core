@@ -145,7 +145,6 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         # Create new payment request for more than the amount
         propHash = ""
         callSucceed = True
-
         try:
             propHash = self.send_raw_proposalrequest(self.goodAddress, self.goodAmount, self.goodDuration, descriptionTxt)
             #print(propHash)
