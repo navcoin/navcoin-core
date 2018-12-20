@@ -146,7 +146,6 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         propHash = ""
         callSucceed = True
 
-        #print(descriptionTxt)
         try:
             propHash = self.send_raw_proposalrequest(self.goodAddress, self.goodAmount, self.goodDuration, descriptionTxt)
             #print(propHash)
