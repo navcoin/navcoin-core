@@ -380,7 +380,7 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
-        uint32_t nTimestamp = 1541978905;
+        uint32_t nTimestamp = 1545341312;
         uint256 hashGenesisBlock = uint256S("0x0000c493d0f928a9f0a0eb0e0d88d871f4f5ab8bacc308f77bb0e8c7adee1307");
         uint256 hashMerkleRoot = uint256S("0xf3f3286d731fc322d34f6a7c4df3eecfc1abaa6032350acf6cd363eb34edf574");
         uint32_t nNonce = 2043537527;
