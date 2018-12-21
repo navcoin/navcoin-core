@@ -57,32 +57,81 @@ class SendToAddressTest (NavCoinTestFramework):
         assert_equal(self.nodes[1].getbalance(), 1400 + self.nodes[1].gettransaction(txid1)["fee"])
 
         # Make transactions with invalid addresses
+        exception_assert = False
         try:
             txid2 = self.nodes[0].sendtoaddress("n2USJi4FFP9HVgxskVA44rMr8RUgRhvKXm", 5)
         except JSONRPCException as e:
-            assert("Invalid NavCoin address" in e.error["message"]) # Correct format but non-existant address
+            if "Invalid NavCoin address" in e.error["message"]:
+                exception_assert = True
+            # Correct format but non-existant address
+        assert(exception_assert)
+        exception_assert = False
         try:
             txid3 = self.nodes[0].sendtoaddress("", 5)
         except JSONRPCException as e:
-            assert("Invalid NavCoin address" in e.error["message"]) # Empty string
+            if "Invalid NavCoin address" in e.error["message"]:
+                exception_assert = True
+                # Empty string
+        assert(exception_assert)
+        exception_assert = False
         try:
             txid4 = self.nodes[0].sendtoaddress(1234567890, 5)
         except JSONRPCException as e:
-            assert("JSON value is not a string as expected" in e.error["message"]) # Incorrect type
+            if "JSON value is not a string as expected" in e.error["message"]:
+                exception_assert = True
+                # Incorrect type
+        assert(exception_assert)
+        exception_assert = False
 
         # Make transactions with invalid amounts
         try:
             txid5 = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 60000000)
         except JSONRPCException as e:
-            assert("Insufficient funds" in e.error["message"]) # Not enought NAV to make transaction
+            if "Insufficient funds" in e.error["message"]:
+                exception_assert = True
+                # Not enought NAV to make transaction
+        assert(exception_assert)
+        exception_assert = False
         try:
             txid6 = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), self.nodes[0].getbalance())
         except JSONRPCException as e:
-            assert("Error: This transaction requires a transaction fee of at least 0.0001 because of its amount, complexity, or use of recently received funds!" in e.error["message"]) # Try send entire balance, not enought NAV to pay for fee
+            if "Error: This transaction requires a transaction fee of at least 0.0001 because of its amount, complexity, or use of recently received funds!" in e.error["message"]:
+                exception_assert = True
+                # Try send entire balance, not enought NAV to pay for fee
+        assert(exception_assert)
+        exception_assert = False
         try:
             txid8 = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), "")
         except JSONRPCException as e:
-            assert("Invalid amount" in e.error["message"]) # Empty string as amount is not valid
+            if "Invalid amount" in e.error["message"]:
+                exception_assert = True
+                # Empty string as amount is not valid
+        assert(exception_assert)
+        exception_assert = False
+        try:
+            txid8 = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), "five")
+        except JSONRPCException as e:
+            if "Invalid amount" in e.error["message"]:
+                exception_assert = True
+                # String as amount is not valid
+        assert(exception_assert)
+        exception_assert = False
+        try:
+            txid8 = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), -100)
+        except JSONRPCException as e:
+            if "Amount out of range" in e.error["message"]:
+                exception_assert = True
+                # Negative amount is not valid
+        assert(exception_assert)
+        exception_assert = False
+        try:
+            txid8 = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.000000001)
+        except JSONRPCException as e:
+            if "Invalid amount" in e.error["message"]:
+                exception_assert = True
+                # Too many dp not valid
+        assert(exception_assert)
+        exception_assert = False
 
         # Ensure that node balances are still the same as before attempting these invalid transactions
         slow_gen(self.nodes[1], 1)
@@ -99,7 +148,10 @@ class SendToAddressTest (NavCoinTestFramework):
         try:
             txid10 = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), balance+45)
         except JSONRPCException as e:
-            assert("Insufficient funds" in e.error["message"])
+            if "Insufficient funds" in e.error["message"]:
+                exception_assert = True
+        assert(exception_assert)
+        exception_assert = False
 
 
 if __name__ == '__main__':
