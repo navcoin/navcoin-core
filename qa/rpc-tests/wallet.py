@@ -266,12 +266,14 @@ class WalletTest (NavCoinTestFramework):
         else:
             raise AssertionError("Must not parse invalid amounts")
 
+            
+        my_function_failed = False    
         try:
             self.nodes[0].generate(2)
             raise AssertionError("Must not accept strings as numeric")
-        except TypeError as e:
-            # Passes assertion upon getting type error from attempting to slow gen using a string
-            assert(1 == 1)
+        except MyException as e:
+            my_function_failed = true
+            assert(my_function_failed)
 
         # Import address and private key to check correct behavior of spendable unspents
         # 1. Send some coins to generate new UTXO
