@@ -273,7 +273,8 @@ class WalletTest (NavCoinTestFramework):
             raise AssertionError("Must not accept strings as numeric")
         except MyException as e:
             my_function_failed = true
-            assert(my_function_failed)
+         
+        assert(my_function_failed)
 
         # Import address and private key to check correct behavior of spendable unspents
         # 1. Send some coins to generate new UTXO
