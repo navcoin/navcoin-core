@@ -222,10 +222,8 @@ def initialize_chain(test_dir, num_nodes):
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             navcoind_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-                print("initialize_chain: navcoind started, waiting for RPC to come up")
             wait_for_navcoind_start(navcoind_processes[i], rpc_url(i), i)
             if os.getenv("PYTHON_DEBUG", ""):
-                print("initialize_chain: RPC succesfully started")
 
         rpcs = []
         for i in range(MAX_NODES):
@@ -309,11 +307,9 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     if extra_args is not None: args.extend(extra_args)
     navcoind_processes[i] = subprocess.Popen(args)
     if os.getenv("PYTHON_DEBUG", ""):
-        print("start_node: navcoind started, waiting for RPC to come up")
     url = rpc_url(i, rpchost)
     wait_for_navcoind_start(navcoind_processes[i], url, i)
     if os.getenv("PYTHON_DEBUG", ""):
-        print("start_node: RPC succesfully started")
     proxy = get_rpc_proxy(url, i, timeout=timewait)
 
     if COVERAGE_DIR:
@@ -343,7 +339,6 @@ def stop_node(node, i):
     try:
         node.stop()
     except http.client.CannotSendRequest as e:
-        print("WARN: Unable to stop node: " + repr(e))
     navcoind_processes[i].wait(timeout=NAVCOIND_PROC_WAIT_TIMEOUT)
     del navcoind_processes[i]
 
@@ -352,7 +347,6 @@ def stop_nodes(nodes):
         try:
             node.stop()
         except http.client.CannotSendRequest as e:
-            print("WARN: Unable to stop node: " + repr(e))
     del nodes[:] # Emptying array closes connections as a side effect
 
 def set_node_times(nodes, t):
@@ -629,26 +623,14 @@ def create_lots_of_big_transactions(node, txouts, utxos, fee):
         send_value = t['amount'] - fee
         outputs[addr] = satoshi_round(send_value)
         rawtx = node.createrawtransaction(inputs, outputs)
-        print("created raw tx")
         newtx = rawtx[0:92]
-        print("spliced")
         newtx = newtx + txouts
-        print("NEWTX {}".format(newtx))
-        print("added")
         newtx = newtx + rawtx[94:]
-        print("added newtx to rawtx remaining")
-        print("inputs: {}".format(inputs))
         address_owned = node.decoderawtransaction(node.getrawtransaction(inputs[0]["txid"]))["vout"][0]["scriptPubKey"]["addresses"][0]
         address_owned_priv = node.dumpprivkey(address_owned)
-        print("send to address :", addr)
-        print("outputs {}".format(outputs))
-        print("[node.dumpprivkey(addr)] : {}".format([node.dumpprivkey(addr)]))
         signresult = node.signrawtransaction(newtx, inputs, [address_owned_priv], "NONE") #fails here -remove None, None -trying to sign with address sending from
-        print("signed raw tx")
         txid = node.sendrawtransaction(signresult["hex"], True)
-        print("sent raw tx")
         txids.append(txid)
-        print("appended txid")
     return txids
 
 def get_bip9_status(node, key):
