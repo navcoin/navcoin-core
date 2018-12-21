@@ -508,6 +508,7 @@ class RawTransactionsTest(NavCoinTestFramework):
         self.sync_all()
 
         # make sure funds are received at node1
+        ### FAILS SOMETIMES HERE
         assert_equal(oldBalance+Decimal('51.10000000'), self.nodes[0].getbalance())
 
 
@@ -602,6 +603,7 @@ class RawTransactionsTest(NavCoinTestFramework):
         outputs = {self.nodes[2].getnewaddress() : watchonly_amount / 2}
         rawtx = self.nodes[3].createrawtransaction(inputs, outputs)
 
+        print(self.nodes[3].getbalance())
         result = self.nodes[3].fundrawtransaction(rawtx, {'includeWatching': True })
         res_dec = self.nodes[0].decoderawtransaction(result["hex"])
         assert_equal(len(res_dec["vin"]), 1)
@@ -650,11 +652,13 @@ class RawTransactionsTest(NavCoinTestFramework):
         result2 = self.nodes[3].fundrawtransaction(rawtx, {"feeRate": 2*min_relay_tx_fee})
         result3 = self.nodes[3].fundrawtransaction(rawtx, {"feeRate": 10*min_relay_tx_fee})
         result_fee_rate = result['fee'] * 1000 / count_bytes(result['hex'])
-        print(result2['fee'])
-        print(count_bytes(result2['hex']))
-        print(result_fee_rate)
-        print(2 * result_fee_rate)
-        #assert_fee_amount(result2['fee'], count_bytes(result2['hex']), 2 * result_fee_rate)
+        print("fee result:", result['fee'], result2['fee'], result3['fee'])
+        print("Count bytes:", count_bytes(result['hex']), count_bytes(result2['hex']), count_bytes(result3['hex']))
+        print("result fee rate:", result_fee_rate, 2 * result_fee_rate, 10*result_fee_rate)
+        print("Assertion target fee:", count_bytes(result['hex']) * result_fee_rate / 1000, count_bytes(result2['hex']) * 2 * result_fee_rate / 1000, count_bytes(result3['hex']) * 10 * result_fee_rate / 1000)
+
+        ### FAILS HERE. INCREASING THE MAGNITUDE OF FEE_RATE IN NAV DOES NOT RESULT IN PROPOTIONAL INCREASE IN FEES
+        assert_fee_amount(result2['fee'], count_bytes(result2['hex']), 2 * result_fee_rate)
         assert_fee_amount(result3['fee'], count_bytes(result3['hex']), 10 * result_fee_rate)
 
 if __name__ == '__main__':
