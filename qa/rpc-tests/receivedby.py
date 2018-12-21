@@ -70,7 +70,6 @@ class ReceivedByTest(NavCoinTestFramework):
                            { },
                            True)
         #Bury Tx under 10 block so it will be returned by listreceivedbyaddress
-        #self.nodes[1].generate(10)
         slow_gen(self.nodes[1], 10)
         self.sync_all()
         assert_array_result(self.nodes[1].listreceivedbyaddress(),
@@ -99,7 +98,6 @@ class ReceivedByTest(NavCoinTestFramework):
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
         self.sync_all()
         block_after = self.nodes[0].getblockcount()
-        #print("Line 89 Block heights: " + str(block_before) + ", " + str(block_after))
 
         #Check balance is 0 because of 0 confirmations
         balance = self.nodes[1].getreceivedbyaddress(addr)
@@ -108,12 +106,10 @@ class ReceivedByTest(NavCoinTestFramework):
 
         #Check balance is 0.1
         balance = satoshi_round(self.nodes[1].getreceivedbyaddress(addr,0))
-        #print(balance)
         if balance != Decimal("0.1"):
             raise AssertionError("Wrong balance returned by getreceivedbyaddress, %0.2f"%(balance))
 
         #Bury Tx under 10 block so it will be returned by the default getreceivedbyaddress
-        #self.nodes[1].generate(10)
         slow_gen(self.nodes[1], 10)
         self.sync_all()
         balance = self.nodes[1].getreceivedbyaddress(addr)
@@ -136,8 +132,6 @@ class ReceivedByTest(NavCoinTestFramework):
         txid = self.nodes[0].sendtoaddress(addr, 0.1)
         self.sync_all()
         block_after1 = self.nodes[0].getblockcount()
-        #print("Line 127 Block heights: " + str(block_before1) + ", " + str(block_after1))
-
 
         # listreceivedbyaccount should return received_by_account_json because of 0 confirmations
         assert_array_result(self.nodes[1].listreceivedbyaccount(),
@@ -149,7 +143,6 @@ class ReceivedByTest(NavCoinTestFramework):
         if balance != balance_by_account:
             raise AssertionError("Wrong balance returned by getreceivedbyaccount, %0.2f"%(balance))
 
-        #self.nodes[1].generate(10)
         slow_gen(self.nodes[1], 10)
         self.sync_all()
         # listreceivedbyaccount should return updated account balance

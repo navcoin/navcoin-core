@@ -8,7 +8,7 @@
 # This gives us two tips, verify that it works.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.util import assert_equal, slow_gen
 
 class GetChainTipsTest (NavCoinTestFramework):
     def __init__(self):
@@ -28,9 +28,7 @@ class GetChainTipsTest (NavCoinTestFramework):
 
         # Split the network and build two chains of different lengths.
         self.split_network ()
-        #self.nodes[0].generate(10)
         slow_gen(self.nodes[0], 10)
-        #self.nodes[2].generate(20)
         slow_gen(self.nodes[2], 20)
         self.sync_all ()
 

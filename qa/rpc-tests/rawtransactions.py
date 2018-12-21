@@ -39,17 +39,14 @@ class RawTransactionsTest(NavCoinTestFramework):
 
         #prepare some coins for multiple *rawtransaction commands
         slow_gen(self.nodes[2], 1)
-        #self.nodes[2].generate(1)
         self.sync_all()
         slow_gen(self.nodes[0], 101)
-        #self.nodes[0].generate(101)
         self.sync_all()
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.5)
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.0)
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),5.0)
         self.sync_all()
         slow_gen(self.nodes[0], 5)
-        #self.nodes[0].generate(5)
         self.sync_all()
 
         # sendrawtransaction with missing input #
@@ -87,7 +84,6 @@ class RawTransactionsTest(NavCoinTestFramework):
         txId = self.nodes[0].sendtoaddress(mSigObj, 1.2)
         self.sync_all()
         slow_gen(self.nodes[0], 1)
-        #self.nodes[0].generate(1)
         self.sync_all()
         assert_equal(self.nodes[2].getbalance(), bal+Decimal('1.20000000')) #node2 has both keys of the 2of2 ms addr., tx should affect the balance
 
@@ -111,7 +107,6 @@ class RawTransactionsTest(NavCoinTestFramework):
         sPK = rawTx['vout'][0]['scriptPubKey']['hex']
         self.sync_all()
         slow_gen(self.nodes[0], 1)
-        #self.nodes[0].generate(1)
         self.sync_all()
 
         #THIS IS A INCOMPLETE FEATURE
@@ -139,7 +134,6 @@ class RawTransactionsTest(NavCoinTestFramework):
         rawTx = self.nodes[0].decoderawtransaction(rawTxSigned['hex'])
         self.sync_all()
         slow_gen(self.nodes[0], 1)
-        #self.nodes[0].generate(1)
         self.sync_all()
         assert_equal(self.nodes[0].getbalance(), bal+Decimal('50.00000000')+Decimal('2.19000000')) #block reward + tx
         inputs  = [ {'txid' : "3160bbeb3bdd39520dfb3538ce94c7073d8f987e8f1fc3b97acdf2238136c35f", 'vout' : 1, 'sequence' : 1000}]

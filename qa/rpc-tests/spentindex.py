@@ -38,7 +38,6 @@ class SpentIndexTest(NavCoinTestFramework):
     def run_test(self):
         print("Mining blocks...")
         slow_gen(self.nodes[0], 105)
-        #self.nodes[0].generate(105)
         self.sync_all()
 
         chain_height = self.nodes[1].getblockcount()
@@ -61,7 +60,6 @@ class SpentIndexTest(NavCoinTestFramework):
 
         signed_tx = self.nodes[0].signrawtransaction(binascii.hexlify(tx.serialize()).decode("utf-8"))
         txid = self.nodes[0].sendrawtransaction(signed_tx["hex"], True)
-        #self.nodes[0].generate(1)
         slow_gen(self.nodes[0], 1)
         self.sync_all()
 
@@ -108,7 +106,6 @@ class SpentIndexTest(NavCoinTestFramework):
         assert_equal(float(txVerbose3["vin"][0]["value"]), (amount + feeSatoshis) / 100000000)
 
         # Check the database index
-        #block_hash = self.nodes[0].generate(1)
         block_hash = slow_gen(self.nodes[0], 1)
         self.sync_all()
 

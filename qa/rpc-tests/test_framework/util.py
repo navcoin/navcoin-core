@@ -649,7 +649,6 @@ def create_lots_of_big_transactions(node, txouts, utxos, fee):
         print("sent raw tx")
         txids.append(txid)
         print("appended txid")
-        print
     return txids
 
 def get_bip9_status(node, key):

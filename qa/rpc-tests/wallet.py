@@ -42,7 +42,6 @@ class WalletTest (NavCoinTestFramework):
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all()
-        #self.nodes[1].generate(101)
         slow_gen(self.nodes[1], 101)
 
         self.sync_all()
@@ -268,7 +267,6 @@ class WalletTest (NavCoinTestFramework):
             raise AssertionError("Must not parse invalid amounts")
 
         try:
-            #self.nodes[0].generate("2")
             slow_gen(self.nodes[0], "2")
             raise AssertionError("Must not accept strings as numeric")
         except TypeError as e:
