@@ -603,7 +603,7 @@ class RawTransactionsTest(NavCoinTestFramework):
         outputs = {self.nodes[2].getnewaddress() : watchonly_amount / 2}
         rawtx = self.nodes[3].createrawtransaction(inputs, outputs)
 
-        print(self.nodes[3].getbalance())
+        print("current balance".format(self.nodes[3].getbalance()))
         result = self.nodes[3].fundrawtransaction(rawtx, {'includeWatching': True })
         res_dec = self.nodes[0].decoderawtransaction(result["hex"])
         assert_equal(len(res_dec["vin"]), 1)
