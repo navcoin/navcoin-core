@@ -65,10 +65,7 @@ class WalletBackupTest(NavCoinTestFramework):
         if (randint(1,2) == 1):
             amount = Decimal(randint(1,10)) / Decimal(10)
             self.nodes[from_node].sendtoaddress(to_address, amount)
-            '''print("Amount sent: " + str(amount) + " from " + str(from_node) + " (" + str(self.nodes[from_node].getbalance()) + " remaining)")
-        else :
-            print("Sent nothing from " + str(from_node))'''
-
+            
     def do_one_round(self):
         a0 = self.nodes[0].getnewaddress()
         a1 = self.nodes[1].getnewaddress()
