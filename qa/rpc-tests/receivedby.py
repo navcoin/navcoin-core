@@ -33,8 +33,6 @@ class ReceivedByTest(NavCoinTestFramework):
         self.setup_clean_chain = False
 
     def setup_nodes(self):
-        #This test requires mocktime
-        #enable_mocktime()
         return start_nodes(self.num_nodes, self.options.tmpdir)
         '''
         self.nodes[0].staking(False)
