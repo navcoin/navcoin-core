@@ -14,14 +14,11 @@ class DecodeScriptTest(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
-        self.num_nodes = 2
+        self.num_nodes = 1
 
     def setup_network(self, split=False):
         self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
         self.is_network_split = False
-        self.nodes[0].staking(False)
-        self.nodes[1].staking(False)
-        self.sync_all()
 
     def decodescript_script_sig(self):
         signature = '304502207fa7a6d1e0ee81132a269ad84e68d695483745cde8b541e3bf630749894e342a022100c1f7ab20e13e22fb95281a870f3dcf38d782e53023ee313d741ad0cfbc0c509001'
@@ -118,16 +115,11 @@ class DecodeScriptTest(NavCoinTestFramework):
 
         This test is in with the "decodescript" tests because they are testing the same "asm" script decodes.
         """
-        # Create a valid transaction
-        slow_gen(self.nodes[0], 51)
-        addr = self.nodes[1].getnewaddress()
-        txid = self.nodes[0].sendtoaddress(addr, 0.1)
 
         # this test case uses a random plain vanilla mainnet transaction with a single P2PKH input and output
-        tx = '03000000a026135c010000000000000000000000000000000000000000000000000000000000000000ffffffff0503b2312900ffffffff090000000000000000000000000000000000256ac1c2c420a2720fbf1ba2532fff65405d160b9f8d4bd120cdfafa64e27516495058914c0a0000000000000000256ac1c2c420dde8c133af3c6d28b2a5237634db4f21c0ab981811e4f6913be8a90a3211a72d0000000000000000256ac1c2c4204af4cb53e65ed6a61a09ac42b1254f4ee487fa5d7cf614b1de578582af88c5bd0000000000000000256ac1c2c4209649349bd186187ccf4e856dfe838a2d93de8f695f5a601f980815311e88e4d00000000000000000256ac1c2c420a9f723226f4c8c16dde23c010250a475ebde1b55ed352b3d64ed93a5ae72dc400000000000000000256ac1c2c42059ee66acebe7b35094f007e553ac514d0e61e9f903a9fff8cb48a2e24a43bbaa0000000000000000256ac1c2c4206e2adeb0cc2b8c1153fbe056037c3332e0feabccfe1f6130ff03a1027c9e43810000000000000000256ac1c2c4209a3de9568e53bf5c02fe813dbc1aa34fd29c9f970b9335ec1e09f0247315efb900000000025b5d'
+        tx = '0100000001696a20784a2c70143f634e95227dbdfdf0ecd51647052e70854512235f5986ca010000008a47304402207174775824bec6c2700023309a168231ec80b82c6069282f5133e6f11cbb04460220570edc55c7c5da2ca687ebd0372d3546ebc3f810516a002350cac72dfe192dfb014104d3f898e6487787910a690410b7a917ef198905c27fb9d3b0a42da12aceae0544fc7088d239d9a48f2828a15a09e84043001f27cc80d162cb95404e1210161536ffffffff0100e1f505000000001976a914eb6c6e0cdb2d256a32d97b8df1fc75d1920d9bca88ac00000000'
         rpc_result = self.nodes[0].decoderawtransaction(tx)
-        assert_equal('OP_RETURN OP_CFUND OP_PROP OP_YES a2720fbf1ba2532fff65405d160b9f8d4bd120cdfafa64e27516495058914c0a' \
-        , rpc_result['vout'][1]['scriptPubKey']['asm'])
+        assert_equal('304402207174775824bec6c2700023309a168231ec80b82c6069282f5133e6f11cbb04460220570edc55c7c5da2ca687ebd0372d3546ebc3f810516a002350cac72dfe192dfb[ALL] 04d3f898e6487787910a690410b7a917ef198905c27fb9d3b0a42da12aceae0544fc7088d239d9a48f2828a15a09e84043001f27cc80d162cb95404e1210161536', rpc_result['vin'][0]['scriptSig']['asm'])
 
         # this test case uses a mainnet transaction that has a P2SH input and both P2PKH and P2SH outputs.
         # it's from James D'Angelo's awesome introductory videos about multisig: https://www.youtube.com/watch?v=zIbUSaZBJgU and https://www.youtube.com/watch?v=OSA1pwlaypc
