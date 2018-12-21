@@ -267,7 +267,7 @@ class WalletTest (NavCoinTestFramework):
             raise AssertionError("Must not parse invalid amounts")
 
         try:
-            slow_gen(self.nodes[0], "2")
+            self.nodes[0].generate(2)
             raise AssertionError("Must not accept strings as numeric")
         except TypeError as e:
             # Passes assertion upon getting type error from attempting to slow gen using a string
