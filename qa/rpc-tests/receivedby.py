@@ -34,15 +34,6 @@ class ReceivedByTest(NavCoinTestFramework):
 
     def setup_nodes(self):
         return start_nodes(self.num_nodes, self.options.tmpdir)
-        '''
-        self.nodes[0].staking(False)
-        self.nodes[1].staking(False)
-        self.nodes[2].staking(False)
-        self.nodes[3].staking(False)
-        self.is_network_split=False
-        self.sync_all()
-
-        return a'''
 
     def run_test(self):
         self.nodes[0].staking(False)
