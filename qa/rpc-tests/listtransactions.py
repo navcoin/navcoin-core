@@ -24,96 +24,68 @@ class ListTransactionsTest(NavCoinTestFramework):
 
     def setup_nodes(self):
         #This test requires mocktime
-        # enable_mocktime()
+        enable_mocktime()
         return start_nodes(self.num_nodes, self.options.tmpdir)
-        self.nodes[0].staking(False)
-        self.nodes[1].staking(False)
-        self.nodes[2].staking(False)
-        self.nodes[3].staking(False)
+
     def run_test(self):
         # Simple send, 0 to 1:
-        slow_gen(self.nodes[0], 51)
         txid = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.1)
         self.sync_all()
-        slow_gen(self.nodes[0], 1)
-        self.sync_all
-        all_trans = self.nodes[0].listtransactions()
-        # assert_array_result will fetch the first transaction in listtransactions() which
-        # matches the txid then check if it matches the dict keys and values
-        # if it does not match it will fail the assertion rather than check the next
-        # tx with matching txid. Thus we have to grab the transaction which has the same
-        matching_txid_list = [trans for trans in all_trans if trans['txid'] == txid ]
-        trans_category_send = [trans for trans in matching_txid_list if trans['amount'] == satoshi_round(Decimal("-0.1"))]
-        assert_array_result(trans_category_send,
+        assert_array_result(self.nodes[0].listtransactions(),
                            {"txid":txid},
-                           {"category":"send","account":"","amount":satoshi_round(Decimal("-0.1")),"confirmations":1})        
+                           {"category":"send","account":"","amount":Decimal("-0.1"),"confirmations":0})
         assert_array_result(self.nodes[1].listtransactions(),
                            {"txid":txid},
-                           {"category":"receive","account":"","amount":satoshi_round(Decimal("0.1")),"confirmations":1})
+                           {"category":"receive","account":"","amount":Decimal("0.1"),"confirmations":0})
         # mine a block, confirmations should change:
-        slow_gen(self.nodes[0], 1)
+        self.nodes[0].generate(1)
         self.sync_all()
-        all_trans = self.nodes[0].listtransactions()
-        matching_txid_list = [trans for trans in all_trans if trans['txid'] == txid ]
-        trans_category_send = [trans for trans in matching_txid_list if trans['amount'] == satoshi_round(Decimal("-0.1"))]
-        assert_array_result(trans_category_send,
+        assert_array_result(self.nodes[0].listtransactions(),
                            {"txid":txid},
-                           {"category":"send","account":"","amount":satoshi_round(Decimal("-0.1")),"confirmations":2})
+                           {"category":"send","account":"","amount":Decimal("-0.1"),"confirmations":1})
         assert_array_result(self.nodes[1].listtransactions(),
                            {"txid":txid},
-                           {"category":"receive","account":"","amount":satoshi_round(Decimal("0.1")),"confirmations":2})
+                           {"category":"receive","account":"","amount":Decimal("0.1"),"confirmations":1})
 
         # send-to-self:
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 0.2)
-        slow_gen(self.nodes[0], 1)
-        all_trans = self.nodes[0].listtransactions()
-        matching_txid_list = [trans for trans in all_trans if trans['txid'] == txid ]
-        trans_category_send = [trans for trans in matching_txid_list if trans['amount'] == satoshi_round(Decimal("-0.2"))]
-        assert_array_result(trans_category_send,
+        assert_array_result(self.nodes[0].listtransactions(),
                            {"txid":txid, "category":"send"},
-                           {"amount":satoshi_round(Decimal("-0.2"))})
-        trans_category_send = [trans for trans in matching_txid_list if trans['amount'] == satoshi_round(Decimal("0.2"))]
-        assert_array_result(trans_category_send,
+                           {"amount":Decimal("-0.2")})
+        assert_array_result(self.nodes[0].listtransactions(),
                            {"txid":txid, "category":"receive"},
-                           {"amount":satoshi_round(Decimal("0.2"))})
-
-
-        self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 10)
-        self.sync_all()
-        slow_gen(self.nodes[0], 1)
-        self.sync_all()
+                           {"amount":Decimal("0.2")})
 
         # sendmany from node1: twice to self, twice to node2:
         send_to = { self.nodes[0].getnewaddress() : 0.11,
                     self.nodes[1].getnewaddress() : 0.22,
                     self.nodes[0].getaccountaddress("from1") : 0.33,
                     self.nodes[1].getaccountaddress("toself") : 0.44 }
-        print("^^^^^^^^^^^^^\nNODE 1 BALANCE | {}\n^^^^^^^^^^^^^".format(self.nodes[1].getbalance()))
         txid = self.nodes[1].sendmany("", send_to)
         self.sync_all()
         assert_array_result(self.nodes[1].listtransactions(),
-                           {"category":"send","amount":satoshi_round(Decimal("-0.11"))},
+                           {"category":"send","amount":Decimal("-0.11")},
                            {"txid":txid} )
         assert_array_result(self.nodes[0].listtransactions(),
-                           {"category":"receive","amount":satoshi_round(Decimal("0.11"))},
+                           {"category":"receive","amount":Decimal("0.11")},
                            {"txid":txid} )
         assert_array_result(self.nodes[1].listtransactions(),
-                           {"category":"send","amount":satoshi_round(Decimal("-0.22"))},
+                           {"category":"send","amount":Decimal("-0.22")},
                            {"txid":txid} )
         assert_array_result(self.nodes[1].listtransactions(),
-                           {"category":"receive","amount":satoshi_round(Decimal("0.22"))},
+                           {"category":"receive","amount":Decimal("0.22")},
                            {"txid":txid} )
         assert_array_result(self.nodes[1].listtransactions(),
-                           {"category":"send","amount":satoshi_round(Decimal("-0.33"))},
+                           {"category":"send","amount":Decimal("-0.33")},
                            {"txid":txid} )
         assert_array_result(self.nodes[0].listtransactions(),
-                           {"category":"receive","amount":satoshi_round(Decimal("0.33"))},
+                           {"category":"receive","amount":Decimal("0.33")},
                            {"txid":txid, "account" : "from1"} )
         assert_array_result(self.nodes[1].listtransactions(),
-                           {"category":"send","amount":satoshi_round(Decimal("-0.44"))},
+                           {"category":"send","amount":Decimal("-0.44")},
                            {"txid":txid, "account" : ""} )
         assert_array_result(self.nodes[1].listtransactions(),
-                           {"category":"receive","amount":satoshi_round(Decimal("0.44"))},
+                           {"category":"receive","amount":Decimal("0.44")},
                            {"txid":txid, "account" : "toself"} )
 
         multisig = self.nodes[1].createmultisig(1, [self.nodes[1].getnewaddress()])
@@ -123,7 +95,7 @@ class ListTransactionsTest(NavCoinTestFramework):
         self.sync_all()
         assert(len(self.nodes[0].listtransactions("watchonly", 100, 0, False)) == 0)
         assert_array_result(self.nodes[0].listtransactions("watchonly", 100, 0, True),
-                           {"category":"receive","amount":satoshi_round(Decimal("0.1"))},
+                           {"category":"receive","amount":Decimal("0.1")},
                            {"txid":txid, "account" : "watchonly"} )
 
         self.run_rbf_opt_in_test()
@@ -202,7 +174,7 @@ class ListTransactionsTest(NavCoinTestFramework):
 
         # Replace tx3, and check that tx4 becomes unknown
         tx3_b = tx3_modified
-        tx3_b.vout[0].nValue -= int(satoshi_round(Decimal("0.004")) * COIN) # bump the fee
+        tx3_b.vout[0].nValue -= int(Decimal("0.004") * COIN) # bump the fee
         tx3_b = bytes_to_hex_str(tx3_b.serialize())
         tx3_b_signed = self.nodes[0].signrawtransaction(tx3_b)['hex']
         txid_3b = self.nodes[0].sendrawtransaction(tx3_b_signed, True)
@@ -229,4 +201,3 @@ class ListTransactionsTest(NavCoinTestFramework):
 
 if __name__ == '__main__':
     ListTransactionsTest().main()
-
