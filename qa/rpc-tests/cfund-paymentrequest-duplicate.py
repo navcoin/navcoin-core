@@ -7,58 +7,86 @@ from test_framework.test_framework import NavCoinTestFramework
 from test_framework.cfund_util import *
 
 import time
+import http.client
+import urllib.parse
 
 class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
     """Tests the payment request procedures of the Community fund."""
 
     def __init__(self):
         super().__init__()
-        self.setup_clean_chain = True
-        self.num_nodes = 1
+        self.setup_clean_chain = False
+        self.num_nodes = 2
 
     def setup_network(self, split=False):
-        self.nodes = self.setup_nodes()
+        self.nodes = []
+
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug"]))
+        self.nodes.append(start_node(1, self.options.tmpdir, ["-debug"]))
+
+        connect_nodes(self.nodes[0], 1)
+
         self.is_network_split = split
 
     def run_test(self):
-        # self.nodes[0].staking(False)
-        activate_cfund(self.nodes[0])
-        self.nodes[0].donatefund(1000)
 
+        activate_cfund(self.nodes[0])
+        self.nodes[0].donatefund(100000)
+
+        sync_blocks(self.nodes)
+
+        balance = self.nodes[0].getbalance()
+
+        balanceSplit = float(balance / self.num_nodes)
+
+        addresses = []
+
+        for x in range(self.num_nodes):
+            addresses.append(self.nodes[x].getnewaddress())
+            self.nodes[0].sendtoaddress(addresses[x], balanceSplit)
+
+        slow_gen(self.nodes[0], 1)
+
+        sync_blocks(self.nodes)
+
+        SATOSHI = 100000000
         paymentAddress = self.nodes[0].getnewaddress()
+        proposalAmount = 10000
+        payoutAmount = 3333
 
         # Create a proposal and accept by voting
-        proposalid0 = self.nodes[0].createproposal(paymentAddress, 100, 36000, "test")["hash"]
+
+        proposalid0 = self.nodes[0].createproposal(paymentAddress, proposalAmount, 36000, "test")["hash"]
         locked_before = self.nodes[0].cfundstats()["funds"]["locked"]
         end_cycle(self.nodes[0])
-
-        time.sleep(0.2)
+        sync_blocks(self.nodes)
 
         self.nodes[0].proposalvote(proposalid0, "yes")
         slow_gen(self.nodes[0], 1)
         end_cycle(self.nodes[0])
+
         locked_accepted = self.nodes[0].cfundstats()["funds"]["locked"]
 
-        time.sleep(0.2)
+        sync_blocks(self.nodes)
 
         # Proposal should be accepted
 
-        assert(self.nodes[0].getproposal(proposalid0)["state"] == 1)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
-        assert(self.nodes[0].cfundstats()["funds"]["locked"] == float(locked_before) + float(self.nodes[0].getproposal(proposalid0)["requestedAmount"]))
+        for x in range(self.num_nodes):
+            assert(self.nodes[x].getproposal(proposalid0)["state"] == 1)
+            assert(self.nodes[x].getproposal(proposalid0)["status"] == "accepted")
+            assert(self.nodes[x].cfundstats()["funds"]["locked"] == float(locked_before) + float(self.nodes[x].getproposal(proposalid0)["requestedAmount"]))
 
         # Create 1 payment request
 
-        paymentReq = self.nodes[0].createpaymentrequest(proposalid0, 20, "test0")["hash"]
+        paymentReq = self.nodes[0].createpaymentrequest(proposalid0, payoutAmount, "test0")["hash"]
 
         slow_gen(self.nodes[0], 1)
+        sync_blocks(self.nodes)
 
-        assert(self.nodes[0].getpaymentrequest(paymentReq)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentReq)["status"] == "pending")
-
-        assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
-
-        print(self.nodes[0].getbalance())
+        for x in range(self.num_nodes):
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["state"] == 0)
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["status"] == "pending")
+            assert(self.nodes[x].cfundstats()["funds"]["locked"] == locked_accepted)
 
         end_cycle(self.nodes[0])
 
@@ -68,85 +96,105 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
 
         slow_gen(self.nodes[0], 1)
         end_cycle(self.nodes[0])
-        time.sleep(0.2)
+        sync_blocks(self.nodes)
 
-        assert(self.nodes[0].getpaymentrequest(paymentReq)["state"] == 1)
-        assert(self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
-
-        print(self.nodes[0].getpaymentrequest(paymentReq))
+        for x in range(self.num_nodes):
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["state"] == 1)
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
 
         wallet_info1 = self.nodes[0].getwalletinfo()
 
         while self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
+            blocks = slow_gen(self.nodes[0], 1)
+
+        sync_blocks(self.nodes)
+
+        wallet_info2 = self.nodes[0].getwalletinfo()
+
+        # check all wallets see the payout
+
+        for x in range(self.num_nodes):
+            payoutBlockHash = self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"]
+            payoutBlock = self.nodes[x].getblock(payoutBlockHash)
+            payoutHex = self.nodes[x].getrawtransaction(payoutBlock["tx"][0])
+            payoutTx = self.nodes[x].decoderawtransaction(payoutHex)
+            assert(payoutTx["vout"][1]["valueSat"] == payoutAmount * SATOSHI)
+            assert(payoutTx["vout"][1]["scriptPubKey"]["addresses"][0] == paymentAddress)
+
+        # check node zero received the payout
+
+        lastTransactions = self.nodes[0].listtransactions("", 2)
+
+        assert(lastTransactions[0]["address"] == paymentAddress)
+        assert(lastTransactions[0]["category"] == "immature")
+        assert(lastTransactions[0]["amount"] == payoutAmount)
+        assert(lastTransactions[0]["confirmations"] == 1)
+
+        # roll back the block and try the other node
+        for x in range(self.num_nodes):
+            self.nodes[x].invalidateblock(blocks[-1])
+
+        sync_blocks(self.nodes)
+
+        bestBlockHash = self.nodes[0].getbestblockhash()
+        for x in range(self.num_nodes):
+            assert(self.nodes[x].getbestblockhash() == bestBlockHash)
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["state"] == 1)
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
+
+        while self.nodes[1].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
+            blocks = slow_gen(self.nodes[1], 1)
+
+        sync_blocks(self.nodes)
+
+        for x in range(self.num_nodes):
+            payoutBlockHash = self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"]
+            payoutBlock = self.nodes[x].getblock(payoutBlockHash)
+            payoutHex = self.nodes[x].getrawtransaction(payoutBlock["tx"][0])
+            payoutTx = self.nodes[x].decoderawtransaction(payoutHex)
+            assert(payoutTx["vout"][1]["valueSat"] == payoutAmount * SATOSHI)
+            assert(payoutTx["vout"][1]["scriptPubKey"]["addresses"][0] == paymentAddress)
+
+        # roll back the block and try both nodes
+        for x in range(self.num_nodes):
+            self.nodes[x].invalidateblock(blocks[-1])
+
+        sync_blocks(self.nodes)
+
+        bestBlockHash = self.nodes[0].getbestblockhash()
+        for x in range(self.num_nodes):
+            assert(self.nodes[x].getbestblockhash() == bestBlockHash)
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["state"] == 1)
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
+
+        # disconnect the nodes and generate the payout on each node
+        url = urllib.parse.urlparse(self.nodes[1].url)
+        self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
+
+        time.sleep(2)
+
+        while self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
             slow_gen(self.nodes[0], 1)
 
-        time.sleep(0.2)
-
-        wallet_info2 = self.nodes[0].getwalletinfo()
-        # print(self.nodes[0].getpaymentrequest(paymentReq))
-        print(paymentAddress)
+        while self.nodes[1].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
+            slow_gen(self.nodes[1], 1)
 
         payoutBlockHash = self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"]
-        payoutBlock = self.nodes[0].getblock(payoutBlockHash)
 
-        print(self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"])
-        # print(self.nodes[0].getblockcount())
+        # check both think they have paid out
+        for x in range(self.num_nodes):
+            assert(x == 0 or self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"] != payoutBlockHash)
 
-        payoutHex = self.nodes[0].getrawtransaction(payoutBlock["tx"][0])
-        payoutTx = self.nodes[0].decoderawtransaction(payoutHex)
+        slow_gen(self.nodes[1], 1)
+        connect_nodes_bi(self.nodes,0,1) #reconnect the node
 
-        # payout = self.nodes[0].gettransaction(payoutBlock["tx"][0])
-        # print(payout)
+        sync_blocks(self.nodes)
 
-        # print(payoutTx["vout"][0])
-        # print(payoutTx["vout"][1])
+        payoutBlockHash = self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"]
 
-        assert(payoutTx["vout"][1]["valueSat"] == 2000000000)
-        assert(payoutTx["vout"][1]["scriptPubKey"]["addresses"][0] == paymentAddress)
-
-        # print(wallet_info1)
-
-        # print(wallet_info2)
-
-        assert(wallet_info2['immature_balance'] == wallet_info1['immature_balance'] + 20)
-
-        time.sleep(5)
-
-        slow_gen(self.nodes[0], 1000)
-
-        print(self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"])
-
-        print(self.nodes[0].getwalletinfo()["immature_balance"])
-
-        print(self.nodes[0].getreceivedbyaddress(paymentAddress, 0))
-
-        """
-        blockcount = self.nodes[0].getblockcount()
-        wallet_info1 = self.nodes[0].getwalletinfo()
-
-        print(blockcount)
-
-        # wait for a new block to be mined
-        while self.nodes[0].getblockcount() == blockcount:
-            print("waiting for a new block...")
-            time.sleep(1)
-
-        assert(blockcount != self.nodes[0].getblockcount())
-
-        print(self.nodes[0].getblockcount())
-
-        wallet_info2 = self.nodes[0].getwalletinfo()
-        balance_diff = wallet_info1['balance'] - wallet_info2['balance']
-
-        print(balance_diff)
-
-        # check that only 2 new NAV were created
-        # assert(wallet_info2['immature_balance'] == wallet_info1['immature_balance'] + balance_diff + 2)
-
-        print(self.nodes[0].getbalance())
-        print(paymentAddress)
-        print(self.nodes[0].getreceivedbyaddress(paymentAddress, 0))
-        """
+        # check both agree on the payout block
+        for x in range(self.num_nodes):
+            assert(self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"] == payoutBlockHash)
 
 
 if __name__ == '__main__':
