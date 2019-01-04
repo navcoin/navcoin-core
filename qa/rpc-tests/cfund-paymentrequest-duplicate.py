@@ -171,7 +171,7 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
         url = urllib.parse.urlparse(self.nodes[1].url)
         self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
 
-        time.sleep(2)
+        time.sleep(1)
 
         while self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
             slow_gen(self.nodes[0], 1)
