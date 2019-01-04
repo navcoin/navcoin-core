@@ -24,7 +24,7 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
         self.nodes.append(start_node(0, self.options.tmpdir, []))
         self.nodes.append(start_node(1, self.options.tmpdir, []))
 
-        connect_nodes(self.nodes[0], 1)
+        # connect_nodes(self.nodes[0], 1)
 
         self.is_network_split = split
 
