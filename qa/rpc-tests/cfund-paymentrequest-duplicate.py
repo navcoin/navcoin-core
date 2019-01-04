@@ -49,6 +49,10 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
 
         sync_blocks(self.nodes)
 
+        for x in range(self.num_nodes):
+            assert(self.nodes[x].getbalance() >= balanceSplit)
+
+        """
         SATOSHI = 100000000
         paymentAddress = self.nodes[0].getnewaddress()
         proposalAmount = 10000
@@ -167,7 +171,7 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
             assert(self.nodes[x].getbestblockhash() == bestBlockHash)
             assert(self.nodes[x].getpaymentrequest(paymentReq)["state"] == 1)
             assert(self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
-        """
+
         # disconnect the nodes and generate the payout on each node
         url = urllib.parse.urlparse(self.nodes[1].url)
         self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
