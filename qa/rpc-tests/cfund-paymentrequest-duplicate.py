@@ -15,7 +15,7 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
 
     def __init__(self):
         super().__init__()
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
         self.num_nodes = 2
 
     def setup_network(self, split=False):
@@ -24,16 +24,12 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
         self.nodes.append(start_node(0, self.options.tmpdir, []))
         self.nodes.append(start_node(1, self.options.tmpdir, []))
 
-        # connect_nodes(self.nodes[0], 1)
+        connect_nodes(self.nodes[0], 1)
 
         self.is_network_split = split
 
     def run_test(self):
 
-        assert(True)
-        return
-
-        """
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100000)
 
@@ -203,7 +199,6 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
         # check both agree on the payout block
         for x in range(self.num_nodes):
             assert(self.nodes[x].getpaymentrequest(paymentReq)["paidOnBlock"] == payoutBlockHash)
-        """
 
 if __name__ == '__main__':
     CommunityFundPaymentRequestDuplicate().main()
