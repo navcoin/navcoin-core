@@ -128,6 +128,7 @@ def sync_blocks(rpc_connections, wait=1, timeout=60):
     while timeout > 0:
         tips = [ x.getbestblockhash() for x in rpc_connections ]
         if tips == [ tips[0] ]*len(tips):
+        #if all x.getblockhash() in tips are the same return True
             return True
         time.sleep(wait)
         timeout -= wait

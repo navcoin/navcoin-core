@@ -39,6 +39,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_PAYMENTREQUESTNOVOTE: return "payment_request_no_vote";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
+    case TX_COLDSTAKING: return "cold_staking";
     }
     return NULL;
 }
@@ -71,6 +72,17 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         typeRet = TX_SCRIPTHASH;
         vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.begin()+22);
         vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    // Shortcut for cold stake, so we don't need to match a template
+    if (scriptPubKey.IsColdStaking())
+    {
+        typeRet = TX_COLDSTAKING;
+        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+5, scriptPubKey.begin()+25);
+        vSolutionsRet.push_back(stakingPubKey);
+        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
+        vSolutionsRet.push_back(spendingPubKey);
         return true;
     }
 
@@ -250,6 +262,11 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         addressRet = CScriptID(uint160(vSolutions[0]));
         return true;
     }
+    else if (whichType == TX_COLDSTAKING)
+    {
+        addressRet = make_pair(CKeyID(uint160(vSolutions[0])), CKeyID(uint160(vSolutions[1])));
+        return true;
+    }
     // Multisig txns have more than one address...
     return false;
 }
@@ -278,6 +295,19 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
 
             CTxDestination address = pubKey.GetID();
             addressRet.push_back(address);
+        }
+
+        if (addressRet.empty())
+            return false;
+    }
+    else if (typeRet == TX_COLDSTAKING)
+    {
+        nRequiredRet = 1;
+        for (unsigned int i = 0; i < vSolutions.size(); i++)
+        {
+            uint160 keyInt(vSolutions[i]);
+            CKeyID keyID(keyInt);
+            addressRet.push_back(keyID);
         }
 
         if (addressRet.empty())
@@ -317,6 +347,12 @@ public:
     bool operator()(const CKeyID &keyID) const {
         script->clear();
         *script << OP_DUP << OP_HASH160 << ToByteVector(keyID) << OP_EQUALVERIFY << OP_CHECKSIG;
+        return true;
+    }
+
+    bool operator()(const pair<CKeyID, CKeyID>&keyPairID) const {
+        script->clear();
+        *script << OP_COINSTAKE << OP_IF << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ELSE << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.second) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ENDIF;
         return true;
     }
 

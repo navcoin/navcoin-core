@@ -117,6 +117,8 @@ private:
     QAction *receiveCoinsAction;
     QAction *receiveCoinsMenuAction;
     QAction *optionsAction;
+    QAction *cfundProposalsAction;
+    QAction *cfundPaymentRequestsAction;
     QAction *toggleHideAction;
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
@@ -142,6 +144,9 @@ private:
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
     int spinnerFrame;
+
+    bool fDontShowAgain;
+    int64_t lastDialogShown;
 
     uint64_t nWeight;
 
@@ -171,6 +176,9 @@ private:
 
 
     void updateWeight();
+
+    void cfundProposalsOpen(bool fMode);
+
 
 
 Q_SIGNALS:
@@ -241,6 +249,9 @@ private Q_SLOTS:
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
     void optionsClicked();
+    /** Community Fund related */
+    void cfundProposalsClicked();
+    void cfundPaymentRequestsClicked();
     /** Show about dialog */
     void aboutClicked();
     /** Show debug window */
