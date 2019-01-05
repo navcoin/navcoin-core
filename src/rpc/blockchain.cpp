@@ -897,7 +897,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
      if (fHelp)
         throw runtime_error(
-            "listproposals filter\n"
+            "listproposals \"filter\"\n"
             "\nList the proposals and all the relating data including payment requests and status.\n"
             "\nNote passing no argument returns all proposals regardless of state.\n"
             "\nArguments:\n"
@@ -937,8 +937,11 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     if(pblocktree->GetProposalIndex(vec))
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-            if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
-               || (showPending  &&  proposal.fState == CFund::NIL)
+            if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
+                            || proposal.fState == CFund::PENDING_VOTING_PREQ
+                            || proposal.fState == CFund::PENDING_FUNDS))
+               || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
+                                    || proposal.fState == CFund::PENDING_FUNDS))
                || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
                || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
                || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
@@ -954,7 +957,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
 
-    if (fHelp)
+    if (fHelp || params.size() != 0)
         throw runtime_error(
             "cfundstats\n"
             "\nReturns statistics about the community fund.\n"
@@ -1022,7 +1025,12 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
     UniValue consensus(UniValue::VOBJ);
     consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
-    consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nQuorumVotes));
+    if (!IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus())){
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorum));
+    } else {
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumFirstHalf));
+        consensus.push_back(Pair("minSumVotesPerVotingCycleSecondHalf",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumSecondHalf));
+    }
     consensus.push_back(Pair("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting));
     consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting));
     consensus.push_back(Pair("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100));
@@ -1042,7 +1050,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("str", proposal.strDZeel));
         op.push_back(Pair("hash", proposal.hash.ToString()));
-        op.push_back(Pair("amount", proposal.nAmount));
+        op.push_back(Pair("amount", ValueFromAmount(proposal.nAmount)));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesProposals.push_back(op);
@@ -1054,10 +1062,10 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         if(!CFund::FindProposal(prequest.proposalhash, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
-        op.push_back(Pair("hash", proposal.hash.ToString()));
+        op.push_back(Pair("hash", prequest.hash.ToString()));
         op.push_back(Pair("proposalDesc", proposal.strDZeel));
         op.push_back(Pair("desc", prequest.strDZeel));
-        op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
+        op.push_back(Pair("amount", ValueFromAmount(prequest.nAmount)));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesPaymentRequests.push_back(op);
@@ -1221,10 +1229,7 @@ static UniValue BIP9SoftForkDesc(const Consensus::Params& consensusParams, Conse
     case THRESHOLD_ACTIVE: rv.push_back(Pair("status", "active")); break;
     case THRESHOLD_FAILED: rv.push_back(Pair("status", "failed")); break;
     }
-    if (THRESHOLD_STARTED == thresholdState)
-    {
-        rv.push_back(Pair("bit", consensusParams.vDeployments[id].bit));
-    }
+    rv.push_back(Pair("bit", consensusParams.vDeployments[id].bit));
     rv.push_back(Pair("startTime", consensusParams.vDeployments[id].nStartTime));
     rv.push_back(Pair("timeout", consensusParams.vDeployments[id].nTimeout));
 
@@ -1310,8 +1315,11 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION);
     BIP9SoftForkDescPushBack(bip9_softforks, "ntpsync", consensusParams, Consensus::DEPLOYMENT_NTPSYNC);
+    BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING);
     BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
+    BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
+    BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 
@@ -1601,7 +1609,7 @@ UniValue reconsiderblock(const UniValue& params, bool fHelp)
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         okSafeMode
   //  --------------------- ------------------------  -----------------------  ----------
-    { "blockchain",         "cfundstats",             &cfundstats,             true  },
+    { "communityfund",      "cfundstats",             &cfundstats,             true  },
     { "blockchain",         "getblockchaininfo",      &getblockchaininfo,      true  },
     { "blockchain",         "getbestblockhash",       &getbestblockhash,       true  },
     { "blockchain",         "getblockcount",          &getblockcount,          true  },
@@ -1616,13 +1624,13 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getmempooldescendants",  &getmempooldescendants,  true  },
     { "blockchain",         "getmempoolentry",        &getmempoolentry,        true  },
     { "blockchain",         "getmempoolinfo",         &getmempoolinfo,         true  },
-    { "blockchain",         "getproposal",            &getproposal,            true  },
-    { "blockchain",         "getpaymentrequest",      &getpaymentrequest,      true  },
+    { "communityfund",      "getproposal",            &getproposal,            true  },
+    { "communityfund",      "getpaymentrequest",      &getpaymentrequest,      true  },
     { "blockchain",         "getrawmempool",          &getrawmempool,          true  },
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-    { "blockchain",         "listproposals",          &listproposals,          true  },
+    { "communityfund",      "listproposals",          &listproposals,          true  },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },

@@ -17,6 +17,7 @@
 #include "notificator.h"
 #include "openuridialog.h"
 #include "optionsdialog.h"
+#include "forms/cfund_voting.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
 #include "rpcconsole.h"
@@ -51,6 +52,7 @@
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
+#include <QCheckBox>
 #include <QInputDialog>
 #include <QListWidget>
 #include <QMenuBar>
@@ -130,6 +132,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     receiveCoinsAction(0),
     receiveCoinsMenuAction(0),
     optionsAction(0),
+    cfundProposalsAction(0),
+    cfundPaymentRequestsAction(0),
     toggleHideAction(0),
     encryptWalletAction(0),
     backupWalletAction(0),
@@ -145,6 +149,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     helpMessageDialog(0),
     prevBlocks(0),
     spinnerFrame(0),
+    fDontShowAgain(false),
+    lastDialogShown(0),
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
@@ -277,7 +283,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
     connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
-    timerStakingIcon->start(150 * 1000);
+    timerStakingIcon->start(45 * 1000);
     updateStakingStatus();
 
     if (GetArg("-zapwallettxes",0) == 2 && GetArg("-repairwallet",0) == 1)
@@ -420,6 +426,8 @@ void NavCoinGUI::createActions()
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(tr(PACKAGE_NAME)));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
+    cfundProposalsAction = new QAction(tr("Vote for Proposals"), this);
+    cfundPaymentRequestsAction = new QAction(tr("Vote for Payment Requests"), this);
     toggleHideAction = new QAction(platformStyle->TextColorIcon(":/icons/about"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
@@ -470,6 +478,8 @@ void NavCoinGUI::createActions()
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
+    connect(cfundProposalsAction, SIGNAL(triggered()), this, SLOT(cfundProposalsClicked()));
+    connect(cfundPaymentRequestsAction, SIGNAL(triggered()), this, SLOT(cfundPaymentRequestsClicked()));
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
@@ -502,7 +512,7 @@ void NavCoinGUI::createActions()
 void NavCoinGUI::bootstrapBlockchain()
 {
     bool ok = false;
-    QString defaultUrl = "https://nav.nyc3.digitaloceanspaces.com/bootstrap/mainnet/bootstrap-navcoin_" +
+    QString defaultUrl = "https://s3.amazonaws.com/navcoin-bootstrap/bootstrap-navcoin_" +
             QString::fromStdString(Params().NetworkIDString()) + "net.tar";
     QString url = QInputDialog::getText(this, tr("Bootstrap blockchain"),
                                             tr("You can use an external trusted source to download the blockchain from.<BR>The following URL points to a bootstrap copy provided by the NavCoin Core Team.<BR>Where would you like to download it from?"), QLineEdit::Normal,
@@ -572,6 +582,9 @@ void NavCoinGUI::createMenuBar()
         }
         connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
         settings->addAction(updatePriceAction);
+        QMenu *cfund = appMenuBar->addMenu(tr("&Community Fund"));
+        cfund->addAction(cfundProposalsAction);
+        cfund->addAction(cfundPaymentRequestsAction);
     }
     settings->addAction(optionsAction);
 
@@ -609,32 +622,33 @@ void NavCoinGUI::createToolBars()
         // "QToolButton:pressed { background-color: #997cc5; border-bottom: 4px solid #7d59b5; border-left: none; } "
         // "#tabs { color: #ffffff; background-image: url(:/images/background) }");
 
-        QPushButton* topMenuLogo = new QPushButton(walletFrame->topMenu);
+        QPushButton* topMenuLogo = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenuLogo);
         topMenuLogo->setFixedSize(187,94);
         topMenuLogo->setObjectName("navLogo");
-        topMenuLogo->move(0,0);
         topMenuLogo->setStyleSheet(
            "#navLogo { border-image: url(:/icons/menu_logo)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu1 = new QPushButton(walletFrame->topMenu);
+        topMenu1 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu1);
         topMenu1->setFixedSize(139,94);
         topMenu1->setObjectName("topMenu1");
         connect(topMenu1, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
-        topMenu1->move(186,0);
         topMenu1->setStyleSheet(
            "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
            "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu2 = new QPushButton(walletFrame->topMenu);
+        topMenu2 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu2);
         topMenu2->setFixedSize(144,94);
         topMenu2->setObjectName("topMenu2");
         connect(topMenu2, SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
-        topMenu2->move(325,0);
         topMenu2->setStyleSheet(
                     "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu3 = new QPushButton(walletFrame->topMenu);
+        topMenu3 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu3);
         topMenu3->setFixedSize(156,94);
         topMenu3->setObjectName("topMenu3");
         connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
@@ -643,14 +657,20 @@ void NavCoinGUI::createToolBars()
                     "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
-        topMenu4 = new QPushButton(walletFrame->topMenu);
+        topMenu4 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu4);
         topMenu4->setFixedSize(215,94);
         topMenu4->setObjectName("topMenu4");
         connect(topMenu4, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
-        topMenu4->move(625,0);
         topMenu4->setStyleSheet(
                     "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+
+        QWidget *topMenu = new QWidget();
+        topMenu->setObjectName("topMenu");
+        topMenu->setStyleSheet(
+                    "#topMenu { border-image: url(:/icons/background_top)  0 0 0 0 stretch stretch; border: 0px; border-image-repeat: stretch; }");
+        walletFrame->menuLayout->addWidget(topMenu);
 
         // ImageButton* navLogo2 = new ImageButton();
         // navLogo2->setFixedSize(64,64);
@@ -859,6 +879,33 @@ void NavCoinGUI::optionsClicked()
 
     OptionsDialog dlg(this, enableWallet);
     dlg.setModel(clientModel->getOptionsModel());
+    dlg.exec();
+}
+
+void NavCoinGUI::cfundProposalsClicked()
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, false);
+    dlg.exec();
+}
+
+void NavCoinGUI::cfundProposalsOpen(bool fMode)
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, fMode);
+    dlg.exec();
+}
+
+void NavCoinGUI::cfundPaymentRequestsClicked()
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return;
+
+    CFund_Voting dlg(this, true);
     dlg.exec();
 }
 
@@ -1759,6 +1806,69 @@ void NavCoinGUI::updateStakingStatus()
         }
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
+            bool fFoundProposal = false;
+            bool fFoundPaymentRequest = false;
+            {
+                std::vector<CFund::CProposal> vec;
+                if(pblocktree->GetProposalIndex(vec))
+                {
+                    BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+                        if (proposal.fState != CFund::NIL)
+                            continue;
+                        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                                [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
+                        if (it == vAddedProposalVotes.end()) {
+                            fFoundProposal = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            {
+                std::vector<CFund::CPaymentRequest> vec;
+                if(pblocktree->GetPaymentRequestIndex(vec))
+                {
+                    BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+                        if (prequest.fState != CFund::NIL)
+                            continue;
+                        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                                                [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
+                        if (it == vAddedPaymentRequestVotes.end()) {
+                            fFoundPaymentRequest = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if ((fFoundPaymentRequest || fFoundProposal) && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
+                QCheckBox *cb = new QCheckBox("Don't show this notification again until wallet is restarted.");
+                QMessageBox msgbox;
+                QString sWhat = fFoundProposal && fFoundPaymentRequest ? tr("Proposals and Payment Requests") : (fFoundProposal ? tr("Proposals") : tr("Payment Requests"));
+                msgbox.setText(tr("There are new %1 in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the voting dialog!").arg(sWhat));
+                msgbox.setIcon(QMessageBox::Icon::Warning);
+                msgbox.setCheckBox(cb);
+                QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
+                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Voting Window"), QMessageBox::YesRole);
+                QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
+                pButtonClose->setVisible(false);
+                this->lastDialogShown = GetTimeNow();
+
+                msgbox.exec();
+
+                if(cb->isChecked()) {
+                    this->fDontShowAgain = true;
+                } else {
+                    this->fDontShowAgain = false;
+                }
+
+                if (msgbox.clickedButton()==pButtonOpen) {
+                    cfundProposalsOpen(fFoundPaymentRequest);
+                }
+                if (msgbox.clickedButton()==pButtonInfo) {
+                    QString link = QString("https://navcoin.org/en/community-fund/");
+                    QDesktopServices::openUrl(QUrl(link));
+                }
+            }
 
             uint64_t nWeight = this->nWeight;
             uint64_t nNetworkWeight = GetPoSKernelPS();

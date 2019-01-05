@@ -21,6 +21,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100)
 
@@ -150,6 +151,15 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_after_payment)
 
+        # Check that paymentrequest remains in accepted state after the max number of cycles
+
+        cycles_to_expire = self.nodes[0].cfundstats()["consensus"]["maxCountVotingCyclePaymentRequests"]
+
+        for idx in range(cycles_to_expire):
+            end_cycle(self.nodes[0])
+
+        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 1)
+        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
 
         # Create multiple payment requests
 
@@ -195,10 +205,13 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
 
         # Create and vote on payment request more than the total proposal amount, must throw "JSONRPC error: Invalid amount."
 
+        paymentrequest_not_created = True
         try:
             paymentrequestid3 = self.nodes[0].createpaymentrequest(proposalid0, 2, "test3")["hash"]
+            paymentrequest_not_created = False
         except JSONRPCException:
             pass
+        assert(paymentrequest_not_created)
 
 
 if __name__ == '__main__':

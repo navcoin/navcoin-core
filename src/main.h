@@ -155,6 +155,13 @@ static const bool DEFAULT_ENABLE_REPLACEMENT = true;
 /** Default for using fee filter */
 static const bool DEFAULT_FEEFILTER = true;
 
+/** Default for -headerspamfilter, use header spam filter */
+static const bool DEFAULT_HEADER_SPAM_FILTER = true;
+/** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = COINBASE_MATURITY;
+/** Default for -headerspamfiltermaxavg, maximum average size of an index occurrence in the header spam filter */
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
+
 /** Maximum number of headers to announce when relaying blocks with headers message.*/
 static const unsigned int MAX_BLOCKS_TO_ANNOUNCE = 8;
 
@@ -507,9 +514,17 @@ bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Con
 bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
+/** Check whether the static reward has been activated **/
+bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
+bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
+/** Check whether ColdStaking has been activated. */
+bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);

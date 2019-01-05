@@ -188,7 +188,7 @@ bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
     return RemoveVotePaymentRequest(proposalHash.ToString());
 }
 
-bool CFund::IsValidPaymentRequest(CTransaction tx)
+bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
 {    
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for payment request %s", __func__, tx.GetHash().ToString());
@@ -262,12 +262,12 @@ bool CFund::IsValidPaymentRequest(CTransaction tx)
         return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
                      __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable());
     
-    bool ret = nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
+    bool ret = (nVersion <= nMaxVersion);
 
     if(!ret)
         return error("%s: Invalid version for payment request %s", __func__, tx.GetHash().ToString());
 
-    return true;
+    return nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
 
 }
 
@@ -285,7 +285,7 @@ bool CFund::CPaymentRequest::IsExpired() const {
     return false;
 }
 
-bool CFund::IsValidProposal(CTransaction tx)
+bool CFund::IsValidProposal(CTransaction tx, int nMaxVersion)
 {
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for proposal %s", __func__, tx.GetHash().ToString());
@@ -335,7 +335,7 @@ bool CFund::IsValidProposal(CTransaction tx)
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0 &&
-            nVersion <= Params().GetConsensus().nProposalMaxVersion);
+            nVersion <= nMaxVersion);
 
     if (!ret)
         return error("%s: Wrong strdzeel %s for proposal %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
@@ -346,25 +346,41 @@ bool CFund::IsValidProposal(CTransaction tx)
 
 bool CFund::CPaymentRequest::IsAccepted() const {
     int nTotalVotes = nVotesYes + nVotesNo;
-    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    if (nVersion >= 3) {
+        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+    }
+    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
            && ((float)nVotesYes > ((float)(nTotalVotes) * Params().GetConsensus().nVotesAcceptPaymentRequest));
 }
 
 bool CFund::CPaymentRequest::IsRejected() const {
     int nTotalVotes = nVotesYes + nVotesNo;
-    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    if (nVersion >= 3) {
+        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+    }
+    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectPaymentRequest));
 }
 
 bool CFund::CProposal::IsAccepted() const {
     int nTotalVotes = nVotesYes + nVotesNo;
-    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    if (nVersion >= 3) {
+        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesProposalVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+    }
+    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
            && ((float)nVotesYes > ((float)(nTotalVotes) * Params().GetConsensus().nVotesAcceptProposal));
 }
 
 bool CFund::CProposal::IsRejected() const {
     int nTotalVotes = nVotesYes + nVotesNo;
-    return nTotalVotes > Params().GetConsensus().nQuorumVotes
+    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    if (nVersion >= 3) {
+        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesProposalVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+    }
+    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
 }
 
@@ -374,7 +390,7 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
             CBlockIndex* pblockindex = mapBlockIndex[blockhash];
             return (pblockindex->GetBlockTime() + nDeadline < currentTime);
         }
-        return (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (CanVote() || fState == EXPIRED));
+        return (fState == EXPIRED) || (fState == PENDING_VOTING_PREQ) || (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (CanVote() || fState == EXPIRED));
     } else {
         return (nDeadline < currentTime);
     }

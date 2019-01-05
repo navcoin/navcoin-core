@@ -25,9 +25,8 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
         # Get cfund parameters
         blocks_per_voting_cycle = self.nodes[0].cfundstats()["consensus"]["blocksPerVotingCycle"]
 
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
-
-        # Donate to fund
         self.nodes[0].donatefund(100)
 
         # Create proposals
