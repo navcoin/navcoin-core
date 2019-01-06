@@ -21,7 +21,7 @@ class CommunityFundRawTXProposalVoteTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
-        # Make sure cfund is active
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(1000)
 
@@ -114,7 +114,7 @@ class CommunityFundRawTXProposalVoteTest(NavCoinTestFramework):
 
         # vote to reject proposal 1
         self.vote_to_new_cycle(prop1_vote_tx_no)
-        print(self.nodes[0].getproposal(proposalid1))
+        #print(self.nodes[0].getproposal(proposalid1))
         assert (self.nodes[0].getproposal(proposalid1)['status'] == 'rejected')
 
 

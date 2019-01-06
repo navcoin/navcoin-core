@@ -21,7 +21,7 @@ class CommunityFundProposalVoteListTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
-        # Make sure cfund is active
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(1000)
 
@@ -55,9 +55,9 @@ class CommunityFundProposalVoteListTest(NavCoinTestFramework):
         assert(len(self.nodes[0].proposalvotelist()["null"]) == 1)
 
         # Verify the hashes are contained in the output vote list
-        assert("hash=" + proposalid0 in self.nodes[0].proposalvotelist()["yes"][0])
-        assert("hash=" + proposalid1 in self.nodes[0].proposalvotelist()["no"][0])
-        assert("hash=" + proposalid2 in self.nodes[0].proposalvotelist()["null"][0])
+        assert(proposalid0 == self.nodes[0].proposalvotelist()["yes"][0]["hash"])
+        assert(proposalid1 == self.nodes[0].proposalvotelist()["no"][0]["hash"])
+        assert(proposalid2 == self.nodes[0].proposalvotelist()["null"][0]["hash"])
 
         # Revote differently
         self.nodes[0].proposalvote(proposalid0, "no")
@@ -76,7 +76,7 @@ class CommunityFundProposalVoteListTest(NavCoinTestFramework):
 
         # Check the new proposal has been added to "null" of proposal vote list
         assert(len(self.nodes[0].proposalvotelist()["null"]) == 1)
-        assert("hash=" + proposalid3 in self.nodes[0].proposalvotelist()["null"][0])
+        assert(proposalid3 == self.nodes[0].proposalvotelist()["null"][0]["hash"])
 
 
 if __name__ == '__main__':

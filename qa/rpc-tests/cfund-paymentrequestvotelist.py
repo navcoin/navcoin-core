@@ -21,7 +21,7 @@ class CommunityFundPaymentRequestVoteListTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
-        # Make sure cfund is active
+        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(1000)
 
@@ -65,9 +65,9 @@ class CommunityFundPaymentRequestVoteListTest(NavCoinTestFramework):
         assert(len(self.nodes[0].paymentrequestvotelist()["null"]) == 1)
 
         # Verify the hashes are contained in the output vote list
-        assert("hash=" + preqid0_a in self.nodes[0].paymentrequestvotelist()["yes"][0])
-        assert("hash=" + preqid0_b in self.nodes[0].paymentrequestvotelist()["no"][0])
-        assert("hash=" + preqid1_c in self.nodes[0].paymentrequestvotelist()["null"][0])
+        assert(preqid0_a == self.nodes[0].paymentrequestvotelist()["yes"][0]["hash"])
+        assert(preqid0_b == self.nodes[0].paymentrequestvotelist()["no"][0]["hash"])
+        assert(preqid1_c == self.nodes[0].paymentrequestvotelist()["null"][0]["hash"])
 
         # Revote differently
         self.nodes[0].paymentrequestvote(preqid0_a, "no")
@@ -86,7 +86,7 @@ class CommunityFundPaymentRequestVoteListTest(NavCoinTestFramework):
 
         # Check the new payment request has been added to "null" of payment request vote list
         assert(len(self.nodes[0].paymentrequestvotelist()["null"]) == 1)
-        assert("hash=" + preq0_d in self.nodes[0].paymentrequestvotelist()["null"][0])
+        assert(preq0_d == self.nodes[0].paymentrequestvotelist()["null"][0]["hash"])
 
 
 if __name__ == '__main__':
