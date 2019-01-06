@@ -95,11 +95,11 @@ After creating the VM, we need to configure it.
 
 - Click `Ok` twice to save.
 
-Get the [Debian 8.x net installer](http://cdimage.debian.org/debian-cd/8.5.0/amd64/iso-cd/debian-8.5.0-amd64-netinst.iso) (a more recent minor version should also work, see also [Debian Network installation](https://www.debian.org/CD/netinst/)).
+Get the [Debian 8.x net installer](https://cdimage.debian.org/cdimage/archive/8.11.0/amd64/iso-cd/debian-8.11.0-amd64-netinst.iso) (see also [Debian Network installation](https://www.debian.org/CD/netinst/)).
 This DVD image can be validated using a SHA256 hashing tool, for example on
 Unixy OSes by entering the following in a terminal:
 
-    echo "ad4e8c27c561ad8248d5ebc1d36eb172f884057bfeb2c22ead823f59fa8c3dff  debian-8.5.0-amd64-netinst.iso" | sha256sum -c
+    echo "ea799ed959d77359783e7922ed4c94a7437b083a4ce6f09e9fe41a7af6ba60df  debian-8.11.0-amd64-netinst.iso" | sha256sum -c
     # (must return OK)
 
 Then start the VM. On the first launch you will be asked for a CD or DVD image. Choose the downloaded iso.
@@ -335,8 +335,8 @@ There will be a lot of warnings printed during the build of the image. These can
 Getting and building the inputs
 --------------------------------
 
-Follow the instructions in [doc/release-process.md](release-process.md#fetch-and-build-inputs-first-time-or-when-dependency-versions-change)
-in the navcoin repository under 'Fetch and build inputs' to install sources which require
+Follow the instructions in [doc/release-process.md](release-process.md#fetch-and-create-inputs-first-time-or-when-dependency-versions-change)
+in the navcoin repository under 'Fetch and create inputs' to install sources which require
 manual intervention. Also optionally follow the next step: 'Seed the Gitian sources cache
 and offline git repositories' which will fetch the remaining files required for building
 offline.
@@ -344,8 +344,8 @@ offline.
 Building NavCoin Core
 ----------------
 
-To build NavCoin Core (for Linux, OS X and Windows) just follow the steps under 'perform
-Gitian builds' in [doc/release-process.md](release-process.md#perform-gitian-builds) in the navcoin repository.
+To build NavCoin Core (for Linux, OS X and Windows) just follow the steps under 'Setup and perform
+Gitian builds' in [doc/release-process.md](release-process.md#setup-and-perform-gitian-builds) in the navcoin repository.
 
 This may take some time as it will build all the dependencies needed for each descriptor.
 These dependencies will be cached after a successful build to avoid rebuilding them when possible.
@@ -449,6 +449,26 @@ SIGPATH=/some/root/path/navcoin-detached-sigs
 ./bin/gbuild --url navcoin=${NAVPATH},signature=${SIGPATH} ../navcoin/contrib/gitian-descriptors/gitian-win-signer.yml
 ```
 
+Building with Debian 9.5.0
+-------------------
+
+Building with Debian 9.5.0 using the above instructions will require several modified steps:
+- [Enabling SSH login for root users](gitian-building.md#after-installation) will not work with `sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config`.
+You can manually modify `/etc/ssh/sshd_config` by adding `PermitRootLogin yes`.
+- [The rc.local script to set up a bridge between guest and host](gitian-building.md#setting-up-debian-for-gitian-building) will not work. Instead, use:
+```
+# make /etc/rc.local script that sets up bridge between guest and host
+echo '#!/bin/sh -e' > /etc/rc.local
+echo 'brctl addbr br0' >> /etc/rc.local
+echo 'ip addr add 10.0.3.2/24 broadcast 10.0.3.255 dev br0' >> /etc/rc.local
+echo 'ip link set br0 up' >> /etc/rc.local
+echo 'firewall-cmd --zone=trusted --add-interface=br0' >> /etc/rc.local
+echo 'exit 0' >> /etc/rc.local
+chmod +x /etc/rc.local
+```
+The script is the same as [bitcoin-core](https://github.com/bitcoin-core/docs/blob/master/gitian-building/gitian-building-setup-gitian-debian.md#setting-up-debian-for-gitian-building) except that port `10.0.3.1/24` is modified to `10.0.3.2/24`.
+- LXC in the gitian builder will fail in Debian 9. The issue is fixed in [the pull request here](https://github.com/devrandom/gitian-builder/pull/150) and you can manually make the changes to gitian builder. The changes were subsequently rolled back due to [the patch introducing problems when running in Debian 8.x](https://github.com/devrandom/gitian-builder/issues/151).
+
 Signing externally
 -------------------
 
@@ -473,5 +493,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[navcoin-core/gitian.sigs](https://github.com/navcoin-core/gitian.sigs/) repository, or if that's not possible create a pull
-request. You can also mail the files to Wladimir (laanwj@gmail.com) and he will commit them.
+[NAVCoin/navcoin-sigs](https://github.com/NAVCoin/navcoin-sigs) repository, or if that's not possible create a pull
+request.
