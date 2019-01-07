@@ -48,6 +48,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 16 -< C FUND ACCUMULATION AMOUNT V2
 * Bit 17 -< C FUND REDUCED QUORUM
 * Bit 20 -< V451 FORK
+* Bit 21 -< V452 FORK
 *
 ***/
 
