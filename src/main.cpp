@@ -3871,7 +3871,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
 
     std::map<uint256, bool> vSeen;
 
-    if (fUndo || nBlocks == 1) {
+    if (fUndo || nBlocks == 1 || vCacheProposalsToUpdate.empty() || vCachePaymentRequestToUpdate.empty()) {
         vCacheProposalsToUpdate.clear();
         vCachePaymentRequestToUpdate.clear();
     } else {
