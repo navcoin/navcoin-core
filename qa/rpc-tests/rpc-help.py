@@ -30,7 +30,14 @@ class HelpRpcTest(NavCoinTestFramework):
         # command titles
         titles = [line[3:-3] for line in node.help().splitlines() if line.startswith('==')]
 
-        components = ['Addressindex', 'Blockchain', 'Communityfund', 'Control', 'Generating', 'Hacking', 'Mining', 'Network', 'Rawtransactions', 'Util', 'Wallet']
+        components = ['Addressindex', 'Blockchain', 'Communityfund', 'Control', 'Generating', 'Hacking', 'Mining', 'Network', 'Rawtransactions', 'Util']
+
+        # titles and components will differ depending on whether wallet and/or zmq are compiled
+        if 'Wallet' in titles:
+            components.append('Wallet')
+
+        if 'Zmq' in titles:
+            components.append('Zmq')
 
         assert_equal(titles, components)
 
