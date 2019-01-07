@@ -4063,7 +4063,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             }
 
             if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0) {
-                if((!proposal.IsExpired(pindexNew->GetBlockTime()) && proposal.fState == CFund::EXPIRED) ||
+                if((!proposal.IsExpired(pindexNew->GetBlockTime()) && (proposal.fState == CFund::EXPIRED || proposal.fState == CFund::PENDING_VOTING_PREQ)) ||
                    (!proposal.IsRejected() && proposal.fState == CFund::REJECTED)){
                     proposal.fState = CFund::NIL;
                     proposal.blockhash = uint256();
