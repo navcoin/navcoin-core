@@ -166,6 +166,7 @@ testScripts = [
     'coldstaking_spending.py',
     'staticr-staking-amount.py',
     'hardfork-451.py',
+    'hardfork-452.py',
     'staticr-tx-send.py',
 ]
 #if ENABLE_ZMQ:
