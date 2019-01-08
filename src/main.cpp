@@ -3966,6 +3966,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
 
+            auto oldState = prequest.fState;
+            auto oldCycle = prequest.nVotingCycle;
+
             if((prequest.fState == CFund::NIL || fUndo) && nVotingCycles != prequest.nVotingCycle) {
                 prequest.nVotingCycle = nVotingCycles;
                 fUpdate = true;
@@ -4007,6 +4010,10 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     }
                 }
             }
+
+            if (fUndo && fUpdate && prequest.fState == oldState && prequest.nVotingCycle != oldCycle)
+                prequest.nVotingCycle = oldCycle;
+
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
                 if (!vSeen.count(prequest.hash) && prequest.fState == CFund::NIL
@@ -4046,6 +4053,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesProposalVoting + 1);
+
+            auto oldState = proposal.fState;
+            auto oldCycle = proposal.nVotingCycle;
 
             if((proposal.fState == CFund::NIL || fUndo) && nVotingCycles != proposal.nVotingCycle) {
                 proposal.nVotingCycle = nVotingCycles;
@@ -4102,6 +4112,10 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     }
                 }
             }
+
+            if (fUndo && fUpdate && proposal.fState == oldState && proposal.nVotingCycle != oldCycle)
+                proposal.nVotingCycle = oldCycle;
+
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
                 if (!vSeen.count(prequest.hash) && proposal.fState == CFund::NIL){
