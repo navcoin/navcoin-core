@@ -148,9 +148,9 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
 
         # Check the voting cycle does not increment in later cycle after reorg
-        votingCycle_after_state_change = self.nodes[0].getproposal(proposalid0)["votingCycle"])
+        votingCycle_after_state_change = self.nodes[0].getproposal(proposalid0)["votingCycle"]
         start_new_cycle(self.nodes[0])
-        slow_gen(self.nodes[0], 1)
+        blocks=slow_gen(self.nodes[0], 1)
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == votingCycle_after_state_change)
 

@@ -275,7 +275,7 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting;
+    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && nVotingCycle <= Params().GetConsensus().nCyclesPaymentRequestVoting;
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
@@ -385,7 +385,7 @@ bool CFund::CProposal::IsRejected() const {
 }
 
 bool CFund::CProposal::CanVote() const {
-    return fState == NIL && nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
+    return (fState == NIL) && (nVotingCycle <= Params().GetConsensus().nCyclesProposalVoting);
 }
 
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
@@ -394,7 +394,7 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
             CBlockIndex* pblockindex = mapBlockIndex[blockhash];
             return (pblockindex->GetBlockTime() + nDeadline < currentTime);
         }
-        return (fState == EXPIRED) || (fState == PENDING_VOTING_PREQ) || (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (CanVote() || fState == EXPIRED));
+        return (fState == EXPIRED) || (fState == PENDING_VOTING_PREQ) || (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (fState == NIL || fState == EXPIRED));
     } else {
         return (nDeadline < currentTime);
     }
