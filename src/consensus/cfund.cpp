@@ -275,7 +275,7 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED;
+    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting;
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
@@ -382,6 +382,10 @@ bool CFund::CProposal::IsRejected() const {
     }
     return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
+}
+
+bool CFund::CProposal::CanVote() const {
+    return fState == NIL && nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
 }
 
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {

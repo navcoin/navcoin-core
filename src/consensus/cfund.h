@@ -260,9 +260,7 @@ public:
 
     bool IsExpired(uint32_t currentTime) const;
 
-    bool CanVote() const {
-        return fState == NIL;
-    }
+    bool CanVote() const;
 
     bool CanRequestPayments() const {
         return fState == ACCEPTED;
