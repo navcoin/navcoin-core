@@ -4011,7 +4011,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                 }
             }
 
-            if (fUndo && fUpdate && prequest.fState == oldState && prequest.nVotingCycle != oldCycle)
+            if (fUndo && fUpdate && prequest.fState == oldState && prequest.fState != CFund::NIL && prequest.nVotingCycle != oldCycle)
                 prequest.nVotingCycle = oldCycle;
 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
