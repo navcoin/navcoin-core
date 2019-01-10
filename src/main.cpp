@@ -3858,6 +3858,9 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     return true;
 }
 
+std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
+std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
+
 void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
 {
     int64_t nTimeStart = GetTimeMicros();
@@ -3866,13 +3869,16 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
     CBlockIndex* pindexblock = pindexNew;
 
-    std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
-    std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
     std::map<uint256, bool> vSeen;
 
-    vCacheProposalsToUpdate.clear();
-    vCachePaymentRequestToUpdate.clear();
+    if (fUndo || nBlocks == 1 || vCacheProposalsToUpdate.empty() || vCachePaymentRequestToUpdate.empty()) {
+        vCacheProposalsToUpdate.clear();
+        vCachePaymentRequestToUpdate.clear();
+    } else {
+        nBlocks = 1;
+    }
 
+    int64_t nTimeStart2 = GetTimeMicros();
     while(nBlocks > 0 && pindexblock != NULL) {
         vSeen.clear();
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
@@ -3911,9 +3917,13 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
         pindexblock = pindexblock->pprev;
         nBlocks--;
     }
+    int64_t nTimeEnd2 = GetTimeMicros();
+    LogPrint("bench-cfund", "  - CFund count votes from headers: %.2fms\n", (nTimeEnd2 - nTimeStart2) * 0.001);
+
 
     vSeen.clear();
 
+    int64_t nTimeStart3 = GetTimeMicros();
     std::map<uint256, std::pair<int, int>>::iterator it;
     std::vector<std::pair<uint256, CFund::CProposal>> vecProposalsToUpdate;
     std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdate;
@@ -3941,9 +3951,12 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     if (!pblocktree->UpdateProposalIndex(vecProposalsToUpdate)) {
         AbortNode(state, "Failed to write proposal index");
     }
+    int64_t nTimeEnd3 = GetTimeMicros();
+    LogPrint("bench-cfund", "  - CFund update votes: %.2fms\n", (nTimeEnd3 - nTimeStart3) * 0.001);
 
     std::vector<CFund::CPaymentRequest> vecPaymentRequest;
 
+    int64_t nTimeStart4 = GetTimeMicros();
     if(pblocktree->GetPaymentRequestIndex(vecPaymentRequest)){
         for(unsigned int i = 0; i < vecPaymentRequest.size(); i++) {
             vecPaymentRequestsToUpdate.clear();
@@ -4026,9 +4039,12 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     } else {
         AbortNode(state, "Failed to read payment request index, please restart with -reindex-chainstate");
     }
+    int64_t nTimeEnd4 = GetTimeMicros();
+    LogPrint("bench-cfund", "  - CFund update payment request status: %.2fms\n", (nTimeEnd4 - nTimeStart4) * 0.001);
 
     std::vector<CFund::CProposal> vecProposal;
 
+    int64_t nTimeStart5 = GetTimeMicros();
     if(pblocktree->GetProposalIndex(vecProposal)){
         for(unsigned int i = 0; i < vecProposal.size(); i++) {
             bool fUpdate = false;
@@ -4116,6 +4132,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     } else {
         AbortNode(state, "Failed to read proposal index, please restart with -reindex-chainstate");
     }
+    int64_t nTimeEnd5 = GetTimeMicros();
+
+    LogPrint("bench-cfund", "  - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
 
     if (!pblocktree->UpdatePaymentRequestIndex(vecPaymentRequestsToUpdate)) {
         AbortNode(state, "Failed to write payment request index");
@@ -4126,7 +4145,7 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
     }
 
     int64_t nTimeEnd = GetTimeMicros();
-    LogPrint("bench", "- CFund count votes: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+    LogPrint("bench", "- CFund total CountVotes() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
 }
 
 /**
