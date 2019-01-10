@@ -102,11 +102,8 @@ public:
             if(fState != REJECTED)
                 sFlags += " waiting for end of voting period";
         }
-        if(IsExpired()) {
+        if(IsExpired())
             sFlags = "expired";
-            if(fState != EXPIRED)
-                sFlags += " waiting for end of voting period";
-        }
         return sFlags;
     }
 
@@ -227,30 +224,7 @@ public:
         return str + "\n";
     }
 
-    std::string GetState(uint32_t currentTime) const {
-        std::string sFlags = "pending";
-        if(IsAccepted()) {
-            sFlags = "accepted";
-            if(fState == PENDING_FUNDS)
-                sFlags += " waiting for enough coins in fund";
-            else if(fState != ACCEPTED)
-                sFlags += " waiting for end of voting period";
-        }
-        if(IsRejected()) {
-            sFlags = "rejected";
-            if(fState != REJECTED)
-                sFlags += " waiting for end of voting period";
-        }
-        if(currentTime > 0 && IsExpired(currentTime)) {
-            sFlags = "expired";
-            if(fState != EXPIRED)
-                sFlags += " waiting for end of voting period";
-        }
-        if(fState == PENDING_VOTING_PREQ) {
-            sFlags = "expired pending voting of payment requests";
-        }
-        return sFlags;
-    }
+    std::string GetState(uint32_t currentTime) const;
 
     void ToJson(UniValue& ret) const;
 

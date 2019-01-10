@@ -400,6 +400,31 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
     }
 }
 
+std::string CFund::CProposal::GetState(uint32_t currentTime) const {
+    std::string sFlags = "pending";
+    if(IsAccepted()) {
+        sFlags = "accepted";
+        if(fState == PENDING_FUNDS)
+            sFlags += " waiting for enough coins in fund";
+        else if(fState != ACCEPTED)
+            sFlags += " waiting for end of voting period";
+    }
+    if(IsRejected()) {
+        sFlags = "rejected";
+        if(fState != REJECTED)
+            sFlags += " waiting for end of voting period";
+    }
+    if(currentTime > 0 && IsExpired(currentTime)) {
+        sFlags = "expired";
+        if(fState != EXPIRED && nVotingCycle <= Params().GetConsensus().nCyclesProposalVoting)
+            sFlags += " waiting for end of voting period";
+    }
+    if(fState == PENDING_VOTING_PREQ) {
+        sFlags = "expired pending voting of payment requests";
+    }
+    return sFlags;
+}
+
 void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
@@ -420,7 +445,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     }
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
+    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesProposalVoting)));
     ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
     ret.push_back(Pair("state", (uint64_t)fState));
     if(fState == ACCEPTED)
@@ -447,7 +472,7 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", (uint64_t)nVotingCycle));
+    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesPaymentRequestVoting)));
     ret.push_back(Pair("status", GetState()));
     ret.push_back(Pair("state", (uint64_t)fState));
     ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
