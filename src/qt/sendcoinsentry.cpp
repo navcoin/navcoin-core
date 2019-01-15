@@ -132,7 +132,7 @@ void SendCoinsEntry::deleteClicked()
     Q_EMIT removeEntry(this);
 }
 
-bool SendCoinsEntry::validate()
+bool SendCoinsEntry::validate(QCheckBox* checkBox)
 {
     if (!model)
         return false;
@@ -146,7 +146,7 @@ bool SendCoinsEntry::validate()
 
     utils::DNSResolver* DNS = nullptr;
 
-
+    // Validate openalias address
     if(DNS->check_address_syntax(ui->payTo->text().toStdString().c_str()))
     {
 
@@ -165,7 +165,7 @@ bool SendCoinsEntry::validate()
 
     }
 
-    else if (!model->validateAddress(ui->payTo->text()))
+    else if (!model->validateAddress(ui->payTo->text()) && checkBox->checkState() == Qt::Unchecked)
     {
         ui->payTo->setValid(false);
         retval = false;
