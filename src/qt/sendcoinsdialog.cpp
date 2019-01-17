@@ -243,7 +243,6 @@ void SendCoinsDialog::on_sendButton_clicked()
                 recipient.address = QString("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
                 recipient.isDonation = true;
             }
-            std::cout << std::to_string(recipient.isDonation) << "\n";
             if(ui->anonsendCheckbox->checkState() != 0) {
                 try
                 {
@@ -427,8 +426,6 @@ void SendCoinsDialog::on_sendButton_clicked()
         QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
         amount.append("</b>");
         // generate monospace address string
-        std::cout << std::to_string(rcp.isDonation) << "\n";
-
         QString address = rcp.isDonation ? QString(tr("the community fund")) : "<span style='font-family: monospace;'>" + rcp.address + "</span>";
         //QString address = "<span style='font-family: monospace;'>";
         //address += rcp.isDonation ? QString(tr("the community fund")) : rcp.address;
