@@ -16,7 +16,6 @@
 #include "merkleblock.h"
 #include "core_io.h"
 
-#include <mnemonic/generateseed.h>
 #include <mnemonic/mnemonic.h>
 
 #include <fstream>
