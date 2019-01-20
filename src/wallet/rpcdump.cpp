@@ -16,6 +16,9 @@
 #include "merkleblock.h"
 #include "core_io.h"
 
+#include <mnemonic/generateseed.h>
+#include <mnemonic/mnemonic.h>
+
 #include <fstream>
 #include <stdint.h>
 
@@ -653,37 +656,95 @@ UniValue dumpmasterprivkey(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 0)
         throw runtime_error(
-            "dumpmasterprivkey\n"
-            "\nReveals the current master private key.\n"
-            "\nResult:\n"
-            " \"key\"                 (string) The HD master private key\n"
-            "\nExamples:\n"
-            + HelpExampleCli("dumpmasterprivkey", "")
-        );
+                "dumpmasterprivkey\n"
+                "\nReveals the current master private key.\n"
+                "\nResult:\n"
+                " \"key\"                 (string) The HD master private key\n"
+                "\nExamples:\n"
+                + HelpExampleCli("dumpmasterprivkey", "")
+                );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     EnsureWalletIsUnlocked();
 
     CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
-     if (!pwalletMain->IsHDEnabled())
-     {
-         throw JSONRPCError(RPC_WALLET_ERROR, "Wallet is not a HD wallet.");
-     }
-     CKey key;
-     if (pwalletMain->GetKey(masterKeyID, key))
-     {
-         CExtKey masterKey;
-         masterKey.SetMaster(key.begin(), key.size());
+    if (!pwalletMain->IsHDEnabled())
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Wallet is not a HD wallet.");
+    }
+    CKey key;
+    if (pwalletMain->GetKey(masterKeyID, key))
+    {
+        CExtKey masterKey;
+        masterKey.SetMaster(key.begin(), key.size());
 
-         CNavCoinExtKey b58extkey;
-         b58extkey.SetKey(masterKey);
+        CNavCoinExtKey b58extkey;
+        b58extkey.SetKey(masterKey);
 
-         return b58extkey.ToString();
-     }
-     else
-     {
-         throw JSONRPCError(RPC_WALLET_ERROR, "Unable to retrieve HD master private key");
-         return NullUniValue;
-     }
- }
+        return b58extkey.ToString();
+    }
+    else
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Unable to retrieve HD master private key");
+        return NullUniValue;
+    }
+}
+
+UniValue dumpmnemonic(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+                "dumpmnemonic\n"
+                "\nReveals the mnemonic for the current master private key.\n"
+                "\nSupported languages:\n"
+                "\n - english, spanish, italian, japanese, french, russian\n"
+                "\nArguments:\n"
+                "1. \"language\"          (string, required, english by default) The language for generating the mnemonic\n"
+                "\nExamples:\n"
+                + HelpExampleCli("dumpmnemonic", "")
+                + HelpExampleCli("dumpmnemonic", "spanish")
+                );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    EnsureWalletIsUnlocked();
+
+    CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
+    if (!pwalletMain->IsHDEnabled())
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Wallet is not a HD wallet.");
+    }
+    CKey key;
+    if (pwalletMain->GetKey(masterKeyID, key))
+    {
+        std::vector<unsigned char> keyData;
+        const unsigned char* ptrKeyData = key.begin();
+        for (int i = 0; ptrKeyData != key.end(); i++) {
+            unsigned char byte = *ptrKeyData;
+            keyData.push_back(byte);
+            ptrKeyData++;
+        }
+
+        std::string mnemonic;
+        word_list mnemonic_words = create_mnemonic(keyData, string_to_lexicon(params.size() == 1 ? params[0].get_str() : "english"));
+        for (auto it = mnemonic_words.begin(); it != mnemonic_words.end();) {
+            const auto word = *it;
+            mnemonic += word;
+            ++it;
+            if (it == mnemonic_words.end())
+                break;
+            mnemonic += " ";
+        }
+
+        return mnemonic;
+    }
+    else
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Unable to retrieve HD master private key");
+        return NullUniValue;
+    }
+}

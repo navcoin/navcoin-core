@@ -150,13 +150,13 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     prevBlocks(0),
     spinnerFrame(0),
     fDontShowAgain(false),
-    lastDialogShown(0),
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
+    lastDialogShown(0),
+    platformStyle(platformStyle),
     updatePriceAction(0),
-    fShowingVoting(0),
-    platformStyle(platformStyle)
+    fShowingVoting(0)
 {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
     //setFixedSize(QSize(840, 600));

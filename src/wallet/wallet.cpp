@@ -1684,6 +1684,40 @@ CAmount CWallet::GetChange(const CTransaction& tx) const
     return nChange;
 }
 
+CPubKey CWallet::ImportMnemonic(word_list mnemonic, dictionary lang)
+{
+    CKey key;
+
+    std::vector<unsigned char> vKey = key_from_mnemonic(mnemonic, lang);
+
+    key.Set(vKey.begin(), vKey.end(), false);
+
+    int64_t nCreationTime = GetTime();
+    CKeyMetadata metadata(nCreationTime);
+
+    // calculate the pubkey
+    CPubKey pubkey = key.GetPubKey();
+    assert(key.VerifyPubKey(pubkey));
+
+    // set the hd keypath to "m" -> Master, refers the masterkeyid to itself
+    metadata.hdKeypath     = "m";
+    metadata.hdMasterKeyID = pubkey.GetID();
+
+    {
+        LOCK(cs_wallet);
+
+        // mem store the metadata
+        mapKeyMetadata[pubkey.GetID()] = metadata;
+
+        // write the key&metadata to the database
+        if (!AddKeyPubKey(key, pubkey))
+            throw std::runtime_error("CWallet::GenerateNewKey(): AddKey failed");
+    }
+
+    return pubkey;
+}
+
+
 CPubKey CWallet::GenerateNewHDMasterKey()
 {
     CKey key;
@@ -3949,7 +3983,18 @@ bool CWallet::InitLoadWallet()
         if (GetBoolArg("-usehd", DEFAULT_USE_HD_WALLET) && walletInstance->hdChain.masterKeyID.IsNull()) {
             // generate a new master key
             CKey key;
-            CPubKey masterPubKey = walletInstance->GenerateNewHDMasterKey();
+            CPubKey masterPubKey;
+            if (GetArg("-importmnemonic","") != "") {
+                word_list words = sentence_to_word_list(GetArg("-importmnemonic",""));
+                dictionary lexicon = string_to_lexicon(GetArg("-mnemoniclanguage","english"));
+                if (!validate_mnemonic(words, lexicon)) {
+                    if (validate_mnemonic(words, language::all))
+                        return InitError(strprintf(_("The specified language does not correspond to the mnemonic.")));
+                    return InitError(strprintf(_("You specified a wrong mnemonic")));
+                }
+                masterPubKey = walletInstance->ImportMnemonic(words, lexicon);
+            } else
+                masterPubKey = walletInstance->GenerateNewHDMasterKey();
             if (!walletInstance->SetHDMasterKey(masterPubKey))
                 throw std::runtime_error("CWallet::GenerateNewKey(): Storing master key failed");
         }
@@ -3961,6 +4006,9 @@ bool CWallet::InitLoadWallet()
         }
 
         walletInstance->SetBestChain(chainActive.GetLocator());
+    }
+    else if (GetArg("-importmnemonic","") != "") {
+        return InitError(strprintf(_("You are trying to import a new mnemonic but a wallet already exists. Please rename the existing wallet.dat before trying to import again.")));
     }
     else if (mapArgs.count("-usehd")) {
         bool useHD = GetBoolArg("-usehd", DEFAULT_USE_HD_WALLET);

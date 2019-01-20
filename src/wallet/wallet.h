@@ -7,6 +7,7 @@
 #define NAVCOIN_WALLET_WALLET_H
 
 #include "amount.h"
+#include "mnemonic/mnemonic.h"
 #include "streams.h"
 #include "tinyformat.h"
 #include "ui_interface.h"
@@ -1001,6 +1002,7 @@ public:
 
     /* Generates a new HD master key (will not be activated) */
     CPubKey GenerateNewHDMasterKey();
+    CPubKey ImportMnemonic(word_list mnemonic, dictionary lang);
 
     /* Set the current HD master key (will reset the chain child index counters) */
     bool SetHDMasterKey(const CPubKey& key);
