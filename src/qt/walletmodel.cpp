@@ -268,7 +268,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         }
         else
         {   // User-entered navcoin address / amount:
-            if(!validateAddress(rcp.isanon?rcp.destaddress:rcp.address))
+            if(!validateAddress(rcp.isanon?rcp.destaddress:rcp.address) && rcp.isDonation == false)
             {
                 return InvalidAddress;
             }
@@ -280,6 +280,10 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             ++nAddresses;
 
             CScript scriptPubKey = GetScriptForDestination(CNavCoinAddress(rcp.isanon ? rcp.destaddress.toStdString() : rcp.address.toStdString()).Get());
+            if(rcp.isDonation)
+            {
+                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+            }
             CRecipient recipient = {scriptPubKey, !rcp.fSubtractFeeFromAmount && rcp.isanon ? rcp.amount + rcp.anonfee: rcp.amount, rcp.fSubtractFeeFromAmount, rcp.anondestination.toStdString()};
             vecSend.push_back(recipient);
 

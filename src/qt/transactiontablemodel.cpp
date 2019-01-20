@@ -375,7 +375,7 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     switch(wtx->type)
     {
     case TransactionRecord::CFund:
-        return tr("Sent to");
+        return tr("Sent to Community Fund");
     case TransactionRecord::CFundPayment:
         return tr("Community Fund Payment");
     case TransactionRecord::AnonTx:

@@ -58,6 +58,7 @@ public Q_SLOTS:
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance);
     void checkNavtechServers();
     void showNavTechDialog();
+    void setDonate(int state);
     void anonsendCheckboxClick();
     void useFullAmount();
 

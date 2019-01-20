@@ -7,6 +7,7 @@
 
 #include "walletmodel.h"
 
+#include <QCheckBox>
 #include <QStackedWidget>
 
 class WalletModel;
@@ -30,7 +31,7 @@ public:
     ~SendCoinsEntry();
 
     void setModel(WalletModel *model);
-    bool validate();
+    bool validate(QCheckBox* checkBox);
     SendCoinsRecipient getValue();
 
     /** Return whether the entry is still empty and unedited */
@@ -45,7 +46,6 @@ public:
     QWidget *setupTabChain(QWidget *prev);
 
     void setFocus();
-
     void setTotalAmount(const CAmount& amount);
     void useFullAmount();
 

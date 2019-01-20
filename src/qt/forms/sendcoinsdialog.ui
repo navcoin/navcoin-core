@@ -699,7 +699,7 @@
           <string>S&amp;end</string>
          </property>
          <property name="icon">
-          <iconset resource="../navcoin.qrc">
+          <iconset>
            <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
          </property>
          <property name="autoDefault">
@@ -900,6 +900,13 @@
             </property>
             <property name="text">
              <string>Manage NAVTech servers</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="donateCheckBox">
+            <property name="text">
+             <string>Donate to community fund</string>
             </property>
            </widget>
           </item>
@@ -1399,12 +1406,10 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../navcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="groupCustomFee"/>
   <buttongroup name="groupFee"/>
+  <buttongroup name="groupCustomFee"/>
  </buttongroups>
 </ui>
