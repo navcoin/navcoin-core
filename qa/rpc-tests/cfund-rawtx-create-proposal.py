@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 import time
 
@@ -24,23 +24,14 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         self.goodAddress = ""
 
     def setup_network(self, split=False):
-        self.allDescTextOptions()
+        self.all_desc_text_options()
 
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-        self.is_network_split = False
+        self.nodes = self.setup_nodes()
+        self.is_network_split = split
 
     def run_test(self):
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is started
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is locked_in
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is active
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
+        self.nodes[0].staking(False)
+        activate_cfund(self.nodes[0])
 
         # creates a good proposal and sets things we use later
         self.test_happy_path()
@@ -129,8 +120,8 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         proposal = ""
         callSucceed = False
         try:
-            proposal = self.send_raw_propsalrequest(address, amount, duration, description)
-            print(proposal)
+            proposal = self.send_raw_proposalrequest(address, amount, duration, description)
+            #print(proposal)
             callSucceed = True
         except :
             pass
@@ -140,14 +131,14 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
 
         #check a gen - should still only have the last good prop
         blocks = slow_gen(self.nodes[0], 1)
-        propsalList = self.nodes[0].listproposals()
+        proposal_list = self.nodes[0].listproposals()
 
         #should still only have 1 proposal from the good test run
-        assert(len(propsalList) == 1)
-        self.checkGoodPropsal(propsalList[0])
+        assert(len(proposal_list) == 1)
+        self.check_good_proposal(proposal_list[0])
 
 
-    def test_valid_description(self, descriptionTxt, proposalListLen):
+    def test_valid_description(self, descriptionTxt, proposal_list_len):
 
         duration = 360000
         amount = 100
@@ -156,10 +147,10 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         propHash = ""
         callSucceed = True
 
-        print("Test Description: -------------------------")
-        print(descriptionTxt)
+        #print("Test Description: -------------------------")
+        #print(descriptionTxt)
         try:
-            propHash = self.send_raw_propsalrequest(self.goodAddress, self.goodAmount, self.goodDuration, descriptionTxt)
+            propHash = self.send_raw_proposalrequest(self.goodAddress, self.goodAmount, self.goodDuration, descriptionTxt)
             #print(propHash)
         except Exception as e:
             print(e)
@@ -170,14 +161,14 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
 
         # check a gen - should still only have the last good prop
         blocks = slow_gen(self.nodes[0], 1)
-        propsalList = self.nodes[0].listproposals()
+        proposal_list = self.nodes[0].listproposals()
 
         # should still only have the correct amount of proposals from the other runs
-        assert(len(propsalList) == proposalListLen)
+        assert(len(proposal_list) == proposal_list_len)
 
         # find the proposal we just made and test the description
         proposal_found = False
-        for proposal in propsalList:
+        for proposal in proposal_list:
             if proposal['hash'] == propHash:
                 proposal_found = True
                 assert(proposal['description'] == descriptionTxt)
@@ -191,19 +182,19 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
 
         self.goodAddress = self.nodes[0].getnewaddress()
 
-        self.goodPropHash = self.send_raw_propsalrequest(self.goodAddress, self.goodAmount, self.goodDuration, self.goodDescription)
+        self.goodPropHash = self.send_raw_proposalrequest(self.goodAddress, self.goodAmount, self.goodDuration, self.goodDescription)
 
         blocks = slow_gen(self.nodes[0], 1)
-        propsalList = self.nodes[0].listproposals()
+        proposal_list = self.nodes[0].listproposals()
 
         # Should only have 1 proposal
-        assert(len(propsalList) == 1)
+        assert(len(proposal_list) == 1)
 
         # The proposal should have all the same required fields
-        assert (propsalList[0]['blockHash'] == blocks[0])
-        self.checkGoodPropsal(propsalList[0])
+        assert (proposal_list[0]['blockHash'] == blocks[0])
+        self.check_good_proposal(proposal_list[0])
 
-    def checkGoodPropsal(self, proposal):
+    def check_good_proposal(self, proposal):
 
         assert (proposal['votingCycle'] == 0)
         assert (proposal['version'] == 2)
@@ -220,7 +211,7 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         assert (float(proposal['userPaidFee']) == float(1))
 
 
-    def send_raw_propsalrequest(self, address, amount, time, description):
+    def send_raw_proposalrequest(self, address, amount, time, description):
 
         amount = amount * 100000000
 
@@ -244,13 +235,7 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         return self.nodes[0].sendrawtransaction(raw_proposal_tx)
 
 
-
-    def start_new_cycle(self):
-        # Move to the end of the cycle
-        self.slow_gen(self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
-
-
-    def allDescTextOptions(self):
+    def all_desc_text_options(self):
         self.descTxtToLong = "LOOOOONNNNNGGGG, Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper justo ac neque mollis, a cursus nisl placerat. Aliquam ipsum quam, congue vitae vulputate id, ullamcorper vel libero. Phasellus et tristique justo. Curabitur eu porta magna, vitae auctor libero. Fusce tellus ipsum, aliquet nec consequat ut, dictum eget libero. Maecenas eu velit quam. Nunc ac libero in purus vestibulum feugiat quis nec urna. Donec faucibus consequat dignissim. Donec ornare turpis nec lobortis vestibulum. Vivamus lobortis vel massa ac ultrices. Ut vel eros in elit vehicula luctus vel vitae justo. Praesent quis semper nisi. Vivamus viverra blandit ex. Sed nec fringilla quam. Nulla condimentum rhoncus erat sit amet vulputate. Phasellus viverra sagittis consequat. Sed dapibus augue ac enim dignissim, at consequat arcu ornare. Vestibulum facilisis pretium aliquet. asdfjasdlkfjhadsfkjhasdkjhakjdhfaskjdakjsdhf  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         self.descTxtMaxLength ="IM LOOOOONNNNNGGGG, Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque semper justo ac neque mollis, a cursus nisl placerat. Aliquam ipsum quam, congue vitae vulputate id, ullamcorper vel libero. Phasellus et tristique justo. Curabitur eu porta magna, vitae auctor libero. Fusce tellus ipsum, aliquet nec consequat ut, dictum eget libero. Maecenas eu velit quam. Nunc ac libero in purus vestibulum feugiat quis nec urna. Donec faucibus consequat dignissim. Donec ornare turpis nec lobortis vestibulum. Vivamus lobortis vel massa ac ultrices. Ut vel eros in elit vehicula luctus vel vitae justo. Praesent quis semper nisi. Vivamus viverra blandit ex. Sed nec fringilla quam. Nulla condimentum rhoncus erat sit amet vulputate. Phasellus viverra sagittis consequat. Sed dapibus augue ac enim dignissim, at consequat arcu ornare. Vestibulum facilisis pretium aliquet. xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxabc"
 

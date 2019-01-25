@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 import time
 
@@ -18,17 +18,15 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-        self.is_network_split = False
+        self.nodes = self.setup_nodes()
+        self.is_network_split = split
 
     def run_test(self):
         # Get cfund parameters
         blocks_per_voting_cycle = self.nodes[0].cfundstats()["consensus"]["blocksPerVotingCycle"]
 
-        # Make sure the cfund is active
-        self.activate_cfund()
-
-        # Donate to fund
+        self.nodes[0].staking(False)
+        activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100)
 
         # Create proposals
@@ -49,7 +47,7 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
         assert (set(desc_lst) == set(created_proposals.keys()))
 
         # Move to the end of the 0th voting cycle
-        self.end_cycle()
+        end_cycle(self.nodes[0])
 
         # Verify we are still in the 0th voting cycle for all the created proposals
         desc_lst = []
@@ -77,7 +75,7 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
         # Vote for proposals and move to end of the 1st voting cycle
         self.nodes[0].proposalvote(created_proposals["50_50_vote"], "no")
         # Proposals get accepted on the last block of the current cycle
-        self.end_cycle()
+        end_cycle(self.nodes[0])
 
         # Verify proposal status and voting cycle for all the created proposals
         desc_lst = []
@@ -136,7 +134,7 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
 
         # Accept payment request
         self.nodes[0].paymentrequestvote(payreq0, "yes")
-        self.end_cycle()
+        end_cycle(self.nodes[0])
 
         # Validate that the request was accepted and check paid amounts
         for proposal in self.nodes[0].listproposals():
@@ -145,28 +143,6 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
                 assert (proposal["paymentRequests"][0]["hash"] == payreq0)
                 assert (proposal["paymentRequests"][0]["status"] == "accepted")
                 assert (proposal["paymentRequests"][0]["state"] == 1)
-
-    def activate_cfund(self):
-        slow_gen(self.nodes[0] , 100)
-        # Verify the Community Fund is started
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0] , 100)
-        # Verify the Community Fund is locked_in
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0] , 100)
-        # Verify the Community Fund is active
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
-
-    def end_cycle(self):
-        # Move to the end of the cycle
-        slow_gen(self.nodes[0] , self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
-
-    def start_new_cycle(self):
-        # Move one past the end of the cycle
-        slow_gen(self.nodes[0] , self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"] + 1)
-
 
 
 if __name__ == '__main__':

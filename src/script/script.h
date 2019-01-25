@@ -186,6 +186,8 @@ enum opcodetype
     OP_YES = 0xc4,
     OP_NO = 0xc5,
 
+    OP_COINSTAKE = 0xc6,
+
     // template matching params
     OP_SMALLDATA = 0xf9,
     OP_SMALLINTEGER = 0xfa,
@@ -671,6 +673,11 @@ public:
     unsigned int GetSigOpCount(const CScript& scriptSig) const;
 
     bool IsPayToPublicKeyHash() const;
+    bool IsPayToPublicKey() const;
+
+    bool IsColdStaking() const;
+
+    bool IsColdStake() const;
 
     bool IsPayToScriptHash() const;
     bool IsPayToWitnessScriptHash() const;

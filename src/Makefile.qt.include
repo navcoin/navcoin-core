@@ -109,6 +109,7 @@ QT_FORMS_UI = \
   qt/navtechinit.ui \
   qt/navtechitem.ui \
   qt/navtechsetup.ui \
+  qt/forms/cfund_voting.ui \
   qt/getaddresstoreceive.ui
 
 QT_MOC_CPP = \
@@ -123,6 +124,7 @@ QT_MOC_CPP = \
   qt/moc_clientmodel.cpp \
   qt/moc_coincontroldialog.cpp \
   qt/moc_coincontroltreewidget.cpp \
+  qt/moc_coldstakingwizard.cpp \
   qt/moc_csvmodelwriter.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_guiutil.cpp \
@@ -131,6 +133,7 @@ QT_MOC_CPP = \
   qt/moc_macnotificationhandler.cpp \
   qt/moc_navtechinit.cpp \
   qt/moc_navtechsetup.cpp \
+  qt/forms/moc_cfund_voting.cpp \
   qt/moc_navtechitem.cpp \
   qt/moc_getaddresstoreceive.cpp \
   qt/moc_notificator.cpp \
@@ -193,6 +196,7 @@ NAVCOIN_QT_H = \
   qt/clientmodel.h \
   qt/coincontroldialog.h \
   qt/coincontroltreewidget.h \
+  qt/coldstakingwizard.h \
   qt/csvmodelwriter.h \
   qt/editaddressdialog.h \
   qt/guiconstants.h \
@@ -204,6 +208,7 @@ NAVCOIN_QT_H = \
   qt/navtechinit.h \
   qt/navtechitem.h \
   qt/navtechsetup.h \
+  qt/forms/cfund_voting.h \
   qt/getaddresstoreceive.h \
   qt/networkstyle.h \
   qt/notificator.h \
@@ -325,6 +330,7 @@ NAVCOIN_QT_CPP = \
   qt/navtechinit.cpp \
   qt/navtechitem.cpp \
   qt/navtechsetup.cpp \
+  qt/forms/cfund_voting.cpp \
   qt/getaddresstoreceive.cpp \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
@@ -355,6 +361,7 @@ NAVCOIN_QT_CPP += \
   qt/askpassphrasedialog.cpp \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
+  qt/coldstakingwizard.cpp \
   qt/editaddressdialog.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \

@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 
 class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
@@ -16,14 +16,12 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-        self.is_network_split = False
+        self.nodes = self.setup_nodes()
+        self.is_network_split = split
 
     def run_test(self):
-        # Make sure cfund is active
-        self.activate_cfund()
-
-        # Donate to the cfund
+        self.nodes[0].staking(False)
+        activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100)
 
         # Get address
@@ -31,11 +29,11 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
 
         # Create a proposal
         proposalid0 = self.nodes[0].createproposal(address, 10, 3600, "testprop")["hash"]
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Accept the proposal
         self.nodes[0].proposalvote(proposalid0, "yes")
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
         self.nodes[0].proposalvote(proposalid0, "remove")
         slow_gen(self.nodes[0], 5)
 
@@ -56,9 +54,9 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
         assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
 
         # Create valid vote tx's
-        pr0_vote_tx_yes = self.create_vote_tx('c3', 'c4', paymentrequestid0)
-        pr0_vote_tx_no = self.create_vote_tx('c3', 'c5', paymentrequestid0)
-        pr1_vote_tx_yes = self.create_vote_tx('c3', 'c4', paymentrequestid1)
+        pr0_vote_tx_yes = create_vote_tx(self.nodes[0], 'c3', 'c4', paymentrequestid0)
+        pr0_vote_tx_no = create_vote_tx(self.nodes[0], 'c3', 'c5', paymentrequestid0)
+        pr1_vote_tx_yes = create_vote_tx(self.nodes[0], 'c3', 'c4', paymentrequestid1)
 
         # Make a proper good vote - yes
         self.nodes[0].coinbaseoutputs([pr0_vote_tx_yes])
@@ -106,61 +104,10 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
         assert (self.nodes[0].getpaymentrequest(paymentrequestid1)['votesNo'] == 0)
 
         # Insert bad vote tx with double vote in string
-        pr0_bad_vote_tx = self.create_vote_tx('c3', 'c4c4', paymentrequestid0)
+        pr0_bad_vote_tx = create_vote_tx(self.nodes[0], 'c3', 'c4c4', paymentrequestid0)
         self.nodes[0].coinbaseoutputs([pr0_bad_vote_tx])
         slow_gen(self.nodes[0], 1)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)['votesYes'] == 4)
-
-    def reverse_byte_str(self, hex_str):
-        return ''.join([c for t in zip(hex_str[-2::-2], hex_str[::-2]) for c in t])
-
-    def create_vote_tx(self, vote_type, vote, p_hash):
-        """
-        Creates voting hex to be included into the coinbase.
-        Args:
-            vote_type: proposal:'c2', payment request: 'c3'
-            vote: yes: 'c4', no:'c5'
-            p_hash: hash of the proposal/payment request
-
-        Returns:
-            str: hex data to include into the coinbase
-        """
-        # Byte-reverse hash
-        reversed_hash = self.reverse_byte_str(p_hash)
-
-        # Create voting string
-        vote_str = '6a' + 'c1' + vote_type + vote + '20' + reversed_hash
-
-        # Create raw vote tx
-        vote_tx = self.nodes[0].createrawtransaction(
-            [],
-            {vote_str: 0},
-            "", 0
-        )
-        return vote_tx
-
-    def activate_cfund(self):
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is started
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is locked_in
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is active
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
-
-    def end_cycle(self):
-        # Move to the end of the cycle
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"][
-            "current"])
-
-    def start_new_cycle(self):
-        # Move one past the end of the cycle
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"][
-            "current"] + 1)
 
 
 if __name__ == '__main__':

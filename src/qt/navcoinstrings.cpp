@@ -162,8 +162,13 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "time may be influenced by peers forward or backward by this amount. "
 "(default: %u seconds)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
+"Maximum average size of an index occurrence in the header spam filter "
+"(default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
 "Maximum size of data in data carrier transactions we relay and mine "
 "(default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"Maximum size of the list of indexes in the header spam filter (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Maximum total fees (in %s) to use in a single wallet transaction or raw "
 "transaction; setting this too low may abort large transactions"),
@@ -296,6 +301,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "(default: %s)"),
 QT_TRANSLATE_NOOP("navcoin-core", "(default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "-maxmempool must be at least %d MB"),
 QT_TRANSLATE_NOOP("navcoin-core", "<category> can be:"),
+QT_TRANSLATE_NOOP("navcoin-core", "Accept a suggested version bit"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept command line and JSON-RPC commands"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept connections from outside (default: 1 if no -proxy or -connect)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Accept public REST requests (default: %u)"),
@@ -436,6 +442,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Unsupported argument -debugnet ignored, use -
 QT_TRANSLATE_NOOP("navcoin-core", "Unsupported argument -tor found, use -onion."),
 QT_TRANSLATE_NOOP("navcoin-core", "Upgrade wallet to latest format on startup"),
 QT_TRANSLATE_NOOP("navcoin-core", "Use UPnP to map the listening port (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Use header spam filter (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "User Agent comment (%s) contains unsafe characters."),
 QT_TRANSLATE_NOOP("navcoin-core", "Username for JSON-RPC connections"),
 QT_TRANSLATE_NOOP("navcoin-core", "Uses the devnet network"),

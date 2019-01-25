@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 import time
 
@@ -17,26 +17,19 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-        self.is_network_split = False
+        self.nodes = self.setup_nodes()
+        self.is_network_split = split
 
     def run_test(self):
-        self.slow_gen(100)
-        # Verify the Community Fund is started
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
+        self.nodes[0].staking(False)
+        activate_cfund(self.nodes[0])
 
-        self.slow_gen(100)
-        # Verify the Community Fund is locked_in
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
+        proposal_duration = 3
 
-        self.slow_gen(100)
-        # Verify the Community Fund is active
-        assert(self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
+        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, proposal_duration, "test")["hash"]
+        slow_gen(self.nodes[0], 1)
 
-        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, 3600, "test")["hash"]
-        self.slow_gen(1)
-
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         time.sleep(0.2)
 
@@ -52,9 +45,9 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         yes_votes = int(total_votes * min_yes_votes) + 1
 
         self.nodes[0].proposalvote(proposalid0, "yes")
-        self.slow_gen(yes_votes)
+        slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].proposalvote(proposalid0, "no")
-        self.slow_gen(total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes)
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         # Should still be in pending
@@ -62,7 +55,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
 
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
         time.sleep(0.2)
 
         # Proposal initial state at beginning of cycle
@@ -75,15 +68,15 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         yes_votes = int(total_votes * min_yes_votes)
 
         self.nodes[0].proposalvote(proposalid0, "yes")
-        self.slow_gen(yes_votes)
+        slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].proposalvote(proposalid0, "no")
-        self.slow_gen(total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes)
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending")
 
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
         time.sleep(0.2)
 
         # Proposal initial state at beginning of cycle
@@ -97,9 +90,9 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         yes_votes = int(total_votes * min_yes_votes) + 1
 
         self.nodes[0].proposalvote(proposalid0, "yes")
-        self.slow_gen(yes_votes)
+        slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].proposalvote(proposalid0, "no")
-        blocks = self.slow_gen(total_votes - yes_votes)
+        blocks = slow_gen(self.nodes[0], total_votes - yes_votes)
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
@@ -117,15 +110,15 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         # Vote again
 
         self.nodes[0].proposalvote(proposalid0, "yes")
-        self.slow_gen(1)
+        slow_gen(self.nodes[0], 1)
         self.nodes[0].proposalvote(proposalid0, "remove")
 
 
         # Move to a new cycle...
         time.sleep(0.2)
 
-        self.start_new_cycle()
-        blocks=self.slow_gen(1)
+        start_new_cycle(self.nodes[0])
+        blocks = slow_gen(self.nodes[0], 1)
 
         # Proposal must be accepted waiting for fund now
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 4)
@@ -137,14 +130,14 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
 
         # Donate to the fund
         self.nodes[0].donatefund(1)
-        self.slow_gen(1)
+        slow_gen(self.nodes[0], 1)
 
         # Check the available and locked funds
         assert (self.nodes[0].cfundstats()["funds"]["available"] == 1+self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
         assert (self.nodes[0].cfundstats()["funds"]["locked"] == 0)
 
         # Move to the end of the cycle
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Validate that the proposal is accepted
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 1)
@@ -154,20 +147,31 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert (self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
         assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
 
-    def start_new_cycle(self):
-        # Move to the end of the cycle
-        self.slow_gen(self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
-        
-    def slow_gen(self, count):
-        total = count
-        blocks = []
-        while total > 0:
-            now = min(total, 5)
-            blocks.extend(self.nodes[0].generate(now))
-            total -= now
-            time.sleep(0.1)
-        return blocks
+        # Wait for the proposal to expire
+        while int(time.time()) <= int(self.nodes[0].getproposal(proposalid0)["expiresOn"]):
+            time.sleep(1)
 
+        blocks=slow_gen(self.nodes[0], 1)
+
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+
+        self.nodes[0].invalidateblock(blocks[-1])
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
+
+        slow_gen(self.nodes[0], 1)
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+
+        start_new_cycle(self.nodes[0])
+
+        # Should be expired now
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
+
+        slow_gen(self.nodes[0], 1)
+
+        start_new_cycle(self.nodes[0])
+
+        # Should still be expired
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
 
 if __name__ == '__main__':
     CommunityFundProposalStateTest().main()

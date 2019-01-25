@@ -43,6 +43,8 @@ public:
     WalletView *currentWalletView();
 
     QWidget *topMenu;
+    QHBoxLayout *menuLayout;
+
 
 private:
     QStackedWidget *walletStack;

@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.cfund_util import *
 
 import json
 
@@ -24,14 +24,12 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         self.goodPayreqHash = ""
 
     def setup_network(self, split=False):
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
-        self.is_network_split = False
+        self.nodes = self.setup_nodes()
+        self.is_network_split = split
 
     def run_test(self):
-        # Make sure cfund is active
-        self.activate_cfund()
-
-        # Donate to the cfund
+        self.nodes[0].staking(False)
+        activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100)
 
         # Get address
@@ -39,11 +37,11 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
 
         # Create a proposal
         self.goodProposalHash = self.nodes[0].createproposal(self.goodAddress, 10, 3600, "test")["hash"]
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Accept the proposal
         self.nodes[0].proposalvote(self.goodProposalHash, "yes")
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Proposal should be accepted
         assert (self.nodes[0].getproposal(self.goodProposalHash)["state"] == 1)
@@ -59,7 +57,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
 
         # The proposal should have all the same required fields
         assert (goodPaymentRequest['blockHash'] == blocks[0])
-        self.checkGoodPaymentRequest(goodPaymentRequest)
+        self.check_good_paymentrequest(goodPaymentRequest)
 
 
         # Create payment request with negative amount
@@ -95,7 +93,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         # Check there exists only 1 good payment request
         assert (len(self.nodes[0].listproposals()[0]['paymentRequests']) == 1)
 
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # # Verify nothing changed
         assert (float(self.nodes[0].getproposal(self.goodProposalHash)["notPaidYet"]) == 10)
@@ -103,7 +101,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
 
         # Accept payment request
         self.nodes[0].paymentrequestvote(self.goodPayreqHash, "yes")
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
         slow_gen(self.nodes[0], 10)
 
         # Check the payment request is paid out
@@ -137,12 +135,12 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         proposalid1_rejected = self.nodes[0].createproposal(self.goodAddress, 10, 3600, "test_rejected")["hash"]
         proposalid2_expired_timeout = self.nodes[0].createproposal(self.goodAddress, 10, 1, "test_expired_timeout")["hash"]
         proposalid3_expired_no_votes = self.nodes[0].createproposal(self.goodAddress, 10, 3600, "test_expired_no_votes")["hash"]
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Reject Proposal 1 and accept Proposal 2
         self.nodes[0].proposalvote(proposalid1_rejected, "no")
         self.nodes[0].proposalvote(proposalid2_expired_timeout, "yes")
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Proposal 1 should be rejected
         assert (self.nodes[0].getproposal(proposalid1_rejected)["state"] == 2)
@@ -161,7 +159,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         # Proposal 2 should be expired
         assert (self.nodes[0].getproposal(proposalid2_expired_timeout)["status"] == "expired waiting for end of voting period")
 
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
 
         # Create a payment request for an expired proposal
         try:
@@ -171,9 +169,9 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
             assert ("bad-cfund-payment-request" in e.error['message'])
 
         # Let Proposal 3 expire
-        self.start_new_cycle()
-        self.start_new_cycle()
-        self.start_new_cycle()
+        start_new_cycle(self.nodes[0])
+        start_new_cycle(self.nodes[0])
+        start_new_cycle(self.nodes[0])
 
         # Proposal 3 should be expired
         assert (self.nodes[0].getproposal(proposalid3_expired_no_votes)["state"] == 3)
@@ -187,7 +185,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
             assert ("bad-cfund-payment-request" in e.error['message'])
 
 
-    def checkGoodPaymentRequest(self, paymentRequest):
+    def check_good_paymentrequest(self, paymentRequest):
         assert (paymentRequest['version'] == 2)
         assert (paymentRequest['hash'] == self.goodPayreqHash)
         assert (paymentRequest['description'] == self.goodDescription)
@@ -226,28 +224,6 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
 
         return tx_hash
 
-    def activate_cfund(self):
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is started
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "started")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is locked_in
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "locked_in")
-
-        slow_gen(self.nodes[0], 100)
-        # Verify the Community Fund is active
-        assert (self.nodes[0].getblockchaininfo()["bip9_softforks"]["communityfund"]["status"] == "active")
-
-    def end_cycle(self):
-        # Move to the end of the cycle
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"][
-            "current"])
-
-    def start_new_cycle(self):
-        # Move one past the end of the cycle
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"][
-            "current"] + 1)
 
 if __name__ == '__main__':
     CommunityFundCreatePaymentrequestRawTX().main()
