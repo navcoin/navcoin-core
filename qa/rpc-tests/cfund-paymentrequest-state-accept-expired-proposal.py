@@ -21,12 +21,15 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
-        self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
         self.nodes[0].donatefund(100)
+        self.nodes[0].staking(False)
+
+        proposal_duration = 3
+        proposal_amount = 10
 
         # Create a proposal and accept by voting
-        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 3600, "test")["hash"]        
+        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), proposal_amount, proposal_duration, "test")["hash"]        
         locked_before = self.nodes[0].cfundstats()["funds"]["locked"]
         end_cycle(self.nodes[0])
 
@@ -54,6 +57,32 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "pending")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
+
+        # Wait for the proposal to expire
+        while int(time.time()) <= int(self.nodes[0].getproposal(proposalid0)["expiresOn"]):
+            time.sleep(1)
+
+        blocks=slow_gen(self.nodes[0], 1)
+
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+
+        self.nodes[0].invalidateblock(blocks[-1])
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
+
+        slow_gen(self.nodes[0], 1)
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+
+        end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0], 1)
+
+        # No more payment requests are allowed as the proposal deadline has passed
+        payment_request_not_created = True
+        try:
+            paymentrequestid1 = self.nodes[0].createpaymentrequest(proposalid0, 2, "test1")["hash"]
+            payment_request_not_created = False
+        except JSONRPCException:
+            pass
+        assert(payment_request_not_created)
 
         # Vote enough yes votes, without enough quorum
 
@@ -106,6 +135,8 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "pending")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
 
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired pending voting of payment requests")
+
         # Vote enough quorum and enough positive votes
 
         total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"] + 1
@@ -146,73 +177,20 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         locked_after_payment = float(locked_accepted) - float(self.nodes[0].getpaymentrequest(paymentrequestid0)["requestedAmount"])
 
         # Paymentrequest must be accepted now
-
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 1)
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
-        assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_after_payment)
+        # Locked amount should be 0, as this was the only payment request and the proposal was expired
+        assert(self.nodes[0].cfundstats()["funds"]["locked"] == 0)
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
 
-        # Check that paymentrequest remains in accepted state after the max number of cycles
-
-        cycles_to_expire = self.nodes[0].cfundstats()["consensus"]["maxCountVotingCyclePaymentRequests"]
-
-        for idx in range(cycles_to_expire):
-            end_cycle(self.nodes[0])
-
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 1)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
-
-        # Create multiple payment requests
-
-        paymentrequestid1 = self.nodes[0].createpaymentrequest(proposalid0, 4, "test1")["hash"]
-        paymentrequestid2 = self.nodes[0].createpaymentrequest(proposalid0, 4, "test2")["hash"]
-        slow_gen(self.nodes[0], 1)
-
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"] == "pending")
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["status"] == "pending")
-
-        self.nodes[0].paymentrequestvote(paymentrequestid1, "yes")
-        self.nodes[0].paymentrequestvote(paymentrequestid2, "yes")
-        slow_gen(self.nodes[0], yes_votes)
-        self.nodes[0].paymentrequestvote(paymentrequestid1, "no")
-        self.nodes[0].paymentrequestvote(paymentrequestid2, "no")
-        blocks = slow_gen(self.nodes[0], total_votes - yes_votes)
-        self.nodes[0].paymentrequestvote(paymentrequestid1, "remove")
-        self.nodes[0].paymentrequestvote(paymentrequestid2, "remove")
-
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"] == "accepted waiting for end of voting period")
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["status"] == "accepted waiting for end of voting period")
-
-        time.sleep(0.2)
-
-        end_cycle(self.nodes[0])
-        blocks = slow_gen(self.nodes[0], 1)
-
-        # Check status after acceptance
-
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["state"] == 1)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"] == "accepted")
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["state"] == 1)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["status"] == "accepted")
-        locked_after_2nd_payment = (locked_after_payment -
-                                    float(self.nodes[0].getpaymentrequest(paymentrequestid1)["requestedAmount"]) -
-                                    float(self.nodes[0].getpaymentrequest(paymentrequestid2)["requestedAmount"]))
-        assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_after_2nd_payment)
-
-
-        # Create and vote on payment request more than the total proposal amount, must throw "JSONRPC error: Invalid amount."
-
-        paymentrequest_not_created = True
+        # No more payment requests are allowed as the proposal is expired
+        payment_request_not_created = True
         try:
-            paymentrequestid3 = self.nodes[0].createpaymentrequest(proposalid0, 2, "test3")["hash"]
-            paymentrequest_not_created = False
+            paymentrequestid2 = self.nodes[0].createpaymentrequest(proposalid0, 2, "test2")["hash"]
+            payment_request_not_created = False
         except JSONRPCException:
             pass
-        assert(paymentrequest_not_created)
-
+        assert(payment_request_not_created)
 
 if __name__ == '__main__':
     CommunityFundPaymentRequestsTest().main()

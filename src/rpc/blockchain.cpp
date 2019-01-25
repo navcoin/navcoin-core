@@ -937,8 +937,11 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     if(pblocktree->GetProposalIndex(vec))
     {
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-            if((showAll && !proposal.IsExpired(pindexBestHeader->GetBlockTime()))
-               || (showPending  &&  proposal.fState == CFund::NIL)
+            if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
+                            || proposal.fState == CFund::PENDING_VOTING_PREQ
+                            || proposal.fState == CFund::PENDING_FUNDS))
+               || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
+                                    || proposal.fState == CFund::PENDING_FUNDS))
                || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
                || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
                || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
@@ -962,47 +965,50 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             + HelpExampleRpc("cfundstats", "")
         );
 
-    int nBlocks = (pindexBestHeader->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
-    CBlockIndex* pindexblock = pindexBestHeader;
+    CFund::CProposal proposal; CFund::CPaymentRequest prequest;
 
-    std::map<uint256, std::pair<int, int>> vCacheProposals;
-    std::map<uint256, std::pair<int, int>> vCachePaymentRequest;
+    int nBlocks = (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
+    CBlockIndex* pindexblock = chainActive.Tip();
+
+    std::map<uint256, bool> vSeen;
+    std::map<uint256, std::pair<int, int>> vCacheProposalsRPC;
+    std::map<uint256, std::pair<int, int>> vCachePaymentRequestRPC;
+
+    vCacheProposalsRPC.clear();
+    vCachePaymentRequestRPC.clear();
 
     while(nBlocks > 0 && pindexblock != NULL) {
-        std::map<uint256, bool> vSeen;
+        vSeen.clear();
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
-            CFund::CProposal proposal;
             if(!CFund::FindProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
             if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
-                if(vCacheProposals.count(pindexblock->vProposalVotes[i].first) == 0)
-                    vCacheProposals[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
+                if(vCacheProposalsRPC.count(pindexblock->vProposalVotes[i].first) == 0)
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vProposalVotes[i].second)
-                    vCacheProposals[pindexblock->vProposalVotes[i].first].first += 1;
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].first += 1;
                 else
-                    vCacheProposals[pindexblock->vProposalVotes[i].first].second += 1;
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].second += 1;
                 vSeen[pindexblock->vProposalVotes[i].first]=true;
             }
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
-            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
             if(!CFund::FindProposal(prequest.proposalhash, proposal))
                 continue;
             if (mapBlockIndex.count(proposal.blockhash) == 0)
                 continue;
-
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
             if(pindexblockparent == NULL)
                 continue;
             if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
-                if(vCachePaymentRequest.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
-                    vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
+                if(vCachePaymentRequestRPC.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
                 if(pindexblock->vPaymentRequestVotes[i].second)
-                    vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first].first += 1;
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].first += 1;
                 else
-                    vCachePaymentRequest[pindexblock->vPaymentRequestVotes[i].first].second += 1;
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].second += 1;
                 vSeen[pindexblock->vPaymentRequestVotes[i].first]=true;
             }
         }
@@ -1040,29 +1046,29 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     UniValue votesPaymentRequests(UniValue::VARR);
 
     std::map<uint256, std::pair<int, int>>::iterator it;
-    for(it = vCacheProposals.begin(); it != vCacheProposals.end(); it++) {
+    for(it = vCacheProposalsRPC.begin(); it != vCacheProposalsRPC.end(); it++) {
         CFund::CProposal proposal;
         if(!CFund::FindProposal(it->first, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("str", proposal.strDZeel));
         op.push_back(Pair("hash", proposal.hash.ToString()));
-        op.push_back(Pair("amount", proposal.nAmount));
+        op.push_back(Pair("amount", ValueFromAmount(proposal.nAmount)));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesProposals.push_back(op);
     }
-    for(it = vCachePaymentRequest.begin(); it != vCachePaymentRequest.end(); it++) {
+    for(it = vCachePaymentRequestRPC.begin(); it != vCachePaymentRequestRPC.end(); it++) {
         CFund::CPaymentRequest prequest; CFund::CProposal proposal;
         if(!CFund::FindPaymentRequest(it->first, prequest))
             continue;
         if(!CFund::FindProposal(prequest.proposalhash, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
-        op.push_back(Pair("hash", proposal.hash.ToString()));
+        op.push_back(Pair("hash", prequest.hash.ToString()));
         op.push_back(Pair("proposalDesc", proposal.strDZeel));
         op.push_back(Pair("desc", prequest.strDZeel));
-        op.push_back(Pair("amount", (float)prequest.nAmount/COIN));
+        op.push_back(Pair("amount", ValueFromAmount(prequest.nAmount)));
         op.push_back(Pair("yes", it->second.first));
         op.push_back(Pair("no", it->second.second));
         votesPaymentRequests.push_back(op);
