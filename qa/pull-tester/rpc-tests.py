@@ -114,7 +114,7 @@ testScripts = [
 #    'txn_clone.py',
      'getchaintips.py',
 #    'rawtransactions.py',
-#    'rest.py',
+     'rest.py',
 #    'mempool_spendcoinbase.py',
 #    'mempool_reorg.py',
 #    'mempool_limit.py',
