@@ -271,7 +271,7 @@ class WalletTest (NavCoinTestFramework):
         try:
             self.nodes[0].generate(2)
             raise AssertionError("Must not accept strings as numeric")
-        except MyException as e:
+        except JSONRPCException as e:
             my_function_failed = true
          
         assert(my_function_failed)
