@@ -8,7 +8,7 @@
 # This gives us two tips, verify that it works.
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.util import assert_equal, slow_gen
 
 class GetChainTipsTest (NavCoinTestFramework):
     def __init__(self):
