@@ -307,9 +307,13 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     if extra_args is not None: args.extend(extra_args)
     navcoind_processes[i] = subprocess.Popen(args)
     if os.getenv("PYTHON_DEBUG", ""):
+        print("start node: navcoind started, waiting for RPC to come up")
+    
     url = rpc_url(i, rpchost)
     wait_for_navcoind_start(navcoind_processes[i], url, i)
     if os.getenv("PYTHON_DEBUG", ""):
+        print("start node : RPC successfuly started")
+        
     proxy = get_rpc_proxy(url, i, timeout=timewait)
 
     if COVERAGE_DIR:
