@@ -222,9 +222,9 @@ def initialize_chain(test_dir, num_nodes):
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             navcoind_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-            wait_for_navcoind_start(navcoind_processes[i], rpc_url(i), i)
+                wait_for_navcoind_start(navcoind_processes[i], rpc_url(i), i)
             if os.getenv("PYTHON_DEBUG", ""):
-
+                print("initialize_chain: RPC successfully started")
         rpcs = []
         for i in range(MAX_NODES):
             try:
