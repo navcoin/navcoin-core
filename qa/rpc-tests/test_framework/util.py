@@ -343,6 +343,7 @@ def stop_node(node, i):
     try:
         node.stop()
     except http.client.CannotSendRequest as e:
+        print("WARN: Unable to stop node: " + repr(e))    
     navcoind_processes[i].wait(timeout=NAVCOIND_PROC_WAIT_TIMEOUT)
     del navcoind_processes[i]
 
@@ -351,6 +352,7 @@ def stop_nodes(nodes):
         try:
             node.stop()
         except http.client.CannotSendRequest as e:
+            print("WARN: Unable to stop node: " + repr(e))
     del nodes[:] # Emptying array closes connections as a side effect
 
 def set_node_times(nodes, t):
