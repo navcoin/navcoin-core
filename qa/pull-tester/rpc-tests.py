@@ -112,7 +112,7 @@ testScripts = [
 #    'mempool_resurrect_test.py',
 #    'txn_doublespend.py --mineblock',
 #    'txn_clone.py',
-#    'getchaintips.py',
+     'getchaintips.py',
 #    'rawtransactions.py',
 #    'rest.py',
 #    'mempool_spendcoinbase.py',
