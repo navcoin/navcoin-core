@@ -108,7 +108,7 @@ testScripts = [
      'wallet.py',
 #    'wallet-hd.py',
 #    'listtransactions.py',
-#    'receivedby.py',
+     'receivedby.py',
 #    'mempool_resurrect_test.py',
 #    'txn_doublespend.py --mineblock',
 #    'txn_clone.py',
