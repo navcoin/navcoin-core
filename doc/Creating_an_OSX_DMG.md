@@ -1,4 +1,3 @@
-
 Deterministic / Gitian building Mac OSX
 =======================================
 
@@ -33,7 +32,8 @@ To obtain it, register for a developer account, then download the [Xcode 7.3.1 d
 
 This file is several gigabytes in size, but only a single directory inside is
 needed:
-```
+
+```bash
 Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 ```
 
@@ -44,14 +44,15 @@ On the host machine, register for a free Apple [developer account](https://devel
 ### MacOS host
 
 Using Mac OS X, you can mount the dmg, and then extract the SDK with:
-```
-  $ hdiutil attach Xcode_7.3.1.dmg
-  $ tar -C /Volumes/Xcode/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/ -czf MacOSX10.11.sdk.tar.gz MacOSX10.11.sdk
+
+```bash
+  hdiutil attach Xcode_7.3.1.dmg
+  tar -C /Volumes/Xcode/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/ -czf MacOSX10.11.sdk.tar.gz MacOSX10.11.sdk
 ```
 
 Clean up the files you don't need:
 
-```sh
+```bash
 diskutil unmount /Volumes/Xcode
 rm MacOSX10.11.sdk.tar.gz Xcode_7.3.1.dmg
 ```
@@ -77,7 +78,8 @@ rm -rf 5.hfs MacOSX10.11.sdk
 
 Alternatively you can download the SDK from `phracker` github, and create a tar.gz file
 using the following commands:
-```
+
+```bash
 wget https://github.com/phracker/MacOSX-SDKs/releases/download/MacOSX10.11.sdk/MacOSX10.11.sdk.tar.xz
 tar xvf MacOSX10.11.sdk.tar.xz
 tar -czf MacOSX10.11.sdk.tar.gz MacOSX10.11.sdk

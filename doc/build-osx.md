@@ -39,27 +39,26 @@ Libunbound needs to be compiled from source. Download last version from http://w
     cd navcoin-core
     ```
 
-
-2.  Build navcoin-core:
+2. Build navcoin-core:
 
     These instructions will configure and build the headless navcoin binaries as well as the GUI (if Qt is found).
     You can disable the GUI build by passing `--without-gui` to configure.
-    
-    For an explanation on the `./configure` command and how it might be out of date see [README.md](README.md) 
+
+    For an explanation on the `./configure` command and how it might be out of date see [README.md](README.md)
 
     ```bash
     ./autogen.sh
-    ./configure --prefix=`pwd`/depends/x86_64-apple-darwin17.6.0 # This command may be out of date    
+    ./configure --prefix=`pwd`/depends/x86_64-apple-darwin17.6.0 # This command may be out of date due to OS updates
     make
     ```
 
-3.  It is recommended to build and run the unit tests:
+3. It is recommended to build and run the unit tests:
 
     ```bash
     make check
     ```
 
-4.  You can also create a .dmg that contains the .app bundle (optional):
+4. You can also create a .dmg that contains the .app bundle (optional):
 
     ```bash
     make deploy
@@ -96,15 +95,15 @@ You can use Qt Creator as an IDE, for navcoin development.
 Download and install the community edition of [Qt Creator](https://www.qt.io/download/).
 Uncheck everything except Qt Creator during the installation process.
 
-1.  Make sure you installed everything through Homebrew mentioned above
-2.  Do a proper ./configure --enable-debug
-3.  In Qt Creator do "New Project" -> Import Project -> Import Existing Project
-4.  Enter "navcoin-qt" as project name, enter src/qt as location
-5.  Leave the file selection as it is
-6.  Confirm the "summary page"
-7.  In the "Projects" tab select "Manage Kits..."
-8.  Select the default "Desktop" kit and select "Clang (x86 64bit in /usr/bin)" as compiler
-9.  Select LLDB as debugger (you might need to set the path to your installation)
+1. Make sure you installed everything through Homebrew mentioned above
+2. Do a proper ./configure --enable-debug
+3. In Qt Creator do "New Project" -> Import Project -> Import Existing Project
+4. Enter "navcoin-qt" as project name, enter src/qt as location
+5. Leave the file selection as it is
+6. Confirm the "summary page"
+7. In the "Projects" tab select "Manage Kits..."
+8. Select the default "Desktop" kit and select "Clang (x86 64bit in /usr/bin)" as compiler
+9. Select LLDB as debugger (you might need to set the path to your installation)
 10. Start debugging with Qt Creator
 
 ## QT and Mac OS Sierra
