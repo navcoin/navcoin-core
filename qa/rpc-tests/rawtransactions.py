@@ -38,21 +38,20 @@ class RawTransactionsTest(NavCoinTestFramework):
     def run_test(self):
 
         #prepare some coins for multiple *rawtransaction commands
-        self.nodes[2].generate(1)
+        slow_gen(self.nodes[2], 1)
         self.sync_all()
-        self.nodes[0].generate(101)
+        slow_gen(self.nodes[0], 101)
         self.sync_all()
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.5)
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.0)
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),5.0)
         self.sync_all()
-        self.nodes[0].generate(5)
+        slow_gen(self.nodes[0], 5)
         self.sync_all()
 
-        #########################################
         # sendrawtransaction with missing input #
         #########################################
-        inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1}] #won't exists
+        inputs  = [ {'txid' : "3160bbeb3bdd39520dfb3538ce94c7073d8f987e8f1fc3b97acdf2238136c35f", 'vout' : 1}] #won't exist
         outputs = { self.nodes[0].getnewaddress() : 4.998 }
         rawtx   = self.nodes[2].createrawtransaction(inputs, outputs)
         rawtx   = self.nodes[2].signrawtransaction(rawtx)
@@ -84,7 +83,7 @@ class RawTransactionsTest(NavCoinTestFramework):
         # send 1.2 NAV to msig adr
         txId = self.nodes[0].sendtoaddress(mSigObj, 1.2)
         self.sync_all()
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
         assert_equal(self.nodes[2].getbalance(), bal+Decimal('1.20000000')) #node2 has both keys of the 2of2 ms addr., tx should affect the balance
 
@@ -107,7 +106,7 @@ class RawTransactionsTest(NavCoinTestFramework):
         rawTx = self.nodes[0].decoderawtransaction(decTx['hex'])
         sPK = rawTx['vout'][0]['scriptPubKey']['hex']
         self.sync_all()
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
 
         #THIS IS A INCOMPLETE FEATURE
@@ -134,25 +133,24 @@ class RawTransactionsTest(NavCoinTestFramework):
         self.nodes[2].sendrawtransaction(rawTxSigned['hex'])
         rawTx = self.nodes[0].decoderawtransaction(rawTxSigned['hex'])
         self.sync_all()
-        self.nodes[0].generate(1)
+        slow_gen(self.nodes[0], 1)
         self.sync_all()
         assert_equal(self.nodes[0].getbalance(), bal+Decimal('50.00000000')+Decimal('2.19000000')) #block reward + tx
-
-        inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1, 'sequence' : 1000}]
+        inputs  = [ {'txid' : "3160bbeb3bdd39520dfb3538ce94c7073d8f987e8f1fc3b97acdf2238136c35f", 'vout' : 1, 'sequence' : 1000}]
         outputs = { self.nodes[0].getnewaddress() : 1 }
         rawtx   = self.nodes[0].createrawtransaction(inputs, outputs)
         decrawtx= self.nodes[0].decoderawtransaction(rawtx)
         assert_equal(decrawtx['vin'][0]['sequence'], 1000)
         
-        inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1, 'sequence' : -1}]
+        inputs  = [ {'txid' : "3160bbeb3bdd39520dfb3538ce94c7073d8f987e8f1fc3b97acdf2238136c35f", 'vout' : 1, 'sequence' : -1}]
         outputs = { self.nodes[0].getnewaddress() : 1 }
         assert_raises(JSONRPCException, self.nodes[0].createrawtransaction, inputs, outputs)
         
-        inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1, 'sequence' : 4294967296}]
+        inputs  = [ {'txid' : "3160bbeb3bdd39520dfb3538ce94c7073d8f987e8f1fc3b97acdf2238136c35f", 'vout' : 1, 'sequence' : 4294967296}]
         outputs = { self.nodes[0].getnewaddress() : 1 }
         assert_raises(JSONRPCException, self.nodes[0].createrawtransaction, inputs, outputs)
         
-        inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1, 'sequence' : 4294967294}]
+        inputs  = [ {'txid' : "3160bbeb3bdd39520dfb3538ce94c7073d8f987e8f1fc3b97acdf2238136c35f", 'vout' : 1, 'sequence' : 4294967294}]
         outputs = { self.nodes[0].getnewaddress() : 1 }
         rawtx   = self.nodes[0].createrawtransaction(inputs, outputs)
         decrawtx= self.nodes[0].decoderawtransaction(rawtx)
