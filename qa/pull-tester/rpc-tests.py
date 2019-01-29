@@ -119,7 +119,7 @@ testScripts = [
 #    'mempool_reorg.py',
 #    'mempool_limit.py',
 #    'httpbasics.py',
-#    'multi_rpc.py',
+     'multi_rpc.py',
      'zapwallettxes.py',
 #    'proxy_test.py',
 #    'merkle_blocks.py',
