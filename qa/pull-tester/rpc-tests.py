@@ -106,7 +106,7 @@ testScripts = [
 #    'walletbackup.py',
 #    'bip68-112-113-p2p.py',
 #    'wallet.py',
-#    'wallet-hd.py',
+    'wallet-hd.py',
 #    'listtransactions.py',
 #    'receivedby.py',
 #    'mempool_resurrect_test.py',
@@ -122,7 +122,7 @@ testScripts = [
 #    'multi_rpc.py',
 #    'zapwallettxes.py',
 #    'proxy_test.py',
-#    'merkle_blocks.py',
+    'merkle_blocks.py',
 #    'fundrawtransaction.py',
 #    'signrawtransactions.py',
 #    'nodehandling.py',
@@ -167,6 +167,7 @@ testScripts = [
     'staticr-staking-amount.py',
     'hardfork-451.py',
     'staticr-tx-send.py',
+    'stakeimmaturebalance.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
