@@ -30,7 +30,7 @@ class ReceivedByTest(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 4
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
 
     def setup_nodes(self):
         return start_nodes(self.num_nodes, self.options.tmpdir)
