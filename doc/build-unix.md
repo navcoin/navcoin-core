@@ -1,21 +1,22 @@
-UNIX BUILD NOTES
-====================
+# UNIX BUILD NOTES
+
 Some notes on how to build NavCoin Core in Unix.
 
 (for OpenBSD specific instructions, see [build-openbsd.md](build-openbsd.md))
 
-Note
----------------------
-Always use absolute paths to configure and compile navcoin and the dependencies,
-for example, when specifying the path of the dependency:
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
+## Building in Ubuntu 18.04
 
-Here BDB_PREFIX must be an absolute path - it is defined using $(pwd) which ensures
-the usage of the absolute path.
+You can easily build the dependencies by running the [NavCoin dev tools script here](https://github.com/NAVCoin/navcoin-dev-tools/blob/master/ubuntu-18.04-navcoin-core-dev-setup.sh).
 
-To Build
----------------------
+From the navcoin-core directory, you will still need to:
+```
+cd depends
+make
+cd ..
+```
+
+### To Build
 
 ```bash
 ./autogen.sh
@@ -26,8 +27,20 @@ make install # optional
 
 This will build navcoin-qt as well if the dependencies are met.
 
-Dependencies
----------------------
+
+
+## Notes
+
+Always use absolute paths to configure and compile navcoin and the dependencies,
+for example, when specifying the path of the dependency:
+
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
+
+Here BDB_PREFIX must be an absolute path - it is defined using $(pwd) which ensures
+the usage of the absolute path.
+
+
+### Dependencies
 
 These dependencies are required:
 
@@ -53,8 +66,7 @@ Optional dependencies:
 
 For the versions used in the release, see [release-process.md](release-process.md) under *Fetch and build inputs*.
 
-Memory Requirements
---------------------
+### Memory Requirements
 
 C++ compilers are memory-hungry. It is recommended to have at least 1.5 GB of
 memory available when compiling NavCoin Core. On systems with less, gcc can be
@@ -63,8 +75,8 @@ tuned to conserve memory with additional CXXFLAGS:
 
     ./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768"
 
-Dependency Build Instructions: Ubuntu & Debian
-----------------------------------------------
+### Dependency Build Instructions: Ubuntu (earlier versions) & Debian
+
 Build requirements:
 
     sudo apt-get install build-essential libcurl3-dev libunbound-dev libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils
@@ -103,8 +115,7 @@ ZMQ dependencies:
 
     sudo apt-get install libzmq3-dev (provides ZMQ API 4.x)
 
-Dependencies for the GUI: Ubuntu & Debian
------------------------------------------
+### Dependencies for the GUI: Ubuntu (earlier versions) & Debian
 
 If you want to build NavCoin-Qt, make sure that the required packages for Qt development
 are installed. Either Qt 5 or Qt 4 are necessary to build the GUI.
@@ -126,8 +137,8 @@ libqrencode (optional) can be installed with:
 Once these are installed, they will be found by configure and a navcoin-qt executable will be
 built by default.
 
-Dependency Build Instructions: Fedora
--------------------------------------
+### Dependency Build Instructions: Fedora
+
 Build requirements:
 
     sudo dnf install gcc-c++ libtool make autoconf automake openssl-devel libevent-devel boost-devel libdb4-devel libdb4-cxx-devel
@@ -144,14 +155,14 @@ libqrencode (optional) can be installed with:
 
     sudo dnf install qrencode-devel
 
-Notes
------
+### Notes
+
 The release is built with GCC and then "strip navcoind" to strip the debug
 symbols, which reduces the executable size by about 90%.
 
 
-miniupnpc
----------
+### miniupnpc
+
 
 [miniupnpc](http://miniupnp.free.fr/) may be used for UPnP port mapping.  It can be downloaded from [here](
 http://miniupnp.tuxfamily.org/files/).  UPnP support is compiled in and
@@ -162,8 +173,8 @@ turned off by default.  See the configure options for upnp behavior desired:
 	--enable-upnp-default    UPnP support turned on by default at runtime
 
 
-Berkeley DB
------------
+### Berkeley DB
+
 It is recommended to use Berkeley DB 4.8. If you have to build it yourself:
 
 ```bash
@@ -193,8 +204,8 @@ cd $NAVCOIN_ROOT
 
 **Note**: You only need Berkeley DB if the wallet is enabled (see the section *Disable-Wallet mode* below).
 
-Boost
------
+### Boost
+
 If you need to build Boost yourself:
 
 	sudo su
@@ -202,8 +213,8 @@ If you need to build Boost yourself:
 	./bjam install
 
 
-Security
---------
+### Security
+
 To help make your navcoin installation more secure by making certain attacks impossible to
 exploit even if a vulnerability is found, binaries are hardened by default.
 This can be disabled with:
@@ -251,8 +262,8 @@ Hardening enables the following features:
 
     The STK RW- means that the stack is readable and writeable but not executable.
 
-Disable-wallet mode
---------------------
+### Disable-wallet mode
+
 When the intention is to run only a P2P node without a wallet, navcoin may be compiled in
 disable-wallet mode with:
 
@@ -263,15 +274,15 @@ In this case there is no dependency on Berkeley DB 4.8.
 Mining is also possible in disable-wallet mode, but only using the `getblocktemplate` RPC
 call not `getwork`.
 
-Additional Configure Flags
---------------------------
+### Additional Configure Flags
+
 A list of additional configure flags can be displayed with:
 
     ./configure --help
 
 
-Setup and Build Example: Arch Linux
------------------------------------
+### Setup and Build Example: Arch Linux
+
 This example lists the steps necessary to setup and build a command line only, non-wallet distribution of the latest changes on Arch Linux:
 
     pacman -S git base-devel boost libevent python
@@ -289,8 +300,8 @@ As mentioned above, when maintaining portability of the wallet between the stand
 node software is desired, Berkeley DB 4.8 must be used.
 
 
-ARM Cross-compilation
--------------------
+### ARM Cross-compilation
+
 These steps can be performed on, for example, an Ubuntu VM. The depends system
 will also work on other Linux distributions, however the commands for
 installing the toolchain will be different.
