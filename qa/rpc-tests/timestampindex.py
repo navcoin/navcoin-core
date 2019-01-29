@@ -36,13 +36,11 @@ class TimestampIndexTest(NavCoinTestFramework):
 
     def run_test(self):
         print("Mining 25 blocks...")
-        blockhashes = self.nodes[0].generate(25)
-        time.sleep(3)
+        blockhashes = slow_gen(self.nodes[0], 25) 
         print("Mining 25 blocks...")
-        blockhashes.extend(self.nodes[0].generate(25))
-        time.sleep(3)
+        blockhashes.extend(slow_gen(self.nodes[0], 25))
         print("Mining 25 blocks...")
-        blockhashes.extend(self.nodes[0].generate(25))
+        blockhashes.extend(slow_gen(self.nodes[0], 25))
         self.sync_all()
         low = self.nodes[1].getblock(blockhashes[0])["time"]
         high = low + 76
