@@ -14,7 +14,7 @@ class GetChainTipsTest (NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 4
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
 
     def run_test (self):
         slow_gen(self.nodes[0], 200)

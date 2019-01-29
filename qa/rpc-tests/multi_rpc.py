@@ -18,7 +18,7 @@ class HTTPBasicsTest (NavCoinTestFramework):
 
     def __init__(self):
         super().__init__()
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
         self.num_nodes = 1
 
     def setup_chain(self):
