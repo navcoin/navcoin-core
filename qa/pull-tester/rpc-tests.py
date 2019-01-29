@@ -146,7 +146,7 @@ testScripts = [
 #    'p2p-segwit.py',
 #    'segwit.py',
      'importprunedfunds.py',
-#    'signmessages.py',
+     'signmessages.py',
     'cfund-donate.py',
     'cfund-listproposals.py',
     'cfund-paymentrequest-extract-funds.py',
