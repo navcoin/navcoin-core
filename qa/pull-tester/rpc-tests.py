@@ -143,7 +143,7 @@ testScripts = [
 #    'p2p-versionbits-warning.py',
 #    'p2p-segwit.py',
 #    'segwit.py',
-#    'importprunedfunds.py',
+     'importprunedfunds.py',
 #    'signmessages.py',
     'cfund-donate.py',
     'cfund-listproposals.py',
