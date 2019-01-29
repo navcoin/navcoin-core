@@ -20,7 +20,7 @@ For building the wallet see the markdown files in [doc](doc) folder
 |:-----------|:-----------|
 | Block Spacing | `30 seconds` |
 | Stake Minimum Age | `2 hours` |
-| Stake Reward | `4% per annum` |
+ | Stake Reward | `2 NAV per block` | 
 | Port | `44440` |
 | RPC Port | `44444` |
 
