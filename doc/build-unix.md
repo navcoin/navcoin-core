@@ -10,7 +10,7 @@ Some notes on how to build NavCoin Core in Unix.
 You can easily build the dependencies by running the [NavCoin dev tools script here](https://github.com/NAVCoin/navcoin-dev-tools/blob/master/ubuntu-18.04-navcoin-core-dev-setup.sh).
 
 From the navcoin-core directory, you will still need to:
-```
+```bash
 cd depends
 make
 cd ..
