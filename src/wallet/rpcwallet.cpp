@@ -3535,6 +3535,50 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
 
 }
 
+UniValue newPoolAddress(const UniValue& params, bool fHelp) {
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "newpooladdress \"spending_address\"\n"
+                "\nCreate a new pooled address associated with the spending address\n"
+                "\nArguments:\n"
+                "1. \"spending_address\" (string, required) The spending address\n"
+        );
+
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    CNavCoinAddress spendingAddress(params[0].get_str());
+    if (!spendingAddress.IsValid()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid spending address");
+    }
+
+    if (!pwalletMain->IsLocked()) {
+        pwalletMain->TopUpKeyPool();
+    }
+
+    CPubKey newKey;
+    if (!pwalletMain->GetKeyFromPool(newKey)) {
+        throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
+    }
+    CKeyID stakingKeyID = newKey.GetID();
+
+    pwalletMain->SetAddressBook(stakingKeyID, "", "staking");
+
+    CNavCoinAddress stakingAddress(stakingKeyID);
+
+    CKeyID spendingKeyID;
+    spendingAddress.GetKeyID(spendingKeyID);
+
+    CNavCoinAddress coldStakingAddress(stakingKeyID, spendingKeyID);
+
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("stakingAddress", stakingAddress.ToString()));
+    result.push_back(Pair("spendingAddress", spendingAddress.ToString()));
+    result.push_back(Pair("coldStakingAddress", coldStakingAddress.ToString()));
+
+    return result;
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
@@ -3608,6 +3652,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
     { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
+    { "pool",               "newpooladdress",           &newPoolAddress,           true  },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)
