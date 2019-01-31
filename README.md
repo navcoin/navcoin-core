@@ -24,15 +24,6 @@ For building the wallet see the markdown files in [doc](doc) folder
 | Port | `44440` |
 | RPC Port | `44444` |
 
-## Navtech Settings
-
-| Specification | Value                |
-| :------------ | :------------------- |
-| addanonserver | `95.183.52.55:3000`  |
-| addanonserver | `95.183.53.184:3000` |
-| addanonserver | `95.183.52.28:3000`  |
-| addanonserver | `95.183.52.29:3000`  |
-
 ## Social Channels
 
 | Site | link |
