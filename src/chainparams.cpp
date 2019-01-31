@@ -264,7 +264,7 @@ public:
 static CMainParams mainParams;
 
 /**
- * Testnet (v4)
+ * Testnet (v3)
  */
 class CTestNetParams : public CChainParams {
 public:
