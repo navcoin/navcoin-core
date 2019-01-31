@@ -110,6 +110,19 @@ bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
     return VoteProposal(proposalHash.ToString(), vote, duplicate);
 }
 
+void CFund::PoolVoteProposal(string spendingAddress, string strProp, bool vote) {
+    CFund::CProposal proposal;
+
+    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
+
+    if (found && !proposal.IsNull()) {
+        PoolRemoveAddressFile(spendingAddress, "addproposalvoteyes", strProp);
+        PoolRemoveAddressFile(spendingAddress, "addproposalvoteno", strProp);
+        PoolWriteAddressFile(spendingAddress, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
+    }
+}
+
+
 bool CFund::RemoveVoteProposal(string strProp)
 {
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
@@ -131,9 +144,14 @@ bool CFund::RemoveVoteProposal(uint256 proposalHash)
     return RemoveVoteProposal(proposalHash.ToString());
 }
 
+void CFund::PoolRemoveVoteProposal(string address, string strProp)
+{
+    PoolRemoveAddressFile(address, "addproposalvoteyes", strProp);
+    PoolRemoveAddressFile(address, "addproposalvoteno", strProp);
+}
+
 bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
 {
-
     CFund::CPaymentRequest prequest;
     bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 

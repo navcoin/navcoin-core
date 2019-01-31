@@ -3552,6 +3552,15 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid spending address");
     }
 
+    if (PoolExistsAddressFile(spendingAddress.ToString())) {
+        UniValue result(UniValue::VOBJ);
+        result.push_back(Pair("stakingAddress", PoolReadAddressFile(spendingAddress.ToString(), "stakingAddress")));
+        result.push_back(Pair("spendingAddress", spendingAddress.ToString()));
+        result.push_back(Pair("coldStakingAddress", PoolReadAddressFile(spendingAddress.ToString(), "coldStakingAddress")));
+
+        return result;
+    }
+
     if (!pwalletMain->IsLocked()) {
         pwalletMain->TopUpKeyPool();
     }
@@ -3571,12 +3580,82 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
 
     CNavCoinAddress coldStakingAddress(stakingKeyID, spendingKeyID);
 
+    PoolInitAddressFile(spendingAddress.ToString(), stakingAddress.ToString(), coldStakingAddress.ToString());
+
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("stakingAddress", stakingAddress.ToString()));
     result.push_back(Pair("spendingAddress", spendingAddress.ToString()));
     result.push_back(Pair("coldStakingAddress", coldStakingAddress.ToString()));
 
     return result;
+}
+
+UniValue poolProposalVote(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+    if (params.size() >= 2) {
+        strCommand = params[2].get_str();
+    }
+    if (fHelp || params.size() > 4 || (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
+        throw runtime_error(
+                "poolproposalvote \"spending_address\" \"proposal_hash\" \"yes|no|remove\" \"signature\"\n"
+                "\nAdds a pool proposal to the list of votes.\n"
+                "\nArguments:\n"
+                "1. \"spending_address\" (string, required) The spending address\n"
+                "2. \"proposal_hash\" (string, required) The proposal hash\n"
+                "3. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
+                "                      'remove' to remove a proposal from the list\n"
+                "4. \"signature\"     (string, required) signature in the following format,\n"
+                "                      <spending_address><proposal_hash><command>\n"
+        );
+
+    string strAddress = params[0].get_str();
+    string strHash = params[1].get_str();
+    string strMessage  = strAddress + strHash + strCommand;
+    string strSign = params[3].get_str();
+
+    CNavCoinAddress addr(strAddress);
+    if (!addr.IsValid()) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
+    }
+
+    CKeyID keyID;
+    if (!addr.GetKeyID(keyID)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key");
+    }
+
+    bool fInvalid = false;
+    vector<unsigned char> vchSig = DecodeBase64(strSign.c_str(), &fInvalid);
+    if (fInvalid) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Malformed base64 encoding");
+    }
+
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << strMessageMagic;
+    ss << strMessage;
+
+    CPubKey pubkey;
+    bool signatureValid = pubkey.RecoverCompact(ss.GetHash(), vchSig) && pubkey.GetID() == keyID;
+    if (!signatureValid) {
+        throw JSONRPCError(RPC_VERIFY_ERROR, "Unable to verify signature");
+    }
+
+    if (strCommand == "yes") {
+        CFund::PoolVoteProposal(strAddress, strHash, true);
+        return NullUniValue;
+    }
+
+    if (strCommand == "no") {
+        CFund::PoolVoteProposal(strAddress, strHash, false);
+        return NullUniValue;
+    }
+
+    if (strCommand == "remove") {
+        CFund::PoolRemoveVoteProposal(strAddress, strHash);
+        return NullUniValue;
+    }
+
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
 }
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
@@ -3653,6 +3732,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
     { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
     { "pool",               "newpooladdress",           &newPoolAddress,           true  },
+    { "pool",               "poolproposalvote",         &poolProposalVote,         true  },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)

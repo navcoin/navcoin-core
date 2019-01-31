@@ -50,6 +50,8 @@ bool RemoveVotePaymentRequest(string strProp);
 bool RemoveVotePaymentRequest(uint256 proposalHash);
 bool IsValidPaymentRequest(CTransaction tx, int nMaxVersion);
 bool IsValidProposal(CTransaction tx, int nMaxVersion);
+void PoolVoteProposal(string strAddress, string strProp, bool vote);
+void PoolRemoveVoteProposal(string strAddress, string strProp);
 
 class CPaymentRequest
 {
