@@ -138,6 +138,15 @@ void WriteConfigFile(std::string key, std::string value);
 void RemoveConfigFile(std::string key, std::string value);
 void RemoveConfigFile(std::string key);
 bool ExistsKeyInConfigFile(std::string key);
+
+boost::filesystem::path GetPoolDir();
+boost::filesystem::path PoolGetAddressFile(std::string spendingAddress);
+bool PoolExistsAddressFile(std::string spendingAddress);
+void PoolInitAddressFile(std::string spendingAddress, std::string stakingAddress, std::string coldStakingAddress);
+std::string PoolReadAddressFile(std::string spendingAddress, std::string strKey);
+void PoolWriteAddressFile(std::string address, std::string key, std::string value);
+void PoolRemoveAddressFile(std::string address, std::string key, std::string value);
+
 #ifdef WIN32
 boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
