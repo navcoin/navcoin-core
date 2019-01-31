@@ -143,6 +143,12 @@ bool SendCoinsEntry::validate()
     if (recipient.paymentRequest.IsInitialized())
         return retval;
 
+    //checks that the button for spend or donate is clicked
+    if(!ui->radioButtonDonateFund->isChecked() && !ui->radioButtonSendAddress->isChecked())
+    {
+        retval = false;
+    }
+
     utils::DNSResolver* DNS = nullptr;
 
     // Validate openalias address
