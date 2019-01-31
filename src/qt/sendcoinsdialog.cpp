@@ -238,10 +238,8 @@ void SendCoinsDialog::on_sendButton_clicked()
             double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
             if(entry->isDonate)
-            {
                 recipient.address = QString("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
-                recipient.isDonation = true;
-            }
+
             if(ui->anonsendCheckbox->checkState() != 0) {
                 try
                 {
@@ -425,10 +423,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
         amount.append("</b>");
         // generate monospace address string
-        QString address = rcp.isDonation ? QString(tr("the community fund")) : "<span style='font-family: monospace;'>" + rcp.address + "</span>";
-        //QString address = "<span style='font-family: monospace;'>";
-        //address += rcp.isDonation ? QString(tr("the community fund")) : rcp.address;
-        //address.append("</span>");
+        QString address = entry->isDonate ? QString(tr("the community fund")) : "<span style='font-family: monospace;'>" + rcp.address + "</span>";
         QString recipientElement;
         int nLength = currentTransaction.recipients.length();
 
@@ -557,26 +552,6 @@ void SendCoinsDialog::showNavTechDialog()
     checkNavtechServers();
 }
 
-void SendCoinsDialog::setDonate(int state)
-{
-    SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
-    QValidatedLineEdit* addressLine = entry->findChild<QValidatedLineEdit*>("payTo");
-    entry->clear();
-    if(state)
-    {
-        addressLine->setPlaceholderText(QObject::tr("Community Fund Contribution"));
-        addressLine->setEnabled(false);
-    }
-    else
-    {
-        addressLine->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address"));
-
-        //addressLine->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address (e.g. %1)").arg(
-        //    QString::fromStdString(GUIUtil::DummyAddress(Params()))));
-
-        addressLine->setEnabled(true);
-    }
-}
 void SendCoinsDialog::reject()
 {
     clear();

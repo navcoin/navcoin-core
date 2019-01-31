@@ -50,8 +50,6 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->deleteButton_is, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
-    //connect(ui->radioButtonSendAddress, SIGNAL(clicked()), this, SLOT(setSpendMode(0)));
-    //connect(ui->radioButtonDonateFund, SIGNAL(clicked()), this, SLOT(setSpendMode(1)));
     ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
     ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
 }
@@ -60,7 +58,6 @@ SendCoinsEntry::~SendCoinsEntry()
 {
     delete ui;
 }
-
 
 void SendCoinsEntry::setTotalAmount(const CAmount& amount)
 {
@@ -264,28 +261,6 @@ void SendCoinsEntry::setAddress(const QString &address)
     ui->payAmount->setFocus();
 }
 
-void SendCoinsEntry::setSpendMode(int setDonate)
-{
-    std::cout << "button clicked";
-    //SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
-    //QValidatedLineEdit* addressLine = entry->findChild<QValidatedLineEdit*>("payTo");
-    clear();
-    if(setDonate)
-    {
-        ui->payTo->setPlaceholderText(QObject::tr("Community Fund Contribution"));
-        ui->payTo->setEnabled(false);
-    }
-    else
-    {
-        ui->payTo->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address"));
-
-        //ui->addressLine->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address (e.g. %1)").arg(
-        //    QString::fromStdString(GUIUtil::DummyAddress(Params()))));
-
-        ui->payTo->setEnabled(true);
-    }
-    isDonate = setDonate;
-}
 bool SendCoinsEntry::isClear()
 {
     return ui->payTo->text().isEmpty() && ui->payTo_is->text().isEmpty() && ui->payTo_s->text().isEmpty();
@@ -326,7 +301,6 @@ bool SendCoinsEntry::updateLabel(const QString &address)
 void SendCoinsEntry::on_radioButtonDonateFund_clicked()
 {
     clear();
-    std::cout << "donate\n";
     ui->payTo->setPlaceholderText(QObject::tr("Community Fund Contribution"));
     ui->payTo->setEnabled(false);
     isDonate = true;
@@ -335,8 +309,8 @@ void SendCoinsEntry::on_radioButtonDonateFund_clicked()
 void SendCoinsEntry::on_radioButtonSendAddress_clicked()
 {
     clear();
-    std::cout << "address\n";
-    ui->payTo->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address"));
+    ui->payTo->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address (e.g. %1)").arg(
+        QString::fromStdString("n2wxQmfexkjwEPgdD6iJA7T7RtzkmHxhFcn2wxQmfexkjwEPgdD6iJA7T7RtzkmHxhFc"))); //fake and invalid address which looks realistic
     ui->payTo->setEnabled(true);
     isDonate = false;
 }
