@@ -349,10 +349,19 @@
         <property name="text">
          <string>Send to Address</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="radioButtonDonateFund">
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Donate to Community Fund</string>
         </property>

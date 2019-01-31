@@ -363,6 +363,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     {
         return;
     }
+
     fNewRecipientAllowed = false;
     WalletModel::UnlockContext ctx(model->requestUnlock());
     if(!ctx.isValid())
