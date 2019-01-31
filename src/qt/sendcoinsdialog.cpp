@@ -238,8 +238,10 @@ void SendCoinsDialog::on_sendButton_clicked()
             double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
             if(entry->isDonate)
+            {
                 recipient.address = QString("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
-
+                recipient.isDonation = true;
+            }
             if(ui->anonsendCheckbox->checkState() != 0) {
                 try
                 {
@@ -423,7 +425,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
         amount.append("</b>");
         // generate monospace address string
-        QString address = entry->isDonate ? QString(tr("the community fund")) : "<span style='font-family: monospace;'>" + rcp.address + "</span>";
+        QString address = rcp.isDonation ? QString(tr("the community fund")) : "<span style='font-family: monospace;'>" + rcp.address + "</span>";
         QString recipientElement;
         int nLength = currentTransaction.recipients.length();
 
@@ -525,9 +527,6 @@ void SendCoinsDialog::on_sendButton_clicked()
         coinControlUpdateLabels();
     }
     fNewRecipientAllowed = true;
-
-    // reset donation box (does emit SIGNAL)
-    //ui->donateCheckBox->setCheckState(Qt::Unchecked);
 }
 
 void SendCoinsDialog::clear()
