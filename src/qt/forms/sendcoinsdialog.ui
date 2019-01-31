@@ -904,13 +904,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="donateCheckBox">
-            <property name="text">
-             <string>Donate to community fund</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -1409,7 +1402,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="groupFee"/>
   <buttongroup name="groupCustomFee"/>
+  <buttongroup name="groupFee"/>
  </buttongroups>
 </ui>

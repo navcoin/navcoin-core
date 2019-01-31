@@ -31,7 +31,7 @@ public:
     ~SendCoinsEntry();
 
     void setModel(WalletModel *model);
-    bool validate(QCheckBox* checkBox);
+    bool validate();
     SendCoinsRecipient getValue();
 
     /** Return whether the entry is still empty and unedited */
@@ -39,6 +39,7 @@ public:
 
     void setValue(const SendCoinsRecipient &value);
     void setAddress(const QString &address);
+    void setSpendMode(int setDonate);
 
     /** Set up the tab chain manually, as Qt messes up the tab chain by default in some cases
      *  (issue https://bugreports.qt-project.org/browse/QTBUG-10907).
@@ -50,6 +51,7 @@ public:
     void useFullAmount();
 
     CAmount totalAmount;
+    bool isDonate;
 
 public Q_SLOTS:
     void clear();
@@ -65,6 +67,9 @@ private Q_SLOTS:
     void on_addressBookButton_clicked();
     void updateDisplayUnit();
     void updateAddressBook();
+
+    void on_radioButtonDonateFund_clicked();
+    void on_radioButtonSendAddress_clicked();
 
 private:
     SendCoinsRecipient recipient;

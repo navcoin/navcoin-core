@@ -60,7 +60,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
     connect(ui->noNavtechButton, SIGNAL(clicked()), this, SLOT(showNavTechDialog()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
-    connect(ui->donateCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setDonate(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
 
     // Coin Control: clipboard actions
@@ -232,13 +231,13 @@ void SendCoinsDialog::on_sendButton_clicked()
     SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
     if(entry)
     {
-        if(entry->validate(ui->donateCheckBox))
+        if(entry->validate())
         {
             SendCoinsRecipient recipient = entry->getValue();
             CAmount nAmount = recipient.amount;
             double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
-            if(ui->donateCheckBox->checkState() == Qt::Checked)
+            if(entry->isDonate)
             {
                 recipient.address = QString("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
                 recipient.isDonation = true;
@@ -533,7 +532,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     fNewRecipientAllowed = true;
 
     // reset donation box (does emit SIGNAL)
-    ui->donateCheckBox->setCheckState(Qt::Unchecked);
+    //ui->donateCheckBox->setCheckState(Qt::Unchecked);
 }
 
 void SendCoinsDialog::clear()
