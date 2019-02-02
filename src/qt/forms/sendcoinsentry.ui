@@ -352,7 +352,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="radioButtonDonateFund">
         <property name="text">
          <string>Donate to Community Fund</string>
         </property>
