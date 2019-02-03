@@ -2638,6 +2638,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
         nVersion |= nV451ForkMask;
 
+    if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
+        nVersion |= nV452ForkMask;
+
     return nVersion;
 }
 
@@ -4972,6 +4975,9 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                         "rejected, block version isn't v4.5.1");
 
+    if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                         "rejected, block version isn't v4.5.2");
     return true;
 }
 
@@ -6608,7 +6614,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                   pfrom->cleanSubVer, pfrom->nVersion,
                   pfrom->nStartingHeight, addrMe.ToString(), pfrom->id,
                   remoteAddr);
-	    
+
         if (mapMultiArgs.count("-banversion") > 0)
         {
             std::vector<std::string> vBannedVersions = mapMultiArgs["-banversion"];
