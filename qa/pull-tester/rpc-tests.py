@@ -148,6 +148,8 @@ testScripts = [
     'cfund-donate.py',
     'cfund-listproposals.py',
     'cfund-paymentrequest-extract-funds.py',
+    'cfund-paymentrequest-payout.py',
+    'cfund-paymentrequest-duplicate.py',
     'cfund-paymentrequest-state-accept.py',
     'cfund-paymentrequest-state-accept-expired-proposal.py',
     'cfund-paymentrequest-state-expired.py',
