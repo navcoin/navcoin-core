@@ -47,7 +47,7 @@ public:
     CBaseTestNetParams()
     {
         nRPCPort = 44445;
-        strDataDir = "testnet3";
+        strDataDir = "testnet4";
     }
 };
 static CBaseTestNetParams testNetParams;
@@ -110,22 +110,22 @@ void SelectBaseParams(const std::string& chain)
 std::string ChainNameFromCommandLine()
 {
     bool fRegTest = GetBoolArg("-regtest", false);
-    bool fTestNet = GetBoolArg("-testnet", false);
+    bool fTestNet = GetBoolArg("-testnet", true);
     bool fDevNet = GetBoolArg("-devnet", false);
 
-    if (fTestNet && fRegTest)
-        throw std::runtime_error("Invalid combination of -regtest and -testnet.");
-    if (fTestNet && fDevNet)
-        throw std::runtime_error("Invalid combination of -devnet and -testnet.");
+    if (!fTestNet && fRegTest)
+        throw std::runtime_error("Invalid combination of -regtest and -testnet=0.");
+    if (!fTestNet && fDevNet)
+        throw std::runtime_error("Invalid combination of -devnet and -testnet=0.");
     if (fDevNet && fRegTest)
         throw std::runtime_error("Invalid combination of -regtest and -devnet.");
     if (fRegTest)
         return CBaseChainParams::REGTEST;
-    if (fTestNet)
-        return CBaseChainParams::TESTNET;
+    if (!fTestNet)
+        return CBaseChainParams::MAIN;
     if (fDevNet)
         return CBaseChainParams::DEVNET;
-    return CBaseChainParams::MAIN;
+    return CBaseChainParams::TESTNET;
 }
 
 bool AreBaseParamsConfigured()

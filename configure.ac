@@ -1,12 +1,12 @@
 dnl require autoconf 2.60 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.60])
-define(_CLIENT_VERSION_MAJOR, 4)
-define(_CLIENT_VERSION_MINOR, 5)
-define(_CLIENT_VERSION_REVISION, 1)
+define(_CLIENT_VERSION_MAJOR, 5)
+define(_CLIENT_VERSION_MINOR, 0)
+define(_CLIENT_VERSION_REVISION, 0)
 define(_CLIENT_VERSION_BUILD, 0)
-define(_CLIENT_VERSION_IS_RELEASE, true)
+define(_CLIENT_VERSION_IS_RELEASE, false)
 define(_CLIENT_BUILD_IS_TEST_RELEASE, false)
-define(_CLIENT_BUILD_IS_RELEASE_CANDIDATE, false)
+define(_CLIENT_BUILD_IS_RELEASE_CANDIDATE, true)
 define(_COPYRIGHT_YEAR, 2018)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[NavCoin Core]])
@@ -191,6 +191,12 @@ AC_ARG_ENABLE([zmq],
   [disable ZMQ notifications])],
   [use_zmq=$enableval],
   [use_zmq=yes])
+
+AC_ARG_WITH([zerocoin-bignum],
+  [AS_HELP_STRING([--with-zerocoin-bignum=gmp|openssl|auto],
+  [Specify Bignum Implementation. Default is auto])],
+  [req_bignum=$withval],
+  [req_bignum=auto])
 
 AC_ARG_WITH([protoc-bindir],[AS_HELP_STRING([--with-protoc-bindir=BIN_DIR],[specify protoc bin path])], [protoc_bin_path=$withval], [])
 
@@ -964,6 +970,44 @@ if test "x$use_ccache" = "xyes"; then
     AX_CHECK_PREPROC_FLAG([-Qunused-arguments],[CPPFLAGS="-Qunused-arguments $CPPFLAGS"])
 fi
 
+AC_DEFUN([GMP_CHECK],[
+if test x"$has_gmp" != x"yes"; then
+  AC_CHECK_HEADER(gmp.h,[
+    AC_CHECK_LIB(gmp, __gmpz_init,[
+      has_gmp=yes;
+      LIBS="$LIBS -lgmp";
+      AC_DEFINE(HAVE_LIBGMP, 1, [Define this symbol if libgmp is installed])
+    ])
+  ])
+fi
+])
+
+dnl bignum value
+set_bignum=$req_bignum
+case $req_bignum in
+auto)
+  GMP_CHECK
+  if test x"$has_gmp" != x"yes"; then
+    AC_MSG_ERROR([gmp bignum automatically selected but libgmp is not available. Use depends,
+    install libgmp or select another bignum implementation (ONLY gmp is fully SUPPORTED)])
+  else
+    set_bignum=gmp
+  fi
+  ;;
+gmp)
+  GMP_CHECK
+  if test x"$has_gmp" != x"yes"; then
+    AC_MSG_ERROR([gmp bignum explicitly requested but libgmp is not available])
+  fi
+  ;;
+openssl)
+    AC_MSG_WARN([openssl bignum explicitly requested. This is DEPRECATED.])
+  ;;
+*)
+  AC_MSG_ERROR([invalid bignum implementation selection])
+  ;;
+esac
+
 dnl enable wallet
 AC_MSG_CHECKING([if wallet should be enabled])
 if test x$enable_wallet != xno; then
@@ -1042,6 +1086,22 @@ if test x$navcoin_enable_qt != xno; then
 fi
 
 AM_CONDITIONAL([ENABLE_ZMQ], [test "x$use_zmq" = "xyes"])
+
+# select bignum implementation
+case $set_bignum in
+gmp)
+  AC_DEFINE(USE_NUM_GMP, 1, [Define this symbol to use the gmp implementation])
+  ;;
+openssl)
+  AC_DEFINE(USE_NUM_OPENSSL, 1, [Define this symbol to use openssl implementation])
+  ;;
+*)
+  AC_MSG_ERROR([invalid bignum implementation])
+  ;;
+esac
+
+AM_CONDITIONAL([USE_NUM_GMP], [test "x$set_bignum" = "xgmp"])
+AM_CONDITIONAL([USE_NUM_OPENSSL], [test "x$set_bignum" = "xopenssl"])
 
 AC_MSG_CHECKING([whether to build test_navcoin])
 if test x$use_tests = xyes; then
@@ -1130,6 +1190,8 @@ AC_SUBST(EVENT_PTHREADS_LIBS)
 AC_SUBST(ZMQ_LIBS)
 AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
+AC_SUBST(USE_NUM_GMP)
+AC_SUBST(USE_NUM_OPENSSL)
 AC_CONFIG_FILES([Makefile src/Makefile share/setup.nsi share/qt/Info.plist src/test/buildenv.py])
 AC_CONFIG_FILES([qa/pull-tester/run-navcoind-for-test.sh],[chmod +x qa/pull-tester/run-navcoind-for-test.sh])
 AC_CONFIG_FILES([qa/pull-tester/tests_config.py],[chmod +x qa/pull-tester/tests_config.py])
@@ -1163,7 +1225,7 @@ if test x$system_univalue = xno; then
   AC_CONFIG_SUBDIRS([src/univalue])
 fi
 
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery"
+ac_configure_args="${ac_configure_args} --disable-shared --with-pic --with-bignum=no --enable-module-recovery --enable-experimental --enable-module-ecdh"
 AC_CONFIG_SUBDIRS([src/secp256k1])
 
 AC_OUTPUT
@@ -1186,3 +1248,30 @@ case ${OS} in
      mv qa/pull-tester/tests_config-2.py qa/pull-tester/tests_config.py
    ;;
 esac
+
+echo
+echo "Options used to compile and link:"
+echo "  with wallet   = $enable_wallet"
+echo "  with gui / qt = $navcoin_enable_qt"
+if test x$navcoin_enable_qt != xno; then
+    echo "    with qr     = $use_qr"
+fi
+echo "  with zmq      = $use_zmq"
+echo "  with bignum   = $set_bignum"
+echo "  with test     = $use_tests"
+echo "  with bench    = $use_bench"
+echo "  with upnp     = $use_upnp"
+echo "  debug enabled = $enable_debug"
+echo "  werror        = $enable_werror"
+echo
+echo "  target os     = $TARGET_OS"
+echo "  build os      = $BUILD_OS"
+echo
+echo "  CC            = $CC"
+echo "  CFLAGS        = $CFLAGS"
+echo "  CPPFLAGS      = $CPPFLAGS"
+echo "  CXX           = $CXX"
+echo "  CXXFLAGS      = $CXXFLAGS"
+echo "  LDFLAGS       = $LDFLAGS"
+echo "  LIBS          = $LIBS"
+echo

@@ -42,7 +42,7 @@ public:
 public Q_SLOTS:
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
-                    const CAmount& coldStakingBalance);
+                    const CAmount& coldStakingBalance, const CAmount& privateBalance);
 
     void setStatusTitleBlocks(QString text);
 
@@ -74,6 +74,7 @@ private:
     CAmount currentUnconfirmedBalance;
     CAmount currentStakingBalance;
     CAmount currentColdStakingBalance;
+    CAmount currentPrivateBalance;
     CAmount currentImmatureBalance;
     CAmount currentWatchOnlyBalance;
     CAmount currentWatchUnconfBalance;

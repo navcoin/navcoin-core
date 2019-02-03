@@ -322,6 +322,10 @@ bool CFund::IsValidProposal(CTransaction tx, int nMaxVersion)
     CAmount nContribution = 0;
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
 
+    if (nAmount < 0) {
+         return error("%s: Proposal cannot have amount less than 0: %s", __func__, tx.GetHash().ToString());
+    }
+
     CNavCoinAddress address(Address);
     if (!address.IsValid())
         return error("%s: Wrong address %s for proposal %s", __func__, Address.c_str(), tx.GetHash().ToString());

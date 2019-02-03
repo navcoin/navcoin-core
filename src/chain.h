@@ -1,12 +1,12 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef NAVCOIN_CHAIN_H
 #define NAVCOIN_CHAIN_H
 
-#include "arith_uint256.h"
 #include "primitives/block.h"
 #include "pow.h"
 #include "pos.h"
@@ -14,6 +14,7 @@
 #include "uint256.h"
 #include "util.h"
 #include "utilmoneystr.h"
+#include "zeroaccumulators.h"
 
 #include <vector>
 
@@ -190,7 +191,7 @@ public:
     unsigned int nUndoPos;
 
     //! (memory only) Total amount of work (expected number of hashes) in the chain up to and including this block
-    arith_uint256 nChainWork;
+    uint256 nChainWork;
 
     //! Number of transactions in this block.
     //! Note: in a potential headers-first mode, this number cannot be relied upon
@@ -228,10 +229,17 @@ public:
     COutPoint prevoutStake;
     unsigned int nStakeTime;
 
-    arith_uint256 hashProof;
+    uint256 hashProof;
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     uint32_t nSequenceId;
+
+    uint256 nAccumulatorChecksum;
+    CAmount nMoneySupply;
+    CAmount nAccumulatedPrivateFee;
+    CAmount nAccumulatedPublicFee;;
+
+    std::map<libzerocoin::CoinDenomination, int64_t> mapZerocoinSupply;
 
     void SetNull()
     {
@@ -243,7 +251,7 @@ public:
         nFile = 0;
         nDataPos = 0;
         nUndoPos = 0;
-        nChainWork = arith_uint256();
+        nChainWork = 0;
         nTx = 0;
         nChainTx = 0;
         nStatus = 0;
@@ -252,7 +260,7 @@ public:
         nCFLocked = 0;
         nFlags = 0;
         nStakeModifier = 0;
-	      hashProof = arith_uint256();
+        hashProof = 0;
         prevoutStake.SetNull();
         nStakeTime = 0;
         nVersion       = 0;
@@ -262,6 +270,10 @@ public:
         nNonce         = 0;
         vProposalVotes.clear();
         vPaymentRequestVotes.clear();
+        nMoneySupply = 0;
+        nAccumulatorChecksum = 0;
+        nAccumulatedPrivateFee = 0;
+        nAccumulatedPublicFee = 0;
     }
 
     CBlockIndex()
@@ -278,6 +290,8 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
+        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
+            nAccumulatorChecksum = block.nAccumulatorChecksum;
     }
 
     CBlockIndex(const CBlock& block)
@@ -301,17 +315,19 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
+        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
+            nAccumulatorChecksum = block.nAccumulatorChecksum;
     }
 
     uint256 GetBlockTrust() const
     {
-        arith_uint256 bnTarget;
+        uint256 bnTarget;
         bnTarget.SetCompact(nBits);
 
         if (bnTarget <= 0)
             return uint256();
 
-        return ArithToUint256((arith_uint256(1)<<256) / (bnTarget+1));
+        return (uint256(1)<<256) / (bnTarget+1);
     }
 
     CDiskBlockPos GetBlockPos() const {
@@ -342,7 +358,18 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
+            block.nAccumulatorChecksum = nAccumulatorChecksum;
         return block;
+    }
+
+    int64_t GetZerocoinSupply() const
+    {
+        int64_t nTotal = 0;
+        for (auto& denom : libzerocoin::zerocoinDenomList) {
+            nTotal += libzerocoin::ZerocoinDenominationToAmount(denom) * mapZerocoinSupply.at(denom);
+        }
+        return nTotal;
     }
 
     uint256 GetBlockHash() const
@@ -460,7 +487,7 @@ public:
     const CBlockIndex* GetAncestor(int height) const;
 };
 
-arith_uint256 GetBlockProof(const CBlockIndex& block);
+uint256 GetBlockProof(const CBlockIndex& block);
 /** Return the time it would take to redo the work difference between from and to, assuming the current hashrate corresponds to the difficulty at tip, in seconds. */
 int64_t GetBlockProofEquivalentTime(const CBlockIndex& to, const CBlockIndex& from, const CBlockIndex& tip, const Consensus::Params&);
 
@@ -525,6 +552,13 @@ public:
         READWRITE(nCFLocked);
         READWRITE(vPaymentRequestVotes);
         READWRITE(vProposalVotes);
+        READWRITE(nMoneySupply);
+        if((this->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN) {
+            READWRITE(nAccumulatorChecksum);
+            READWRITE(mapZerocoinSupply);
+            READWRITE(nAccumulatedPrivateFee);
+            READWRITE(nAccumulatedPublicFee);
+        }
     }
 
     uint256 GetBlockHash() const
@@ -536,6 +570,8 @@ public:
         block.nTime           = nTime;
         block.nBits           = nBits;
         block.nNonce          = nNonce;
+        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
+            block.nAccumulatorChecksum = nAccumulatorChecksum;
 
         const_cast<CDiskBlockIndex*>(this)->blockHash = block.GetHash();
 

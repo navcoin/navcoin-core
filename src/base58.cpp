@@ -1,12 +1,11 @@
 // Copyright (c) 2014-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "base58.h"
-
 #include "hash.h"
 #include "uint256.h"
-
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
@@ -193,7 +192,7 @@ bool CBase58Data::SetString(const char* psz, unsigned int nVersionBytes)
 
 bool CBase58Data::SetString(const std::string& str)
 {
-    return SetString(str.c_str());
+    return SetString(str.c_str(), str.length() == 410 ? 2 : 1);
 }
 
 std::string CBase58Data::ToString() const
@@ -228,6 +227,7 @@ public:
 
     bool operator()(const CKeyID& id) const { return addr->Set(id); }
     bool operator()(const pair<CKeyID, CKeyID>& id) const { return addr->Set(id.first, id.second); }
+    bool operator()(const libzerocoin::CPrivateAddress &id) const { return addr->Set(id); }
     bool operator()(const CScriptID& id) const { return addr->Set(id); }
     bool operator()(const CNoDestination& no) const { return false; }
 };
@@ -243,6 +243,15 @@ bool CNavCoinAddress::Set(const CKeyID& id)
 bool CNavCoinAddress::Set(const CKeyID& id, const CKeyID& id2)
 {
     SetData(Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS), &id, 20, &id2, 20);
+    return true;
+}
+
+bool CNavCoinAddress::Set(const libzerocoin::CPrivateAddress& id)
+{
+    CDataStream ss(SER_NETWORK, 0);
+    ss << id;
+    std::vector<unsigned char> vch(ss.begin(),ss.end());
+    SetData(Params().Base58Prefix(CChainParams::PRIVATE_ADDRESS), (void *)&vch[0], vch.size());
     return true;
 }
 
@@ -282,8 +291,37 @@ bool CNavCoinAddress::GetStakingAddress(CNavCoinAddress &address) const
     return true;
 }
 
+bool CNavCoinAddress::GetBlindingCommitment(libzerocoin::BlindingCommitment &bc) const {
+    if(!IsPrivateAddress(Params()))
+        return false;
+    libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+    CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
+    ss >> id;
+    if(!id.GetBlindingCommitment(bc)) return false;
+    return true;
+}
+
+bool CNavCoinAddress::GetZeroPubKey(CPubKey &zerokey) const{
+    if(!IsPrivateAddress(Params()))
+        return false;
+    libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+    CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
+    ss >> id;
+    if(!id.GetPubKey(zerokey)) return false;
+    return true;
+}
+
 bool CNavCoinAddress::IsValid(const CChainParams& params) const
 {
+    if (vchVersion == params.Base58Prefix(CChainParams::PRIVATE_ADDRESS)) {
+        libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+        CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
+        ss >> id;
+        CPubKey zpk; libzerocoin::BlindingCommitment bc;
+        if(!id.GetPubKey(zpk)) return false;
+        if(!id.GetBlindingCommitment(bc)) return false;
+        return zpk.IsValid() && bc.first != CBigNum() && bc.second != CBigNum();
+    }
     if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
         return vchData.size() == 40;
     bool fCorrectSize = vchData.size() == 20;
@@ -297,6 +335,11 @@ bool CNavCoinAddress::IsColdStakingAddress(const CChainParams& params) const
     return vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS) && vchData.size() == 40;
 }
 
+bool CNavCoinAddress::IsPrivateAddress(const CChainParams& params) const
+{
+    return vchVersion == params.Base58Prefix(CChainParams::PRIVATE_ADDRESS);
+}
+
 CTxDestination CNavCoinAddress::Get() const
 {
     if (!IsValid())
@@ -307,7 +350,14 @@ CTxDestination CNavCoinAddress::Get() const
         uint160 id2;
         memcpy(&id2, &vchData[20], 20);
         return make_pair(CKeyID(id), CKeyID(id2));
-    } if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
+    } else if (vchVersion == Params().Base58Prefix(CChainParams::PRIVATE_ADDRESS)) {
+        if(!IsPrivateAddress(Params()))
+            return CNoDestination();
+        libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+        CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
+        ss >> id;
+        return id;
+    } else if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return CKeyID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);

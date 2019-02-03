@@ -52,6 +52,5 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 3)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
 
-
 if __name__ == '__main__':
     CommunityFundProposalStateTest().main()

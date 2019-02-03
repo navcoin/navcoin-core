@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018-2019 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,6 +14,8 @@
 #include "amount.h"
 #include "chain.h"
 #include "coins.h"
+#include "libzerocoin/Coin.h"
+#include "libzerocoin/CoinSpend.h"
 #include "net.h"
 #include "script/interpreter.h"
 #include "script/script_error.h"
@@ -25,7 +27,7 @@
 #include "wallet/walletdb.h"
 #include "txdb.h"
 #include "consensus/consensus.h"
-
+#include "wallet/zeropos.h"
 
 #include <algorithm>
 #include <exception>
@@ -65,7 +67,7 @@ static const bool DEFAULT_WHITELISTFORCERELAY = true;
 /** Default for -minrelaytxfee, minimum relay fee for transactions */
 static const unsigned int DEFAULT_MIN_RELAY_TX_FEE = 1000;
 //! -maxtxfee default
-static const CAmount DEFAULT_TRANSACTION_MAXFEE = 0.1 * COIN;
+static const CAmount DEFAULT_TRANSACTION_MAXFEE = 1 * COIN;
 //! Discourage users to set fees higher than this amount (in satoshis) per kB
 static const CAmount HIGH_TX_FEE_PER_KB = 0.01 * COIN;
 //! -maxtxfee will warn if called with a higher fee than this amount (in satoshis)
@@ -96,7 +98,7 @@ static const unsigned int UNDOFILE_CHUNK_SIZE = 0x100000; // 1 MiB
 /** Maximum number of script-checking threads allowed */
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 /** -par default (number of script-checking threads, 0 = auto) */
-static const int DEFAULT_SCRIPTCHECK_THREADS = 2;
+static const int DEFAULT_SCRIPTCHECK_THREADS = 0;
 /** Number of blocks that can be requested at any given time from a single peer. */
 static const int MAX_BLOCKS_IN_TRANSIT_PER_PEER = 16;
 /** Timeout in seconds during which a peer must stall block download progress before being disconnected. */
@@ -177,6 +179,7 @@ struct BlockHasher
 
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
+extern CCriticalSection cs_coinspend_cache;
 extern CTxMemPool mempool;
 typedef boost::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
 extern BlockMap mapBlockIndex;
@@ -222,7 +225,7 @@ extern uint64_t nPruneTarget;
 /** Block files containing a block-height within MIN_BLOCKS_TO_KEEP of chainActive.Tip() will not be pruned. */
 static const unsigned int MIN_BLOCKS_TO_KEEP = 288;
 
-static const signed int DEFAULT_CHECKBLOCKS = MIN_BLOCKS_TO_KEEP;
+static const signed int DEFAULT_CHECKBLOCKS = 100;
 static const unsigned int DEFAULT_CHECKLEVEL = 3;
 
 // Require that user allocate at least 550MB for block & undo files (blk???.dat and rev???.dat)
@@ -279,6 +282,8 @@ bool ProcessMessages(CNode* pfrom);
 bool SendMessages(CNode* pto);
 /** Run an instance of the script checking thread */
 void ThreadScriptCheck();
+void ThreadCoinSpendCheck();
+void ThreadPublicCoinCheck();
 /** Check whether we are doing an initial block download (synchronizing from disk or network) */
 bool IsInitialBlockDownload();
 /** Format a string that describes several potential problems detected by the core.
@@ -290,7 +295,7 @@ bool IsInitialBlockDownload();
  */
 std::string GetWarnings(const std::string& strFor);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
+bool GetTransaction(const uint256 &hash, CTransaction &tx, const CCoinsViewCache& view, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, const CBlock* pblock = NULL);
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
@@ -462,6 +467,44 @@ public:
     ScriptError GetScriptError() const { return error; }
 };
 
+class CCoinSpendCheck
+{
+private:
+    libzerocoin::Accumulator accumulator;
+    libzerocoin::CoinSpend coinSpend;
+
+public:
+    CCoinSpendCheck() : accumulator(&Params().GetConsensus().Zerocoin_Params.accumulatorParams), coinSpend(&Params().GetConsensus().Zerocoin_Params) {}
+    CCoinSpendCheck(const libzerocoin::CoinSpend& coinSpendIn, const libzerocoin::Accumulator& accumulatorIn) :
+        accumulator(accumulatorIn), coinSpend(coinSpendIn) { }
+
+    bool operator()();
+
+    void swap(CCoinSpendCheck &check) {
+        std::swap(coinSpend, check.coinSpend);
+        std::swap(accumulator, check.accumulator);
+    }
+};
+
+class CPublicCoinCheck
+{
+private:
+    libzerocoin::PublicCoin pubCoin;
+    bool fFast;
+
+public:
+    CPublicCoinCheck() : pubCoin(&Params().GetConsensus().Zerocoin_Params), fFast(false) {}
+    CPublicCoinCheck(const libzerocoin::PublicCoin& pubCoinIn, bool fFastIn) :
+        pubCoin(pubCoinIn), fFast(fFastIn) { }
+
+    bool operator()();
+
+    void swap(CPublicCoinCheck &check) {
+        std::swap(pubCoin, check.pubCoin);
+        std::swap(fFast, check.fFast);
+    }
+};
+
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
 bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
 bool HashOnchainActive(const uint256 &hash);
@@ -521,10 +564,13 @@ bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
-bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-
 /** Check whether ColdStaking has been activated. */
 bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
+/** Check whether Zerocoin has been activated */
+bool IsZerocoinEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+
+bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);
@@ -558,7 +604,7 @@ inline unsigned int GetTargetSpacing(int nHeight) { return 30; }
 
 void ThreadStakeMiner(CWallet *pwallet);
 
-arith_uint256 GetProofOfStakeLimit(int nHeight);
+uint256 GetProofOfStakeLimit(int nHeight);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
 
 /** The currently-connected chain of blocks (protected by cs_main). */
@@ -597,7 +643,7 @@ static const unsigned int REJECT_ALREADY_KNOWN = 0x101;
 /** Transaction conflicts with a transaction already known */
 static const unsigned int REJECT_CONFLICT = 0x102;
 
-bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge);
+bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge, const CCoinsViewCache& view);
 
 // MODIFIER_INTERVAL_RATIO:
 // ratio of group interval length between the last group and the first group
@@ -608,11 +654,11 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
 
 // Check whether stake kernel meets hash target
 // Sets hashProofOfStake on success return
-bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockIndex& blockFrom, const CTransaction& txPrev, const COutPoint& prevout, unsigned int nTimeTx, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, bool fPrintProofOfStake=false);
+bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockIndex& blockFrom, const CTransaction& txPrev, const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fPrintProofOfStake=false);
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
-bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, bool fCHeckSignature = false);
+bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, const CCoinsViewCache& view, unsigned int nBits, uint256& hashProofOfStake, uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, bool fCHeckSignature = false);
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(int nHeight, int64_t nTimeBlock, int64_t nTimeTx);
@@ -623,12 +669,12 @@ int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd);
 // Wrapper around CheckStakeKernelHash()
 // Also checks existence of kernel input and min age
 // Convenient for searching a kernel
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime = NULL);
+bool CheckKernel(CBlockIndex* pindexPrev, const CCoinsViewCache& view, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime = NULL);
 
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev);
 bool CheckBlockSignature(const CBlock& block);
 
-unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int64_t nTime);
+unsigned int ComputeMaxBits(uint256 bnTargetLimit, unsigned int nBase, int64_t nTime);
 
 /** The maximum size for mined blocks */
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_BASE_SIZE/2;
@@ -641,5 +687,9 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo);
 
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
+
+bool IsBlockHashInChain(const uint256& hashBlock);
+bool IsTransactionInChain(const uint256& txId, int& nHeightTx, const CCoinsViewCache& view, CTransaction& tx);
+bool IsTransactionInChain(const uint256& txId, const CCoinsViewCache& view, int& nHeightTx);
 
 #endif // NAVCOIN_MAIN_H

@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,6 +8,7 @@
 #include "hash.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
+#include "zerotx.h"
 
 std::string COutPoint::ToString() const
 {
@@ -31,10 +33,13 @@ std::string CTxIn::ToString() const
 {
     std::string str;
     str += "CTxIn(";
-    str += prevout.ToString();
+    if(!scriptSig.IsZerocoinSpend())
+        str += prevout.ToString();
     if (prevout.IsNull())
         str += strprintf(", coinbase %s", HexStr(scriptSig));
-    else
+    else if(scriptSig.IsZerocoinSpend()) {
+        str += strprintf(", zerocoinspend");
+    } else
         str += strprintf(", scriptSig=%s", HexStr(scriptSig).substr(0, 24));
     if (nSequence != SEQUENCE_FINAL)
         str += strprintf(", nSequence=%u", nSequence);

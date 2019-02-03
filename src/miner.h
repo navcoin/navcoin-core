@@ -163,6 +163,7 @@ private:
     uint64_t nBlockTx;
     uint64_t nBlockSigOpsCost;
     CAmount nFees;
+    CAmount nPrivateFees;
     CTxMemPool::setEntries inBlock;
 
     // Chain context for the block
@@ -177,7 +178,7 @@ private:
 public:
     BlockAssembler(const CChainParams& chainparams);
     /** Construct a new block template with coinbase to scriptPubKeyIn */
-    CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees);
+    CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees, uint64_t* pPrivateFees);
 
 private:
     // utility functions
@@ -223,7 +224,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 
 // NAVCoin - Mining/Staking thread
-bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees);
+bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateFees);
 /** Check mined proof-of-stake block */
 bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams);
 void NavCoinStaker(const CChainParams& chainparams);

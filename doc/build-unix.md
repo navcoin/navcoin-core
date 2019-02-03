@@ -34,6 +34,7 @@ These dependencies are required:
  Library     | Purpose          | Description
  ------------|------------------|----------------------
  libssl      | Crypto           | Random Number Generation, Elliptic Curve Cryptography
+ libgmpv4-dev| Crypto           | Arithmetic operations on numbers of arbitrary length
  libboost    | Utility          | Library for threading, data structures, etc
  libcurl     | Networking       | Library for http(s) networking
  libevent    | Networking       | OS independent asynchronous networking
@@ -67,7 +68,7 @@ Dependency Build Instructions: Ubuntu & Debian
 ----------------------------------------------
 Build requirements:
 
-    sudo apt-get install build-essential libcurl3-dev libunbound-dev libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils
+    sudo apt-get install build-essential libcurl3-dev libunbound-dev libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libgmpv4-dev
 
 Options when installing required Boost library files:
 

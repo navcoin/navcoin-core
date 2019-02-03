@@ -10,6 +10,7 @@
 #include "core_io.h"
 #include "init.h"
 #include "keystore.h"
+#include "libzerocoin/CoinSpend.h"
 #include "main.h"
 #include "merkleblock.h"
 #include "net.h"
@@ -24,6 +25,9 @@
 #include "uint256.h"
 #include "timedata.h"
 #include "utilstrencodings.h"
+#include "zerochain.h"
+#include "zerotx.h"
+
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
@@ -90,8 +94,13 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxIn& txin = tx.vin[i];
         UniValue in(UniValue::VOBJ);
-        if (tx.IsCoinBase())
+        if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
             in.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
+        else if (txin.scriptSig.IsZerocoinSpend()) {
+            libzerocoin::CoinSpend coinSpend(&Params().GetConsensus().Zerocoin_Params);
+            if (TxInToCoinSpend(&Params().GetConsensus().Zerocoin_Params, txin, coinSpend))
+                in.push_back(Pair("zerocoinspend", coinSpend.getCoinSerialNumber().ToString(16)));
+        }
         else {
             in.push_back(Pair("txid", txin.prevout.hash.GetHex()));
             in.push_back(Pair("vout", (int64_t)txin.prevout.n));
@@ -184,7 +193,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxIn& txin = tx.vin[i];
         UniValue in(UniValue::VOBJ);
-        if (tx.IsCoinBase())
+        if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
             in.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
         else {
             in.push_back(Pair("txid", txin.prevout.hash.GetHex()));
@@ -343,7 +352,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
     {
         LOCK(cs_main);
-        if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, true))
+        if (!GetTransaction(hash, tx, pcoinsTip, Params().GetConsensus(), hashBlock, true))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
 
         BlockMap::iterator mi = mapBlockIndex.find(hashBlock);
@@ -429,7 +438,7 @@ UniValue gettxoutproof(const UniValue& params, bool fHelp)
     if (pblockindex == NULL)
     {
         CTransaction tx;
-        if (!GetTransaction(oneTxid, tx, Params().GetConsensus(), hashBlock, false) || hashBlock.IsNull())
+        if (!GetTransaction(oneTxid, tx, pcoinsTip, Params().GetConsensus(), hashBlock, false) || hashBlock.IsNull())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Transaction not yet in block");
         if (!mapBlockIndex.count(hashBlock))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Transaction index corrupt");
@@ -515,7 +524,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             "      \"data\": x.xxx,     (string, required) The key is hex encoded data, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
             "      ...\n"
             "    }\n"
-            "3. \"anon-destination\"    (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "3. \"strdzeel\"            (string, optional) Attached string metadata \n"
             "4. \"index\"               (numeric, optional, default=-1) If greater than -1, it will only print the raw data of the output or input on the index \"index\"\n"
             "4. \"toggle-input-dump\"   (bool, optional, default=false) Sets whether the input (true) or the output (false) at the index \"index\" is dumped \n"
             "\nResult:\n"
@@ -982,7 +991,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
         SignatureData sigdata;
         // Only sign SIGHASH_SINGLE if there's a corresponding output:
         if (!fHashSingle || (i < mergedTx.vout.size()))
-            ProduceSignature(MutableTransactionSignatureCreator(&keystore, &mergedTx, i, amount, nHashType), prevPubKey, sigdata);
+            ProduceSignature(MutableTransactionSignatureCreator(&keystore, &mergedTx, i, amount, nHashType), prevPubKey, sigdata, false);
 
         // ... and merge in other signatures:
         BOOST_FOREACH(const CMutableTransaction& txv, txVariants) {

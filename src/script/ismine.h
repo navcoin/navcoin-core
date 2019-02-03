@@ -9,6 +9,7 @@
 #include "script/standard.h"
 
 #include <stdint.h>
+#include <uint256.h>
 
 class CKeyStore;
 class CScript;
@@ -24,8 +25,9 @@ enum isminetype
     ISMINE_WATCH_ONLY = ISMINE_WATCH_SOLVABLE | ISMINE_WATCH_UNSOLVABLE,
     ISMINE_SPENDABLE = 4,
     ISMINE_STAKABLE = 8,
+    ISMINE_SPENDABLE_PRIVATE = 16,
     ISMINE_SPENDABLE_STAKABLE = ISMINE_SPENDABLE | ISMINE_STAKABLE,
-    ISMINE_ALL = ISMINE_WATCH_ONLY | ISMINE_SPENDABLE | ISMINE_STAKABLE
+    ISMINE_ALL = ISMINE_WATCH_ONLY | ISMINE_SPENDABLE | ISMINE_STAKABLE | ISMINE_SPENDABLE_PRIVATE
 };
 /** used for bitflags of isminetype */
 typedef uint8_t isminefilter;

@@ -27,7 +27,6 @@ public:
 
     CWalletTx *getTransaction();
     unsigned int getTransactionSize();
-    std::vector<CWalletTx> vTransactions;
     std::vector<CRecipient> vecSend;
 
     void setTransactionFee(const CAmount& newFee);

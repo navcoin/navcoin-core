@@ -42,6 +42,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     connect(ui->newAddressButton,SIGNAL(clicked()),this,SLOT(getNewAddress()));
     connect(ui->coldStakingButton,SIGNAL(clicked()),this,SLOT(getColdStakingAddress()));
     connect(ui->requestNewAddressButton,SIGNAL(clicked()),this,SLOT(showAddressHistory()));
+    connect(ui->privateAddressButton,SIGNAL(clicked()),this,SLOT(showPrivateAddress()));
 }
 
 getAddressToReceive::~getAddressToReceive()
@@ -84,6 +85,21 @@ void getAddressToReceive::getColdStakingAddress()
         ColdStakingWizard wizard;
         wizard.exec();
     }
+}
+
+void getAddressToReceive::showPrivateAddress()
+{
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CKey zk; libzerocoin::BlindingCommitment bc;
+    pwalletMain->GetBlindingCommitment(bc);
+    pwalletMain->GetZeroKey(zk);
+
+    libzerocoin::CPrivateAddress pa(&Params().GetConsensus().Zerocoin_Params, bc, zk);
+
+    QMessageBox::information(this, tr("Show Private Address"),
+        tr("Private Address:<br><br>%1").arg(QString::fromStdString( CNavCoinAddress(pa).ToString())));
 }
 
 void getAddressToReceive::showQR()

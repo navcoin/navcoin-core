@@ -144,6 +144,5 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
                 assert (proposal["paymentRequests"][0]["status"] == "accepted")
                 assert (proposal["paymentRequests"][0]["state"] == 1)
 
-
 if __name__ == '__main__':
     CommunityFundProposalsTest().main()

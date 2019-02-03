@@ -162,6 +162,7 @@ bool CCryptoKeyStore::Lock()
     {
         LOCK(cs_KeyStore);
         vMasterKey.clear();
+        zcParameters.SetToZero();
     }
 
     NotifyStatusChanged(this);
@@ -298,5 +299,105 @@ bool CCryptoKeyStore::EncryptKeys(CKeyingMaterial& vMasterKeyIn)
         }
         mapKeys.clear();
     }
+    return true;
+}
+
+bool CCryptoKeyStore::EncryptZeroParameters(CKeyingMaterial& vMasterKeyIn)
+{
+    {
+        LOCK(cs_KeyStore);
+        if (!zcCryptedParameters.obfuscationK.first.empty() || !zcCryptedParameters.obfuscationK.second.empty())
+            return false;
+
+        fUseCrypto = true;
+        std::vector<unsigned char> vchK1 = zcParameters.obfuscationK.first.getvch();
+        CKeyingMaterial vchSecretK1(vchK1.begin(), vchK1.end());
+        std::vector<unsigned char> vchCryptedSecretK1;
+        if (!EncryptSecret(vMasterKeyIn, vchSecretK1, zcParameters.zerokey.GetPubKey().GetHash(), vchCryptedSecretK1))
+            return false;
+
+        std::vector<unsigned char> vchK2 = zcParameters.obfuscationK.second.getvch();
+        CKeyingMaterial vchSecretK2(vchK2.begin(), vchK2.end());
+        std::vector<unsigned char> vchCryptedSecretK2;
+        if (!EncryptSecret(vMasterKeyIn, vchSecretK2, zcParameters.zerokey.GetPubKey().GetHash(), vchCryptedSecretK2))
+            return false;
+
+        zcCryptedParameters.obfuscationK = make_pair(vchCryptedSecretK1,vchCryptedSecretK2);
+        zcParameters.SetToZero();
+    }
+    return true;
+}
+
+bool CCryptoKeyStore::GetObfuscationK(libzerocoin::ObfuscationValue& ok) const
+{
+    if (!IsCrypted() || zcCryptedParameters.obfuscationK.first.empty() || zcCryptedParameters.obfuscationK.second.empty())
+        return CBasicKeyStore::GetObfuscationK(ok);
+
+    CKeyingMaterial vchSecret1;
+    CKeyingMaterial vchSecret2;
+    {
+        LOCK(cs_KeyStore);
+        if(!DecryptSecret(vMasterKey, zcCryptedParameters.obfuscationK.first, zcParameters.zerokey.GetPubKey().GetHash(), vchSecret1))
+            return false;
+        if(!DecryptSecret(vMasterKey, zcCryptedParameters.obfuscationK.second, zcParameters.zerokey.GetPubKey().GetHash(), vchSecret2))
+            return false;
+    }
+
+    ok.first.setvch(std::vector<unsigned char>(vchSecret1.begin(), vchSecret1.end()));
+    ok.second.setvch(std::vector<unsigned char>(vchSecret2.begin(), vchSecret2.end()));
+    return true;
+}
+
+bool CCryptoKeyStore::GetCryptedObfuscationK(std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& ok) const
+{
+    if (zcCryptedParameters.obfuscationK.first.empty() || zcCryptedParameters.obfuscationK.second.empty())
+        return false;
+
+    ok = zcCryptedParameters.obfuscationK;
+
+    return true;
+}
+
+bool CCryptoKeyStore::SetObfuscationK(const libzerocoin::ObfuscationValue& ok)
+{
+    if (!IsCrypted())
+        return CBasicKeyStore::SetObfuscationK(ok);
+
+    if (!IsLocked())
+        return false;
+
+    if (ok.first == CBigNum() || ok.second == CBigNum())
+        return false;
+
+    CKeyingMaterial vchSecret1(ok.first.getvch().begin(), ok.first.getvch().end());
+    CKeyingMaterial vchSecret2(ok.second.getvch().begin(), ok.second.getvch().end());
+
+    {
+        LOCK(cs_KeyStore);
+        if (!SetCrypted())
+            return false;
+
+        if (!EncryptSecret(vMasterKey, vchSecret1, zcParameters.zerokey.GetPubKey().GetHash(), zcCryptedParameters.obfuscationK.first))
+            return false;
+        if (!EncryptSecret(vMasterKey, vchSecret2, zcParameters.zerokey.GetPubKey().GetHash(), zcCryptedParameters.obfuscationK.second))
+            return false;
+    }
+
+    zcParameters.obfuscationK = make_pair(CBigNum(),CBigNum());
+
+    return true;
+}
+
+bool CCryptoKeyStore::SetCryptedObfuscationK(const std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& ok)
+{
+    if (ok.first.empty() || ok.second.empty())
+        return false;
+
+    if (!SetCrypted())
+        return false;
+
+    zcCryptedParameters.obfuscationK = ok;
+    zcParameters.obfuscationK = make_pair(CBigNum(),CBigNum());
+
     return true;
 }

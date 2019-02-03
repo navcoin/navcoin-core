@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin developers
+// Copyright (c) 2018-2019 The NavCoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -43,6 +43,8 @@
 #include "validationinterface.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
+#include "zerowallet.h"
+#include "zerowitnesser.h"
 #endif
 #include <stdint.h>
 #include <stdio.h>
@@ -70,8 +72,6 @@
 #if ENABLE_ZMQ
 #include "zmq/zmqnotificationinterface.h"
 #endif
-
-char *sPrivKey, *sPubKey;
 
 using namespace std;
 
@@ -381,6 +381,8 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-reindex", _("Rebuild chain state and block index from the blk*.dat files on disk"));
 #ifdef ENABLE_WALLET
     strUsage += HelpMessageOpt("-staking=<bool>", _("Enables or disables the staking thread."));
+    strUsage += HelpMessageOpt("-enablewitnesser=<bool>", _("Enables or disables the witnesser thread."));
+    strUsage += HelpMessageOpt("-defaultsecuritylevel=<level>", strprintf(_("Sets the required minimum count of additional mints for a zerocoin to be spent. (default: %d)"), DEFAULT_SPEND_MIN_MINT_COUNT));
 #endif
 #ifndef WIN32
     strUsage += HelpMessageOpt("-sysperms", _("Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)"));
@@ -397,7 +399,6 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-maxtimeoffset=<n>", strprintf(_("Max number of seconds allowed as clock offset for a peer (default: %u)"), MAXIMUM_TIME_OFFSET));
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open"));
-    strUsage += HelpMessageOpt("-addanonserver=<ip>", _("Add a NavTech node to use for private transactions"));
     strUsage += HelpMessageOpt("-banscore=<n>", strprintf(_("Threshold for disconnecting misbehaving peers (default: %u)"), DEFAULT_BANSCORE_THRESHOLD));
     strUsage += HelpMessageOpt("-bantime=<n>", strprintf(_("Number of seconds to keep misbehaving peers from reconnecting (default: %u)"), DEFAULT_MISBEHAVING_BANTIME));
     strUsage += HelpMessageOpt("-banversion=<string>", strprintf(_("Version of wallet to be banned")));
@@ -448,6 +449,9 @@ std::string HelpMessage(HelpMessageMode mode)
 
 #ifdef ENABLE_WALLET
     strUsage += CWallet::GetWalletHelpString(showDebug);
+    strUsage += HelpMessageGroup(_("Witnesser thread options:"));
+    strUsage += HelpMessageOpt("-witnesser_block_snapshot=<count>", strprintf(_("Snapshot for recovery purposes in case of block reorg every <count> blocks. (default: %d)"), DEFAULT_BLOCK_SNAPSHOT));
+    strUsage += HelpMessageOpt("-witnesser_blocks_per_round=<count>", strprintf(_("Precompute witness for <count> blocks in each round to prevent main thread locking. (default: %d)"), DEFAULT_BLOCKS_PER_ROUND));
 #endif
 
 #if ENABLE_ZMQ
@@ -998,29 +1002,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (!SetupNetworking())
         return InitError("Initializing networking failed");
 
-    int keylen_pub, keylen_priv;
-
-    RSA *rsa = RSA_generate_key(2048, 3, 0, 0);
-
-    /* Create Private Key */
-    BIO *biopriv = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSAPrivateKey(biopriv, rsa, NULL, NULL, 0, NULL, NULL);
-
-    keylen_priv = BIO_pending(biopriv);
-    sPrivKey = static_cast<char*>(calloc(keylen_priv+1, 1)); /* Null-terminate */
-    BIO_read(biopriv, sPrivKey, keylen_priv);
-
-
-    /* Create Public Key */
-    BIO *bio_pub = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSA_PUBKEY(bio_pub, rsa);
-
-    keylen_pub = BIO_pending(bio_pub);
-    sPubKey = static_cast<char*>(calloc(keylen_pub+1, 1)); /* Null-terminate */
-    BIO_read(bio_pub, sPubKey, keylen_pub);
-
-    LogPrintf("RSA keys pair generated.\n");
-
 #ifndef WIN32
     if (GetBoolArg("-sysperms", false)) {
 #ifdef ENABLE_WALLET
@@ -1248,10 +1229,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     LogPrintf("Using at most %i connections (%i file descriptors available)\n", nMaxConnections, nFD);
     std::ostringstream strErrors;
 
-    LogPrintf("Using %u threads for script verification\n", nScriptCheckThreads);
+    LogPrintf("Using %u threads for script and zerocoin verification\n", nScriptCheckThreads);
     if (nScriptCheckThreads) {
         for (int i=0; i<nScriptCheckThreads-1; i++)
             threadGroup.create_thread(&ThreadScriptCheck);
+            threadGroup.create_thread(&ThreadCoinSpendCheck);
+            threadGroup.create_thread(&ThreadPublicCoinCheck);
     }
 
     // Start the lightweight task scheduler thread
@@ -1616,6 +1599,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                               MIN_BLOCKS_TO_KEEP);
                 }
 
+                bool fReindexSupply = false;
+
+
                 {
                     LOCK(cs_main);
                     CBlockIndex* tip = chainActive.Tip();
@@ -1625,10 +1611,39 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                                          "Only rebuild the block database if you are sure that your computer's date and time are correct");
                         break;
                     }
+
+                    CBlockIndex* firstBlock = chainActive[1];
+
+                    if(firstBlock != NULL && firstBlock->nMoneySupply == 0)
+                    {
+                        LogPrintf("Reindexing money supply...\n");
+                        fReindexSupply = true;
+                    }
+
+                    std::pair<int, uint256> firstZero = make_pair(0, uint256());
+                    pblocktree->ReadFirstZerocoinBlock(firstZero);
+
+                    CBlockIndex* firstZeroBlock = chainActive[firstZero.first];
+                    CBlockIndex* prevZeroBlock = chainActive[firstZero.first-1];
+
+                    if(firstZero.first != 0
+                            && ((firstZeroBlock && (firstZeroBlock->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) != VERSIONBITS_TOP_BITS_ZEROCOIN)
+                            || (prevZeroBlock && (prevZeroBlock->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
+                            || (!firstZeroBlock)
+                            || (firstZeroBlock->GetBlockHash() != firstZero.second))) {
+                        CBlockIndex* pindex = chainActive.Genesis();
+                        while (pindex) {
+                            if ((pindex->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
+                                break;
+                            pindex = chainActive.Next(pindex);
+                        }
+                        pblocktree->WriteFirstZerocoinBlock(make_pair(pindex ? pindex->nHeight : 0, pindex ? pindex->GetBlockHash() : uint256()));
+                        LogPrintf("First zerocoin block ammended to %d\n", pindex ? pindex->nHeight : 0);
+                    }
                 }
 
-                if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
-                                          GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
+                if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, 4,
+                                          fReindexSupply ? 0 : GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
                     strLoadError = _("Corrupted block database detected");
                     break;
                 }
@@ -1757,6 +1772,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #ifdef ENABLE_WALLET
     LogPrintf("setKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
     LogPrintf("mapWallet.size() = %u\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
+    LogPrintf("mapSerial.size() = %u\n",       pwalletMain ? pwalletMain->mapSerial.size() : 0);
+    LogPrintf("mapWitness.size() = %u\n",      pwalletMain ? pwalletMain->mapWitness.size() : 0);
     LogPrintf("mapAddressBook.size() = %u\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif
 
@@ -1766,13 +1783,17 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     StartNode(threadGroup, scheduler);
 
     // ********************************************************* Step 12: finished
-
     SetRPCWarmupFinished();
 
 #ifdef ENABLE_WALLET
     // Generate coins in the background
     SetStaking(GetBoolArg("-staking", true));
+    uiInterface.InitMessage(_("Starting staker thread..."));
     threadGroup.create_thread(boost::bind(&NavCoinStaker, boost::cref(chainparams)));
+    if(GetBoolArg("-enablewitnesser", true)) {
+        uiInterface.InitMessage(_("Starting witnesser thread..."));
+        threadGroup.create_thread(boost::bind(&NavCoinWitnesser, boost::cref(chainparams)));
+    }
 #endif
 
     uiInterface.InitMessage(_("Done loading"));

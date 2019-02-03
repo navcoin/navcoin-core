@@ -20,6 +20,8 @@
 #include <utility>
 #include <vector>
 
+#include "libzerocoin/Denominations.h"
+#include "libzerocoin/SpendType.h"
 #include "prevector.h"
 
 static const unsigned int MAX_SIZE = 0x02000000;
@@ -514,6 +516,40 @@ public:
 
 template<typename I>
 CVarInt<I> WrapVarInt(I& n) { return CVarInt<I>(n); }
+
+// Serialization for libzerocoin::CoinDenomination
+inline unsigned int GetSerializeSize(libzerocoin::CoinDenomination a, int, int = 0) { return sizeof(libzerocoin::CoinDenomination); }
+template <typename Stream>
+inline void Serialize(Stream& s, libzerocoin::CoinDenomination a, int nType, int nVersion = 0)
+{
+    int f = libzerocoin::ZerocoinDenominationToInt(a);
+    Serialize(s, f, nType, nVersion);
+}
+
+template <typename Stream>
+inline void Unserialize(Stream& s, libzerocoin::CoinDenomination& a, int nType, int nVersion= 0)
+{
+    int f=0;
+    Unserialize(s, f, nType, nVersion);
+    a = libzerocoin::IntToZerocoinDenomination(f);
+}
+
+// Serialization for libzerocoin::SpendType
+inline unsigned int GetSerializedSize(libzerocoin::SpendType a, int, int = 0) { return sizeof(libzerocoin::SpendType); }
+template <typename Stream>
+inline void Serialize(Stream& s, libzerocoin::SpendType a, int nType, int nVersion = 0)
+{
+    uint8_t f = static_cast<uint8_t>(a);
+    Serialize(s, f, nType, nVersion);
+}
+
+template <typename Stream>
+inline void Unserialize(Stream& s, libzerocoin::SpendType & a, int nType, int nVersion = 0)
+{
+    uint8_t f=0;
+    Unserialize(s, f, nType, nVersion);
+    a = static_cast<libzerocoin::SpendType>(f);
+}
 
 /**
  * Forward declarations
