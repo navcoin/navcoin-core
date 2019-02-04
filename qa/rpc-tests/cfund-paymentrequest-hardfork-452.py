@@ -8,7 +8,7 @@ from test_framework.hardfork_util import *
 from test_framework.cfund_util import *
 
 class PaymentRequest452(NavCoinTestFramework):
-    """Tests rejection of obsolete blocks."""
+    """Tests whether payment requests can be double paid before and after the hardfork."""
 
     def __init__(self):
         super().__init__()
