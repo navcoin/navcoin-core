@@ -3301,7 +3301,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
                 if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
-                if(prequest.paymenthash != uint256())
+                if(prequest.paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
                     return state.DoS(100, error("CheckBlock() : coinbase output tries to pay an already paid payment request"));
                 std::vector<std::pair<uint256, CFund::CPaymentRequest> > paymentRequestIndex;
                 prequest.paymenthash = block.GetHash();
