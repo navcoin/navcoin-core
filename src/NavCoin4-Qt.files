@@ -283,6 +283,10 @@ qt/coincontroldialog.cpp
 qt/coincontroldialog.h
 qt/coincontroltreewidget.cpp
 qt/coincontroltreewidget.h
+qt/communityfundpage.cpp
+qt/communityfundpage.h
+qt/communityfundpage.moc
+qt/communityfundpage.ui
 qt/csvmodelwriter.cpp
 qt/csvmodelwriter.h
 qt/editaddressdialog.cpp
