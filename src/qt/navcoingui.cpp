@@ -665,7 +665,14 @@ void NavCoinGUI::createToolBars()
         topMenu4->setStyleSheet(
                     "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-
+        topMenu5 = new QPushButton();
+        walletFrame->menuLayout->addWidget(topMenu5);
+        topMenu5->setFixedSize(215,94);
+        topMenu5->setObjectName("topMenu5");
+        connect(topMenu5, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
+        topMenu5->setStyleSheet(
+                    "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                    "#topMenu5:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
         QWidget *topMenu = new QWidget();
         topMenu->setObjectName("topMenu");
         topMenu->setStyleSheet(
@@ -961,6 +968,9 @@ void NavCoinGUI::gotoOverviewPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
@@ -977,8 +987,32 @@ void NavCoinGUI::gotoHistoryPage()
                 "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }");
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
+}
+
+void NavCoinGUI::gotoCommunityFundPage()
+{
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+     );
+
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_transaction_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    historyAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoCommunityFundPage();
 }
 
 void NavCoinGUI::gotoReceiveCoinsPage()
@@ -994,6 +1028,9 @@ void NavCoinGUI::gotoReceiveCoinsPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
@@ -1011,6 +1048,9 @@ void NavCoinGUI::gotoRequestPaymentPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoRequestPaymentPage();
 }
@@ -1028,6 +1068,9 @@ void NavCoinGUI::gotoSendCoinsPage(QString addr)
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
