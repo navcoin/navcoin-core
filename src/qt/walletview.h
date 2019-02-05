@@ -13,6 +13,7 @@
 class NavCoinGUI;
 class ClientModel;
 class OverviewPage;
+class CommunityFundPage;
 class PlatformStyle;
 class ReceiveCoinsDialog;
 class SendCoinsDialog;
@@ -64,6 +65,7 @@ private:
     QWidget *transactionsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
+    CommunityFundPage *communityFundPage;
     getAddressToReceive *requestPaymentPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
