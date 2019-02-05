@@ -185,6 +185,12 @@ void WalletView::gotoHistoryPage()
     setCurrentWidget(transactionsPage);
 }
 
+void WalletView::gotoCommunityFundPage()
+{
+    // Change to CommunityFund UI
+    setCurrentWidget(transactionsPage);
+}
+
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(receiveCoinsPage);
