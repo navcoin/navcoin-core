@@ -669,7 +669,7 @@ void NavCoinGUI::createToolBars()
         walletFrame->menuLayout->addWidget(topMenu5);
         topMenu5->setFixedSize(215,94);
         topMenu5->setObjectName("topMenu5");
-        connect(topMenu5, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
+        connect(topMenu5, SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
         topMenu5->setStyleSheet(
                     "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu5:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
@@ -988,7 +988,8 @@ void NavCoinGUI::gotoHistoryPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_s)  0 0 0 0 stretch stretch; border: 0px; }");
     topMenu5->setStyleSheet(
-                "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }");
+                "#topMenu5 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
@@ -1007,8 +1008,6 @@ void NavCoinGUI::gotoCommunityFundPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
-     );
-
     topMenu5->setStyleSheet(
                 "#topMenu5 { border-image: url(:/icons/menu_transaction_s)  0 0 0 0 stretch stretch; border: 0px; }");
     historyAction->setChecked(true);

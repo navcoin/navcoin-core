@@ -45,7 +45,6 @@ public:
     QWidget *topMenu;
     QHBoxLayout *menuLayout;
 
-
 private:
     QStackedWidget *walletStack;
     NavCoinGUI *gui;
