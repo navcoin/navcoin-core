@@ -295,6 +295,8 @@ qt/forms/Topmenu.qml
 qt/forms/TopmenuForm.ui.qml
 qt/forms/addressbookpage.ui
 qt/forms/askpassphrasedialog.ui
+qt/forms/cfund_voting.cpp
+qt/forms/cfund_voting.ui
 qt/forms/coincontroldialog.ui
 qt/forms/debugwindow.ui
 qt/forms/editaddressdialog.ui
