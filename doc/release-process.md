@@ -44,8 +44,7 @@ Before every release candidate:
 
 Before every minor and major release:
 
-* Update [npips.md](npips.md) a to account for the protocol changes since the last release
-* Update [bips.md](bips.md) to account for changes since the last release that we included from bitcoin core.
+* Update [npips.md](npips.md) to account for the protocol changes since the last release
 * Update version in sources (see below)
 * Write release notes (see below)
 
@@ -82,9 +81,6 @@ Write release notes. git shortlog helps a lot, for example:
 
     git shortlog --no-merges v(current version, e.g. 4.0.6)..v(new version, e.g. 4.1.0)
 
-(or ping @wumpus on IRC, he has specific tooling to generate the list of merged pulls
-and sort them into categories based on labels)
-
 Generate list of authors:
 
     git log --format='%aN' "$*" | sort -ui | sed -e 's/^/- /'
@@ -98,7 +94,7 @@ Tag version (or release candidate) in git
 Setup Gitian descriptors:
 
     pushd ./navcoin-core
-    export VERSION=(new version, e.g. v4.1.0)
+    export VERSION=(new version, e.g. v4.1.0, which should also be the name of the repository branch)
     git fetch
     git checkout v${VERSION}
     popd
@@ -143,7 +139,6 @@ The gbuild invocations below <b>DO NOT DO THIS</b> by default.
     ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-arm.yml
     mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
     
-    pushd ./gitian-builder
     ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
     mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
 
