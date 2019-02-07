@@ -275,13 +275,12 @@ bool CFund::CPaymentRequest::CanVote() const {
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && nVotingCycle <= Params().GetConsensus().nCyclesPaymentRequestVoting;
+    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && !ExceededMaxVotingCycles();
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
     if(nVersion >= 2)
-        return ( nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting &&
-                fState != ACCEPTED && fState != REJECTED);
+        return (ExceededMaxVotingCycles() && fState != ACCEPTED && fState != REJECTED);
     return false;
 }
 
@@ -364,6 +363,10 @@ bool CFund::CPaymentRequest::IsRejected() const {
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectPaymentRequest));
 }
 
+bool CFund::CPaymentRequest::ExceededMaxVotingCycles() const {
+    return nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting;
+}
+
 bool CFund::CProposal::IsAccepted() const {
     int nTotalVotes = nVotesYes + nVotesNo;
     float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
@@ -385,19 +388,23 @@ bool CFund::CProposal::IsRejected() const {
 }
 
 bool CFund::CProposal::CanVote() const {
-    return (fState == NIL) && (nVotingCycle <= Params().GetConsensus().nCyclesProposalVoting);
+    return (fState == NIL) && (!ExceededMaxVotingCycles());
 }
 
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
     if(nVersion >= 2) {
         if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
-            return (pblockindex->GetBlockTime() + nDeadline < currentTime);
+            CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
+            return (pBlockIndex->GetBlockTime() + nDeadline < currentTime);
         }
-        return (fState == EXPIRED) || (fState == PENDING_VOTING_PREQ) || (nVotingCycle > Params().GetConsensus().nCyclesProposalVoting && (fState == NIL || fState == EXPIRED));
+        return (fState == EXPIRED) || (fState == PENDING_VOTING_PREQ) || (ExceededMaxVotingCycles() && fState == NIL);
     } else {
         return (nDeadline < currentTime);
     }
+}
+
+bool CFund::CProposal::ExceededMaxVotingCycles() const {
+    return nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
 }
 
 std::string CFund::CProposal::GetState(uint32_t currentTime) const {
@@ -416,7 +423,8 @@ std::string CFund::CProposal::GetState(uint32_t currentTime) const {
     }
     if(currentTime > 0 && IsExpired(currentTime)) {
         sFlags = "expired";
-        if(fState != EXPIRED && nVotingCycle <= Params().GetConsensus().nCyclesProposalVoting)
+        if(fState != EXPIRED && !ExceededMaxVotingCycles())
+            // This branch only occurs when a proposal expires due to exceeding its nDeadline during a voting cycle, not due to exceeding max voting cycles
             sFlags += " waiting for end of voting period";
     }
     if(fState == PENDING_VOTING_PREQ) {
@@ -437,8 +445,8 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     if(nVersion >= 2) {
         ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
         if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
-            ret.push_back(Pair("expiresOn", pblockindex->GetBlockTime() + (uint64_t)nDeadline));
+            CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
+            ret.push_back(Pair("expiresOn", pBlockIndex->GetBlockTime() + (uint64_t)nDeadline));
         }
     } else {
         ret.push_back(Pair("expiresOn", (uint64_t)nDeadline));
@@ -446,6 +454,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
     ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesProposalVoting)));
+    // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
     ret.push_back(Pair("state", (uint64_t)fState));
     if(fState == ACCEPTED)
@@ -473,6 +482,7 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesNo", nVotesNo));
     ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesPaymentRequestVoting)));
+    // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     ret.push_back(Pair("status", GetState()));
     ret.push_back(Pair("state", (uint64_t)fState));
     ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));

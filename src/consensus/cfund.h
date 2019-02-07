@@ -123,6 +123,8 @@ public:
 
     bool IsExpired() const;
 
+    bool ExceededMaxVotingCycles() const;
+
     bool CanVote() const;
 
     ADD_SERIALIZE_METHODS;
@@ -233,6 +235,8 @@ public:
     bool IsRejected() const;
 
     bool IsExpired(uint32_t currentTime) const;
+
+    bool ExceededMaxVotingCycles() const;
 
     bool CanVote() const;
 
