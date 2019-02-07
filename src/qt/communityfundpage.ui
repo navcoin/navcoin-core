@@ -117,6 +117,22 @@
           </layout>
          </item>
          <item>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <layout class="QVBoxLayout" name="verticalLayoutAmount">
            <item>
             <widget class="QLabel" name="labelLockedAmount">
@@ -175,6 +191,19 @@
           </layout>
          </item>
          <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButtonProposals">
            <property name="maximumSize">
             <size>
@@ -207,12 +236,12 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_2">
+          <spacer name="horizontalSpacer_10">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeType">
-            <enum>QSizePolicy::Maximum</enum>
+            <enum>QSizePolicy::Minimum</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
