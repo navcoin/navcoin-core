@@ -21,7 +21,7 @@ def activateHardFork(node, versionBit, activationHeight):
     assert(int(versionBit1) == 0)
 
     # activate hard fork
-    slow_gen(node, activationHeight)
+    slow_gen(node, activationHeight - node.getblockchaininfo()["blocks"] + 1)
 
     blockHash2 = node.getbestblockhash()
     block2 = node.getblock(blockHash2)
