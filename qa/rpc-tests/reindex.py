@@ -23,7 +23,7 @@ class ReindexTest(NavCoinTestFramework):
         self.nodes.append(start_node(0, self.options.tmpdir))
 
     def reindex(self, justchainstate=False):
-        self.nodes[0].generate(3)
+        slow_gen(self.nodes[0], 3)
         blockcount = self.nodes[0].getblockcount()
         stop_node(self.nodes[0], 0)
         wait_navcoinds()

@@ -42,7 +42,8 @@ class WalletTest (NavCoinTestFramework):
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all()
-        self.nodes[1].generate(101)
+        slow_gen(self.nodes[1], 101)
+
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), 59800000)
@@ -265,11 +266,15 @@ class WalletTest (NavCoinTestFramework):
         else:
             raise AssertionError("Must not parse invalid amounts")
 
+            
+        my_function_failed = False    
         try:
             self.nodes[0].generate("2")
             raise AssertionError("Must not accept strings as numeric")
         except JSONRPCException as e:
-            assert("not an integer" in e.error['message'])
+            my_function_failed = True
+         
+        assert(my_function_failed)
 
         # Import address and private key to check correct behavior of spendable unspents
         # 1. Send some coins to generate new UTXO
