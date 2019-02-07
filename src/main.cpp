@@ -3979,6 +3979,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
 
+            auto oldState = prequest.fState;
+            auto oldCycle = prequest.nVotingCycle;
+
             if((prequest.fState == CFund::NIL || fUndo) && nVotingCycles != prequest.nVotingCycle) {
                 prequest.nVotingCycle = nVotingCycles;
                 fUpdate = true;
@@ -4020,6 +4023,10 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     }
                 }
             }
+
+            if (fUndo && fUpdate && prequest.fState == oldState && prequest.fState != CFund::NIL && prequest.nVotingCycle != oldCycle)
+                prequest.nVotingCycle = oldCycle;
+
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
                 if (!vSeen.count(prequest.hash) && prequest.fState == CFund::NIL
@@ -4063,13 +4070,16 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
             auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesProposalVoting + 1);
 
+            auto oldState = proposal.fState;
+            auto oldCycle = proposal.nVotingCycle;
+
             if((proposal.fState == CFund::NIL || fUndo) && nVotingCycles != proposal.nVotingCycle) {
                 proposal.nVotingCycle = nVotingCycles;
                 fUpdate = true;
             }
 
             if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0) {
-                if((!proposal.IsExpired(pindexNew->GetBlockTime()) && proposal.fState == CFund::EXPIRED) ||
+                if((!proposal.IsExpired(pindexNew->GetBlockTime()) && (proposal.fState == CFund::EXPIRED || proposal.fState == CFund::PENDING_VOTING_PREQ)) ||
                    (!proposal.IsRejected() && proposal.fState == CFund::REJECTED)){
                     proposal.fState = CFund::NIL;
                     proposal.blockhash = uint256();
@@ -4118,6 +4128,10 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo)
                     }
                 }
             }
+
+            if (fUndo && fUpdate && proposal.fState == oldState && proposal.fState != CFund::NIL && proposal.nVotingCycle != oldCycle)
+                proposal.nVotingCycle = oldCycle;
+
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
                 if (!vSeen.count(prequest.hash) && proposal.fState == CFund::NIL){
