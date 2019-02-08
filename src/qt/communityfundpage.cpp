@@ -15,9 +15,9 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 {
     ui->setupUi(this);
 
-    // Hide scrollArea scroll bar
+    // Hide horizontal scrollArea scroll bar
     ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     connect(ui->pushButtonProposals, SIGNAL(clicked()), this, SLOT(on_click_pushButtonProposals()));
     connect(ui->pushButtonPaymentRequests, SIGNAL(clicked()), this, SLOT(on_click_pushButtonPaymentRequests()));
