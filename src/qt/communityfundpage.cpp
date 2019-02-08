@@ -17,10 +17,14 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 
     // Hide horizontal scrollArea scroll bar
     ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     connect(ui->pushButtonProposals, SIGNAL(clicked()), this, SLOT(on_click_pushButtonProposals()));
     connect(ui->pushButtonPaymentRequests, SIGNAL(clicked()), this, SLOT(on_click_pushButtonPaymentRequests()));
+
+    // Enable selection of pushButtonProposals by default
+    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8 }");
+    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3 }");
+
     connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
     connect(ui->radioButtonYourVote, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
     connect(ui->radioButtonPending, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
@@ -59,12 +63,14 @@ void CommunityFundPage::Refresh()
 
 void CommunityFundPage::on_click_pushButtonProposals()
 {
-    ui->pushButtonPaymentRequests->setEnabled(false);
+    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8 }");
+    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3 }");
 }
 
 void CommunityFundPage::on_click_pushButtonPaymentRequests()
 {
-    ui->pushButtonProposals->setEnabled(false);
+    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3 }");
+    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8 }");
 }
 
 void CommunityFundPage::on_click_radioButtonAll()
