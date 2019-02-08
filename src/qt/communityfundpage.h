@@ -2,6 +2,8 @@
 #define COMMUNITYFUNDPAGE_H
 
 #include "communityfundpage.moc"
+#include "consensus/cfund.h"
+
 #include <QWidget>
 #include <QPushButton>
 #include <QListView>
@@ -31,10 +33,16 @@ private:
     Ui::CommunityFundPage *ui;
     ClientModel *clientModel;
     WalletModel *walletModel;
+    CFund::flags flag;
 
 private Q_SLOTS:
     void on_click_pushButtonProposals();
     void on_click_pushButtonPaymentRequests();
+    void on_click_radioButtonAll();
+    void on_click_radioButtonYourVote();
+    void on_click_radioButtonPending();
+    void on_click_radioButtonAccepted();
+    void on_click_radioButtonRejected();
 
 };
 
