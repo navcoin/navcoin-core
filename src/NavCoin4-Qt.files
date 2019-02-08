@@ -283,6 +283,9 @@ qt/coincontroldialog.cpp
 qt/coincontroldialog.h
 qt/coincontroltreewidget.cpp
 qt/coincontroltreewidget.h
+qt/communityfunddisplay.cpp
+qt/communityfunddisplay.h
+qt/communityfunddisplay.ui
 qt/communityfundpage.cpp
 qt/communityfundpage.h
 qt/communityfundpage.moc
