@@ -1,6 +1,7 @@
 #ifndef COMMUNITYFUNDDISPLAY_H
 #define COMMUNITYFUNDDISPLAY_H
 
+#include "consensus/cfund.h"
 #include <QWidget>
 
 namespace Ui {
@@ -17,6 +18,7 @@ public:
 
 private:
     Ui::CommunityFundDisplay *ui;
+    CFund::CProposal proposal;
 };
 
 #endif // COMMUNITYFUNDDISPLAY_H
