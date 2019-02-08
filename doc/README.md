@@ -1,4 +1,4 @@
-NavCoin Core 4.5.0
+NavCoin Core 4.5.2
 =====================
 
 Setup
@@ -26,10 +26,7 @@ Drag NavCoin-Core to your applications folder, and then run NavCoin-Core.
 
 ### Need Help?
 
-* See the documentation at the [NavCoin Wiki](https://en.navcoin.it/wiki/Main_Page)
-for help and more information.
-* Ask for help on [#navcoin](http://webchat.freenode.net?channels=navcoin) on Freenode. If you don't have an IRC client use [webchat here](http://webchat.freenode.net?channels=navcoin).
-* Ask for help on the [NavCoinTalk](https://navcointalk.org/) forums, in the [Technical Support board](https://navcointalk.org/index.php?board=4.0).
+* Ask for help on [Discord](https://discord.gg/y4Vu9jw) or [Telegram](https://t.me/navcoin).
 
 Building
 ---------------------
@@ -60,9 +57,8 @@ The NavCoin repo's [root README](/README.md) contains relevant information on th
 - [Benchmarking](benchmarking.md)
 
 ### Resources
-* Discuss on the [NavCoinTalk](https://navcointalk.org/) forums, in the [Development & Technical Discussion board](https://navcointalk.org/index.php?board=6.0).
-* Discuss project-specific development on #navcoin-core-dev on Freenode. If you don't have an IRC client use [webchat here](http://webchat.freenode.net/?channels=navcoin-core-dev).
-* Discuss general NavCoin development on #navcoin-dev on Freenode. If you don't have an IRC client use [webchat here](http://webchat.freenode.net/?channels=navcoin-dev).
+* Discuss project-specific development on the Development boards on Discord. 
+* Discuss general NavCoin development on #dev-navcoin-core on Discord. 
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)
