@@ -7,6 +7,8 @@
 #include "txdb.h"
 #include <string>
 #include "communityfunddisplay.h"
+#include <iomanip>
+#include <sstream>
 
 CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
@@ -39,11 +41,15 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 
 void CommunityFundPage::Refresh()
 {
-    std::string available = std::to_string(pindexBestHeader->nCFSupply);
+    stringstream a;
+    a << fixed << setprecision(2) << pindexBestHeader->nCFSupply;
+    string available = a.str();
     available.append(" NAV");
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
-    std::string locked = std::to_string(pindexBestHeader->nCFLocked);
+    stringstream l;
+    l << fixed << setprecision(2) << pindexBestHeader->nCFLocked;
+    string locked = l.str();
     locked.append(" NAV");
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
 

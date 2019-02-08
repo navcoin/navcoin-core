@@ -138,7 +138,7 @@
             <widget class="QLabel" name="labelAvailableAmount">
              <property name="maximumSize">
               <size>
-               <width>70</width>
+               <width>100</width>
                <height>17</height>
               </size>
              </property>
@@ -156,7 +156,7 @@
             <widget class="QLabel" name="labelLockedAmount">
              <property name="maximumSize">
               <size>
-               <width>70</width>
+               <width>100</width>
                <height>17</height>
               </size>
              </property>
@@ -174,7 +174,7 @@
             <widget class="QLabel" name="labelSpentAmount">
              <property name="maximumSize">
               <size>
-               <width>70</width>
+               <width>100</width>
                <height>17</height>
               </size>
              </property>
@@ -285,7 +285,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>140</width>
+             <width>150</width>
              <height>20</height>
             </size>
            </property>
