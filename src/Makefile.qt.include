@@ -111,7 +111,8 @@ QT_FORMS_UI = \
   qt/navtechsetup.ui \
   qt/forms/cfund_voting.ui \
   qt/getaddresstoreceive.ui\
-  qt/communityfundpage.ui
+  qt/communityfundpage.ui \
+  qt/communityfunddisplay.ui
 
 QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
@@ -143,6 +144,7 @@ QT_MOC_CPP = \
   qt/moc_optionsmodel.cpp \
   qt/moc_overviewpage.cpp \
   qt/moc_communityfundpage.cpp \
+  qt/moc_communityfunddisplay.cpp \
   qt/moc_peertablemodel.cpp \
   qt/moc_paymentserver.cpp \
   qt/moc_qvalidatedlineedit.cpp \
@@ -176,7 +178,8 @@ QT_MOC = \
   qt/intro.moc \
   qt/overviewpage.moc \
   qt/rpcconsole.moc \
-  qt/communityfundpage.moc
+  qt/communityfundpage.moc \
+  qt/communityfunddisplay.moc
 
 QT_QRC_CPP = qt/qrc_navcoin.cpp
 QT_QRC = qt/navcoin.qrc
@@ -220,6 +223,7 @@ NAVCOIN_QT_H = \
   qt/optionsmodel.h \
   qt/overviewpage.h \
   qt/communityfundpage.h \
+  qt/communityfunddisplay.h \
   qt/paymentrequestplus.h \
   qt/paymentserver.h \
   qt/peertablemodel.h \
@@ -373,6 +377,7 @@ NAVCOIN_QT_CPP += \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
   qt/communityfundpage.cpp \
+  qt/communityfunddisplay.cpp \
   qt/paymentrequestplus.cpp \
   qt/paymentserver.cpp \
   qt/receivecoinsdialog.cpp \
