@@ -135,7 +135,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayoutAmount">
            <item>
-            <widget class="QLabel" name="labelLockedAmount">
+            <widget class="QLabel" name="labelAvailableAmount">
              <property name="maximumSize">
               <size>
                <width>70</width>
@@ -153,7 +153,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="labelAvailableAmount">
+            <widget class="QLabel" name="labelLockedAmount">
              <property name="maximumSize">
               <size>
                <width>70</width>
@@ -211,12 +211,12 @@
            <property name="minimumSize">
             <size>
              <width>130</width>
-             <height>0</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>130</width>
              <height>30</height>
             </size>
            </property>
@@ -245,12 +245,12 @@
            <property name="minimumSize">
             <size>
              <width>130</width>
-             <height>0</height>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>130</width>
              <height>30</height>
             </size>
            </property>
