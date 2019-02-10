@@ -125,7 +125,7 @@ public:
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 2722100;
-        consensus.nHeightv452Fork = 2900000;
+        consensus.nHeightv452Fork = 2882875;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
