@@ -8,7 +8,7 @@ from test_framework.hardfork_util import *
 
 import time
 
-class Hardfork451(NavCoinTestFramework):
+class Hardfork452(NavCoinTestFramework):
     """Tests rejection of obsolete blocks."""
 
     def __init__(self):
@@ -22,8 +22,8 @@ class Hardfork451(NavCoinTestFramework):
 
     def run_test(self):
         # test
-        activateHardFork(self.nodes[0], 20, 1000)
+        activateHardFork(self.nodes[0], 21, 1000)
 
 
 if __name__ == '__main__':
-    Hardfork451().main()
+    Hardfork452().main()

@@ -150,6 +150,9 @@ testScripts = [
     'cfund-donate.py',
     'cfund-listproposals.py',
     'cfund-paymentrequest-extract-funds.py',
+    'cfund-paymentrequest-payout.py',
+    'cfund-paymentrequest-duplicate.py',
+    'cfund-paymentrequest-hardfork-452.py',
     'cfund-paymentrequest-state-accept.py',
     'cfund-paymentrequest-state-accept-expired-proposal.py',
     'cfund-paymentrequest-state-expired.py',
@@ -168,6 +171,7 @@ testScripts = [
     'coldstaking_spending.py',
     'staticr-staking-amount.py',
     'hardfork-451.py',
+    'hardfork-452.py',
     'staticr-tx-send.py',
 
     'sendtoaddress.py',
