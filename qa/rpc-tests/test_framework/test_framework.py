@@ -34,7 +34,7 @@ class NavCoinTestFramework(object):
 
     def __init__(self):
         self.num_nodes = 4
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
         self.nodes = None
 
     def run_test(self):
