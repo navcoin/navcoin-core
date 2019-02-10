@@ -2,7 +2,7 @@
 
 ## Community Fund Duplicate Payment Hard Fork
 <[Pull Request 413](https://github.com/NAVCoin/navcoin-core/pull/413)> 
-<[Commit a6782c3](https://github.com/NAVCoin/navcoin-core/commit/7ef765bf05802d491a6be8b8ea781e33f9c5aa4f)>
+<[Commit 7ef765b](https://github.com/NAVCoin/navcoin-core/commit/7ef765bf05802d491a6be8b8ea781e33f9c5aa4f)>
 Fixes a bug where the Community Fund payment requests could be accepted by the network multiple times. Enforces version bit 21 for all blocks after blockheight 2882875 as well as rejecting duplicate payments after the fork height.
 
 ## Voting Cycle Counter Hotfix
