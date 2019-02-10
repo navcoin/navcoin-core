@@ -1,14 +1,6 @@
 # NavCoin v4.5.2 Release Notes
 
-4.5.2 contains a hard fork which explicitly rejects blocks from obsolete versions (4.5.1 and below) signalled by version bit 21. Upgrading to 4.5.2 will avoid a potential network fork (as described below) and ensure you remain on the same blockchain as the rest of the network.
-
-## Community Fund Hotfixes
-### Rejection of Double Payout of Successful Payment Requests
-<[Pull Request 413](https://github.com/NAVCoin/navcoin-core/pull/413)> 
-<[Commit hash](https://github.com/NAVCoin/navcoin-core/commit/hash)>
-Currently if a staker's community fund database gets corrupted, they will read blocks and payout payment requests inconsistently with the rest of the network, which may lead to double payout of successful payment requests. This patch adds checks to reject blocks containing second payouts staked by these nodes. Rejecting these blocks may lead the network to fork, thus requiring the hard fork in this release.
-
-### Voting Cycle Counter Hotfix
+## Voting Cycle Counter Hotfix
 <[Pull Request 396](https://github.com/NAVCoin/navcoin-core/pull/396)> 
 <[Commit a6782c3](https://github.com/NAVCoin/navcoin-core/commit/a6782c3be14444433b8a2b9abeac9aef7151331d)>
 Fixes a bug where the `votingCycle` field of community fund proposals and payment requests would continue to increment after their terminal state if a user reorgs. Also for proposal/payment requests which change from pending to expired, when the voting cycle is 1 over the cycle limit, staker's votes would continue to be counted even though such proposal/payment request is expired. This bug did not affect network consensus on the status of proposal or payment requests.
@@ -17,11 +9,6 @@ Fixes a bug where the `votingCycle` field of community fund proposals and paymen
 <[Pull Request 390](https://github.com/NAVCoin/navcoin-core/pull/390)> 
 <[Commit 1990d92](https://github.com/NAVCoin/navcoin-core/commit/1990d929f216e69efa96484b31d3e65ff4196aee)>
 Keeps a cache of the community fund votes to avoid an unnecessary recalculation per block which was causing extreme slow synchronization per block. After applying the patch the CountVotes() function is significantly faster.
-
-## Donate Button to the Community Fund
-<[Pull Request 396](https://github.com/NAVCoin/navcoin-core/pull/396)> 
-<[Commit hash](https://github.com/NAVCoin/navcoin-core/commit/hash)>
-Users can now choose to donate to the community fund by using the Send tab of the NavCoin Core wallet. Previously, users could only donate with the `donatefund` rpc command.
 
 ## RPC Tests newly implemented and fixed
 The RPC unit test work mainly involved fixing broken RPC tests inherited from Bitcoin as well as creating new ones. This expands our test suite allowing for greater coverage which provides quality checks to the existing codebase and future updates.
