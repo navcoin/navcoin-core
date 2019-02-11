@@ -9,6 +9,7 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 {
     ui->setupUi(this);
 
+    //add a border
     //set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
