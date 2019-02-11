@@ -48,7 +48,7 @@ void CommunityFundPage::Refresh()
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
     stringstream l;
-    l << fixed << setprecision(2) << pindexBestHeader->nCFLocked;
+    l << fixed << setprecision(2) << pindexBestHeader->nCFLocked/100000000.0;;
     string locked = l.str();
     locked.append(" NAV");
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
