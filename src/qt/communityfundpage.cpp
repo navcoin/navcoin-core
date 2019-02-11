@@ -59,10 +59,10 @@ void CommunityFundPage::Refresh()
     {
         int r = 0;
         int c = 0;
-        BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+        BOOST_FOREACH(const CFund::CProposal proposal, vec) {
             if (proposal.fState != flag)
                 continue;
-            ui->gridLayout->addWidget(new CommunityFundDisplay(proposal), r, c);
+            ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
             if(c == 1)
             {
                 c = 0;
