@@ -41,6 +41,15 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 
 void CommunityFundPage::Refresh()
 {
+    for (int i = 0; i < ui->gridLayout->count(); ++i)
+    {
+      QWidget *widget = ui->gridLayout->itemAt(i)->widget();
+      if (widget != NULL)
+      {
+        widget->setVisible(false);
+      }
+    }
+
     stringstream a;
     a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/100000000.0;
     string available = a.str();
@@ -104,26 +113,31 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
 void CommunityFundPage::on_click_radioButtonAll()
 {
     flag = CFund::NIL;
+    Refresh();
 }
 
 void CommunityFundPage::on_click_radioButtonYourVote()
 {
     flag = CFund::NIL;
+    Refresh();
 }
 
 void CommunityFundPage::on_click_radioButtonPending()
 {
     flag = CFund::PENDING_VOTING_PREQ;
+    Refresh();
 }
 
 void CommunityFundPage::on_click_radioButtonAccepted()
 {
     flag = CFund::ACCEPTED;
+    Refresh();
 }
 
 void CommunityFundPage::on_click_radioButtonRejected()
 {
     flag = CFund::REJECTED;
+    Refresh();
 }
 
 CommunityFundPage::~CommunityFundPage()
