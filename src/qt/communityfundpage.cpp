@@ -42,7 +42,7 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 void CommunityFundPage::Refresh()
 {
     stringstream a;
-    a << fixed << setprecision(2) << pindexBestHeader->nCFSupply;
+    a << fixed << setprecision(2) << pindexBestHeader->nCFSupply/100000000.0;
     string available = a.str();
     available.append(" NAV");
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
@@ -57,11 +57,12 @@ void CommunityFundPage::Refresh()
     std::vector<CFund::CProposal> vec;
     if(pblocktree->GetProposalIndex(vec))
     {
-        int r, c = 0;
+        int r = 0;
+        int c = 0;
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
             if (proposal.fState != flag)
                 continue;
-            ui->gridLayout->addWidget(new CommunityFundDisplay(), r, c);
+            ui->gridLayout->addWidget(new CommunityFundDisplay(proposal), r, c);
             if(c == 1)
             {
                 c = 0;
