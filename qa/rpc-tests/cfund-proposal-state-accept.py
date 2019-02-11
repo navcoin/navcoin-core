@@ -154,11 +154,12 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == votingCycle_after_state_change)
 
-        # Wait for the proposal to expire
-        while int(time.time()) <= int(self.nodes[0].getproposal(proposalid0)["expiresOn"]):
-            time.sleep(1)
-
         blocks=slow_gen(self.nodes[0], 1)
+
+        # Wait for the proposal to expire
+        while int(self.nodes[0].getblock(blocks[0])["time"]) <= int(self.nodes[0].getproposal(proposalid0)["expiresOn"]):
+            blocks=slow_gen(self.nodes[0], 1)
+            time.sleep(1)
 
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
 
