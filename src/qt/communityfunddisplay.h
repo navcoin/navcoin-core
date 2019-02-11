@@ -13,12 +13,12 @@ class CommunityFundDisplay : public QWidget
     Q_OBJECT
 
 public:
-    explicit CommunityFundDisplay(QWidget *parent = 0, const CFund::CProposal* proposal);
+    CommunityFundDisplay(QWidget *parent = 0, const CFund::CProposal proposal = CFund::CProposal());
     ~CommunityFundDisplay();
 
 private:
     Ui::CommunityFundDisplay *ui;
-    CFund::CProposal proposal;
+    const CFund::CProposal proposal;
 };
 
 #endif // COMMUNITYFUNDDISPLAY_H
