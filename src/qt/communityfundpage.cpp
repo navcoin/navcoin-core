@@ -57,11 +57,12 @@ void CommunityFundPage::Refresh()
     std::vector<CFund::CProposal> vec;
     if(pblocktree->GetProposalIndex(vec))
     {
-        int r, c = 0;
+        int r = 0;
+        int c = 0;
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
             if (proposal.fState != flag)
                 continue;
-            ui->gridLayout->addWidget(new CommunityFundDisplay(), r, c);
+            ui->gridLayout->addWidget(new CommunityFundDisplay(proposal), r, c);
             if(c == 1)
             {
                 c = 0;
