@@ -41,13 +41,13 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 void CommunityFundPage::Refresh()
 {
     stringstream a;
-    a << fixed << setprecision(2) << pindexBestHeader->nCFSupply/100000000.0;
+    a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/100000000.0;
     string available = a.str();
     available.append(" NAV");
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
     stringstream l;
-    l << fixed << setprecision(2) << pindexBestHeader->nCFLocked/100000000.0;;
+    l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/100000000.0;;
     string locked = l.str();
     locked.append(" NAV");
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
