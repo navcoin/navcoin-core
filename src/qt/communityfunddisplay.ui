@@ -21,25 +21,31 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayoutProposal">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="title">
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="text">
         <string>Title</string>
        </property>
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QHBoxLayout" name="horizontalLayoutStatus">
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="labelTitleStatus">
          <property name="text">
           <string>Status:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_5">
+        <widget class="QLabel" name="labelStatus">
          <property name="text">
           <string>TextLabel</string>
          </property>
@@ -48,16 +54,16 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QHBoxLayout" name="horizontalLayoutRequested">
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="labelTitleRequested">
          <property name="text">
           <string>NAV Requested:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="labelRequested">
          <property name="text">
           <string>TextLabel</string>
          </property>
@@ -66,16 +72,16 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QHBoxLayout" name="horizontalLayoutDuration">
        <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="labelTitleDuration">
          <property name="text">
           <string>Duration:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_7">
+        <widget class="QLabel" name="labelDuration">
          <property name="text">
           <string>TextLabel</string>
          </property>
@@ -84,7 +90,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayoutButtons">
        <item>
         <widget class="QDialogButtonBox" name="buttonBox">
          <property name="layoutDirection">
@@ -96,7 +102,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="pushButtonDetails">
          <property name="text">
           <string>View Detail</string>
          </property>
