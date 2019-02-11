@@ -6,6 +6,7 @@
 #include "main.h"
 #include "txdb.h"
 #include <string>
+#include "communityfunddisplay.h"
 #include <iomanip>
 #include <sstream>
 
@@ -56,10 +57,21 @@ void CommunityFundPage::Refresh()
     std::vector<CFund::CProposal> vec;
     if(pblocktree->GetProposalIndex(vec))
     {
+        int r = 0;
+        int c = 0;
         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
             if (proposal.fState != flag)
                 continue;
-            std::cout << proposal.fState << "\n";
+            ui->gridLayout->addWidget(new CommunityFundDisplay(proposal), r, c);
+            if(c == 1)
+            {
+                c = 0;
+                ++r;
+            }
+            else
+            {
+                ++c;
+            }
         }
     }
     }
