@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>433</width>
-    <height>433</height>
+    <height>260</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -16,7 +16,19 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>433</width>
+    <height>260</height>
+   </size>
+  </property>
   <property name="maximumSize">
+   <size>
+    <width>433</width>
+    <height>260</height>
+   </size>
+  </property>
+  <property name="baseSize">
    <size>
     <width>433</width>
     <height>433</height>
@@ -28,6 +40,24 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QFrame" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>433</width>
+       <height>433</height>
+      </size>
+     </property>
+     <property name="baseSize">
+      <size>
+       <width>433</width>
+       <height>433</height>
+      </size>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -39,19 +69,30 @@
        <layout class="QVBoxLayout" name="verticalLayoutProposal">
         <item>
          <widget class="QLabel" name="title">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>200</width>
+            <width>433</width>
             <height>16777215</height>
            </size>
           </property>
           <property name="font">
            <font>
-            <pointsize>10</pointsize>
+            <pointsize>11</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
            <string>Title</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -59,9 +100,17 @@
          <layout class="QHBoxLayout" name="horizontalLayoutStatus">
           <item>
            <widget class="QLabel" name="labelTitleStatus">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="font">
              <font>
               <pointsize>10</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
              </font>
             </property>
             <property name="text">
@@ -83,7 +132,7 @@
              </font>
             </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>pending</string>
             </property>
            </widget>
           </item>
@@ -93,9 +142,17 @@
          <layout class="QHBoxLayout" name="horizontalLayoutRequested">
           <item>
            <widget class="QLabel" name="labelTitleRequested">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="font">
              <font>
               <pointsize>10</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
              </font>
             </property>
             <property name="text">
@@ -111,7 +168,7 @@
              </font>
             </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>100 NAV</string>
             </property>
            </widget>
           </item>
@@ -121,9 +178,17 @@
          <layout class="QHBoxLayout" name="horizontalLayoutDuration">
           <item>
            <widget class="QLabel" name="labelTitleDuration">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="font">
              <font>
               <pointsize>10</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
              </font>
             </property>
             <property name="text">
@@ -139,7 +204,7 @@
              </font>
             </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>100 Days</string>
             </property>
            </widget>
           </item>
