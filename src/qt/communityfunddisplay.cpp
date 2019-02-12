@@ -8,6 +8,7 @@
 
 #include "consensus/cfund.h"
 #include <iostream>
+#include "chain.h"
 
 CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
     QWidget(parent),
@@ -18,6 +19,9 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
     //connect buttons
     QList<QAbstractButton *> buttonBoxVoteButtonList = ui->buttonBoxVote->buttons();
+    //for(auto button : buttonBoxVoteButtonList)
+    //    std::cout << button << "\n";
+
     connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[0])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[0])));
     connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[1])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[1])));
 
@@ -39,8 +43,20 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     //convert seconds to DD/HH/SS for proposal deadline
     //add expire time instead of deadline time
     //uint64_t deadline = proposal.getTimeTillExpired(chainActive.Tip()->GetBlockTime());
-
-    uint64_t deadline = proposal.getTimeTillExpired(pindexBestHeader->GetBlockTime());
+    std::cout << "=======================\n";
+    std::cout << proposal.strDZeel << "\n";
+    std::cout << "current time: " << std::to_string(pindexBestHeader->GetBlockTime()) << "\n";
+    uint64_t proptime = 0;
+    std::cout << "blockmap hash count: " << std::to_string(mapBlockIndex.count(proposal.blockhash)) << "\n";
+    if (mapBlockIndex.count(proposal.blockhash) > 0) {
+        proptime = mapBlockIndex[proposal.blockhash]->GetBlockTime();
+        std::cout << "proptime inside function: " << std::to_string(proptime) << "\n";
+    }
+    std::cout << "proposal time: " << std::to_string(proptime) << "\n";
+    std::cout << "time to expire: " << std::to_string((pindexBestHeader->GetBlockTime() + proposal.nDeadline) - proptime) << "\n";
+    std::cout << "=======================\n";
+    uint64_t deadline = (pindexBestHeader->GetBlockTime() + proposal.nDeadline) - proptime;
+    //uint64_t deadline = proposal.getTimeTillExpired(pindexBestHeader->GetBlockTime());
     uint64_t deadline_d = std::floor(deadline/86400);
     uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
