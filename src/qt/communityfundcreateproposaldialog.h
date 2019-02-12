@@ -17,8 +17,9 @@ public:
 
 private:
     Ui::CommunityFundCreateProposalDialog *ui;
-    bool validate() const;
+    bool validate();
 private Q_SLOTS:
+    bool on_click_pushButtonCreateProposal();
 
 };
 
