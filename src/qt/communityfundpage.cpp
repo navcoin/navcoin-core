@@ -55,6 +55,9 @@ void CommunityFundPage::Refresh(bool all)
     a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/100000000.0;
     string available = a.str();
     available.erase(available.find_last_not_of("0") + 1, std::string::npos );
+    if(available.at(available.length()-1) == '.') {
+        available = available.substr(0, available.size()-1);
+    }
     available.append(" NAV");
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
@@ -62,6 +65,9 @@ void CommunityFundPage::Refresh(bool all)
     l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/100000000.0;
     string locked = l.str();
     locked.erase(locked.find_last_not_of("0") + 1, std::string::npos );
+    if(locked.at(locked.length()-1) == '.') {
+        locked = locked.substr(0, locked.size()-1);
+    }
     locked.append(" NAV");
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
 
