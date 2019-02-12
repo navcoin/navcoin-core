@@ -301,6 +301,9 @@ qt/forms/askpassphrasedialog.ui
 qt/forms/cfund_voting.cpp
 qt/forms/cfund_voting.ui
 qt/forms/coincontroldialog.ui
+qt/forms/communityfunddisplaydetailed.cpp
+qt/forms/communityfunddisplaydetailed.h
+qt/forms/communityfunddisplaydetailed.ui
 qt/forms/debugwindow.ui
 qt/forms/editaddressdialog.ui
 qt/forms/helpmessagedialog.ui
