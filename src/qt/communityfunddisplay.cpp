@@ -10,6 +10,8 @@
 #include <iostream>
 #include "chain.h"
 
+#include "communityfunddisplaydetailed.h"
+
 CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
     QWidget(parent),
     ui(new Ui::CommunityFundDisplay),
@@ -24,7 +26,7 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
     connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[0])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[0])));
     connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[1])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[1])));
-
+    connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
 
     //set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
@@ -86,6 +88,17 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
     std::cout << button << "\n";
     return;
 }
+
+
+void CommunityFundDisplay::on_click_pushButtonDetails()
+{
+    std::cout << "on_click_pushButtonDetails\n";
+    CommunityFundDisplayDetailed dlg(0, proposal);
+    //dlg.setModel(model);
+    dlg.exec();
+    //coinControlUpdateLabels();
+}
+
 
 CommunityFundDisplay::~CommunityFundDisplay()
 {

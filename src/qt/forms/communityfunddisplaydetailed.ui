@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="labelProposalTitle">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -35,11 +35,11 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayoutDetailedInfomation">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <layout class="QHBoxLayout" name="horizontalLayoutAmount">
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="labelAmountTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -53,7 +53,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="labelAmount">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -67,9 +67,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <layout class="QHBoxLayout" name="horizontalLayoutFee">
        <item>
-        <widget class="QLabel" name="label_5">
+        <widget class="QLabel" name="labelFeeTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -83,7 +83,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="labelFee">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -97,9 +97,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QHBoxLayout" name="horizontalLayoutAddress">
        <item>
-        <widget class="QLabel" name="label_7">
+        <widget class="QLabel" name="labelAddressTitle">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -119,7 +119,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="labelAddress">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -133,9 +133,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QHBoxLayout" name="horizontalLayoutDeadline">
        <item>
-        <widget class="QLabel" name="label_9">
+        <widget class="QLabel" name="labelDeadlineTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -149,7 +149,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_8">
+        <widget class="QLabel" name="labelDeadline">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -163,9 +163,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QHBoxLayout" name="horizontalLayoutExpiresIn">
        <item>
-        <widget class="QLabel" name="label_11">
+        <widget class="QLabel" name="labelExpiresInTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -179,7 +179,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_10">
+        <widget class="QLabel" name="labelExpiresIn">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -193,9 +193,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <layout class="QHBoxLayout" name="horizontalLayoutState">
        <item>
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="labelStateTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -209,7 +209,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_12">
+        <widget class="QLabel" name="labelState">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -223,9 +223,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_11">
+      <layout class="QHBoxLayout" name="horizontalLayoutNumberYesVotes">
        <item>
-        <widget class="QLabel" name="label_15">
+        <widget class="QLabel" name="labelNumberOfYesVotesTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -239,7 +239,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_14">
+        <widget class="QLabel" name="labelNumberOfYesVotes">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -253,9 +253,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <layout class="QHBoxLayout" name="horizontalLayoutNumberNoVotes">
        <item>
-        <widget class="QLabel" name="label_17">
+        <widget class="QLabel" name="labelNumberOfNoVotesTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -269,7 +269,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_16">
+        <widget class="QLabel" name="labelNumberOfNoVotes">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -283,9 +283,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_13">
+      <layout class="QHBoxLayout" name="horizontalLayoutTransactionBlockHash">
        <item>
-        <widget class="QLabel" name="label_19">
+        <widget class="QLabel" name="labelTransactionBlockHashTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -299,7 +299,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_18">
+        <widget class="QLabel" name="labelTransactionBlockHash">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -313,9 +313,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_10">
+      <layout class="QHBoxLayout" name="horizontalLayoutVersionNumber">
        <item>
-        <widget class="QLabel" name="label_21">
+        <widget class="QLabel" name="labelVersionNumberTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -329,7 +329,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_20">
+        <widget class="QLabel" name="labelVersionNumber">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -343,9 +343,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_15">
+      <layout class="QHBoxLayout" name="horizontalLayoutVotingCycleNumber">
        <item>
-        <widget class="QLabel" name="label_23">
+        <widget class="QLabel" name="labelVOtingCycleNumberTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -359,7 +359,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_22">
+        <widget class="QLabel" name="labelVotingCycleNumber">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -373,9 +373,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_16">
+      <layout class="QHBoxLayout" name="horizontalLayoutLinkToProposal">
        <item>
-        <widget class="QLabel" name="label_24">
+        <widget class="QLabel" name="labelLinkToProposalTitle">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -389,7 +389,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_25">
+        <widget class="QLabel" name="labelLinkToProposal">
          <property name="text">
           <string>https://navcommunity.net/view-proposal/95dbb71cfa4b67b258b34c1489e11e96955e1a9f26dd58a19f63417a37bce5d4</string>
          </property>
@@ -398,9 +398,9 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_14">
+      <layout class="QHBoxLayout" name="horizontalLayoutButtons">
        <item>
-        <widget class="QDialogButtonBox" name="buttonBox">
+        <widget class="QDialogButtonBox" name="buttonBoxYesNoVote">
          <property name="layoutDirection">
           <enum>Qt::RightToLeft</enum>
          </property>
@@ -410,7 +410,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer">
+        <spacer name="horizontalSpacerButtons">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -423,7 +423,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="pushButtonClose">
          <property name="text">
           <string>Close</string>
          </property>
