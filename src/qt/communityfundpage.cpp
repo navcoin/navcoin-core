@@ -124,7 +124,7 @@ void CommunityFundPage::on_click_radioButtonYourVote()
 
 void CommunityFundPage::on_click_radioButtonPending()
 {
-    flag = CFund::PENDING_VOTING_PREQ;
+    flag = CFund::NIL;
     Refresh();
 }
 
