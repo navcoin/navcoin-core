@@ -18,9 +18,6 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
     //connect buttons
     QList<QAbstractButton *> buttonBoxVoteButtonList = ui->buttonBoxVote->buttons();
-    //this is not fetching correctly
-    for(auto button : buttonBoxVoteButtonList)
-        std::cout << button;
     connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[0])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[0])));
     connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[1])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[1])));
 
