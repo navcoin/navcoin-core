@@ -100,7 +100,8 @@ QT_FORMS_UI = \
 	qt/forms/optionsdialog.ui \
 	qt/forms/overviewpage.ui \
 	qt/forms/communityfunddisplaydetailed.ui \
-    qt/forms/communityfundcreateproposaldialog.ui \
+		qt/forms/communityfundcreateproposaldialog.ui \
+		qt/forms/communityfundcreatepaymentrequestdialog.ui \
 	qt/forms/receivecoinsdialog.ui \
 	qt/forms/receiverequestdialog.ui \
 	qt/forms/debugwindow.ui \
@@ -147,7 +148,8 @@ QT_MOC_CPP = \
 	qt/moc_overviewpage.cpp \
 	qt/moc_communityfundpage.cpp \
 	qt/moc_communityfunddisplay.cpp \
-    qt/moc_communityfundcreateproposaldialog.cpp \
+		qt/moc_communityfundcreateproposaldialog.cpp \
+		qt/moc_communityfundcreatepaymentrequestdialog.cpp \
 	qt/moc_peertablemodel.cpp \
 	qt/moc_paymentserver.cpp \
 	qt/moc_qvalidatedlineedit.cpp \
@@ -185,7 +187,8 @@ QT_MOC = \
 	qt/communityfundpage.moc \
 	qt/communityfunddisplay.moc \
 	qt/communityfunddisplaydetailed.moc \
-    qt/communityfundcreateproposaldialog.moc
+	qt/communityfundcreateproposaldialog.moc \
+	qt/communityfundcreatepaymentrequestdialog.moc 
 
 QT_QRC_CPP = qt/qrc_navcoin.cpp
 QT_QRC = qt/navcoin.qrc
@@ -231,7 +234,8 @@ NAVCOIN_QT_H = \
 	qt/communityfundpage.h \
 	qt/communityfunddisplay.h \
 	qt/communityfunddisplaydetailed.h \
-    qt/communityfundcreateproposaldialog.h \
+	qt/communityfundcreateproposaldialog.h \
+	qt/communityfundcreatepaymentrequestdialog.h \
 	qt/paymentrequestplus.h \
 	qt/paymentserver.h \
 	qt/peertablemodel.h \
@@ -387,7 +391,8 @@ NAVCOIN_QT_CPP += \
 	qt/communityfundpage.cpp \
 	qt/communityfunddisplay.cpp \
 	qt/communityfunddisplaydetailed.cpp \
-    qt/communityfundcreateproposaldialog.cpp \
+	qt/communityfundcreateproposaldialog.cpp \
+	qt/communityfundcreatepaymentrequestdialog.cpp \
 	qt/paymentrequestplus.cpp \
 	qt/paymentserver.cpp \
 	qt/receivecoinsdialog.cpp \

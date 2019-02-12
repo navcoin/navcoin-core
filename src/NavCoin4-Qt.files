@@ -283,6 +283,9 @@ qt/coincontroldialog.cpp
 qt/coincontroldialog.h
 qt/coincontroltreewidget.cpp
 qt/coincontroltreewidget.h
+qt/communityfundcreateproposaldialog.cpp
+qt/communityfundcreateproposaldialog.h
+qt/communityfundcreateproposaldialog.moc
 qt/communityfunddisplay.cpp
 qt/communityfunddisplay.h
 qt/communityfunddisplay.ui
@@ -304,6 +307,9 @@ qt/forms/askpassphrasedialog.ui
 qt/forms/cfund_voting.cpp
 qt/forms/cfund_voting.ui
 qt/forms/coincontroldialog.ui
+qt/forms/communityfundcreatepaymentrequestdialog.cpp
+qt/forms/communityfundcreatepaymentrequestdialog.h
+qt/forms/communityfundcreatepaymentrequestdialog.ui
 qt/forms/communityfundcreateproposaldialog.cpp
 qt/forms/communityfundcreateproposaldialog.h
 qt/forms/communityfundcreateproposaldialog.ui
