@@ -58,7 +58,7 @@ void CommunityFundPage::Refresh(bool all)
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
     stringstream l;
-    l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/100000000.0;;
+    l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/100000000.0;
     string locked = l.str();
     locked.append(" NAV");
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
@@ -101,13 +101,21 @@ void CommunityFundPage::Refresh(bool all)
     }
 
     {
+    int64_t spent_nav = 0;
     std::vector<CFund::CPaymentRequest> vec;
     if(pblocktree->GetPaymentRequestIndex(vec))
     {
         BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-            if (prequest.fState != flag)
-                continue;
+            if(prequest.fState == CFund::ACCEPTED) {
+                spent_nav = spent_nav + prequest.nAmount;
+            }
         }
+
+        stringstream s;
+        s << fixed << setprecision(8) << spent_nav/100000000.0;
+        string spent = s.str();
+        spent.append(" NAV");
+        ui->labelSpentAmount->setText(QString::fromStdString(spent));
     }
     }
 }
