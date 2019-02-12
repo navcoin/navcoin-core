@@ -238,6 +238,8 @@ public:
 
     bool ExceededMaxVotingCycles() const;
 
+    uint64_t getTimeTillExpired(uint32_t currentTime) const;
+
     bool CanVote() const;
 
     bool CanRequestPayments() const {
@@ -317,7 +319,6 @@ public:
         }
 
     }
-
 };
 
 }

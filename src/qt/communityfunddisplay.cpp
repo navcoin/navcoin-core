@@ -2,6 +2,9 @@
 #include "ui_communityfunddisplay.h"
 #include "main.h"
 #include <QtWidgets/QDialogButtonBox>
+#include "../txdb.h"
+
+#include "consensus/cfund.h"
 
 CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
     QWidget(parent),
@@ -23,9 +26,10 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
     //convert seconds to DD/HH/SS for proposal deadline
-    uint64_t deadline = proposal.nDeadline;
     //add expire time instead of deadline time
-    //uint64_t expiry = proposal.
+    //uint64_t deadline = proposal.getTimeTillExpired(chainActive.Tip()->GetBlockTime());
+
+    uint64_t deadline = proposal.getTimeTillExpired(pindexBestHeader->GetBlockTime());
     uint64_t deadline_d = std::floor(deadline/86400);
     uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
@@ -42,8 +46,7 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
     ui->labelDuration->setText(QString::fromStdString(s_deadline));
 
-    //set ui voting elements to not appear on proposals which are not allowed a vote state
-
+    //hide ui voting elements on proposals which are not allowed vote states
     if(!proposal.CanVote())
     {
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
