@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>511</width>
-    <height>446</height>
+    <width>717</width>
+    <height>497</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Proposal Details</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -32,6 +32,12 @@
      <property name="text">
       <string>Proposal Title</string>
      </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -40,6 +46,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutAmount">
        <item>
         <widget class="QLabel" name="labelAmountTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -70,6 +82,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutFee">
        <item>
         <widget class="QLabel" name="labelFeeTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -101,7 +119,7 @@
        <item>
         <widget class="QLabel" name="labelAddressTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -128,6 +146,9 @@
          <property name="text">
           <string>NfQJDyPrJ1DzyQQ29jQyewhS5qT3x3TMTG</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
       </layout>
@@ -136,6 +157,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutDeadline">
        <item>
         <widget class="QLabel" name="labelDeadlineTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -166,6 +193,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutExpiresIn">
        <item>
         <widget class="QLabel" name="labelExpiresInTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -193,9 +226,15 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayoutState">
+      <layout class="QHBoxLayout" name="horizontalLayoutStatus">
        <item>
-        <widget class="QLabel" name="labelStateTitle">
+        <widget class="QLabel" name="labelStatusTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -204,12 +243,12 @@
           </font>
          </property>
          <property name="text">
-          <string>State:</string>
+          <string>Status:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelState">
+        <widget class="QLabel" name="labelStatus">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -226,6 +265,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutNumberYesVotes">
        <item>
         <widget class="QLabel" name="labelNumberOfYesVotesTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -256,6 +301,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutNumberNoVotes">
        <item>
         <widget class="QLabel" name="labelNumberOfNoVotesTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -286,6 +337,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutTransactionBlockHash">
        <item>
         <widget class="QLabel" name="labelTransactionBlockHashTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -316,6 +373,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutVersionNumber">
        <item>
         <widget class="QLabel" name="labelVersionNumberTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -346,6 +409,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutVotingCycleNumber">
        <item>
         <widget class="QLabel" name="labelVOtingCycleNumberTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -376,6 +445,12 @@
       <layout class="QHBoxLayout" name="horizontalLayoutLinkToProposal">
        <item>
         <widget class="QLabel" name="labelLinkToProposalTitle">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <pointsize>10</pointsize>
@@ -392,6 +467,15 @@
         <widget class="QLabel" name="labelLinkToProposal">
          <property name="text">
           <string>https://navcommunity.net/view-proposal/95dbb71cfa4b67b258b34c1489e11e96955e1a9f26dd58a19f63417a37bce5d4</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
