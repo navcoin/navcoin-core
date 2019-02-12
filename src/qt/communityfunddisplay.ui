@@ -99,7 +99,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Title</string>
+         <string>Proposal Title</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -225,7 +225,7 @@
              </font>
             </property>
             <property name="text">
-             <string>100 Days</string>
+             <string>100 Days 100 Minutes 100 Seconds</string>
             </property>
            </widget>
           </item>
