@@ -3,6 +3,7 @@
 
 #include "consensus/cfund.h"
 #include <QWidget>
+#include <QAbstractButton>
 
 namespace Ui {
 class CommunityFundDisplay;
@@ -19,6 +20,8 @@ public:
 private:
     Ui::CommunityFundDisplay *ui;
     CFund::CProposal proposal;
+
+    void on_click_buttonBoxVote(QAbstractButton *button);
 };
 
 #endif // COMMUNITYFUNDDISPLAY_H

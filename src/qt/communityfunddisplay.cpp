@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "consensus/cfund.h"
+#include <iostream>
 
 CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
     QWidget(parent),
@@ -15,7 +16,15 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 {
     ui->setupUi(this);
 
-    //add a border
+    //connect buttons
+    QList<QAbstractButton *> buttonBoxVoteButtonList = ui->buttonBoxVote->buttons();
+    //this is not fetching correctly
+    for(auto button : buttonBoxVoteButtonList)
+        std::cout << button;
+    connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[0])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[0])));
+    connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[1])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[1])));
+
+
     //set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
@@ -56,6 +65,13 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     {
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
+}
+
+void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
+{
+    std::cout << "hello!\n";
+    std::cout << button << "\n";
+    return;
 }
 
 CommunityFundDisplay::~CommunityFundDisplay()
