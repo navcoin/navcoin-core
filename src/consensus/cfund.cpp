@@ -384,6 +384,17 @@ bool CFund::CProposal::IsRejected() const {
            && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
 }
 
+uint64_t CFund::CProposal::getTimeTillExpired(uint32_t currentTime) const
+{
+    if(nVersion >= 2) {
+        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+            return currentTime - (pblockindex->GetBlockTime() + nDeadline);
+        }
+    }
+    return 0;
+}
+
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
     if(nVersion >= 2) {
         if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
@@ -451,3 +462,4 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
         ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
     }
 }
+

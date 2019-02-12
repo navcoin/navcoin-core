@@ -126,6 +126,7 @@ public:
 
     bool IsExpired() const;
 
+
     bool CanVote() const;
 
     ADD_SERIALIZE_METHODS;
@@ -264,6 +265,8 @@ public:
         return fState == NIL;
     }
 
+    uint64_t getTimeTillExpired(uint32_t currentTime) const;
+
     bool CanRequestPayments() const {
         return fState == ACCEPTED;
     }
@@ -341,7 +344,6 @@ public:
         }
 
     }
-
 };
 
 }
