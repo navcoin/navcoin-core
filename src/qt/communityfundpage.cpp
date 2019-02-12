@@ -30,10 +30,10 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
-    connect(ui->radioButtonYourVote, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
-    connect(ui->radioButtonPending, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
-    connect(ui->radioButtonAccepted, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
-    connect(ui->radioButtonRejected, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
+    connect(ui->radioButtonYourVote, SIGNAL(clicked()), this, SLOT(on_click_radioButtonYourVote()));
+    connect(ui->radioButtonPending, SIGNAL(clicked()), this, SLOT(on_click_radioButtonPending()));
+    connect(ui->radioButtonAccepted, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAccepted()));
+    connect(ui->radioButtonRejected, SIGNAL(clicked()), this, SLOT(on_click_radioButtonRejected()));
 
     //fetch cfund info
     Refresh();
@@ -92,7 +92,6 @@ void CommunityFundPage::Refresh()
         BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
             if (prequest.fState != flag)
                 continue;
-            std::cout << prequest.fState << "\n";
         }
     }
     }
