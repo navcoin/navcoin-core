@@ -6,6 +6,9 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
     ui(new Ui::CommunityFundCreatePaymentRequestDialog)
 {
     ui->setupUi(this);
+
+    //connect
+    connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 CommunityFundCreatePaymentRequestDialog::~CommunityFundCreatePaymentRequestDialog()

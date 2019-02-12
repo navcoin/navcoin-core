@@ -10,12 +10,16 @@
 #include <sstream>
 #include "communityfunddisplay.h"
 
+#include "communityfundcreateproposaldialog.h"
+#include "communityfundcreatepaymentrequestdialog.h"
+
 CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CommunityFundPage),
     clientModel(0),
     walletModel(0),
-    flag(CFund::NIL)
+    flag(CFund::NIL),
+    View(VIEWTYPE::PROPOSALS)
 {
     ui->setupUi(this);
 
@@ -139,6 +143,7 @@ void CommunityFundPage::on_click_pushButtonProposals()
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Proposal"));
+    View = VIEWTYPE::PROPOSALS;
 }
 
 void CommunityFundPage::on_click_pushButtonPaymentRequests()
@@ -147,6 +152,7 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
 
     ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Payment Request"));
+    View = VIEWTYPE::PAYMENTREQUESTS;
 }
 
 void CommunityFundPage::on_click_radioButtonAll()
@@ -187,10 +193,20 @@ void CommunityFundPage::on_click_radioButtonExpired()
 
 void CommunityFundPage::on_click_pushButtonCreateProposalCreatePaymentRequest()
 {
-    //if create payment request
-        //payment request dialog
-    //if create proposal
-        //create proposal dialog
+    if(View == VIEWTYPE::PROPOSALS)
+    {
+        CommunityFundCreateProposalDialog dlg(this);
+        dlg.exec();
+    }
+    else if(View == VIEWTYPE::PAYMENTREQUESTS)
+    {
+        CommunityFundCreatePaymentRequestDialog dlg(this);
+        dlg.exec();
+    }
+    else
+    {
+        return;
+    }
 }
 
 CommunityFundPage::~CommunityFundPage()

@@ -88,7 +88,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QPlainTextEdit" name="plainTextEditDescription"/>
+      <widget class="QPlainTextEdit" name="plainTextEditDescription">
+       <property name="plainText">
+        <string/>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayoutSubmitPaymentRequest">

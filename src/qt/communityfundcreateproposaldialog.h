@@ -17,6 +17,9 @@ public:
 
 private:
     Ui::CommunityFundCreateProposalDialog *ui;
+    bool validate() const;
+private Q_SLOTS:
+
 };
 
 #endif // COMMUNITYFUNDCREATEPROPOSALDIALOG_H
