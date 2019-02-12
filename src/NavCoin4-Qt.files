@@ -286,6 +286,9 @@ qt/coincontroltreewidget.h
 qt/communityfunddisplay.cpp
 qt/communityfunddisplay.h
 qt/communityfunddisplay.ui
+qt/communityfunddisplaydetailed.cpp
+qt/communityfunddisplaydetailed.h
+qt/communityfunddisplaydetailed.moc
 qt/communityfundpage.cpp
 qt/communityfundpage.h
 qt/communityfundpage.moc

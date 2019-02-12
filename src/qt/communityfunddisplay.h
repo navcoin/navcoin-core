@@ -21,7 +21,9 @@ private:
     Ui::CommunityFundDisplay *ui;
     CFund::CProposal proposal;
 
+public Q_SLOTS:
     void on_click_buttonBoxVote(QAbstractButton *button);
+    void on_click_pushButtonDetails();
 };
 
 #endif // COMMUNITYFUNDDISPLAY_H

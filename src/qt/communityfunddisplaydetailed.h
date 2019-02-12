@@ -1,22 +1,28 @@
 #ifndef COMMUNITYFUNDDISPLAYDETAILED_H
 #define COMMUNITYFUNDDISPLAYDETAILED_H
 
-#include <QWidget>
+#include "consensus/cfund.h"
+#include <QDialog>
 
 namespace Ui {
 class CommunityFundDisplayDetailed;
 }
 
-class CommunityFundDisplayDetailed : public QWidget
+class CommunityFundDisplayDetailed : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit CommunityFundDisplayDetailed(QWidget *parent = 0);
+    explicit CommunityFundDisplayDetailed(QWidget *parent = 0, CFund::CProposal proposal = CFund::CProposal());
     ~CommunityFundDisplayDetailed();
 
 private:
     Ui::CommunityFundDisplayDetailed *ui;
+    CFund::CProposal proposal;
+    void setProposalLabels() const;
+
+private Q_SLOTS:
+
 };
 
 #endif // COMMUNITYFUNDDISPLAYDETAILED_H
