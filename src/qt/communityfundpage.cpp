@@ -52,6 +52,7 @@ void CommunityFundPage::Refresh(bool all)
     }
 
     stringstream a;
+    a.imbue(std::locale(""));
     a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/100000000.0;
     string available = a.str();
     available.erase(available.find_last_not_of("0") + 1, std::string::npos );
@@ -62,6 +63,7 @@ void CommunityFundPage::Refresh(bool all)
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
     stringstream l;
+    l.imbue(std::locale(""));
     l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/100000000.0;
     string locked = l.str();
     locked.erase(locked.find_last_not_of("0") + 1, std::string::npos );
@@ -120,6 +122,7 @@ void CommunityFundPage::Refresh(bool all)
         }
 
         stringstream s;
+        s.imbue(std::locale(""));
         s << fixed << setprecision(8) << spent_nav/100000000.0;
         string spent = s.str();
         spent.erase(spent.find_last_not_of("0") + 1, std::string::npos );
