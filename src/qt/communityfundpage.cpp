@@ -34,6 +34,7 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->radioButtonPending, SIGNAL(clicked()), this, SLOT(on_click_radioButtonPending()));
     connect(ui->radioButtonAccepted, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAccepted()));
     connect(ui->radioButtonRejected, SIGNAL(clicked()), this, SLOT(on_click_radioButtonRejected()));
+    connect(ui->radioButtonExpired, SIGNAL(clicked()), this, SLOT(on_click_radioButtonExpired()));
 
     //fetch cfund info
     Refresh();
@@ -136,6 +137,12 @@ void CommunityFundPage::on_click_radioButtonAccepted()
 void CommunityFundPage::on_click_radioButtonRejected()
 {
     flag = CFund::REJECTED;
+    Refresh();
+}
+
+void CommunityFundPage::on_click_radioButtonExpired()
+{
+    flag = CFund::EXPIRED;
     Refresh();
 }
 
