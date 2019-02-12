@@ -34,6 +34,8 @@ private:
     ClientModel *clientModel;
     WalletModel *walletModel;
     CFund::flags flag;
+    enum VIEWTYPE : bool {PROPOSALS, PAYMENTREQUESTS};
+    VIEWTYPE View;
 
 private Q_SLOTS:
     void on_click_pushButtonProposals();

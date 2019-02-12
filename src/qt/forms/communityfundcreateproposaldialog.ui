@@ -114,7 +114,7 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayoutDays">
          <item>
-          <widget class="QLineEdit" name="lineDays"/>
+          <widget class="QLineEdit" name="lineEditDays"/>
          </item>
          <item>
           <widget class="QLabel" name="labelDaysTitle">

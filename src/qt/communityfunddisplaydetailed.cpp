@@ -11,7 +11,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     ui->setupUi(this);
 
     //connect ui elements to functions
-    connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
 
     //update labels
     setProposalLabels();
