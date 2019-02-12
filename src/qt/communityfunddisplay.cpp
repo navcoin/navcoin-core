@@ -14,7 +14,13 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     //set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
-    ui->labelRequested->setText(QString::fromStdString(std::to_string(proposal.nAmount/100000000.0)));
+    string nav_amount = std::to_string(proposal.nAmount/100000000.0);
+    nav_amount.erase(nav_amount.find_last_not_of("0") + 1, std::string::npos );
+    if(nav_amount.at(nav_amount.length()-1) == '.') {
+        nav_amount = nav_amount.substr(0, nav_amount.size()-1);
+    }
+    nav_amount.append(" NAV");
+    ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
     //convert seconds to DD/HH/SS for proposal deadline
     uint64_t deadline = proposal.nDeadline;
