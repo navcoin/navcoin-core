@@ -103,6 +103,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushButtonClose">
+         <property name="text">
+          <string>Close</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacerButton">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
