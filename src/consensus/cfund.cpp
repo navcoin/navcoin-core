@@ -394,7 +394,7 @@ bool CFund::CProposal::CanVote() const {
 uint64_t CFund::CProposal::getTimeTillExpired(uint32_t currentTime) const
 {
     if(nVersion >= 2) {
-        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+        if (mapBlockIndex.count(blockhash) > 0) {
             CBlockIndex* pblockindex = mapBlockIndex[blockhash];
             return currentTime - (pblockindex->GetBlockTime() + nDeadline);
         }
