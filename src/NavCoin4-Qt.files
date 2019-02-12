@@ -283,6 +283,9 @@ qt/coincontroldialog.cpp
 qt/coincontroldialog.h
 qt/coincontroltreewidget.cpp
 qt/coincontroltreewidget.h
+qt/communityfundcreatepaymentrequestdialog.cpp
+qt/communityfundcreatepaymentrequestdialog.h
+qt/communityfundcreatepaymentrequestdialog.moc
 qt/communityfundcreateproposaldialog.cpp
 qt/communityfundcreateproposaldialog.h
 qt/communityfundcreateproposaldialog.moc
