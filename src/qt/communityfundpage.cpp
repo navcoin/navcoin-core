@@ -139,20 +139,32 @@ void CommunityFundPage::Refresh(bool all)
 
 void CommunityFundPage::on_click_pushButtonProposals()
 {
+    QFont font = ui->pushButtonProposals->property("font").value<QFont>();
+
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Proposal"));
     View = VIEWTYPE::PROPOSALS;
+
+    QFont f(font.family(), font.pointSize(), QFont::Bold);
+    ui->pushButtonProposals->setFont(f);
+    ui->pushButtonPaymentRequests->setFont(f);
 }
 
 void CommunityFundPage::on_click_pushButtonPaymentRequests()
 {
+    QFont font = ui->pushButtonPaymentRequests->property("font").value<QFont>();
+
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
 
     ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Payment Request"));
     View = VIEWTYPE::PAYMENTREQUESTS;
+
+    QFont f(font.family(), font.pointSize(), QFont::Bold);
+    ui->pushButtonProposals->setFont(f);
+    ui->pushButtonPaymentRequests->setFont(f);
 }
 
 void CommunityFundPage::on_click_radioButtonAll()
