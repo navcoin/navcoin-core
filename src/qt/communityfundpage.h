@@ -43,6 +43,7 @@ private Q_SLOTS:
     void on_click_radioButtonPending();
     void on_click_radioButtonAccepted();
     void on_click_radioButtonRejected();
+    void on_click_radioButtonExpired();
 
 };
 
