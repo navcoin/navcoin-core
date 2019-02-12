@@ -21,11 +21,8 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
     //connect buttons
     QList<QAbstractButton *> buttonBoxVoteButtonList = ui->buttonBoxVote->buttons();
-    //for(auto button : buttonBoxVoteButtonList)
-    //    std::cout << button << "\n";
 
-    connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[0])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[0])));
-    connect(ui->buttonBoxVote, SIGNAL(clicked(buttonBoxVoteButtonList[1])), this, SLOT(on_click_buttonBoxVote(buttonBoxVoteButtonList[1])));
+    connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxVote(QAbstractButton*)));
     connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
 
     //set labels from community fund
@@ -84,9 +81,26 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
 void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
 {
-    std::cout << "hello!\n";
-    std::cout << button << "\n";
-    return;
+    //cast the vote
+    bool duplicate = false;
+
+    //add a filter based on if proposal or payment request
+
+    //currently doesnt work
+    if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
+    {
+        //if !fSettings, ask what this does
+        CFund::VoteProposal(proposal.blockhash, true, duplicate);
+    }
+    else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
+    {
+            CFund::VoteProposal(proposal.blockhash, false, duplicate);
+    }
+    else {
+        return;
+    }
+
+    //updat
 }
 
 
