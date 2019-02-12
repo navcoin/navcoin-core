@@ -21,7 +21,7 @@ private:
     CFund::CProposal proposal;
     void setProposalLabels() const;
 
-private Q_SLOTS:
+public Q_SLOTS:
 
 };
 

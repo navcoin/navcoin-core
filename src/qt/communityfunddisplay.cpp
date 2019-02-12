@@ -92,11 +92,8 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
 
 void CommunityFundDisplay::on_click_pushButtonDetails()
 {
-    std::cout << "on_click_pushButtonDetails\n";
-    CommunityFundDisplayDetailed dlg(0, proposal);
-    //dlg.setModel(model);
+    CommunityFundDisplayDetailed dlg(this, proposal);
     dlg.exec();
-    //coinControlUpdateLabels();
 }
 
 
