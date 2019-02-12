@@ -77,6 +77,13 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     {
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
+
+    std::string title_string = proposal.strDZeel;
+    if (title_string.length() > 140) {
+        title_string = title_string.substr(0, 140);
+        title_string.append("...");
+    }
+    ui->title->setText(QString::fromStdString(title_string));
 }
 
 void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
