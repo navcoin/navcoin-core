@@ -35,6 +35,7 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->radioButtonAccepted, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAccepted()));
     connect(ui->radioButtonRejected, SIGNAL(clicked()), this, SLOT(on_click_radioButtonRejected()));
     connect(ui->radioButtonExpired, SIGNAL(clicked()), this, SLOT(on_click_radioButtonExpired()));
+    connect(ui->pushButtonCreateProposalCreatePaymentRequest, SIGNAL(clicked()), this , SLOT(on_click_pushButtonCreateProposalCreatePaymentRequest()));
 
     //fetch cfund info
     Refresh(true);
@@ -136,12 +137,16 @@ void CommunityFundPage::on_click_pushButtonProposals()
 {
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+
+    ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Proposal"));
 }
 
 void CommunityFundPage::on_click_pushButtonPaymentRequests()
 {
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
+
+    ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Payment Request"));
 }
 
 void CommunityFundPage::on_click_radioButtonAll()
@@ -178,6 +183,14 @@ void CommunityFundPage::on_click_radioButtonExpired()
 {
     flag = CFund::EXPIRED;
     Refresh(false);
+}
+
+void CommunityFundPage::on_click_pushButtonCreateProposalCreatePaymentRequest()
+{
+    //if create payment request
+        //payment request dialog
+    //if create proposal
+        //create proposal dialog
 }
 
 CommunityFundPage::~CommunityFundPage()

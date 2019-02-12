@@ -44,6 +44,7 @@ private Q_SLOTS:
     void on_click_radioButtonAccepted();
     void on_click_radioButtonRejected();
     void on_click_radioButtonExpired();
+    void on_click_pushButtonCreateProposalCreatePaymentRequest();
 
 };
 
