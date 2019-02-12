@@ -37,10 +37,10 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->radioButtonExpired, SIGNAL(clicked()), this, SLOT(on_click_radioButtonExpired()));
 
     //fetch cfund info
-    Refresh();
+    Refresh(true);
 }
 
-void CommunityFundPage::Refresh()
+void CommunityFundPage::Refresh(bool all)
 {
     for (int i = 0; i < ui->gridLayout->count(); ++i)
     {
@@ -70,17 +70,31 @@ void CommunityFundPage::Refresh()
         int r = 0;
         int c = 0;
         BOOST_FOREACH(const CFund::CProposal proposal, vec) {
-            if (proposal.fState != flag)
-                continue;
-            ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
-            if(c == 1)
-            {
-                c = 0;
-                ++r;
+            if (all) {
+                ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
+                if(c == 1)
+                {
+                    c = 0;
+                    ++r;
+                }
+                else
+                {
+                    ++c;
+                }
             }
-            else
-            {
-                ++c;
+            else {
+                if (proposal.fState != flag)
+                    continue;
+                ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
+                if(c == 1)
+                {
+                    c = 0;
+                    ++r;
+                }
+                else
+                {
+                    ++c;
+                }
             }
         }
     }
@@ -113,37 +127,37 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
 void CommunityFundPage::on_click_radioButtonAll()
 {
     flag = CFund::NIL;
-    Refresh();
+    Refresh(true);
 }
 
 void CommunityFundPage::on_click_radioButtonYourVote()
 {
     flag = CFund::NIL;
-    Refresh();
+    Refresh(true);
 }
 
 void CommunityFundPage::on_click_radioButtonPending()
 {
     flag = CFund::NIL;
-    Refresh();
+    Refresh(false);
 }
 
 void CommunityFundPage::on_click_radioButtonAccepted()
 {
     flag = CFund::ACCEPTED;
-    Refresh();
+    Refresh(false);
 }
 
 void CommunityFundPage::on_click_radioButtonRejected()
 {
     flag = CFund::REJECTED;
-    Refresh();
+    Refresh(false);
 }
 
 void CommunityFundPage::on_click_radioButtonExpired()
 {
     flag = CFund::EXPIRED;
-    Refresh();
+    Refresh(false);
 }
 
 CommunityFundPage::~CommunityFundPage()
