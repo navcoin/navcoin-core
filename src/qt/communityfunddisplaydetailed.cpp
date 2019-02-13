@@ -28,17 +28,25 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
 {
     ui->labelProposalTitle->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelAddress->setText(QString::fromStdString(proposal.Address));
-    ui->labelDeadline->setText(QString::fromStdString(std::to_string(proposal.nDeadline)));
+
+    uint64_t deadline_d = std::floor(proposal.nDeadline/86400);
+    uint64_t deadline_h = std::floor((proposal.nDeadline-deadline_d*86400)/3600);
+    uint64_t deadline_m = std::floor((proposal.nDeadline-(deadline_d*86400 + deadline_h*3600))/60);
+    std::string s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
+
+    ui->labelDeadline->setText(QString::fromStdString(s_deadline));
     //ui->labelExpiresIn
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
     ui->labelNumberOfYesVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesYes)));
     ui->labelNumberOfNoVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesNo)));
-    //ui->labelTransactionBlockHash->setText(QString::fromStdString(std::string(proposal.blockhash)));
-    //ui->labelVersionNumber-setText(QString::fromStdString(std::to_string(proposal.nVersion)));
-    //ui->labelVotingCycleNumber->setText(QString::fromStdString(std::to_string(proposal.nVersion)));
-    //ui->labelLinkToProposal->setText(QString::fromStdString("https://navcommunity.net/view-proposal/" + std::to_string(proposal.blockhash)));
 
-    //set hyperlink for
+    ui->labelTransactionBlockHash->setText(QString::fromStdString(proposal.blockhash.ToString()));
+    ui->labelTransactionHash->setText(QString::fromStdString(proposal.hash.ToString()));
+    ui->labelVersionNumber->setText(QString::fromStdString(std::to_string(proposal.nVersion)));
+    ui->labelVotingCycleNumber->setText(QString::fromStdString(std::to_string(proposal.nVotingCycle)));
+    ui->labelLinkToProposal->setText(QString::fromStdString("https://navcommunity.net/view-proposal/" + proposal.hash.ToString()));
+
+    //set hyperlink for navcommunity proposal view
     ui->labelLinkToProposal->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->labelLinkToProposal->setOpenExternalLinks(true);
     //ui->labelLinkToProposal->setHtml(ui->labelLinkToProposal->text());

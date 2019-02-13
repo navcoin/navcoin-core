@@ -33,9 +33,6 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     ui->pushButtonDetails->setFont(f_label);
     ui->buttonBoxVote->setFont(f_label);
 
-    //connect buttons
-    QList<QAbstractButton *> buttonBoxVoteButtonList = ui->buttonBoxVote->buttons();
-
     connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxVote(QAbstractButton*)));
     connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
 
