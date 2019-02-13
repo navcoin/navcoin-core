@@ -53,27 +53,30 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     nav_amount.append(" NAV");
     ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
-    //convert seconds to DD/HH/SS for proposal deadline
-    //add expire time instead of deadline time
-    //uint64_t deadline = proposal.getTimeTillExpired(chainActive.Tip()->GetBlockTime());
-    std::cout << "=======================\n";
-    std::cout << proposal.strDZeel << "\n";
-    std::cout << "current time: " << std::to_string(pindexBestHeader->GetBlockTime()) << "\n";
     uint64_t proptime = 0;
-    std::cout << "blockmap hash count: " << std::to_string(mapBlockIndex.count(proposal.blockhash)) << "\n";
     if (mapBlockIndex.count(proposal.blockhash) > 0) {
         proptime = mapBlockIndex[proposal.blockhash]->GetBlockTime();
-        std::cout << "proptime inside function: " << std::to_string(proptime) << "\n";
     }
-    std::cout << "proposal time: " << std::to_string(proptime) << "\n";
-    std::cout << "time to expire: " << std::to_string((pindexBestHeader->GetBlockTime() + proposal.nDeadline) - proptime) << "\n";
-    std::cout << "=======================\n";
-    uint64_t deadline = (pindexBestHeader->GetBlockTime() + proposal.nDeadline) - proptime;
-    //uint64_t deadline = proposal.getTimeTillExpired(pindexBestHeader->GetBlockTime());
+    std::cout << "time to expire: " << std::to_string(proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime()) << "\n";
+
+    uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
+
     uint64_t deadline_d = std::floor(deadline/86400);
     uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
+/*
+    std::cout << "proposal time: " << std::to_string(mapBlockIndex[proposal.blockhash]->GetBlockTime()) << "\n";
+    std::cout << "deadline time: " << std::to_string(proposal.nDeadline) << "\n";
 
+    uint64_t proposal_time = mapBlockIndex[proposal.blockhash]->GetBlockTime();
+    uint64_t deadline_time = proposal.nDeadline;
+    uint64_t current_time = pindexBestHeader->GetBlockTime();
+    uint64_t expiry_time = proposal_time + deadline_time;
+    uint64_t time_until_expiry = expiry_time - current_time;
+
+    std::cout << "Time until expiry: " << std::to_string(time_until_expiry) << "\n";
+
+*/
     std::string s_deadline = "";
     if(deadline_d >= 14)
     {
