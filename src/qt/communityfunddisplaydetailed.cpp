@@ -15,6 +15,12 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
 
     //update labels
     setProposalLabels();
+
+    //hide ui voting elements on proposals which are not allowed vote states
+    if(!proposal.CanVote())
+    {
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
+    }
 }
 
 void CommunityFundDisplayDetailed::setProposalLabels() const
