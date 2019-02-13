@@ -47,10 +47,16 @@
        <item>
         <widget class="QLabel" name="labelAmountTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -83,10 +89,16 @@
        <item>
         <widget class="QLabel" name="labelFeeTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -119,10 +131,16 @@
        <item>
         <widget class="QLabel" name="labelAddressTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -158,10 +176,16 @@
        <item>
         <widget class="QLabel" name="labelDeadlineTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -194,10 +218,16 @@
        <item>
         <widget class="QLabel" name="labelExpiresInTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -230,10 +260,16 @@
        <item>
         <widget class="QLabel" name="labelStatusTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -266,10 +302,16 @@
        <item>
         <widget class="QLabel" name="labelNumberOfYesVotesTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -302,10 +344,16 @@
        <item>
         <widget class="QLabel" name="labelNumberOfNoVotesTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -338,10 +386,16 @@
        <item>
         <widget class="QLabel" name="labelTransactionBlockHashTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -374,10 +428,16 @@
        <item>
         <widget class="QLabel" name="labelVersionNumberTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -410,10 +470,16 @@
        <item>
         <widget class="QLabel" name="labelVOtingCycleNumberTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -446,10 +512,16 @@
        <item>
         <widget class="QLabel" name="labelLinkToProposalTitle">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>

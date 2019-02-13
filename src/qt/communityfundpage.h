@@ -27,7 +27,7 @@ class CommunityFundPage : public QWidget
 public:
     explicit CommunityFundPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~CommunityFundPage();
-    void Refresh(bool all);
+    void Refresh(bool all, bool proposal);
 
 private:
     Ui::CommunityFundPage *ui;

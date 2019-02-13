@@ -42,10 +42,10 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->pushButtonCreateProposalCreatePaymentRequest, SIGNAL(clicked()), this , SLOT(on_click_pushButtonCreateProposalCreatePaymentRequest()));
 
     //fetch cfund info
-    Refresh(true);
+    Refresh(true, true);
 }
 
-void CommunityFundPage::Refresh(bool all)
+void CommunityFundPage::Refresh(bool all, bool proposal)
 {
     for (int i = 0; i < ui->gridLayout->count(); ++i)
     {
@@ -78,41 +78,56 @@ void CommunityFundPage::Refresh(bool all)
     locked.append(" NAV");
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
 
-    {
-    std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
-    {
-        int r = 0;
-        int c = 0;
-        BOOST_FOREACH(const CFund::CProposal proposal, vec) {
-            if (all) {
-                ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
-                if(c == 1)
-                {
-                    c = 0;
-                    ++r;
+    if (proposal) {
+        std::vector<CFund::CProposal> vec;
+        if(pblocktree->GetProposalIndex(vec))
+        {
+            int r = 0;
+            int c = 0;
+            BOOST_FOREACH(const CFund::CProposal proposal, vec) {
+                if (all) {
+                    ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
+                    if(c == 1)
+                    {
+                        c = 0;
+                        ++r;
+                    }
+                    else
+                    {
+                        ++c;
+                    }
                 }
-                else
-                {
-                    ++c;
-                }
-            }
-            else {
-                if (proposal.fState != flag)
-                    continue;
-                ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
-                if(c == 1)
-                {
-                    c = 0;
-                    ++r;
-                }
-                else
-                {
-                    ++c;
+                else {
+                    if (proposal.fState != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == CFund::EXPIRED) {
+                        ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
+                        if(c == 1)
+                        {
+                            c = 0;
+                            ++r;
+                        }
+                        else
+                        {
+                            ++c;
+                        }
+                    }
+                    if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos))
+                        continue;
+                    ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
+                    if(c == 1)
+                    {
+                        c = 0;
+                        ++r;
+                    }
+                    else
+                    {
+                        ++c;
+                    }
                 }
             }
         }
     }
+    else {
+        std::cout << "Listing Payment Requests";
     }
 
     {
@@ -150,6 +165,9 @@ void CommunityFundPage::on_click_pushButtonProposals()
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
+
+    Refresh(true, true);
+    ui->radioButtonAll->setChecked(true);
 }
 
 void CommunityFundPage::on_click_pushButtonPaymentRequests()
@@ -165,42 +183,45 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
+
+    Refresh(true, false);
+    ui->radioButtonAll->setChecked(true);
 }
 
 void CommunityFundPage::on_click_radioButtonAll()
 {
     flag = CFund::NIL;
-    Refresh(true);
+    Refresh(true, true);
 }
 
 void CommunityFundPage::on_click_radioButtonYourVote()
 {
     flag = CFund::NIL;
-    Refresh(true);
+    Refresh(true, true);
 }
 
 void CommunityFundPage::on_click_radioButtonPending()
 {
     flag = CFund::NIL;
-    Refresh(false);
+    Refresh(false, true);
 }
 
 void CommunityFundPage::on_click_radioButtonAccepted()
 {
     flag = CFund::ACCEPTED;
-    Refresh(false);
+    Refresh(false, true);
 }
 
 void CommunityFundPage::on_click_radioButtonRejected()
 {
     flag = CFund::REJECTED;
-    Refresh(false);
+    Refresh(false, true);
 }
 
 void CommunityFundPage::on_click_radioButtonExpired()
 {
     flag = CFund::EXPIRED;
-    Refresh(false);
+    Refresh(false, true);
 }
 
 void CommunityFundPage::on_click_pushButtonCreateProposalCreatePaymentRequest()
