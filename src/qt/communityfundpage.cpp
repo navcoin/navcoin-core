@@ -98,7 +98,7 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
                     }
                 }
                 else {
-                    if (proposal.fState != flag)
+                    if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos))
                         continue;
                     ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
                     if(c == 1)
