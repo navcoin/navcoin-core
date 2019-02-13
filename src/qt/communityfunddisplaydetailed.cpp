@@ -22,6 +22,12 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
+
+    // Hide ability to vote is the status is expired
+    std::string status = ui->labelStatus->text().toStdString();
+    if (status.find("expired") != string::npos) {
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
+    }
 }
 
 void CommunityFundDisplayDetailed::setProposalLabels() const
