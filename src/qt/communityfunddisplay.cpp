@@ -19,6 +19,20 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 {
     ui->setupUi(this);
 
+    QFont f_title("Sans Serif", 10.5, QFont::Bold);
+    QFont f_label_title("Sans Serif", 10, QFont::Bold);
+    QFont f_label("Sans Serif", 10, QFont::Normal);
+
+    ui->title->setFont(f_title);
+    ui->labelTitleDuration->setFont(f_label_title);
+    ui->labelDuration->setFont(f_label);
+    ui->labelTitleRequested->setFont(f_label_title);
+    ui->labelRequested->setFont(f_label);
+    ui->labelTitleStatus->setFont(f_label_title);
+    ui->labelStatus->setFont(f_label);
+    ui->pushButtonDetails->setFont(f_label);
+    ui->buttonBoxVote->setFont(f_label);
+
     //connect buttons
     QList<QAbstractButton *> buttonBoxVoteButtonList = ui->buttonBoxVote->buttons();
 
