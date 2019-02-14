@@ -5,7 +5,7 @@
 
 
 #
-# Expanded helper routines for regression testing of the NAV Coin community fund
+# Expanded helper routines for regression testing of the DVT Coin community fund
 #
 
 from test_framework.util import *

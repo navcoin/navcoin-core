@@ -628,7 +628,7 @@ UniValue getstakesubsidy(const UniValue& params, bool fHelp)
         ssData >> tx;
     }
     catch (std::exception &e) {
-        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "NAV decode failed");
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "DVT decode failed");
     }
 
     uint64_t nCoinAge;

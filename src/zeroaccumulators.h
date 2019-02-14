@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAV_ACCUMULATORMAP_H
-#define NAV_ACCUMULATORMAP_H
+#ifndef DVT_ACCUMULATORMAP_H
+#define DVT_ACCUMULATORMAP_H
 
 #include "primitives/block.h"
 #include "libzerocoin/Accumulator.h"
@@ -37,4 +37,4 @@ public:
 };
 
 bool CalculateAccumulatorChecksum(const CBlock* block, AccumulatorMap& accumulatorMap, std::vector<std::pair<CBigNum, uint256>>& vPubCoins);
-#endif //NAV_ACCUMULATORMAP_H
+#endif //DVT_ACCUMULATORMAP_H

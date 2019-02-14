@@ -45,7 +45,7 @@ UniValue Navtech::CreateAnonTransaction(string address, CAmount nValue, int nTra
     dvttechData.pushKV("min_amount", find_value(serverData, "min_amount"));
     return dvttechData;
   } else {
-    throw runtime_error("Unable to send NAVTech transaction, please try again.");
+    throw runtime_error("Unable to send DVTTech transaction, please try again.");
   }
 
 }
@@ -55,7 +55,7 @@ vector<anonServer> Navtech::GetAnonServers() {
   vector<anonServer> returnServers;
 
   if (vAddedAnonServers.size() < 1 && mapMultiArgs["-addanonserver"].size() < 1) {
-      throw runtime_error("You must have at least one NAVTech server added to your conf file or by rpc command.");
+      throw runtime_error("You must have at least one DVTTech server added to your conf file or by rpc command.");
       return returnServers;
   }
 
@@ -93,7 +93,7 @@ vector<anonServer> Navtech::GetAnonServers() {
   }
 
   if (returnServers.size() < 1) {
-      throw runtime_error("Please, add some valid NAVTech server to send private payments.");
+      throw runtime_error("Please, add some valid DVTTech server to send private payments.");
       return returnServers;
   }
 
@@ -102,7 +102,7 @@ vector<anonServer> Navtech::GetAnonServers() {
 
 UniValue Navtech::FindAnonServer(std::vector<anonServer> anonServers, CAmount nValue, int nTransactions) {
   if (anonServers.size() < 1) {
-      throw runtime_error("None of your configured NAVTech nodes are available right now.");
+      throw runtime_error("None of your configured DVTTech nodes are available right now.");
   }
 
   int randIndex = rand() % anonServers.size();
@@ -199,7 +199,7 @@ UniValue Navtech::ParseJSONResponse(string readBuffer) {
 
 string Navtech::EncryptAddress(string address, string pubKeyStr, int nTransactions, int nPiece, long nId) {
 
-  address = "{\"n\":\""+address+"\",\"t\":"+std::to_string(GetArg("anon_out_delay",NAVTECH_DEFAULT_OUT_DELAY))+",\"p\":"+std::to_string(nPiece)+",\"o\":"+std::to_string(nTransactions)+",\"u\":"+std::to_string(nId)+"}";
+  address = "{\"n\":\""+address+"\",\"t\":"+std::to_string(GetArg("anon_out_delay",DVTTECH_DEFAULT_OUT_DELAY))+",\"p\":"+std::to_string(nPiece)+",\"o\":"+std::to_string(nTransactions)+",\"u\":"+std::to_string(nId)+"}";
 
   unsigned char pubKeyChar[4098];
   memcpy(pubKeyChar, pubKeyStr.c_str(), pubKeyStr.length());

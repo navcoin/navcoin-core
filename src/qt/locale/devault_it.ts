@@ -1512,24 +1512,24 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>24H:</translation>
     </message>
     <message>
-        <source>87 312.312 123 NAV</source>
-        <translation>87 312.312 123 NAV</translation>
+        <source>87 312.312 123 DVT</source>
+        <translation>87 312.312 123 DVT</translation>
     </message>
     <message>
         <source>7D</source>
         <translation>7 Giorni</translation>
     </message>
     <message>
-        <source>1 312.312 NAV</source>
-        <translation>1 312.312 NAV</translation>
+        <source>1 312.312 DVT</source>
+        <translation>1 312.312 DVT</translation>
     </message>
     <message>
         <source>30D</source>
         <translation>30 Giorni</translation>
     </message>
     <message>
-        <source>132 431.41 NAV</source>
-        <translation>132 431.41 NAV</translation>
+        <source>132 431.41 DVT</source>
+        <translation>132 431.41 DVT</translation>
     </message>
     <message>
         <source>Cold Staking</source>
@@ -2311,16 +2311,16 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>(Commissione intelligente non ancora inizializzata. Normalmente richiede un'attesa di alcuni blocchi...)</translation>
     </message>
     <message>
-        <source>You don't have any NAVTech server added. </source>
-        <translation>Non hai aggiunto alcun server NAVTech.</translation>
+        <source>You don't have any DVTTech server added. </source>
+        <translation>Non hai aggiunto alcun server DVTTech.</translation>
     </message>
     <message>
         <source>Private payment</source>
         <translation>Pagamento privato</translation>
     </message>
     <message>
-        <source>Manage NAVTech servers</source>
-        <translation>Gestisci i server NAVTech</translation>
+        <source>Manage DVTTech servers</source>
+        <translation>Gestisci i server DVTTech</translation>
     </message>
     <message>
         <source>Use full amount</source>
@@ -2387,8 +2387,8 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>Copia resto</translation>
     </message>
     <message>
-        <source>NAVTech server returned a different number of addresses.</source>
-        <translation>Il server NAVTech ha restituito un numero diverso di indirizzi.</translation>
+        <source>DVTTech server returned a different number of addresses.</source>
+        <translation>Il server DVTTech ha restituito un numero diverso di indirizzi.</translation>
     </message>
     <message>
         <source>Something went wrong:</source>
@@ -2574,8 +2574,8 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>Salva nella Rubrica</translation>
     </message>
     <message>
-        <source>A&amp;mount (NAV):</source>
-        <translation>S&amp;aldo (NAV):</translation>
+        <source>A&amp;mount (DVT):</source>
+        <translation>S&amp;aldo (DVT):</translation>
     </message>
     <message>
         <source>Pay To:</source>

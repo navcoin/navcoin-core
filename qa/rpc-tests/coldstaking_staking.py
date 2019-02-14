@@ -69,7 +69,7 @@ class ColdStakingStaking(DeVaultTestFramework):
         # Check wallet weight roughly equals wallet balance
         assert(round(staking_weight_before / 100000000.0, -5) == round(balance_before, -5))
 
-        # Send funds to the cold staking address (leave some NAV for fees)
+        # Send funds to the cold staking address (leave some DVT for fees)
         self.nodes[0].sendtoaddress(coldstaking_address_staking, balance_before - 1)
         self.nodes[0].generate(1)
         self.sync_all()

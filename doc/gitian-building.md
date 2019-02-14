@@ -443,10 +443,10 @@ Then when building, override the remote URLs that gbuild would otherwise pull fr
 cd /some/root/path/
 git clone https://github.com/devault-core/devault-detached-sigs.git
 
-NAVPATH=/some/root/path/devault
+DVTPATH=/some/root/path/devault
 SIGPATH=/some/root/path/devault-detached-sigs
 
-./bin/gbuild --url devault=${NAVPATH},signature=${SIGPATH} ../devault/contrib/gitian-descriptors/gitian-win-signer.yml
+./bin/gbuild --url devault=${DVTPATH},signature=${SIGPATH} ../devault/contrib/gitian-descriptors/gitian-win-signer.yml
 ```
 
 Building with Debian 9.5.0

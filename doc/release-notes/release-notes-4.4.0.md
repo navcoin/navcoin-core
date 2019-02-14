@@ -13,7 +13,7 @@ It introduces the changes neccesary in the protocol to activate the claims mecha
 - % of Negative votes to reject a Proposal: 67.5%
 - % of Positive votes to accept a Payment Request: 50%
 - % of Negative votes to reject a Payment Request: 50%
-- Fee to create a Proposal: 50 NAV
+- Fee to create a Proposal: 50 DVT
 - Maximum number of full elapsed Voting Cycles for a Proposal: 6 Voting Cycles (1 month and a half)
 - Maximum number of full elapsed Voting Cycles for a Payment Request: 8 Voting Cycles (2 months)
 
@@ -28,7 +28,7 @@ You can read more about [NPIP0003 on the NPIP GitHub](https://github.com/DeVault
 
 ## Community Fund Contribution Increase
 
-The Version Bit 16 will signal for the soft fork to increase the Community Fund contribution from 0.25 NAV to 0.50 NAV per block. 
+The Version Bit 16 will signal for the soft fork to increase the Community Fund contribution from 0.25 DVT to 0.50 DVT per block. 
 
 You can read more about [NPIP0005 on the NPIP GitHub](https://github.com/DeVault/npips/blob/master/npip-0005.mediawiki).
 
@@ -60,7 +60,7 @@ createproposal devaultaddress amount duration "desc" fee
 
 Arguments:
 1. "devaultaddress" (string, required) The devault address where coins would be sent if the proposal is approved.
-2. "amount" The amount in NAV to request. eg 100
+2. "amount" The amount in DVT to request. eg 100
 3. duration: Number of seconds the proposal will exist after being accepted.
 4. "desc": Short description of the proposal.
 5. fee (optional): Contribution to the fund used as a fee.
@@ -93,7 +93,7 @@ createpaymentrequest proposal_hash amount id
 
 Arguments:
 1. "hash" (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.
-2. "amount" (numeric or string, required) The amount in NAV to withdraw. eg 10
+2. "amount" (numeric or string, required) The amount in DVT to withdraw. eg 10
 3. "id" (string, required) Unique id to identify the payment request
 
 Result:
@@ -132,10 +132,10 @@ List the propsals and all the releaing datat including payment requests and stat
 ```
 donatefund amount
 
-Donate NAV from your wallet to the commnuity fund
+Donate DVT from your wallet to the commnuity fund
 
 Arguments:
-1. "amount" (string, required) The amount of NAV to donate
+1. "amount" (string, required) The amount of DVT to donate
 ```
 
 ###  Community fund stats

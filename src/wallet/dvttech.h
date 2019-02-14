@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DEVAULT_WALLET_NAVTECH_H
-#define DEVAULT_WALLET_NAVTECH_H
+#ifndef DEVAULT_WALLET_DVTTECH_H
+#define DEVAULT_WALLET_DVTTECH_H
 
 #include "compat.h"
 
@@ -20,9 +20,9 @@
 #include <curl/curl.h>
 #include "script/standard.h"
 
-#define NAVTECH_DEFAULT_INPUT_DELAY 1
-#define NAVTECH_DEFAULT_OUT_DELAY 10
-#define NAVTECH_DEFAULT_ENTROPY 4
+#define DVTTECH_DEFAULT_INPUT_DELAY 1
+#define DVTTECH_DEFAULT_OUT_DELAY 10
+#define DVTTECH_DEFAULT_ENTROPY 4
 
 extern int padding;
 extern int encResultLength;
@@ -55,4 +55,4 @@ private:
     bool TestEncryption(std::string encrypted, UniValue serverData);
 };
 
-#endif //DEVAULT_WALLET_NAVTECH_H
+#endif //DEVAULT_WALLET_DVTTECH_H

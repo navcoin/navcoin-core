@@ -1,5 +1,5 @@
-#ifndef NAVTECHSETUP_H
-#define NAVTECHSETUP_H
+#ifndef DVTTECHSETUP_H
+#define DVTTECHSETUP_H
 
 #include "wallet/dvttech.h"
 
@@ -31,4 +31,4 @@ public Q_SLOTS:
 
 };
 
-#endif // NAVTECHSETUP_H
+#endif // DVTTECHSETUP_H

@@ -333,7 +333,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
      *
      * gets the devault address from the  TXT  record of the DNS entry associated
      * with  <url>.   If this lookup fails,  or the TXT record does not contain a
-     * NAV address in the correct format, returns an empty string. <dnssec_valid>
+     * DVT address in the correct format, returns an empty string. <dnssec_valid>
      * will be set true or false according to whether or not the DNS query passes
      * DNSSEC validation.
      *

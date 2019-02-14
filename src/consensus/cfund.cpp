@@ -234,7 +234,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
         sRandom = find_value(metadata, "r").get_str();
 
     std::string Secret = sRandom + "I kindly ask to withdraw " +
-            std::to_string(nAmount) + "NAV from the proposal " +
+            std::to_string(nAmount) + "DVT from the proposal " +
             proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
     CDeVaultAddress addr(proposal.Address);

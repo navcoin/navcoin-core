@@ -70,7 +70,7 @@ class ColdStakingSpending(DeVaultTestFramework):
         assert(len(listunspent_txs) > 0)
         # asserts that the number of utxo recieved is only 1:
         assert(len(listunspent_txs) == 1)
-        # asserts if amount recieved is what it should be; ~59812449.99711600 NAV
+        # asserts if amount recieved is what it should be; ~59812449.99711600 DVT
         assert(listunspent_txs[0]["amount"] <= Decimal('59812449.99711600'))
         # grabs updated wallet balance and staking weight
         balance_post_send_one = self.nodes[0].getbalance()

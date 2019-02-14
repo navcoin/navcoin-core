@@ -44,7 +44,7 @@ MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MAX_INV_SZ = 50000
 MAX_BLOCK_SIZE = 1000000
 
-COIN = 100000000 # 1 NAV in satoshis
+COIN = 100000000 # 1 DVT in satoshis
 
 NODE_NETWORK = (1 << 0)
 NODE_GETUTXO = (1 << 1)

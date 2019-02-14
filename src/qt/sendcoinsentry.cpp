@@ -178,7 +178,7 @@ void SendCoinsEntry::clear()
     ui->payAmount_s->clear();
     ui->paymentID->clear();
 
-    // update the display unit, to not use the default ("NAV")
+    // update the display unit, to not use the default ("DVT")
     updateDisplayUnit();
 }
 

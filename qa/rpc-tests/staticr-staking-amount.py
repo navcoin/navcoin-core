@@ -22,7 +22,7 @@ class StaticRAmountTest(DeVaultTestFramework):
 
     def run_test(self):
 
-        #check the block reward is 2 NAV after the softfork
+        #check the block reward is 2 DVT after the softfork
 
         activate_staticr(self.nodes[0])
 
@@ -39,7 +39,7 @@ class StaticRAmountTest(DeVaultTestFramework):
         wallet_info2 = self.nodes[0].getwalletinfo()
         balance_diff = wallet_info1['balance'] - wallet_info2['balance']
 
-        # check that only 2 new NAV were created
+        # check that only 2 new DVT were created
         assert(wallet_info2['immature_balance'] == wallet_info1['immature_balance'] + balance_diff + 2)
 
 if __name__ == '__main__':

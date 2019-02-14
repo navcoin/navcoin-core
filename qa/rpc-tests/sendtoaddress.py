@@ -30,7 +30,7 @@ class SendToAddressTest (DeVaultTestFramework):
         self.nodes[0].staking(False)
         self.nodes[1].staking(False)
 
-        # Generate necessary NAV for transactions
+        # Generate necessary DVT for transactions
         print("Mining blocks...")
         slow_gen(self.nodes[0], 1)
         time.sleep(2)
@@ -38,7 +38,7 @@ class SendToAddressTest (DeVaultTestFramework):
         slow_gen(self.nodes[1], 75)
         self.sync_all()
         
-        # Assert correct amount of NAV generated
+        # Assert correct amount of DVT generated
         assert_equal(self.nodes[0].getbalance(), 59800000)
         assert_equal(self.nodes[1].getbalance(), 1250)
         
@@ -89,7 +89,7 @@ class SendToAddressTest (DeVaultTestFramework):
         except JSONRPCException as e:
             if "Insufficient funds" in e.error["message"]:
                 exception_assert = True
-                # Not enought NAV to make transaction
+                # Not enought DVT to make transaction
         assert(exception_assert)
         exception_assert = False
         try:
@@ -97,7 +97,7 @@ class SendToAddressTest (DeVaultTestFramework):
         except JSONRPCException as e:
             if "Error: This transaction requires a transaction fee of at least 0.0001 because of its amount, complexity, or use of recently received funds!" in e.error["message"]:
                 exception_assert = True
-                # Try send entire balance, not enought NAV to pay for fee
+                # Try send entire balance, not enought DVT to pay for fee
         assert(exception_assert)
         exception_assert = False
         try:
