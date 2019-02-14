@@ -17,6 +17,10 @@ public:
 
 private:
     Ui::CommunityFundCreatePaymentRequestDialog *ui;
+    bool validate();
+
+public Q_SLOTS:
+    void on_click_pushButtonSubmitPaymentRequest();
 };
 
 #endif // COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H
