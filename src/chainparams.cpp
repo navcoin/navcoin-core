@@ -213,11 +213,11 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x80;
-        pchMessageStart[1] = 0x50;
-        pchMessageStart[2] = 0x34;
-        pchMessageStart[3] = 0x20;
-        nDefaultPort = 44440;
+        pchMessageStart[0] = 0xc0;
+        pchMessageStart[1] = 0xd2;
+        pchMessageStart[2] = 0xe0;
+        pchMessageStart[3] = 0xd1;
+        nDefaultPort = 33039;
         nPruneAfterHeight = 100000;
         bnProofOfWorkLimit = ~uint256() >> 16;
 
@@ -228,13 +228,13 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a"));
         assert(genesis.hashMerkleRoot == uint256S("0xc507eec6ccabfd5432d764afceafba42d2d946594b8a60570cb2358a7392c61a"));
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,53);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,31); // D standard address prefix
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,21); // cold staking addresses start with 'X'
         base58Prefixes[PRIVATE_ADDRESS] = boost::assign::list_of(74)(7).convert_to_container<std::vector<unsigned char> >(); // Starts with ZN
         base58Prefixes[PRIVATE_SPEND_KEY] = std::vector<unsigned char>(2,29); //
         base58Prefixes[PRIVATE_VIEW_KEY] = std::vector<unsigned char>(2,32); //
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,150);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,90); // d script address prefix
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,193); // V privkey prefix
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
@@ -413,11 +413,11 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0xa4;
-        pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x22;
-        nDefaultPort = 15556;
+        pchMessageStart[0] = 0x0d;
+        pchMessageStart[1] = 0x08;
+        pchMessageStart[2] = 0x13;
+        pchMessageStart[3] = 0x04;
+        nDefaultPort = 39039;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = ~uint256() >> 16;
     
@@ -447,13 +447,13 @@ public:
         assert(consensus.hashGenesisBlock == hashGenesisBlock);
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,66); // T address prefix
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
         base58Prefixes[PRIVATE_ADDRESS] = boost::assign::list_of(74)(64).convert_to_container<std::vector<unsigned char> >(); // Starts with ZT
         base58Prefixes[PRIVATE_SPEND_KEY] = std::vector<unsigned char>(2,29); //
         base58Prefixes[PRIVATE_VIEW_KEY] = std::vector<unsigned char>(2,32); //
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,127); // t script address prefix
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,212); // Y privkey prefix
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x40)(0x88)(0x2B)(0xE1).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x40)(0x88)(0xDA)(0x4E).convert_to_container<std::vector<unsigned char> >();
 
