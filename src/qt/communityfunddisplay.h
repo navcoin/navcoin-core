@@ -9,6 +9,7 @@ namespace Ui {
 class CommunityFundDisplay;
 }
 
+
 class CommunityFundDisplay : public QWidget
 {
     Q_OBJECT
