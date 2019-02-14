@@ -208,6 +208,46 @@
       </spacer>
      </item>
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <spacer name="horizontalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="privateAddressButton">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string>Show Private Address</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
         <spacer name="horizontalSpacer_13">
@@ -224,6 +264,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="copyClipboardButton">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string>Copy to clipboard</string>
          </property>
@@ -231,6 +274,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="requestPaymentButton">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string>Request payment</string>
          </property>
@@ -238,6 +284,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="requestNewAddressButton">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string>List old addresses</string>
          </property>
@@ -275,6 +324,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="newAddressButton">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string>Generate a new address</string>
          </property>
@@ -282,6 +334,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="coldStakingButton">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string>Create a Cold Staking address</string>
          </property>

@@ -9,8 +9,11 @@
 #include "primitives/transaction.h"
 #include "serialize.h"
 #include "uint256.h"
-#include "arith_uint256.h"
 #include "hash.h"
+#include "zeroaccumulators.h"
+
+/** Zerocoin blocks version bits need to signal this */
+static const int32_t VERSIONBITS_TOP_BITS_ZEROCOIN = 0x80000000UL;
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -29,6 +32,7 @@ public:
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
+    uint256 nAccumulatorChecksum;
 
     CBlockHeader()
     {
@@ -45,6 +49,8 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        if((this->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
+            READWRITE(nAccumulatorChecksum);
     }
 
     void SetNull()
@@ -55,6 +61,7 @@ public:
         nTime = 0;
         nBits = 0;
         nNonce = 0;
+        nAccumulatorChecksum = 0;
     }
 
     bool IsNull() const
@@ -68,7 +75,7 @@ public:
     unsigned int GetStakeEntropyBit() const
     {
         // Take last bit of block hash as entropy bit
-        unsigned int nEntropyBit = ((UintToArith256(GetHash()).GetLow64()) & 1llu);
+        unsigned int nEntropyBit = GetHash().GetLow64() & 1llu;
         return nEntropyBit;
     }
 
@@ -172,6 +179,8 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+        block.nAccumulatorChecksum
+                             = nAccumulatorChecksum;
         return block;
     }
 

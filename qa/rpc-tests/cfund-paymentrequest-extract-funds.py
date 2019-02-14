@@ -115,6 +115,5 @@ class CommunityFundPaymentRequestExtractFundsTest(NavCoinTestFramework):
         # all the payment requests should have been validated
         assert(allAccepted is True)
 
-
 if __name__ == '__main__':
     CommunityFundPaymentRequestExtractFundsTest().main()

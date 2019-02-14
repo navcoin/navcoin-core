@@ -4,8 +4,12 @@
 
 #include "coins.h"
 
+#include "chainparams.h"
+#include "libzerocoin/CoinSpend.h"
 #include "memusage.h"
 #include "random.h"
+#include "zerochain.h"
+#include "zerotx.h"
 
 #include <assert.h>
 
@@ -239,19 +243,31 @@ const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
 
 CAmount CCoinsViewCache::GetValueIn(const CTransaction& tx) const
 {
-    if (tx.IsCoinBase())
+    if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
         return 0;
 
     CAmount nResult = 0;
-    for (unsigned int i = 0; i < tx.vin.size(); i++)
-        nResult += GetOutputFor(tx.vin[i]).nValue;
+
+    if (tx.IsZerocoinSpend()) {
+        for (unsigned int i = 0; i < tx.vin.size(); i++) {
+            if (tx.vin[i].scriptSig.IsZerocoinSpend()) {
+                libzerocoin::CoinSpend zcs(&Params().GetConsensus().Zerocoin_Params);
+                if (TxInToCoinSpend(&Params().GetConsensus().Zerocoin_Params, tx.vin[i], zcs))
+                    nResult += libzerocoin::ZerocoinDenominationToAmount(zcs.getDenomination());
+            }
+        }
+    } else {
+        for (unsigned int i = 0; i < tx.vin.size(); i++) {
+            nResult += GetOutputFor(tx.vin[i]).nValue;
+        }
+    }
 
     return nResult;
 }
 
 bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
 {
-    if (!tx.IsCoinBase()) {
+    if (!tx.IsCoinBase() && !tx.IsZerocoinSpend()) {
         for (unsigned int i = 0; i < tx.vin.size(); i++) {
             const COutPoint &prevout = tx.vin[i].prevout;
             const CCoins* coins = AccessCoins(prevout.hash);
@@ -266,7 +282,7 @@ bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
 double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount &inChainInputValue) const
 {
     inChainInputValue = 0;
-    if (tx.IsCoinBase())
+    if (tx.IsCoinBase() || tx.IsZerocoinSpend())
         return 0.0;
     double dResult = 0.0;
     BOOST_FOREACH(const CTxIn& txin, tx.vin)

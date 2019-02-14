@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,6 +8,8 @@
 #define NAVCOIN_CONSENSUS_PARAMS_H
 
 #include "amount.h"
+#include "libzerocoin/bignum.h"
+#include "libzerocoin/Params.h"
 #include "uint256.h"
 #include <map>
 #include <string>
@@ -26,6 +29,7 @@ enum DeploymentPos
     DEPLOYMENT_COLDSTAKING,
     DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD,
     DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2,
+    DEPLOYMENT_ZEROCOIN,
     DEPLOYMENT_NTPSYNC,
     DEPLOYMENT_STATIC_REWARD,
     DEPLOYMENT_QUORUM_CFUND,
@@ -108,6 +112,10 @@ struct Params {
     int nHeightv452Fork;
 
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+
+    /** Zerocoin parameters **/
+    std::string zerocoinModulus;
+    libzerocoin::ZerocoinParams Zerocoin_Params;
 };
 } // namespace Consensus
 

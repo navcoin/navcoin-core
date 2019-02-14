@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,9 +8,12 @@
 #define NAVCOIN_WALLET_WALLETDB_H
 
 #include "amount.h"
+#include "libzerocoin/bignum.h"
+#include "libzerocoin/Keys.h"
 #include "primitives/transaction.h"
 #include "wallet/db.h"
 #include "key.h"
+#include "zeromint.h"
 
 #include <list>
 #include <stdint.h>
@@ -131,6 +135,8 @@ public:
     bool WriteTx(const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
+    bool EraseSerial(CBigNum bnSn);
+
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
     bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
     bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey);
@@ -146,10 +152,19 @@ public:
     bool WriteOrderPosNext(int64_t nOrderPosNext);
 
     bool WriteDefaultKey(const CPubKey& vchPubKey);
+    bool WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const libzerocoin::ObfuscationValue& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey);
+    bool WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey);
+    bool WriteZerocoinValues(const CWallet* pwallet);
 
     bool ReadPool(int64_t nPool, CKeyPool& keypool);
     bool WritePool(int64_t nPool, const CKeyPool& keypool);
     bool ErasePool(int64_t nPool);
+
+    bool WriteSerialNumber(const CBigNum& bnSerialNumber, const COutPoint& out);
+    bool EraseSerialNumber(const CBigNum& bnSerialNumber);
+
+    bool WriteWitnessData(const CBigNum& bnSerialNumber, const PublicMintWitnessData& witness);
+    bool EraseWitnessData(const CBigNum& bnSerialNumber);
 
     bool WriteMinVersion(int nVersion);
 
@@ -169,7 +184,7 @@ public:
 
     DBErrors ReorderTransactions(CWallet* pwallet);
     DBErrors LoadWallet(CWallet* pwallet);
-    DBErrors FindWalletTx(CWallet* pwallet, std::vector<uint256>& vTxHash, std::vector<CWalletTx>& vWtx);
+    DBErrors FindWalletTx(CWallet* pwallet, std::vector<uint256>& vTxHash, vector<CBigNum>& vSerial, vector<CBigNum>& vWitness, std::vector<CWalletTx>& vWtx);
     DBErrors ZapWalletTx(CWallet* pwallet, std::vector<CWalletTx>& vWtx);
     DBErrors ZapSelectTx(CWallet* pwallet, std::vector<uint256>& vHashIn, std::vector<uint256>& vHashOut);
     static bool Recover(CDBEnv& dbenv, const std::string& filename, bool fOnlyKeys);

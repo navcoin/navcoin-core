@@ -149,6 +149,7 @@ private:
     int64_t lastDialogShown;
 
     uint64_t nWeight;
+    uint64_t nZeroWeight;
 
     const PlatformStyle *platformStyle;
 

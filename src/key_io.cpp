@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2016 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -37,6 +37,16 @@ public:
     {
         std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
         data.insert(data.end(), id.begin(), id.end());
+        return EncodeBase58Check(data);
+    }
+
+    std::string operator()(const libzerocoin::CPrivateAddress& id) const
+    {
+        std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::PRIVATE_ADDRESS);
+        CDataStream ss(SER_NETWORK, 0);
+        ss << id;
+        std::vector<unsigned char> vchData(ss.begin(),ss.end());
+        vch.insert(data.end(), vchData.begin(), vchData.end());
         return EncodeBase58Check(data);
     }
 

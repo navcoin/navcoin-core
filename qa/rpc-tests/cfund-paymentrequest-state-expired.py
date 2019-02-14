@@ -64,6 +64,5 @@ class CommunityFundPaymentRequestStateTest(NavCoinTestFramework):
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 3)
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "expired")
 
-
 if __name__ == '__main__':
     CommunityFundPaymentRequestStateTest().main()

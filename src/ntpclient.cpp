@@ -48,7 +48,7 @@ bool CNtpClient::getTimestamp(uint64_t &timeRecv)
             timeStruct.tv_usec = 0;
             FD_ZERO(&fileDescriptorSet);
 
-            int nativeSocket = socket.native();
+            int nativeSocket = socket.native_handle();
 
             FD_SET(nativeSocket,&fileDescriptorSet);
 

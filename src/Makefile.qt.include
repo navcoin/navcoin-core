@@ -106,9 +106,6 @@ QT_FORMS_UI = \
   qt/forms/sendcoinsentry.ui \
   qt/forms/signverifymessagedialog.ui \
   qt/forms/transactiondescdialog.ui \
-  qt/navtechinit.ui \
-  qt/navtechitem.ui \
-  qt/navtechsetup.ui \
   qt/forms/cfund_voting.ui \
   qt/getaddresstoreceive.ui
 
@@ -131,10 +128,7 @@ QT_MOC_CPP = \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
   qt/moc_macnotificationhandler.cpp \
-  qt/moc_navtechinit.cpp \
-  qt/moc_navtechsetup.cpp \
   qt/forms/moc_cfund_voting.cpp \
-  qt/moc_navtechitem.cpp \
   qt/moc_getaddresstoreceive.cpp \
   qt/moc_notificator.cpp \
   qt/moc_openuridialog.cpp \
@@ -205,9 +199,6 @@ NAVCOIN_QT_H = \
   qt/listview.h \
   qt/macdockiconhandler.h \
   qt/macnotificationhandler.h \
-  qt/navtechinit.h \
-  qt/navtechitem.h \
-  qt/navtechsetup.h \
   qt/forms/cfund_voting.h \
   qt/getaddresstoreceive.h \
   qt/networkstyle.h \
@@ -327,9 +318,6 @@ NAVCOIN_QT_CPP = \
   qt/navcoinamountfield.cpp \
   qt/navcoingui.cpp \
   qt/navcoinunits.cpp \
-  qt/navtechinit.cpp \
-  qt/navtechitem.cpp \
-  qt/navtechsetup.cpp \
   qt/forms/cfund_voting.cpp \
   qt/getaddresstoreceive.cpp \
   qt/clientmodel.cpp \
@@ -438,7 +426,7 @@ qt_navcoin_qt_LDADD += $(LIBNAVCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 qt_navcoin_qt_LDADD += $(LIBNAVCOIN_CLI) $(LIBNAVCOIN_COMMON) $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_CONSENSUS) $(LIBNAVCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(UNBOUND_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
-  $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
+  $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBNAVCOIN_ZEROCOIN)
 qt_navcoin_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 qt_navcoin_qt_LIBTOOLFLAGS = --tag CXX
 

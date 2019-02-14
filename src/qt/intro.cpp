@@ -11,7 +11,6 @@
 #include "skinize.h"
 
 #include "guiutil.h"
-#include "navtechinit.h"
 
 #include "util.h"
 
@@ -202,10 +201,6 @@ void Intro::pickDataDirectory()
                     boost::filesystem::detail::copy_file(GUIUtil::qstringToBoostPath(oldWallet),GUIUtil::qstringToBoostPath(dataDir + QDir::separator() + "wallet.dat"),boost::filesystem::detail::none);
                     SoftSetArg("-zapwallettxes","2");
                 }
-                WriteConfigFile("addanonserver", "95.183.52.55:3000");
-                WriteConfigFile("addanonserver", "95.183.52.28:3000");
-                WriteConfigFile("addanonserver", "95.183.52.29:3000");
-                WriteConfigFile("addanonserver", "95.183.53.184:3000");
                 SoftSetArg("-firstrun","1");
 
                 break;

@@ -68,7 +68,7 @@ UniValue GetNetworkHashPS(int lookup, int height) {
     if (minTime == maxTime)
         return 0;
 
-    arith_uint256 workDiff = pb->nChainWork - pb0->nChainWork;
+    uint256 workDiff = pb->nChainWork - pb0->nChainWork;
     int64_t timeDiff = maxTime - minTime;
 
     return workDiff.getdouble() / timeDiff;
@@ -117,7 +117,7 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
     UniValue blockHashes(UniValue::VARR);
     while (nHeight < nHeightEnd)
     {
-        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript,false,0));
+        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript,false,0,0));
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         CBlock *pblock = &pblocktemplate->block;
@@ -558,7 +558,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             pblocktemplate = NULL;
         }
         CScript scriptDummy = CScript() << OP_TRUE;
-        pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy,false,0);
+        pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy,false,0,0);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 
@@ -584,7 +584,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         uint256 txHash = tx.GetHash();
         setTxIndex[txHash] = i++;
 
-        if (tx.IsCoinBase())
+        if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
             continue;
 
         UniValue entry(UniValue::VOBJ);
@@ -617,7 +617,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     UniValue aux(UniValue::VOBJ);
     aux.push_back(Pair("flags", HexStr(COINBASE_FLAGS.begin(), COINBASE_FLAGS.end())));
 
-    arith_uint256 hashTarget = arith_uint256().SetCompact(pblock->nBits);
+    uint256 hashTarget = uint256().SetCompact(pblock->nBits);
 
     UniValue aMutable(UniValue::VARR);
     aMutable.push_back("time");
