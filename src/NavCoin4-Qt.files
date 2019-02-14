@@ -295,6 +295,9 @@ qt/communityfunddisplay.ui
 qt/communityfunddisplaydetailed.cpp
 qt/communityfunddisplaydetailed.h
 qt/communityfunddisplaydetailed.moc
+qt/communityfunddisplaypaymentrequest.cpp
+qt/communityfunddisplaypaymentrequest.h
+qt/communityfunddisplaypaymentrequest.ui
 qt/communityfundpage.cpp
 qt/communityfundpage.h
 qt/communityfundpage.moc
