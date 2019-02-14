@@ -96,7 +96,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     ui->labelNumberOfYesVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesYes)));
     ui->labelNumberOfNoVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesNo)));
 
-    ui->labelTransactionBlockHash->setText(QString::fromStdString(proposal.blockhash.ToString()));
+    ui->labelTransactionBlockHash->setText(QString::fromStdString(proposal.txblockhash.ToString()));
     ui->labelTransactionHash->setText(QString::fromStdString(proposal.hash.ToString()));
     ui->labelVersionNumber->setText(QString::fromStdString(std::to_string(proposal.nVersion)));
     ui->labelVotingCycleNumber->setText(QString::fromStdString(std::to_string(proposal.nVotingCycle)));
