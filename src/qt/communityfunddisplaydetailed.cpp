@@ -96,16 +96,19 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     ui->labelNumberOfYesVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesYes)));
     ui->labelNumberOfNoVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesNo)));
 
-    ui->labelTransactionBlockHash->setText(QString::fromStdString(proposal.txblockhash.ToString()));
-    ui->labelTransactionHash->setText(QString::fromStdString(proposal.hash.ToString()));
+    ui->labelTransactionBlockHash->setText(QString::fromStdString(proposal.blockhash.ToString()));
+    ui->labelTransactionHash->setText(QString::fromStdString(proposal.txblockhash.ToString()));
     ui->labelVersionNumber->setText(QString::fromStdString(std::to_string(proposal.nVersion)));
     ui->labelVotingCycleNumber->setText(QString::fromStdString(std::to_string(proposal.nVotingCycle)));
     ui->labelLinkToProposal->setText(QString::fromStdString("https://navcommunity.net/view-proposal/" + proposal.hash.ToString()));
+    ui->labelProposalHash->setText(QString::fromStdString(proposal.hash.ToString()));
+
 
     //set hyperlink for navcommunity proposal view
     ui->labelLinkToProposal->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->labelLinkToProposal->setOpenExternalLinks(true);
     //ui->labelLinkToProposal->setHtml(ui->labelLinkToProposal->text());
+
 
     stringstream a;
     a.imbue(std::locale(""));
