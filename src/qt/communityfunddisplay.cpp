@@ -5,6 +5,8 @@
 #include "../txdb.h"
 #include <iomanip>
 #include <sstream>
+#include <iostream>
+#include <ctime>
 
 #include "consensus/cfund.h"
 #include <iostream>
@@ -77,6 +79,42 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     std::string status = ui->labelStatus->text().toStdString();
     if (status.find("expired") != string::npos) {
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
+    }
+
+    // If proposal is pending show voting cycles left
+    if (proposal.fState == CFund::NIL) {
+        std::string duration_title = "Voting Cycle: ";
+        std::string duration = std::to_string(proposal.nVotingCycle) +  " of 6";
+        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
+        ui->labelDuration->setText(QString::fromStdString(duration));
+    }
+
+    // If proposal is rejected, show when it was rejected
+    if (proposal.fState == CFund::REJECTED) {
+        std::string expiry_title = "Rejected on: ";
+        std::time_t t = static_cast<time_t>(proptime);
+        std::stringstream ss;
+        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
+        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+    }
+
+    // If expired show when it expired
+    if (proposal.fState == CFund::EXPIRED || status.find("expired") != string::npos) {
+        if (proposal.fState == CFund::EXPIRED) {
+            std::string expiry_title = "Expired on: ";
+            std::time_t t = static_cast<time_t>(proptime);
+            std::stringstream ss;
+            ss << std::put_time(std::gmtime(&t), "%c %Z");
+            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
+            ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+        }
+        else {
+            std::string expiry_title = "Expires: ";
+            std::string expiry = "At end of voting period";
+            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
+            ui->labelDuration->setText(QString::fromStdString(expiry));
+        }
     }
 
     //hide ui voting elements on proposals which are not allowed vote states
