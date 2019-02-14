@@ -105,9 +105,6 @@ using namespace std;
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 
-std::vector<std::string> vAddedAnonServers;
-CCriticalSection cs_vAddedAnonServers;
-
 std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 
@@ -470,7 +467,7 @@ boost::filesystem::path GetDefaultDataDir()
     // Unix: ~/.navcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "NavCoin4";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "NavCoin5";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -480,10 +477,10 @@ boost::filesystem::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // Mac
-    return pathRet / "Library/Application Support/NavCoin4";
+    return pathRet / "Library/Application Support/NavCoin5";
 #else
     // Unix
-    return pathRet / ".navcoin4";
+    return pathRet / ".navcoin5";
 #endif
 #endif
 }
@@ -552,12 +549,6 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         // Don't overwrite existing settings so command line settings override navcoin.conf
         string strKey = string("-") + it->string_key;
         string strValue = it->value[0];
-
-        if(strKey == "-addanonserver")
-        {
-            vAddedAnonServers.push_back(strValue);
-            continue;
-        }
 
         if(strKey == "-addproposalvoteyes")
         {

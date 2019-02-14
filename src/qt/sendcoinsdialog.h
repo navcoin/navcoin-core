@@ -55,11 +55,10 @@ public Q_SLOTS:
     SendCoinsEntry *addEntry();
     void updateTabsAndLabels();
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance);
-    void checkNavtechServers();
-    void showNavTechDialog();
-    void anonsendCheckboxClick();
+                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance,
+                    const CAmount& privateBalance);
     void useFullAmount();
+    void useFullPrivateAmount();
 
 private:
     Ui::SendCoinsDialog *ui;
@@ -67,6 +66,7 @@ private:
     WalletModel *model;
     bool fNewRecipientAllowed;
     bool fFeeMinimized;
+    bool fPrivate;
     const PlatformStyle *platformStyle;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting
@@ -93,6 +93,7 @@ private Q_SLOTS:
     void coinControlClipboardPriority();
     void coinControlClipboardLowOutput();
     void coinControlClipboardChange();
+    void updatePrivateOrPublic(bool fPrivate);
     void setMinimumFee();
     void updateFeeSectionControls();
     void updateMinFeeLabel();

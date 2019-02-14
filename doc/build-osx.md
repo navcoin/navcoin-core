@@ -21,7 +21,7 @@ Then install [Homebrew](http://brew.sh).
     brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/core/protobuf260 --c++11 qt5 libevent curl
     ```
 
-2. Visit [README.md](../depends/README.md) for instructions on building the rest of the dependancies.
+    brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/versions/protobuf260 --c++11 qt5 libevent curl gmp
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 

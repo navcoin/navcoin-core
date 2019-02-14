@@ -18,8 +18,6 @@
 #include "skinize.h"
 #include "util.h"
 #include "utilstrencodings.h"
-#include "navtechinit.h"
-#include "navtechsetup.h"
 
 #include "base58.h"
 #include "coincontrol.h"
@@ -45,6 +43,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     model(0),
     fNewRecipientAllowed(true),
     fFeeMinimized(true),
+    fPrivate(false),
     platformStyle(platformStyle)
 {
     ui->setupUi(this);
@@ -57,7 +56,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
 
     // Coin Control
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
-    connect(ui->noNavtechButton, SIGNAL(clicked()), this, SLOT(showNavTechDialog()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
 
@@ -78,8 +76,8 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     connect(clipboardPriorityAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardPriority()));
     connect(clipboardLowOutputAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardLowOutput()));
     connect(clipboardChangeAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardChange()));
-    connect(ui->anonsendCheckbox, SIGNAL(clicked()), this, SLOT(anonsendCheckboxClick()));
     connect(ui->fullAmountBtn,  SIGNAL(clicked()), this, SLOT(useFullAmount()));
+    connect(ui->fullPrivateAmountBtn,  SIGNAL(clicked()), this, SLOT(useFullPrivateAmount()));
 
     ui->labelCoinControlQuantity->addAction(clipboardQuantityAction);
     ui->labelCoinControlAmount->addAction(clipboardAmountAction);
@@ -108,8 +106,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
         settings.setValue("nTransactionFee", (qint64)DEFAULT_TRANSACTION_FEE);
     if (!settings.contains("fPayOnlyMinFee"))
         settings.setValue("fPayOnlyMinFee", false);
-    if (!settings.contains("fAnonSend"))
-      settings.setValue("fAnonSend", false);
     ui->groupFee->setId(ui->radioSmartFee, 0);
     ui->groupFee->setId(ui->radioCustomFee, 1);
     ui->groupFee->button((int)std::max(0, std::min(1, settings.value("nFeeRadio").toInt())))->setChecked(true);
@@ -120,26 +116,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     ui->customFee->setValue(settings.value("nTransactionFee").toLongLong());
     ui->checkBoxMinimumFee->setChecked(settings.value("fPayOnlyMinFee").toBool());
     minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
-    ui->anonsendCheckbox->setChecked(settings.value("fAnonSend").toBool());
 
-    checkNavtechServers();
-}
-
-void SendCoinsDialog::anonsendCheckboxClick()
-{
-    QSettings settings;
-
-    settings.setValue("fAnonSend", ui->anonsendCheckbox->isChecked());
-}
-
-void SendCoinsDialog::checkNavtechServers()
-{
-    bool notEnoughServers = vAddedAnonServers.size() < 1 && mapMultiArgs["-addanonserver"].size() < 1;
-
-    ui->noNavtechLabel->setVisible(notEnoughServers);
-    ui->anonsendCheckbox->setVisible(!notEnoughServers);
-    if(notEnoughServers)
-      ui->anonsendCheckbox->setChecked(false);
 }
 
 void SendCoinsDialog::setClientModel(ClientModel *clientModel)
@@ -168,8 +145,8 @@ void SendCoinsDialog::setModel(WalletModel *model)
 
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getStake(), model->getImmatureBalance(),
                    model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(),
-                   model->getColdStakingBalance());
-        connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
+                   model->getColdStakingBalance(), model->getPrivateBalance());
+        connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
         updateDisplayUnit();
 
@@ -222,10 +199,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     QList<SendCoinsRecipient> recipients;
     bool valid = true;
-
-    int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
-
-    unsigned int nTransactions = (rand() % nEntropy) + 2;
+    bool fPrivate = false;
 
     SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
     if(entry)
@@ -233,121 +207,8 @@ void SendCoinsDialog::on_sendButton_clicked()
         if(entry->validate())
         {
             SendCoinsRecipient recipient = entry->getValue();
-            CAmount nAmount = recipient.amount;
-            double nId = rand() % pindexBestHeader->GetMedianTimePast();
-
-            if(ui->anonsendCheckbox->checkState() != 0) {
-                try
-                {
-                    Navtech navtech;
-
-                    UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount / (nTransactions * 2), nTransactions);
-
-                    UniValue pubKey = find_value(navtechData, "public_key");
-
-                    std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
-
-                    if(serverNavAddresses.size() != nTransactions)
-                    {
-                        QMessageBox::warning(this, tr("Private payment"),
-                                         "<qt>" +
-                                         tr("NAVTech server returned a different number of addresses.")+"</qt>");
-                        valid = false;
-                    }
-
-                    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-                    {
-                        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
-                        if (!serverNavAddress.IsValid())
-                        {
-
-                            valid = false;
-                            break;
-                        }
-                    }
-
-                    if(valid)
-                    {
-
-                      CAmount nAmountAlreadyProcessed = 0;
-                      CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
-
-                      for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-                      {
-                          SendCoinsRecipient cRecipient = recipient;
-                          cRecipient.destaddress = QString::fromStdString(serverNavAddresses[i].get_str());
-                          CAmount nAmountRound = 0;
-                          CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
-                          CAmount nAmountToSubstract = ((nAmountNotProcessed / ((rand() % nEntropy)+2))/1000)*1000;
-                          if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
-                          {
-                              nAmountRound = nAmountNotProcessed;
-                              i = serverNavAddresses.size();
-                          }
-                          else
-                          {
-                              nAmountRound = std::max(nAmountToSubstract,nMinAmount);
-                          }
-
-
-                          nAmountAlreadyProcessed += nAmountRound;
-                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+(i==serverNavAddresses.size()?0:1), nId));
-                          if(!find_value(navtechData, "anonfee").isNull()){
-                              cRecipient.anonfee = nAmountRound * ((float)find_value(navtechData, "anonfee").get_real() / 100.0);
-                              cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
-                          }else
-                              valid = false;
-                          cRecipient.isanon = true;
-                          cRecipient.amount = nAmountRound;
-                          recipients.append(cRecipient);
-
-                      }
-
-                    }
-
-                }
-                catch(const std::runtime_error &e)
-                {
-                    QMessageBox msgBox;
-                    msgBox.setText(tr("Something went wrong:"));
-                    msgBox.setInformativeText(tr(e.what()));
-                    QAbstractButton *myYesButton = msgBox.addButton(tr("Do a normal transaction"), QMessageBox::YesRole);
-                    msgBox.addButton(trUtf8("Abort"), QMessageBox::NoRole);
-                    msgBox.setIcon(QMessageBox::Question);
-                    msgBox.exec();
-
-                    if(msgBox.clickedButton() == myYesButton)
-                    {
-                        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Switch to normal transaction"),
-                            tr("Are you sure you want to do a normal transaction instead of a private payment?") + QString("<br><br>") + tr("Details of the payment would be publicly exposed on the blockchain."),
-                            QMessageBox::Yes|QMessageBox::Cancel,
-                            QMessageBox::Cancel);
-
-                        if(retval == QMessageBox::Yes)
-                        {
-                            recipient.isanon = false;
-                            recipients.append(recipient);
-                            valid = true;
-                        }
-                        else
-                        {
-                            valid = false;
-                        }
-                    }
-                    else
-                    {
-                        valid = false;
-                    }
-                }
-            }
-            else
-            {
-
-                recipient.isanon = false;
-                recipients.append(recipient);
-
-            }
-
+            recipients.append(recipient);
+            fPrivate = recipient.isanon;
         }
         else
         {
@@ -373,11 +234,15 @@ void SendCoinsDialog::on_sendButton_clicked()
     // prepare transaction for getting txFee earlier
     WalletModelTransaction currentTransaction(recipients);
 
+    CAmount nTotalAmount = 0;
+
+    CCoinControl* coinControl = fPrivate?CoinControlDialog::zeroCoinControl:CoinControlDialog::coinControl;
+
     WalletModel::SendCoinsReturn prepareStatus;
     if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
-        prepareStatus = model->prepareTransaction(currentTransaction, CoinControlDialog::coinControl);
+        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, coinControl);
     else
-        prepareStatus = model->prepareTransaction(currentTransaction);
+        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount);
 
     // process prepareStatus and on error generate message shown to user
     processSendCoinsReturn(prepareStatus,
@@ -405,17 +270,15 @@ void SendCoinsDialog::on_sendButton_clicked()
 
 
     CAmount txFee = currentTransaction.getTransactionFee();
-    CAmount anonfee;
-    CAmount nTotalAmount = 0;
 
-    QString questionString = tr("Are you sure you want to send?");
+    CAmount nOriginalAmount = 0;
 
     Q_FOREACH(const SendCoinsRecipient &rcp, currentTransaction.getRecipients())
     {
-      nTotalAmount += rcp.amount;
-      if(rcp.fSubtractFeeFromAmount && rcp.isanon)
-        nTotalAmount -= rcp.anonfee;
+        nOriginalAmount += rcp.amount;
     }
+
+    QString questionString = tr("Are you sure you want to send?");
 
     // Format confirmation message
     QStringList formatted;
@@ -429,60 +292,49 @@ void SendCoinsDialog::on_sendButton_clicked()
         address.append("</span>");
 
         QString recipientElement;
-        int nLength = currentTransaction.recipients.length();
 
         if (!rcp.paymentRequest.IsInitialized()) // normal payment
         {
             if(rcp.label.length() > 0) // label with address
             {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "" ) +amount, GUIUtil::HtmlEscape(rcp.label));
+                recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ")  : "" ) +amount, GUIUtil::HtmlEscape(rcp.label));
                 recipientElement.append(QString(" (%1)").arg(address));
             }
             else // just address
             {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ?  " Private payment " : "" ) +amount, address);
+                recipientElement = tr("%1 to %2").arg((rcp.isanon ?  tr(" Private payment ")  : "" ) +amount, address);
             }
         }
         else if(!rcp.authenticatedMerchant.isEmpty()) // authenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "") +amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ")  : "") +amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
         }
         else // unauthenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "") +amount, address);
+            recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ") : "") +amount, address);
         }
 
         formatted.append(recipientElement);
 
         questionString.append("<br /><br />%1");
 
-        anonfee = rcp.isanon && !rcp.fSubtractFeeFromAmount ? rcp.anonfee : 0;
-
-        if(txFee + anonfee > 0)
+        if(txFee > 0)
         {
             // append fee string if a fee is required
             questionString.append("<hr /><span style='color:#aa0000;'>");
-            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee + anonfee));
+            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
             questionString.append("</span> ");
             questionString.append(tr("added as transaction fee"));
-
 
             // append transaction size
             questionString.append(" (" + QString::number((double)currentTransaction.getTransactionSize() / 1000) + " kB)");
 
-            if(rcp.fSubtractFeeFromAmount && anonfee > 0)
-            {
-                questionString.append("<br>" + tr("The following fee will be deducted") + ":");
-                questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), anonfee));
-            }
-
-            if(rcp.isanon){
-                questionString.append("<br>" + tr("Navtech server fee:") +QString(" ")+ QString::number(rcp.transaction_fee) + "% "+ tr(rcp.fSubtractFeeFromAmount ? "" : "(already included)") + "<br>");
-                if(rcp.fSubtractFeeFromAmount)
-                    questionString.append("<span style='color:#aa0000;'>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount * ((rcp.transaction_fee/100))) + "</span> " + tr("will be deducted as Navtech fee.") + "<br>");
-
-            }
-
+        }
+        if(nOriginalAmount != nTotalAmount) {
+            questionString.append("<br><br><span style=\"color:red\">" + tr("WARNING!") + "</span> " +
+                                  tr("You originally asked to send ") +
+                                  NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nOriginalAmount) +
+                                  tr(" but this is not an allowed amount"));
         }
 
     }
@@ -491,7 +343,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // add total amount in all subdivision units
     questionString.append("<hr />");
-    CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee + anonfee;
+    CAmount totalAmount = nTotalAmount + txFee;
     QStringList alternativeUnits;
     Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
     {
@@ -518,7 +370,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // now send the prepared transaction
     if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
-        sendStatus = model->sendCoins(currentTransaction, CoinControlDialog::coinControl);
+        sendStatus = model->sendCoins(currentTransaction, coinControl);
     else
         sendStatus = model->sendCoins(currentTransaction);
 
@@ -528,7 +380,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     if (sendStatus.status == WalletModel::OK)
     {
         accept();
-        CoinControlDialog::coinControl->UnSelectAll();
+        coinControl->UnSelectAll();
         coinControlUpdateLabels();
     }
     fNewRecipientAllowed = true;
@@ -544,17 +396,6 @@ void SendCoinsDialog::clear()
     addEntry();
 
     updateTabsAndLabels();
-}
-
-void SendCoinsDialog::showNavTechDialog()
-{
-    navtechsetup* setupNavTech = new navtechsetup();
-    setupNavTech->setWindowIcon(QIcon(":icons/navcoin"));
-    setupNavTech->setStyleSheet(Skinize());
-
-    setupNavTech->exec();
-
-    checkNavtechServers();
 }
 
 void SendCoinsDialog::reject()
@@ -575,6 +416,9 @@ SendCoinsEntry *SendCoinsDialog::addEntry()
     connect(entry, SIGNAL(removeEntry(SendCoinsEntry*)), this, SLOT(removeEntry(SendCoinsEntry*)));
     connect(entry, SIGNAL(payAmountChanged()), this, SLOT(coinControlUpdateLabels()));
     connect(entry, SIGNAL(subtractFeeFromAmountChanged()), this, SLOT(coinControlUpdateLabels()));
+    connect(entry, SIGNAL(privateOrPublicChanged(bool)), this, SLOT(updatePrivateOrPublic(bool)));
+
+    updatePrivateOrPublic(entry->fPrivate);
 
     // Focus the field, so that entry can start immediately
     entry->clear();
@@ -667,11 +511,12 @@ bool SendCoinsDialog::handlePaymentRequest(const SendCoinsRecipient &rv)
 
 void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance,const CAmount& immatureBalance,
                                  const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance,
-                                 const CAmount& coldStakingBalance)
+                                 const CAmount& coldStakingBalance, const CAmount& privateBalance)
 {
     Q_UNUSED(unconfirmedBalance);
     Q_UNUSED(stakingBalance);
     Q_UNUSED(coldStakingBalance);
+    Q_UNUSED(privateBalance);
     Q_UNUSED(immatureBalance);
     Q_UNUSED(watchBalance);
     Q_UNUSED(watchUnconfirmedBalance);
@@ -683,13 +528,27 @@ void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfir
         if(entry)
         {
             entry->setTotalAmount(balance);
+            entry->setTotalPrivateAmount(privateBalance);
         }
     }
 
     if(model && model->getOptionsModel())
     {
-        ui->labelBalance->setText(NavCoinUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
+        ui->labelTransparentBalance->setText(NavCoinUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
+        ui->labelPrivateBalance->setText(NavCoinUnits::formatWithUnit(0, privateBalance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), privateBalance) + ")") : ""));
     }
+}
+
+void SendCoinsDialog::useFullPrivateAmount()
+{
+  for(int i = 0; i < ui->entries->count(); ++i)
+  {
+      SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+      if(entry)
+      {
+          entry->useFullPrivateAmount();
+      }
+  }
 }
 
 void SendCoinsDialog::useFullAmount()
@@ -706,7 +565,7 @@ void SendCoinsDialog::useFullAmount()
 
 void SendCoinsDialog::updateDisplayUnit()
 {
-    setBalance(model->getBalance(), 0, 0, 0, 0, 0, 0, 0);
+    setBalance(model->getBalance(), 0, 0, 0, 0, 0, 0, 0, model->getPrivateBalance());
     ui->customFee->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
     updateMinFeeLabel();
     updateSmartFeeLabel();
@@ -769,17 +628,9 @@ void SendCoinsDialog::minimizeFeeSection(bool fMinimize)
     //ui->buttonMinimizeFee->setVisible(!fMinimize);
     ui->frameFeeSelection->setVisible(!fMinimize);
     ui->sendButton       ->setVisible(fMinimize);
-    ui->label            ->setVisible(fMinimize);
-    ui->labelBalance     ->setVisible(fMinimize);
-    ui->noNavtechButton  ->setVisible(fMinimize);
+    //ui->label            ->setVisible(fMinimize);
+    //ui->labelBalance     ->setVisible(fMinimize);
     //ui->horizontalLayoutSmartFee->setContentsMargins(0, (fMinimize ? 0 : 6), 0, 0);
-
-    if(fMinimize)
-        checkNavtechServers();
-    else
-        ui->noNavtechLabel  ->setVisible(false);
-        ui->anonsendCheckbox->setVisible(false);
-
 
     fFeeMinimized = fMinimize;
 }
@@ -919,6 +770,17 @@ void SendCoinsDialog::coinControlClipboardChange()
     GUIUtil::setClipboard(ui->labelCoinControlChange->text().left(ui->labelCoinControlChange->text().indexOf(" ")).replace(ASYMP_UTF8, ""));
 }
 
+void SendCoinsDialog::updatePrivateOrPublic(bool fPrivate)
+{
+    ui->lineEditCoinControlChange->setEnabled(!fPrivate);
+    ui->checkBoxCoinControlChange->setEnabled(!fPrivate);
+    this->fPrivate = fPrivate;
+    CoinControlDialog::fPrivate = fPrivate;
+    CCoinControl* coinControl = CoinControlDialog::fPrivate ? CoinControlDialog::zeroCoinControl : CoinControlDialog::coinControl;
+    coinControl->UnSelectAll();
+    coinControlUpdateLabels();
+}
+
 // Coin Control: settings menu - coin control enabled/disabled by user
 void SendCoinsDialog::coinControlFeatureChanged(bool checked)
 {
@@ -933,7 +795,7 @@ void SendCoinsDialog::coinControlFeatureChanged(bool checked)
 // Coin Control: button inputs -> show actual coin control dialog
 void SendCoinsDialog::coinControlButtonClicked()
 {
-    CoinControlDialog dlg(platformStyle);
+    CoinControlDialog dlg(platformStyle, 0);
     dlg.setModel(model);
     dlg.exec();
     coinControlUpdateLabels();
@@ -1049,7 +911,9 @@ void SendCoinsDialog::coinControlUpdateLabels()
         }
     }
 
-    if (CoinControlDialog::coinControl->HasSelected())
+    CCoinControl* coinControl = fPrivate?CoinControlDialog::zeroCoinControl:CoinControlDialog::coinControl;
+
+    if (coinControl->HasSelected())
     {
         // actual coin control calculation
         CoinControlDialog::updateLabels(model, this);

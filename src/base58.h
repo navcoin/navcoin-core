@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,10 +17,12 @@
 
 #include "chainparams.h"
 #include "key.h"
+#include "libzerocoin/Keys.h"
 #include "pubkey.h"
 #include "script/script.h"
 #include "script/standard.h"
 #include "support/allocators/zeroafterfree.h"
+#include "streams.h"
 
 #include <string>
 #include <vector>
@@ -108,6 +111,7 @@ class CNavCoinAddress : public CBase58Data {
 public:
     bool Set(const CKeyID &id);
     bool Set(const CKeyID &id, const CKeyID &id2);
+    bool Set(const libzerocoin::CPrivateAddress &id);
     bool Set(const CScriptID &id);
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
@@ -117,6 +121,7 @@ public:
     CNavCoinAddress() {}
     CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
     CNavCoinAddress(const CKeyID &id, const CKeyID &id2) { Set(id, id2); }
+    CNavCoinAddress(const libzerocoin::CPrivateAddress &id) { Set(id); }
     CNavCoinAddress(const std::string& strAddress) { SetString(strAddress); }
     CNavCoinAddress(const char* pszAddress) { SetString(pszAddress); }
 
@@ -127,8 +132,13 @@ public:
     bool GetIndexKey(uint160& hashBytes, int& type) const;
     bool IsScript() const;
 
+    bool IsPrivateAddress(const CChainParams& params) const;
+
     bool GetStakingAddress(CNavCoinAddress &address) const;
     bool GetSpendingAddress(CNavCoinAddress &address) const;
+
+    bool GetBlindingCommitment(libzerocoin::BlindingCommitment &bc) const;
+    bool GetZeroPubKey(CPubKey &zerokey) const;
 
 };
 

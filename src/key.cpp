@@ -4,13 +4,13 @@
 
 #include <key.h>
 
-#include <arith_uint256.h>
 #include <crypto/common.h>
 #include <crypto/hmac_sha512.h>
 #include <pubkey.h>
 #include <random.h>
 
 #include <secp256k1.h>
+#include <secp256k1_ecdh.h>
 #include <secp256k1_recovery.h>
 
 static secp256k1_context* secp256k1_context_sign = nullptr;
@@ -129,6 +129,18 @@ void CKey::MakeNewKey(bool fCompressedIn) {
     } while (!Check(keydata.data()));
     fValid = true;
     fCompressed = fCompressedIn;
+}
+
+bool CKey::ECDHSecret(CPubKey pubKey, CPrivKey& secret) const {
+    secp256k1_pubkey pk;
+    if (!secp256k1_ec_pubkey_parse(secp256k1_context_sign, &pk, pubKey.begin(), pubKey.size())) {
+        return false;
+    }
+    secret.resize(32);
+    if(!secp256k1_ecdh(secp256k1_context_sign, &secret[0], &pk, keydata.data())) {
+        return false;
+    }
+    return true;
 }
 
 CPrivKey CKey::GetPrivKey() const {

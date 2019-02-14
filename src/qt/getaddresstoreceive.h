@@ -21,6 +21,7 @@ public Q_SLOTS:
     void getNewAddress();
     void getColdStakingAddress();
     void showQR();
+    void showPrivateAddress();
 
 private:
     Ui::getAddressToReceive *ui;

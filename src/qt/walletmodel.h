@@ -53,10 +53,7 @@ public:
     CAmount amount;
     // If from a payment request, this is used for storing the memo
     QString message;
-    QString anondestination;
-    QString destaddress;
     CScript scriptPubKey;
-    CAmount anonfee;
     double transaction_fee;
     bool isanon;
 
@@ -142,6 +139,7 @@ public:
     CAmount getUnconfirmedBalance() const;
     CAmount getImmatureBalance() const;
     CAmount getColdStakingBalance() const;
+    CAmount getPrivateBalance() const;
     bool haveWatchOnly() const;
     CAmount getStake() const;
     CAmount getWatchBalance() const;
@@ -161,7 +159,7 @@ public:
     };
 
     // prepare transaction for getting txfee before sending coins
-    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, const CCoinControl *coinControl = NULL);
+    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, CAmount& total, const CCoinControl *coinControl = NULL);
 
     // Send coins to a list of recipients
     SendCoinsReturn sendCoins(WalletModelTransaction &transaction, const CCoinControl *coinControl = NULL);
@@ -201,6 +199,7 @@ public:
     void getOutputs(const std::vector<COutPoint>& vOutpoints, std::vector<COutput>& vOutputs);
     bool isSpent(const COutPoint& outpoint) const;
     void listCoins(std::map<QString, std::vector<COutput> >& mapCoins) const;
+    void listZeroCoins(std::map<QString, std::vector<COutput> >& mapCoins) const;
 
     bool isLockedCoin(uint256 hash, unsigned int n) const;
     void lockCoin(COutPoint& output);
@@ -212,6 +211,7 @@ public:
 
     bool transactionCanBeAbandoned(uint256 hash) const;
     bool abandonTransaction(uint256 hash) const;
+    void checkBalanceChanged();
 
 private:
     CWallet *wallet;
@@ -235,6 +235,7 @@ private:
     CAmount cachedWatchImmatureBalance;
     CAmount cachedStakingBalance;
     CAmount cachedColdStakingBalance;
+    CAmount cachedPrivateBalance;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
 
@@ -242,12 +243,12 @@ private:
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    void checkBalanceChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed
     void balanceChanged(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance);
+                        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance,
+                        const CAmount& privateBalance);
 
     // Encryption status of wallet changed
     void encryptionStatusChanged(int status);

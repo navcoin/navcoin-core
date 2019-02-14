@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "script.h"
-
+#include "streams.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 
@@ -149,6 +149,10 @@ const char* GetOpName(opcodetype opcode)
 
     case OP_COINSTAKE              : return "OP_COINSTAKE";
 
+    // zerocoin
+    case OP_ZEROCOINMINT           : return "OP_ZEROCOINMINT";
+    case OP_ZEROCOINSPEND          : return "OP_ZEROCOINSPEND";
+
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
     // Note:
@@ -248,6 +252,21 @@ bool CScript::IsPayToPublicKey() const
       (*this)[34] == OP_CHECKSIG);
 }
 
+bool CScript::IsZerocoinMint() const
+{
+    //fast test for Zerocoin Mint CScripts
+    return (this->size() > 0 &&
+        (*this)[0] == OP_ZEROCOINMINT);
+}
+
+bool CScript::IsZerocoinSpend() const
+{
+    if (this->empty())
+        return false;
+
+    return ((*this)[0] == OP_ZEROCOINSPEND);
+}
+
 bool CScript::IsCommunityFundContribution() const
 {
     return (this->size() == 2 &&
@@ -317,6 +336,21 @@ bool CScript::ExtractVote(uint256 &hash, bool &vote) const
 
     return true;
 }
+
+bool CScript::ExtractZerocoinMintData(CPubKey &zkey, std::vector<unsigned char> &commitment, std::vector<unsigned char> &paymentid) const
+{
+    if(!IsZerocoinMint())
+        return false;
+    CPubKey key;
+    key.Set(this->begin()+2, this->begin()+2+(*this)[1]);
+    if(!key.IsValid())
+        return false;
+    zkey = key;
+    commitment = std::vector<unsigned char>(this->begin()+4+(*this)[1],this->begin()+4+(*this)[1]+(*this)[3+(*this)[1]]);
+    paymentid = std::vector<unsigned char>(this->begin()+5+(*this)[1]+(*this)[3+(*this)[1]],this->end());
+    return true;
+}
+
 
 bool CScript::IsPayToScriptHash() const
 {

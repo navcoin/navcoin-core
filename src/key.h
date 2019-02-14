@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2016 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -91,6 +92,9 @@ public:
 
     //! Generate a new private key using a cryptographic PRNG.
     void MakeNewKey(bool fCompressed);
+
+    //! Calculate an EC DH-shared secret
+    bool ECDHSecret(CPubKey pubKey, CPrivKey& secret) const;
 
     /**
      * Convert the private key to a CPrivKey (serialized OpenSSL private key data).

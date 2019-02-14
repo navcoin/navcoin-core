@@ -32,6 +32,10 @@ static const char DB_BEST_BLOCK = 'B';
 static const char DB_FLAG = 'F';
 static const char DB_REINDEX_FLAG = 'R';
 static const char DB_LAST_BLOCK = 'l';
+static const char DB_ZEROCOIN_BLOCK = 'y';
+static const char DB_ZEROCOIN_MINTINDEX = 'M';
+static const char DB_ZEROCOIN_SPENDINDEX = 'S';
+static const char DB_ZEROCOIN_ACCUMULATOR = 'K';
 
 CCoinsViewDB::CCoinsViewDB(size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / "chainstate", nCacheSize, fMemory, fWipe, true, false, 64)
 {
@@ -96,6 +100,132 @@ bool CBlockTreeDB::ReadReindexing(bool &fReindexing) {
 
 bool CBlockTreeDB::ReadLastBlockFile(int &nFile) {
     return Read(DB_LAST_BLOCK, nFile);
+}
+
+bool CBlockTreeDB::ReadFirstZerocoinBlock(std::pair<int, uint256> &firstZero) {
+    return Read(DB_ZEROCOIN_BLOCK, firstZero);
+}
+
+bool CBlockTreeDB::WriteFirstZerocoinBlock(std::pair<int, uint256> firstZero) {
+    return Write(DB_ZEROCOIN_BLOCK, firstZero);
+}
+
+bool CBlockTreeDB::ReadCoinMint(uint256 coinValueHash, PublicMintChainData &zeroMint) {
+    return Read(make_pair(DB_ZEROCOIN_MINTINDEX, coinValueHash), zeroMint);
+}
+
+bool CBlockTreeDB::ReadCoinMint(CBigNum coinValue, PublicMintChainData &zeroMint) {
+    CDataStream ss(SER_GETHASH, 0);
+    ss << coinValue;
+    uint256 hash = Hash(ss.begin(), ss.end());
+
+    return Read(make_pair(DB_ZEROCOIN_MINTINDEX, hash), zeroMint);
+}
+
+bool CBlockTreeDB::WriteCoinMint(uint256 coinValueHash, PublicMintChainData zeroMint) {
+    return Write(make_pair(DB_ZEROCOIN_MINTINDEX, coinValueHash), zeroMint);
+}
+
+bool CBlockTreeDB::WriteCoinMint(CBigNum coinValue, PublicMintChainData zeroMint) {
+    CDataStream ss(SER_GETHASH, 0);
+    ss << coinValue;
+    uint256 hash = Hash(ss.begin(), ss.end());
+
+    return Write(make_pair(DB_ZEROCOIN_MINTINDEX, hash), zeroMint);
+}
+
+bool CBlockTreeDB::UpdateCoinMintIndex(const std::vector<std::pair<CBigNum, PublicMintChainData> >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<CBigNum, PublicMintChainData> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+        CDataStream ss(SER_GETHASH, 0);
+        ss << it->first;
+        uint256 hash = Hash(ss.begin(), ss.end());
+        if (it->second.IsNull()) {
+            batch.Erase(make_pair(DB_ZEROCOIN_MINTINDEX, hash));
+        } else {
+            batch.Write(make_pair(DB_ZEROCOIN_MINTINDEX, hash), it->second);
+        }
+    }
+    return WriteBatch(batch, true);
+}
+
+bool CBlockTreeDB::EraseCoinMint(uint256 coinValueHash) {
+    return Erase(make_pair(DB_ZEROCOIN_MINTINDEX, coinValueHash));
+}
+
+bool CBlockTreeDB::EraseCoinMint(CBigNum coinValue) {
+    CDataStream ss(SER_GETHASH, 0);
+    ss << coinValue;
+    uint256 hash = Hash(ss.begin(), ss.end());
+
+    return Erase(make_pair(DB_ZEROCOIN_MINTINDEX, hash));
+}
+
+bool CBlockTreeDB::ReadCoinSpend(CBigNum coinSerial, uint256 &txHash) {
+    CDataStream ss(SER_GETHASH, 0);
+    ss << coinSerial;
+    uint256 hash = Hash(ss.begin(), ss.end());
+
+    return Read(make_pair(DB_ZEROCOIN_SPENDINDEX, hash), txHash);
+}
+
+bool CBlockTreeDB::WriteCoinSpend(CBigNum coinSerial, uint256 txHash) {
+    CDataStream ss(SER_GETHASH, 0);
+    ss << coinSerial;
+    uint256 hash = Hash(ss.begin(), ss.end());
+
+    return Write(make_pair(DB_ZEROCOIN_SPENDINDEX, hash), txHash);
+}
+
+bool CBlockTreeDB::ReadCoinSpend(uint256 coinSerialHash, uint256 &txHash) {
+    return Read(make_pair(DB_ZEROCOIN_SPENDINDEX, coinSerialHash), txHash);
+}
+
+bool CBlockTreeDB::WriteCoinSpend(uint256 coinSerialHash, uint256 txHash) {
+    return Write(make_pair(DB_ZEROCOIN_SPENDINDEX, coinSerialHash), txHash);
+}
+
+bool CBlockTreeDB::UpdateCoinSpendIndex(const std::vector<std::pair<CBigNum, uint256> >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<CBigNum, uint256> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+        CDataStream ss(SER_GETHASH, 0);
+        ss << it->first;
+        uint256 hash = Hash(ss.begin(), ss.end());
+        if (it->second.IsNull()) {
+            batch.Erase(make_pair(DB_ZEROCOIN_SPENDINDEX, hash));
+        } else {
+            batch.Write(make_pair(DB_ZEROCOIN_SPENDINDEX, hash), it->second);
+        }
+    }
+    return WriteBatch(batch, true);
+}
+
+bool CBlockTreeDB::EraseCoinSpend(uint256 coinSerialHash) {
+    return Erase(make_pair(DB_ZEROCOIN_SPENDINDEX, coinSerialHash));
+}
+
+bool CBlockTreeDB::EraseCoinSpend(CBigNum coinSerial) {
+    CDataStream ss(SER_GETHASH, 0);
+    ss << coinSerial;
+    uint256 hash = Hash(ss.begin(), ss.end());
+
+    return Erase(make_pair(DB_ZEROCOIN_SPENDINDEX, hash));
+}
+
+bool CBlockTreeDB::ReadZerocoinAccumulator(uint256 accumulatorChecksum, std::pair<std::map<int, uint256>,std::vector<std::pair<libzerocoin::CoinDenomination,CBigNum>>> &accumulatorMap)
+{
+    return Read(make_pair(DB_ZEROCOIN_ACCUMULATOR, accumulatorChecksum), accumulatorMap);
+}
+
+bool CBlockTreeDB::WriteZerocoinAccumulator(uint256 accumulatorChecksum, std::pair<std::map<int, uint256>,std::vector<std::pair<libzerocoin::CoinDenomination,CBigNum>>> accumulatorMap)
+{
+    return Write(make_pair(DB_ZEROCOIN_ACCUMULATOR, accumulatorChecksum), accumulatorMap);
+}
+
+bool CBlockTreeDB::EraseZerocoinAccumulator(uint256 accumulatorChecksum)
+{
+    return Erase(make_pair(DB_ZEROCOIN_ACCUMULATOR, accumulatorChecksum));
+
 }
 
 CCoinsViewCursor *CCoinsViewDB::Cursor() const
@@ -463,6 +593,17 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
                 pindexNew->nStakeTime     = diskindex.nStakeTime;
                 pindexNew->hashProof      = diskindex.hashProof;
+                pindexNew->nMoneySupply   = diskindex.nMoneySupply;
+
+                //zerocoin
+                pindexNew->nAccumulatorChecksum
+                                          = diskindex.nAccumulatorChecksum;
+                pindexNew->mapZerocoinSupply
+                                          = diskindex.mapZerocoinSupply;
+                pindexNew->nAccumulatedPrivateFee
+                                          = diskindex.nAccumulatedPrivateFee;
+                pindexNew->nAccumulatedPublicFee
+                                          = diskindex.nAccumulatedPublicFee;
 
                 pcursor->Next();
             } else {

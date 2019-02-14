@@ -216,7 +216,7 @@ void ClientModel::updateBanlist()
 static void ShowProgress(ClientModel *clientmodel, const std::string &title, int nProgress)
 {
     // emits signal "showProgress"
-    QMetaObject::invokeMethod(clientmodel, "showProgress", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(clientmodel, "showProgress", Qt::DirectConnection,
                               Q_ARG(QString, QString::fromStdString(title)),
                               Q_ARG(int, nProgress));
 }

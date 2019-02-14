@@ -47,9 +47,14 @@ public:
     void setFocus();
 
     void setTotalAmount(const CAmount& amount);
+    void setTotalPrivateAmount(const CAmount& amount);
     void useFullAmount();
+    void useFullPrivateAmount();
 
     CAmount totalAmount;
+    CAmount totalPrivateAmount;
+
+    bool fPrivate;
 
 public Q_SLOTS:
     void clear();
@@ -58,6 +63,7 @@ Q_SIGNALS:
     void removeEntry(SendCoinsEntry *entry);
     void payAmountChanged();
     void subtractFeeFromAmountChanged();
+    void privateOrPublicChanged(bool fPrivate);
 
 private Q_SLOTS:
     void deleteClicked();
@@ -65,6 +71,8 @@ private Q_SLOTS:
     void on_addressBookButton_clicked();
     void updateDisplayUnit();
     void updateAddressBook();
+    void sendPrivateChanged();
+    void sendPublicChanged();
 
 private:
     SendCoinsRecipient recipient;

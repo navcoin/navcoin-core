@@ -1,11 +1,13 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "base58.h"
 #include "clientversion.h"
 #include "init.h"
+#include "libzerocoin/Coin.h"
 #include "main.h"
 #include "net.h"
 #include "netbase.h"
@@ -87,8 +89,11 @@ UniValue getinfo(const UniValue& params, bool fHelp)
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
         obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
-        obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
+        obj.push_back(Pair("public_balance",       ValueFromAmount(pwalletMain->GetBalance())));
+        obj.push_back(Pair("private_balance", ValueFromAmount(pwalletMain->GetPrivateBalance())));
         obj.push_back(Pair("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance())));
+        obj.push_back(Pair("immature_balance", ValueFromAmount(pwalletMain->GetImmatureBalance())));
+        obj.push_back(Pair("unconfirmed_balance", ValueFromAmount(pwalletMain->GetUnconfirmedBalance())));
         obj.push_back(Pair("newmint",       ValueFromAmount(pwalletMain->GetNewMint())));
         obj.push_back(Pair("stake",         ValueFromAmount(pwalletMain->GetStake())));
     }
@@ -98,8 +103,20 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     UniValue cf(UniValue::VOBJ);
     cf.push_back(Pair("available",      ValueFromAmount(chainActive.Tip()->nCFSupply)));
     cf.push_back(Pair("locked",         ValueFromAmount(chainActive.Tip()->nCFLocked)));
-
     obj.push_back(Pair("communityfund", cf));
+    obj.push_back(Pair("publicmoneysupply", ValueFromAmount(chainActive.Tip()->nMoneySupply)));
+    UniValue privateMoneySupply(UniValue::VOBJ);
+    CAmount totalMoneySupply = 0;
+    for (auto const& it : chainActive.Tip()->mapZerocoinSupply)
+    {
+        privateMoneySupply.push_back(Pair(to_string(libzerocoin::ZerocoinDenominationToInt(it.first)), it.second));
+        totalMoneySupply += libzerocoin::ZerocoinDenominationToInt(it.first) * it.second;
+    }
+    totalMoneySupply *= COIN;
+    privateMoneySupply.push_back(Pair("total", ValueFromAmount(totalMoneySupply)));
+    obj.push_back(Pair("privatemoneysupply", privateMoneySupply));
+    totalMoneySupply += chainActive.Tip()->nMoneySupply;
+    obj.push_back(Pair("totalmoneysupply", ValueFromAmount(totalMoneySupply)));
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
     obj.push_back(Pair("ntptimeoffset", GetNtpTimeOffset()));
     obj.push_back(Pair("connections",   (int)vNodes.size()));
@@ -125,11 +142,20 @@ class DescribeAddressVisitor : public boost::static_visitor<UniValue>
 public:
     UniValue operator()(const CNoDestination &dest) const { return UniValue(UniValue::VOBJ); }
 
+    UniValue operator()(const libzerocoin::CPrivateAddress &dest) const {
+        UniValue obj(UniValue::VOBJ);
+        obj.push_back(Pair("isscript", false));
+        obj.push_back(Pair("iscoldstaking", false));
+        obj.push_back(Pair("isprivatedestination", true));
+        return obj;
+    }
+
     UniValue operator()(const CKeyID &keyID) const {
         UniValue obj(UniValue::VOBJ);
         CPubKey vchPubKey;
         obj.push_back(Pair("isscript", false));
         obj.push_back(Pair("iscoldstaking", false));
+        obj.push_back(Pair("isprivatedestination", false));
         if (pwalletMain && pwalletMain->GetPubKey(keyID, vchPubKey)) {
             obj.push_back(Pair("pubkey", HexStr(vchPubKey)));
             obj.push_back(Pair("iscompressed", vchPubKey.IsCompressed()));
@@ -142,6 +168,7 @@ public:
         CPubKey vchPubKey;
         obj.push_back(Pair("isscript", false));
         obj.push_back(Pair("iscoldstaking", true));
+        obj.push_back(Pair("isprivatedestination", false));
         if (pwalletMain && pwalletMain->GetPubKey(keyID.first, vchPubKey)) {
             obj.push_back(Pair("stakingpubkey", HexStr(vchPubKey)));
         }
@@ -156,6 +183,7 @@ public:
         CScript subscript;
         obj.push_back(Pair("isscript", true));
         obj.push_back(Pair("iscoldstaking", false));
+        obj.push_back(Pair("isprivatedestination", false));
         if (pwalletMain && pwalletMain->GetCScript(scriptID, subscript)) {
             std::vector<CTxDestination> addresses;
             txnouttype whichType;
@@ -258,19 +286,28 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             ret.push_back(Pair("stakingaddress", stakingAddress.ToString()));
             ret.push_back(Pair("spendingaddress", spendingAddress.ToString()));
         }
-        ret.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
-        ret.push_back(Pair("isstakable", (mine & ISMINE_STAKABLE || (mine & ISMINE_SPENDABLE &&
-                     !address.IsColdStakingAddress(Params()))) ? true : false));
-        ret.push_back(Pair("iswatchonly", (mine & ISMINE_WATCH_ONLY) ? true: false));
-        UniValue detail = boost::apply_visitor(DescribeAddressVisitor(), dest);
-        ret.pushKVs(detail);
-        if (pwalletMain && pwalletMain->mapAddressBook.count(dest))
-            ret.push_back(Pair("account", pwalletMain->mapAddressBook[dest].name));
-        CKeyID keyID;
-        if (pwalletMain && address.GetKeyID(keyID) && pwalletMain->mapKeyMetadata.count(keyID) && !pwalletMain->mapKeyMetadata[keyID].hdKeypath.empty())
-        {
-            ret.push_back(Pair("hdkeypath", pwalletMain->mapKeyMetadata[keyID].hdKeypath));
-            ret.push_back(Pair("hdmasterkeyid", pwalletMain->mapKeyMetadata[keyID].hdMasterKeyID.GetHex()));
+        if (address.IsPrivateAddress(Params())) {
+            ret.push_back(Pair("isprivateaddress", true));
+            CKey zk; libzerocoin::BlindingCommitment bc;
+            pwalletMain->GetBlindingCommitment(bc);
+            pwalletMain->GetZeroKey(zk);
+            libzerocoin::CPrivateAddress pa(&Params().GetConsensus().Zerocoin_Params,bc,zk);
+            ret.push_back(Pair("ismine", CNavCoinAddress(pa) == address ? true :false));
+        } else {
+            ret.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
+            ret.push_back(Pair("isstakable", (mine & ISMINE_STAKABLE || (mine & ISMINE_SPENDABLE &&
+                                                                         !address.IsColdStakingAddress(Params()))) ? true : false));
+            ret.push_back(Pair("iswatchonly", (mine & ISMINE_WATCH_ONLY) ? true: false));
+            UniValue detail = boost::apply_visitor(DescribeAddressVisitor(), dest);
+            ret.pushKVs(detail);
+            if (pwalletMain && pwalletMain->mapAddressBook.count(dest))
+                ret.push_back(Pair("account", pwalletMain->mapAddressBook[dest].name));
+            CKeyID keyID;
+            if (pwalletMain && address.GetKeyID(keyID) && pwalletMain->mapKeyMetadata.count(keyID) && !pwalletMain->mapKeyMetadata[keyID].hdKeypath.empty())
+            {
+                ret.push_back(Pair("hdkeypath", pwalletMain->mapKeyMetadata[keyID].hdKeypath));
+                ret.push_back(Pair("hdmasterkeyid", pwalletMain->mapKeyMetadata[keyID].hdMasterKeyID.GetHex()));
+            }
         }
 #endif
     }

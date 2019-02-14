@@ -26,6 +26,7 @@ LIBNAVCOIN_CONSENSUS=libnavcoin_consensus.a
 LIBNAVCOIN_CLI=libnavcoin_cli.a
 LIBNAVCOIN_UTIL=libnavcoin_util.a
 LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
+LIBNAVCOIN_ZEROCOIN=libzerocoin/libnavcoin_zerocoin.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
@@ -52,6 +53,7 @@ EXTRA_LIBRARIES += \
   $(LIBNAVCOIN_SERVER) \
   $(LIBNAVCOIN_CLI) \
   $(LIBNAVCOIN_WALLET) \
+  $(LIBNAVCOIN_ZEROCOIN) \
   $(LIBNAVCOIN_ZMQ)
 
 lib_LTLIBRARIES = $(LIBNAVCOINCONSENSUS)
@@ -152,10 +154,16 @@ NAVCOIN_CORE_H = \
   versionbits.h \
   wallet/crypter.h \
   wallet/db.h \
-  wallet/navtech.h \
   wallet/rpcwallet.h \
   wallet/wallet.h \
   wallet/walletdb.h \
+  wallet/zeropos.h \
+  zeroaccumulators.h \
+  zerochain.h \
+  zeromint.h \
+  zerotx.h \
+  zerowallet.h \
+  zerowitnesser.h \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
@@ -211,6 +219,11 @@ libnavcoin_server_a_SOURCES = \
   utils/dns_utils.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  zeroaccumulators.cpp \
+  zerochain.cpp \
+  zerotx.cpp \
+  zerowallet.cpp \
+  zerowitnesser.cpp \
   $(NAVCOIN_CORE_H)
 
 if ENABLE_ZMQ
@@ -231,12 +244,16 @@ libnavcoin_wallet_a_SOURCES = \
   consensus/cfund.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
-  wallet/navtech.cpp \
   wallet/rpcdump.cpp \
   wallet/rpcwallet.cpp \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
+  wallet/zeropos.cpp \
   policy/rbf.cpp \
+  zeroaccumulators.cpp \
+  zerochain.cpp \
+  zerotx.cpp \
+  zerowallet.cpp \
   $(NAVCOIN_CORE_H)
 
 # crypto primitives library
@@ -264,8 +281,6 @@ libnavcoin_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_consensus_a_SOURCES = \
   amount.h \
-  arith_uint256.cpp \
-  arith_uint256.h \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
@@ -320,6 +335,7 @@ libnavcoin_consensus_a_SOURCES = \
   tinyformat.h \
   uint256.cpp \
   uint256.h \
+  uint512.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
   version.h
@@ -342,6 +358,7 @@ libnavcoin_common_a_SOURCES = \
   scheduler.cpp \
   script/sign.cpp \
   script/standard.cpp \
+  zerotx.cpp \
   $(NAVCOIN_CORE_H)
 
 # util: shared between all executables.
@@ -365,6 +382,56 @@ libnavcoin_util_a_SOURCES = \
   utilstrencodings.cpp \
   utiltime.cpp \
   $(NAVCOIN_CORE_H)
+
+# libzerocoin library
+libzerocoin_libnavcoin_zerocoin_a_SOURCES = \
+  libzerocoin/Accumulator.h \
+  libzerocoin/AccumulatorProofOfKnowledge.h \
+  libzerocoin/ArithmeticCircuit.h \
+  libzerocoin/bignum.h \
+  libzerocoin/bignum.cpp \
+  libzerocoin/Bulletproofs.h \
+  libzerocoin/Coin.h \
+  libzerocoin/CoinSpend.h \
+  libzerocoin/Commitment.h \
+  libzerocoin/Denominations.h \
+  libzerocoin/Keys.h \
+  libzerocoin/ParamGeneration.h \
+  libzerocoin/Params.h \
+  libzerocoin/PolynomialCommitment.h \
+  libzerocoin/SerialNumberSignatureOfKnowledge.h \
+  libzerocoin/SerialNumberSoK_small.h \
+  libzerocoin/SerialNumberProofOfKnowledge.h \
+  libzerocoin/SpendType.h \
+  libzerocoin/ZerocoinDefines.h \
+  libzerocoin/zkplib.h \
+  libzerocoin/Accumulator.cpp \
+  libzerocoin/AccumulatorProofOfKnowledge.cpp \
+  libzerocoin/ArithmeticCircuit.cpp \
+  libzerocoin/Bulletproofs.cpp \
+  libzerocoin/Coin.cpp \
+  libzerocoin/CoinSpend.cpp \
+  libzerocoin/Commitment.cpp \
+  libzerocoin/Denominations.cpp \
+  libzerocoin/Keys.cpp \
+  libzerocoin/ParamGeneration.cpp \
+  libzerocoin/Params.cpp \
+  libzerocoin/PolynomialCommitment.cpp \
+  libzerocoin/SerialNumberSignatureOfKnowledge.cpp \
+  libzerocoin/SerialNumberSoK_small.cpp \
+  libzerocoin/SerialNumberProofOfKnowledge.cpp
+
+if USE_NUM_GMP
+libzerocoin_libnavcoin_zerocoin_a_SOURCES += libzerocoin/bignum_gmp.cpp
+endif
+if USE_NUM_OPENSSL
+libzerocoin_libnavcoin_zerocoin_a_SOURCES += libzerocoin/bignum_openssl.cpp
+endif
+
+libzerocoin_libnavcoin_zerocoin_a_LIBADD = $(LIBSECP256K1)
+libzerocoin_libnavcoin_zerocoin_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/secp256k1/include $(SSL_CFLAGS)
+libzerocoin_libnavcoin_zerocoin_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libzerocoin_libnavcoin_zerocoin_a_CFLAGS = $(AM_CFLAGS)
 
 if GLIBC_BACK_COMPAT
 libnavcoin_util_a_SOURCES += compat/glibc_compat.cpp
@@ -399,6 +466,7 @@ navcoind_LDADD = \
   $(LIBNAVCOIN_ZMQ) \
   $(LIBNAVCOIN_CONSENSUS) \
   $(LIBNAVCOIN_CRYPTO) \
+  $(LIBNAVCOIN_ZEROCOIN) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
@@ -440,6 +508,7 @@ navcoin_tx_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CONSENSUS) \
   $(LIBNAVCOIN_CRYPTO) \
+  $(LIBNAVCOIN_ZEROCOIN) \
   $(LIBSECP256K1)
 
 navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
@@ -454,7 +523,7 @@ if GLIBC_BACK_COMPAT
   libnavcoinconsensus_la_SOURCES += compat/glibc_compat.cpp
 endif
 
-libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
+libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS)
 libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1)
 libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)

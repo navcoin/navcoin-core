@@ -5,14 +5,13 @@
 
 #include "pow.h"
 
-#include "arith_uint256.h"
 #include "chain.h"
 #include "primitives/block.h"
 #include "uint256.h"
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
-    unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
+    unsigned int nProofOfWorkLimit = params.powLimit.GetCompact();
 
     // Genesis block
     if (pindexLast == NULL)
@@ -62,8 +61,8 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         nActualTimespan = params.nPowTargetTimespan*4;
 
     // Retarget
-    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
-    arith_uint256 bnNew;
+    const uint256 bnPowLimit = params.powLimit;
+    uint256 bnNew;
     bnNew.SetCompact(pindexLast->nBits);
     bnNew *= nActualTimespan;
     bnNew /= params.nPowTargetTimespan;
@@ -79,16 +78,16 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
     return true;
     bool fNegative;
     bool fOverflow;
-    arith_uint256 bnTarget;
+    uint256 bnTarget;
 
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
     // Check range
-    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit))
+    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > params.powLimit)
         return false;
 
     // Check proof of work matches claimed amount
-    if (UintToArith256(hash) > bnTarget)
+    if (hash > bnTarget)
         return false;
 
     return true;

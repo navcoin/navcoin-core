@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -146,6 +147,56 @@ bool CWalletDB::WriteOrderPosNext(int64_t nOrderPosNext)
 {
     nWalletDBUpdated++;
     return Write(std::string("orderposnext"), nOrderPosNext);
+}
+
+bool CWalletDB::WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const libzerocoin::ObfuscationValue& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("obfuscationj"), obfuscationJ) &&
+           Write(std::string("obfuscationk"), obfuscationK) &&
+           Write(std::string("blindingcommitment"), blindingCommitment) &&
+           Write(std::string("zerokey"), std::vector<unsigned char>(zerokey.begin(), zerokey.end()));
+}
+
+bool CWalletDB::WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey)
+{
+    nWalletDBUpdated++;
+    return Write(std::string("obfuscationj"), obfuscationJ) &&
+           Write(std::string("cobfuscationk"), obfuscationK) &&
+           Erase(std::string("obfuscationk")) &&
+           Write(std::string("blindingcommitment"), blindingCommitment) &&
+           Write(std::string("zerokey"), std::vector<unsigned char>(zerokey.begin(), zerokey.end()));
+}
+
+bool CWalletDB::WriteZerocoinValues(const CWallet* pwallet)
+{
+    std::pair<std::vector<unsigned char>,std::vector<unsigned char>> vchCOk;
+    libzerocoin::ObfuscationValue oj; libzerocoin::ObfuscationValue ok; libzerocoin::BlindingCommitment bc; CKey zk;
+
+    if (!pwallet->GetObfuscationJ(oj))
+        return false;
+
+    if (!pwallet->GetCryptedObfuscationK(vchCOk))
+        if (!pwallet->GetObfuscationK(ok))
+            return false;
+
+    if (!pwallet->GetZeroKey(zk))
+        return false;
+
+    if (!pwallet->GetBlindingCommitment(bc))
+        return false;
+
+    if (vchCOk.first.empty() || vchCOk.second.empty()) {
+        if (!WriteZerocoinValues(oj, ok, bc, zk))
+            return false;
+    } else if (!WriteZerocoinValues(oj, vchCOk, bc, zk))
+        return false;
+
+    ok.first.Nullify();
+    ok.second.Nullify();
+
+    return true;
+
 }
 
 bool CWalletDB::WriteDefaultKey(const CPubKey& vchPubKey)
@@ -348,7 +399,7 @@ public:
 
 bool
 ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
-             CWalletScanState &wss, string& strType, string& strErr)
+             CWalletScanState &wss, string& strType, string& strErr, CWalletTx& pwtx)
 {
     try {
         // Unserialize
@@ -366,6 +417,28 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             string strAddress;
             ssKey >> strAddress;
             ssValue >> pwallet->mapAddressBook[CNavCoinAddress(strAddress).Get()].purpose;
+        }
+        else if (strType == "serial")
+        {
+            CBigNum bnSerial;
+            COutPoint out;
+            ssKey >> bnSerial;
+            ssValue >> out;
+            pwallet->mapSerial[bnSerial] = out;
+        }
+        else if (strType == "witness")
+        {
+            CBigNum bnCoinValue;
+            PublicMintWitnessData witness(&Params().GetConsensus().Zerocoin_Params, ssValue);
+            ssKey >> bnCoinValue;
+
+            std::pair<std::map<CBigNum, PublicMintWitnessData>::iterator, bool> ret = pwallet->mapWitness.insert(std::make_pair(bnCoinValue, witness));
+
+            if (!ret.second) {
+                pwallet->mapWitness.erase(bnCoinValue);
+                ret = pwallet->mapWitness.insert(std::make_pair(bnCoinValue, witness));
+                assert(ret.second);
+            }
         }
         else if (strType == "tx")
         {
@@ -400,7 +473,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             if (wtx.nOrderPos == -1)
                 wss.fAnyUnordered = true;
 
-            pwallet->AddToWallet(wtx, true, NULL);
+            pwtx = wtx;
         }
         else if (strType == "acentry")
         {
@@ -550,6 +623,38 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         {
             ssValue >> pwallet->vchDefaultKey;
         }
+        else if (strType == "obfuscationj")
+        {
+            libzerocoin::ObfuscationValue oj;
+            ssValue >> oj;
+            pwallet->SetObfuscationJ(oj);
+        }
+        else if (strType == "obfuscationk")
+        {
+            libzerocoin::ObfuscationValue ok;
+            ssValue >> ok;
+            pwallet->SetObfuscationK(ok);
+        }
+        else if (strType == "cobfuscationk")
+        {
+            std::pair<std::vector<unsigned char>,std::vector<unsigned char>>  ok;
+            ssValue >> ok;
+            pwallet->SetCryptedObfuscationK(ok);
+        }
+        else if (strType == "blindingcommitment")
+        {
+            libzerocoin::BlindingCommitment bc;
+            ssValue >> bc;
+            pwallet->SetBlindingCommitment(bc);
+        }
+        else if (strType == "zerokey")
+        {
+            CKey zk;
+            std::vector<unsigned char> vch(ssValue.size());
+            ssValue >> vch;
+            zk.Set(vch.begin(),vch.end(), true);
+            pwallet->SetZeroKey(zk);
+        }
         else if (strType == "pool")
         {
             int64_t nIndex;
@@ -647,6 +752,8 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
             return DB_CORRUPT;
         }
 
+        std::vector<CWalletTx> vTx;
+
         while (true)
         {
             // Read next record
@@ -663,7 +770,8 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
 
             // Try to be tolerant of single corrupt records:
             string strType, strErr;
-            if (!ReadKeyValue(pwallet, ssKey, ssValue, wss, strType, strErr))
+            CWalletTx pwtx;
+            if (!ReadKeyValue(pwallet, ssKey, ssValue, wss, strType, strErr, pwtx))
             {
                 // losing keys is considered a catastrophic error, anything else
                 // we assume the user can live with:
@@ -673,13 +781,18 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
                 {
                     // Leave other errors alone, if we try to fix them we might make things worse.
                     fNoncriticalErrors = true; // ... but do warn the user there is something wrong.
-                    if (strType == "tx")
+                    if (strType == "tx" || strType == "serial")
                         // Rescan if there is a bad transaction record:
                         SoftSetBoolArg("-rescan", true);
                 }
+            } else if (strType == "tx"){;
+                vTx.push_back(pwtx);
             }
             if (!strErr.empty())
                 LogPrintf("%s\n", strErr);
+        }
+        for (auto &it: vTx) {
+            pwallet->AddToWallet(it, true, NULL);
         }
         pcursor->close();
     }
@@ -729,7 +842,31 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
     return result;
 }
 
-DBErrors CWalletDB::FindWalletTx(CWallet* pwallet, vector<uint256>& vTxHash, vector<CWalletTx>& vWtx)
+bool CWalletDB::WriteSerialNumber(const CBigNum& bnSerialNumber, const COutPoint& out)
+{
+    nWalletDBUpdated++;
+    return Write(std::make_pair(std::string("serial"), bnSerialNumber), out);
+}
+
+bool CWalletDB::EraseSerialNumber(const CBigNum& bnSerialNumber)
+{
+    nWalletDBUpdated++;
+    return Erase(std::make_pair(std::string("serial"), bnSerialNumber));
+}
+
+bool CWalletDB::WriteWitnessData(const CBigNum& bnSerialNumber, const PublicMintWitnessData& witness)
+{
+    nWalletDBUpdated++;
+    return Write(std::make_pair(std::string("witness"), bnSerialNumber), witness);
+}
+
+bool CWalletDB::EraseWitnessData(const CBigNum& bnSerialNumber)
+{
+    nWalletDBUpdated++;
+    return Erase(std::make_pair(std::string("witness"), bnSerialNumber));
+}
+
+DBErrors CWalletDB::FindWalletTx(CWallet* pwallet, vector<uint256>& vTxHash, vector<CBigNum>& vSerial, vector<CBigNum>& vWitness, vector<CWalletTx>& vWtx)
 {
     pwallet->vchDefaultKey = CPubKey();
     bool fNoncriticalErrors = false;
@@ -779,6 +916,18 @@ DBErrors CWalletDB::FindWalletTx(CWallet* pwallet, vector<uint256>& vTxHash, vec
                 vTxHash.push_back(hash);
                 vWtx.push_back(wtx);
             }
+            else if (strType == "serial") {
+                CBigNum bnSerial;
+                COutPoint out;
+                ssKey >> bnSerial;
+                ssValue >> out;
+                vSerial.push_back(bnSerial);
+            }
+            else if (strType == "witness") {
+                CBigNum bnCoinValue;
+                ssKey >> bnCoinValue;
+                vWitness.push_back(bnCoinValue);
+            }
         }
         pcursor->close();
     }
@@ -800,7 +949,9 @@ DBErrors CWalletDB::ZapSelectTx(CWallet* pwallet, vector<uint256>& vTxHashIn, ve
     // build list of wallet TXs and hashes
     vector<uint256> vTxHash;
     vector<CWalletTx> vWtx;
-    DBErrors err = FindWalletTx(pwallet, vTxHash, vWtx);
+    vector<CBigNum> vSerial;
+    vector<CBigNum> vWitness;
+    DBErrors err = FindWalletTx(pwallet, vTxHash, vSerial, vWitness, vWtx);
     if (err != DB_LOAD_OK) {
         return err;
     }
@@ -828,6 +979,18 @@ DBErrors CWalletDB::ZapSelectTx(CWallet* pwallet, vector<uint256>& vTxHashIn, ve
         }
     }
 
+    // erase each serial from mapSerial
+    BOOST_FOREACH (CBigNum& bnSn, vSerial) {
+        if (!EraseSerialNumber(bnSn))
+            return DB_CORRUPT;
+    }
+
+    // erase each coin from mapWitness
+    BOOST_FOREACH (CBigNum& bnVl, vWitness) {
+        if (!EraseWitnessData(bnVl))
+            return DB_CORRUPT;
+    }
+
     if (delerror) {
         return DB_CORRUPT;
     }
@@ -838,13 +1001,27 @@ DBErrors CWalletDB::ZapWalletTx(CWallet* pwallet, vector<CWalletTx>& vWtx)
 {
     // build list of wallet TXs
     vector<uint256> vTxHash;
-    DBErrors err = FindWalletTx(pwallet, vTxHash, vWtx);
+    vector<CBigNum> vSerial;
+    vector<CBigNum> vWitness;
+    DBErrors err = FindWalletTx(pwallet, vTxHash, vSerial, vWitness, vWtx);
     if (err != DB_LOAD_OK)
         return err;
 
     // erase each wallet TX
     BOOST_FOREACH (uint256& hash, vTxHash) {
         if (!EraseTx(hash))
+            return DB_CORRUPT;
+    }
+
+    // erase each serial from mapSerial
+    BOOST_FOREACH (CBigNum& bnSn, vSerial) {
+        if (!EraseSerialNumber(bnSn))
+            return DB_CORRUPT;
+    }
+
+    // erase each coin from mapWitness
+    BOOST_FOREACH (CBigNum& bnVl, vWitness) {
+        if (!EraseWitnessData(bnVl))
             return DB_CORRUPT;
     }
 
@@ -972,10 +1149,11 @@ bool CWalletDB::Recover(CDBEnv& dbenv, const std::string& filename, bool fOnlyKe
             string strType, strErr;
             bool fReadOK;
             {
+                CWalletTx dummywtx;
                 // Required in LoadKeyMetadata():
                 LOCK(dummyWallet.cs_wallet);
                 fReadOK = ReadKeyValue(&dummyWallet, ssKey, ssValue,
-                                        wss, strType, strErr);
+                                        wss, strType, strErr, dummywtx);
             }
             if (!IsKeyType(strType) && strType != "hdchain")
                 continue;
