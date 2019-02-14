@@ -45,6 +45,21 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     Refresh(true, true);
 }
 
+void CommunityFundPage::setWalletModel(WalletModel *model)
+{
+    this->walletModel = model;
+
+    Refresh(true, true);
+    ui->radioButtonAll->setChecked(true);
+}
+
+void CommunityFundPage::refreshTab()
+{
+    Refresh(true, true);
+    ui->radioButtonAll->setChecked(true);
+    on_click_pushButtonProposals();
+}
+
 void CommunityFundPage::Refresh(bool all, bool proposal)
 {
     for (int i = 0; i < ui->gridLayout->count(); ++i)

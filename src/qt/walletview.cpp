@@ -130,6 +130,7 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     // Put transaction list in tabs
     transactionView->setModel(walletModel);
     overviewPage->setWalletModel(walletModel);
+    communityFundPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     requestPaymentPage->setModel(walletModel);
     requestPaymentPage->showQR();
@@ -192,8 +193,8 @@ void WalletView::gotoHistoryPage()
 void WalletView::gotoCommunityFundPage()
 {
     // Change to CommunityFund UI
-    //communityFundPage
     setCurrentWidget(communityFundPage);
+    communityFundPage->refreshTab();
 }
 
 void WalletView::gotoReceiveCoinsPage()
