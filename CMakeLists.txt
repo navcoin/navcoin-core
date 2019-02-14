@@ -96,7 +96,7 @@ SET(COMMON_A
 	./src/coins.cpp
 	./src/chainparams.cpp
 	./src/base58.cpp
-  ###	./src/amount.cpp
+  ./src/amount.cpp
 	)
 
 SET(UTIL_A
@@ -116,12 +116,16 @@ SET(UTIL_A
 
 
 SET(SERVER_A
+  ./src/kernel.cpp
 	./src/addrman.cpp
 	./src/bloom.cpp
 	./src/chain.cpp
 	./src/checkpoints.cpp
 	./src/init.cpp
+	./src/main.cpp
   ./src/ui_interface.cpp
+  ./src/ntpclient.cpp
+  ./src/pos.cpp
 
 	./src/merkleblock.cpp
 	./src/miner.cpp
@@ -182,12 +186,23 @@ SET(CONSENSUS_CRYPTO
 )
 
 SET(SOURCES
+
+  ./src/zerochain.cpp
+  ./src/zerowallet.cpp
+  ./src/zerowitnesser.cpp
+  ./src/zeroaccumulators.cpp
+  ./src/zerotx.cpp
+  ./src/untar.cpp
+
 	./src/compat/strnlen.cpp
 	./src/compat/glibcxx_sanity.cpp
 	./src/compat/glibc_sanity.cpp
   #	./src/compat/glibc_compat.cpp
   
   ./src/consensus/merkle.cpp
+  ./src/consensus/cfund.cpp
+
+  ./src/utils/dns_utils.cpp
   
   ./src/utiltime.cpp
   ./src/chain.cpp
@@ -212,6 +227,7 @@ SET(SOURCES
   ./src/rest.cpp
 	./src/torcontrol.cpp
 	./src/txmempool.cpp
+	./src/wallet/zeropos.cpp
 	./src/wallet/wallet.cpp
 	./src/wallet/db.cpp
 	./src/wallet/crypter.cpp
@@ -225,7 +241,7 @@ SET(SOURCES
   ./src/httpserver.cpp
   ./src/scheduler.cpp
   ./src/validationinterface.cpp
-#  ./src/support/pagelocker.cpp
+  ./src/support/pagelocker.cpp
   ./src/support/cleanse.cpp
   ./src/policy/rbf.cpp
   ./src/policy/fees.cpp
@@ -304,13 +320,13 @@ add_executable(devault-cli ${CMAKE_CURRENT_SOURCE_DIR}/src/devault-cli.cpp)
 add_executable(devault-tx ${CMAKE_CURRENT_SOURCE_DIR}/src/devault-tx.cpp)
 add_executable(devaultd ${CMAKE_CURRENT_SOURCE_DIR}/src/devaultd.cpp)
 
-target_link_libraries(devault-cli coin db_cxx db secp256k1 gmp leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} miniupnpc event event_pthreads gmp pthread )
-target_link_libraries(devault-tx coin secp256k1 coin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} gmp pthread)
+target_link_libraries(devault-cli coin db_cxx db secp256k1 zerocoin gmp leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} miniupnpc event event_pthreads gmp pthread )
+target_link_libraries(devault-tx coin secp256k1 coin leveldb zerocoin ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} gmp pthread)
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	target_link_libraries(devaultd coin db_cxx db secp256k1 gmp leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} gmp zmq miniupnpc event event_pthreads pthread )
+	target_link_libraries(devaultd coin db_cxx db secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp zmq miniupnpc event event_pthreads pthread )
 else()
-	target_link_libraries(devaultd coin db_cxx db secp256k1 leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} gmp pthread)
+	target_link_libraries(devaultd coin db_cxx db secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp pthread)
 endif()
 
 #add_subdirectory(src/qt)

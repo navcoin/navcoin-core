@@ -53,6 +53,7 @@ list(APPEND zerocoin_sources
   Accumulator.cpp
   AccumulatorProofOfKnowledge.cpp
   ArithmeticCircuit.cpp
+  Bulletproofs.cpp
   Coin.cpp
   CoinSpend.cpp
   Commitment.cpp
@@ -64,10 +65,10 @@ list(APPEND zerocoin_sources
   SerialNumberProofOfKnowledge.cpp
   SerialNumberSignatureOfKnowledge.cpp
   SerialNumberSoK_small.cpp
-  bignum_gmp.cpp
+#  bignum_openssl.cpp
   bignum.cpp
-  bulletproof_rangeproof.cpp
-  paramgen.cpp
+###  bulletproof_rangeproof.cpp
+#  paramgen.cpp
 )
 
 #
