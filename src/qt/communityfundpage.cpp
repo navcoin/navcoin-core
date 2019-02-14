@@ -18,8 +18,7 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     ui(new Ui::CommunityFundPage),
     clientModel(0),
     walletModel(0),
-    flag(CFund::NIL),
-    View(VIEWTYPE::PROPOSALS)
+    flag(CFund::NIL)
 {
     ui->setupUi(this);
 
@@ -39,7 +38,8 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->radioButtonAccepted, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAccepted()));
     connect(ui->radioButtonRejected, SIGNAL(clicked()), this, SLOT(on_click_radioButtonRejected()));
     connect(ui->radioButtonExpired, SIGNAL(clicked()), this, SLOT(on_click_radioButtonExpired()));
-    connect(ui->pushButtonCreateProposalCreatePaymentRequest, SIGNAL(clicked()), this , SLOT(on_click_pushButtonCreateProposalCreatePaymentRequest()));
+    connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this , SLOT(on_click_pushButtonCreateProposal()));
+    connect(ui->pushButtonCreatePaymentRequest, SIGNAL(clicked()), this, SLOT(on_click_pushButtonCreatePaymentRequest()));
 
     //fetch cfund info
     Refresh(true, true);
@@ -159,9 +159,6 @@ void CommunityFundPage::on_click_pushButtonProposals()
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
-    ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Proposal"));
-    View = VIEWTYPE::PROPOSALS;
-
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
@@ -176,9 +173,6 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
 
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
-
-    ui->pushButtonCreateProposalCreatePaymentRequest->setText(QString("Create Payment Request"));
-    View = VIEWTYPE::PAYMENTREQUESTS;
 
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
@@ -224,22 +218,16 @@ void CommunityFundPage::on_click_radioButtonExpired()
     Refresh(false, true);
 }
 
-void CommunityFundPage::on_click_pushButtonCreateProposalCreatePaymentRequest()
+void CommunityFundPage::on_click_pushButtonCreateProposal()
 {
-    if(View == VIEWTYPE::PROPOSALS)
-    {
         CommunityFundCreateProposalDialog dlg(this);
         dlg.exec();
-    }
-    else if(View == VIEWTYPE::PAYMENTREQUESTS)
-    {
-        CommunityFundCreatePaymentRequestDialog dlg(this);
-        dlg.exec();
-    }
-    else
-    {
-        return;
-    }
+}
+
+void CommunityFundPage::on_click_pushButtonCreatePaymentRequest()
+{
+    CommunityFundCreatePaymentRequestDialog dlg(this);
+    dlg.exec();
 }
 
 CommunityFundPage::~CommunityFundPage()
