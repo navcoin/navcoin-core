@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_GUICONSTANTS_H
-#define NAVCOIN_QT_GUICONSTANTS_H
+#ifndef DEVAULT_QT_GUICONSTANTS_H
+#define DEVAULT_QT_GUICONSTANTS_H
 
 /* Milliseconds between model updates */
 static const int MODEL_UPDATE_DELAY = 250;
@@ -11,7 +11,7 @@ static const int MODEL_UPDATE_DELAY = 250;
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
 
-/* NavCoinGUI -- Size of icons in status bar */
+/* DeVaultGUI -- Size of icons in status bar */
 static const int STATUSBAR_ICONSIZE = 16;
 
 static const bool DEFAULT_SPLASHSCREEN = true;
@@ -54,9 +54,9 @@ static const int MAX_URI_LENGTH = 255;
 /* Number of frames in spinner animation */
 #define SPINNER_FRAMES 36
 
-#define QAPP_ORG_NAME "NavCoin"
-#define QAPP_ORG_DOMAIN "navcoin.org"
-#define QAPP_APP_NAME_DEFAULT "NavCoin-Qt"
-#define QAPP_APP_NAME_TESTNET "NavCoin-Qt-testnet"
+#define QAPP_ORG_NAME "DeVault"
+#define QAPP_ORG_DOMAIN "devault.org"
+#define QAPP_APP_NAME_DEFAULT "DeVault-Qt"
+#define QAPP_APP_NAME_TESTNET "DeVault-Qt-testnet"
 
-#endif // NAVCOIN_QT_GUICONSTANTS_H
+#endif // DEVAULT_QT_GUICONSTANTS_H

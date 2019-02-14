@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
 import logging
 
@@ -70,10 +70,10 @@ class TestManager(NodeConnCB):
         self.connection.disconnect_node()
 
 
-class MaxBlocksInFlightTest(NavCoinTestFramework):
+class MaxBlocksInFlightTest(DeVaultTestFramework):
     def add_options(self, parser):
         parser.add_option("--testbinary", dest="testbinary",
-                          default=os.getenv("NAVCOIND", "navcoind"),
+                          default=os.getenv("DEVAULTD", "devaultd"),
                           help="Binary to test max block requests behavior")
 
     def __init__(self):

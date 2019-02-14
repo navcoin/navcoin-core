@@ -1,15 +1,15 @@
 # UNIX BUILD NOTES
 
-Some notes on how to build NavCoin Core in Unix.
+Some notes on how to build DeVault Core in Unix.
 
 (for OpenBSD specific instructions, see [build-openbsd.md](build-openbsd.md))
 
 
 ## Building in Ubuntu 18.04
 
-You can easily build the dependencies by running the [NavCoin dev tools script here](https://github.com/NAVCoin/navcoin-dev-tools/blob/master/ubuntu-18.04-navcoin-core-dev-setup.sh).
+You can easily build the dependencies by running the [DeVault dev tools script here](https://github.com/DeVault/devault-dev-tools/blob/master/ubuntu-18.04-devault-core-dev-setup.sh).
 
-From the navcoin-core directory, you will still need to:
+From the devault-core directory, you will still need to:
 ```bash
 cd depends
 make
@@ -25,13 +25,13 @@ make
 make install # optional
 ```
 
-This will build navcoin-qt as well if the dependencies are met.
+This will build devault-qt as well if the dependencies are met.
 
 
 
 ## Notes
 
-Always use absolute paths to configure and compile navcoin and the dependencies,
+Always use absolute paths to configure and compile devault and the dependencies,
 for example, when specifying the path of the dependency:
 
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
@@ -70,7 +70,7 @@ For the versions used in the release, see [release-process.md](release-process.m
 ### Memory Requirements
 
 C++ compilers are memory-hungry. It is recommended to have at least 1.5 GB of
-memory available when compiling NavCoin Core. On systems with less, gcc can be
+memory available when compiling DeVault Core. On systems with less, gcc can be
 tuned to conserve memory with additional CXXFLAGS:
 
 
@@ -94,7 +94,7 @@ install necessary parts of boost:
 
         sudo apt-get install libboost-all-dev
 
-BerkeleyDB is required for the wallet. db4.8 packages are available [here](https://launchpad.net/~navcoin/+archive/navcoin).
+BerkeleyDB is required for the wallet. db4.8 packages are available [here](https://launchpad.net/~devault/+archive/devault).
 You can add the repository and install using the following commands:
 
     sudo add-apt-repository ppa:bitcoin/bitcoin
@@ -106,7 +106,7 @@ BerkeleyDB 5.1 or later, which break binary wallet compatibility with the distri
 are based on BerkeleyDB 4.8. If you do not care about wallet compatibility,
 pass `--with-incompatible-bdb` to configure.
 
-See the section "Disable-wallet mode" to build NavCoin Core without wallet.
+See the section "Disable-wallet mode" to build DeVault Core without wallet.
 
 Optional:
 
@@ -118,7 +118,7 @@ ZMQ dependencies:
 
 ### Dependencies for the GUI: Ubuntu (earlier versions) & Debian
 
-If you want to build NavCoin-Qt, make sure that the required packages for Qt development
+If you want to build DeVault-Qt, make sure that the required packages for Qt development
 are installed. Either Qt 5 or Qt 4 are necessary to build the GUI.
 If both Qt 4 and Qt 5 are installed, Qt 5 will be used. Pass `--with-gui=qt4` to configure to choose Qt4.
 To build without GUI pass `--without-gui`.
@@ -135,7 +135,7 @@ libqrencode (optional) can be installed with:
 
     sudo apt-get install libqrencode-dev
 
-Once these are installed, they will be found by configure and a navcoin-qt executable will be
+Once these are installed, they will be found by configure and a devault-qt executable will be
 built by default.
 
 ### Dependency Build Instructions: Fedora
@@ -158,7 +158,7 @@ libqrencode (optional) can be installed with:
 
 ### Notes
 
-The release is built with GCC and then "strip navcoind" to strip the debug
+The release is built with GCC and then "strip devaultd" to strip the debug
 symbols, which reduces the executable size by about 90%.
 
 
@@ -179,10 +179,10 @@ turned off by default.  See the configure options for upnp behavior desired:
 It is recommended to use Berkeley DB 4.8. If you have to build it yourself:
 
 ```bash
-NAVCOIN_ROOT=$(pwd)
+DEVAULT_ROOT=$(pwd)
 
-# Pick some path to install BDB to, here we create a directory within the navcoin directory
-BDB_PREFIX="${NAVCOIN_ROOT}/db4"
+# Pick some path to install BDB to, here we create a directory within the devault directory
+BDB_PREFIX="${DEVAULT_ROOT}/db4"
 mkdir -p $BDB_PREFIX
 
 # Fetch the source and verify that it is not tampered with
@@ -197,8 +197,8 @@ cd db-4.8.30.NC/build_unix/
 ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
 make install
 
-# Configure NavCoin Core to use our own-built instance of BDB
-cd $NAVCOIN_ROOT
+# Configure DeVault Core to use our own-built instance of BDB
+cd $DEVAULT_ROOT
 ./autogen.sh
 ./configure LDFLAGS="-L${BDB_PREFIX}/lib/" CPPFLAGS="-I${BDB_PREFIX}/include/" # (other args...)
 ```
@@ -216,7 +216,7 @@ If you need to build Boost yourself:
 
 ### Security
 
-To help make your navcoin installation more secure by making certain attacks impossible to
+To help make your devault installation more secure by making certain attacks impossible to
 exploit even if a vulnerability is found, binaries are hardened by default.
 This can be disabled with:
 
@@ -240,7 +240,7 @@ Hardening enables the following features:
 
     To test that you have built PIE executable, install scanelf, part of paxutils, and use:
 
-    	scanelf -e ./navcoin
+    	scanelf -e ./devault
 
     The output should contain:
 
@@ -249,13 +249,13 @@ Hardening enables the following features:
 
 * Non-executable Stack
     If the stack is executable then trivial stack based buffer overflow exploits are possible if
-    vulnerable buffers are found. By default, navcoin should be built with a non-executable stack
+    vulnerable buffers are found. By default, devault should be built with a non-executable stack
     but if one of the libraries it uses asks for an executable stack or someone makes a mistake
     and uses a compiler extension which requires an executable stack, it will silently build an
     executable without the non-executable stack protection.
 
     To verify that the stack is non-executable after compiling use:
-    `scanelf -e ./navcoin`
+    `scanelf -e ./devault`
 
     the output should contain:
 	STK/REL/PTL
@@ -265,7 +265,7 @@ Hardening enables the following features:
 
 ### Disable-wallet mode
 
-When the intention is to run only a P2P node without a wallet, navcoin may be compiled in
+When the intention is to run only a P2P node without a wallet, devault may be compiled in
 disable-wallet mode with:
 
     ./configure --disable-wallet
@@ -287,8 +287,8 @@ A list of additional configure flags can be displayed with:
 This example lists the steps necessary to setup and build a command line only, non-wallet distribution of the latest changes on Arch Linux:
 
     pacman -S git base-devel boost libevent python
-    git clone https://github.com/navcoin/navcoin.git
-    cd navcoin/
+    git clone https://github.com/devault/devault.git
+    cd devault/
     ./autogen.sh
     ./configure --disable-wallet --without-gui --without-miniupnpc
     make check
@@ -296,8 +296,8 @@ This example lists the steps necessary to setup and build a command line only, n
 Note:
 Enabling wallet support requires either compiling against a Berkeley DB newer than 4.8 (package `db`) using `--with-incompatible-bdb`,
 or building and depending on a local version of Berkeley DB 4.8. The readily available Arch Linux packages are currently built using
-`--with-incompatible-bdb` according to the [PKGBUILD](https://projects.archlinux.org/svntogit/community.git/tree/navcoin/trunk/PKGBUILD).
-As mentioned above, when maintaining portability of the wallet between the standard NavCoin Core distributions and independently built
+`--with-incompatible-bdb` according to the [PKGBUILD](https://projects.archlinux.org/svntogit/community.git/tree/devault/trunk/PKGBUILD).
+As mentioned above, when maintaining portability of the wallet between the standard DeVault Core distributions and independently built
 node software is desired, Berkeley DB 4.8 must be used.
 
 

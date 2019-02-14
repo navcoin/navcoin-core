@@ -1,11 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CONSENSUS_PARAMS_H
-#define NAVCOIN_CONSENSUS_PARAMS_H
+#ifndef DEVAULT_CONSENSUS_PARAMS_H
+#define DEVAULT_CONSENSUS_PARAMS_H
 
 #include "amount.h"
 #include "libzerocoin/bignum.h"
@@ -119,4 +119,4 @@ struct Params {
 };
 } // namespace Consensus
 
-#endif // NAVCOIN_CONSENSUS_PARAMS_H
+#endif // DEVAULT_CONSENSUS_PARAMS_H

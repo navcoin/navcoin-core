@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_UTILTIME_H
-#define NAVCOIN_UTILTIME_H
+#ifndef DEVAULT_UTILTIME_H
+#define DEVAULT_UTILTIME_H
 
 #include <stdint.h>
 #include <string>
@@ -43,4 +43,4 @@ static std::vector<std::string> vDefaultNtpServers = {"de.pool.ntp.org",
                   "uk.pool.ntp.org", "ca.pool.ntp.org", "us.pool.ntp.org", "au.pool.ntp.org",
                   "nz.pool.ntp.org", "br.pool.ntp.org"};
 
-#endif // NAVCOIN_UTILTIME_H
+#endif // DEVAULT_UTILTIME_H

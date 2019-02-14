@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CORE_IO_H
-#define NAVCOIN_CORE_IO_H
+#ifndef DEVAULT_CORE_IO_H
+#define DEVAULT_CORE_IO_H
 
 #include <string>
 #include <vector>
@@ -35,4 +35,4 @@ extern std::string EncodeHexTxIn(const CTxIn& txin);
 extern void ScriptPubKeyToUniv(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 extern void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry);
 
-#endif // NAVCOIN_CORE_IO_H
+#endif // DEVAULT_CORE_IO_H

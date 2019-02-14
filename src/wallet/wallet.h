@@ -1,11 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_WALLET_WALLET_H
-#define NAVCOIN_WALLET_WALLET_H
+#ifndef DEVAULT_WALLET_WALLET_H
+#define DEVAULT_WALLET_WALLET_H
 
 #include "amount.h"
 #include "libzerocoin/bignum.h"
@@ -1095,4 +1095,4 @@ public:
     }
 };
 
-#endif // NAVCOIN_WALLET_WALLET_H
+#endif // DEVAULT_WALLET_WALLET_H

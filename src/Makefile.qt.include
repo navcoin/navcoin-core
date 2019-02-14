@@ -1,93 +1,93 @@
-bin_PROGRAMS += qt/navcoin-qt
-EXTRA_LIBRARIES += qt/libnavcoinqt.a
+bin_PROGRAMS += qt/devault-qt
+EXTRA_LIBRARIES += qt/libdevaultqt.a
 
-# navcoin qt core #
+# devault qt core #
 QT_TS = \
-  qt/locale/navcoin_af.ts \
-  qt/locale/navcoin_af_ZA.ts \
-  qt/locale/navcoin_ar.ts \
-  qt/locale/navcoin_be_BY.ts \
-  qt/locale/navcoin_bg.ts \
-  qt/locale/navcoin_bg_BG.ts \
-  qt/locale/navcoin_ca_ES.ts \
-  qt/locale/navcoin_ca.ts \
-  qt/locale/navcoin_ca@valencia.ts \
-  qt/locale/navcoin_cs_CZ.ts \
-  qt/locale/navcoin_cs.ts \
-  qt/locale/navcoin_cy.ts \
-  qt/locale/navcoin_da.ts \
-  qt/locale/navcoin_de.ts \
-  qt/locale/navcoin_el_GR.ts \
-  qt/locale/navcoin_el.ts \
-  qt/locale/navcoin_en_GB.ts \
-  qt/locale/navcoin_en.ts \
-  qt/locale/navcoin_eo.ts \
-  qt/locale/navcoin_es_AR.ts \
-  qt/locale/navcoin_es_CL.ts \
-  qt/locale/navcoin_es_CO.ts \
-  qt/locale/navcoin_es_DO.ts \
-  qt/locale/navcoin_es_ES.ts \
-  qt/locale/navcoin_es_MX.ts \
-  qt/locale/navcoin_es.ts \
-  qt/locale/navcoin_es_UY.ts \
-  qt/locale/navcoin_es_VE.ts \
-  qt/locale/navcoin_et.ts \
-  qt/locale/navcoin_eu_ES.ts \
-  qt/locale/navcoin_fa_IR.ts \
-  qt/locale/navcoin_fa.ts \
-  qt/locale/navcoin_fi.ts \
-  qt/locale/navcoin_fr_CA.ts \
-  qt/locale/navcoin_fr_FR.ts \
-  qt/locale/navcoin_fr.ts \
-  qt/locale/navcoin_gl.ts \
-  qt/locale/navcoin_he.ts \
-  qt/locale/navcoin_hi_IN.ts \
-  qt/locale/navcoin_hr.ts \
-  qt/locale/navcoin_hu.ts \
-  qt/locale/navcoin_id_ID.ts \
-  qt/locale/navcoin_it_IT.ts \
-  qt/locale/navcoin_it.ts \
-  qt/locale/navcoin_ja.ts \
-  qt/locale/navcoin_ka.ts \
-  qt/locale/navcoin_kk_KZ.ts \
-  qt/locale/navcoin_ko_KR.ts \
-  qt/locale/navcoin_ku_IQ.ts \
-  qt/locale/navcoin_ky.ts \
-  qt/locale/navcoin_la.ts \
-  qt/locale/navcoin_lt.ts \
-  qt/locale/navcoin_lv_LV.ts \
-  qt/locale/navcoin_mk_MK.ts \
-  qt/locale/navcoin_mn.ts \
-  qt/locale/navcoin_ms_MY.ts \
-  qt/locale/navcoin_nb.ts \
-  qt/locale/navcoin_nl.ts \
-  qt/locale/navcoin_pam.ts \
-  qt/locale/navcoin_pl.ts \
-  qt/locale/navcoin_pt_BR.ts \
-  qt/locale/navcoin_pt_PT.ts \
-  qt/locale/navcoin_ro_RO.ts \
-  qt/locale/navcoin_ro.ts \
-  qt/locale/navcoin_ru_RU.ts \
-  qt/locale/navcoin_ru.ts \
-  qt/locale/navcoin_sk.ts \
-  qt/locale/navcoin_sl_SI.ts \
-  qt/locale/navcoin_sq.ts \
-  qt/locale/navcoin_sr@latin.ts \
-  qt/locale/navcoin_sr.ts \
-  qt/locale/navcoin_sv.ts \
-  qt/locale/navcoin_ta.ts \
-  qt/locale/navcoin_th_TH.ts \
-  qt/locale/navcoin_tr_TR.ts \
-  qt/locale/navcoin_tr.ts \
-  qt/locale/navcoin_uk.ts \
-  qt/locale/navcoin_ur_PK.ts \
-  qt/locale/navcoin_uz@Cyrl.ts \
-  qt/locale/navcoin_vi.ts \
-  qt/locale/navcoin_vi_VN.ts \
-  qt/locale/navcoin_zh_CN.ts \
-  qt/locale/navcoin_zh_HK.ts \
-  qt/locale/navcoin_zh.ts \
-  qt/locale/navcoin_zh_TW.ts
+  qt/locale/devault_af.ts \
+  qt/locale/devault_af_ZA.ts \
+  qt/locale/devault_ar.ts \
+  qt/locale/devault_be_BY.ts \
+  qt/locale/devault_bg.ts \
+  qt/locale/devault_bg_BG.ts \
+  qt/locale/devault_ca_ES.ts \
+  qt/locale/devault_ca.ts \
+  qt/locale/devault_ca@valencia.ts \
+  qt/locale/devault_cs_CZ.ts \
+  qt/locale/devault_cs.ts \
+  qt/locale/devault_cy.ts \
+  qt/locale/devault_da.ts \
+  qt/locale/devault_de.ts \
+  qt/locale/devault_el_GR.ts \
+  qt/locale/devault_el.ts \
+  qt/locale/devault_en_GB.ts \
+  qt/locale/devault_en.ts \
+  qt/locale/devault_eo.ts \
+  qt/locale/devault_es_AR.ts \
+  qt/locale/devault_es_CL.ts \
+  qt/locale/devault_es_CO.ts \
+  qt/locale/devault_es_DO.ts \
+  qt/locale/devault_es_ES.ts \
+  qt/locale/devault_es_MX.ts \
+  qt/locale/devault_es.ts \
+  qt/locale/devault_es_UY.ts \
+  qt/locale/devault_es_VE.ts \
+  qt/locale/devault_et.ts \
+  qt/locale/devault_eu_ES.ts \
+  qt/locale/devault_fa_IR.ts \
+  qt/locale/devault_fa.ts \
+  qt/locale/devault_fi.ts \
+  qt/locale/devault_fr_CA.ts \
+  qt/locale/devault_fr_FR.ts \
+  qt/locale/devault_fr.ts \
+  qt/locale/devault_gl.ts \
+  qt/locale/devault_he.ts \
+  qt/locale/devault_hi_IN.ts \
+  qt/locale/devault_hr.ts \
+  qt/locale/devault_hu.ts \
+  qt/locale/devault_id_ID.ts \
+  qt/locale/devault_it_IT.ts \
+  qt/locale/devault_it.ts \
+  qt/locale/devault_ja.ts \
+  qt/locale/devault_ka.ts \
+  qt/locale/devault_kk_KZ.ts \
+  qt/locale/devault_ko_KR.ts \
+  qt/locale/devault_ku_IQ.ts \
+  qt/locale/devault_ky.ts \
+  qt/locale/devault_la.ts \
+  qt/locale/devault_lt.ts \
+  qt/locale/devault_lv_LV.ts \
+  qt/locale/devault_mk_MK.ts \
+  qt/locale/devault_mn.ts \
+  qt/locale/devault_ms_MY.ts \
+  qt/locale/devault_nb.ts \
+  qt/locale/devault_nl.ts \
+  qt/locale/devault_pam.ts \
+  qt/locale/devault_pl.ts \
+  qt/locale/devault_pt_BR.ts \
+  qt/locale/devault_pt_PT.ts \
+  qt/locale/devault_ro_RO.ts \
+  qt/locale/devault_ro.ts \
+  qt/locale/devault_ru_RU.ts \
+  qt/locale/devault_ru.ts \
+  qt/locale/devault_sk.ts \
+  qt/locale/devault_sl_SI.ts \
+  qt/locale/devault_sq.ts \
+  qt/locale/devault_sr@latin.ts \
+  qt/locale/devault_sr.ts \
+  qt/locale/devault_sv.ts \
+  qt/locale/devault_ta.ts \
+  qt/locale/devault_th_TH.ts \
+  qt/locale/devault_tr_TR.ts \
+  qt/locale/devault_tr.ts \
+  qt/locale/devault_uk.ts \
+  qt/locale/devault_ur_PK.ts \
+  qt/locale/devault_uz@Cyrl.ts \
+  qt/locale/devault_vi.ts \
+  qt/locale/devault_vi_VN.ts \
+  qt/locale/devault_zh_CN.ts \
+  qt/locale/devault_zh_HK.ts \
+  qt/locale/devault_zh.ts \
+  qt/locale/devault_zh_TW.ts
 
 QT_FORMS_UI = \
   qt/forms/addressbookpage.ui \
@@ -114,10 +114,10 @@ QT_MOC_CPP = \
   qt/moc_addresstablemodel.cpp \
   qt/moc_askpassphrasedialog.cpp \
   qt/moc_bantablemodel.cpp \
-  qt/moc_navcoinaddressvalidator.cpp \
-  qt/moc_navcoinamountfield.cpp \
-  qt/moc_navcoingui.cpp \
-  qt/moc_navcoinunits.cpp \
+  qt/moc_devaultaddressvalidator.cpp \
+  qt/moc_devaultamountfield.cpp \
+  qt/moc_devaultgui.cpp \
+  qt/moc_devaultunits.cpp \
   qt/moc_clientmodel.cpp \
   qt/moc_coincontroldialog.cpp \
   qt/moc_coincontroltreewidget.cpp \
@@ -158,35 +158,35 @@ QT_MOC_CPP = \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp
 
-NAVCOIN_MM = \
+DEVAULT_MM = \
   qt/macdockiconhandler.mm \
   qt/macnotificationhandler.mm
 
 QT_MOC = \
-  qt/navcoin.moc \
-  qt/navcoinamountfield.moc \
+  qt/devault.moc \
+  qt/devaultamountfield.moc \
   qt/intro.moc \
   qt/overviewpage.moc \
   qt/rpcconsole.moc
 
-QT_QRC_CPP = qt/qrc_navcoin.cpp
-QT_QRC = qt/navcoin.qrc
-QT_QRC_LOCALE_CPP = qt/qrc_navcoin_locale.cpp
-QT_QRC_LOCALE = qt/navcoin_locale.qrc
+QT_QRC_CPP = qt/qrc_devault.cpp
+QT_QRC = qt/devault.qrc
+QT_QRC_LOCALE_CPP = qt/qrc_devault_locale.cpp
+QT_QRC_LOCALE = qt/devault_locale.qrc
 
 PROTOBUF_CC = qt/paymentrequest.pb.cc
 PROTOBUF_H = qt/paymentrequest.pb.h
 PROTOBUF_PROTO = qt/paymentrequest.proto
 
-NAVCOIN_QT_H = \
+DEVAULT_QT_H = \
   qt/addressbookpage.h \
   qt/addresstablemodel.h \
   qt/askpassphrasedialog.h \
   qt/bantablemodel.h \
-  qt/navcoinaddressvalidator.h \
-  qt/navcoinamountfield.h \
-  qt/navcoingui.h \
-  qt/navcoinunits.h \
+  qt/devaultaddressvalidator.h \
+  qt/devaultamountfield.h \
+  qt/devaultgui.h \
+  qt/devaultunits.h \
   qt/clientmodel.h \
   qt/coincontroldialog.h \
   qt/coincontroltreewidget.h \
@@ -238,9 +238,9 @@ NAVCOIN_QT_H = \
 
 RES_ICONS = \
   qt/res/icons/background_top.png \
-  qt/res/icons/navcoin.png \
-  qt/res/icons/navcoin.ico \
-  qt/res/icons/navcoin_testnet.ico \
+  qt/res/icons/devault.png \
+  qt/res/icons/devault.ico \
+  qt/res/icons/devault_testnet.ico \
   qt/res/icons/ghost.png \
   qt/res/icons/address-book.png \
   qt/res/icons/quit.png \
@@ -312,12 +312,12 @@ RES_ICONS = \
   qt/res/fonts/Roboto-Bold.ttf \
   qt/res/fonts/Roboto-Medium.ttf
 
-NAVCOIN_QT_CPP = \
+DEVAULT_QT_CPP = \
   qt/bantablemodel.cpp \
-  qt/navcoinaddressvalidator.cpp \
-  qt/navcoinamountfield.cpp \
-  qt/navcoingui.cpp \
-  qt/navcoinunits.cpp \
+  qt/devaultaddressvalidator.cpp \
+  qt/devaultamountfield.cpp \
+  qt/devaultgui.cpp \
+  qt/devaultunits.cpp \
   qt/forms/cfund_voting.cpp \
   qt/getaddresstoreceive.cpp \
   qt/clientmodel.cpp \
@@ -339,11 +339,11 @@ NAVCOIN_QT_CPP = \
   qt/utilitydialog.cpp
 
 if TARGET_WINDOWS
-NAVCOIN_QT_CPP += qt/winshutdownmonitor.cpp
+DEVAULT_QT_CPP += qt/winshutdownmonitor.cpp
 endif
 
 if ENABLE_WALLET
-NAVCOIN_QT_CPP += \
+DEVAULT_QT_CPP += \
   qt/addressbookpage.cpp \
   qt/addresstablemodel.cpp \
   qt/askpassphrasedialog.cpp \
@@ -377,19 +377,19 @@ RES_IMAGES =
 
 RES_MOVIES = $(wildcard qt/res/movies/spinner-*.png)
 
-NAVCOIN_RC = qt/res/navcoin-qt-res.rc
+DEVAULT_RC = qt/res/devault-qt-res.rc
 
-NAVCOIN_QT_INCLUDES = -I$(builddir)/qt -I$(srcdir)/qt -I$(srcdir)/qt/forms \
+DEVAULT_QT_INCLUDES = -I$(builddir)/qt -I$(srcdir)/qt -I$(srcdir)/qt/forms \
   -I$(builddir)/qt/forms -DQT_NO_KEYWORDS
 
-qt_libnavcoinqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
+qt_libdevaultqt_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES) $(DEVAULT_QT_INCLUDES) \
   $(QT_INCLUDES) $(QT_DBUS_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
-qt_libnavcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
+qt_libdevaultqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
-qt_libnavcoinqt_a_SOURCES = $(NAVCOIN_QT_CPP) $(NAVCOIN_QT_H) $(QT_FORMS_UI) \
+qt_libdevaultqt_a_SOURCES = $(DEVAULT_QT_CPP) $(DEVAULT_QT_H) $(QT_FORMS_UI) \
   $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES)
 
-nodist_qt_libnavcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
+nodist_qt_libdevaultqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
   $(PROTOBUF_H) $(QT_QRC_CPP) $(QT_QRC_LOCALE_CPP)
 
 # forms/foo.h -> forms/ui_foo.h
@@ -398,71 +398,71 @@ QT_FORMS_H=$(join $(dir $(QT_FORMS_UI)),$(addprefix ui_, $(notdir $(QT_FORMS_UI:
 # Most files will depend on the forms and moc files as includes. Generate them
 # before anything else.
 $(QT_MOC): $(QT_FORMS_H)
-$(qt_libnavcoinqt_a_OBJECTS) $(qt_navcoin_qt_OBJECTS) : | $(QT_MOC)
+$(qt_libdevaultqt_a_OBJECTS) $(qt_devault_qt_OBJECTS) : | $(QT_MOC)
 
 #Generating these with a half-written protobuf header leads to wacky results.
 #This makes sure it's done.
 $(QT_MOC): $(PROTOBUF_H)
 $(QT_MOC_CPP): $(PROTOBUF_H)
 
-# navcoin-qt binary #
-qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(CURL_INCLUDES) $(NAVCOIN_QT_INCLUDES) \
+# devault-qt binary #
+qt_devault_qt_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES) $(CURL_INCLUDES) $(DEVAULT_QT_INCLUDES) \
   $(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
-qt_navcoin_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
+qt_devault_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
-qt_navcoin_qt_SOURCES = qt/navcoin.cpp
+qt_devault_qt_SOURCES = qt/devault.cpp
 if TARGET_DARWIN
-  qt_navcoin_qt_SOURCES += $(NAVCOIN_MM)
+  qt_devault_qt_SOURCES += $(DEVAULT_MM)
 endif
 if TARGET_WINDOWS
-  qt_navcoin_qt_SOURCES += $(NAVCOIN_RC)
+  qt_devault_qt_SOURCES += $(DEVAULT_RC)
 endif
-qt_navcoin_qt_LDADD = qt/libnavcoinqt.a $(LIBNAVCOIN_SERVER)
+qt_devault_qt_LDADD = qt/libdevaultqt.a $(LIBDEVAULT_SERVER)
 if ENABLE_WALLET
-qt_navcoin_qt_LDADD += $(LIBNAVCOIN_WALLET)
+qt_devault_qt_LDADD += $(LIBDEVAULT_WALLET)
 endif
 if ENABLE_ZMQ
-qt_navcoin_qt_LDADD += $(LIBNAVCOIN_ZMQ) $(ZMQ_LIBS)
+qt_devault_qt_LDADD += $(LIBDEVAULT_ZMQ) $(ZMQ_LIBS)
 endif
-qt_navcoin_qt_LDADD += $(LIBNAVCOIN_CLI) $(LIBNAVCOIN_COMMON) $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_CONSENSUS) $(LIBNAVCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
+qt_devault_qt_LDADD += $(LIBDEVAULT_CLI) $(LIBDEVAULT_COMMON) $(LIBDEVAULT_UTIL) $(LIBDEVAULT_CONSENSUS) $(LIBDEVAULT_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(UNBOUND_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
-  $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBNAVCOIN_ZEROCOIN)
-qt_navcoin_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
-qt_navcoin_qt_LIBTOOLFLAGS = --tag CXX
+  $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBDEVAULT_ZEROCOIN)
+qt_devault_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+qt_devault_qt_LIBTOOLFLAGS = --tag CXX
 
 #locale/foo.ts -> locale/foo.qm
 QT_QM=$(QT_TS:.ts=.qm)
 
 SECONDARY: $(QT_QM)
 
-$(srcdir)/qt/navcoinstrings.cpp: $(libnavcoin_server_a_SOURCES) $(libnavcoin_wallet_a_SOURCES)
+$(srcdir)/qt/devaultstrings.cpp: $(libdevault_server_a_SOURCES) $(libdevault_wallet_a_SOURCES)
 	@test -n $(XGETTEXT) || echo "xgettext is required for updating translations"
 	$(AM_V_GEN) cd $(srcdir); XGETTEXT=$(XGETTEXT) PACKAGE_NAME="$(PACKAGE_NAME)" COPYRIGHT_HOLDERS="$(COPYRIGHT_HOLDERS)" COPYRIGHT_HOLDERS_SUBSTITUTION="$(COPYRIGHT_HOLDERS_SUBSTITUTION)" $(PYTHON) ../share/qt/extract_strings_qt.py $^
 
-translate: $(srcdir)/qt/navcoinstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(NAVCOIN_QT_CPP) $(NAVCOIN_QT_H) $(NAVCOIN_MM)
+translate: $(srcdir)/qt/devaultstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(DEVAULT_QT_CPP) $(DEVAULT_QT_H) $(DEVAULT_MM)
 	@test -n $(LUPDATE) || echo "lupdate is required for updating translations"
-	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LUPDATE) $^ -locations relative -no-obsolete -ts $(srcdir)/qt/locale/navcoin_en.ts
+	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LUPDATE) $^ -locations relative -no-obsolete -ts $(srcdir)/qt/locale/devault_en.ts
 
 $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 	@test -f $(RCC)
 	@cp -f $< $(@D)/temp_$(<F)
-	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name navcoin_locale $(@D)/temp_$(<F) | \
+	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name devault_locale $(@D)/temp_$(<F) | \
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 	@rm $(@D)/temp_$(<F)
 
 $(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(PROTOBUF_H)
 	@test -f $(RCC)
-	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name navcoin $< | \
+	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name devault $< | \
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 
-CLEAN_QT = $(nodist_qt_libnavcoinqt_a_SOURCES) $(QT_QM) $(QT_FORMS_H) qt/*.gcda qt/*.gcno
+CLEAN_QT = $(nodist_qt_libdevaultqt_a_SOURCES) $(QT_QM) $(QT_FORMS_H) qt/*.gcda qt/*.gcno
 
 CLEANFILES += $(CLEAN_QT)
 
-navcoin_qt_clean: FORCE
-	rm -f $(CLEAN_QT) $(qt_libnavcoinqt_a_OBJECTS) $(qt_navcoin_qt_OBJECTS) qt/navcoin-qt$(EXEEXT) $(LIBNAVCOINQT)
+devault_qt_clean: FORCE
+	rm -f $(CLEAN_QT) $(qt_libdevaultqt_a_OBJECTS) $(qt_devault_qt_OBJECTS) qt/devault-qt$(EXEEXT) $(LIBDEVAULTQT)
 
-navcoin_qt : qt/navcoin-qt$(EXEEXT)
+devault_qt : qt/devault-qt$(EXEEXT)
 
 ui_%.h: %.ui
 	@test -f $(UIC)

@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_PAYMENTSERVER_H
-#define NAVCOIN_QT_PAYMENTSERVER_H
+#ifndef DEVAULT_QT_PAYMENTSERVER_H
+#define DEVAULT_QT_PAYMENTSERVER_H
 
 // This class handles payment requests from clicking on
-// navcoin: URIs
+// devault: URIs
 //
 // This is somewhat tricky, because we have to deal with
 // the situation where the user clicks on a link during
@@ -152,4 +152,4 @@ private:
     WalletModel *model;
 };
 
-#endif // NAVCOIN_QT_PAYMENTSERVER_H
+#endif // DEVAULT_QT_PAYMENTSERVER_H

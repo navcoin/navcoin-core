@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_PLATFORMSTYLE_H
-#define NAVCOIN_QT_PLATFORMSTYLE_H
+#ifndef DEVAULT_QT_PLATFORMSTYLE_H
+#define DEVAULT_QT_PLATFORMSTYLE_H
 
 #include <QIcon>
 #include <QPixmap>
@@ -51,5 +51,5 @@ private:
     /* ... more to come later */
 };
 
-#endif // NAVCOIN_QT_PLATFORMSTYLE_H
+#endif // DEVAULT_QT_PLATFORMSTYLE_H
 

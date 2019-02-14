@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CONSENSUS_VALIDATION_H
-#define NAVCOIN_CONSENSUS_VALIDATION_H
+#ifndef DEVAULT_CONSENSUS_VALIDATION_H
+#define DEVAULT_CONSENSUS_VALIDATION_H
 
 #include <string>
 
@@ -85,4 +85,4 @@ public:
     std::string GetDebugMessage() const { return strDebugMessage; }
 };
 
-#endif // NAVCOIN_CONSENSUS_VALIDATION_H
+#endif // DEVAULT_CONSENSUS_VALIDATION_H

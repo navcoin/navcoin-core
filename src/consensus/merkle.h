@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_MERKLE
-#define NAVCOIN_MERKLE
+#ifndef DEVAULT_MERKLE
+#define DEVAULT_MERKLE
 
 #include <stdint.h>
 #include <vector>

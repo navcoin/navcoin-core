@@ -1,4 +1,4 @@
-# NavCoin v4.2.1 Release Notes
+# DeVault v4.2.1 Release Notes
 
 ### Hot Fix:
 

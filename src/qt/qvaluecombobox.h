@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_QVALUECOMBOBOX_H
-#define NAVCOIN_QT_QVALUECOMBOBOX_H
+#ifndef DEVAULT_QT_QVALUECOMBOBOX_H
+#define DEVAULT_QT_QVALUECOMBOBOX_H
 
 #include <QComboBox>
 #include <QVariant>
@@ -34,4 +34,4 @@ private Q_SLOTS:
     void handleSelectionChanged(int idx);
 };
 
-#endif // NAVCOIN_QT_QVALUECOMBOBOX_H
+#endif // DEVAULT_QT_QVALUECOMBOBOX_H

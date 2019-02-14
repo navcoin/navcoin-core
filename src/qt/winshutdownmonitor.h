@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_WINSHUTDOWNMONITOR_H
-#define NAVCOIN_QT_WINSHUTDOWNMONITOR_H
+#ifndef DEVAULT_QT_WINSHUTDOWNMONITOR_H
+#define DEVAULT_QT_WINSHUTDOWNMONITOR_H
 
 #ifdef WIN32
 #include <QByteArray>
@@ -26,4 +26,4 @@ public:
 #endif
 #endif
 
-#endif // NAVCOIN_QT_WINSHUTDOWNMONITOR_H
+#endif // DEVAULT_QT_WINSHUTDOWNMONITOR_H

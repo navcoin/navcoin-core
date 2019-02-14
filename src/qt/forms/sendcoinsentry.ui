@@ -143,7 +143,7 @@
     <item row="12" column="3">
      <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0">
       <item>
-       <widget class="NavCoinAmountField" name="payAmount">
+       <widget class="DeVaultAmountField" name="payAmount">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -197,7 +197,7 @@
        </font>
       </property>
       <property name="toolTip">
-       <string>The fee will be deducted from the amount being sent. The recipient will receive less navcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
+       <string>The fee will be deducted from the amount being sent. The recipient will receive less devaults than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
       </property>
       <property name="text">
        <string>S&amp;ubtract fee from amount</string>
@@ -218,7 +218,7 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>The NavCoin address to send the payment to</string>
+         <string>The DeVault address to send the payment to</string>
         </property>
         <property name="styleSheet">
          <string notr="true"/>
@@ -288,7 +288,7 @@
     <item row="20" column="3">
      <widget class="QLabel" name="messageTextLabel">
       <property name="toolTip">
-       <string>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</string>
+       <string>A message that was attached to the devault: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the DeVault network.</string>
       </property>
       <property name="styleSheet">
        <string notr="true"/>
@@ -911,7 +911,7 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="NavCoinAmountField" name="payAmount_is">
+     <widget class="DeVaultAmountField" name="payAmount_is">
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
@@ -1456,7 +1456,7 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="NavCoinAmountField" name="payAmount_s">
+     <widget class="DeVaultAmountField" name="payAmount_s">
       <property name="acceptDrops">
        <bool>false</bool>
       </property>
@@ -1475,9 +1475,9 @@
    <header>qvalidatedlineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>NavCoinAmountField</class>
+   <class>DeVaultAmountField</class>
    <extends>QLineEdit</extends>
-   <header>navcoinamountfield.h</header>
+   <header>devaultamountfield.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

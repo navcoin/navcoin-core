@@ -2,13 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_UTILITYDIALOG_H
-#define NAVCOIN_QT_UTILITYDIALOG_H
+#ifndef DEVAULT_QT_UTILITYDIALOG_H
+#define DEVAULT_QT_UTILITYDIALOG_H
 
 #include <QDialog>
 #include <QObject>
 
-class NavCoinGUI;
+class DeVaultGUI;
 class ClientModel;
 
 namespace Ui {
@@ -43,10 +43,10 @@ class ShutdownWindow : public QWidget
 
 public:
     ShutdownWindow(QWidget *parent=0, Qt::WindowFlags f=0);
-    static void showShutdownWindow(NavCoinGUI *window);
+    static void showShutdownWindow(DeVaultGUI *window);
 
 protected:
     void closeEvent(QCloseEvent *event);
 };
 
-#endif // NAVCOIN_QT_UTILITYDIALOG_H
+#endif // DEVAULT_QT_UTILITYDIALOG_H

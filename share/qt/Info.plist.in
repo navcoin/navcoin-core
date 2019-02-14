@@ -11,7 +11,7 @@
   </array>
 
   <key>CFBundleIconFile</key>
-  <string>navcoin.icns</string>
+  <string>devault.icns</string>
 
   <key>CFBundlePackageType</key>
   <string>APPL</string>
@@ -29,16 +29,16 @@
   <string>????</string>
 
   <key>CFBundleExecutable</key>
-  <string>NavCoin-Qt</string>
+  <string>DeVault-Qt</string>
   
   <key>CFBundleName</key>
-  <string>NavCoin-Qt</string>
+  <string>DeVault-Qt</string>
 
   <key>LSHasLocalizedDisplayName</key>
   <true/>
 
   <key>CFBundleIdentifier</key>
-  <string>org.navcoinfoundation.NavCoin-Qt</string>
+  <string>org.devaultfoundation.DeVault-Qt</string>
 
   <key>CFBundleURLTypes</key>
   <array>
@@ -46,10 +46,10 @@
       <key>CFBundleTypeRole</key>
       <string>Editor</string>
       <key>CFBundleURLName</key>
-      <string>org.navcoin.NavCoinPayment</string>
+      <string>org.devault.DeVaultPayment</string>
       <key>CFBundleURLSchemes</key>
       <array>
-        <string>navcoin</string>
+        <string>devault</string>
       </array>
     </dict>
   </array>
@@ -58,9 +58,9 @@
   <array>
     <dict>
       <key>UTTypeIdentifier</key>
-      <string>org.navcoin.paymentrequest</string>
+      <string>org.devault.paymentrequest</string>
       <key>UTTypeDescription</key>
-      <string>NavCoin payment request</string>
+      <string>DeVault payment request</string>
       <key>UTTypeConformsTo</key>
       <array>
         <string>public.data</string>
@@ -68,10 +68,10 @@
       <key>UTTypeTagSpecification</key>
       <dict>
         <key>public.mime-type</key>
-        <string>application/x-navcoin-payment-request</string>
+        <string>application/x-devault-payment-request</string>
         <key>public.filename-extension</key>
         <array>
-          <string>navcoinpaymentrequest</string>
+          <string>devaultpaymentrequest</string>
         </array>
       </dict>
     </dict>
@@ -84,7 +84,7 @@
       <string>Editor</string>
       <key>LSItemContentTypes</key>
       <array>
-        <string>org.navcoin.paymentrequest</string>
+        <string>org.devault.paymentrequest</string>
       </array>
       <key>LSHandlerRank</key>
       <string>Owner</string>

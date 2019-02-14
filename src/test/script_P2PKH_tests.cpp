@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "script/script.h"
-#include "test/test_navcoin.h"
+#include "test/test_devault.h"
 
 #include <boost/test/unit_test.hpp>
 

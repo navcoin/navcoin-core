@@ -1,11 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_PRIMITIVES_TRANSACTION_H
-#define NAVCOIN_PRIMITIVES_TRANSACTION_H
+#ifndef DEVAULT_PRIMITIVES_TRANSACTION_H
+#define DEVAULT_PRIMITIVES_TRANSACTION_H
 
 #include "amount.h"
 #include "consensus/cfund.h"
@@ -552,4 +552,4 @@ struct CMutableTransaction
 /** Compute the weight of a transaction, as defined by BIP 141 */
 int64_t GetTransactionWeight(const CTransaction &tx);
 
-#endif // NAVCOIN_PRIMITIVES_TRANSACTION_H
+#endif // DEVAULT_PRIMITIVES_TRANSACTION_H

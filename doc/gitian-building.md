@@ -1,9 +1,9 @@
 Gitian building
 ================
 
-*Setup instructions for a Gitian build of NavCoin Core using a Debian VM or physical system.*
+*Setup instructions for a Gitian build of DeVault Core using a Debian VM or physical system.*
 
-Gitian is the deterministic build process that is used to build the NavCoin
+Gitian is the deterministic build process that is used to build the DeVault
 Core executables. It provides a way to be reasonably sure that the
 executables are really built from the source on GitHub. It also makes sure that
 the same, tested dependencies are used and statically built into the executable.
@@ -11,7 +11,7 @@ the same, tested dependencies are used and statically built into the executable.
 Multiple developers build the source code by following a specific descriptor
 ("recipe"), cryptographically sign the result, and upload the resulting signature.
 These results are compared and only if they match, the build is accepted and uploaded
-to navcoin.org.
+to devault.org.
 
 More independent Gitian builders are needed, which is why this guide exists.
 It is preferred you follow these steps yourself instead of using someone else's
@@ -26,7 +26,7 @@ Table of Contents
 - [Installing Gitian](#installing-gitian)
 - [Setting up the Gitian image](#setting-up-the-gitian-image)
 - [Getting and building the inputs](#getting-and-building-the-inputs)
-- [Building NavCoin Core](#building-navcoin-core)
+- [Building DeVault Core](#building-devault-core)
 - [Building an alternative repository](#building-an-alternative-repository)
 - [Signing externally](#signing-externally)
 - [Uploading signatures](#uploading-signatures)
@@ -41,7 +41,7 @@ Debian Linux was chosen as the host distribution because it has a lightweight in
 Any kind of virtualization can be used, for example:
 - [VirtualBox](https://www.virtualbox.org/) (covered by this guide)
 - [KVM](http://www.linux-kvm.org/page/Main_Page)
-- [LXC](https://linuxcontainers.org/), see also [Gitian host docker container](https://github.com/gdm85/tenku/tree/master/docker/gitian-navcoin-host/README.md).
+- [LXC](https://linuxcontainers.org/), see also [Gitian host docker container](https://github.com/gdm85/tenku/tree/master/docker/gitian-devault-host/README.md).
 
 You can also install Gitian on actual hardware instead of using virtualization.
 
@@ -305,11 +305,11 @@ cd ..
 
 **Note**: When sudo asks for a password, enter the password for the user *debian* not for *root*.
 
-Clone the git repositories for navcoin and Gitian.
+Clone the git repositories for devault and Gitian.
 
 ```bash
 git clone https://github.com/devrandom/gitian-builder.git
-git clone https://github.com/navcoin/navcoin-core
+git clone https://github.com/devault/devault-core
 ```
 
 Setting up the Gitian image
@@ -336,16 +336,16 @@ Getting and building the inputs
 --------------------------------
 
 Follow the instructions in [doc/release-process.md](release-process.md#fetch-and-create-inputs-first-time-or-when-dependency-versions-change)
-in the navcoin repository under 'Fetch and create inputs' to install sources which require
+in the devault repository under 'Fetch and create inputs' to install sources which require
 manual intervention. Also optionally follow the next step: 'Seed the Gitian sources cache
 and offline git repositories' which will fetch the remaining files required for building
 offline.
 
-Building NavCoin Core
+Building DeVault Core
 ----------------
 
-To build NavCoin Core (for Linux, OS X and Windows) just follow the steps under 'Setup and perform
-Gitian builds' in [doc/release-process.md](release-process.md#setup-and-perform-gitian-builds) in the navcoin repository.
+To build DeVault Core (for Linux, OS X and Windows) just follow the steps under 'Setup and perform
+Gitian builds' in [doc/release-process.md](release-process.md#setup-and-perform-gitian-builds) in the devault repository.
 
 This may take some time as it will build all the dependencies needed for each descriptor.
 These dependencies will be cached after a successful build to avoid rebuilding them when possible.
@@ -359,12 +359,12 @@ tail -f var/build.log
 
 Output from `gbuild` will look something like
 
-    Initialized empty Git repository in /home/debian/gitian-builder/inputs/navcoin/.git/
+    Initialized empty Git repository in /home/debian/gitian-builder/inputs/devault/.git/
     remote: Counting objects: 57959, done.
     remote: Total 57959 (delta 0), reused 0 (delta 0), pack-reused 57958
     Receiving objects: 100% (57959/57959), 53.76 MiB | 484.00 KiB/s, done.
     Resolving deltas: 100% (41590/41590), done.
-    From https://github.com/navcoindev/navcoin-core
+    From https://github.com/devaultdev/devault-core
     ... (new tags, new branch etc)
     --- Building for trusty amd64 ---
     Stopping target if it is up
@@ -390,19 +390,19 @@ and inputs.
 
 For example:
 ```bash
-URL=https://github.com/navcoindev/navcoin-core.git
+URL=https://github.com/devaultdev/devault-core.git
 COMMIT=2014_03_windows_unicode_path
-./bin/gbuild --commit navcoin-core=${COMMIT} --url navcoin-core=${URL} ../navcoin-core/contrib/gitian-descriptors/gitian-arm.yml
-./bin/gbuild --commit navcoin-core=${COMMIT} --url navcoin-core=${URL} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
-./bin/gbuild --commit navcoin-core=${COMMIT} --url navcoin-core=${URL} ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
-./bin/gbuild --commit navcoin-core=${COMMIT} --url navcoin-core=${URL} ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
+./bin/gbuild --commit devault-core=${COMMIT} --url devault-core=${URL} ../devault-core/contrib/gitian-descriptors/gitian-arm.yml
+./bin/gbuild --commit devault-core=${COMMIT} --url devault-core=${URL} ../devault-core/contrib/gitian-descriptors/gitian-linux.yml
+./bin/gbuild --commit devault-core=${COMMIT} --url devault-core=${URL} ../devault-core/contrib/gitian-descriptors/gitian-win.yml
+./bin/gbuild --commit devault-core=${COMMIT} --url devault-core=${URL} ../devault-core/contrib/gitian-descriptors/gitian-osx.yml
 ```
 
 Building fully offline
 -----------------------
 
 For building fully offline including attaching signatures to unsigned builds, the detached-sigs repository
-and the navcoin git repository with the desired tag must both be available locally, and then gbuild must be
+and the devault git repository with the desired tag must both be available locally, and then gbuild must be
 told where to find them. It also requires an apt-cacher-ng which is fully-populated but set to offline mode, or
 manually disabling gitian-builder's use of apt-get to update the VM build environment.
 
@@ -421,7 +421,7 @@ cd /path/to/gitian-builder
 LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root apt-get update
 LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root \
   -e DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
-  $( sed -ne '/^packages:/,/[^-] .*/ {/^- .*/{s/"//g;s/- //;p}}' ../navcoin/contrib/gitian-descriptors/*|sort|uniq )
+  $( sed -ne '/^packages:/,/[^-] .*/ {/^- .*/{s/"//g;s/- //;p}}' ../devault/contrib/gitian-descriptors/*|sort|uniq )
 LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root apt-get -q -y purge grub
 LXC_ARCH=amd64 LXC_SUITE=trusty on-target -u root -e DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
 ```
@@ -441,12 +441,12 @@ Then when building, override the remote URLs that gbuild would otherwise pull fr
 ```bash
 
 cd /some/root/path/
-git clone https://github.com/navcoin-core/navcoin-detached-sigs.git
+git clone https://github.com/devault-core/devault-detached-sigs.git
 
-NAVPATH=/some/root/path/navcoin
-SIGPATH=/some/root/path/navcoin-detached-sigs
+NAVPATH=/some/root/path/devault
+SIGPATH=/some/root/path/devault-detached-sigs
 
-./bin/gbuild --url navcoin=${NAVPATH},signature=${SIGPATH} ../navcoin/contrib/gitian-descriptors/gitian-win-signer.yml
+./bin/gbuild --url devault=${NAVPATH},signature=${SIGPATH} ../devault/contrib/gitian-descriptors/gitian-win-signer.yml
 ```
 
 Building with Debian 9.5.0
@@ -481,9 +481,9 @@ When you execute `gsign` you will get an error from GPG, which can be ignored. C
 in `gitian.sigs` to your signing machine and do
 
 ```bash
-    gpg --detach-sign ${VERSION}-linux/${SIGNER}/navcoin-linux-build.assert
-    gpg --detach-sign ${VERSION}-win/${SIGNER}/navcoin-win-build.assert
-    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/navcoin-osx-build.assert
+    gpg --detach-sign ${VERSION}-linux/${SIGNER}/devault-linux-build.assert
+    gpg --detach-sign ${VERSION}-win/${SIGNER}/devault-win-build.assert
+    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/devault-osx-build.assert
 ```
 
 This will create the `.sig` files that can be committed together with the `.assert` files to assert your
@@ -493,5 +493,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[NAVCoin/navcoin-sigs](https://github.com/NAVCoin/navcoin-sigs) repository, or if that's not possible create a pull
+[DeVault/devault-sigs](https://github.com/DeVault/devault-sigs) repository, or if that's not possible create a pull
 request.

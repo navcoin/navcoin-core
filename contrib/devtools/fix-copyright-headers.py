@@ -17,8 +17,8 @@ import re
 
 year = time.gmtime()[0]
 CMD_GIT_DATE = 'git log --format=@%%at -1 %s | date +"%%Y" -u -f -'
-CMD_REGEX= "perl -pi -e 's/(20\d\d)(?:-20\d\d)? The NavCoin/$1-%s The NavCoin/' %s"
-REGEX_CURRENT= re.compile("%s The NavCoin" % year)
+CMD_REGEX= "perl -pi -e 's/(20\d\d)(?:-20\d\d)? The DeVault/$1-%s The DeVault/' %s"
+REGEX_CURRENT= re.compile("%s The DeVault" % year)
 CMD_LIST_FILES= "find %s | grep %s"
 
 FOLDERS = ["./qa", "./src"]

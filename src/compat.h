@@ -3,11 +3,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_COMPAT_H
-#define NAVCOIN_COMPAT_H
+#ifndef DEVAULT_COMPAT_H
+#define DEVAULT_COMPAT_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include "config/devault-config.h"
 #endif
 
 #ifdef WIN32
@@ -101,4 +101,4 @@ bool static inline IsSelectableSocket(SOCKET s) {
 #endif
 
 
-#endif // NAVCOIN_COMPAT_H
+#endif // DEVAULT_COMPAT_H

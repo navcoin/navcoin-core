@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/devault/.devault" ]; then
+	DEVAULTD_DEFAULT_DATADIR="/var/lib/devault/.devault"
+else
+	DEVAULTD_DEFAULT_DATADIR="/var/lib/devaultd"
+fi
+
+DEVAULTD_CONFIGFILE=${DEVAULTD_CONFIGFILE:-/etc/devault/devault.conf}
+DEVAULTD_PIDDIR=${DEVAULTD_PIDDIR:-/var/run/devaultd}
+DEVAULTD_PIDFILE=${DEVAULTD_PIDFILE:-${DEVAULTD_PIDDIR}/devaultd.pid}
+DEVAULTD_DATADIR=${DEVAULTD_DATADIR:-${DEVAULTD_DEFAULT_DATADIR}}
+DEVAULTD_USER=${DEVAULTD_USER:-${DEVAULT_USER:-devault}}
+DEVAULTD_GROUP=${DEVAULTD_GROUP:-devault}
+DEVAULTD_BIN=${DEVAULTD_BIN:-/usr/bin/devaultd}
+DEVAULTD_NICE=${DEVAULTD_NICE:-${NICELEVEL:-0}}
+DEVAULTD_OPTS="${DEVAULTD_OPTS:-${DEVAULT_OPTS}}"
+
+name="DeVault Core Daemon"
+description="DeVault cryptocurrency P2P network daemon"
+
+command="/usr/bin/devaultd"
+command_args="-pid=\"${DEVAULTD_PIDFILE}\" \
+		-conf=\"${DEVAULTD_CONFIGFILE}\" \
+		-datadir=\"${DEVAULTD_DATADIR}\" \
+		-daemon \
+		${DEVAULTD_OPTS}"
+
+required_files="${DEVAULTD_CONFIGFILE}"
+start_stop_daemon_args="-u ${DEVAULTD_USER} \
+			-N ${DEVAULTD_NICE} -w 2000"
+pidfile="${DEVAULTD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${DEVAULTD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${DEVAULTD_USER}:${DEVAULTD_GROUP}" \
+	"${DEVAULTD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${DEVAULTD_USER}:${DEVAULTD_GROUP}" \
+	"${DEVAULTD_PIDDIR}"
+
+	checkpath -f \
+	-o ${DEVAULTD_USER}:${DEVAULTD_GROUP} \
+	-m 0660 \
+	${DEVAULTD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${DEVAULTD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run devaultd."
+		eerror "The setting must appear in ${DEVAULTD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"DeVault Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

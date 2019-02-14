@@ -1,11 +1,11 @@
 Sample configuration files for:
 
-SystemD: navcoind.service
-Upstart: navcoind.conf
-OpenRC:  navcoind.openrc
-         navcoind.openrcconf
-CentOS:  navcoind.init
-OS X:    org.navcoin.navcoind.plist
+SystemD: devaultd.service
+Upstart: devaultd.conf
+OpenRC:  devaultd.openrc
+         devaultd.openrcconf
+CentOS:  devaultd.init
+OS X:    org.devault.devaultd.plist
 
 have been made available to assist packagers in creating node packages here.
 

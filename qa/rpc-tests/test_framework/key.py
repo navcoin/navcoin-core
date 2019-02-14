@@ -2,7 +2,7 @@
 #
 # key.py - OpenSSL wrapper
 #
-# This file is modified from python-navcoinlib.
+# This file is modified from python-devaultlib.
 #
 
 """ECC secp256k1 crypto routines

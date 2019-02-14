@@ -2,9 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_NOUI_H
-#define NAVCOIN_NOUI_H
+#ifndef DEVAULT_NOUI_H
+#define DEVAULT_NOUI_H
 
 extern void noui_connect();
 
-#endif // NAVCOIN_NOUI_H
+#endif // DEVAULT_NOUI_H

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_CLIENTMODEL_H
-#define NAVCOIN_QT_CLIENTMODEL_H
+#ifndef DEVAULT_QT_CLIENTMODEL_H
+#define DEVAULT_QT_CLIENTMODEL_H
 
 #include <QObject>
 #include <QDateTime>
@@ -35,7 +35,7 @@ enum NumConnections {
     CONNECTIONS_ALL  = (CONNECTIONS_IN | CONNECTIONS_OUT),
 };
 
-/** Model for NavCoin network client. */
+/** Model for DeVault network client. */
 class ClientModel : public QObject
 {
     Q_OBJECT
@@ -108,4 +108,4 @@ public Q_SLOTS:
     void updateBanlist();
 };
 
-#endif // NAVCOIN_QT_CLIENTMODEL_H
+#endif // DEVAULT_QT_CLIENTMODEL_H

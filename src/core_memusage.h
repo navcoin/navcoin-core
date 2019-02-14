@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CORE_MEMUSAGE_H
-#define NAVCOIN_CORE_MEMUSAGE_H
+#ifndef DEVAULT_CORE_MEMUSAGE_H
+#define DEVAULT_CORE_MEMUSAGE_H
 
 #include "primitives/transaction.h"
 #include "primitives/block.h"
@@ -79,4 +79,4 @@ static inline size_t RecursiveDynamicUsage(const CBlockLocator& locator) {
     return memusage::DynamicUsage(locator.vHave);
 }
 
-#endif // NAVCOIN_CORE_MEMUSAGE_H
+#endif // DEVAULT_CORE_MEMUSAGE_H

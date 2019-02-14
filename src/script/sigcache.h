@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_SCRIPT_SIGCACHE_H
-#define NAVCOIN_SCRIPT_SIGCACHE_H
+#ifndef DEVAULT_SCRIPT_SIGCACHE_H
+#define DEVAULT_SCRIPT_SIGCACHE_H
 
 #include "script/interpreter.h"
 
@@ -27,4 +27,4 @@ public:
     bool VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const;
 };
 
-#endif // NAVCOIN_SCRIPT_SIGCACHE_H
+#endif // DEVAULT_SCRIPT_SIGCACHE_H

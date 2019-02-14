@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The NavCoin Core developers
+// Copyright (c) 2019 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,7 +8,7 @@
 bool DestinationToVecRecipients(CAmount nValue, const std::string &strAddress, vector<CRecipient> &vecSend, bool fSubtractFeeFromAmount,
                                 bool fDonate, bool& fRetNeedsZeroMinting, bool fPrivate, bool fReduceOutputs)
 {
-    CNavCoinAddress a(strAddress);
+    CDeVaultAddress a(strAddress);
 
     if(!a.IsValid())
         return false;
@@ -91,7 +91,7 @@ bool DestinationToVecRecipients(CAmount nValue, const CTxDestination &address, v
 
 bool MintVecRecipients(const std::string &strAddress, vector<CRecipient> &vecSend, bool fShowDialog)
 {
-    CNavCoinAddress a(strAddress);
+    CDeVaultAddress a(strAddress);
 
     if(!a.IsValid())
         return false;

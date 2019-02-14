@@ -1,13 +1,13 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: NavCoin
+Upstream-Name: DeVault
 Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
- irc://#navcoin@freenode.net
-Source: https://github.com/navcoin/navcoin
+ irc://#devault@freenode.net
+Source: https://github.com/devault/devault
 
 Files: *
 Copyright: 2009-2016, Bitcoin Core Developers
 License: Expat
-Comment: The NavCoin Core Developers encompasses the current developers listed on navcoin.org,
+Comment: The DeVault Core Developers encompasses the current developers listed on devault.org,
          as well as the numerous contributors to the project.
 
 Files: debian/*
@@ -75,12 +75,12 @@ License: Expat
 Comment: Modifications of Stephan Hutchings Typicons
 
 Files: src/qt/res/icons/about.png
-       src/qt/res/icons/navcoin.*
-       share/pixmaps/navcoin*
-       src/qt/res/src/navcoin.svg
+       src/qt/res/icons/devault.*
+       share/pixmaps/devault*
+       src/qt/res/src/devault.svg
 Copyright: Bitboy, Jonas Schnelli
 License: public-domain
-Comment: Site: https://navcointalk.org/?topic=1756.0
+Comment: Site: https://devaulttalk.org/?topic=1756.0
 
 
 License: Expat

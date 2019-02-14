@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_AMOUNT_H
-#define NAVCOIN_AMOUNT_H
+#ifndef DEVAULT_AMOUNT_H
+#define DEVAULT_AMOUNT_H
 
 #include "serialize.h"
 
@@ -21,7 +21,7 @@ extern const std::string CURRENCY_UNIT;
 
 /** No amount larger than this (in satoshi) is valid.
  *
- * Note that this constant is *not* the total money supply, which in NavCoin
+ * Note that this constant is *not* the total money supply, which in DeVault
  * currently happens to be less than 21,000,000 NAV for various reasons, but
  * rather a sanity check. As this sanity check is used by consensus-critical
  * validation code, the exact value of the MAX_MONEY constant is consensus
@@ -69,4 +69,4 @@ public:
     }
 };
 
-#endif //  NAVCOIN_AMOUNT_H
+#endif //  DEVAULT_AMOUNT_H

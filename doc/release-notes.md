@@ -1,28 +1,28 @@
-NavCoin Core version 0.13.0 is now available from:
+DeVault Core version 0.13.0 is now available from:
 
-  <https://navcoin.org/bin/navcoin-core-0.13.0/>
+  <https://devault.org/bin/devault-core-0.13.0/>
 
 This is a new major version release, including new features, various bugfixes
 and performance improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/navcoin/navcoin/issues>
+  <https://github.com/devault/devault/issues>
 
 To receive security and update notifications, please subscribe to:
 
-  <https://navcoincore.org/en/list/announcements/join/>
+  <https://devaultcore.org/en/list/announcements/join/>
 
 Compatibility
 ==============
 
 Microsoft ended support for Windows XP on [April 8th, 2014](https://www.microsoft.com/en-us/WindowsForBusiness/end-of-xp-support),
 an OS initially released in 2001. This means that not even critical security
-updates will be released anymore. Without security updates, using a navcoin
+updates will be released anymore. Without security updates, using a devault
 wallet on a XP machine is irresponsible at least.
 
-In addition to that, with 0.12.x there have been varied reports of NavCoin Core
-randomly crashing on Windows XP. It is [not clear](https://github.com/navcoin/navcoin/issues/7681#issuecomment-217439891)
+In addition to that, with 0.12.x there have been varied reports of DeVault Core
+randomly crashing on Windows XP. It is [not clear](https://github.com/devault/devault/issues/7681#issuecomment-217439891)
 what the source of these crashes is, but it is likely that upstream
 libraries such as Qt are no longer being tested on XP.
 
@@ -48,21 +48,21 @@ For this reason the default was changed to 300 MiB in this release.
 For nodes on low-memory systems, the database cache can be changed back to
 100 MiB (or to another value) by either:
 
-- Adding `dbcache=100` in navcoin.conf
+- Adding `dbcache=100` in devault.conf
 - Changing it in the GUI under `Options → Size of database cache`
 
 Note that the database cache setting has the most performance impact
 during initial sync of a node, and when catching up after downtime.
 
 
-navcoin-cli: arguments privacy
+devault-cli: arguments privacy
 ------------------------------
 
 The RPC command line client gained a new argument, `-stdin`
 to read extra arguments from standard input, one per line until EOF/Ctrl-D.
 For example:
 
-    $ src/navcoin-cli -stdin walletpassphrase
+    $ src/devault-cli -stdin walletpassphrase
     mysecretcode
     120
     ..... press Ctrl-D here to end input
@@ -76,7 +76,7 @@ table by any user on the system.
 C++11 and Python 3
 ------------------
 
-Various code modernizations have been done. The NavCoin Core code base has
+Various code modernizations have been done. The DeVault Core code base has
 started using C++11. This means that a C++11-capable compiler is now needed for
 building. Effectively this means GCC 4.7 or higher, or Clang 3.3 or higher.
 
@@ -95,9 +95,9 @@ executables.
 
 The following extra files can be found in the download directory or torrent:
 
-- `navcoin-${VERSION}-arm-linux-gnueabihf.tar.gz`: Linux binaries for the most
+- `devault-${VERSION}-arm-linux-gnueabihf.tar.gz`: Linux binaries for the most
   common 32-bit ARM architecture.
-- `navcoin-${VERSION}-aarch64-linux-gnu.tar.gz`: Linux binaries for the most
+- `devault-${VERSION}-aarch64-linux-gnu.tar.gz`: Linux binaries for the most
   common 64-bit ARM architecture.
 
 ARM builds are still experimental. If you have problems on a certain device or
@@ -117,7 +117,7 @@ in PR 8068.
 The primary goal is reducing the bandwidth spikes at relay time, though in many
 cases it also reduces propagation delay. It is automatically enabled between
 compatible peers.
-[BIP 152](https://github.com/navcoin/bips/blob/master/bip-0152.mediawiki)
+[BIP 152](https://github.com/devault/bips/blob/master/bip-0152.mediawiki)
 
 As a side-effect, ordinary non-mining nodes will download and upload blocks
 faster if those blocks were produced by miners using similar transaction
@@ -151,23 +151,23 @@ You can't disable HD key generation once you have created a HD wallet.
 
 There is no distinction between internal (change) and external keys.
 
-HD wallets are incompatible with older versions of NavCoin Core.
+HD wallets are incompatible with older versions of DeVault Core.
 
-[Pull request](https://github.com/navcoin/navcoin/pull/8035/files), [BIP 32](https://github.com/navcoin/bips/blob/master/bip-0032.mediawiki)
+[Pull request](https://github.com/devault/devault/pull/8035/files), [BIP 32](https://github.com/devault/bips/blob/master/bip-0032.mediawiki)
 
 
 Segregated Witness
 ------------------
 
 The code preparations for Segregated Witness ("segwit"), as described in [BIP
-141](https://github.com/navcoin/bips/blob/master/bip-0141.mediawiki), [BIP
-143](https://github.com/navcoin/bips/blob/master/bip-0143.mediawiki), [BIP
-144](https://github.com/navcoin/bips/blob/master/bip-0144.mediawiki), and [BIP
-145](https://github.com/navcoin/bips/blob/master/bip-0145.mediawiki) are
+141](https://github.com/devault/bips/blob/master/bip-0141.mediawiki), [BIP
+143](https://github.com/devault/bips/blob/master/bip-0143.mediawiki), [BIP
+144](https://github.com/devault/bips/blob/master/bip-0144.mediawiki), and [BIP
+145](https://github.com/devault/bips/blob/master/bip-0145.mediawiki) are
 finished and included in this release.  However, BIP 141 does not yet specify
 activation parameters on mainnet, and so this release does not support segwit
 use on mainnet.  Testnet use is supported, and after BIP 141 is updated with
-proposed parameters, a future release of NavCoin Core is expected that
+proposed parameters, a future release of DeVault Core is expected that
 implements those parameters for mainnet.
 
 Furthermore, because segwit activation is not yet specified for mainnet,
@@ -194,7 +194,7 @@ The command line option `-blockmaxsize` remains an option to specify the
 maximum number of serialized bytes in a generated block.  In addition, the new
 command line option `-blockmaxweight` has been added, which specifies the
 maximum "block weight" of a generated block, as defined by [BIP 141 (Segregated
-Witness)] (https://github.com/navcoin/bips/blob/master/bip-0141.mediawiki).
+Witness)] (https://github.com/devault/bips/blob/master/bip-0141.mediawiki).
 
 In preparation for Segregated Witness, the mining algorithm has been modified
 to optimize transaction selection for a given block weight, rather than a given
@@ -211,7 +211,7 @@ support `-blockmaxsize` performs additional computation to ensure that
 constraint is met.  (Note that for mainnet, in this release, the equivalent
 parameter for `-blockmaxweight` would be four times the desired
 `-blockmaxsize`.  See [BIP 141]
-(https://github.com/navcoin/bips/blob/master/bip-0141.mediawiki) for additional
+(https://github.com/devault/bips/blob/master/bip-0141.mediawiki) for additional
 details.)
 
 In the future, the `-blockmaxsize` option may be removed, as block creation is
@@ -227,7 +227,7 @@ files on disk. These two have now been split up, so that all blocks are known
 before validation starts. This was necessary to make certain optimizations that
 are available during normal synchronizations also available during reindexing.
 
-The two phases are distinct in the NavCoin-Qt GUI. During the first one,
+The two phases are distinct in the DeVault-Qt GUI. During the first one,
 "Reindexing blocks on disk" is shown. During the second (slower) one,
 "Processing blocks on disk" is shown.
 
@@ -272,7 +272,7 @@ Low-level P2P changes
 - The optional new p2p message "feefilter" is implemented and the protocol
   version is bumped to 70013. Upon receiving a feefilter message from a peer,
   a node will not send invs for any transactions which do not meet the filter
-  feerate. [BIP 133](https://github.com/navcoin/bips/blob/master/bip-0133.mediawiki)
+  feerate. [BIP 133](https://github.com/devault/bips/blob/master/bip-0133.mediawiki)
 
 - The P2P alert system has been removed in PR #7692 and the `alert` P2P message
   is no longer supported.
@@ -321,10 +321,10 @@ Low-level RPC changes
 - Asm script outputs replacements for OP_NOP2 and OP_NOP3
 
   - OP_NOP2 has been renamed to OP_CHECKLOCKTIMEVERIFY by [BIP 
-65](https://github.com/navcoin/bips/blob/master/bip-0065.mediawiki)
+65](https://github.com/devault/bips/blob/master/bip-0065.mediawiki)
 
   - OP_NOP3 has been renamed to OP_CHECKSEQUENCEVERIFY by [BIP 
-112](https://github.com/navcoin/bips/blob/master/bip-0112.mediawiki)
+112](https://github.com/devault/bips/blob/master/bip-0112.mediawiki)
 
   - The following outputs are affected by this change:
 
@@ -333,7 +333,7 @@ Low-level RPC changes
     - RPC `decodescript`
     - REST `/rest/tx/` (JSON format)
     - REST `/rest/block/` (JSON format when including extended tx details)
-    - `navcoin-tx -json`
+    - `devault-tx -json`
 
 - The sorting of the output of the `getrawmempool` output has changed.
 
@@ -353,7 +353,7 @@ Low-level ZMQ changes
   listeners to detect lost notifications.
   The sequence number is always the last element in a multi-part ZMQ notification and
   therefore backward compatible. Each message type has its own counter.
-  PR [#7762](https://github.com/navcoin/navcoin/pull/7762).
+  PR [#7762](https://github.com/devault/devault/pull/7762).
 
 
 0.13.0 Change log
@@ -370,7 +370,7 @@ git merge commit are mentioned.
 - #7326 `2cd004b` Fix typo, wrong information in gettxout help text (paveljanik)
 - #7222 `82429d0` Indicate which transactions are signaling opt-in RBF (sdaftuar)
 - #7480 `b49a623` Changed getnetworkhps value to double to avoid overflow (instagibbs)
-- #7550 `8b958ab` Input-from-stdin mode for navcoin-cli (laanwj)
+- #7550 `8b958ab` Input-from-stdin mode for devault-cli (laanwj)
 - #7670 `c9a1265` Use cached block hash in blockToJSON() (rat4)
 - #7726 `9af69fa` Correct importaddress help reference to importpubkey (CypherGrue)
 - #7766 `16555b6` Register calls where they are defined (laanwj)
@@ -535,7 +535,7 @@ git merge commit are mentioned.
 - #7604 `354b03d` build: Remove spurious dollar sign. Fixes #7189 (dooglus)
 - #7605 `7f001bd` Remove openssl info from init/log and from Qt debug window (jonasschnelli)
 - #7628 `87d6562` Add 'copy full transaction details' option (ericshawlinux)
-- #7613 `3798e5d` Add autocomplete to navcoin-qt's console window (GamerSg)
+- #7613 `3798e5d` Add autocomplete to devault-qt's console window (GamerSg)
 - #7668 `b24266c` Fix history deletion bug after font size change (achow101)
 - #7680 `41d2dfa` Remove reflection from `about` icon (laanwj)
 - #7686 `f034bce` Remove 0-fee from send dialog (MarcoFalke)
@@ -552,13 +552,13 @@ git merge commit are mentioned.
 - #8014 `77b49ac` Sort transactions by date (Tyler-Hardin)
 - #8073 `eb2f6f7` askpassphrasedialog: Clear pass fields on accept (rat4)
 - #8129 `ee1533e` Fix RPC console auto completer (UdjinM6)
-- #7636 `fb0ac48` Add navcoin address label to request payment QR code (makevoid)
+- #7636 `fb0ac48` Add devault address label to request payment QR code (makevoid)
 - #8231 `760a6c7` Fix a bug where the SplashScreen will not be hidden during startup (jonasschnelli)
-- #8256 `af2421c` BUG: navcoin-qt crash (fsb4000)
-- #8257 `ff03c50` Do not ask a UI question from navcoind (sipa)
+- #8256 `af2421c` BUG: devault-qt crash (fsb4000)
+- #8257 `ff03c50` Do not ask a UI question from devaultd (sipa)
 - #8288 `91abb77` Network-specific example address (laanwj)
 - #7707 `a914968` UI support for abandoned transactions (jonasschnelli)
-- #8207 `f7a403b` Add a link to the NavCoin-Core repository and website to the About Dialog (MarcoFalke)
+- #8207 `f7a403b` Add a link to the DeVault-Core repository and website to the About Dialog (MarcoFalke)
 - #8281 `6a87eb0` Remove client name from debug window (laanwj)
 - #8407 `45eba4b` Add dbcache migration path (jonasschnelli)
 
@@ -645,7 +645,7 @@ git merge commit are mentioned.
 - #8038 `e2bf830` Various minor fixes (MarcoFalke)
 - #8072 `1b87e5b` Travis: 'make check' in parallel and verbose (MarcoFalke)
 - #8056 `8844ef1` Remove hardcoded "4 nodes" from test_framework (MarcoFalke)
-- #8047 `37f9a1f` Test_framework: Set wait-timeout for navcoind procs (MarcoFalke)
+- #8047 `37f9a1f` Test_framework: Set wait-timeout for devaultd procs (MarcoFalke)
 - #8095 `6700cc9` Test framework: only cleanup on successful test runs (sdaftuar)
 - #8098 `06bd4f6` Test_framework: Append portseed to tmpdir (MarcoFalke)
 - #8104 `6ff2c8d` Add timeout to sync_blocks() and sync_mempools() (sdaftuar)
@@ -655,7 +655,7 @@ git merge commit are mentioned.
 - #8090 `a2df115` Adding P2SH(p2pkh) script test case (Christewart)
 - #7992 `ec45cc5` Extend #7956 with one more test (TheBlueMatt)
 - #8139 `ae5575b` Fix interrupted HTTP RPC connection workaround for Python 3.5+ (sipa)
-- #8164 `0f24eaf` [NavCoin-Tx] fix missing test fixtures, fix 32bit atoi issue (jonasschnelli)
+- #8164 `0f24eaf` [DeVault-Tx] fix missing test fixtures, fix 32bit atoi issue (jonasschnelli)
 - #8166 `0b5279f` Src/test: Do not shadow local variables (paveljanik)
 - #8141 `44c1b1c` Continuing port of java comparison tool (mrbandrews)
 - #8201 `36b7400` fundrawtransaction: Fix race, assert amounts (MarcoFalke)
@@ -665,7 +665,7 @@ git merge commit are mentioned.
 - #8216 `0d41d70` Assert 'changePosition out of bounds'  (MarcoFalke)
 - #8222 `961893f` Enable mempool consistency checks in unit tests (sipa)
 - #7751 `84370d5` test_framework: python3.4 authproxy compat (laanwj)
-- #7744 `d8e862a` test_framework: detect failure of navcoind startup (laanwj)
+- #7744 `d8e862a` test_framework: detect failure of devaultd startup (laanwj)
 - #8280 `115735d` Increase sync_blocks() timeouts in pruning.py (MarcoFalke)
 - #8340 `af9b7a9` Solve trivial merge conflict in p2p-segwit.py (MarcoFalke)
 - #8067 `3e4cf8f` Travis: use slim generic image, and some fixups (theuni)
@@ -702,7 +702,7 @@ git merge commit are mentioned.
 - #7791 `e30a5b0` Change Precise to Trusty in gitian-building.md (JeremyRand)
 - #7838 `8bb5d3d` Update gitian build guide to debian 8.4.0 (fanquake)
 - #7855 `b778e59` Replace precise with trusty (MarcoFalke)
-- #7975 `fc23fee` Update navcoin-core GitHub links (MarcoFalke)
+- #7975 `fc23fee` Update devault-core GitHub links (MarcoFalke)
 - #8034 `e3a8207` Add basic git squash workflow (fanquake)
 - #7813 `214ec0b` Update port in tor.md (MarcoFalke)
 - #8193 `37c9830` Use Debian 8.5 in the gitian-build guide (fanquake)
@@ -860,4 +860,4 @@ Thanks to everyone who directly contributed to this release:
 - Wladimir J. van der Laan
 - Yuri Zhykin
 
-As well as everyone that helped translating on [Transifex](https://www.transifex.com/projects/p/navcoin/).
+As well as everyone that helped translating on [Transifex](https://www.transifex.com/projects/p/devault/).

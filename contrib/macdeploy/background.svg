@@ -15,8 +15,8 @@
         <g id="background" sketch:type="MSLayerGroup">
             <rect id="Rectangle-path" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="0" y="0" width="1000" height="640"></rect>
             <g id="Group" transform="translate(255.000000, 29.000000)" font-weight="686" font-family="Arial Black" fill="#000000" sketch:alignment="middle" font-size="72" sketch:type="MSTextLayer">
-                <text id="NAVCOIN-4.0">
-                    <tspan x="0.0703125" y="79">NAVCOIN 4.0</tspan>
+                <text id="DEVAULT-4.0">
+                    <tspan x="0.0703125" y="79">DEVAULT 4.0</tspan>
                     <tspan x="135.9375" y="180" font-size="24">DRAG TO INSTALL</tspan>
                 </text>
             </g>

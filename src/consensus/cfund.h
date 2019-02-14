@@ -1,9 +1,9 @@
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CFUND_H
-#define NAVCOIN_CFUND_H
+#ifndef DEVAULT_CFUND_H
+#define DEVAULT_CFUND_H
 
 #include "amount.h"
 #include "script/script.h"
@@ -322,4 +322,4 @@ public:
 
 }
 
-#endif // NAVCOIN_CFUND_H
+#endif // DEVAULT_CFUND_H

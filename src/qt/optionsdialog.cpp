@@ -3,13 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include "config/devault-config.h"
 #endif
 
 #include "optionsdialog.h"
 #include "ui_optionsdialog.h"
 
-#include "navcoinunits.h"
+#include "devaultunits.h"
 #include "guiutil.h"
 #include "optionsmodel.h"
 
@@ -89,8 +89,8 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     /* Display elements init */
     QDir translations(":translations");
 
-    ui->navcoinAtStartup->setToolTip(ui->navcoinAtStartup->toolTip().arg(tr(PACKAGE_NAME)));
-    ui->navcoinAtStartup->setText(ui->navcoinAtStartup->text().arg(tr(PACKAGE_NAME)));
+    ui->devaultAtStartup->setToolTip(ui->devaultAtStartup->toolTip().arg(tr(PACKAGE_NAME)));
+    ui->devaultAtStartup->setText(ui->devaultAtStartup->text().arg(tr(PACKAGE_NAME)));
 
     ui->lang->setToolTip(ui->lang->toolTip().arg(tr(PACKAGE_NAME)));
     ui->lang->addItem(QString("(") + tr("default") + QString(")"), QVariant(""));
@@ -124,7 +124,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->thirdPartyTxUrls->setPlaceholderText("https://www.navexplorer.com/tx/%s");
 #endif
 
-    ui->unit->setModel(new NavCoinUnits(this));
+    ui->unit->setModel(new DeVaultUnits(this));
 
     /* Widget-to-option mapper */
     mapper = new QDataWidgetMapper(this);
@@ -191,7 +191,7 @@ void OptionsDialog::setModel(OptionsModel *model)
 void OptionsDialog::setMapper()
 {
     /* Main */
-    mapper->addMapping(ui->navcoinAtStartup, OptionsModel::StartAtStartup);
+    mapper->addMapping(ui->devaultAtStartup, OptionsModel::StartAtStartup);
     mapper->addMapping(ui->threadsScriptVerif, OptionsModel::ThreadsScriptVerif);
     mapper->addMapping(ui->databaseCache, OptionsModel::DatabaseCache);
 
@@ -254,12 +254,12 @@ void OptionsDialog::on_okButton_clicked()
     updateDefaultProxyNets();
 }
 
-void OptionsDialog::on_openNavCoinConfButton_clicked()
+void OptionsDialog::on_openDeVaultConfButton_clicked()
 {
       QMessageBox::information(this, tr("Configuration options"),
             tr("The configuration is used to specify advanced user options less any command-line or Qt options. "
             "Any command-line options will override this configuration file."));
-      GUIUtil::openNavCoinConf();
+      GUIUtil::openDeVaultConf();
  }
 
 void OptionsDialog::on_cancelButton_clicked()

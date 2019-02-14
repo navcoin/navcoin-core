@@ -1,12 +1,12 @@
-![NavCoin](./img/logo-extended.png)
+![DeVault](./img/logo-extended.png)
 
-This is the working repository for NavCoin 4.5.2, our fork of bitcoin-core 0.13.
+This is the working repository for DeVault 4.5.2, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
- https://navcoin.org/en/roadmap 
+ https://devault.org/en/roadmap 
 
-[![Build Status](https://travis-ci.org/NAVCoin/navcoin-core.svg?branch=master)](https://travis-ci.org/NAVCoin/navcoin-core)
+[![Build Status](https://travis-ci.org/DeVault/devault-core.svg?branch=master)](https://travis-ci.org/DeVault/devault-core)
 
 ## Building
 
@@ -28,13 +28,13 @@ For building the wallet see the markdown files in [doc](doc) folder
 
 | Site | link |
 |:-----------|:-----------|
-| Freenode IRC | #navcoin-dev |
+| Freenode IRC | #devault-dev |
 | Medium | https://medium.com/nav-coin |
-| Twitter | https://twitter.com/NavCoin |
+| Twitter | https://twitter.com/DeVault |
 | Discord | https://discord.gg/y4Vu9jw |
-| Telegram | https://t.me/navcoin |
-| Reddit | http://www.reddit.com/r/navcoin |
-| Facebook | https://www.facebook.com/NAVCoin |
+| Telegram | https://t.me/devault |
+| Reddit | http://www.reddit.com/r/devault |
+| Facebook | https://www.facebook.com/DeVault |
 | Instagram | https://www.instagram.com/navcore/ |
 | Bitcointalk | https://bitcointalk.org/index.php?topic=679791 |
 

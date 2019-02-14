@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_OVERVIEWPAGE_H
-#define NAVCOIN_QT_OVERVIEWPAGE_H
+#ifndef DEVAULT_QT_OVERVIEWPAGE_H
+#define DEVAULT_QT_OVERVIEWPAGE_H
 
 #include "amount.h"
 
@@ -94,4 +94,4 @@ private Q_SLOTS:
 
 };
 
-#endif // NAVCOIN_QT_OVERVIEWPAGE_H
+#endif // DEVAULT_QT_OVERVIEWPAGE_H

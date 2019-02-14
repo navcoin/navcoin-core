@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_TRANSACTIONDESCDIALOG_H
-#define NAVCOIN_QT_TRANSACTIONDESCDIALOG_H
+#ifndef DEVAULT_QT_TRANSACTIONDESCDIALOG_H
+#define DEVAULT_QT_TRANSACTIONDESCDIALOG_H
 
 #include <QDialog>
 
@@ -28,4 +28,4 @@ private:
     Ui::TransactionDescDialog *ui;
 };
 
-#endif // NAVCOIN_QT_TRANSACTIONDESCDIALOG_H
+#endif // DEVAULT_QT_TRANSACTIONDESCDIALOG_H

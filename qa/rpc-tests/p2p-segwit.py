@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
 from test_framework.script import *
 from test_framework.blocktools import create_block, create_coinbase, add_witness_commitment, WITNESS_COMMITMENT_HEADER
@@ -167,14 +167,14 @@ class UTXO(object):
         self.nValue = nValue
 
 
-class SegWitTest(NavCoinTestFramework):
+class SegWitTest(DeVaultTestFramework):
     def setup_chain(self):
         initialize_chain_clean(self.options.tmpdir, 3)
 
     def add_options(self, parser):
         parser.add_option("--oldbinary", dest="oldbinary",
                           default=None,
-                          help="pre-segwit navcoind binary for upgrade testing")
+                          help="pre-segwit devaultd binary for upgrade testing")
 
     def setup_network(self):
         self.nodes = []
@@ -183,7 +183,7 @@ class SegWitTest(NavCoinTestFramework):
         self.nodes.append(start_node(1, self.options.tmpdir, ["-debug", "-logtimemicros=1", "-whitelist=127.0.0.1", "-acceptnonstdtxn=0"]))
         connect_nodes(self.nodes[0], 1)
 
-        # If an old navcoind is given, do the upgrade-after-activation test.
+        # If an old devaultd is given, do the upgrade-after-activation test.
         self.test_upgrade = False
         if (self.options.oldbinary != None):
             self.nodes.append(start_node(2, self.options.tmpdir, ["-debug", "-whitelist=127.0.0.1"], binary=self.options.oldbinary))
@@ -272,7 +272,7 @@ class SegWitTest(NavCoinTestFramework):
         # rule).
         self.test_node.test_witness_block(block, accepted=False)
         # TODO: fix synchronization so we can test reject reason
-        # Right now, navcoind delays sending reject messages for blocks
+        # Right now, devaultd delays sending reject messages for blocks
         # until the future, making synchronization here difficult.
         #assert_equal(self.test_node.last_reject.reason, "unexpected-witness")
 
@@ -591,7 +591,7 @@ class SegWitTest(NavCoinTestFramework):
         self.nodes[0].submitblock(bytes_to_hex_str(block.serialize(True)))
         assert(self.nodes[0].getbestblockhash() != block.hash)
 
-        # Now redo commitment with the standard nonce, but let navcoind fill it in.
+        # Now redo commitment with the standard nonce, but let devaultd fill it in.
         add_witness_commitment(block, nonce=0)
         block.vtx[0].wit = CTxWitness()
         block.solve()
@@ -1504,7 +1504,7 @@ class SegWitTest(NavCoinTestFramework):
         # This transaction should not be accepted into the mempool pre- or
         # post-segwit.  Mempool acceptance will use SCRIPT_VERIFY_WITNESS which
         # will require a witness to spend a witness program regardless of
-        # segwit activation.  Note that older navcoind's that are not
+        # segwit activation.  Note that older devaultd's that are not
         # segwit-aware would also reject this for failing CLEANSTACK.
         self.test_node.test_transaction_acceptance(spend_tx, with_witness=False, accepted=False)
 
@@ -1540,12 +1540,12 @@ class SegWitTest(NavCoinTestFramework):
     # Test the behavior of starting up a segwit-aware node after the softfork
     # has activated.  As segwit requires different block data than pre-segwit
     # nodes would have stored, this requires special handling.
-    # To enable this test, pass --oldbinary=<path-to-pre-segwit-navcoind> to
+    # To enable this test, pass --oldbinary=<path-to-pre-segwit-devaultd> to
     # the test.
     def test_upgrade_after_activation(self, node, node_id):
         print("\tTesting software upgrade after softfork activation")
 
-        assert(node_id != 0) # node0 is assumed to be a segwit-active navcoind
+        assert(node_id != 0) # node0 is assumed to be a segwit-active devaultd
 
         # Make sure the nodes are all up
         sync_blocks(self.nodes)

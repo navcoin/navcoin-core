@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_PUBKEY_H
-#define NAVCOIN_PUBKEY_H
+#ifndef DEVAULT_PUBKEY_H
+#define DEVAULT_PUBKEY_H
 
 #include "hash.h"
 #include "serialize.h"
@@ -247,4 +247,4 @@ public:
     ~ECCVerifyHandle();
 };
 
-#endif // NAVCOIN_PUBKEY_H
+#endif // DEVAULT_PUBKEY_H

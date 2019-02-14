@@ -1,0 +1,3 @@
+debian/manpages/devaultd.1
+debian/manpages/devault.conf.5
+debian/manpages/devault-cli.1

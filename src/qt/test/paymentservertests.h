@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_TEST_PAYMENTSERVERTESTS_H
-#define NAVCOIN_QT_TEST_PAYMENTSERVERTESTS_H
+#ifndef DEVAULT_QT_TEST_PAYMENTSERVERTESTS_H
+#define DEVAULT_QT_TEST_PAYMENTSERVERTESTS_H
 
 #include "../paymentserver.h"
 
@@ -32,4 +32,4 @@ public:
     SendCoinsRecipient recipient;
 };
 
-#endif // NAVCOIN_QT_TEST_PAYMENTSERVERTESTS_H
+#endif // DEVAULT_QT_TEST_PAYMENTSERVERTESTS_H

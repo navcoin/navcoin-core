@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_ADDRESSBOOKPAGE_H
-#define NAVCOIN_QT_ADDRESSBOOKPAGE_H
+#ifndef DEVAULT_QT_ADDRESSBOOKPAGE_H
+#define DEVAULT_QT_ADDRESSBOOKPAGE_H
 
 #include <QDialog>
 
@@ -86,4 +86,4 @@ Q_SIGNALS:
     void sendCoins(QString addr);
 };
 
-#endif // NAVCOIN_QT_ADDRESSBOOKPAGE_H
+#endif // DEVAULT_QT_ADDRESSBOOKPAGE_H

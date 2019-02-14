@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_BENCH_BENCH_H
-#define NAVCOIN_BENCH_BENCH_H
+#ifndef DEVAULT_BENCH_BENCH_H
+#define DEVAULT_BENCH_BENCH_H
 
 #include <map>
 #include <string>
@@ -70,4 +70,4 @@ namespace benchmark {
 #define BENCHMARK(n) \
     benchmark::BenchRunner BOOST_PP_CAT(bench_, BOOST_PP_CAT(__LINE__, n))(BOOST_PP_STRINGIZE(n), n);
 
-#endif // NAVCOIN_BENCH_BENCH_H
+#endif // DEVAULT_BENCH_BENCH_H

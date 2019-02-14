@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_SENDCOINSENTRY_H
-#define NAVCOIN_QT_SENDCOINSENTRY_H
+#ifndef DEVAULT_QT_SENDCOINSENTRY_H
+#define DEVAULT_QT_SENDCOINSENTRY_H
 
 #include "walletmodel.h"
 
@@ -17,7 +17,7 @@ namespace Ui {
 }
 
 /**
- * A single entry in the dialog for sending navcoins.
+ * A single entry in the dialog for sending devaults.
  * Stacked widget, with different UIs for payment requests
  * with a strong payee identity.
  */
@@ -83,4 +83,4 @@ private:
     bool updateLabel(const QString &address);
 };
 
-#endif // NAVCOIN_QT_SENDCOINSENTRY_H
+#endif // DEVAULT_QT_SENDCOINSENTRY_H

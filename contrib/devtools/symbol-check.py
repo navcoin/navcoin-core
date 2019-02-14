@@ -53,7 +53,7 @@ READELF_CMD = os.getenv('READELF', '/usr/bin/readelf')
 CPPFILT_CMD = os.getenv('CPPFILT', '/usr/bin/c++filt')
 # Allowed NEEDED libraries
 ALLOWED_LIBRARIES = {
-# navcoind and navcoin-qt
+# devaultd and devault-qt
 b'libgcc_s.so.1', # GCC base support
 b'libc.so.6', # C library
 b'libpthread.so.0', # threading
@@ -63,7 +63,7 @@ b'librt.so.1', # real-time (clock)
 b'ld-linux-x86-64.so.2', # 64-bit dynamic linker
 b'ld-linux.so.2', # 32-bit dynamic linker
 b'libcurl.so.4', # libcurl  
-# navcoin-qt only
+# devault-qt only
 b'libX11-xcb.so.1', # part of X11
 b'libX11.so.6', # part of X11
 b'libxcb.so.1', # part of X11

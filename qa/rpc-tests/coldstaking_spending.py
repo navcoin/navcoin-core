@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# copyright (c) 2018 the navcoin core developers
+# copyright (c) 2018 the devault core developers
 # distributed under the mit software license, see the accompanying
 # file copying or http://www.opensource.org/licenses/mit-license.php.
 import decimal
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
-class ColdStakingSpending(NavCoinTestFramework):
+class ColdStakingSpending(DeVaultTestFramework):
     """Tests spending and staking to/from a spending wallet."""
     # set up num of nodes
     def __init__(self):
@@ -51,16 +51,16 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         """check wallet balance and staking weight"""
 
-        # get wallet balance and staking weight before sending some navcoin
+        # get wallet balance and staking weight before sending some devault
         balance_before_send = self.nodes[0].getbalance()
         staking_weight_before_send = self.nodes[0].getstakinginfo()["weight"]
         # check wallet staking weight roughly equals wallet balance
         assert(round(staking_weight_before_send / 100000000.0, -5) == round(balance_before_send, -5))
 
-        """send navcoin to our coldstaking address, grab balance & staking weight"""
+        """send devault to our coldstaking address, grab balance & staking weight"""
 
         # send funds to the cold staking address (leave some nav for fees) -- we specifically require
-        # a transaction fee of minimum 0.002884 navcoin due to the complexity of this transaction
+        # a transaction fee of minimum 0.002884 devault due to the complexity of this transaction
         self.nodes[0].sendtoaddress(coldstaking_address_spending, float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE)
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
@@ -86,7 +86,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         """check staking weight now == 0 (we don't hold the staking key)"""
         
         # sent ~all funds to coldstaking address where we do not own the staking key hence our 
-        # staking weight will be 0 as our recieved BLOCK_REWARD navcoin isn't mature enough to count towards
+        # staking weight will be 0 as our recieved BLOCK_REWARD devault isn't mature enough to count towards
         # our staking weight
         assert((staking_weight_post_send / 100000000.0) - BLOCK_REWARD <= 1)
 

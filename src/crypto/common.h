@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CRYPTO_COMMON_H
-#define NAVCOIN_CRYPTO_COMMON_H
+#ifndef DEVAULT_CRYPTO_COMMON_H
+#define DEVAULT_CRYPTO_COMMON_H
 
 #if defined(HAVE_CONFIG_H)
-#include "navcoin-config.h"
+#include "devault-config.h"
 #endif
 
 #include <stdint.h>
@@ -63,4 +63,4 @@ void static inline WriteBE64(unsigned char* ptr, uint64_t x)
     *((uint64_t*)ptr) = htobe64(x);
 }
 
-#endif // NAVCOIN_CRYPTO_COMMON_H
+#endif // DEVAULT_CRYPTO_COMMON_H

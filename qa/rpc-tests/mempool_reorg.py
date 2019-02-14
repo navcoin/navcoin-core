@@ -8,11 +8,11 @@
 # that spend (directly or indirectly) coinbase transactions.
 #
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
 
 # Create one-input, one-output, no-fee transaction:
-class MempoolCoinbaseTest(NavCoinTestFramework):
+class MempoolCoinbaseTest(DeVaultTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 2

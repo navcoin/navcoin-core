@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_UI_INTERFACE_H
-#define NAVCOIN_UI_INTERFACE_H
+#ifndef DEVAULT_UI_INTERFACE_H
+#define DEVAULT_UI_INTERFACE_H
 
 #include <stdint.h>
 #include <string>
@@ -116,4 +116,4 @@ std::string AmountErrMsg(const char* const optname, const std::string& strValue)
 
 extern CClientUIInterface uiInterface;
 
-#endif // NAVCOIN_UI_INTERFACE_H
+#endif // DEVAULT_UI_INTERFACE_H

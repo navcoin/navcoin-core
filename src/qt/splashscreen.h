@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_SPLASHSCREEN_H
-#define NAVCOIN_QT_SPLASHSCREEN_H
+#ifndef DEVAULT_QT_SPLASHSCREEN_H
+#define DEVAULT_QT_SPLASHSCREEN_H
 
 #include <QSplashScreen>
 
@@ -11,7 +11,7 @@ class NetworkStyle;
 
 /** Class for the splashscreen with information of the running client.
  *
- * @note this is intentionally not a QSplashScreen. NavCoin Core initialization
+ * @note this is intentionally not a QSplashScreen. DeVault Core initialization
  * can take a long time, and in that case a progress window that cannot be
  * moved around and minimized has turned out to be frustrating to the user.
  */
@@ -46,4 +46,4 @@ private:
     int curAlignment;
 };
 
-#endif // NAVCOIN_QT_SPLASHSCREEN_H
+#endif // DEVAULT_QT_SPLASHSCREEN_H

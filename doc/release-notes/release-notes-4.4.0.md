@@ -1,4 +1,4 @@
-# NavCoin v4.4.0 Release Notes
+# DeVault v4.4.0 Release Notes
 
 ## Community Fund:
 
@@ -24,13 +24,13 @@ The Version Bit 14 will signal for the soft fork to activate NPIP0003.
 
 This is largely a technical improvement which consolidates mined Community Fund contributions to every 500th block instead of every block to reduce blockchain bloat.
 
-You can read more about [NPIP0003 on the NPIP GitHub](https://github.com/NAVCoin/npips/blob/master/npip-0003.mediawiki).
+You can read more about [NPIP0003 on the NPIP GitHub](https://github.com/DeVault/npips/blob/master/npip-0003.mediawiki).
 
 ## Community Fund Contribution Increase
 
 The Version Bit 16 will signal for the soft fork to increase the Community Fund contribution from 0.25 NAV to 0.50 NAV per block. 
 
-You can read more about [NPIP0005 on the NPIP GitHub](https://github.com/NAVCoin/npips/blob/master/npip-0005.mediawiki).
+You can read more about [NPIP0005 on the NPIP GitHub](https://github.com/DeVault/npips/blob/master/npip-0005.mediawiki).
 
 ## Reject specific version bits 
 
@@ -56,10 +56,10 @@ With the release of the community fund additional RPC commands are included
 ### Create a community fund proposal
 
 ```
-createproposal navcoinaddress amount duration "desc" fee
+createproposal devaultaddress amount duration "desc" fee
 
 Arguments:
-1. "navcoinaddress" (string, required) The navcoin address where coins would be sent if the proposal is approved.
+1. "devaultaddress" (string, required) The devault address where coins would be sent if the proposal is approved.
 2. "amount" The amount in NAV to request. eg 100
 3. duration: Number of seconds the proposal will exist after being accepted.
 4. "desc": Short description of the proposal.
@@ -146,6 +146,6 @@ cfundstats
 Returns the current status of the Community Fund
 ```
 
-### Other modifications in the NavCoin client:
+### Other modifications in the DeVault client:
 
 - RPC Tests fix.

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_WALLET_CRYPTER_H
-#define NAVCOIN_WALLET_CRYPTER_H
+#ifndef DEVAULT_WALLET_CRYPTER_H
+#define DEVAULT_WALLET_CRYPTER_H
 
 #include "keystore.h"
 #include "serialize.h"
@@ -213,4 +213,4 @@ public:
     boost::signals2::signal<void (CCryptoKeyStore* wallet)> NotifyStatusChanged;
 };
 
-#endif // NAVCOIN_WALLET_CRYPTER_H
+#endif // DEVAULT_WALLET_CRYPTER_H

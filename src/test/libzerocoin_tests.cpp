@@ -10,7 +10,7 @@
 * @license    This project is released under the MIT license.
 **/
 // Copyright (c) 2017-2018 The PIVX developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 
 #include <boost/test/unit_test.hpp>
 #include <string>
@@ -25,7 +25,7 @@
 #include "libzerocoin/Coin.h"
 #include "libzerocoin/CoinSpend.h"
 #include "libzerocoin/Accumulator.h"
-#include "test/test_navcoin.h"
+#include "test/test_devault.h"
 
 using namespace std;
 using namespace libzerocoin;

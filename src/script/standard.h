@@ -1,11 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_SCRIPT_STANDARD_H
-#define NAVCOIN_SCRIPT_STANDARD_H
+#ifndef DEVAULT_SCRIPT_STANDARD_H
+#define DEVAULT_SCRIPT_STANDARD_H
 
 #include "libzerocoin/Keys.h"
 #include "script/interpreter.h"
@@ -76,7 +76,7 @@ public:
  *  * CKeyID: TX_PUBKEYHASH destination
  *  * CScriptID: TX_SCRIPTHASH destination
  *  * Pair of two CKeyID: TX_COLDSTAKING destination
- *  A CTxDestination is the internal data type encoded in a CNavCoinAddress
+ *  A CTxDestination is the internal data type encoded in a CDeVaultAddress
  */
 typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, libzerocoin::CPrivateAddress> CTxDestination;
 
@@ -91,4 +91,4 @@ CScript GetScriptForRawPubKey(const CPubKey& pubkey);
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
 CScript GetScriptForWitness(const CScript& redeemscript);
 
-#endif // NAVCOIN_SCRIPT_STANDARD_H
+#endif // DEVAULT_SCRIPT_STANDARD_H

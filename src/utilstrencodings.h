@@ -6,8 +6,8 @@
 /**
  * Utilities for converting data from/to strings.
  */
-#ifndef NAVCOIN_UTILSTRENCODINGS_H
-#define NAVCOIN_UTILSTRENCODINGS_H
+#ifndef DEVAULT_UTILSTRENCODINGS_H
+#define DEVAULT_UTILSTRENCODINGS_H
 
 #include <stdint.h>
 #include <string>
@@ -144,4 +144,4 @@ bool TimingResistantEqual(const T& a, const T& b)
  */
 bool ParseFixedPoint(const std::string &val, int decimals, int64_t *amount_out);
 
-#endif // NAVCOIN_UTILSTRENCODINGS_H
+#endif // DEVAULT_UTILSTRENCODINGS_H

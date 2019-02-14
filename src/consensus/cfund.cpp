@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -237,7 +237,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
             std::to_string(nAmount) + "NAV from the proposal " +
             proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
-    CNavCoinAddress addr(proposal.Address);
+    CDeVaultAddress addr(proposal.Address);
     if (!addr.IsValid())
         return error("%s: Address %s is not valid for payment request %s", __func__, proposal.Address, Hash.c_str(), tx.GetHash().ToString());
 
@@ -325,7 +325,7 @@ bool CFund::IsValidProposal(CTransaction tx, int nMaxVersion)
          return error("%s: Proposal cannot have amount less than 0: %s", __func__, tx.GetHash().ToString());
     }
 
-    CNavCoinAddress address(Address);
+    CDeVaultAddress address(Address);
     if (!address.IsValid())
         return error("%s: Wrong address %s for proposal %s", __func__, Address.c_str(), tx.GetHash().ToString());
 
