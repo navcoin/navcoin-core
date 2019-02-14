@@ -119,8 +119,11 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
                     // If the filter is set to my vote, filter to only pending proposals which have been voted for
                     if (viewing_voted) {
                         if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
-                            // Replace true with logic to check if proposal was voted for
-                            if (true) {
+                            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+                            UniValue p(UniValue::VOBJ);
+                            proposal.ToJson(p);
+                            if (it != vAddedProposalVotes.end()) {
                                 ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
                                 if(c == 1)
                                 {
@@ -131,6 +134,8 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
                                 {
                                     ++c;
                                 }
+                            } else {
+                                continue;
                             }
                         }
                     }
@@ -191,6 +196,9 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
         s << fixed << setprecision(8) << spent_nav/100000000.0;
         string spent = s.str();
         spent.erase(spent.find_last_not_of("0") + 1, std::string::npos );
+        if(spent.at(spent.length()-1) == '.') {
+            spent = spent.substr(0, spent.size()-1);
+        }
         spent.append(" NAV");
         ui->labelSpentAmount->setText(QString::fromStdString(spent));
     }
