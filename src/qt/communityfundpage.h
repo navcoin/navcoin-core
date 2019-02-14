@@ -26,6 +26,8 @@ class CommunityFundPage : public QWidget
 
 public:
     explicit CommunityFundPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    void setWalletModel(WalletModel *walletModel);
+    void refreshTab();
     ~CommunityFundPage();
     void Refresh(bool all, bool proposal);
 
