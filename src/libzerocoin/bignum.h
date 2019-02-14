@@ -41,8 +41,7 @@ class CBigNum
 {
 #if defined(USE_NUM_OPENSSL)
     BIGNUM* bn;
-#endif
-#if defined(USE_NUM_GMP)
+#else
     mpz_t bn;
 #endif
 public:
@@ -192,8 +191,7 @@ public:
     */
 #if defined(USE_NUM_OPENSSL)
     bool isPrime(const int checks=BN_prime_checks) const;
-#endif
-#if defined(USE_NUM_GMP)
+#else
     bool isPrime(const int checks=15) const;
 #endif
 
@@ -211,19 +209,19 @@ public:
     CBigNum& operator--();
     const CBigNum operator--(int);
 
-    friend inline const CBigNum operator+(const CBigNum& a, const CBigNum& b);
-    friend inline const CBigNum operator-(const CBigNum& a, const CBigNum& b);
-    friend inline const CBigNum operator/(const CBigNum& a, const CBigNum& b);
-    friend inline const CBigNum operator%(const CBigNum& a, const CBigNum& b);
-    friend inline const CBigNum operator*(const CBigNum& a, const CBigNum& b);
-    friend inline const CBigNum operator<<(const CBigNum& a, unsigned int shift);
-    friend inline const CBigNum operator-(const CBigNum& a);
-    friend inline bool operator==(const CBigNum& a, const CBigNum& b);
-    friend inline bool operator!=(const CBigNum& a, const CBigNum& b);
-    friend inline bool operator<=(const CBigNum& a, const CBigNum& b);
-    friend inline bool operator>=(const CBigNum& a, const CBigNum& b);
-    friend inline bool operator<(const CBigNum& a, const CBigNum& b);
-    friend inline bool operator>(const CBigNum& a, const CBigNum& b);
+    friend const CBigNum operator+(const CBigNum& a, const CBigNum& b);
+    friend const CBigNum operator-(const CBigNum& a, const CBigNum& b);
+    friend const CBigNum operator/(const CBigNum& a, const CBigNum& b);
+    friend const CBigNum operator%(const CBigNum& a, const CBigNum& b);
+    friend const CBigNum operator*(const CBigNum& a, const CBigNum& b);
+    friend const CBigNum operator<<(const CBigNum& a, unsigned int shift);
+    friend const CBigNum operator-(const CBigNum& a);
+    friend bool operator==(const CBigNum& a, const CBigNum& b);
+    friend bool operator!=(const CBigNum& a, const CBigNum& b);
+    friend bool operator<=(const CBigNum& a, const CBigNum& b);
+    friend bool operator>=(const CBigNum& a, const CBigNum& b);
+    friend bool operator<(const CBigNum& a, const CBigNum& b);
+    friend bool operator>(const CBigNum& a, const CBigNum& b);
 
     // consider moving to unordered map
     mutable std::map<const CBigNum, bool> mapCachePrimes;
@@ -312,9 +310,7 @@ inline bool operator<=(const CBigNum& a, const CBigNum& b) { return (BN_cmp(a.bn
 inline bool operator>=(const CBigNum& a, const CBigNum& b) { return (BN_cmp(a.bn, b.bn) >= 0); }
 inline bool operator<(const CBigNum& a, const CBigNum& b)  { return (BN_cmp(a.bn, b.bn) < 0); }
 inline bool operator>(const CBigNum& a, const CBigNum& b)  { return (BN_cmp(a.bn, b.bn) > 0); }
-#endif
-
-#if defined(USE_NUM_GMP)
+#else
 inline const CBigNum operator+(const CBigNum& a, const CBigNum& b) {
     CBigNum r;
     mpz_add(r.bn, a.bn, b.bn);
