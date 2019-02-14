@@ -10,6 +10,7 @@
 * @license    This project is released under the MIT license.
 **/
 // Copyright (c) 2019 The NavCoin Core developers
+// Copyright (c) 2019 The Navcoin Core developers
 // Copyright (c) 2019 The DeVault Core developers
 
 #include "Keys.h"

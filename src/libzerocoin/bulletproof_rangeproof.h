@@ -10,7 +10,8 @@
 * @copyright  Copyright 2018 alex v
 * @license    This project is released under the MIT license.
 **/
-// Copyright (c) 2018 The DeVault Core developers
+// Copyright (c) 2018 The Navcoin Core developers
+// Copyright (c) 2019 The DeVault Core developers
 
 #ifndef BULLETPROOF_RANGEPROOF_H
 #define BULLETPROOF_RANGEPROOF_H
