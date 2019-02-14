@@ -547,7 +547,40 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     if (GetArg("-stakingaddress", "") != "" && !txNew.vout[txNew.vout.size()-1].scriptPubKey.IsColdStaking()) {
-        CNavCoinAddress address(GetArg("-stakingaddress", ""));
+        CNavCoinAddress address;
+        UniValue stakingAddress;
+        UniValue addressMap(UniValue::VOBJ);
+
+        if (stakingAddress.read(GetArg("-stakingaddress", "")))
+        {
+            try {
+                if (stakingAddress.isObject())
+                    addressMap = stakingAddress.get_obj();
+                else
+                    return error("%s: Failed to read JSON from -stakingaddress argument", __func__);
+
+                // Use "all" address if present
+                if(find_value(addressMap, "all").isStr())
+                {
+                    address = CNavCoinAddress(find_value(addressMap, "all").get_str());
+                }
+                // Or use specified address if present
+                if(find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).isStr())
+                {
+                    address = CNavCoinAddress(find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).get_str());
+                }
+
+            } catch (const UniValue& objError) {
+                return error("%s: Failed to read JSON from -stakingaddress argument", __func__);
+            } catch (const std::exception& e) {
+                return error("%s: Failed to read JSON from -stakingaddress argument", __func__);
+            }
+        }
+        else
+        {
+            address = CNavCoinAddress(GetArg("-stakingaddress", ""));
+        }
+
         if (address.IsValid()) {
             txNew.vout[txNew.vout.size()-1].nValue -= nReward;
             txNew.vout.push_back(CTxOut(nReward, GetScriptForDestination(address.Get())));
