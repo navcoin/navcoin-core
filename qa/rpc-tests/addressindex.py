@@ -8,13 +8,13 @@
 #
 
 import time
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
 from test_framework.script import *
 from test_framework.mininode import *
 import binascii
 
-class AddressIndexTest(NavCoinTestFramework):
+class AddressIndexTest(DeVaultTestFramework):
 
     def setup_chain(self):
         print("Initializing test directory "+self.options.tmpdir)

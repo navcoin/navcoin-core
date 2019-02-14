@@ -213,7 +213,7 @@ bool WalletModel::validateAddress(const QString &address)
   std::string address_str = address.toStdString();
   utils::DNSResolver* DNS = nullptr;;
 
-  // Validate the passed NavCoin address
+  // Validate the passed DeVault address
   if(DNS->check_address_syntax(address_str.c_str()))
   {
 
@@ -227,7 +227,7 @@ bool WalletModel::validateAddress(const QString &address)
 
   }
 
-  CNavCoinAddress addressParsed(address_str);
+  CDeVaultAddress addressParsed(address_str);
   return addressParsed.IsValid();
 }
 
@@ -278,7 +278,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             total += subtotal;
         }
         else
-        {   // User-entered navcoin address / amount:
+        {   // User-entered devault address / amount:
             if(!validateAddress(rcp.address))
             {
                 return InvalidAddress;
@@ -293,7 +293,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             vector<CRecipient> vecSendTemp;
             bool fNeedsMinting = false;
 
-            CNavCoinAddress a(rcp.address.toStdString());
+            CDeVaultAddress a(rcp.address.toStdString());
 
             if(!a.IsValid())
                 return InvalidAddress;
@@ -304,7 +304,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                 boost::get<libzerocoin::CPrivateAddress>(address).SetPaymentId(rcp.message.toStdString());
             }
 
-            // Parse NavCoin address
+            // Parse DeVault address
             if (!DestinationToVecRecipients(rcp.amount, address, vecSendTemp, rcp.fSubtractFeeFromAmount, false, fNeedsMinting, rcp.isanon)) {
                 return InvalidAddress;
             }
@@ -401,7 +401,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
                 std::string value;
                 rcp.paymentRequest.SerializeToString(&value);
                 newTx->vOrderForm.push_back(make_pair(key, value));
-            } else if (!rcp.message.isEmpty())  // Message from normal navcoin:URI (navcoin:123...?message=example)
+            } else if (!rcp.message.isEmpty())  // Message from normal devault:URI (devault:123...?message=example)
             {
                 newTx->vOrderForm.push_back(make_pair("Message", rcp.message.toStdString()));
             }
@@ -427,7 +427,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         if (!rcp.paymentRequest.IsInitialized())
         {
             std::string strAddress = rcp.address.toStdString();
-            CTxDestination dest = CNavCoinAddress(strAddress).Get();
+            CTxDestination dest = CDeVaultAddress(strAddress).Get();
             std::string strLabel = rcp.label.toStdString();
             {
                 LOCK(wallet->cs_wallet);
@@ -551,7 +551,7 @@ static void NotifyAddressBookChanged(WalletModel *walletmodel, CWallet *wallet,
         const CTxDestination &address, const std::string &label, bool isMine,
         const std::string &purpose, ChangeType status)
 {
-    QString strAddress = QString::fromStdString(CNavCoinAddress(address).ToString());
+    QString strAddress = QString::fromStdString(CDeVaultAddress(address).ToString());
     QString strLabel = QString::fromStdString(label);
     QString strPurpose = QString::fromStdString(purpose);
 
@@ -713,7 +713,7 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
         CTxDestination address;
         if(!out.fSpendable || !ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address))
             continue;
-        mapCoins[QString::fromStdString(CNavCoinAddress(address).ToString())].push_back(out);
+        mapCoins[QString::fromStdString(CDeVaultAddress(address).ToString())].push_back(out);
     }
 }
 
@@ -789,7 +789,7 @@ void WalletModel::loadReceiveRequests(std::vector<std::string>& vReceiveRequests
 
 bool WalletModel::saveReceiveRequest(const std::string &sAddress, const int64_t nId, const std::string &sRequest)
 {
-    CTxDestination dest = CNavCoinAddress(sAddress).Get();
+    CTxDestination dest = CDeVaultAddress(sAddress).Get();
 
     std::stringstream ss;
     ss << nId;

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_HTTPRPC_H
-#define NAVCOIN_HTTPRPC_H
+#ifndef DEVAULT_HTTPRPC_H
+#define DEVAULT_HTTPRPC_H
 
 #include <string>
 #include <map>

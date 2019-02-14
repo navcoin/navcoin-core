@@ -1,12 +1,12 @@
 *.tar.gz
-navcoincore.*
+devaultcore.*
 *.exe
-src/navcoin
-src/navcoind
-src/navcoin-cli
-src/navcoin-tx
-src/test/test_navcoin
-src/qt/test/test_navcoin-qt
+src/devault
+src/devaultd
+src/devault-cli
+src/devault-tx
+src/test/test_devault
+src/qt/test/test_devault-qt
 src/qt/ui_*.h
 *.autosave
 
@@ -31,8 +31,8 @@ config.log
 config.status
 configure
 libtool
-src/config/navcoin-config.h
-src/config/navcoin-config.h.in
+src/config/devault-config.h
+src/config/devault-config.h.in
 src/config/stamp-h1
 share/setup.nsi
 share/qt/Info.plist
@@ -57,7 +57,7 @@ src/qt/test/moc*.cpp
 *.o
 *.o-*
 *.patch
-.navcoin
+.devault
 *.a
 *.pb.cc
 *.pb.h
@@ -76,12 +76,12 @@ src/qt/test/moc*.cpp
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-navcoin-qt
-navcoin-Qt.app
+devault-qt
+devault-Qt.app
 
 # Unit-tests
 Makefile.test
-navcoin-qt_test
+devault-qt_test
 src/test/buildenv.py
 
 # Resources cpp
@@ -95,7 +95,7 @@ build
 *.gcno
 *.gcda
 /*.info
-test_navcoin.coverage/
+test_devault.coverage/
 total.coverage/
 coverage_percent.txt
 
@@ -103,7 +103,7 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-qa/pull-tester/run-navcoind-for-test.sh
+qa/pull-tester/run-devaultd-for-test.sh
 qa/pull-tester/tests_config.py
 qa/pull-tester/cache/*
 qa/pull-tester/test.*/*
@@ -115,10 +115,10 @@ share/NavcoindComparisonTool.jar
 
 /doc/doxygen/
 
-libnavcoinconsensus.pc
+libdevaultconsensus.pc
 contrib/devtools/split-debug.sh
 
-src/config/navcoin-config.h.in
+src/config/devault-config.h.in
 src/secp256k1/build-aux/config.guess
 src/secp256k1/build-aux/config.sub
 src/secp256k1/build-aux/install-sh
@@ -128,7 +128,7 @@ src/secp256k1/build-aux/m4/ltoptions.m4
 src/secp256k1/build-aux/m4/ltsugar.m4
 src/secp256k1/build-aux/m4/ltversion.m4
 src/secp256k1/build-aux/m4/lt~obsolete.m4
-src/NavCoin4-Qt.creator.user
+src/DeVault4-Qt.creator.user
 
 # IDE specific
 .idea/*

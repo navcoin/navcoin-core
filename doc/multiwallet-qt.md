@@ -1,22 +1,22 @@
 Multiwallet Qt Development and Integration Strategy
 ===================================================
 
-In order to support loading of multiple wallets in navcoin-qt, a few changes in the UI architecture will be needed.
+In order to support loading of multiple wallets in devault-qt, a few changes in the UI architecture will be needed.
 Fortunately, only four of the files in the existing project are affected by this change.
 
 Two new classes have been implemented in two new .h/.cpp file pairs, with much of the functionality that was previously
-implemented in the NavCoinGUI class moved over to these new classes.
+implemented in the DeVaultGUI class moved over to these new classes.
 
-The two existing files most affected, by far, are navcoingui.h and navcoingui.cpp, as the NavCoinGUI class will require
+The two existing files most affected, by far, are devaultgui.h and devaultgui.cpp, as the DeVaultGUI class will require
 some major retrofitting.
 
-Only requiring some minor changes is navcoin.cpp.
+Only requiring some minor changes is devault.cpp.
 
-Finally, two new headers and source files will have to be added to navcoin-qt.pro.
+Finally, two new headers and source files will have to be added to devault-qt.pro.
 
-Changes to class NavCoinGUI
+Changes to class DeVaultGUI
 ---------------------------
-The principal change to the NavCoinGUI class concerns the QStackedWidget instance called centralWidget.
+The principal change to the DeVaultGUI class concerns the QStackedWidget instance called centralWidget.
 This widget owns five page views: overviewPage, transactionsPage, addressBookPage, receiveCoinsPage, and sendCoinsPage.
 
 A new class called *WalletView* inheriting from QStackedWidget has been written to handle all renderings and updates of
@@ -24,17 +24,17 @@ these page views. In addition to owning these five page views, a WalletView also
 This allows the construction of multiple WalletView objects, each rendering a distinct wallet.
 
 A second class called *WalletFrame* inheriting from QFrame has been written as a container for embedding all wallet-related
-controls into NavCoinGUI. At present it contains the WalletView instances for the wallets and does little more than passing on messages
-from NavCoinGUI to the currently selected WalletView. It is a WalletFrame instance
-that takes the place of what used to be centralWidget in NavCoinGUI. The purpose of this class is to allow future
-refinements of the wallet controls with minimal need for further modifications to NavCoinGUI, thus greatly simplifying
+controls into DeVaultGUI. At present it contains the WalletView instances for the wallets and does little more than passing on messages
+from DeVaultGUI to the currently selected WalletView. It is a WalletFrame instance
+that takes the place of what used to be centralWidget in DeVaultGUI. The purpose of this class is to allow future
+refinements of the wallet controls with minimal need for further modifications to DeVaultGUI, thus greatly simplifying
 merges while reducing the risk of breaking top-level stuff.
 
-Changes to navcoin.cpp
+Changes to devault.cpp
 ----------------------
-navcoin.cpp is the entry point into navcoin-qt, and as such, will require some minor modifications to provide hooks for
+devault.cpp is the entry point into devault-qt, and as such, will require some minor modifications to provide hooks for
 multiple wallet support. Most importantly will be the way it instantiates WalletModels and passes them to the
-singleton NavCoinGUI instance called window. Formerly, NavCoinGUI kept a pointer to a single instance of a WalletModel.
+singleton DeVaultGUI instance called window. Formerly, DeVaultGUI kept a pointer to a single instance of a WalletModel.
 The initial change required is very simple: rather than calling `window.setWalletModel(&walletModel);` we perform the
 following two steps:
 

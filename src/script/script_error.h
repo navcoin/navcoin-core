@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_SCRIPT_SCRIPT_ERROR_H
-#define NAVCOIN_SCRIPT_SCRIPT_ERROR_H
+#ifndef DEVAULT_SCRIPT_SCRIPT_ERROR_H
+#define DEVAULT_SCRIPT_SCRIPT_ERROR_H
 
 typedef enum ScriptError_t
 {
@@ -71,4 +71,4 @@ typedef enum ScriptError_t
 
 const char* ScriptErrorString(const ScriptError error);
 
-#endif // NAVCOIN_SCRIPT_SCRIPT_ERROR_H
+#endif // DEVAULT_SCRIPT_SCRIPT_ERROR_H

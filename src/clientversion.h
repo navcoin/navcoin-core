@@ -2,18 +2,18 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CLIENTVERSION_H
-#define NAVCOIN_CLIENTVERSION_H
+#ifndef DEVAULT_CLIENTVERSION_H
+#define DEVAULT_CLIENTVERSION_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include "config/devault-config.h"
 #else
 
 /**
  * client versioning and copyright year
  */
 
-//! These need to be macros, as clientversion.cpp's and navcoin*-res.rc's voodoo requires it
+//! These need to be macros, as clientversion.cpp's and devault*-res.rc's voodoo requires it
 #define CLIENT_VERSION_MAJOR 4
 #define CLIENT_VERSION_MINOR 5
 #define CLIENT_VERSION_REVISION 2
@@ -47,7 +47,7 @@
 #define COPYRIGHT_STR "2009-" STRINGIZE(COPYRIGHT_YEAR) " " COPYRIGHT_HOLDERS_FINAL
 
 /**
- * navcoind-res.rc includes this file, but it cannot cope with real c++ code.
+ * devaultd-res.rc includes this file, but it cannot cope with real c++ code.
  * WINDRES_PREPROC is defined to indicate that its pre-processor is running.
  * Anything other than a define should be guarded below.
  */
@@ -73,4 +73,4 @@ std::string FormatSubVersion(const std::string& name, int nClientVersion, const 
 
 #endif // WINDRES_PREPROC
 
-#endif // NAVCOIN_CLIENTVERSION_H
+#endif // DEVAULT_CLIENTVERSION_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The NavCoin Core developers
+// Copyright (c) 2019 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,7 +15,7 @@ class CChainParams;
 
 namespace Consensus { struct Params; };
 
-// NAVCoin - Zero witnesser thread
-void NavCoinWitnesser(const CChainParams& chainparams);
+// DeVault - Zero witnesser thread
+void DeVaultWitnesser(const CChainParams& chainparams);
 
 #endif // ZEROWITNESSER_H

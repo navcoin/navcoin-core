@@ -59,7 +59,7 @@
    <item>
     <widget class="QLabel" name="sizeWarningLabel">
      <property name="text">
-      <string>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</string>
+      <string>%1 will download and store a copy of the DeVault block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

@@ -77,8 +77,8 @@ bool GetAddressesPage::validatePage()
     QString stakingAddressStr = field("stakingAddress").toString();
     QString spendingAddressStr = field("spendingAddress").toString();
 
-    CNavCoinAddress stakingAddress(stakingAddressStr.toStdString());
-    CNavCoinAddress spendingAddress(spendingAddressStr.toStdString());
+    CDeVaultAddress stakingAddress(stakingAddressStr.toStdString());
+    CDeVaultAddress spendingAddress(spendingAddressStr.toStdString());
 
     CKeyID stakingKeyID;
     CKeyID spendingKeyID;
@@ -120,18 +120,18 @@ void ColdStakingAddressPage::initializePage()
     QString spendingAddressStr = field("spendingAddress").toString();
 
 
-    CNavCoinAddress stakingAddress(stakingAddressStr.toStdString());
+    CDeVaultAddress stakingAddress(stakingAddressStr.toStdString());
     CKeyID stakingKeyID;
     stakingAddress.GetKeyID(stakingKeyID);
 
-    CNavCoinAddress spendingAddress(spendingAddressStr.toStdString());
+    CDeVaultAddress spendingAddress(spendingAddressStr.toStdString());
     CKeyID spendingKeyID;
     spendingAddress.GetKeyID(spendingKeyID);
 
-    coldStakingAddress = QString::fromStdString(CNavCoinAddress(stakingKeyID, spendingKeyID).ToString());
+    coldStakingAddress = QString::fromStdString(CDeVaultAddress(stakingKeyID, spendingKeyID).ToString());
 
 #ifdef USE_QRCODE
-    QString uri = "navcoin:" + coldStakingAddress;
+    QString uri = "devault:" + coldStakingAddress;
     image->setText("");
     if(!uri.isEmpty())
     {

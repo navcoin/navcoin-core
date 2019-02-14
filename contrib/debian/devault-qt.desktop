@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=DeVault
+Comment=DeVault P2P Cryptocurrency
+Comment[fr]=DeVault, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=DeVault, eşten eşe kriptografik sanal para birimi
+Exec=devault-qt %u
+Terminal=false
+Type=Application
+Icon=devault128
+MimeType=x-scheme-handler/devault;
+Categories=Office;Finance;

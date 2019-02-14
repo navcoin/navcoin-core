@@ -1,5 +1,5 @@
-Building NavCoin
+Building DeVault
 
-See doc/build-*.md for instructions on building navcoind,
+See doc/build-*.md for instructions on building devaultd,
 the intended-for-services, no-graphical-interface, reference
-implementation of NavCoin.
+implementation of DeVault.

@@ -6,7 +6,7 @@
 #
 # script.py
 #
-# This file is modified from python-navcoinlib.
+# This file is modified from python-devaultlib.
 #
 
 """Scripts

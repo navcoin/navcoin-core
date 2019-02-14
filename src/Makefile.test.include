@@ -1,13 +1,13 @@
-TESTS += test/test_navcoin
-bin_PROGRAMS += test/test_navcoin
+TESTS += test/test_devault
+bin_PROGRAMS += test/test_devault
 TEST_SRCDIR = test
-TEST_BINARY=test/test_navcoin$(EXEEXT)
+TEST_BINARY=test/test_devault$(EXEEXT)
 
 
 EXTRA_DIST += \
 	test/bctest.py \
-	test/navcoin-util-test.py \
-	test/data/navcoin-util-test.json \
+	test/devault-util-test.py \
+	test/data/devault-util-test.json \
 	test/data/blanktx.hex \
 	test/data/tt-delin1-out.hex \
 	test/data/tt-delout1-out.hex \
@@ -35,7 +35,7 @@ RAW_TEST_FILES =
 GENERATED_TEST_FILES = $(JSON_TEST_FILES:.json=.json.h) $(RAW_TEST_FILES:.raw=.raw.h)
 
 
-NAVCOIN_TESTS =\
+DEVAULT_TESTS =\
   test/scriptnum10.h \
   test/addrman_tests.cpp \
   test/amount_tests.cpp \
@@ -71,8 +71,8 @@ NAVCOIN_TESTS =\
   test/sigopcount_tests.cpp \
   test/skiplist_tests.cpp \
   test/streams_tests.cpp \
-  test/test_navcoin.cpp \
-  test/test_navcoin.h \
+  test/test_devault.cpp \
+  test/test_devault.h \
   test/testutil.cpp \
   test/testutil.h \
   test/timedata_tests.cpp \
@@ -81,7 +81,7 @@ NAVCOIN_TESTS =\
   test/libzerocoin_tests.cpp \
   test/benchmark_zerocoin.cpp
 
-#NAVCOIN_TESTS =\
+#DEVAULT_TESTS =\
 #  test/arith_uint256_tests.cpp \
 #  test/scriptnum10.h \
 #  test/addrman_tests.cpp \
@@ -127,8 +127,8 @@ NAVCOIN_TESTS =\
 #  test/sigopcount_tests.cpp \
 #  test/skiplist_tests.cpp \
 #  test/streams_tests.cpp \
-#  test/test_navcoin.cpp \
-#  test/test_navcoin.h \
+#  test/test_devault.cpp \
+#  test/test_devault.h \
 #  test/testutil.cpp \
 #  test/testutil.h \
 #  test/timedata_tests.cpp \
@@ -140,7 +140,7 @@ NAVCOIN_TESTS =\
 #  test/util_tests.cpp
 
 #if ENABLE_WALLET
-#NAVCOIN_TESTS += \
+#DEVAULT_TESTS += \
 #  wallet/test/wallet_test_fixture.cpp \
 #  wallet/test/wallet_test_fixture.h \
 #  wallet/test/accounting_tests.cpp \
@@ -149,44 +149,44 @@ NAVCOIN_TESTS =\
 #  wallet/test/rpc_wallet_tests.cpp
 #endif
 
-test_test_navcoin_SOURCES = $(NAVCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
-test_test_navcoin_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) -I$(builddir)/test/ $(TESTDEFS) -I$(srcdir)/secp256k1/include
-test_test_navcoin_LDADD = $(LIBNAVCOIN_SERVER) $(LIBNAVCOIN_CLI) $(LIBNAVCOIN_COMMON) $(LIBNAVCOIN_UTIL) $(LIBNAVCOIN_CONSENSUS) $(LIBNAVCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
+test_test_devault_SOURCES = $(DEVAULT_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
+test_test_devault_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES) -I$(builddir)/test/ $(TESTDEFS) -I$(srcdir)/secp256k1/include
+test_test_devault_LDADD = $(LIBDEVAULT_SERVER) $(LIBDEVAULT_CLI) $(LIBDEVAULT_COMMON) $(LIBDEVAULT_UTIL) $(LIBDEVAULT_CONSENSUS) $(LIBDEVAULT_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIB) $(LIBSECP256K1)
-test_test_navcoin_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+test_test_devault_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 if ENABLE_WALLET
-test_test_navcoin_LDADD += $(LIBNAVCOIN_WALLET)
+test_test_devault_LDADD += $(LIBDEVAULT_WALLET)
 endif
 
-test_test_navcoin_LDADD += $(LIBNAVCOIN_CONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBNAVCOIN_ZMQ) $(EVENT_LIBS) $(EVENT_PTHREADS_LIBS) $(LIBNAVCOIN_ZEROCOIN)
-test_test_navcoin_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
+test_test_devault_LDADD += $(LIBDEVAULT_CONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBDEVAULT_ZMQ) $(EVENT_LIBS) $(EVENT_PTHREADS_LIBS) $(LIBDEVAULT_ZEROCOIN)
+test_test_devault_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
 
 if ENABLE_ZMQ
-test_test_navcoin_LDADD += $(ZMQ_LIBS)
+test_test_devault_LDADD += $(ZMQ_LIBS)
 endif
 
-nodist_test_test_navcoin_SOURCES = $(GENERATED_TEST_FILES)
+nodist_test_test_devault_SOURCES = $(GENERATED_TEST_FILES)
 
-$(NAVCOIN_TESTS): $(GENERATED_TEST_FILES)
+$(DEVAULT_TESTS): $(GENERATED_TEST_FILES)
 
-CLEAN_NAVCOIN_TEST = test/*.gcda test/*.gcno $(GENERATED_TEST_FILES)
+CLEAN_DEVAULT_TEST = test/*.gcda test/*.gcno $(GENERATED_TEST_FILES)
 
-CLEANFILES += $(CLEAN_NAVCOIN_TEST)
+CLEANFILES += $(CLEAN_DEVAULT_TEST)
 
 # This file is problematic for out-of-tree builds if it exists.
 DISTCLEANFILES += test/buildenv.pyc
 
-navcoin_test: $(TEST_BINARY)
+devault_test: $(TEST_BINARY)
 
-navcoin_test_check: $(TEST_BINARY) FORCE
+devault_test_check: $(TEST_BINARY) FORCE
 	$(MAKE) check-TESTS TESTS=$^
 
-navcoin_test_clean : FORCE
-	rm -f $(CLEAN_NAVCOIN_TEST) $(test_test_navcoin_OBJECTS) $(TEST_BINARY)
+devault_test_clean : FORCE
+	rm -f $(CLEAN_DEVAULT_TEST) $(test_test_devault_OBJECTS) $(TEST_BINARY)
 
 check-local:
-	@echo "Running test/navcoin-util-test.py..."
-	$(AM_V_at)srcdir=$(srcdir) PYTHONPATH=$(builddir)/test $(PYTHON) $(srcdir)/test/navcoin-util-test.py
+	@echo "Running test/devault-util-test.py..."
+	$(AM_V_at)srcdir=$(srcdir) PYTHONPATH=$(builddir)/test $(PYTHON) $(srcdir)/test/devault-util-test.py
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C secp256k1 check
 if EMBEDDED_UNIVALUE
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C univalue check

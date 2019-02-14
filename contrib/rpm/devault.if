@@ -1,0 +1,157 @@
+
+## <summary>policy for devault</summary>
+
+
+########################################
+## <summary>
+##	Transition to devault.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`devault_domtrans',`
+	gen_require(`
+		type devault_t, devault_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, devault_exec_t, devault_t)
+')
+
+
+########################################
+## <summary>
+##	Execute devault server in the devault domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`devault_initrc_domtrans',`
+	gen_require(`
+		type devault_initrc_exec_t;
+	')
+
+	init_labeled_script_domtrans($1, devault_initrc_exec_t)
+')
+
+
+########################################
+## <summary>
+##	Search devault lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`devault_search_lib',`
+	gen_require(`
+		type devault_var_lib_t;
+	')
+
+	allow $1 devault_var_lib_t:dir search_dir_perms;
+	files_search_var_lib($1)
+')
+
+########################################
+## <summary>
+##	Read devault lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`devault_read_lib_files',`
+	gen_require(`
+		type devault_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	read_files_pattern($1, devault_var_lib_t, devault_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage devault lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`devault_manage_lib_files',`
+	gen_require(`
+		type devault_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_files_pattern($1, devault_var_lib_t, devault_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage devault lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`devault_manage_lib_dirs',`
+	gen_require(`
+		type devault_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_dirs_pattern($1, devault_var_lib_t, devault_var_lib_t)
+')
+
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	an devault environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`devault_admin',`
+	gen_require(`
+		type devault_t;
+		type devault_initrc_exec_t;
+		type devault_var_lib_t;
+	')
+
+	allow $1 devault_t:process { ptrace signal_perms };
+	ps_process_pattern($1, devault_t)
+
+	devault_initrc_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 devault_initrc_exec_t system_r;
+	allow $2 system_r;
+
+	files_search_var_lib($1)
+	admin_pattern($1, devault_var_lib_t)
+
+')
+

@@ -22,7 +22,7 @@ Coins are held in the cold-staking address only. There are no other coins in any
 		- changed EvalScript() in interpreter.cpp (line 732) when entering conditional statement `if (opcode == OP_EQUALVERIFY)`, always `popstack(stack);` instead of `return set_error(serror, SCRIPT_ERR_EQUALVERIFY);`
 
 At the time of writing, the changes can be viewed here:  
-<https://github.com/matt-auckland/navcoin-core/compare/cold-staking...marcus290:modified-spending-wallet>
+<https://github.com/matt-auckland/devault-core/compare/cold-staking...marcus290:modified-spending-wallet>
 
 #### Result:
 - The modified spending wallet will stake the cold-staking address inputs and broadcast blocks found to other nodes.
@@ -85,7 +85,7 @@ Coins are held in the cold-staking address only. There are no other coins in any
 - changed CheckProofOfStake() in main.cpp (lines 8655-8659) removing all checks for when IsColdStaking() is true.
 
 At the time of writing, the changes can be viewed here:  
-<https://github.com/matt-auckland/navcoin-core/compare/cold-staking...marcus290:modified-staking-wallet-stake>
+<https://github.com/matt-auckland/devault-core/compare/cold-staking...marcus290:modified-staking-wallet-stake>
 
 #### Result:
 - The modified staking wallet will continue to stake.
@@ -146,7 +146,7 @@ Coins are held in the cold-staking address only. There are no other coins in any
     - changed EvalScript() in interpreter.cpp (line 732) when entering conditional statement `if (opcode == OP_EQUALVERIFY)`, always `popstack(stack);` instead of `return set_error(serror, SCRIPT_ERR_EQUALVERIFY);`
 
 At the time of writing, the changes can be viewed here:  
-<https://github.com/matt-auckland/navcoin-core/compare/cold-staking...marcus290:modified-staking-wallet-spend>
+<https://github.com/matt-auckland/devault-core/compare/cold-staking...marcus290:modified-staking-wallet-spend>
 
 #### Result:
 - The modified staking wallet can spend the cold-staking address inputs and broadcast these transactions to other nodes.
@@ -168,7 +168,7 @@ CTransaction(hash=0e86a8f71b8a3b580935cb790c1fce039d9243b867f29564a76ee316f3c8f5
 2018-12-04 04:14:02 Relaying wtx 0e86a8f71b8a3b580935cb790c1fce039d9243b867f29564a76ee316f3c8f593
 2018-12-04 04:14:04 socket recv error Connection reset by peer (104)
 2018-12-04 04:14:09 UpdateTip: new best=6157ee14743db35d1de569c1a39cc4e1b1137f3b87c9fb75dc74fa7d72133c06 height=66690 version=0x710171f1 log2_work=85.821494 tx=129741 date='2018-12-04 04:14:08' progress=0.999999 cache=0.0MiB(22tx)
-2018-12-04 04:18:25 receive version message: /NavCoin:4.4.0/: version 70020, blocks=66690, us=[2403:4d00:301:10:7ee3:755a:be36:a5c0]:15556, peer=5
+2018-12-04 04:18:25 receive version message: /DeVault:4.4.0/: version 70020, blocks=66690, us=[2403:4d00:301:10:7ee3:755a:be36:a5c0]:15556, peer=5
 2018-12-04 04:18:25 AdvertiseLocal: advertising address [2403:4d00:301:10:7ee3:755a:be36:a5c0]:15556
 2018-12-04 04:18:26 CheckStake() : new proof-of-stake block found hash: 7679f66ced702c32db7f20227f56fae863a4d093758458daf3643a84976962ee
 2018-12-04 04:18:26 UpdateTip: new best=7679f66ced702c32db7f20227f56fae863a4d093758458daf3643a84976962ee height=66691 version=0x7101f1f1 log2_work=85.821494 tx=129744 date='2018-12-04 04:18:24' progress=0.999999 cache=0.0MiB(25tx)

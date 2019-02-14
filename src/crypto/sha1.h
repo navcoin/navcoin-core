@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CRYPTO_SHA1_H
-#define NAVCOIN_CRYPTO_SHA1_H
+#ifndef DEVAULT_CRYPTO_SHA1_H
+#define DEVAULT_CRYPTO_SHA1_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -25,4 +25,4 @@ public:
     CSHA1& Reset();
 };
 
-#endif // NAVCOIN_CRYPTO_SHA1_H
+#endif // DEVAULT_CRYPTO_SHA1_H

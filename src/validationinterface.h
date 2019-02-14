@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_VALIDATIONINTERFACE_H
-#define NAVCOIN_VALIDATIONINTERFACE_H
+#ifndef DEVAULT_VALIDATIONINTERFACE_H
+#define DEVAULT_VALIDATIONINTERFACE_H
 
 #include <boost/signals2/signal.hpp>
 #include <boost/shared_ptr.hpp>
@@ -69,4 +69,4 @@ struct CMainSignals {
 
 CMainSignals& GetMainSignals();
 
-#endif // NAVCOIN_VALIDATIONINTERFACE_H
+#endif // DEVAULT_VALIDATIONINTERFACE_H

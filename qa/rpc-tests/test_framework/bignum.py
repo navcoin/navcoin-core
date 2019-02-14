@@ -2,7 +2,7 @@
 #
 # bignum.py
 #
-# This file is copied from python-navcoinlib.
+# This file is copied from python-devaultlib.
 #
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -82,7 +82,7 @@ def mpi2bn(s):
         return -v
     return v
 
-# navcoin-specific little endian format, with implicit size
+# devault-specific little endian format, with implicit size
 def mpi2vch(s):
     r = s[4:]           # strip size
     r = r[::-1]         # reverse string, converting BE->LE

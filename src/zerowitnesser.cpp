@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The NavCoin Core developers
+// Copyright (c) 2019 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,11 +11,11 @@
 #include "zerowitnesser.h"
 
 
-void NavCoinWitnesser(const CChainParams& chainparams)
+void DeVaultWitnesser(const CChainParams& chainparams)
 {
     LogPrintf("Witnesser thread started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    RenameThread("navcoin-witnesser");
+    RenameThread("devault-witnesser");
 
     try {
         while (true)

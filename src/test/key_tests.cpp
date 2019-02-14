@@ -9,7 +9,7 @@
 #include "uint256.h"
 #include "util.h"
 #include "utilstrencodings.h"
-#include "test/test_navcoin.h"
+#include "test/test_devault.h"
 
 #include <string>
 #include <vector>
@@ -20,8 +20,8 @@ using namespace std;
 
 static const string strSecret1     ("PHSecPt927qh8bVhLhv4Rr66JMUYWRcaQfsdPnP8nucyhE4Lhc8b");
 static const string strSecret2     ("PEc7Ctgscq6fJCCBAsmi9NQr2W2dLfpraVJgYqSEhacGP4YwqaDF");
-static const CNavCoinAddress addr1 ("NfWVKf7BxmvNCm8e82eegeKeHyFM2Dy2Nv");
-static const CNavCoinAddress addr2 ("NMxJRcqfcgfQvzhKy42zHVSzTfrnS2HLQo");
+static const CDeVaultAddress addr1 ("NfWVKf7BxmvNCm8e82eegeKeHyFM2Dy2Nv");
+static const CDeVaultAddress addr2 ("NMxJRcqfcgfQvzhKy42zHVSzTfrnS2HLQo");
 
 static const string strAddressBad("1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF");
 
@@ -40,14 +40,14 @@ void dumpKeyInfo(uint256 privkey)
     {
         bool fCompressed = nCompressed == 1;
         printf("  * %s:\n", fCompressed ? "compressed" : "uncompressed");
-        CNavCoinSecret bsecret;
+        CDeVaultSecret bsecret;
         bsecret.SetSecret(secret, fCompressed);
         printf("    * secret (base58): %s\n", bsecret.ToString().c_str());
         CKey key;
         key.SetSecret(secret, fCompressed);
         vector<unsigned char> vchPubKey = key.GetPubKey();
         printf("    * pubkey (hex): %s\n", HexStr(vchPubKey).c_str());
-        printf("    * address (base58): %s\n", CNavCoinAddress(vchPubKey).ToString().c_str());
+        printf("    * address (base58): %s\n", CDeVaultAddress(vchPubKey).ToString().c_str());
     }
 }
 #endif
@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
 
 BOOST_AUTO_TEST_CASE(key_test1)
 {
-    CNavCoinSecret bsecret1, bsecret2, bsecret1C, bsecret2C, baddress1;
+    CDeVaultSecret bsecret1, bsecret2, bsecret1C, bsecret2C, baddress1;
 
 
     BOOST_CHECK( bsecret1.SetString (strSecret1));

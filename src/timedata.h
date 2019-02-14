@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_TIMEDATA_H
-#define NAVCOIN_TIMEDATA_H
+#ifndef DEVAULT_TIMEDATA_H
+#define DEVAULT_TIMEDATA_H
 
 #include <algorithm>
 #include <assert.h>
@@ -79,4 +79,4 @@ void AddTimeData(const CNetAddr& ip, int64_t nTime);
 
 int64_t abs64(int64_t n);
 
-#endif // NAVCOIN_TIMEDATA_H
+#endif // DEVAULT_TIMEDATA_H

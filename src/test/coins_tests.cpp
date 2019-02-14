@@ -7,7 +7,7 @@
 #include "script/standard.h"
 #include "uint256.h"
 #include "utilstrencodings.h"
-#include "test/test_navcoin.h"
+#include "test/test_devault.h"
 #include "main.h"
 #include "consensus/validation.h"
 

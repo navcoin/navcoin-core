@@ -35,7 +35,7 @@ PORT_MIN = 11000
 # The number of ports to "reserve" for p2p and rpc, each
 PORT_RANGE = 5000
 
-NAVCOIND_PROC_WAIT_TIMEOUT = 60
+DEVAULTD_PROC_WAIT_TIMEOUT = 60
 
 
 class PortSeed:
@@ -151,14 +151,14 @@ def sync_mempools(rpc_connections, wait=1, timeout=60):
         timeout -= wait
     raise AssertionError("Mempool sync failed")
 
-navcoind_processes = {}
+devaultd_processes = {}
 
 def initialize_datadir(dirname, n):
     datadir = os.path.join(dirname, "node"+str(n))
     if not os.path.isdir(datadir):
         os.makedirs(datadir)
     rpc_u, rpc_p = rpc_auth_pair(n)
-    with open(os.path.join(datadir, "navcoin.conf"), 'w') as f:
+    with open(os.path.join(datadir, "devault.conf"), 'w') as f:
         f.write("devnet=1\n")
         f.write("rpcuser=" + rpc_u + "\n")
         f.write("rpcpassword=" + rpc_p + "\n")
@@ -174,14 +174,14 @@ def rpc_url(i, rpchost=None):
     rpc_u, rpc_p = rpc_auth_pair(i)
     return "http://%s:%s@%s:%d" % (rpc_u, rpc_p, rpchost or '127.0.0.1', rpc_port(i))
 
-def wait_for_navcoind_start(process, url, i):
+def wait_for_devaultd_start(process, url, i):
     '''
-    Wait for navcoind to start. This means that RPC is accessible and fully initialized.
-    Raise an exception if navcoind exits during initialization.
+    Wait for devaultd to start. This means that RPC is accessible and fully initialized.
+    Raise an exception if devaultd exits during initialization.
     '''
     while True:
         if process.poll() is not None:
-            raise Exception('navcoind exited with status %i during initialization' % process.returncode)
+            raise Exception('devaultd exited with status %i during initialization' % process.returncode)
         try:
             rpc = get_rpc_proxy(url, i)
             blocks = rpc.getblockcount()
@@ -214,16 +214,16 @@ def initialize_chain(test_dir, num_nodes):
             if os.path.isdir(os.path.join("cache","node"+str(i))):
                 shutil.rmtree(os.path.join("cache","node"+str(i)))
 
-        # Create cache directories, run navcoinds:
+        # Create cache directories, run devaultds:
         for i in range(MAX_NODES):
             datadir=initialize_datadir("cache", i)
-            args = [ os.getenv("NAVCOIND", "navcoind"), "-server", "-keypool=1", "-datadir="+datadir, "-discover=0" ]
+            args = [ os.getenv("DEVAULTD", "devaultd"), "-server", "-keypool=1", "-datadir="+datadir, "-discover=0" ]
             if i > 0:
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
-            navcoind_processes[i] = subprocess.Popen(args)
+            devaultd_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-                print("initialize_chain: navcoind started, waiting for RPC to come up")
-            wait_for_navcoind_start(navcoind_processes[i], rpc_url(i), i)
+                print("initialize_chain: devaultd started, waiting for RPC to come up")
+            wait_for_devaultd_start(devaultd_processes[i], rpc_url(i), i)
             if os.getenv("PYTHON_DEBUG", ""):
                 print("initialize_chain: RPC succesfully started")
 
@@ -255,7 +255,7 @@ def initialize_chain(test_dir, num_nodes):
 
         # Shut them down, and clean up cache directories:
         stop_nodes(rpcs)
-        wait_navcoinds()
+        wait_devaultds()
         disable_mocktime()
         for i in range(MAX_NODES):
             os.remove(log_filename("cache", i, "debug.log"))
@@ -267,7 +267,7 @@ def initialize_chain(test_dir, num_nodes):
         from_dir = os.path.join("cache", "node"+str(i))
         to_dir = os.path.join(test_dir,  "node"+str(i))
         shutil.copytree(from_dir, to_dir)
-        initialize_datadir(test_dir, i) # Overwrite port/rpcport in navcoin.conf
+        initialize_datadir(test_dir, i) # Overwrite port/rpcport in devault.conf
 
 def initialize_chain_clean(test_dir, num_nodes):
     """
@@ -300,18 +300,18 @@ def _rpchost_to_args(rpchost):
 
 def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=None):
     """
-    Start a navcoind and return RPC connection to it
+    Start a devaultd and return RPC connection to it
     """
     datadir = os.path.join(dirname, "node"+str(i))
     if binary is None:
-        binary = os.getenv("NAVCOIND", "navcoind")
+        binary = os.getenv("DEVAULTD", "devaultd")
     args = [ binary, "-datadir="+datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-mocktime="+str(get_mocktime()) ]
     if extra_args is not None: args.extend(extra_args)
-    navcoind_processes[i] = subprocess.Popen(args)
+    devaultd_processes[i] = subprocess.Popen(args)
     if os.getenv("PYTHON_DEBUG", ""):
-        print("start_node: navcoind started, waiting for RPC to come up")
+        print("start_node: devaultd started, waiting for RPC to come up")
     url = rpc_url(i, rpchost)
-    wait_for_navcoind_start(navcoind_processes[i], url, i)
+    wait_for_devaultd_start(devaultd_processes[i], url, i)
     if os.getenv("PYTHON_DEBUG", ""):
         print("start_node: RPC succesfully started")
     proxy = get_rpc_proxy(url, i, timeout=timewait)
@@ -323,7 +323,7 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
 
 def start_nodes(num_nodes, dirname, extra_args=None, rpchost=None, binary=None):
     """
-    Start multiple navcoinds, return RPC connections to them
+    Start multiple devaultds, return RPC connections to them
     """
     if extra_args is None: extra_args = [ None for _ in range(num_nodes) ]
     if binary is None: binary = [ None for _ in range(num_nodes) ]
@@ -344,8 +344,8 @@ def stop_node(node, i):
         node.stop()
     except http.client.CannotSendRequest as e:
         print("WARN: Unable to stop node: " + repr(e))
-    navcoind_processes[i].wait(timeout=NAVCOIND_PROC_WAIT_TIMEOUT)
-    del navcoind_processes[i]
+    devaultd_processes[i].wait(timeout=DEVAULTD_PROC_WAIT_TIMEOUT)
+    del devaultd_processes[i]
 
 def stop_nodes(nodes):
     for node in nodes:
@@ -359,11 +359,11 @@ def set_node_times(nodes, t):
     for node in nodes:
         node.setmocktime(t)
 
-def wait_navcoinds():
-    # Wait for all navcoinds to cleanly exit
-    for navcoind in navcoind_processes.values():
-        navcoind.wait(timeout=NAVCOIND_PROC_WAIT_TIMEOUT)
-    navcoind_processes.clear()
+def wait_devaultds():
+    # Wait for all devaultds to cleanly exit
+    for devaultd in devaultd_processes.values():
+        devaultd.wait(timeout=DEVAULTD_PROC_WAIT_TIMEOUT)
+    devaultd_processes.clear()
 
 def connect_nodes(from_connection, node_num):
     ip_port = "127.0.0.1:"+str(p2p_port(node_num))

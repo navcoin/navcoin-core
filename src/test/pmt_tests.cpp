@@ -9,7 +9,7 @@
 #include "uint256.h"
 #include "version.h"
 #include "random.h"
-#include "test/test_navcoin.h"
+#include "test/test_devault.h"
 
 #include <vector>
 

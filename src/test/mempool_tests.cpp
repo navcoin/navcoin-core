@@ -6,7 +6,7 @@
 #include "txmempool.h"
 #include "util.h"
 
-#include "test/test_navcoin.h"
+#include "test/test_devault.h"
 
 #include <boost/test/unit_test.hpp>
 #include <list>

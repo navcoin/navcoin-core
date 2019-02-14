@@ -1,15 +1,15 @@
 Release Process
 ====================
 
-Before any code can be accepted into NavCoin Core a Release Candidate branch and PR must be presented to the community for a minimum stand-down period - as detailed below.
+Before any code can be accepted into DeVault Core a Release Candidate branch and PR must be presented to the community for a minimum stand-down period - as detailed below.
 
 ### Release Candidates
 
-Release candidates are critical to the NavCoin release eco-system and give the community and interested parties time to review the code and potentially prepare for any changes that may be introduced.  
+Release candidates are critical to the DeVault release eco-system and give the community and interested parties time to review the code and potentially prepare for any changes that may be introduced.  
 
 #### Release Candidates and Release Version Convention
 
-NavCoin follows the Semantic Versioning.
+DeVault follows the Semantic Versioning.
 
 e.g `v(MAJOR).(MINOR).(PATCH)` = `v4.2.1`
 
@@ -40,7 +40,7 @@ Please note any type of network security or stability issues will be prioritized
 
 Before every release candidate:
 
-* Update translations see [translation_process.md](https://github.com/navcoin/navcoin-core/blob/master/doc/translation_process.md#synchronising-translations).
+* Update translations see [translation_process.md](https://github.com/devault/devault-core/blob/master/doc/translation_process.md#synchronising-translations).
 
 Before every minor and major release:
 
@@ -57,9 +57,9 @@ Before every major release:
 Check out the source code in the following directory hierarchy.
 
     cd /path/to/your/toplevel/build
-    git clone https://github.com/navcoin/navcoin-core.git
+    git clone https://github.com/devault/devault-core.git
 
-### NavCoin maintainers/release engineers, update version in sources
+### DeVault maintainers/release engineers, update version in sources
 
 Update the following:
 
@@ -93,7 +93,7 @@ Tag version (or release candidate) in git
 
 Setup Gitian descriptors:
 
-    pushd ./navcoin-core
+    pushd ./devault-core
     export VERSION=(new version, e.g. v4.1.0, which should also be the name of the repository branch)
     git fetch
     git checkout v${VERSION}
@@ -120,7 +120,7 @@ Create the OS X SDK tarball, see the [OS X readme](README_osx.md) for details, a
 By default, Gitian will fetch source files as needed. To cache them ahead of time:
 
     pushd ./gitian-builder
-    make -C ../navcoin-core/depends download SOURCES_PATH=`pwd`/cache/common
+    make -C ../devault-core/depends download SOURCES_PATH=`pwd`/cache/common
     popd
 
 Only missing files will be fetched, so this is safe to re-run for each build.
@@ -128,57 +128,57 @@ Only missing files will be fetched, so this is safe to re-run for each build.
 NOTE: Offline builds must use the --url flag to ensure Gitian fetches only from local URLs. For example:
 
     pushd ./gitian-builder
-    ./bin/gbuild --url navcoin-core=/path/to/navcoin,signature=/path/to/sigs {rest of arguments}
+    ./bin/gbuild --url devault-core=/path/to/devault,signature=/path/to/sigs {rest of arguments}
     popd
 
 The gbuild invocations below <b>DO NOT DO THIS</b> by default.
 
-### Build and sign NavCoin Core for Linux, Windows, and OS X:
+### Build and sign DeVault Core for Linux, Windows, and OS X:
 
     pushd ./gitian-builder
-    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-arm.yml
-    mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
+    ./bin/gbuild --memory 3000 --commit devault-core=${VERSION} ../devault-core/contrib/gitian-descriptors/gitian-arm.yml
+    mv build/out/devault-*.tar.gz build/out/src/devault-*.tar.gz ../
     
-    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
-    mv build/out/navcoin-*.tar.gz build/out/src/navcoin-*.tar.gz ../
+    ./bin/gbuild --memory 3000 --commit devault-core=${VERSION} ../devault-core/contrib/gitian-descriptors/gitian-linux.yml
+    mv build/out/devault-*.tar.gz build/out/src/devault-*.tar.gz ../
 
-    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-win.yml
-    mv build/out/navcoin-*-win-unsigned.tar.gz inputs/navcoin-win-unsigned.tar.gz
-    mv build/out/navcoin-*.zip build/out/navcoin-*.exe ../
+    ./bin/gbuild --memory 3000 --commit devault-core=${VERSION} ../devault-core/contrib/gitian-descriptors/gitian-win.yml
+    mv build/out/devault-*-win-unsigned.tar.gz inputs/devault-win-unsigned.tar.gz
+    mv build/out/devault-*.zip build/out/devault-*.exe ../
 
-    ./bin/gbuild --memory 3000 --commit navcoin-core=${VERSION} ../navcoin-core/contrib/gitian-descriptors/gitian-osx.yml
-    mv build/out/navcoin-*-osx-unsigned.tar.gz inputs/navcoin-osx-unsigned.tar.gz
-    mv build/out/navcoin-*.tar.gz build/out/navcoin-*.dmg ../
+    ./bin/gbuild --memory 3000 --commit devault-core=${VERSION} ../devault-core/contrib/gitian-descriptors/gitian-osx.yml
+    mv build/out/devault-*-osx-unsigned.tar.gz inputs/devault-osx-unsigned.tar.gz
+    mv build/out/devault-*.tar.gz build/out/devault-*.dmg ../
     popd
 
 Build output expected:
 
-  1. source tarball (`navcoin-${VERSION}.tar.gz`)
-  2. linux 32-bit and 64-bit dist tarballs (`navcoin-${VERSION}-linux[32|64].tar.gz`)
-  3. windows 32-bit and 64-bit unsigned installers and dist zips (`navcoin-${VERSION}-win[32|64]-setup-unsigned.exe`, `navcoin-${VERSION}-win[32|64].zip`)
-  4. OS X unsigned installer and dist tarball (`navcoin-${VERSION}-osx-unsigned.dmg`, `navcoin-${VERSION}-osx64.tar.gz`)
+  1. source tarball (`devault-${VERSION}.tar.gz`)
+  2. linux 32-bit and 64-bit dist tarballs (`devault-${VERSION}-linux[32|64].tar.gz`)
+  3. windows 32-bit and 64-bit unsigned installers and dist zips (`devault-${VERSION}-win[32|64]-setup-unsigned.exe`, `devault-${VERSION}-win[32|64].zip`)
+  4. OS X unsigned installer and dist tarball (`devault-${VERSION}-osx-unsigned.dmg`, `devault-${VERSION}-osx64.tar.gz`)
   5. Gitian signatures (in `gitian.sigs/${VERSION}-<linux|{win,osx}-unsigned>/(your Gitian key)/`)
 
 
 The list of files should be:
 ```
-navcoin-${VERSION}-aarch64-linux-gnu.tar.gz
-navcoin-${VERSION}-arm-linux-gnueabihf.tar.gz
-navcoin-${VERSION}-i686-pc-linux-gnu.tar.gz
-navcoin-${VERSION}-x86_64-linux-gnu.tar.gz
-navcoin-${VERSION}-osx64.tar.gz
-navcoin-${VERSION}-osx.dmg
-navcoin-${VERSION}.tar.gz
-navcoin-${VERSION}-win32-setup.exe
-navcoin-${VERSION}-win32.zip
-navcoin-${VERSION}-win64-setup.exe
-navcoin-${VERSION}-win64.zip
+devault-${VERSION}-aarch64-linux-gnu.tar.gz
+devault-${VERSION}-arm-linux-gnueabihf.tar.gz
+devault-${VERSION}-i686-pc-linux-gnu.tar.gz
+devault-${VERSION}-x86_64-linux-gnu.tar.gz
+devault-${VERSION}-osx64.tar.gz
+devault-${VERSION}-osx.dmg
+devault-${VERSION}.tar.gz
+devault-${VERSION}-win32-setup.exe
+devault-${VERSION}-win32.zip
+devault-${VERSION}-win64-setup.exe
+devault-${VERSION}-win64.zip
 ```
 The `*-debug*` files generated by the gitian build contain debug symbols
 for troubleshooting by developers. It is assumed that anyone that is interested
 in debugging can run gitian to generate the files for themselves. To avoid
 end-user confusion about which file to pick, as well as save storage
-space *do not upload these to the navcoin.org server, nor put them in the torrent*.
+space *do not upload these to the devault.org server, nor put them in the torrent*.
 
 - GPG-sign it, delete the unsigned file:
 ```
@@ -188,19 +188,19 @@ rm SHA256SUMS
 (the digest algorithm is forced to sha256 to avoid confusion of the `Hash:` header that GPG adds with the SHA256 used for the files)
 Note: check that SHA256SUMS itself doesn't end up in SHA256SUMS, which is a spurious/nonsensical entry.
 
-- Upload zips and installers, as well as `SHA256SUMS.asc` from last step, to the navcoin.org server
-  into `/var/www/bin/navcoin-core-${VERSION}`
+- Upload zips and installers, as well as `SHA256SUMS.asc` from last step, to the devault.org server
+  into `/var/www/bin/devault-core-${VERSION}`
 
 - A `.torrent` will appear in the directory after a few minutes. Optionally help seed this torrent. To get the `magnet:` URI use:
 ```bash
 transmission-show -m <torrent file>
 ```
 Insert the magnet URI into the announcement sent to mailing lists. This permits
-people without access to `navcoin.org` to download the binary distribution.
+people without access to `devault.org` to download the binary distribution.
 Also put it into the `optional_magnetlink:` slot in the YAML file for
-navcoin.org (see below for navcoin.org update instructions).
+devault.org (see below for devault.org update instructions).
 
-- Update navcoin.org version
+- Update devault.org version
 
 - Announce the release:
 

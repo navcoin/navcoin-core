@@ -5,8 +5,8 @@
 /**
  * Functionality for communicating with Tor.
  */
-#ifndef NAVCOIN_TORCONTROL_H
-#define NAVCOIN_TORCONTROL_H
+#ifndef DEVAULT_TORCONTROL_H
+#define DEVAULT_TORCONTROL_H
 
 #include "scheduler.h"
 
@@ -17,4 +17,4 @@ void StartTorControl(boost::thread_group& threadGroup, CScheduler& scheduler);
 void InterruptTorControl();
 void StopTorControl();
 
-#endif /* NAVCOIN_TORCONTROL_H */
+#endif /* DEVAULT_TORCONTROL_H */

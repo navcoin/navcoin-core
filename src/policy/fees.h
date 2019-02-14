@@ -2,8 +2,8 @@
 // Copyright (c) 2009-2015 The Bitcoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef NAVCOIN_POLICYESTIMATOR_H
-#define NAVCOIN_POLICYESTIMATOR_H
+#ifndef DEVAULT_POLICYESTIMATOR_H
+#define DEVAULT_POLICYESTIMATOR_H
 
 #include "amount.h"
 #include "uint256.h"
@@ -299,4 +299,4 @@ public:
 private:
     std::set<double> feeset;
 };
-#endif /*NAVCOIN_POLICYESTIMATOR_H */
+#endif /*DEVAULT_POLICYESTIMATOR_H */

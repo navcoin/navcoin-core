@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,8 +12,8 @@
  * - E-mail usually won't line-break if there's no punctuation to break at.
  * - Double-clicking selects the whole string as one word if it's all alphanumeric.
  */
-#ifndef NAVCOIN_BASE58_H
-#define NAVCOIN_BASE58_H
+#ifndef DEVAULT_BASE58_H
+#define DEVAULT_BASE58_H
 
 #include "chainparams.h"
 #include "key.h"
@@ -99,7 +99,7 @@ public:
     bool operator> (const CBase58Data& b58) const { return CompareTo(b58) >  0; }
 };
 
-/** base58-encoded NavCoin addresses.
+/** base58-encoded DeVault addresses.
  * Public-key-hash-addresses have version 111 (or 20 testnet).
  * The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
  * Script-hash-addresses have version 28 (or 96 testnet).
@@ -107,7 +107,7 @@ public:
  * Cold-staking-addresses have version 196 (or 63 testnet).
  * The data vector contains RIPEMD160(SHA256(stakingkey)) || RIPEMD160(SHA256(spendingkey)), where stakingkey and spendingkey are the serialized public keys.
  */
-class CNavCoinAddress : public CBase58Data {
+class CDeVaultAddress : public CBase58Data {
 public:
     bool Set(const CKeyID &id);
     bool Set(const CKeyID &id, const CKeyID &id2);
@@ -118,12 +118,12 @@ public:
     bool IsValid(const CChainParams &params) const;
     bool IsColdStakingAddress(const CChainParams& params) const;
 
-    CNavCoinAddress() {}
-    CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
-    CNavCoinAddress(const CKeyID &id, const CKeyID &id2) { Set(id, id2); }
-    CNavCoinAddress(const libzerocoin::CPrivateAddress &id) { Set(id); }
-    CNavCoinAddress(const std::string& strAddress) { SetString(strAddress); }
-    CNavCoinAddress(const char* pszAddress) { SetString(pszAddress); }
+    CDeVaultAddress() {}
+    CDeVaultAddress(const CTxDestination &dest) { Set(dest); }
+    CDeVaultAddress(const CKeyID &id, const CKeyID &id2) { Set(id, id2); }
+    CDeVaultAddress(const libzerocoin::CPrivateAddress &id) { Set(id); }
+    CDeVaultAddress(const std::string& strAddress) { SetString(strAddress); }
+    CDeVaultAddress(const char* pszAddress) { SetString(pszAddress); }
 
     CTxDestination Get() const;
     bool GetKeyID(CKeyID &keyID) const;
@@ -134,8 +134,8 @@ public:
 
     bool IsPrivateAddress(const CChainParams& params) const;
 
-    bool GetStakingAddress(CNavCoinAddress &address) const;
-    bool GetSpendingAddress(CNavCoinAddress &address) const;
+    bool GetStakingAddress(CDeVaultAddress &address) const;
+    bool GetSpendingAddress(CDeVaultAddress &address) const;
 
     bool GetBlindingCommitment(libzerocoin::BlindingCommitment &bc) const;
     bool GetZeroPubKey(CPubKey &zerokey) const;
@@ -145,7 +145,7 @@ public:
 /**
  * A base58-encoded secret key
  */
-class CNavCoinSecret : public CBase58Data
+class CDeVaultSecret : public CBase58Data
 {
 public:
     void SetKey(const CKey& vchSecret);
@@ -154,11 +154,11 @@ public:
     bool SetString(const char* pszSecret);
     bool SetString(const std::string& strSecret);
 
-    CNavCoinSecret(const CKey& vchSecret) { SetKey(vchSecret); }
-    CNavCoinSecret() {}
+    CDeVaultSecret(const CKey& vchSecret) { SetKey(vchSecret); }
+    CDeVaultSecret() {}
 };
 
-template<typename K, int Size, CChainParams::Base58Type Type> class CNavCoinExtKeyBase : public CBase58Data
+template<typename K, int Size, CChainParams::Base58Type Type> class CDeVaultExtKeyBase : public CBase58Data
 {
 public:
     void SetKey(const K &key) {
@@ -176,18 +176,18 @@ public:
         return ret;
     }
 
-    CNavCoinExtKeyBase(const K &key) {
+    CDeVaultExtKeyBase(const K &key) {
         SetKey(key);
     }
 
-    CNavCoinExtKeyBase(const std::string& strBase58c) {
+    CDeVaultExtKeyBase(const std::string& strBase58c) {
         SetString(strBase58c.c_str(), Params().Base58Prefix(Type).size());
     }
 
-    CNavCoinExtKeyBase() {}
+    CDeVaultExtKeyBase() {}
 };
 
-typedef CNavCoinExtKeyBase<CExtKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_SECRET_KEY> CNavCoinExtKey;
-typedef CNavCoinExtKeyBase<CExtPubKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_PUBLIC_KEY> CNavCoinExtPubKey;
+typedef CDeVaultExtKeyBase<CExtKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_SECRET_KEY> CDeVaultExtKey;
+typedef CDeVaultExtKeyBase<CExtPubKey, BIP32_EXTKEY_SIZE, CChainParams::EXT_PUBLIC_KEY> CDeVaultExtPubKey;
 
-#endif // NAVCOIN_BASE58_H
+#endif // DEVAULT_BASE58_H

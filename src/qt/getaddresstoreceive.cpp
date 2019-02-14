@@ -28,7 +28,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     LOCK(pwalletMain->cs_wallet);
     BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
     {
-        const CNavCoinAddress& addressbook = item.first;
+        const CDeVaultAddress& addressbook = item.first;
         bool fMine = IsMine(*pwalletMain, addressbook.Get());
         if(fMine)
         {
@@ -99,13 +99,13 @@ void getAddressToReceive::showPrivateAddress()
     libzerocoin::CPrivateAddress pa(&Params().GetConsensus().Zerocoin_Params, bc, zk);
 
     QMessageBox::information(this, tr("Show Private Address"),
-        tr("Private Address:<br><br>%1").arg(QString::fromStdString( CNavCoinAddress(pa).ToString())));
+        tr("Private Address:<br><br>%1").arg(QString::fromStdString( CDeVaultAddress(pa).ToString())));
 }
 
 void getAddressToReceive::showQR()
 {
 #ifdef USE_QRCODE
-    QString uri = "navcoin:" + address;
+    QString uri = "devault:" + address;
     ui->lblQRCode->setText("");
     if(!uri.isEmpty())
     {

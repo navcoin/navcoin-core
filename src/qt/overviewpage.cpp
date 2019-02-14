@@ -6,7 +6,7 @@
 #include "ui_overviewpage.h"
 #include "skinize.h"
 
-#include "navcoinunits.h"
+#include "devaultunits.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -31,7 +31,7 @@ class TxViewDelegate : public QAbstractItemDelegate
     Q_OBJECT
 public:
     TxViewDelegate(const PlatformStyle *platformStyle):
-        QAbstractItemDelegate(), unit(NavCoinUnits::NAV),
+        QAbstractItemDelegate(), unit(DeVaultUnits::NAV),
         platformStyle(platformStyle)
     {
 
@@ -85,7 +85,7 @@ public:
             foreground = COLOR_POSITIVE;
         }
         painter->setPen(foreground);
-        QString amountText = NavCoinUnits::formatWithUnit(unit, amount, true, NavCoinUnits::separatorAlways);
+        QString amountText = DeVaultUnits::formatWithUnit(unit, amount, true, DeVaultUnits::separatorAlways);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");
@@ -184,12 +184,12 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     currentWatchUnconfBalance = watchUnconfBalance;
     currentWatchImmatureBalance = watchImmatureBalance;
     currentPrivateBalance = privateBalance;
-    ui->labelBalance->setText(NavCoinUnits::formatWithUnit(unit, balance, false, NavCoinUnits::separatorAlways));
-    ui->labelUnconfirmed->setText(NavCoinUnits::formatWithUnit(unit, unconfirmedBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelColdStaking->setText(NavCoinUnits::formatWithUnit(unit, coldStakingBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelPrivate->setText(NavCoinUnits::formatWithUnit(unit, privateBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, immatureBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, balance + unconfirmedBalance + privateBalance + immatureBalance, false, NavCoinUnits::separatorAlways));
+    ui->labelBalance->setText(DeVaultUnits::formatWithUnit(unit, balance, false, DeVaultUnits::separatorAlways));
+    ui->labelUnconfirmed->setText(DeVaultUnits::formatWithUnit(unit, unconfirmedBalance, false, DeVaultUnits::separatorAlways));
+    ui->labelColdStaking->setText(DeVaultUnits::formatWithUnit(unit, coldStakingBalance, false, DeVaultUnits::separatorAlways));
+    ui->labelPrivate->setText(DeVaultUnits::formatWithUnit(unit, privateBalance, false, DeVaultUnits::separatorAlways));
+    ui->labelImmature->setText(DeVaultUnits::formatWithUnit(unit, immatureBalance, false, DeVaultUnits::separatorAlways));
+    ui->labelTotal->setText(DeVaultUnits::formatWithUnit(unit, balance + unconfirmedBalance + privateBalance + immatureBalance, false, DeVaultUnits::separatorAlways));
 
     bool showColdStaking = coldStakingBalance != 0;
 
@@ -390,11 +390,11 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
 
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
 
-    ui->label24hStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->label7dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->label30dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->label1yStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->labelallStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
+    ui->label24hStakingStats->setText(DeVaultUnits::formatWithUnit(unit, aRange[i++].Total, false, DeVaultUnits::separatorAlways));
+    ui->label7dStakingStats->setText(DeVaultUnits::formatWithUnit(unit, aRange[i++].Total, false, DeVaultUnits::separatorAlways));
+    ui->label30dStakingStats->setText(DeVaultUnits::formatWithUnit(unit, aRange[i++].Total, false, DeVaultUnits::separatorAlways));
+    ui->label1yStakingStats->setText(DeVaultUnits::formatWithUnit(unit, aRange[i++].Total, false, DeVaultUnits::separatorAlways));
+    ui->labelallStakingStats->setText(DeVaultUnits::formatWithUnit(unit, aRange[i++].Total, false, DeVaultUnits::separatorAlways));
 }
 
 

@@ -1,5 +1,5 @@
 ---
-name: "navcoin-osx-4.0.0"
+name: "devault-osx-4.0.0"
 enable_cache: true
 suites:
 - "trusty"
@@ -29,8 +29,8 @@ packages:
 - "fonts-tuffy"
 - "libexpat1-dev"
 remotes:
-- "url": "https://github.com/navcoindev/navcoin-core.git"
-  "dir": "navcoin-core"
+- "url": "https://github.com/devaultdev/devault-core.git"
+  "dir": "devault-core"
 files:
 - "MacOSX10.11.sdk.tar.gz"
 script: |
@@ -84,7 +84,7 @@ script: |
   create_per-host_faketime_wrappers "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd navcoin-core
+  cd devault-core
   BASEPREFIX=`pwd`/depends
 
   mkdir -p ${BASEPREFIX}/SDKs
@@ -105,14 +105,14 @@ script: |
   ./autogen.sh
   CONFIG_SITE=${BASEPREFIX}/`echo "${HOSTS}" | awk '{print $1;}'`/share/config.site ./configure --prefix=/
   make dist
-  SOURCEDIST=`echo navcoin-*.tar.gz`
+  SOURCEDIST=`echo devault-*.tar.gz`
   DISTNAME=`echo ${SOURCEDIST} | sed 's/.tar.*//'`
 
   # Correct tar file order
   mkdir -p temp
   pushd temp
   tar xf ../$SOURCEDIST
-  find navcoin-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
+  find devault-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
   popd
 
   ORIGPATH="$PATH"

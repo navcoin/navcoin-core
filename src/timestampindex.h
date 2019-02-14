@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_TIMESTAMPINDEX_H
-#define NAVCOIN_TIMESTAMPINDEX_H
+#ifndef DEVAULT_TIMESTAMPINDEX_H
+#define DEVAULT_TIMESTAMPINDEX_H
 
 #include "uint256.h"
 
@@ -128,4 +128,4 @@ struct CTimestampBlockIndexValue {
     }
 };
 
-#endif // NAVCOIN_TIMESTAMPINDEX_H
+#endif // DEVAULT_TIMESTAMPINDEX_H

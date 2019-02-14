@@ -6,7 +6,7 @@
 #include "ui_sendcoinsdialog.h"
 
 #include "addresstablemodel.h"
-#include "navcoinunits.h"
+#include "devaultunits.h"
 #include "clientmodel.h"
 #include "coincontroldialog.h"
 #include "guiutil.h"
@@ -246,7 +246,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // process prepareStatus and on error generate message shown to user
     processSendCoinsReturn(prepareStatus,
-        NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
+        DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
 
     if(prepareStatus.status != WalletModel::OK) {
         fNewRecipientAllowed = true;
@@ -254,7 +254,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     }
 
     if (currentTransaction.fSpendsColdStaking && (!model->getOptionsModel()->getCoinControlFeatures() ||
-        (model->getOptionsModel()->getCoinControlFeatures() && !CNavCoinAddress(CoinControlDialog::coinControl->destChange).IsColdStakingAddress(Params()))))
+        (model->getOptionsModel()->getCoinControlFeatures() && !CDeVaultAddress(CoinControlDialog::coinControl->destChange).IsColdStakingAddress(Params()))))
     {
         SendConfirmationDialog confirmationDialog(tr("Confirm send coins"),
             tr("This transaction will spend coins stored in a cold staking address.<br>You did not set any cold staking address as custom change destination, so those coins won't be locked anymore by the cold staking smart contract.<br><br>Do you still want to send this transaction?"), SEND_CONFIRM_DELAY, this);
@@ -285,7 +285,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     const SendCoinsRecipient &rcp = currentTransaction.recipients.first();
     {
         // generate bold amount string
-        QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
+        QString amount = "<b>" + DeVaultUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
         amount.append("</b>");
         // generate monospace address string
         QString address = "<span style='font-family: monospace;'>" + rcp.address;
@@ -322,7 +322,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         {
             // append fee string if a fee is required
             questionString.append("<hr /><span style='color:#aa0000;'>");
-            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
+            questionString.append(DeVaultUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
             questionString.append("</span> ");
             questionString.append(tr("added as transaction fee"));
 
@@ -333,7 +333,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         if(nOriginalAmount != nTotalAmount) {
             questionString.append("<br><br><span style=\"color:red\">" + tr("WARNING!") + "</span> " +
                                   tr("You originally asked to send ") +
-                                  NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nOriginalAmount) +
+                                  DeVaultUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nOriginalAmount) +
                                   tr(" but this is not an allowed amount"));
         }
 
@@ -345,13 +345,13 @@ void SendCoinsDialog::on_sendButton_clicked()
     questionString.append("<hr />");
     CAmount totalAmount = nTotalAmount + txFee;
     QStringList alternativeUnits;
-    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+    Q_FOREACH(DeVaultUnits::Unit u, DeVaultUnits::availableUnits())
     {
         if(u != model->getOptionsModel()->getDisplayUnit())
-            alternativeUnits.append(NavCoinUnits::formatHtmlWithUnit(u, totalAmount));
+            alternativeUnits.append(DeVaultUnits::formatHtmlWithUnit(u, totalAmount));
     }
     questionString.append(tr("Total Amount %1")
-        .arg(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
+        .arg(DeVaultUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
     questionString.append(QString("<span style='font-size:10pt;font-weight:normal;'><br />(=%2)</span>")
         .arg(alternativeUnits.join(" " + tr("or") + "<br />")));
 
@@ -534,8 +534,8 @@ void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfir
 
     if(model && model->getOptionsModel())
     {
-        ui->labelTransparentBalance->setText(NavCoinUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
-        ui->labelPrivateBalance->setText(NavCoinUnits::formatWithUnit(0, privateBalance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), privateBalance) + ")") : ""));
+        ui->labelTransparentBalance->setText(DeVaultUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
+        ui->labelPrivateBalance->setText(DeVaultUnits::formatWithUnit(0, privateBalance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), privateBalance) + ")") : ""));
     }
 }
 
@@ -606,7 +606,7 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
         msgParams.second = CClientUIInterface::MSG_ERROR;
         break;
     case WalletModel::AbsurdFee:
-        msgParams.first = tr("A fee higher than %1 is considered an absurdly high fee.").arg(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), maxTxFee));
+        msgParams.first = tr("A fee higher than %1 is considered an absurdly high fee.").arg(DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), maxTxFee));
         break;
     case WalletModel::PaymentRequestExpired:
         msgParams.first = tr("Payment request expired.");
@@ -683,7 +683,7 @@ void SendCoinsDialog::updateFeeMinimizedLabel()
   //  if (ui->radioSmartFee->isChecked())
   //      ui->labelFeeMinimized->setText(ui->labelSmartFee->text());
   //  else {
-  //      ui->labelFeeMinimized->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), ui->customFee->value()) +
+  //      ui->labelFeeMinimized->setText(DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), ui->customFee->value()) +
   //          ((ui->radioCustomPerKilobyte->isChecked()) ? "/kB" : ""));
   //  }
 }
@@ -692,7 +692,7 @@ void SendCoinsDialog::updateMinFeeLabel()
 {
     if (model && model->getOptionsModel())
         ui->checkBoxMinimumFee->setText(tr("Pay only the required fee of %1").arg(
-            NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), CWallet::GetRequiredFee(1000)) + "/kB")
+            DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), CWallet::GetRequiredFee(1000)) + "/kB")
         );
 }
 
@@ -706,14 +706,14 @@ void SendCoinsDialog::updateSmartFeeLabel()
     CFeeRate feeRate = mempool.estimateSmartFee(nBlocksToConfirm, &estimateFoundAtBlocks);
     if (feeRate <= CFeeRate(0)) // not enough data => minfee
     {
-        ui->labelSmartFee->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(),
+        ui->labelSmartFee->setText(DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(),
                                                                 std::max(CWallet::fallbackFee.GetFeePerK(), CWallet::GetRequiredFee(1000))) + "/kB");
         ui->labelSmartFee2->show(); // (Smart fee not initialized yet. This usually takes a few blocks...)
         ui->labelFeeEstimation->setText("");
     }
     else
     {
-        ui->labelSmartFee->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(),
+        ui->labelSmartFee->setText(DeVaultUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(),
                                                                 std::max(feeRate.GetFeePerK(), CWallet::GetRequiredFee(1000))) + "/kB");
         ui->labelSmartFee2->hide();
         ui->labelFeeEstimation->setText(tr("Estimated to begin confirmation within %n block(s).", "", estimateFoundAtBlocks));
@@ -825,7 +825,7 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         CoinControlDialog::coinControl->destChange = CNoDestination();
         ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
 
-        CNavCoinAddress addr = CNavCoinAddress(text.toStdString());
+        CDeVaultAddress addr = CDeVaultAddress(text.toStdString());
 
         if (text.isEmpty()) // Nothing entered
         {
@@ -833,7 +833,7 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         }
         else if (!addr.IsValid()) // Invalid address
         {
-            ui->labelCoinControlChangeLabel->setText(tr("Warning: Invalid NavCoin address"));
+            ui->labelCoinControlChangeLabel->setText(tr("Warning: Invalid DeVault address"));
         }
         else // Valid address
         {

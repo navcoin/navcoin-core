@@ -1,6 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,7 +28,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     // txNew.vout[0].scriptPubKey.clear();
     txNew.vout[0].nValue = genesisReward;
     txNew.vout[0].scriptPubKey.clear();
-    txNew.strDZeel = "NavCoin genesis block";
+    txNew.strDZeel = "DeVault genesis block";
 
     CBlock genesis;
     genesis.nTime    = nTime;
@@ -213,11 +213,11 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x80;
-        pchMessageStart[1] = 0x50;
-        pchMessageStart[2] = 0x34;
-        pchMessageStart[3] = 0x20;
-        nDefaultPort = 44440;
+        pchMessageStart[0] = 0xc0;
+        pchMessageStart[1] = 0xd2;
+        pchMessageStart[2] = 0xe0;
+        pchMessageStart[3] = 0xd1;
+        nDefaultPort = 33039;
         nPruneAfterHeight = 100000;
         bnProofOfWorkLimit = ~uint256() >> 16;
 
@@ -228,18 +228,18 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x00006a4e3e18c71c6d48ad6c261e2254fa764cf29607a4357c99b712dfbb8e6a"));
         assert(genesis.hashMerkleRoot == uint256S("0xc507eec6ccabfd5432d764afceafba42d2d946594b8a60570cb2358a7392c61a"));
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,53);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,31); // D standard address prefix
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,21); // cold staking addresses start with 'X'
         base58Prefixes[PRIVATE_ADDRESS] = boost::assign::list_of(74)(7).convert_to_container<std::vector<unsigned char> >(); // Starts with ZN
         base58Prefixes[PRIVATE_SPEND_KEY] = std::vector<unsigned char>(2,29); //
         base58Prefixes[PRIVATE_VIEW_KEY] = std::vector<unsigned char>(2,32); //
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,150);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,90); // d script address prefix
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,193); // V privkey prefix
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
         vSeeds.push_back(CDNSSeedData("nav.community", "seed.nav.community"));
-        vSeeds.push_back(CDNSSeedData("navcoin.org", "seed.navcoin.org"));
+        vSeeds.push_back(CDNSSeedData("devault.org", "seed.devault.org"));
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
@@ -413,11 +413,11 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0xa4;
-        pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x22;
-        nDefaultPort = 15556;
+        pchMessageStart[0] = 0x0d;
+        pchMessageStart[1] = 0x08;
+        pchMessageStart[2] = 0x13;
+        pchMessageStart[3] = 0x04;
+        nDefaultPort = 39039;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = ~uint256() >> 16;
     
@@ -442,18 +442,18 @@ public:
         }
 
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
-        vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
+        vSeeds.push_back(CDNSSeedData("testdevault.org", "testseed.devault.org"));
 
         assert(consensus.hashGenesisBlock == hashGenesisBlock);
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,66); // T address prefix
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
         base58Prefixes[PRIVATE_ADDRESS] = boost::assign::list_of(74)(64).convert_to_container<std::vector<unsigned char> >(); // Starts with ZT
         base58Prefixes[PRIVATE_SPEND_KEY] = std::vector<unsigned char>(2,29); //
         base58Prefixes[PRIVATE_VIEW_KEY] = std::vector<unsigned char>(2,32); //
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,127); // t script address prefix
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,212); // Y privkey prefix
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x40)(0x88)(0x2B)(0xE1).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x40)(0x88)(0xDA)(0x4E).convert_to_container<std::vector<unsigned char> >();
 
@@ -624,7 +624,7 @@ public:
         uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
         uint32_t nNonce = 2043184832;
         // 5) Rebuild. Launch daemon.
-        // 6) Generate first block using RPC command "./navcoin-cli generate 1"
+        // 6) Generate first block using RPC command "./devault-cli generate 1"
 
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -644,7 +644,7 @@ public:
         }
 
         vSeeds.push_back(CDNSSeedData("devnav.community", "devseed.nav.community"));
-        vSeeds.push_back(CDNSSeedData("devnet.navcoin.org", "devseed.navcoin.org"));
+        vSeeds.push_back(CDNSSeedData("devnet.devault.org", "devseed.devault.org"));
 
         assert(consensus.hashGenesisBlock == hashGenesisBlock);
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
@@ -834,7 +834,7 @@ public:
         }
 
         vSeeds.push_back(CDNSSeedData("testnav.community", "testseed.nav.community"));
-        vSeeds.push_back(CDNSSeedData("testnavcoin.org", "testseed.navcoin.org"));
+        vSeeds.push_back(CDNSSeedData("testdevault.org", "testseed.devault.org"));
 
         consensus.hashGenesisBlock = genesis.GetHash();
 

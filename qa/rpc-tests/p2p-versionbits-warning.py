@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
 import time
 from test_framework.blocktools import create_block, create_coinbase
@@ -58,7 +58,7 @@ class TestNode(NodeConnCB):
         return received_pong
 
 
-class VersionBitsWarningTest(NavCoinTestFramework):
+class VersionBitsWarningTest(DeVaultTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
@@ -140,7 +140,7 @@ class VersionBitsWarningTest(NavCoinTestFramework):
         # to ACTIVE.
         self.nodes[0].generate(VB_PERIOD)
         stop_node(self.nodes[0], 0)
-        wait_navcoinds()
+        wait_devaultds()
         # Empty out the alert file
         with open(self.alert_filename, 'w') as f:
             pass
@@ -150,7 +150,7 @@ class VersionBitsWarningTest(NavCoinTestFramework):
         self.nodes[0].generate(1)
         assert(len(self.nodes[0].getinfo()["errors"]) != 0)
         stop_node(self.nodes[0], 0)
-        wait_navcoinds()
+        wait_devaultds()
         self.test_versionbits_in_alert_file()
 
         # Test framework expects the node to still be running...

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_REVERSELOCK_H
-#define NAVCOIN_REVERSELOCK_H
+#ifndef DEVAULT_REVERSELOCK_H
+#define DEVAULT_REVERSELOCK_H
 
 /**
  * An RAII-style reverse lock. Unlocks on construction and locks on destruction.
@@ -31,4 +31,4 @@ private:
     Lock templock;
 };
 
-#endif // NAVCOIN_REVERSELOCK_H
+#endif // DEVAULT_REVERSELOCK_H

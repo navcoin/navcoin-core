@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_UNDO_H
-#define NAVCOIN_UNDO_H
+#ifndef DEVAULT_UNDO_H
+#define DEVAULT_UNDO_H
 
 #include "compressor.h" 
 #include "primitives/transaction.h"
@@ -82,4 +82,4 @@ public:
     }
 };
 
-#endif // NAVCOIN_UNDO_H
+#endif // DEVAULT_UNDO_H

@@ -6,15 +6,15 @@
 import socket
 
 from test_framework.socks5 import Socks5Configuration, Socks5Command, Socks5Server, AddressType
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
 from test_framework.netutil import test_ipv6_local
 '''
 Test plan:
-- Start navcoind's with different proxy configurations
+- Start devaultd's with different proxy configurations
 - Use addnode to initiate connections
 - Verify that proxies are connected to, and the right connection command is given
-- Proxy configurations to test on navcoind side:
+- Proxy configurations to test on devaultd side:
     - `-proxy` (proxy everything)
     - `-onion` (proxy just onions)
     - `-proxyrandomize` Circuit randomization
@@ -24,8 +24,8 @@ Test plan:
     - proxy on IPv6
 
 - Create various proxies (as threads)
-- Create navcoinds that connect to them
-- Manipulate the navcoinds using addnode (onetry) an observe effects
+- Create devaultds that connect to them
+- Manipulate the devaultds using addnode (onetry) an observe effects
 
 addnode connect to IPv4
 addnode connect to IPv6
@@ -34,7 +34,7 @@ addnode connect to generic DNS name
 '''
 
 
-class ProxyTest(NavCoinTestFramework):
+class ProxyTest(DeVaultTestFramework):
     def __init__(self):
         super().__init__()
         self.num_nodes = 4
@@ -89,7 +89,7 @@ class ProxyTest(NavCoinTestFramework):
         node.addnode("15.61.23.23:1234", "onetry")
         cmd = proxies[0].queue.get()
         assert(isinstance(cmd, Socks5Command))
-        # Note: navcoind's SOCKS5 implementation only sends atyp DOMAINNAME, even if connecting directly to IPv4/IPv6
+        # Note: devaultd's SOCKS5 implementation only sends atyp DOMAINNAME, even if connecting directly to IPv4/IPv6
         assert_equal(cmd.atyp, AddressType.DOMAINNAME)
         assert_equal(cmd.addr, b"15.61.23.23")
         assert_equal(cmd.port, 1234)
@@ -103,7 +103,7 @@ class ProxyTest(NavCoinTestFramework):
             node.addnode("[1233:3432:2434:2343:3234:2345:6546:4534]:5443", "onetry")
             cmd = proxies[1].queue.get()
             assert(isinstance(cmd, Socks5Command))
-            # Note: navcoind's SOCKS5 implementation only sends atyp DOMAINNAME, even if connecting directly to IPv4/IPv6
+            # Note: devaultd's SOCKS5 implementation only sends atyp DOMAINNAME, even if connecting directly to IPv4/IPv6
             assert_equal(cmd.atyp, AddressType.DOMAINNAME)
             assert_equal(cmd.addr, b"1233:3432:2434:2343:3234:2345:6546:4534")
             assert_equal(cmd.port, 5443)
@@ -114,11 +114,11 @@ class ProxyTest(NavCoinTestFramework):
 
         if test_onion:
             # Test: outgoing onion connection through node
-            node.addnode("navcoinostk4e4re.onion:5556", "onetry")
+            node.addnode("devaultostk4e4re.onion:5556", "onetry")
             cmd = proxies[2].queue.get()
             assert(isinstance(cmd, Socks5Command))
             assert_equal(cmd.atyp, AddressType.DOMAINNAME)
-            assert_equal(cmd.addr, b"navcoinostk4e4re.onion")
+            assert_equal(cmd.addr, b"devaultostk4e4re.onion")
             assert_equal(cmd.port, 5556)
             if not auth:
                 assert_equal(cmd.username, None)

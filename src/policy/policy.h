@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_POLICY_POLICY_H
-#define NAVCOIN_POLICY_POLICY_H
+#ifndef DEVAULT_POLICY_POLICY_H
+#define DEVAULT_POLICY_POLICY_H
 
 #include "consensus/consensus.h"
 #include "script/interpreter.h"
@@ -76,4 +76,4 @@ extern unsigned int nBytesPerSigOp;
 int64_t GetVirtualTransactionSize(int64_t nWeight, int64_t nSigOpCost);
 int64_t GetVirtualTransactionSize(const CTransaction& tx, int64_t nSigOpCost = 0);
 
-#endif // NAVCOIN_POLICY_POLICY_H
+#endif // DEVAULT_POLICY_POLICY_H

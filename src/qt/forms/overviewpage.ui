@@ -1206,7 +1206,7 @@
         <string notr="true">color: #452f6a</string>
        </property>
        <property name="text">
-        <string>Connecting to NavCoin network...</string>
+        <string>Connecting to DeVault network...</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

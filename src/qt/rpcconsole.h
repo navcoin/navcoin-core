@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_RPCCONSOLE_H
-#define NAVCOIN_QT_RPCCONSOLE_H
+#ifndef DEVAULT_QT_RPCCONSOLE_H
+#define DEVAULT_QT_RPCCONSOLE_H
 
 #include "guiutil.h"
 #include "peertablemodel.h"
@@ -26,7 +26,7 @@ class QMenu;
 class QItemSelection;
 QT_END_NAMESPACE
 
-/** Local NavCoin RPC console. */
+/** Local DeVault RPC console. */
 class RPCConsole: public QWidget
 {
     Q_OBJECT
@@ -142,4 +142,4 @@ private:
     QCompleter *autoCompleter;
 };
 
-#endif // NAVCOIN_QT_RPCCONSOLE_H
+#endif // DEVAULT_QT_RPCCONSOLE_H

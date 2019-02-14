@@ -14,30 +14,30 @@ else
 LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
-NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
-NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
+DEVAULT_CONFIG_INCLUDES=-I$(builddir)/config
+DEVAULT_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
-NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
-NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
+DEVAULT_INCLUDES += -I$(srcdir)/secp256k1/include
+DEVAULT_INCLUDES += $(UNIVALUE_CFLAGS)
 
-LIBNAVCOIN_SERVER=libnavcoin_server.a
-LIBNAVCOIN_COMMON=libnavcoin_common.a
-LIBNAVCOIN_CONSENSUS=libnavcoin_consensus.a
-LIBNAVCOIN_CLI=libnavcoin_cli.a
-LIBNAVCOIN_UTIL=libnavcoin_util.a
-LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
-LIBNAVCOIN_ZEROCOIN=libzerocoin/libnavcoin_zerocoin.a
-LIBNAVCOINQT=qt/libnavcoinqt.a
+LIBDEVAULT_SERVER=libdevault_server.a
+LIBDEVAULT_COMMON=libdevault_common.a
+LIBDEVAULT_CONSENSUS=libdevault_consensus.a
+LIBDEVAULT_CLI=libdevault_cli.a
+LIBDEVAULT_UTIL=libdevault_util.a
+LIBDEVAULT_CRYPTO=crypto/libdevault_crypto.a
+LIBDEVAULT_ZEROCOIN=libzerocoin/libdevault_zerocoin.a
+LIBDEVAULTQT=qt/libdevaultqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
 if ENABLE_ZMQ
-LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
+LIBDEVAULT_ZMQ=libdevault_zmq.a
 endif
-if BUILD_NAVCOIN_LIBS
-LIBNAVCOINCONSENSUS=libnavcoinconsensus.la
+if BUILD_DEVAULT_LIBS
+LIBDEVAULTCONSENSUS=libdevaultconsensus.la
 endif
 if ENABLE_WALLET
-LIBNAVCOIN_WALLET=libnavcoin_wallet.a
+LIBDEVAULT_WALLET=libdevault_wallet.a
 endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
@@ -46,33 +46,33 @@ $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
 EXTRA_LIBRARIES += \
-  $(LIBNAVCOIN_CRYPTO) \
-  $(LIBNAVCOIN_UTIL) \
-  $(LIBNAVCOIN_COMMON) \
-  $(LIBNAVCOIN_CONSENSUS) \
-  $(LIBNAVCOIN_SERVER) \
-  $(LIBNAVCOIN_CLI) \
-  $(LIBNAVCOIN_WALLET) \
-  $(LIBNAVCOIN_ZEROCOIN) \
-  $(LIBNAVCOIN_ZMQ)
+  $(LIBDEVAULT_CRYPTO) \
+  $(LIBDEVAULT_UTIL) \
+  $(LIBDEVAULT_COMMON) \
+  $(LIBDEVAULT_CONSENSUS) \
+  $(LIBDEVAULT_SERVER) \
+  $(LIBDEVAULT_CLI) \
+  $(LIBDEVAULT_WALLET) \
+  $(LIBDEVAULT_ZEROCOIN) \
+  $(LIBDEVAULT_ZMQ)
 
-lib_LTLIBRARIES = $(LIBNAVCOINCONSENSUS)
+lib_LTLIBRARIES = $(LIBDEVAULTCONSENSUS)
 
 bin_PROGRAMS =
 TESTS =
 BENCHMARKS =
 
-if BUILD_NAVCOIND
-  bin_PROGRAMS += navcoind
+if BUILD_DEVAULTD
+  bin_PROGRAMS += devaultd
 endif
 
-if BUILD_NAVCOIN_UTILS
-  bin_PROGRAMS += navcoin-cli navcoin-tx
+if BUILD_DEVAULT_UTILS
+  bin_PROGRAMS += devault-cli devault-tx
 endif
 
 .PHONY: FORCE check-symbols check-security
-# navcoin core #
-NAVCOIN_CORE_H = \
+# devault core #
+DEVAULT_CORE_H = \
   addressindex.h \
   spentindex.h \
   timestampindex.h \
@@ -174,12 +174,12 @@ obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
 	@$(top_srcdir)/share/genbuild.sh $(abs_top_builddir)/src/obj/build.h \
 	  $(abs_top_srcdir)
-libnavcoin_util_a-clientversion.$(OBJEXT): obj/build.h
+libdevault_util_a-clientversion.$(OBJEXT): obj/build.h
 
-# server: shared between navcoind and navcoin-qt
-libnavcoin_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
-libnavcoin_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libnavcoin_server_a_SOURCES = \
+# server: shared between devaultd and devault-qt
+libdevault_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libdevault_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevault_server_a_SOURCES = \
   addrman.cpp \
   bloom.cpp \
   blockencodings.cpp \
@@ -224,23 +224,23 @@ libnavcoin_server_a_SOURCES = \
   zerotx.cpp \
   zerowallet.cpp \
   zerowitnesser.cpp \
-  $(NAVCOIN_CORE_H)
+  $(DEVAULT_CORE_H)
 
 if ENABLE_ZMQ
-libnavcoin_zmq_a_CPPFLAGS = $(NAVCOIN_INCLUDES) $(ZMQ_CFLAGS)
-libnavcoin_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libnavcoin_zmq_a_SOURCES = \
+libdevault_zmq_a_CPPFLAGS = $(DEVAULT_INCLUDES) $(ZMQ_CFLAGS)
+libdevault_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevault_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
   zmq/zmqnotificationinterface.cpp \
   zmq/zmqpublishnotifier.cpp
 endif
 
 
-# wallet: shared between navcoind and navcoin-qt, but only linked
+# wallet: shared between devaultd and devault-qt, but only linked
 # when wallet enabled
-libnavcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
-libnavcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libnavcoin_wallet_a_SOURCES = \
+libdevault_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES)
+libdevault_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevault_wallet_a_SOURCES = \
   consensus/cfund.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
@@ -254,12 +254,12 @@ libnavcoin_wallet_a_SOURCES = \
   zerochain.cpp \
   zerotx.cpp \
   zerowallet.cpp \
-  $(NAVCOIN_CORE_H)
+  $(DEVAULT_CORE_H)
 
 # crypto primitives library
-crypto_libnavcoin_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_CONFIG_INCLUDES)
-crypto_libnavcoin_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libnavcoin_crypto_a_SOURCES = \
+crypto_libdevault_crypto_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_CONFIG_INCLUDES)
+crypto_libdevault_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libdevault_crypto_a_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
   crypto/common.h \
@@ -277,9 +277,9 @@ crypto_libnavcoin_crypto_a_SOURCES = \
   crypto/sha512.h
 
 # consensus: shared between all executables that validate any consensus rules.
-libnavcoin_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
-libnavcoin_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libnavcoin_consensus_a_SOURCES = \
+libdevault_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES)
+libdevault_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevault_consensus_a_SOURCES = \
   amount.h \
   consensus/merkle.cpp \
   consensus/merkle.h \
@@ -324,7 +324,7 @@ libnavcoin_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
-  script/navcoinconsensus.cpp \
+  script/devaultconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
   script/script.cpp \
@@ -340,10 +340,10 @@ libnavcoin_consensus_a_SOURCES = \
   utilstrencodings.h \
   version.h
 
-# common: shared between navcoind, and navcoin-qt and non-server tools
-libnavcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
-libnavcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libnavcoin_common_a_SOURCES = \
+# common: shared between devaultd, and devault-qt and non-server tools
+libdevault_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES)
+libdevault_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevault_common_a_SOURCES = \
   amount.cpp \
   base58.cpp \
   chainparams.cpp \
@@ -359,14 +359,14 @@ libnavcoin_common_a_SOURCES = \
   script/sign.cpp \
   script/standard.cpp \
   zerotx.cpp \
-  $(NAVCOIN_CORE_H)
+  $(DEVAULT_CORE_H)
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
 # backward-compatibility objects and their sanity checks are linked.
-libnavcoin_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
-libnavcoin_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libnavcoin_util_a_SOURCES = \
+libdevault_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES)
+libdevault_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevault_util_a_SOURCES = \
   support/pagelocker.cpp \
   chainparamsbase.cpp \
   clientversion.cpp \
@@ -381,10 +381,10 @@ libnavcoin_util_a_SOURCES = \
   utilmoneystr.cpp \
   utilstrencodings.cpp \
   utiltime.cpp \
-  $(NAVCOIN_CORE_H)
+  $(DEVAULT_CORE_H)
 
 # libzerocoin library
-libzerocoin_libnavcoin_zerocoin_a_SOURCES = \
+libzerocoin_libdevault_zerocoin_a_SOURCES = \
   libzerocoin/Accumulator.h \
   libzerocoin/AccumulatorProofOfKnowledge.h \
   libzerocoin/ArithmeticCircuit.h \
@@ -422,111 +422,111 @@ libzerocoin_libnavcoin_zerocoin_a_SOURCES = \
   libzerocoin/SerialNumberProofOfKnowledge.cpp
 
 if USE_NUM_GMP
-libzerocoin_libnavcoin_zerocoin_a_SOURCES += libzerocoin/bignum_gmp.cpp
+libzerocoin_libdevault_zerocoin_a_SOURCES += libzerocoin/bignum_gmp.cpp
 endif
 if USE_NUM_OPENSSL
-libzerocoin_libnavcoin_zerocoin_a_SOURCES += libzerocoin/bignum_openssl.cpp
+libzerocoin_libdevault_zerocoin_a_SOURCES += libzerocoin/bignum_openssl.cpp
 endif
 
-libzerocoin_libnavcoin_zerocoin_a_LIBADD = $(LIBSECP256K1)
-libzerocoin_libnavcoin_zerocoin_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/secp256k1/include $(SSL_CFLAGS)
-libzerocoin_libnavcoin_zerocoin_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libzerocoin_libnavcoin_zerocoin_a_CFLAGS = $(AM_CFLAGS)
+libzerocoin_libdevault_zerocoin_a_LIBADD = $(LIBSECP256K1)
+libzerocoin_libdevault_zerocoin_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/secp256k1/include $(SSL_CFLAGS)
+libzerocoin_libdevault_zerocoin_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libzerocoin_libdevault_zerocoin_a_CFLAGS = $(AM_CFLAGS)
 
 if GLIBC_BACK_COMPAT
-libnavcoin_util_a_SOURCES += compat/glibc_compat.cpp
+libdevault_util_a_SOURCES += compat/glibc_compat.cpp
 endif
 
-# cli: shared between navcoin-cli and navcoin-qt
-libnavcoin_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
-libnavcoin_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libnavcoin_cli_a_SOURCES = \
+# cli: shared between devault-cli and devault-qt
+libdevault_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES)
+libdevault_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevault_cli_a_SOURCES = \
   rpc/client.cpp \
-  $(NAVCOIN_CORE_H)
+  $(DEVAULT_CORE_H)
 
-nodist_libnavcoin_util_a_SOURCES = $(srcdir)/obj/build.h
+nodist_libdevault_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
-# navcoind binary #
-navcoind_SOURCES = navcoind.cpp
-navcoind_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
-navcoind_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-navcoind_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# devaultd binary #
+devaultd_SOURCES = devaultd.cpp
+devaultd_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES)
+devaultd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+devaultd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-navcoind_SOURCES += navcoind-res.rc
+devaultd_SOURCES += devaultd-res.rc
 endif
 
-navcoind_LDADD = \
-  $(LIBNAVCOIN_SERVER) \
-  $(LIBNAVCOIN_COMMON) \
+devaultd_LDADD = \
+  $(LIBDEVAULT_SERVER) \
+  $(LIBDEVAULT_COMMON) \
   $(LIBUNIVALUE) \
-  $(LIBNAVCOIN_UTIL) \
-  $(LIBNAVCOIN_WALLET) \
-  $(LIBNAVCOIN_ZMQ) \
-  $(LIBNAVCOIN_CONSENSUS) \
-  $(LIBNAVCOIN_CRYPTO) \
-  $(LIBNAVCOIN_ZEROCOIN) \
+  $(LIBDEVAULT_UTIL) \
+  $(LIBDEVAULT_WALLET) \
+  $(LIBDEVAULT_ZMQ) \
+  $(LIBDEVAULT_CONSENSUS) \
+  $(LIBDEVAULT_CRYPTO) \
+  $(LIBDEVAULT_ZEROCOIN) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+devaultd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
-# navcoin-cli binary #
-navcoin_cli_SOURCES = navcoin-cli.cpp
-navcoin_cli_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(EVENT_CFLAGS)
-navcoin_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-navcoin_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# devault-cli binary #
+devault_cli_SOURCES = devault-cli.cpp
+devault_cli_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES) $(EVENT_CFLAGS)
+devault_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+devault_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-navcoin_cli_SOURCES += navcoin-cli-res.rc
+devault_cli_SOURCES += devault-cli-res.rc
 endif
 
-navcoin_cli_LDADD = \
-  $(LIBNAVCOIN_CLI) \
+devault_cli_LDADD = \
+  $(LIBDEVAULT_CLI) \
   $(LIBUNIVALUE) \
-  $(LIBNAVCOIN_UTIL) \
-  $(LIBNAVCOIN_CRYPTO)
+  $(LIBDEVAULT_UTIL) \
+  $(LIBDEVAULT_CRYPTO)
 
-navcoin_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+devault_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
-# navcoin-tx binary #
-navcoin_tx_SOURCES = navcoin-tx.cpp
-navcoin_tx_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
-navcoin_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-navcoin_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# devault-tx binary #
+devault_tx_SOURCES = devault-tx.cpp
+devault_tx_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES)
+devault_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+devault_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-navcoin_tx_SOURCES += navcoin-tx-res.rc
+devault_tx_SOURCES += devault-tx-res.rc
 endif
 
-navcoin_tx_LDADD = \
+devault_tx_LDADD = \
   $(LIBUNIVALUE) \
-  $(LIBNAVCOIN_COMMON) \
-  $(LIBNAVCOIN_UTIL) \
-  $(LIBNAVCOIN_CONSENSUS) \
-  $(LIBNAVCOIN_CRYPTO) \
-  $(LIBNAVCOIN_ZEROCOIN) \
+  $(LIBDEVAULT_COMMON) \
+  $(LIBDEVAULT_UTIL) \
+  $(LIBDEVAULT_CONSENSUS) \
+  $(LIBDEVAULT_CRYPTO) \
+  $(LIBDEVAULT_ZEROCOIN) \
   $(LIBSECP256K1)
 
-navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
+devault_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
 
-# navcoinconsensus library #
-if BUILD_NAVCOIN_LIBS
-include_HEADERS = script/navcoinconsensus.h
-libnavcoinconsensus_la_SOURCES = $(crypto_libnavcoin_crypto_a_SOURCES) $(libnavcoin_consensus_a_SOURCES)
+# devaultconsensus library #
+if BUILD_DEVAULT_LIBS
+include_HEADERS = script/devaultconsensus.h
+libdevaultconsensus_la_SOURCES = $(crypto_libdevault_crypto_a_SOURCES) $(libdevault_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
-  libnavcoinconsensus_la_SOURCES += compat/glibc_compat.cpp
+  libdevaultconsensus_la_SOURCES += compat/glibc_compat.cpp
 endif
 
-libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1)
-libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_NAVCOIN_INTERNAL
-libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdevaultconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS)
+libdevaultconsensus_la_LIBADD = $(LIBSECP256K1)
+libdevaultconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_DEVAULT_INTERNAL
+libdevaultconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
 #

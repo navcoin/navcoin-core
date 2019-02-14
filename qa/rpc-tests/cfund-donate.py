@@ -3,11 +3,11 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.cfund_util import *
 
 
-class DonateCommunityFundTest(NavCoinTestFramework):
+class DonateCommunityFundTest(DeVaultTestFramework):
     """Tests RPC commands for donating coins to the Community Fund."""
 
     def __init__(self):

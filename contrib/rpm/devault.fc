@@ -1,0 +1,8 @@
+/usr/bin/devault-cli		--	gen_context(system_u:object_r:devault_exec_t,s0)
+/usr/sbin/devaultd		--	gen_context(system_u:object_r:devault_exec_t,s0)
+/usr/lib(64)?/devault/devaultd		--	gen_context(system_u:object_r:devault_exec_t,s0)
+
+/etc/devault(/.*)?		gen_context(system_u:object_r:devault_conf_t,s0)
+/var/lib/devault(/.*)?		gen_context(system_u:object_r:devault_var_lib_t,s0)
+
+(/var)?/run/devaultd(/.*)?   gen_context(system_u:object_r:devault_var_run_t,s0)

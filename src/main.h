@@ -1,14 +1,14 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018-2019 The NavCoin Core developers
+// Copyright (c) 2018-2019 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_MAIN_H
-#define NAVCOIN_MAIN_H
+#ifndef DEVAULT_MAIN_H
+#define DEVAULT_MAIN_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include "config/devault-config.h"
 #endif
 
 #include "amount.h"
@@ -598,7 +598,7 @@ bool InvalidateBlock(CValidationState& state, const CChainParams& chainparams, C
 /** Remove invalidity status from a block and its descendants. */
 bool ResetBlockFailureFlags(CBlockIndex *pindex);
 
-// NAVCoin
+// DeVault
 
 inline unsigned int GetTargetSpacing(int nHeight) { return 30; }
 
@@ -692,4 +692,4 @@ bool IsBlockHashInChain(const uint256& hashBlock);
 bool IsTransactionInChain(const uint256& txId, int& nHeightTx, const CCoinsViewCache& view, CTransaction& tx);
 bool IsTransactionInChain(const uint256& txId, const CCoinsViewCache& view, int& nHeightTx);
 
-#endif // NAVCOIN_MAIN_H
+#endif // DEVAULT_MAIN_H

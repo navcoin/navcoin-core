@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_RECEIVEREQUESTDIALOG_H
-#define NAVCOIN_QT_RECEIVEREQUESTDIALOG_H
+#ifndef DEVAULT_QT_RECEIVEREQUESTDIALOG_H
+#define DEVAULT_QT_RECEIVEREQUESTDIALOG_H
 
 #include "walletmodel.h"
 
@@ -68,4 +68,4 @@ private:
     SendCoinsRecipient info;
 };
 
-#endif // NAVCOIN_QT_RECEIVEREQUESTDIALOG_H
+#endif // DEVAULT_QT_RECEIVEREQUESTDIALOG_H

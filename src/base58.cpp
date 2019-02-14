@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -217,13 +217,13 @@ int CBase58Data::CompareTo(const CBase58Data& b58) const
 
 namespace
 {
-class CNavCoinAddressVisitor : public boost::static_visitor<bool>
+class CDeVaultAddressVisitor : public boost::static_visitor<bool>
 {
 private:
-    CNavCoinAddress* addr;
+    CDeVaultAddress* addr;
 
 public:
-    CNavCoinAddressVisitor(CNavCoinAddress* addrIn) : addr(addrIn) {}
+    CDeVaultAddressVisitor(CDeVaultAddress* addrIn) : addr(addrIn) {}
 
     bool operator()(const CKeyID& id) const { return addr->Set(id); }
     bool operator()(const pair<CKeyID, CKeyID>& id) const { return addr->Set(id.first, id.second); }
@@ -234,19 +234,19 @@ public:
 
 } // anon namespace
 
-bool CNavCoinAddress::Set(const CKeyID& id)
+bool CDeVaultAddress::Set(const CKeyID& id)
 {
     SetData(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS), &id, 20);
     return true;
 }
 
-bool CNavCoinAddress::Set(const CKeyID& id, const CKeyID& id2)
+bool CDeVaultAddress::Set(const CKeyID& id, const CKeyID& id2)
 {
     SetData(Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS), &id, 20, &id2, 20);
     return true;
 }
 
-bool CNavCoinAddress::Set(const libzerocoin::CPrivateAddress& id)
+bool CDeVaultAddress::Set(const libzerocoin::CPrivateAddress& id)
 {
     CDataStream ss(SER_NETWORK, 0);
     ss << id;
@@ -255,23 +255,23 @@ bool CNavCoinAddress::Set(const libzerocoin::CPrivateAddress& id)
     return true;
 }
 
-bool CNavCoinAddress::Set(const CScriptID& id)
+bool CDeVaultAddress::Set(const CScriptID& id)
 {
     SetData(Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS), &id, 20);
     return true;
 }
 
-bool CNavCoinAddress::Set(const CTxDestination& dest)
+bool CDeVaultAddress::Set(const CTxDestination& dest)
 {
-    return boost::apply_visitor(CNavCoinAddressVisitor(this), dest);
+    return boost::apply_visitor(CDeVaultAddressVisitor(this), dest);
 }
 
-bool CNavCoinAddress::IsValid() const
+bool CDeVaultAddress::IsValid() const
 {
     return IsValid(Params());
 }
 
-bool CNavCoinAddress::GetSpendingAddress(CNavCoinAddress &address) const
+bool CDeVaultAddress::GetSpendingAddress(CDeVaultAddress &address) const
 {
     if(!IsColdStakingAddress(Params()))
         return false;
@@ -281,7 +281,7 @@ bool CNavCoinAddress::GetSpendingAddress(CNavCoinAddress &address) const
     return true;
 }
 
-bool CNavCoinAddress::GetStakingAddress(CNavCoinAddress &address) const
+bool CDeVaultAddress::GetStakingAddress(CDeVaultAddress &address) const
 {
     if(!IsColdStakingAddress(Params()))
         return false;
@@ -291,7 +291,7 @@ bool CNavCoinAddress::GetStakingAddress(CNavCoinAddress &address) const
     return true;
 }
 
-bool CNavCoinAddress::GetBlindingCommitment(libzerocoin::BlindingCommitment &bc) const {
+bool CDeVaultAddress::GetBlindingCommitment(libzerocoin::BlindingCommitment &bc) const {
     if(!IsPrivateAddress(Params()))
         return false;
     libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
@@ -301,7 +301,7 @@ bool CNavCoinAddress::GetBlindingCommitment(libzerocoin::BlindingCommitment &bc)
     return true;
 }
 
-bool CNavCoinAddress::GetZeroPubKey(CPubKey &zerokey) const{
+bool CDeVaultAddress::GetZeroPubKey(CPubKey &zerokey) const{
     if(!IsPrivateAddress(Params()))
         return false;
     libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
@@ -311,7 +311,7 @@ bool CNavCoinAddress::GetZeroPubKey(CPubKey &zerokey) const{
     return true;
 }
 
-bool CNavCoinAddress::IsValid(const CChainParams& params) const
+bool CDeVaultAddress::IsValid(const CChainParams& params) const
 {
     if (vchVersion == params.Base58Prefix(CChainParams::PRIVATE_ADDRESS)) {
         libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
@@ -330,17 +330,17 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
     return fCorrectSize && fKnownVersion;
 }
 
-bool CNavCoinAddress::IsColdStakingAddress(const CChainParams& params) const
+bool CDeVaultAddress::IsColdStakingAddress(const CChainParams& params) const
 {
     return vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS) && vchData.size() == 40;
 }
 
-bool CNavCoinAddress::IsPrivateAddress(const CChainParams& params) const
+bool CDeVaultAddress::IsPrivateAddress(const CChainParams& params) const
 {
     return vchVersion == params.Base58Prefix(CChainParams::PRIVATE_ADDRESS);
 }
 
-CTxDestination CNavCoinAddress::Get() const
+CTxDestination CDeVaultAddress::Get() const
 {
     if (!IsValid())
         return CNoDestination();
@@ -365,7 +365,7 @@ CTxDestination CNavCoinAddress::Get() const
         return CNoDestination();
 }
 
-bool CNavCoinAddress::GetIndexKey(uint160& hashBytes, int& type) const
+bool CDeVaultAddress::GetIndexKey(uint160& hashBytes, int& type) const
 {
     if (!IsValid()) {
         return false;
@@ -386,7 +386,7 @@ bool CNavCoinAddress::GetIndexKey(uint160& hashBytes, int& type) const
     return false;
 }
 
-bool CNavCoinAddress::GetKeyID(CKeyID& keyID) const
+bool CDeVaultAddress::GetKeyID(CKeyID& keyID) const
 {
     if (!(IsValid() && vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS)))
         return false;
@@ -396,7 +396,7 @@ bool CNavCoinAddress::GetKeyID(CKeyID& keyID) const
     return true;
 }
 
-bool CNavCoinAddress::GetStakingKeyID(CKeyID& keyID) const
+bool CDeVaultAddress::GetStakingKeyID(CKeyID& keyID) const
 {
     if (!(IsValid() && vchVersion == Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS)))
         return false;
@@ -406,7 +406,7 @@ bool CNavCoinAddress::GetStakingKeyID(CKeyID& keyID) const
     return true;
 }
 
-bool CNavCoinAddress::GetSpendingKeyID(CKeyID& keyID) const
+bool CDeVaultAddress::GetSpendingKeyID(CKeyID& keyID) const
 {
     if (!(IsValid() && vchVersion == Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS)))
         return false;
@@ -416,12 +416,12 @@ bool CNavCoinAddress::GetSpendingKeyID(CKeyID& keyID) const
     return true;
 }
 
-bool CNavCoinAddress::IsScript() const
+bool CDeVaultAddress::IsScript() const
 {
     return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
 }
 
-void CNavCoinSecret::SetKey(const CKey& vchSecret)
+void CDeVaultSecret::SetKey(const CKey& vchSecret)
 {
     assert(vchSecret.IsValid());
     SetData(Params().Base58Prefix(CChainParams::SECRET_KEY), vchSecret.begin(), vchSecret.size());
@@ -429,7 +429,7 @@ void CNavCoinSecret::SetKey(const CKey& vchSecret)
         vchData.push_back(1);
 }
 
-CKey CNavCoinSecret::GetKey()
+CKey CDeVaultSecret::GetKey()
 {
     CKey ret;
     assert(vchData.size() >= 32);
@@ -437,19 +437,19 @@ CKey CNavCoinSecret::GetKey()
     return ret;
 }
 
-bool CNavCoinSecret::IsValid() const
+bool CDeVaultSecret::IsValid() const
 {
     bool fExpectedFormat = vchData.size() == 32 || (vchData.size() == 33 && vchData[32] == 1);
     bool fCorrectVersion = vchVersion == Params().Base58Prefix(CChainParams::SECRET_KEY);
     return fExpectedFormat && fCorrectVersion;
 }
 
-bool CNavCoinSecret::SetString(const char* pszSecret)
+bool CDeVaultSecret::SetString(const char* pszSecret)
 {
     return CBase58Data::SetString(pszSecret) && IsValid();
 }
 
-bool CNavCoinSecret::SetString(const std::string& strSecret)
+bool CDeVaultSecret::SetString(const std::string& strSecret)
 {
     return SetString(strSecret.c_str());
 }

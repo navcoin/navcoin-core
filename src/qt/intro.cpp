@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include "config/devault-config.h"
 #endif
 
 #include "intro.h"
@@ -98,7 +98,7 @@ void FreespaceChecker::check()
             if(!fs::is_directory(dataDir))
             {
                 replyStatus = ST_OK;
-                replyMessage = tr("NavCoin will try to import an old wallet.dat file.");
+                replyMessage = tr("DeVault will try to import an old wallet.dat file.");
             } else {
                 replyStatus = ST_ERROR;
                 replyMessage = tr("You must choose a wallet.dat file.");
@@ -182,7 +182,7 @@ void Intro::pickDataDirectory()
         /* If current default data directory does not exist, let the user choose one */
         Intro intro;
         intro.setDataDirectory(dataDir + QDir::separator() + "wallet.dat");
-        intro.setWindowIcon(QIcon(":icons/navcoin"));
+        intro.setWindowIcon(QIcon(":icons/devault"));
         intro.setStyleSheet(Skinize());
 
         while(true)
@@ -214,8 +214,8 @@ void Intro::pickDataDirectory()
         settings.setValue("strDataDir", dataDir);
     }
     /* Only override -datadir if different from the default, to make it possible to
-     * override -datadir in the navcoin.conf file in the default data directory
-     * (to be consistent with navcoind behavior)
+     * override -datadir in the devault.conf file in the default data directory
+     * (to be consistent with devaultd behavior)
      */
     if(dataDir != getDefaultDataDirectory())
         SoftSetArg("-datadir", GUIUtil::qstringToBoostPath(dataDir).string()); // use OS locale for path setting

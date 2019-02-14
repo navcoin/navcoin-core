@@ -1,11 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CHAIN_H
-#define NAVCOIN_CHAIN_H
+#ifndef DEVAULT_CHAIN_H
+#define DEVAULT_CHAIN_H
 
 #include "primitives/block.h"
 #include "pow.h"
@@ -647,4 +647,4 @@ public:
     const CBlockIndex *FindFork(const CBlockIndex *pindex) const;
 };
 
-#endif // NAVCOIN_CHAIN_H
+#endif // DEVAULT_CHAIN_H

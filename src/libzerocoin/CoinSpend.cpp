@@ -10,7 +10,7 @@
  * @license    This project is released under the MIT license.
  **/
 // Copyright (c) 2017-2018 The PIVX developers
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018 The DeVault Core developers
 
 #include "Keys.h"
 #include "CoinSpend.h"

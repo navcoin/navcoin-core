@@ -1,4 +1,4 @@
-Source: navcoin
+Source: devault
 Section: utils
 Priority: optional
 Maintainer: Jonas Smedegaard <dr@jones.dk>
@@ -23,45 +23,45 @@ Build-Depends: debhelper,
  libprotobuf-dev, protobuf-compiler,
  python
 Standards-Version: 3.9.2
-Homepage: https://navcoincore.org/
-Vcs-Git: git://github.com/navcoin/navcoin.git
-Vcs-Browser: https://github.com/navcoin/navcoin
+Homepage: https://devaultcore.org/
+Vcs-Git: git://github.com/devault/devault.git
+Vcs-Browser: https://github.com/devault/devault
 
-Package: navcoind
+Package: devaultd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - daemon
- NavCoin is an experimental new digital currency that enables instant
- payments to anyone, anywhere in the world. NavCoin uses peer-to-peer
+ DeVault is an experimental new digital currency that enables instant
+ payments to anyone, anywhere in the world. DeVault uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. NavCoin Core
+ and issuing money are carried out collectively by the network. DeVault Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides the daemon, navcoind, and the CLI tool
- navcoin-cli to interact with the daemon.
+ This package provides the daemon, devaultd, and the CLI tool
+ devault-cli to interact with the daemon.
 
-Package: navcoin-qt
+Package: devault-qt
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - Qt GUI
- NavCoin is an experimental new digital currency that enables instant
- payments to anyone, anywhere in the world. NavCoin uses peer-to-peer
+ DeVault is an experimental new digital currency that enables instant
+ payments to anyone, anywhere in the world. DeVault uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. NavCoin Core
+ and issuing money are carried out collectively by the network. DeVault Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides NavCoin-Qt, a GUI for NavCoin based on Qt.
+ This package provides DeVault-Qt, a GUI for DeVault based on Qt.
 
-Package: navcoin-tx
+Package: devault-tx
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer digital currency - standalone transaction tool
- NavCoin is an experimental new digital currency that enables instant
- payments to anyone, anywhere in the world. NavCoin uses peer-to-peer
+ DeVault is an experimental new digital currency that enables instant
+ payments to anyone, anywhere in the world. DeVault uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. NavCoin Core
+ and issuing money are carried out collectively by the network. DeVault Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides navcoin-tx, a command-line transaction creation
- tool which can be used without a navcoin daemon.  Some means of
+ This package provides devault-tx, a command-line transaction creation
+ tool which can be used without a devault daemon.  Some means of
  exchanging minimal transaction data with peers is still required.

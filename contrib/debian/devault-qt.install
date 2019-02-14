@@ -1,0 +1,6 @@
+usr/local/bin/devault-qt usr/bin
+share/pixmaps/devault32.xpm usr/share/pixmaps
+share/pixmaps/devault16.xpm usr/share/pixmaps
+share/pixmaps/devault128.png usr/share/pixmaps
+debian/devault-qt.desktop usr/share/applications
+debian/devault-qt.protocol usr/share/kde4/services/

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_QT_RECENTREQUESTSTABLEMODEL_H
-#define NAVCOIN_QT_RECENTREQUESTSTABLEMODEL_H
+#ifndef DEVAULT_QT_RECENTREQUESTSTABLEMODEL_H
+#define DEVAULT_QT_RECENTREQUESTSTABLEMODEL_H
 
 #include "walletmodel.h"
 
@@ -53,7 +53,7 @@ private:
     Qt::SortOrder order;
 };
 
-/** Model for list of recently generated payment requests / navcoin: URIs.
+/** Model for list of recently generated payment requests / devault: URIs.
  * Part of wallet model.
  */
 class RecentRequestsTableModel: public QAbstractTableModel
@@ -105,4 +105,4 @@ private:
     QString getAmountTitle();
 };
 
-#endif // NAVCOIN_QT_RECENTREQUESTSTABLEMODEL_H
+#endif // DEVAULT_QT_RECENTREQUESTSTABLEMODEL_H

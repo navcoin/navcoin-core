@@ -33,7 +33,7 @@
        <item>
         <widget class="QLabel" name="infoLabel_SM">
          <property name="text">
-          <string>You can sign messages/agreements with your addresses to prove you can receive navcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</string>
+          <string>You can sign messages/agreements with your addresses to prove you can receive devaults sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</string>
          </property>
          <property name="textFormat">
           <enum>Qt::PlainText</enum>
@@ -51,7 +51,7 @@
          <item>
           <widget class="QValidatedLineEdit" name="addressIn_SM">
            <property name="toolTip">
-            <string>The NavCoin address to sign the message with</string>
+            <string>The DeVault address to sign the message with</string>
            </property>
           </widget>
          </item>
@@ -164,7 +164,7 @@
          <item>
           <widget class="QPushButton" name="signMessageButton_SM">
            <property name="toolTip">
-            <string>Sign the message to prove you own this NavCoin address</string>
+            <string>Sign the message to prove you own this DeVault address</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -276,7 +276,7 @@
          <item>
           <widget class="QValidatedLineEdit" name="addressIn_VM">
            <property name="toolTip">
-            <string>The NavCoin address the message was signed with</string>
+            <string>The DeVault address the message was signed with</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -327,7 +327,7 @@
          <item>
           <widget class="QPushButton" name="verifyMessageButton_VM">
            <property name="toolTip">
-            <string>Verify the message to ensure it was signed with the specified NavCoin address</string>
+            <string>Verify the message to ensure it was signed with the specified DeVault address</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>

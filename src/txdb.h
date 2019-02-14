@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_TXDB_H
-#define NAVCOIN_TXDB_H
+#ifndef DEVAULT_TXDB_H
+#define DEVAULT_TXDB_H
 
 #include "main.h"
 #include "coins.h"
@@ -43,7 +43,7 @@ static const int64_t nMinDbCache = 4;
 static const int64_t nMaxBlockDBCache = 2;
 //! Max memory allocated to block tree DB specific cache, if -txindex (MiB)
 // Unlike for the UTXO database, for the txindex scenario the leveldb cache make
-// a meaningful difference: https://github.com/navcoin/navcoin/pull/8273#issuecomment-229601991
+// a meaningful difference: https://github.com/devault/devault/pull/8273#issuecomment-229601991
 static const int64_t nMaxTxIndexCache = 1024;
 //! Max memory allocated to coin DB specific cache (MiB)
 static const int64_t nMaxCoinsDBCache = 8;
@@ -192,4 +192,4 @@ public:
     bool EraseZerocoinAccumulator(uint256 accumulatorChecksum);
 };
 
-#endif // NAVCOIN_TXDB_H
+#endif // DEVAULT_TXDB_H

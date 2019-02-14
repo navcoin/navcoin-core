@@ -3,7 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import NavCoinTestFramework
+from test_framework.test_framework import DeVaultTestFramework
 from test_framework.util import *
 
 
@@ -14,7 +14,7 @@ def get_unspent(listunspent, amount):
     raise AssertionError('Could not find unspent with amount={}'.format(amount))
 
 
-class RawTransactionsTest(NavCoinTestFramework):
+class RawTransactionsTest(DeVaultTestFramework):
 
     def __init__(self):
         super().__init__()
@@ -201,9 +201,9 @@ class RawTransactionsTest(NavCoinTestFramework):
 
         try:
             self.nodes[2].fundrawtransaction(rawtx, {'changeAddress': 'foobar'})
-            raise AssertionError("Accepted invalid navcoin address")
+            raise AssertionError("Accepted invalid devault address")
         except JSONRPCException as e:
-            assert("changeAddress must be a valid navcoin address" in e.error['message'])
+            assert("changeAddress must be a valid devault address" in e.error['message'])
 
 
         ############################################################
@@ -470,7 +470,7 @@ class RawTransactionsTest(NavCoinTestFramework):
         self.nodes[1].encryptwallet("test")
         self.nodes.pop(1)
         stop_nodes(self.nodes)
-        wait_navcoinds()
+        wait_devaultds()
 
         self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
         # This test is not meant to test fee estimation and we'd like
