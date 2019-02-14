@@ -38,13 +38,12 @@ source_group("QtHeaders" FILES ${LOCAL_QT_HEADERS})
 set(GUI_FORMS
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/addressbookpage.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/askpassphrasedialog.ui
+  ${CMAKE_CURRENT_SOURCE_DIR}/forms/cfund_voting.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/coincontroldialog.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/debugwindow.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/editaddressdialog.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/helpmessagedialog.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/intro.ui
-  ${CMAKE_CURRENT_SOURCE_DIR}/forms/linkspage.ui
-  ${CMAKE_CURRENT_SOURCE_DIR}/forms/miningpage.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/openuridialog.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/optionsdialog.ui
   ${CMAKE_CURRENT_SOURCE_DIR}/forms/overviewpage.ui
@@ -68,18 +67,21 @@ PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS paymentrequest.proto)
 
 SET(QT_FILES
 	../script/standard.cpp
-  ##	../rpcclient.cpp
 	devaultaddressvalidator.cpp
 	devaultamountfield.cpp
 	devaultgui.cpp
 	devaultunits.cpp
+	devaultstrings.cpp
 	clientmodel.cpp
 	csvmodelwriter.cpp
 	guiutil.cpp
 	intro.cpp
-	devaultstyle.cpp
-	buydevaultdialog.cpp
-	networkstyle.cpp
+
+  ./forms/cfund_voting.cpp
+  skinize.cpp
+  getaddresstoreceive.cpp
+  coldstakingwizard.cpp
+  
 	notificator.cpp
 	optionsdialog.cpp
 	optionsmodel.cpp
@@ -87,8 +89,8 @@ SET(QT_FILES
 	platformstyle.cpp
 	qvalidatedlineedit.cpp
 	qvaluecombobox.cpp
+	networkstyle.cpp
 	rpcconsole.cpp
-	modaloverlay.cpp
 	bantablemodel.cpp
 	splashscreen.cpp
 	trafficgraphwidget.cpp
@@ -131,11 +133,7 @@ add_library(mac_stuff
 set_property(TARGET mac_stuff PROPERTY CXX_STANDARD 11)
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	ADD_LIBRARY(qt_stuff ${QT_FILES} ${PROTO_SRCS} ${PROTO_HDRS} ${UI_HEADERS})
-else()
-	ADD_LIBRARY(qt_stuff ${QT_FILES} ../rpcclient.cpp ${PROTO_SRCS} ${PROTO_HDRS} ${UI_HEADERS})
-endif()
+ADD_LIBRARY(qt_stuff ${QT_FILES} ${PROTO_SRCS} ${PROTO_HDRS} ${UI_HEADERS})
 
 set_property(TARGET qt_stuff PROPERTY CXX_STANDARD 11)
 
@@ -177,9 +175,9 @@ add_dependencies(devault-qt translations_target)
 #set_source_files_properties(devault.cpp PROPERTIES CMAKE_CXX_FLAGS "-std=c++11")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  TARGET_LINK_LIBRARIES(devault-qt coin qt_stuff mac_stuff db_cxx db secp256k1 leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} ${PROTOBUF_LIBRARIES} qrencode miniupnpc zmq gmp event event_pthreads pthread "-framework Cocoa")
+  TARGET_LINK_LIBRARIES(devault-qt coin qt_stuff mac_stuff db_cxx db secp256k1 zerocoin unbound curl leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} ${PROTOBUF_LIBRARIES} qrencode miniupnpc zmq gmp event event_pthreads pthread "-framework Cocoa")
 else()
-  TARGET_LINK_LIBRARIES(devault-qt coin qt_stuff db_cxx db secp256k1 leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} ${PROTOBUF_LIBRARIES} gmp qrencode pthread )
+  TARGET_LINK_LIBRARIES(devault-qt coin qt_stuff db_cxx db secp256k1 leveldb zerocoin unbound curl ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} ${PROTOBUF_LIBRARIES} gmp qrencode pthread )
 endif()
 QT5_USE_Modules(devault-qt Gui)
 QT5_USE_Modules(devault-qt Core)

@@ -329,7 +329,7 @@ else()
 	target_link_libraries(devaultd coin db_cxx db secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp pthread)
 endif()
 
-#add_subdirectory(src/qt)
+add_subdirectory(src/qt)
 
 #---------------------------------------------------------------------------------------------------------
 # Create a target in Xcode to setup coverage script

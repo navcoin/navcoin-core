@@ -5,13 +5,18 @@
 #ifndef BITCOIN_COMPAT_BYTESWAP_H
 #define BITCOIN_COMPAT_BYTESWAP_H
 
+
+#if defined(HAVE_CONFIG_H)
+#include <config/devault-config.h>
+#endif
+
 #include <stdint.h>
 
 #if defined(HAVE_BYTESWAP_H)
 #include <byteswap.h>
 #endif
 
-#if defined(MAC_OSX)
+#if defined(__APPLE__)
 
 #if !defined(bswap_16)
 
