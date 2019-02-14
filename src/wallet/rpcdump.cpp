@@ -697,12 +697,12 @@ UniValue dumpmnemonic(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() > 1)
         throw runtime_error(
-                "dumpmnemonic\n"
+                "dumpmnemonic ( \"language\" )\n"
                 "\nReveals the mnemonic for the current master private key.\n"
                 "\nSupported languages:\n"
-                "\n - english, spanish, italian, japanese, french, russian\n"
+                "\n - english, spanish, italian, japanese, french, russian, czech, ukrainian, simplified chinese and traditional chinese\n"
                 "\nArguments:\n"
-                "1. \"language\"          (string, required, english by default) The language for generating the mnemonic\n"
+                "1. \"language\"          (string, optional, english by default) The language for generating the mnemonic\n"
                 "\nExamples:\n"
                 + HelpExampleCli("dumpmnemonic", "")
                 + HelpExampleCli("dumpmnemonic", "spanish")

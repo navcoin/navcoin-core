@@ -177,6 +177,14 @@ dictionary string_to_lexicon(const std::string& strLanguage)
         return language::fr;
     else if (strLanguage == "russian")
         return language::ru;
+    else if (strLanguage == "czech")
+        return language::cs;
+    else if (strLanguage == "ukrainian")
+        return language::uk;
+    else if (strLanguage == "simplified chinese")
+        return language::zh_Hans;
+    else if (strLanguage == "traditional chinese")
+        return language::zh_Hant;
 
     return language::en;
 }
