@@ -26,7 +26,7 @@ class TxnMallTest(DeVaultTestFramework):
         return super(TxnMallTest, self).setup_network(True)
 
     def run_test(self):
-        # All nodes should start with 1,250 NAV:
+        # All nodes should start with 1,250 DVT:
         starting_balance = 1250
         for i in range(4):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
@@ -63,7 +63,7 @@ class TxnMallTest(DeVaultTestFramework):
 
         # createrawtransaction randomizes the order of its outputs, so swap them if necessary.
         # output 0 is at version+#inputs+input+sigstub+sequence+#outputs
-        # 40 NAV serialized is 00286bee00000000
+        # 40 DVT serialized is 00286bee00000000
         pos0 = 2*(4+1+36+1+4+1)
         hex40 = "00286bee00000000"
         output_len = 16 + 2 + 2 * int("0x" + clone_raw[pos0 + 16 : pos0 + 16 + 2], 0)
@@ -86,7 +86,7 @@ class TxnMallTest(DeVaultTestFramework):
         tx1 = self.nodes[0].gettransaction(txid1)
         tx2 = self.nodes[0].gettransaction(txid2)
 
-        # Node0's balance should be starting balance, plus 50NAV for another
+        # Node0's balance should be starting balance, plus 50DVT for another
         # matured block, minus tx1 and tx2 amounts, and minus transaction fees:
         expected = starting_balance + fund_foo_tx["fee"] + fund_bar_tx["fee"]
         if self.options.mine_block: expected += 50
@@ -130,7 +130,7 @@ class TxnMallTest(DeVaultTestFramework):
         assert_equal(tx1_clone["confirmations"], 2)
         assert_equal(tx2["confirmations"], 1)
 
-        # Check node0's total balance; should be same as before the clone, + 100 NAV for 2 matured,
+        # Check node0's total balance; should be same as before the clone, + 100 DVT for 2 matured,
         # less possible orphaned matured subsidy
         expected += 100
         if (self.options.mine_block): 

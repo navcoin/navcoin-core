@@ -5,7 +5,7 @@
 
 ### Community Fund - Accumulation of coins, signaled by version bit 7:
   - Reduction of the staking rewards to 4%.
-  - Inclusion of an additional output in the Coinstake transaction contributing 0.25NAV to the Community Fund
+  - Inclusion of an additional output in the Coinstake transaction contributing 0.25DVT to the Community Fund
   - Consensus validation of the previous rule.
   - Uses a separate DB on disk to store data about the Community Fund, increasing performance.
 

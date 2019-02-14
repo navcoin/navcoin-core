@@ -1,5 +1,5 @@
-#ifndef NAVTECHITEM_H
-#define NAVTECHITEM_H
+#ifndef DVTTECHITEM_H
+#define DVTTECHITEM_H
 
 #include <QWidget>
 
@@ -23,4 +23,4 @@ private:
     QString name;
 };
 
-#endif // NAVTECHITEM_H
+#endif // DVTTECHITEM_H

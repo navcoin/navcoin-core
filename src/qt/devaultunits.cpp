@@ -25,9 +25,9 @@ DeVaultUnits::DeVaultUnits(QObject *parent):
 QList<DeVaultUnits::Unit> DeVaultUnits::availableUnits()
 {
     QList<DeVaultUnits::Unit> unitlist;
-    unitlist.append(NAV);
-//    unitlist.append(mNAV);
-//    unitlist.append(uNAV);
+    unitlist.append(DVT);
+//    unitlist.append(mDVT);
+//    unitlist.append(uDVT);
     unitlist.append(BTC);
     unitlist.append(EUR);
     unitlist.append(USD);
@@ -38,9 +38,9 @@ bool DeVaultUnits::valid(int unit)
 {
     switch(unit)
     {
-    case NAV:
-//    case mNAV:
-//    case uNAV:
+    case DVT:
+//    case mDVT:
+//    case uDVT:
     case BTC:
     case EUR:
     case USD:
@@ -54,9 +54,9 @@ QString DeVaultUnits::name(int unit)
 {
     switch(unit)
     {
-    case NAV: return QString("NAV");
-//    case mNAV: return QString("mNAV");
-//    case uNAV: return QString::fromUtf8("μNAV");
+    case DVT: return QString("DVT");
+//    case mDVT: return QString("mDVT");
+//    case uDVT: return QString::fromUtf8("μDVT");
     case BTC: return QString::fromUtf8("BTC");
     case EUR: return QString::fromUtf8("EUR");
     case USD: return QString::fromUtf8("USD");
@@ -68,9 +68,9 @@ QString DeVaultUnits::description(int unit)
 {
     switch(unit)
     {
-    case NAV: return QString("DeVaults");
-//    case mNAV: return QString("Milli-DeVaults (1 / 1" THIN_SP_UTF8 "000)");
-//    case uNAV: return QString("Micro-DeVaults (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+    case DVT: return QString("DeVaults");
+//    case mDVT: return QString("Milli-DeVaults (1 / 1" THIN_SP_UTF8 "000)");
+//    case uDVT: return QString("Micro-DeVaults (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
     case BTC: return QString("BTC");
     case EUR: return QString("Euro");
     case USD: return QString("US Dolar");
@@ -85,9 +85,9 @@ qint64 DeVaultUnits::factor(int unit)
 
     switch(unit)
     {
-    case NAV:  return 100000000;
-//    case mNAV: return 100000;
-//    case uNAV: return 100;
+    case DVT:  return 100000000;
+//    case mDVT: return 100000;
+//    case uDVT: return 100;
     case BTC:  return settings.value("btcFactor", 0).toFloat();
     case EUR:  return settings.value("eurFactor", 0).toFloat();
     case USD:  return settings.value("usdFactor", 0).toFloat();
@@ -99,9 +99,9 @@ int DeVaultUnits::decimals(int unit)
 {
     switch(unit)
     {
-    case NAV: return 8;
-//    case mNAV: return 5;
-//    case uNAV: return 2;
+    case DVT: return 8;
+//    case mDVT: return 5;
+//    case uDVT: return 2;
     case BTC: return 8;
     case EUR: return 6;
     case USD: return 6;

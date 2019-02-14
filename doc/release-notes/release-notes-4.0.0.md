@@ -177,17 +177,17 @@ Furthermore, because segwit activation is not yet specified for mainnet, version
 
 Block size has been reduced to 2MB to prevent flood attacks. A possible reduction in transaction processing capabilities will be compensated with a future activation of Segregated Witness.
 
-### New NAVTech RPC Commands
+### New DVTTech RPC Commands
 
-A command to generate a private payment has been added. DeVault Core will take care of the negotiation with the NAVTech nodes and will create and broadcast the transaction. The syntax is:
+A command to generate a private payment has been added. DeVault Core will take care of the negotiation with the DVTTech nodes and will create and broadcast the transaction. The syntax is:
 
 `anonsend address amount`
 
 Another command, getanondestination, has been added to obtain the encrypted anon destination of a given address.
 
-### Management of NAVTech servers
+### Management of DVTTech servers
 
-NAVTech servers added/removed with the RPC command addanonserver are now stored on the config file when specified by an extra parameter.
+DVTTech servers added/removed with the RPC command addanonserver are now stored on the config file when specified by an extra parameter.
 
 Additionally a new command listanonservers has been included to list the already added servers.
 

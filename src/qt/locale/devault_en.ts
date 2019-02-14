@@ -1965,7 +1965,7 @@
     </message>
     <message>
         <location line="+22"/>
-        <source>87 312.312 123 NAV</source>
+        <source>87 312.312 123 DVT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1975,7 +1975,7 @@
     </message>
     <message>
         <location line="+22"/>
-        <source>1 312.312 NAV</source>
+        <source>1 312.312 DVT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1988,7 +1988,7 @@
         <location line="+62"/>
         <location line="+22"/>
         <location line="+62"/>
-        <source>132 431.41 NAV</source>
+        <source>132 431.41 DVT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3363,7 +3363,7 @@
     </message>
     <message>
         <location line="-18"/>
-        <source>A&amp;mount (NAV):</source>
+        <source>A&amp;mount (DVT):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

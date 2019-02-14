@@ -17,7 +17,7 @@ class CommunityFundRawTXCreateProposalTest(DeVaultTestFramework):
         self.num_nodes = 1
 
 
-        self.goodDescription = "these are not the NAV Droids you are looking for"
+        self.goodDescription = "these are not the DVT Droids you are looking for"
         self.goodDuration = 360000
         self.goodAmount = 100
         self.goodPropHash = ""

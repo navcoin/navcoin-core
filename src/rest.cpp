@@ -122,7 +122,7 @@ static bool CheckWarmup(HTTPRequest* req)
 {
     std::string statusmessage;
     if (RPCIsInWarmup(&statusmessage))
-         return RESTERR(req, HTTP_SERVICE_UNAVAILABLE, "Service temporarily unavailable: " + statusmessage);
+         return RESTERR(req, HTTP_SERVICE_UDVTAILABLE, "Service temporarily unavailable: " + statusmessage);
     return true;
 }
 

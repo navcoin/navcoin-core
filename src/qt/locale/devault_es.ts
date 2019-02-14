@@ -1507,24 +1507,24 @@
         <translation>24H:</translation>
     </message>
     <message>
-        <source>87 312.312 123 NAV</source>
-        <translation>87 312.312 123 NAV</translation>
+        <source>87 312.312 123 DVT</source>
+        <translation>87 312.312 123 DVT</translation>
     </message>
     <message>
         <source>7D</source>
         <translation>7D</translation>
     </message>
     <message>
-        <source>1 312.312 NAV</source>
-        <translation>1 312.312 NAV</translation>
+        <source>1 312.312 DVT</source>
+        <translation>1 312.312 DVT</translation>
     </message>
     <message>
         <source>30D</source>
         <translation>30D</translation>
     </message>
     <message>
-        <source>132 431.41 NAV</source>
-        <translation>132 431.41 NAV</translation>
+        <source>132 431.41 DVT</source>
+        <translation>132 431.41 DVT</translation>
     </message>
     <message>
         <source>Cold Staking</source>
@@ -2306,16 +2306,16 @@
         <translation>(Tarifa inteligente no inicializado aún. Esto generalmente lleva a pocos bloques...)</translation>
     </message>
     <message>
-        <source>You don't have any NAVTech server added. </source>
-        <translation>No tiene ningún servidor NAVTech agregado.</translation>
+        <source>You don't have any DVTTech server added. </source>
+        <translation>No tiene ningún servidor DVTTech agregado.</translation>
     </message>
     <message>
         <source>Private payment</source>
         <translation>Pago privado</translation>
     </message>
     <message>
-        <source>Manage NAVTech servers</source>
-        <translation>Administre servidores NAVTech</translation>
+        <source>Manage DVTTech servers</source>
+        <translation>Administre servidores DVTTech</translation>
     </message>
     <message>
         <source>Use full amount</source>
@@ -2382,8 +2382,8 @@
         <translation>Copiar cambio</translation>
     </message>
     <message>
-        <source>NAVTech server returned a different number of addresses.</source>
-        <translation>Servidor NAVtech devolvió un numero diferente de direcciones.</translation>
+        <source>DVTTech server returned a different number of addresses.</source>
+        <translation>Servidor DVTtech devolvió un numero diferente de direcciones.</translation>
     </message>
     <message>
         <source>Something went wrong:</source>
@@ -2569,8 +2569,8 @@
         <translation>Guarde en Libro de Direcciones</translation>
     </message>
     <message>
-        <source>A&amp;mount (NAV):</source>
-        <translation>C&amp;antidad (NAV):</translation>
+        <source>A&amp;mount (DVT):</source>
+        <translation>C&amp;antidad (DVT):</translation>
     </message>
     <message>
         <source>Pay To:</source>

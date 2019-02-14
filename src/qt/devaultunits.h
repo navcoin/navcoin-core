@@ -56,9 +56,9 @@ public:
      */
     enum Unit
     {
-        NAV,
-        mNAV,
-        uNAV,
+        DVT,
+        mDVT,
+        uDVT,
         BTC,
         EUR,
         USD

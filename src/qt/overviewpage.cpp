@@ -31,7 +31,7 @@ class TxViewDelegate : public QAbstractItemDelegate
     Q_OBJECT
 public:
     TxViewDelegate(const PlatformStyle *platformStyle):
-        QAbstractItemDelegate(), unit(DeVaultUnits::NAV),
+        QAbstractItemDelegate(), unit(DeVaultUnits::DVT),
         platformStyle(platformStyle)
     {
 
@@ -298,7 +298,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
     }
 
-    // update the display unit, to not use the default ("NAV")
+    // update the display unit, to not use the default ("DVT")
     updateDisplayUnit();
 }
 

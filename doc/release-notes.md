@@ -390,7 +390,7 @@ git merge commit are mentioned.
 - #7967 `8c1e49b` Add feerate option to `fundrawtransaction` (jonasschnelli)
 - #8118 `9b6a48c` Reduce unnecessary hashing in `signrawtransaction` (jonasnick)
 - #7957 `79004d4` Add support for transaction sequence number (jonasschnelli)
-- #8153 `75ec320` `fundrawtransaction` feeRate: Use NAV/kB (MarcoFalke)
+- #8153 `75ec320` `fundrawtransaction` feeRate: Use DVT/kB (MarcoFalke)
 - #7292 `7ce9ac5` Expose ancestor/descendant information over RPC (sdaftuar)
 - #8171 `62fcf27` Fix createrawtx sequence number unsigned int parsing (jonasschnelli)
 - #7892 `9c3d0fa` Add full UTF-8 support to RPC (laanwj)
@@ -434,7 +434,7 @@ git merge commit are mentioned.
 - #7637 `3da5d1b` Fix memleak in TorController (laanwj, jonasschnelli)
 - #7553 `9f14e5a` Remove vfReachable and modify IsReachable to only use vfLimited (pstratem)
 - #7708 `9426632` De-neuter NODE_BLOOM (pstratem)
-- #7692 `29b2be6` Remove P2P alert system (NAVdrak)
+- #7692 `29b2be6` Remove P2P alert system (DVTdrak)
 - #7542 `c946a15` Implement "feefilter" P2P message (morcos)
 - #7573 `352fd57` Add `-maxtimeadjustment` command line option (mruddy)
 - #7570 `232592a` Add IPv6 Link-Local Address Support (mruddy)
@@ -466,7 +466,7 @@ git merge commit are mentioned.
 - #8068 `e9d76a1` Compact Blocks (TheBlueMatt)
 - #8204 `0833894` Update petertodd's testnet seed (petertodd)
 - #8247 `5cd35d3` Mark my dnsseed as supporting filtering (sipa)
-- #8275 `042c323` Remove bad chain alert partition check (NAVdrak)
+- #8275 `042c323` Remove bad chain alert partition check (DVTdrak)
 - #8271 `1bc9c80` Do not send witnesses in cmpctblock (sipa)
 - #8312 `ca40ef6` Fix mempool DoS vulnerability from malleated transactions (sdaftuar)
 - #7180 `16ccb74` Account for `sendheaders` `verack` messages (laanwj)
@@ -482,9 +482,9 @@ git merge commit are mentioned.
 - #7520 `621940e` LibreSSL doesn't define OPENSSL_VERSION, use LIBRESSL_VERSION_TEXT instead (paveljanik)
 - #7528 `9b9bfce` autogen.sh: warn about needing autoconf if autoreconf is not found (knocte)
 - #7504 `19324cf` Crystal clean make clean (paveljanik)
-- #7619 `18b3f1b` Add missing sudo entry in gitian VM setup (NAVdrak)
+- #7619 `18b3f1b` Add missing sudo entry in gitian VM setup (DVTdrak)
 - #7616 `639ec58`  [depends] Delete unused patches  (MarcoFalke)
-- #7658 `c15eb28` Add curl to Gitian setup instructions (NAVdrak)
+- #7658 `c15eb28` Add curl to Gitian setup instructions (DVTdrak)
 - #7710 `909b72b` [Depends] Bump miniupnpc and config.guess+sub (fanquake)
 - #7723 `5131005` build: python 3 compatibility (laanwj)
 - #7477 `28ad4d9` Fix quoting of copyright holders in configure.ac (domob1812)
@@ -604,7 +604,7 @@ git merge commit are mentioned.
 - #7236 `02676c5` Use createrawtx locktime parm in txn_clone (dgenr8)
 - #7212 `326ffed` Adds unittests for CAddrMan and CAddrinfo, removes source of non-determinism (EthanHeilman)
 - #7490 `d007511` tests: Remove May15 test (laanwj)
-- #7531 `18cb2d5` Add bip68-sequence.py to extended rpc tests (NAVdrak)
+- #7531 `18cb2d5` Add bip68-sequence.py to extended rpc tests (DVTdrak)
 - #7536 `ce5fc02` test: test leading spaces for ParseHex (laanwj)
 - #7620 `1b68de3` [travis] Only run check-doc.py once (MarcoFalke)
 - #7455 `7f96671` [travis] Exit early when check-doc.py fails (MarcoFalke)
@@ -617,7 +617,7 @@ git merge commit are mentioned.
 - #7720 `3b4324b` rpc-test: Normalize assert() (MarcoFalke)
 - #7757 `26794d4` wallet: Wait for reindex to catch up (MarcoFalke)
 - #7764 `a65b36c` Don't run pruning.py twice (MarcoFalke)
-- #7773 `7c80e72` Fix comments in tests (NAVdrak)
+- #7773 `7c80e72` Fix comments in tests (DVTdrak)
 - #7489 `e9723cb` tests: Make proxy_test work on travis servers without IPv6 (laanwj)
 - #7801 `70ac71b` Remove misleading "errorString syntax" (MarcoFalke)
 - #7803 `401c65c` maxblocksinflight: Actually enable test (MarcoFalke)
@@ -734,7 +734,7 @@ git merge commit are mentioned.
 - #8177 `67db011` developer notes: updates for C++11 (kazcw)
 - #8229 `8ccdac1` [Doc] Update OS X build notes for 10.11 SDK (fanquake)
 - #8233 `9f1807a` Mention Linux ARM executables in release process and notes (laanwj)
-- #7540 `ff46dd4` Rename OP_NOP3 to OP_CHECKSEQUENCEVERIFY (NAVdrak)
+- #7540 `ff46dd4` Rename OP_NOP3 to OP_CHECKSEQUENCEVERIFY (DVTdrak)
 - #8289 `26316ff` bash-completion: Adapt for 0.12 and 0.13 (roques)
 - #7453 `3dc3149` Missing patches from 0.12 (MarcoFalke)
 - #7113 `54a550b` Switch to a more efficient rolling Bloom filter (sipa)
@@ -769,7 +769,7 @@ Thanks to everyone who directly contributed to this release:
 - Andrew Chow
 - Andrés G. Aragoneses
 - Bob McElrath
-- NAVDrak
+- DVTDrak
 - calebogden
 - Cédric Félizard
 - Chirag Davé

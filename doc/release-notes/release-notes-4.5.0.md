@@ -38,7 +38,7 @@ To not vote for this Protocol Upgrade, add the following line to your `devault.c
 <[Pull Request 328](https://github.com/DeVault/devault-core/pull/328)>
 <[Commit 9601f85](https://github.com/DeVault/devault-core/commit/9601f8501526cba19ded59ae685e393345ef430c)>
 
-This Protocol Upgrade will change the DeVault Staking block reward to a fixed amount of 2 NAV per block. You can read more about this upgrade at its NPIP page, [NPIP_0004](https://github.com/DeVault/npips/blob/master/npip-0004.mediawiki).
+This Protocol Upgrade will change the DeVault Staking block reward to a fixed amount of 2 DVT per block. You can read more about this upgrade at its NPIP page, [NPIP_0004](https://github.com/DeVault/npips/blob/master/npip-0004.mediawiki).
 
 The wallet will vote this Protocol Upgrade with `YES` by default.
 

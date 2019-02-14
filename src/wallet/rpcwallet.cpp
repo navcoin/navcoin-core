@@ -669,7 +669,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (fHelp || params.size() < 4)
         throw runtime_error(
             "createproposal \"devaultaddress\" \"amount\" duration \"desc\" ( fee )\n"
-            "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
+            "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "DVT is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"devaultaddress\"     (string, required) The devault address where coins would be sent if proposal is approved.\n"
@@ -761,7 +761,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 3)
         throw runtime_error(
             "createpaymentrequest \"hash\" \"amount\" \"id\"\n"
-            "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
+            "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 DVT\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"hash\"               (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.\n"
@@ -804,7 +804,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     std::string sRandom = random_string(16);
 
     std::string Secret = sRandom + "I kindly ask to withdraw " +
-            std::to_string(nReqAmount) + "NAV from the proposal " +
+            std::to_string(nReqAmount) + "DVT from the proposal " +
             proposal.hash.ToString() + ". Payment request id: " + id;
 
     CHashWriter ss(SER_GETHASH, 0);

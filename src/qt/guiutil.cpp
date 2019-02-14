@@ -191,7 +191,7 @@ bool parseDeVaultURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!DeVaultUnits::parse(DeVaultUnits::NAV, i->second, &rv.amount))
+                if(!DeVaultUnits::parse(DeVaultUnits::DVT, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -222,7 +222,7 @@ QString formatDeVaultURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(DeVaultUnits::format(DeVaultUnits::NAV, info.amount, false, DeVaultUnits::separatorNever));
+        ret += QString("?amount=%1").arg(DeVaultUnits::format(DeVaultUnits::DVT, info.amount, false, DeVaultUnits::separatorNever));
         paramCount++;
     }
 
