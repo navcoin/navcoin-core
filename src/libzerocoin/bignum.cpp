@@ -6,13 +6,12 @@
 
 #include "bignum.h"
 
-#if defined(USE_NUM_GMP)
+#if defined(USE_NUM_OPENSSL)
+#include "bignum_openssl.cpp"
+#else
 #include "bignum_gmp.cpp"
 #endif
 
-#if defined(USE_NUM_OPENSSL)
-#include "bignum_openssl.cpp"
-#endif
 
 std::string CBigNum::GetHex() const
 {

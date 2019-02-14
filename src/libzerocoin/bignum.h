@@ -13,8 +13,7 @@
 
 #if defined(USE_NUM_OPENSSL)
 #include <openssl/bn.h>
-#endif
-#if defined(USE_NUM_GMP)
+#else
 #include <gmp.h>
 #endif
 
