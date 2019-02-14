@@ -36,6 +36,7 @@ private:
     ClientModel *clientModel;
     WalletModel *walletModel;
     CFund::flags flag;
+    bool viewing_proposals;
 
 private Q_SLOTS:
     void on_click_pushButtonProposals();

@@ -18,7 +18,8 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     ui(new Ui::CommunityFundPage),
     clientModel(0),
     walletModel(0),
-    flag(CFund::NIL)
+    flag(CFund::NIL),
+    viewing_proposals(true)
 {
     ui->setupUi(this);
 
@@ -178,6 +179,8 @@ void CommunityFundPage::on_click_pushButtonProposals()
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
 
+    viewing_proposals = true;
+
     Refresh(true, true);
     ui->radioButtonAll->setChecked(true);
 }
@@ -193,6 +196,8 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
 
+    viewing_proposals = false;
+
     Refresh(true, false);
     ui->radioButtonAll->setChecked(true);
 }
@@ -200,37 +205,37 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
 void CommunityFundPage::on_click_radioButtonAll()
 {
     flag = CFund::NIL;
-    Refresh(true, true);
+    Refresh(true, viewing_proposals);
 }
 
 void CommunityFundPage::on_click_radioButtonYourVote()
 {
     flag = CFund::NIL;
-    Refresh(true, true);
+    Refresh(true, viewing_proposals);
 }
 
 void CommunityFundPage::on_click_radioButtonPending()
 {
     flag = CFund::NIL;
-    Refresh(false, true);
+    Refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::on_click_radioButtonAccepted()
 {
     flag = CFund::ACCEPTED;
-    Refresh(false, true);
+    Refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::on_click_radioButtonRejected()
 {
     flag = CFund::REJECTED;
-    Refresh(false, true);
+    Refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::on_click_radioButtonExpired()
 {
     flag = CFund::EXPIRED;
-    Refresh(false, true);
+    Refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::on_click_pushButtonCreateProposal()
