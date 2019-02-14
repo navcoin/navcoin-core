@@ -60,7 +60,6 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
         CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
-        std::cout << "created fake addr\n";
         CWalletTx wtx;
         bool fSubtractFeeFromAmount = false;
 
@@ -106,10 +105,9 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         // Parse NavCoin address (currently crashes wallet)
         CScript scriptPubKey = GetScriptForDestination(address.Get());
 
-        std::cout << "0";
         if(donate)
           CFund::SetScriptForCommunityFundContribution(scriptPubKey);
-       std::cout << "1";
+
         // Create and send the transaction
         CReserveKey reservekey(pwalletMain);
         CAmount nFeeRequired;
@@ -118,21 +116,16 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         int nChangePosRet = -1;
         CRecipient recipient = {scriptPubKey, nReqAmount, fSubtractFeeFromAmount, ""};
         vecSend.push_back(recipient);
-        std::cout << "2";
         if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel.get_str())) {
-            std::cout << "3";
             if (!fSubtractFeeFromAmount && nReqAmount + nFeeRequired > pwalletMain->GetBalance());
-            std::cout << "4";
         }
         if (!pwalletMain->CommitTransaction(wtx, reservekey));
-        std::cout << "5";
 
         UniValue ret(UniValue::VOBJ);
 
         ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
         ret.push_back(Pair("strDZeel",wtx.strDZeel));
 
-        std::cout << "all valid\n";
         return true;
     }
     return true;
