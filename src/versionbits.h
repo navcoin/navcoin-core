@@ -56,7 +56,6 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 
 static const int32_t nSegWitVersionMask = 0x00000020;
 static const int32_t nNSyncVersionMask = 0x00000080;
-static const int32_t nColdStakingVersionMask = 0x00002000;
 static const int32_t nV452ForkMask = 0x00200000;
 
 static const std::vector<int> rejectedVersionBitsByDefault = {17};

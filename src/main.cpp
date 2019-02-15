@@ -107,7 +107,7 @@ FeeFilterRounder filterRounder(::minRelayTxFee);
 struct IteratorComparator
 {
     template<typename I>
-    bool operator()(const I& a, const I& b)
+    bool operator()(const I& a, const I& b) const
     {
         return &(*a) < &(*b);
     }
@@ -1196,8 +1196,6 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
-        if(txout.scriptPubKey.IsColdStaking() && !IsColdStakingEnabled(pindexBestHeader, Params().GetConsensus()))
-            return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
     }
 
     // Check for duplicate/invalid inputs
@@ -2735,9 +2733,6 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
 
     if(IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nNSyncVersionMask;
-
-    if(IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nColdStakingVersionMask;
 
     if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         nVersion |= nV452ForkMask;
@@ -5197,12 +5192,6 @@ bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& pa
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_NTPSYNC, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
-}
-
 
 // Compute at which vout of the block's coinbase transaction the witness
 // commitment occurs, or -1 if not found.
@@ -5289,10 +5278,6 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nSegWitVersionMask) != nSegWitVersionMask && IsWitnessEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no segwit block");
-
-    if((block.nVersion & nColdStakingVersionMask) != nColdStakingVersionMask && IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                             "rejected no cold-staking block");
 
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
