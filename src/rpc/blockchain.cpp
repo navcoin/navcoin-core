@@ -1337,8 +1337,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     softforks.push_back(SoftForkDesc("bip34", 2, tip, consensusParams));
     softforks.push_back(SoftForkDesc("bip66", 3, tip, consensusParams));
     softforks.push_back(SoftForkDesc("bip65", 4, tip, consensusParams));
-    BIP9SoftForkDescPushBack(bip9_softforks, "csv", consensusParams, Consensus::DEPLOYMENT_CSV);
-    BIP9SoftForkDescPushBack(bip9_softforks, "segwit", consensusParams, Consensus::DEPLOYMENT_SEGWIT);
+     BIP9SoftForkDescPushBack(bip9_softforks, "segwit", consensusParams, Consensus::DEPLOYMENT_SEGWIT);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION);
     BIP9SoftForkDescPushBack(bip9_softforks, "ntpsync", consensusParams, Consensus::DEPLOYMENT_NTPSYNC);
