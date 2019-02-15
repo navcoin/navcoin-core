@@ -85,7 +85,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Amount Requested</string>
+          <string>NAV Requested</string>
          </property>
         </widget>
        </item>
@@ -130,14 +130,25 @@
       </layout>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="layoutDirection">
-        <enum>Qt::RightToLeft</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::No|QDialogButtonBox::Yes</set>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::No|QDialogButtonBox::Yes</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonDetail">
+         <property name="text">
+          <string>View Details</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
