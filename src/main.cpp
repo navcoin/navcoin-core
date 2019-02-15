@@ -2739,10 +2739,6 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nColdStakingVersionMask;
 
-
-    if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
-        nVersion |= nV451ForkMask;
-
     if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         nVersion |= nV452ForkMask;
 
@@ -5301,10 +5297,6 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
-
-   if((block.nVersion & nV451ForkMask) != nV451ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
-       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                        "rejected, block version isn't v4.5.1");
 
     if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),

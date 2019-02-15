@@ -124,7 +124,6 @@ public:
         consensus.nPaymentRequestMaxVersion = 3;
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60;
-        consensus.nHeightv451Fork = 2722100;
         consensus.nHeightv452Fork = 2882875;
 
         /** Zerocoin */
@@ -316,7 +315,6 @@ public:
         bnModulus.SetDec(consensus.zerocoinModulus);
         consensus.Zerocoin_Params = libzerocoin::ZerocoinParams(bnModulus);
 
-        consensus.nHeightv451Fork = 100000;
         consensus.nHeightv452Fork = 100000;
 
         // Deployment of BIP68, BIP112, and BIP113.
@@ -468,7 +466,6 @@ public:
         consensus.nPaymentRequestMaxVersion = 3;
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60000;
-        consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
 
         /** Zerocoin */
@@ -642,7 +639,6 @@ public:
         consensus.nPaymentRequestMaxVersion = 3;
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60000;
-        consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
 
         /** Zerocoin */
