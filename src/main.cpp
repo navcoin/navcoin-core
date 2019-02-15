@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2017-2019 The DeVault Core developers
+// Copyright (c) 2017-2019 The Navcoin Core developers
+// Copyright (c) 2019 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -57,7 +58,7 @@
 using namespace std;
 
 #if defined(NDEBUG)
-# error "Navcoin cannot be compiled without assertions."
+# error "Devault cannot be compiled without assertions."
 #endif
 
 /**
@@ -138,7 +139,7 @@ uint256 bnProofOfStakeLimitV2(~uint256() >> 20);
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Navcoin Signed Message:\n";
+const string strMessageMagic = "Devault Signed Message:\n";
 
 
 enum FlushStateMode {

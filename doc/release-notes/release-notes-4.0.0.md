@@ -25,7 +25,7 @@ Bug fixes to the getbalance/listaccounts RPC commands, which would report incorr
 
 New option: -zapwallettxes to rebuild the wallet's transaction information
 
-### Navcoin-cli
+### Devault-cli
 
 Another change in the 4.0 release is moving away from the devaultd executable functioning both as a server and as a RPC client. The RPC client functionality ("tell the running devault daemon to do THIS") was split into a separate executable, 'devault-cli'.
 
@@ -133,7 +133,7 @@ This new feature is enabled by default if DeVault Core is listening, and a conne
 
 ### Notifications through ZMQ
 
-Navcoind can now (optionally) asynchronously notify clients through a ZMQ-based PUB socket of the arrival of new transactions and blocks. This feature requires installation of the ZMQ C API library 4.x and configuring its use through the command line or configuration file. Please see docs/zmq.md for details of operation.
+Devaultd can now (optionally) asynchronously notify clients through a ZMQ-based PUB socket of the arrival of new transactions and blocks. This feature requires installation of the ZMQ C API library 4.x and configuring its use through the command line or configuration file. Please see docs/zmq.md for details of operation.
 
 ### Linux ARM builds
 

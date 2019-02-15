@@ -10,7 +10,8 @@
 * @license    This project is released under the MIT license.
 **/
 // Copyright (c) 2017 The PIVX developers
-// Copyright (c) 2018 The DeVault Core developers
+// Copyright (c) 2018 The Navcoin Core developers
+// Copyright (c) 2019 The DeVault Core developers
 
 #ifndef SERIALNUMBERPROOF_H_
 #define SERIALNUMBERPROOF_H_

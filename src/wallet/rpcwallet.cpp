@@ -1,6 +1,7 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2018 The DeVault Core developers
+// Copyright (c) 2018 The Navcoin Core developers
+// Copyright (c) 2019 The DeVault Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -701,7 +702,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     CDeVaultAddress destaddress(Address);
     if (!destaddress.IsValid())
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Devault address");
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();

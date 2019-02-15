@@ -11,6 +11,7 @@
  **/
 // Copyright (c) 2017-2018 The PIVX developers
 // Copyright (c) 2018 The DeVault Core developers
+// Copyright (c) 2019 The DeVault Core developers
 
 #ifndef COIN_H_
 #define COIN_H_

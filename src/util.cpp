@@ -467,7 +467,7 @@ boost::filesystem::path GetDefaultDataDir()
     // Unix: ~/.devault
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "DeVault5";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "DeVault";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -477,10 +477,10 @@ boost::filesystem::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // Mac
-    return pathRet / "Library/Application Support/DeVault5";
+    return pathRet / "Library/Application Support/DeVault";
 #else
     // Unix
-    return pathRet / ".devault5";
+    return pathRet / ".devault";
 #endif
 #endif
 }
