@@ -169,13 +169,13 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
     {
         ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
         ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
-        //CFund::VoteProposal(proposal.blockhash, true, duplicate);
+        CFund::VoteProposal(proposal.hash.ToString(), true, duplicate);
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
         ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
         ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
-        //CFund::VoteProposal(proposal.blockhash, false, duplicate);
+        CFund::VoteProposal(proposal.hash.ToString(), false, duplicate);
     }
     else {
         return;
