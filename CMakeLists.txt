@@ -18,10 +18,30 @@ if(CMAKE_CXX_FLAGS_RELWITHDEBINFO MATCHES DNDEBUG)
   string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE}")
 endif()
 
+if(CMAKE_CXX_FLAGS MATCHES DNDEBUG)
+  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+endif()
+
 project(devault)
 
-set(OPENSSL_VER "1.0.2q")
 set(BDB_VER "4.8.30")
+
+include(CheckSymbolExists)
+include(CheckCXXCompilerFlag)
+
+# Add path for custom modules
+set(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules
+)
+
+# If ccache is available, then use it.
+find_program(CCACHE ccache)
+if(CCACHE)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE})
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${CCACHE})
+endif(CCACHE)
 
 #---------------------------------------------------------------------------------------------------------
 # Code coverage
@@ -40,11 +60,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ")
 
-if(CMAKE_CXX_FLAGS MATCHES DNDEBUG)
-  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-endif()
-
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # for all targets
 
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -71,12 +87,16 @@ else()
 	)
 endif()
 
-# run configure if pivx_config.h doesn't exist, For Linux add "--with-incompatible-bdb"
+# run configure if devault_config.h doesn't exist, For Linux add "--with-incompatible-bdb"
 if (EXISTS	"${CMAKE_CURRENT_SOURCE_DIR}/src/config/devault-config.h")
 else()	
 	IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	  execute_process(
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/configure 
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		)
+	  execute_process(
+		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/configure --enable-module-recovery
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 		)
 else()
@@ -116,9 +136,6 @@ SET(UTIL_A
 	./src/clientversion.cpp
 	./src/chainparamsbase.cpp
 	)
-
-
-
 
 SET(SERVER_A
   ./src/kernel.cpp
@@ -254,6 +271,8 @@ SET(SOURCES
 
 	)
 
+
+
 SET(ZMQ_SOURCES
   ./src/zmq/zmqnotificationinterface.cpp
   ./src/zmq/zmqpublishnotifier.cpp
@@ -261,16 +280,25 @@ SET(ZMQ_SOURCES
   )
   
 
-
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(OPENSSL_ROOT_DIR "/usr/local/Cellar/openssl/${OPENSSL_VER}/")
   set(BDB_ROOT_DIR "/usr/local/Cellar/berkeley-db@4/${BDB_VER}/")
 endif()
 
-find_package(OpenSSL)
+
+# Dependencies
+include(BrewHelper)
+find_brew_prefix(OPENSSL_ROOT_DIR openssl)
+find_package(OpenSSL REQUIRED)
 if (OPENSSL_FOUND)
   message(STATUS "Found OpenSSL")
 endif()  
+
+#find_package(BerkeleyDb REQUIRED)
+
+find_package(gmp REQUIRED)
+if (GMP_FOUND)
+  message(STATUS "Found libgmp")
+endif()
 
 find_package( Boost COMPONENTS system filesystem thread program_options chrono)
 link_directories ( ${Boost_LIBRARY_DIRS} )
@@ -293,7 +321,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/qt/forms
   )
 
-#file(GLOB_RECURSE HEADERS *.h)
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 
 file(GLOB SCRIPT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/script/*.h)

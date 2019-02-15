@@ -6767,13 +6767,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         bool fObsolete = false;
         string reason = "";
 
-        if(pfrom->nVersion < 70015)
+        if(pfrom->nVersion < 70030)
         {
             reason = "You are using an old version of DeVault, please update.";
             fObsolete = true;
         }
 
-        if(pfrom->nVersion < 70017 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
+        if(pfrom->nVersion < 70030 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
         {
             reason = "Segregated Witness has been enabled and you are using an old version of DeVault, please update.";
             fObsolete = true;
