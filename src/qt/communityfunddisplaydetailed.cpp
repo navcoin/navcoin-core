@@ -181,6 +181,12 @@ void CommunityFundDisplayDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
         CFund::VoteProposal(proposal.hash.ToString(), false, duplicate);
     }
+    else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::RejectRole)
+    {
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+        CFund::RemoveVoteProposal(proposal.hash.ToString());
+    }
     else {
         return;
     }
