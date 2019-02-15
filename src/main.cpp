@@ -1294,22 +1294,18 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         *pfMissingInputs = false;
     if (!CheckTransaction(tx, state))
         return error("%s: CheckTransaction(): %s", __func__, state.GetRejectReason().c_str());
-    if (IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
-      return state.DoS(100, false, REJECT_INVALID, "old-version");
 
-    if (IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
-        bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
-        int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
-        int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
+    bool fReducedQuorum = true;
+    int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
+    int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
-        if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-            if(!CFund::IsValidProposal(tx, nMaxVersionProposal))
-                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
+    if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+        if(!CFund::IsValidProposal(tx, nMaxVersionProposal))
+            return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
-        if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-            if(!CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest))
-                return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
-    }
+    if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+        if(!CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest))
+            return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
 
     // Coinbase is only valid in a block, not as a loose transaction
     if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
@@ -2471,8 +2467,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         const CTransaction &tx = block.vtx[i];
         uint256 hash = tx.GetHash();
 
-        if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
-            bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
+            bool fReducedQuorum = true;
             int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
             int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
@@ -2504,7 +2499,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     return AbortNode(state, "Failed to write proposal index");
                 }
             }
-        }
+      
 
         if (fAddressIndex) {
 
@@ -2741,29 +2736,8 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nNSyncVersionMask;
 
-    if(IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nCFundVersionMask;
-
-    if(IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
-        nVersion |= nCFundAccVersionMask;
-
     if(IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nColdStakingVersionMask;
-
-    if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nCFundAccSpreadVersionMask;
-
-    if(IsCommunityFundAmountV2Enabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nCFundAmountV2Mask;
-
-    if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nStaticRewardVersionMask;
-
-    if(IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nCFundReducedQuorumMask;
-
-    if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
-        nVersion |= nV451ForkMask;
 
     if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         nVersion |= nV452ForkMask;
@@ -2992,12 +2966,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     // Start enforcing BIP68 (sequence locks) and BIP112 (CHECKSEQUENCEVERIFY) using versionbits logic.
-    int nLockTimeFlags = 0;
-    if (VersionBitsState(pindex->pprev, chainparams.GetConsensus(), Consensus::DEPLOYMENT_CSV, versionbitscache) == THRESHOLD_ACTIVE) {
-        flags |= SCRIPT_VERIFY_CHECKSEQUENCEVERIFY;
-        nLockTimeFlags |= LOCKTIME_VERIFY_SEQUENCE;
-    }
-
+    int nLockTimeFlags = LOCKTIME_VERIFY_SEQUENCE;
+    flags |= SCRIPT_VERIFY_CHECKSEQUENCEVERIFY;
+  
     // Start enforcing WITNESS rules using versionbits logic.
     if (IsWitnessEnabled(pindex->pprev, chainparams.GetConsensus())) {
         flags |= SCRIPT_VERIFY_WITNESS;
@@ -3051,7 +3022,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!tx.IsZerocoinSpend())
             nInputs += tx.vin.size();
 
-        if((tx.IsCoinBase() && IsCommunityFundEnabled(pindex->pprev, chainparams.GetConsensus()))) {
+        if(tx.IsCoinBase()) {
             for (size_t j = 0; j < tx.vout.size(); j++) {
                 std::map<uint256, bool> votes; uint256 hash; bool vote;
                 if(tx.vout[j].IsVote())
@@ -3250,12 +3221,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
               nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
               pindex->strDZeel = tx.strDZeel;
 
-              if(IsCommunityFundAccumulationEnabled(pindex->pprev, Params().GetConsensus(), false))
               {
 
                   int nMultiplier = 1;
 
-                  if(IsCommunityFundAccumulationSpreadEnabled(pindex->pprev, Params().GetConsensus()))
+ 
                   {
                       nMultiplier = (pindex->nHeight % Params().GetConsensus().nBlockSpreadCFundAccumulation) == 0 ? Params().GetConsensus().nBlockSpreadCFundAccumulation : 0;
 
@@ -3266,26 +3236,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                      REJECT_INVALID, "no-cf-amount");
 
 
-                  if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus())) {
-                      if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier && nMultiplier > 0)
-                        return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
-                                                    tx.vout[tx.vout.size() - 1].nValue, Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier),
-                            REJECT_INVALID, "bad-cf-amount");
-                  } else {
-                      if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmount * nMultiplier && nMultiplier > 0)
-                        return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
+                  if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmount * nMultiplier && nMultiplier > 0)
+                      return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
                                                     tx.vout[tx.vout.size() - 1].nValue, Params().GetConsensus().nCommunityFundAmount * nMultiplier),
                             REJECT_INVALID, "bad-cf-amount");
-                  }
-
-
-                  if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus()))
-                  {
-                    nStakeReward -= Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier;
-                  } else {
-                    nStakeReward -= Params().GetConsensus().nCommunityFundAmount * nMultiplier;
-                  }
-
+                
+                  nStakeReward -= Params().GetConsensus().nCommunityFundAmount * nMultiplier;
+                
               }
 
             }
@@ -3371,8 +3328,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
           }
         }
 
-        if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
-            bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
+             bool fReducedQuorum = true;
             int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
             int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
@@ -3418,7 +3374,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 LogPrint("cfund","New proposal %s\n",tx.GetHash().ToString());
 
-            }
+            
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest)){
                 std::vector<std::pair<uint256, CFund::CProposal> > proposalIndex;
@@ -5229,37 +5185,6 @@ bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& par
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_SEGWIT, versionbitscache) == THRESHOLD_LOCKED_IN);
 }
 
-bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_ACTIVE);
-}
-
-bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_QUORUM_CFUND, versionbitscache) == THRESHOLD_ACTIVE);
-}
-
-bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict)
-{
-    LOCK(cs_main);
-    return (IsCommunityFundEnabled(pindexPrev, params) && !fStrict) ||
-          (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION, versionbitscache) == THRESHOLD_ACTIVE);
-}
-
-bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2, versionbitscache) == THRESHOLD_ACTIVE);
-}
-
-bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD, versionbitscache) == THRESHOLD_ACTIVE);
-}
-
 bool IsZerocoinEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -5272,29 +5197,12 @@ bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& pa
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_NTPSYNC, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COMMUNITYFUND, versionbitscache) == THRESHOLD_LOCKED_IN);
-}
-
 bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_LOCKED_IN);
-}
-
-bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_ACTIVE);
-}
 
 // Compute at which vout of the block's coinbase transaction the witness
 // commitment occurs, or -1 if not found.
@@ -5382,40 +5290,13 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no segwit block");
 
-    if((block.nVersion & nCFundVersionMask) != nCFundVersionMask && IsCommunityFundEnabled(pindexPrev,Params().GetConsensus()))
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                             "rejected no cfund block");
-
-    if((block.nVersion & nCFundAccVersionMask) != nCFundAccVersionMask && IsCommunityFundAccumulationEnabled(pindexPrev,Params().GetConsensus(), true))
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                             "rejected no cfund accumulation block");
     if((block.nVersion & nColdStakingVersionMask) != nColdStakingVersionMask && IsColdStakingEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                              "rejected no cold-staking block");
 
-    if((block.nVersion & nCFundAccSpreadVersionMask) != nCFundAccSpreadVersionMask && IsCommunityFundAccumulationSpreadEnabled(pindexPrev,Params().GetConsensus()))
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                           "rejected no cfund accumulation spread block");
-
-    if((block.nVersion & nCFundAmountV2Mask) != nCFundAmountV2Mask && IsCommunityFundAmountV2Enabled(pindexPrev,Params().GetConsensus()))
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                           "rejected no cfund amount v2 block");
-
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
-
-   if((block.nVersion & nStaticRewardVersionMask) != nStaticRewardVersionMask && IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
-     return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                        "rejected no static reward block");
-
-   if((block.nVersion & nCFundReducedQuorumMask) != nCFundReducedQuorumMask && IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
-       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                        "rejected no reduced quorum block");
-
-   if((block.nVersion & nV451ForkMask) != nV451ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv451Fork)
-       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                        "rejected, block version isn't v4.5.1");
 
     if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
@@ -5429,10 +5310,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     const Consensus::Params& consensusParams = Params().GetConsensus();
 
     // Start enforcing BIP113 (Median Time Past) using versionbits logic.
-    int nLockTimeFlags = 0;
-    if (VersionBitsState(pindexPrev, consensusParams, Consensus::DEPLOYMENT_CSV, versionbitscache) == THRESHOLD_ACTIVE) {
-        nLockTimeFlags |= LOCKTIME_MEDIAN_TIME_PAST;
-    }
+    int nLockTimeFlags = LOCKTIME_MEDIAN_TIME_PAST;
 
     if (block.IsProofOfWork() && nHeight > Params().GetConsensus().nLastPOWBlock)
         return state.DoS(10, false, REJECT_INVALID, "check-pow-height", "pow-mined blocks not allowed");
@@ -5453,8 +5331,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         if (!IsFinalTx(tx, nHeight, nLockTimeCutoff)) {
             return state.DoS(10, false, REJECT_INVALID, "bad-txns-nonfinal", false, "non-final transaction");
         }
-        if(IsCommunityFundEnabled(pindexBestHeader, Params().GetConsensus())) {
-            bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus());
+            bool fReducedQuorum = true;
             int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
             int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
@@ -5465,7 +5342,6 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
                 if(!CFund::IsValidPaymentRequest(tx, nMaxVersionPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
-        }
     }
 
     // Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
@@ -6900,12 +6776,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         if(pfrom->nVersion < 70017 && IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus()))
         {
             reason = "Segregated Witness has been enabled and you are using an old version of DeVault, please update.";
-            fObsolete = true;
-        }
-
-        if(pfrom->nVersion < 70020 && IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()))
-        {
-            reason = "Community Fund has been enabled and you are using an old version of DeVault, please update.";
             fObsolete = true;
         }
 
@@ -9392,9 +9262,6 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
 {
   int64_t nSubsidy;
 
-  if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
-      nSubsidy = Params().GetConsensus().nStaticReward;
-  } else {
       int64_t nRewardCoinYear;
       nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
@@ -9404,13 +9271,10 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
           nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
       else if(nHeight-1 < (730 * Params().GetConsensus().nDailyBlockCount))
           nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
-      else if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
-          nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
       else
-          nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
+          nRewardCoinYear = 0.4 * MAX_MINT_PROOF_OF_STAKE;
 
        nSubsidy = nCoinAge * nRewardCoinYear / 365;
-  }
 
   return  nSubsidy + nFees;
 }

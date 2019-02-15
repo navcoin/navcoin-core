@@ -551,17 +551,6 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
 bool IsWitnessEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
-/** Check whether community fund has been activated. */
-bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict = true);
-bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-
-/** Check whether the static reward has been activated **/
-bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-
 /** Check whether NtpSync has been activated. */
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
@@ -570,8 +559,6 @@ bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
 
 /** Check whether Zerocoin has been activated */
 bool IsZerocoinEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-
-bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);
