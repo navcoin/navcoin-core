@@ -3,6 +3,7 @@
 
 #include "consensus/cfund.h"
 #include <QDialog>
+#include <QAbstractButton>
 
 namespace Ui {
 class CommunityFundDisplayDetailed;
@@ -22,7 +23,7 @@ private:
     void setProposalLabels() const;
 
 public Q_SLOTS:
-
+    void on_click_buttonBoxYesNoVote(QAbstractButton *button);
 };
 
 #endif // COMMUNITYFUNDDISPLAYDETAILED_H

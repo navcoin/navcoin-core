@@ -12,10 +12,38 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     ui->setupUi(this);
 
     //connect ui elements to functions
+    connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
 
     //update labels
     setProposalLabels();
+
+    // Shade in yes/no buttons is user has voted
+    // If the proposal is pending and not prematurely expired (ie can be voted on):
+    if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
+        // Get proposal votes list
+        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+        if (it != vAddedProposalVotes.end()) {
+            if (it->second) {
+                // Proposal was voted yes, shade in yes button and unshade no button
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+            }
+            else {
+                // Proposal was noted no, shade in no button and unshade yes button
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+            }
+        }
+        else {
+            // Proposal was not voted on, reset shades of both buttons
+            ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+            ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+
+        }
+    }
+
 
     //hide ui voting elements on proposals which are not allowed vote states
     if(!proposal.CanVote())
@@ -131,6 +159,33 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     }
     fee.append(" NAV");
     ui->labelFee->setText(QString::fromStdString(fee));
+}
+
+void CommunityFundDisplayDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *button)
+{
+    //cast the vote
+    bool duplicate = false;
+
+    //add a filter based on if proposal or payment request
+
+    //currently doesnt work
+    if (ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::YesRole)
+    {
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+        //CFund::VoteProposal(proposal.blockhash, true, duplicate);
+    }
+    else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::NoRole)
+    {
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+        //CFund::VoteProposal(proposal.blockhash, false, duplicate);
+    }
+    else {
+        return;
+    }
+
+    //update
 }
 
 CommunityFundDisplayDetailed::~CommunityFundDisplayDetailed()
