@@ -2756,9 +2756,6 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(IsCommunityFundAmountV2Enabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nCFundAmountV2Mask;
 
-    if(IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nStaticRewardVersionMask;
-
     if(IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nCFundReducedQuorumMask;
 
@@ -5284,17 +5281,6 @@ bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_LOCKED_IN);
-}
-
-bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_ACTIVE);
-}
 
 // Compute at which vout of the block's coinbase transaction the witness
 // commitment occurs, or -1 if not found.
@@ -5404,10 +5390,6 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nNSyncVersionMask) != nNSyncVersionMask && IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                            "rejected no nsync block");
-
-   if((block.nVersion & nStaticRewardVersionMask) != nStaticRewardVersionMask && IsStaticRewardEnabled(pindexPrev,Params().GetConsensus()))
-     return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                        "rejected no static reward block");
 
    if((block.nVersion & nCFundReducedQuorumMask) != nCFundReducedQuorumMask && IsReducedCFundQuorumEnabled(pindexPrev,Params().GetConsensus()))
        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
@@ -9392,9 +9374,6 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
 {
   int64_t nSubsidy;
 
-  if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
-      nSubsidy = Params().GetConsensus().nStaticReward;
-  } else {
       int64_t nRewardCoinYear;
       nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
@@ -9410,7 +9389,6 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
           nRewardCoinYear = 0.5 * MAX_MINT_PROOF_OF_STAKE;
 
        nSubsidy = nCoinAge * nRewardCoinYear / 365;
-  }
 
   return  nSubsidy + nFees;
 }

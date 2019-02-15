@@ -125,7 +125,6 @@ public:
         consensus.nPaymentRequestMaxVersion = 3;
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60;
-        consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 2722100;
         consensus.nHeightv452Fork = 2882875;
 
@@ -198,11 +197,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].bit = 18;
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nStartTime = 1538352000; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nTimeout = 1601510400; // May 1st, 2019
-
-        // Deployment of Static Reward
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         // Deployment of Quorum reduction for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
@@ -350,7 +344,6 @@ public:
         bnModulus.SetDec(consensus.zerocoinModulus);
         consensus.Zerocoin_Params = libzerocoin::ZerocoinParams(bnModulus);
 
-        consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 100000;
         consensus.nHeightv452Fork = 100000;
 
@@ -398,11 +391,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].bit = 18;
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nStartTime = 1538352000; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nTimeout = 1601510400; // May 1st, 2019
-
-        // Deployment of Static Reward
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         // Deployment of Quorum reduction for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
@@ -530,7 +518,6 @@ public:
         consensus.nPaymentRequestMaxVersion = 3;
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60000;
-        consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
 
@@ -590,11 +577,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].bit = 18;
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nStartTime = 1538352000; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nTimeout = 1601510400; // May 1st, 2019
-
-        // Deployment of Static Reward
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         // Deployment of Quorum reduction for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
@@ -732,7 +714,6 @@ public:
         consensus.nPaymentRequestMaxVersion = 3;
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60000;
-        consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
 
@@ -792,11 +773,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].bit = 18;
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nStartTime = 1538352000; // May 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].nTimeout = 1601510400; // May 1st, 2019
-
-        // Deployment of Static Reward
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
 
         // Deployment of Quorum reduction for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;

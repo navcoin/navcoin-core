@@ -32,7 +32,6 @@ enum DeploymentPos
     DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2,
     DEPLOYMENT_ZEROCOIN,
     DEPLOYMENT_NTPSYNC,
-    DEPLOYMENT_STATIC_REWARD,
     DEPLOYMENT_QUORUM_CFUND,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
@@ -108,7 +107,6 @@ struct Params {
     int64_t sigActivationTime;
     int64_t nCoinbaseTimeActivationHeight;
     int64_t nMaxFutureDrift;
-    CAmount nStaticReward;
     int nHeightv451Fork;
     int nHeightv452Fork;
 
