@@ -20,7 +20,8 @@ private:
     bool validate();
 
 public Q_SLOTS:
-    void on_click_pushButtonSubmitPaymentRequest();
+    bool on_click_pushButtonSubmitPaymentRequest();
+    void on_click_plainTextEditDescription();
 };
 
 #endif // COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H

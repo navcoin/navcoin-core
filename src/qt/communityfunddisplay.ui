@@ -225,7 +225,7 @@
              </font>
             </property>
             <property name="text">
-             <string>100 Days 100 Minutes 100 Seconds</string>
+             <string>100 Days 100 Hours 100 Minutes</string>
             </property>
            </widget>
           </item>
