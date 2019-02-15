@@ -167,18 +167,21 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
     //currently doesnt work
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        //if !fSettings, ask what this does
-        CFund::VoteProposal(proposal.blockhash, true, duplicate);
+        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
+        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+        //CFund::VoteProposal(proposal.blockhash, true, duplicate);
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-            CFund::VoteProposal(proposal.blockhash, false, duplicate);
+        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+        //CFund::VoteProposal(proposal.blockhash, false, duplicate);
     }
     else {
         return;
     }
 
-    //updat
+    //update
 }
 
 
