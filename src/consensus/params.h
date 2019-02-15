@@ -23,14 +23,9 @@ enum DeploymentPos
     DEPLOYMENT_SEGWIT, // Deployment of BIP141 and BIP143
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
     DEPLOYMENT_SEGWIT_LEGACY,
-    DEPLOYMENT_COMMUNITYFUND,
-    DEPLOYMENT_COMMUNITYFUND_ACCUMULATION,
     DEPLOYMENT_COLDSTAKING,
-    DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD,
-    DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2,
     DEPLOYMENT_ZEROCOIN,
     DEPLOYMENT_NTPSYNC,
-    DEPLOYMENT_QUORUM_CFUND,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
@@ -88,7 +83,6 @@ struct Params {
     int64_t nProposalMinimalFee;
     int nBlockSpreadCFundAccumulation;
     CAmount nCommunityFundAmount;
-    CAmount nCommunityFundAmountV2;
     unsigned int nCyclesProposalVoting;
     unsigned int nCyclesPaymentRequestVoting;
     int nPaymentRequestMaxVersion;

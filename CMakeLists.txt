@@ -296,6 +296,9 @@ include_directories(
 #file(GLOB_RECURSE HEADERS *.h)
 file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 
+file(GLOB SCRIPT_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/script/*.h)
+source_group("ScriptHeaders" FILES ${SCRIPT_HEADERS})
+
 file(GLOB CRYPTO_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/crypto/*.h)
 source_group("CryptoHeaders" FILES ${CRYPTO_HEADERS})
 
@@ -305,7 +308,7 @@ source_group("ConsensusHeaders" FILES ${CONSENSUS_HEADERS})
 file(GLOB PRIMITIVE_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/primitives/*.h)
 source_group("PrimHeaders" FILES ${PRIMITIVE_HEADERS})
 
-add_library(coin ${HEADERS} ${CRYPTO_HEADERS} ${CONSENSUS_HEADERS} ${PRIMITIVE_HEADERS} ${SOURCES} ${ZMQ_SOURCES} ${COMMON_A} ${UTIL_A} ${SERVER_A} ${CONSENSUS} ${CONSENSUS_CRYPTO})
+add_library(coin ${HEADERS} ${SCRIPT_HEADERS} ${CRYPTO_HEADERS} ${CONSENSUS_HEADERS} ${PRIMITIVE_HEADERS} ${SOURCES} ${ZMQ_SOURCES} ${COMMON_A} ${UTIL_A} ${SERVER_A} ${CONSENSUS} ${CONSENSUS_CRYPTO})
 set_property(TARGET coin PROPERTY CXX_STANDARD 11)
 
 add_subdirectory(src/libzerocoin)

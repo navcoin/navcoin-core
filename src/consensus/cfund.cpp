@@ -351,6 +351,7 @@ bool CFund::IsValidProposal(CTransaction tx, int nMaxVersion)
 bool CFund::CPaymentRequest::IsAccepted() const {
     int nTotalVotes = nVotesYes + nVotesNo;
     float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+  // HACK??? CHECK Number Spock
     if (nVersion >= 3) {
         nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
     }
