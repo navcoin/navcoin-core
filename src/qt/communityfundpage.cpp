@@ -120,9 +120,7 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
                     if (viewing_voted) {
                         if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
                             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-                            UniValue p(UniValue::VOBJ);
-                            proposal.ToJson(p);
+                                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
                             if (it != vAddedProposalVotes.end()) {
                                 ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
                                 if(c == 1)
@@ -138,10 +136,27 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
                                 continue;
                             }
                         }
+                        else {
+                            continue;
+                        }
                     }
-
-                    // If the flag is expired, be sure to display proposals without the expired state if they have expired before the end of the voting cycle
-                    if (proposal.fState != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == CFund::EXPIRED) {
+                    else {
+                        // If the flag is expired, be sure to display proposals without the expired state if they have expired before the end of the voting cycle
+                        if (proposal.fState != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == CFund::EXPIRED) {
+                            ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
+                            if(c == 1)
+                            {
+                                c = 0;
+                                ++r;
+                            }
+                            else
+                            {
+                                ++c;
+                            }
+                        }
+                        // Display proposals with the appropriate flag and have not expired before the voting cycle has ended
+                        if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos))
+                            continue;
                         ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
                         if(c == 1)
                         {
@@ -152,19 +167,6 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
                         {
                             ++c;
                         }
-                    }
-                    // Display proposals with the appropriate flag and have not expired before the voting cycle has ended
-                    if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos))
-                        continue;
-                    ui->gridLayout->addWidget(new CommunityFundDisplay(0, proposal), r, c);
-                    if(c == 1)
-                    {
-                        c = 0;
-                        ++r;
-                    }
-                    else
-                    {
-                        ++c;
                     }
                 }
             }
