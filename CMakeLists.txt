@@ -8,24 +8,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   list(APPEND CMAKE_PREFIX_PATH /opt/local/opt/qt5)
 endif()
 
-if(CMAKE_CXX_FLAGS_RELEASE MATCHES DNDEBUG)
-  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-endif()
-
-if(CMAKE_CXX_FLAGS_RELWITHDEBINFO MATCHES DNDEBUG)
-  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE}")
-  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE}")
-endif()
-
-if(CMAKE_CXX_FLAGS MATCHES DNDEBUG)
-  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-endif()
 
 project(devault)
-
-set(BDB_VER "4.8.30")
 
 include(CheckSymbolExists)
 include(CheckCXXCompilerFlag)
@@ -61,6 +45,24 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) # for all targets
+
+message(STATUS "BUILD TYPE is ${CMAKE_BUILD_TYPE}")
+
+if(CMAKE_CXX_FLAGS_RELEASE MATCHES DNDEBUG)
+  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+endif()
+
+if(CMAKE_CXX_FLAGS_RELWITHDEBINFO MATCHES DNDEBUG)
+  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE}")
+  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE}")
+endif()
+
+if(CMAKE_CXX_FLAGS MATCHES DNDEBUG)
+  string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+endif()
+
 
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -280,11 +282,6 @@ SET(ZMQ_SOURCES
   )
   
 
-IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(BDB_ROOT_DIR "/usr/local/Cellar/berkeley-db@4/${BDB_VER}/")
-endif()
-
-
 # Dependencies
 include(BrewHelper)
 find_brew_prefix(OPENSSL_ROOT_DIR openssl)
@@ -293,7 +290,11 @@ if (OPENSSL_FOUND)
   message(STATUS "Found OpenSSL")
 endif()  
 
-#find_package(BerkeleyDb REQUIRED)
+find_package(BerkeleyDB REQUIRED)
+if (BERKELEYDB_FOUND)
+  message(STATUS "Found BerkeleyDB")
+  message(STATUS "BDB inc dir is ${BDB_INCLUDE_DIR}")
+endif()
 
 find_package(gmp REQUIRED)
 if (GMP_FOUND)
@@ -309,7 +310,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/obj
   ${Boost_INCLUDE_DIRS}
   ${OPENSSL_INCLUDE_DIR}
-  ${BDB_ROOT_DIR}/include
+  ${BDB_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/src/leveldb/include
   ${CMAKE_CURRENT_SOURCE_DIR}/src/univalue/include
   ${CMAKE_CURRENT_SOURCE_DIR}/src/leveldb/helpers/memenv
@@ -355,13 +356,13 @@ add_executable(devault-cli ${CMAKE_CURRENT_SOURCE_DIR}/src/devault-cli.cpp)
 add_executable(devault-tx ${CMAKE_CURRENT_SOURCE_DIR}/src/devault-tx.cpp)
 add_executable(devaultd ${CMAKE_CURRENT_SOURCE_DIR}/src/devaultd.cpp)
 
-target_link_libraries(devault-cli coin db_cxx db secp256k1 zerocoin gmp leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} miniupnpc event event_pthreads gmp pthread )
+target_link_libraries(devault-cli coin ${BDBXX_LIBRARY} ${BDB_LIBRARY} secp256k1 zerocoin gmp leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} miniupnpc event event_pthreads gmp pthread )
 target_link_libraries(devault-tx coin secp256k1 coin leveldb zerocoin ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} gmp pthread)
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	target_link_libraries(devaultd coin db_cxx db secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp zmq miniupnpc event event_pthreads pthread )
+	target_link_libraries(devaultd coin ${BDBXX_LIBRARY} ${BDB_LIBRARY} secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp zmq miniupnpc event event_pthreads pthread )
 else()
-	target_link_libraries(devaultd coin db_cxx db secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp pthread)
+	target_link_libraries(devaultd coin  ${BDBXX_LIBRARY} ${BDB_LIBRARY} secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp pthread)
 endif()
 
 add_subdirectory(src/qt)
