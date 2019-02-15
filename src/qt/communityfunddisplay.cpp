@@ -117,6 +117,32 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
         }
     }
 
+    // Shade in yes/no buttons is user has voted
+    // If the proposal is pending and not prematurely expired (ie can be voted on):
+    if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
+        // Get proposal votes list
+        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+        if (it != vAddedProposalVotes.end()) {
+            if (it->second) {
+                // Proposal was voted yes, shade in yes button and unshade no button
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+            }
+            else {
+                // Proposal was noted no, shade in no button and unshade yes button
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+            }
+        }
+        else {
+            // Proposal was not voted on, reset shades of both buttons
+            ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+            ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+
+        }
+    }
+
     //hide ui voting elements on proposals which are not allowed vote states
     if(!proposal.CanVote())
     {
