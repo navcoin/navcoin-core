@@ -140,24 +140,91 @@ set_property(TARGET qt_stuff PROPERTY CXX_STANDARD 11)
 file(GLOB QT_TRANSLATIONS_FILES locale/*.ts)
 
 SET(QT_TRANSLATIONS_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_af.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_af_ZA.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ar.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_be_BY.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_bg.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_bg_BG.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ca.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ca@valencia.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ca_ES.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_cs.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_cs_CZ.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_cy.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_da.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_de.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_el.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_el_GR.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_en.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_en_GB.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_eo.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_AR.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_CL.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_CO.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_DO.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_ES.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_MX.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_UY.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_es_VE.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_et.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_eu_ES.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_fa.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_fa_IR.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_fi.ts
-	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_bg.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_fr.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_fr_CA.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_fr_FR.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_gl.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_he.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_hi_IN.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_hr.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_hu.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_id_ID.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_it.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ja.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ka.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_kk_KZ.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ko_KR.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ku_IQ.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ky.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_la.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_lt.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_lv_LV.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_mk_MK.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_mn.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ms_MY.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_nb.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_nl.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_pam.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_pl.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_pt_BR.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_pt_PT.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ro.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ro_RO.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ru.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ru_RU.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_sk.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_sl_SI.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_sq.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_sr.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_sr@latin.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_sv.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ta.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_th_TH.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_tr.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_tr_TR.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_uk.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ur_PK.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_uz@Cyrl.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_vi.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_vi_VN.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_zh.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_zh_CN.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_zh_HK.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_zh_TW.ts
+
 	)
 
 get_filename_component(QM_FILES_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/locale" ABSOLUTE)
