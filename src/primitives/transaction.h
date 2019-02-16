@@ -395,9 +395,8 @@ private:
 public:
     // Default transaction version.
     static const int32_t CURRENT_VERSION=1;
+    static const int32_t START_VERSION=1;
 
-    static const int32_t TXDZEEL_VERSION=2;
-    static const int32_t TXDZEEL_VERSION_V2=3;
     static const int32_t PROPOSAL_VERSION=4;
     static const int32_t PAYMENT_REQUEST_VERSION=5;
 

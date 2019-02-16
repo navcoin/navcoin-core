@@ -21,7 +21,7 @@ uint256 CBlockHeader::GetHash() const
 
 uint256 CBlockHeader::GetPoWHash() const
 {
- return Hash9(BEGIN(nVersion), END(nNonce));
+ return Hash(BEGIN(nVersion), END(nNonce));
 }
 
 std::string CBlock::ToString() const

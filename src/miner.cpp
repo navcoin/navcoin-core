@@ -192,7 +192,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
-    coinbaseTx.nVersion = CTransaction::TXDZEEL_VERSION_V2;
+    coinbaseTx.nVersion = CTransaction::CURRENT_VERSION;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
@@ -207,7 +207,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
-    if(IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus()))
+
     {
         std::map<uint256, bool> votes;
         for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)
@@ -911,7 +911,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
-              txCoinStake.nVersion = CTransaction::TXDZEEL_VERSION_V2;
+              txCoinStake.nVersion = CTransaction::CURRENT_VERSION;
               txCoinStake.strDZeel = sCoinStakeStrDZeel == "" ?
                           GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION) :
                           sCoinStakeStrDZeel;

@@ -20,21 +20,9 @@ namespace Consensus {
 enum DeploymentPos
 {
     DEPLOYMENT_TESTDUMMY,
-    DEPLOYMENT_CSV, // Deployment of BIP68, BIP112, and BIP113.
-    DEPLOYMENT_SEGWIT, // Deployment of BIP141 and BIP143
-    // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
-    DEPLOYMENT_CSV_LEGACY,
-    DEPLOYMENT_SEGWIT_LEGACY,
-    DEPLOYMENT_COMMUNITYFUND,
-    DEPLOYMENT_COMMUNITYFUND_ACCUMULATION,
     DEPLOYMENT_COLDSTAKING,
-    DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD,
-    DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2,
     DEPLOYMENT_ZEROCOIN,
-    DEPLOYMENT_NTPSYNC,
-    DEPLOYMENT_STATIC_REWARD,
-    DEPLOYMENT_QUORUM_CFUND,
-    MAX_VERSION_BITS_DEPLOYMENTS
+     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
 /**
@@ -91,7 +79,6 @@ struct Params {
     int64_t nProposalMinimalFee;
     int nBlockSpreadCFundAccumulation;
     CAmount nCommunityFundAmount;
-    CAmount nCommunityFundAmountV2;
     unsigned int nCyclesProposalVoting;
     unsigned int nCyclesPaymentRequestVoting;
     int nPaymentRequestMaxVersion;
@@ -108,8 +95,6 @@ struct Params {
     int64_t sigActivationTime;
     int64_t nCoinbaseTimeActivationHeight;
     int64_t nMaxFutureDrift;
-    CAmount nStaticReward;
-    int nHeightv451Fork;
     int nHeightv452Fork;
 
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }

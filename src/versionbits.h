@@ -55,15 +55,6 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 ***/
 
 static const int32_t nSegWitVersionMask = 0x00000020;
-static const int32_t nCFundVersionMask = 0x00000040;
-static const int32_t nNSyncVersionMask = 0x00000080;
-static const int32_t nCFundAccVersionMask = 0x00000100;
-static const int32_t nColdStakingVersionMask = 0x00002000;
-static const int32_t nCFundAccSpreadVersionMask = 0x00004000;
-static const int32_t nCFundAmountV2Mask = 0x00010000;
-static const int32_t nCFundReducedQuorumMask = 0x00020000;
-static const int32_t nStaticRewardVersionMask = 0x00008000;
-static const int32_t nV451ForkMask = 0x00100000;
 static const int32_t nV452ForkMask = 0x00200000;
 
 static const std::vector<int> rejectedVersionBitsByDefault = {17};

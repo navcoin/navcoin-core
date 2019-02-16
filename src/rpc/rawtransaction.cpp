@@ -550,7 +550,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
       rawTx.strDZeel = params[2].get_str();
     }
 
-    rawTx.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+    rawTx.nVersion = CTransaction::CURRENT_VERSION;
 
     int nout = -1;
 

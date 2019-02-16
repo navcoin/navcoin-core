@@ -169,7 +169,7 @@ public:
     bool CheckLockTime(const CScriptNum& nLockTime) const override;
     bool CheckSequence(const CScriptNum& nSequence) const override;
     bool IsCoinStake() const override {
-        return txTo->nVersion >= CTransaction::TXDZEEL_VERSION_V2 && txTo->IsCoinStake();
+        return txTo->nVersion >= CTransaction::CURRENT_VERSION && txTo->IsCoinStake();
     }
 };
 
