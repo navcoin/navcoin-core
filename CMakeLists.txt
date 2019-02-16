@@ -101,10 +101,22 @@ else()
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/configure --enable-module-recovery
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 		)
+	  execute_process(
+		COMMAND make
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1
+		)
 else()
 	  execute_process(
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/configure  --with-incompatible-bdb
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		)
+	  execute_process(
+		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1/configure --enable-module-recovery
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		)
+	  execute_process(
+		COMMAND make
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/secp256k1
 		)
 	endif()
 endif()
@@ -343,11 +355,7 @@ add_executable(devaultd ${CMAKE_CURRENT_SOURCE_DIR}/src/devaultd.cpp)
 target_link_libraries(devault-cli coin ${BDBXX_LIBRARY} ${BDB_LIBRARY} secp256k1 zerocoin gmp leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} miniupnpc event event_pthreads gmp pthread )
 target_link_libraries(devault-tx coin secp256k1 coin leveldb zerocoin ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} gmp pthread)
 
-IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	target_link_libraries(devaultd coin ${BDBXX_LIBRARY} ${BDB_LIBRARY} secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp zmq miniupnpc event event_pthreads pthread )
-else()
-	target_link_libraries(devaultd coin  ${BDBXX_LIBRARY} ${BDB_LIBRARY} secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp pthread)
-endif()
+target_link_libraries(devaultd coin ${BDBXX_LIBRARY} ${BDB_LIBRARY} secp256k1 zerocoin leveldb ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${ANL} curl unbound gmp zmq miniupnpc event event_pthreads pthread )
 
 add_subdirectory(src/qt)
 
