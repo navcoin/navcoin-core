@@ -252,7 +252,6 @@ SET(SOURCES
   ./src/validationinterface.cpp
   ./src/support/pagelocker.cpp
   ./src/support/cleanse.cpp
-  ./src/policy/rbf.cpp
   ./src/policy/fees.cpp
   ./src/policy/policy.cpp
 

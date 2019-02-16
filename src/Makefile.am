@@ -117,7 +117,6 @@ DEVAULT_CORE_H = \
   ntpclient.h \
   policy/fees.h \
   policy/policy.h \
-  policy/rbf.h \
   pow.h \
   pos.h \
   protocol.h \
@@ -249,7 +248,6 @@ libdevault_wallet_a_SOURCES = \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   wallet/zeropos.cpp \
-  policy/rbf.cpp \
   zeroaccumulators.cpp \
   zerochain.cpp \
   zerotx.cpp \

@@ -254,8 +254,6 @@ policy/fees.cpp
 policy/fees.h
 policy/policy.cpp
 policy/policy.h
-policy/rbf.cpp
-policy/rbf.h
 pos.cpp
 pos.h
 pow.cpp
