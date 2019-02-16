@@ -20,13 +20,9 @@ namespace Consensus {
 enum DeploymentPos
 {
     DEPLOYMENT_TESTDUMMY,
-    DEPLOYMENT_SEGWIT, // Deployment of BIP141 and BIP143
-    // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
-    DEPLOYMENT_SEGWIT_LEGACY,
     DEPLOYMENT_COLDSTAKING,
     DEPLOYMENT_ZEROCOIN,
-    DEPLOYMENT_NTPSYNC,
-    MAX_VERSION_BITS_DEPLOYMENTS
+     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
 /**

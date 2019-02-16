@@ -190,10 +190,6 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
             
         );
 
-    if (!IsColdStakingEnabled(pindexBestHeader,Params().GetConsensus()))
-        throw runtime_error(
-            "Cold Staking is not active yet.");
-
     if (params[0].get_str() == params[1].get_str()) 
         throw runtime_error(
             "The staking address should be different to the spending address"
