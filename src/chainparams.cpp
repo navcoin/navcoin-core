@@ -150,11 +150,7 @@ public:
         // Deployment of Community Fund Accumulation
         // Deployment of Community Fund Accumulation Spread(NPIP-0003)
         // Increate in Community Fund Accumulation Ammonut (NPIP-0004)
-
         // Deployment of NTP Sync
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
 
         // Deployment of Zerocoin
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].bit = 18;
@@ -311,12 +307,7 @@ public:
         // Deployment of Community Fund Accumulation
         // Deployment of Community Fund Accumulation Spread(NPIP-0003)
         // Increate in Community Fund Accumulation Ammonut (NPIP-0004)
-      
-
         // Deployment of NTP Sync
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
 
         // Deployment of Zerocoin
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].bit = 18;
@@ -466,10 +457,6 @@ public:
         // Deployment of Community Fund Accumulation
         // Deployment of Community Fund Accumulation Spread(NPIP-0003)
         // Increate in Community Fund Accumulation Ammonut (NPIP-0004)
-      
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
 
          // Deployment of Zerocoin
         consensus.vDeployments[Consensus::DEPLOYMENT_ZEROCOIN].bit = 18;
@@ -624,17 +611,10 @@ public:
 
         // Deployment of BIP68, BIP112, and BIP113.
         // Deployment of Cold Staking
-
         // Deployment of SegWit (BIP141 and BIP143)
- 
         // Deployment of Community Fund
         // Deployment of Community Fund Accumulation
-
         // Deployment of NTP Sync
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 2556712000;
-
         // Deployment of Community Fund Accumulation Spread(NPIP-0003)
         // Increate in Community Fund Accumulation Ammonut (NPIP-0004)
 

@@ -551,9 +551,6 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
 bool IsWitnessEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
-/** Check whether NtpSync has been activated. */
-bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-
 /** Check whether ColdStaking has been activated. */
 bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
