@@ -178,6 +178,7 @@ SET(QT_TRANSLATIONS_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_hu.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_id_ID.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_it.ts
+	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_it_IT.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ja.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_ka.ts
 	${CMAKE_CURRENT_SOURCE_DIR}/locale/devault_kk_KZ.ts
