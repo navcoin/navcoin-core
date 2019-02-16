@@ -192,21 +192,6 @@ SET(CONSENSUS_CRYPTO
 	./src/crypto/sha512.cpp
   ./src/crypto/ctaes/ctaes.c
   ./src/crypto/aes.cpp
-
-  ./src/echo.c
-  ./src/bmw.c
-  ./src/blake.c
-  ./src/cubehash.c
-  ./src/fugue.c
-  ./src/groestl.c
-  ./src/hamsi.c
-  ./src/hamsi_helper.c
-  ./src/luffa.c
-  ./src/jh.c
-  ./src/skein.c
-  ./src/shavite.c
-  ./src/keccak.c
-  ./src/simd.c
 )
 
 SET(SOURCES
