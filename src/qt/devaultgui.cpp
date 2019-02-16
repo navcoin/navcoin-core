@@ -24,6 +24,7 @@
 #include "utilitydialog.h"
 #include "walletmodel.h"
 #include "wallet/rpcwallet.h"
+#include "base58.h"
 
 #ifdef ENABLE_WALLET
 #include "walletframe.h"

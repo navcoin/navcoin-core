@@ -18,10 +18,10 @@ Then install [Homebrew](http://brew.sh).
 1. Install `brew` depends.
 
     ```bash
-    brew install automake berkeley-db4 libtool boost miniupnpc openssl pkg-config homebrew/core/protobuf260 qt5 libevent curl
+    brew install automake berkeley-db4 libtool boost miniupnpc openssl pkg-config qt5 libevent curl
     ```
 
-    brew install automake berkeley-db4 libtool boost miniupnpc openssl pkg-config homebrew/versions/protobuf260 qt5 libevent curl gmp
+    brew install automake berkeley-db4 libtool boost miniupnpc openssl pkg-config qt5 libevent curl gmp
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 

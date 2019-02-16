@@ -3,26 +3,16 @@ TESTS += qt/test/test_devault-qt
 
 TEST_QT_MOC_CPP = qt/test/moc_uritests.cpp
 
-if ENABLE_WALLET
-TEST_QT_MOC_CPP += qt/test/moc_paymentservertests.cpp
-endif
-
 TEST_QT_H = \
-  qt/test/uritests.h \
-  qt/test/paymentrequestdata.h \
-  qt/test/paymentservertests.h
+  qt/test/uritests.h
 
 qt_test_test_devault_qt_CPPFLAGS = $(AM_CPPFLAGS) $(DEVAULT_INCLUDES) $(DEVAULT_QT_INCLUDES) \
-  $(QT_INCLUDES) $(QT_TEST_INCLUDES) $(PROTOBUF_CFLAGS)
+  $(QT_INCLUDES) $(QT_TEST_INCLUDES) 
 
 qt_test_test_devault_qt_SOURCES = \
   qt/test/test_main.cpp \
   qt/test/uritests.cpp \
   $(TEST_QT_H)
-if ENABLE_WALLET
-qt_test_test_devault_qt_SOURCES += \
-  qt/test/paymentservertests.cpp
-endif
 
 nodist_qt_test_test_devault_qt_SOURCES = $(TEST_QT_MOC_CPP)
 
@@ -35,7 +25,7 @@ qt_test_test_devault_qt_LDADD += $(LIBDEVAULT_ZMQ) $(ZMQ_LIBS)
 endif
 qt_test_test_devault_qt_LDADD += $(LIBDEVAULT_CLI) $(LIBDEVAULT_COMMON) $(LIBDEVAULT_UTIL) $(LIBDEVAULT_CONSENSUS) $(LIBDEVAULT_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) \
   $(LIBMEMENV) $(BOOST_LIBS) $(QT_DBUS_LIBS) $(QT_TEST_LIBS) $(QT_LIBS) \
-  $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
+  $(QR_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
   $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(CURL_LIBS)  $(LIBDEVAULT_ZEROCOIN)
 qt_test_test_devault_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 qt_test_test_devault_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)

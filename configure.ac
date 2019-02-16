@@ -25,9 +25,9 @@ AC_CANONICAL_HOST
 
 AC_MSG_NOTICE([------------------------------------])
 AC_MSG_NOTICE([------------------------------------])
-AC_MSG_NOTICE([               __                   ])
-AC_MSG_NOTICE([     |\ | _   /   _ . _             ])
-AC_MSG_NOTICE([     | \|(_|\/\__(_)|| |            ])
+AC_MSG_NOTICE([                                    ])
+AC_MSG_NOTICE([      _|  ___                       ])
+AC_MSG_NOTICE([     (_|\/ |                        ])
 AC_MSG_NOTICE([                                    ])
 AC_MSG_NOTICE([     Setting up build for     ])
 AC_MSG_NOTICE([     $host      ])
@@ -197,8 +197,6 @@ AC_ARG_WITH([zerocoin-bignum],
   [Specify Bignum Implementation. Default is auto])],
   [req_bignum=$withval],
   [req_bignum=auto])
-
-AC_ARG_WITH([protoc-bindir],[AS_HELP_STRING([--with-protoc-bindir=BIN_DIR],[specify protoc bin path])], [protoc_bin_path=$withval], [])
 
 # Enable debug
 AC_ARG_ENABLE([debug],
@@ -807,7 +805,6 @@ if test x$use_pkgconfig = xyes; then
       PKG_CHECK_MODULES([UNBOUND], [libunbound], [have_unbound=yes], [AC_MSG_ERROR(libunbound not found)])
       PKG_CHECK_MODULES([CURL], [libcurl],, [AC_MSG_ERROR(libcurl  not found.)])
       PKG_CHECK_MODULES([CRYPTO], [libcrypto],,[AC_MSG_ERROR(libcrypto  not found.)])
-      DEVAULT_QT_CHECK([PKG_CHECK_MODULES([PROTOBUF], [protobuf], [have_protobuf=yes], [DEVAULT_QT_FAIL(libprotobuf not found)])])
       if test x$use_qr != xno; then
         DEVAULT_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
@@ -870,7 +867,6 @@ else
     esac
   fi
 
-  DEVAULT_QT_CHECK(AC_CHECK_LIB([protobuf] ,[main],[PROTOBUF_LIBS=-lprotobuf], DEVAULT_QT_FAIL(libprotobuf not found)))
   if test x$use_qr != xno; then
     DEVAULT_QT_CHECK([AC_CHECK_LIB([qrencode], [main],[QR_LIBS=-lqrencode], [have_qrencode=no])])
     DEVAULT_QT_CHECK([AC_CHECK_HEADER([qrencode.h],, have_qrencode=no)])
@@ -930,8 +926,6 @@ LIBS="$LIBS $SSL_LIBS $CURL_LIBS $CRYPTO_LIBS $UNBOUND_LIBS"
 AC_CHECK_HEADER([openssl/ec.h],, AC_MSG_ERROR(OpenSSL ec header missing),)
 CXXFLAGS="$CXXFLAGS_TEMP"
 LIBS="$LIBS_TEMP"
-
-DEVAULT_QT_PATH_PROGS([PROTOC], [protoc],$protoc_bin_path)
 
 AC_MSG_CHECKING([whether to build devaultd])
 AM_CONDITIONAL([BUILD_DEVAULTD], [test x$build_devaultd = xyes])
@@ -1188,7 +1182,6 @@ AC_SUBST(CURL_LIBS)
 AC_SUBST(EVENT_LIBS)
 AC_SUBST(EVENT_PTHREADS_LIBS)
 AC_SUBST(ZMQ_LIBS)
-AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
 AC_SUBST(USE_NUM_GMP)
 AC_SUBST(USE_NUM_OPENSSL)
