@@ -65,10 +65,7 @@ list(APPEND zerocoin_sources
   SerialNumberProofOfKnowledge.cpp
   SerialNumberSignatureOfKnowledge.cpp
   SerialNumberSoK_small.cpp
-#  bignum_openssl.cpp
   bignum.cpp
-###  bulletproof_rangeproof.cpp
-#  paramgen.cpp
 )
 
 #
