@@ -81,10 +81,20 @@ CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
+    // If prequest is accepted, show when it was accepted
+    if (prequest.fState == CFund::ACCEPTED) {
+        std::string duration_title = "Accepted on: ";
+        std::time_t t = static_cast<time_t>(proptime);
+        std::stringstream ss;
+        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
+        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+    }
+
     // If prequest is pending show voting cycles left
     if (prequest.fState == CFund::NIL) {
         std::string duration_title = "Voting Cycle: ";
-        std::string duration = std::to_string(prequest.nVotingCycle) +  " of 6";
+        std::string duration = std::to_string(prequest.nVotingCycle) +  " of 8";
         ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
         ui->labelDuration->setText(QString::fromStdString(duration));
     }

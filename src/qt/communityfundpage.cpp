@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <sstream>
 #include "communityfunddisplay.h"
-
+#include "communityfunddisplaypaymentrequest.h"
 #include "communityfundcreateproposaldialog.h"
 #include "communityfundcreatepaymentrequestdialog.h"
 
@@ -176,8 +176,78 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
         std::vector<CFund::CPaymentRequest> vec;
         if(pblocktree->GetPaymentRequestIndex(vec))
         {
+            int r = 0;
+            int c = 0;
             BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
                 // List each payment request here
+
+                // If wanting to view all prequests
+                if (all) {
+                    ui->gridLayout->addWidget(new CommunityFundDisplayPaymentRequest(0, prequest), r, c);
+                    if(c == 1)
+                    {
+                        c = 0;
+                        ++r;
+                    }
+                    else
+                    {
+                        ++c;
+                    }
+                }
+                else {
+                    // If the filter is set to my vote, filter to only pending proposals which have been voted for
+                    if (viewing_voted) {
+                        if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos) {
+                            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                                                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+                            if (it != vAddedPaymentRequestVotes.end()) {
+                                ui->gridLayout->addWidget(new CommunityFundDisplayPaymentRequest(0, prequest), r, c);
+                                if(c == 1)
+                                {
+                                    c = 0;
+                                    ++r;
+                                }
+                                else
+                                {
+                                    ++c;
+                                }
+                            } else {
+                                continue;
+                            }
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    else {
+                        // If the flag is expired, be sure to display prequests without the expired state if they have expired before the end of the voting cycle
+                        if (prequest.fState != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos && flag == CFund::EXPIRED) {
+                            ui->gridLayout->addWidget(new CommunityFundDisplayPaymentRequest(0, prequest), r, c);
+                            if(c == 1)
+                            {
+                                c = 0;
+                                ++r;
+                            }
+                            else
+                            {
+                                ++c;
+                            }
+                        }
+                        // Display prequests with the appropriate flag and have not expired before the voting cycle has ended
+                        if (prequest.fState != flag || (flag != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos))
+                            continue;
+                        ui->gridLayout->addWidget(new CommunityFundDisplayPaymentRequest(0, prequest), r, c);
+                        if(c == 1)
+                        {
+                            c = 0;
+                            ++r;
+                        }
+                        else
+                        {
+                            ++c;
+                        }
+                    }
+                }
             }
         }
     }
