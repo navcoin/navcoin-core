@@ -290,8 +290,12 @@ void CommunityFundPage::on_click_pushButtonProposals()
 
     viewing_proposals = true;
 
-    Refresh(true, true);
-    ui->radioButtonAll->setChecked(true);
+    if(ui->radioButtonAll->isChecked()) {
+        Refresh(true, true);
+    }
+    else {
+        Refresh(false, true);
+    }
 }
 
 void CommunityFundPage::on_click_pushButtonPaymentRequests()
@@ -307,8 +311,12 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
 
     viewing_proposals = false;
 
-    Refresh(true, false);
-    ui->radioButtonAll->setChecked(true);
+    if(ui->radioButtonAll->isChecked()) {
+        Refresh(true, false);
+    }
+    else {
+        Refresh(false, false);
+    }
 }
 
 void CommunityFundPage::on_click_radioButtonAll()
