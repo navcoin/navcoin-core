@@ -624,6 +624,8 @@ qt/qrc_navcoin.cpp
 qt/qrc_navcoin_locale.cpp
 qt/qvalidatedlineedit.cpp
 qt/qvalidatedlineedit.h
+qt/qvalidatedplaintextedit.cpp
+qt/qvalidatedplaintextedit.h
 qt/qvaluecombobox.cpp
 qt/qvaluecombobox.h
 qt/receivecoinsdialog.cpp

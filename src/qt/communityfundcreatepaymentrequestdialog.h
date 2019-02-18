@@ -2,6 +2,7 @@
 #define COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H
 
 #include <QDialog>
+#include "../qvalidatedplaintextedit.h"
 
 namespace Ui {
 class CommunityFundCreatePaymentRequestDialog;

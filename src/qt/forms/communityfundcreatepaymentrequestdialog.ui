@@ -88,9 +88,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QPlainTextEdit" name="plainTextEditDescription">
+      <widget class="QValidatedPlainTextEdit" name="plainTextEditDescription">
        <property name="plainText">
         <string/>
+       </property>
+       <property name="overwriteMode">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -143,6 +146,11 @@
    <class>QValidatedLineEdit</class>
    <extends>QLineEdit</extends>
    <header>qvalidatedlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QValidatedPlainTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header>qvalidatedplaintextedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

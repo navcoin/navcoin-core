@@ -155,6 +155,7 @@ QT_MOC_CPP = \
 	qt/moc_peertablemodel.cpp \
 	qt/moc_paymentserver.cpp \
 	qt/moc_qvalidatedlineedit.cpp \
+        qt/moc_qvalidatedplaintextedit.cpp \
 	qt/moc_qvaluecombobox.cpp \
 	qt/moc_receivecoinsdialog.cpp \
 	qt/moc_receiverequestdialog.cpp \
@@ -245,6 +246,7 @@ NAVCOIN_QT_H = \
 	qt/peertablemodel.h \
 	qt/platformstyle.h \
 	qt/qvalidatedlineedit.h \
+        qt/qvalidatedplaintextedit.h \
 	qt/qvaluecombobox.h \
 	qt/receivecoinsdialog.h \
 	qt/receiverequestdialog.h \
@@ -370,6 +372,7 @@ NAVCOIN_QT_CPP = \
 	qt/peertablemodel.cpp \
 	qt/platformstyle.cpp \
 	qt/qvalidatedlineedit.cpp \
+        qt/qvalidatedplaintextedit.cpp \
 	qt/qvaluecombobox.cpp \
 	qt/rpcconsole.cpp \
 	qt/skinize.cpp \
