@@ -57,9 +57,12 @@ void CommunityFundPage::setWalletModel(WalletModel *model)
 
 void CommunityFundPage::refreshTab()
 {
-    Refresh(true, true);
-    ui->radioButtonAll->setChecked(true);
-    on_click_pushButtonProposals();
+    if(ui->radioButtonAll->isChecked()) {
+        Refresh(true, viewing_proposals);
+    }
+    else {
+        Refresh(false, viewing_proposals);
+    }
 }
 
 void CommunityFundPage::Refresh(bool all, bool proposal)
