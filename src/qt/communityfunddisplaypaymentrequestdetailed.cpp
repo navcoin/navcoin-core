@@ -108,73 +108,80 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestLink->setText(QString::fromStdString("https://www.navexplorer.com/community-fund/payment-request/" + prequest.hash.ToString()));
 
     /*
-    uint64_t deadline_d = std::floor(prequest.nDeadline/86400);
-    uint64_t deadline_h = std::floor((proposal.nDeadline-deadline_d*86400)/3600);
-    uint64_t deadline_m = std::floor((proposal.nDeadline-(deadline_d*86400 + deadline_h*3600))/60);
-    std::string s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
-
     uint64_t proptime = 0;
-    if (mapBlockIndex.count(proposal.blockhash) > 0) {
-        proptime = mapBlockIndex[proposal.blockhash]->GetBlockTime();
+    if (mapBlockIndex.count(prequest.blockhash) > 0) {
+        proptime = mapBlockIndex[prequest.blockhash]->GetBlockTime();
     }
 
-    ui->labelDeadline->setText(QString::fromStdString(s_deadline));
-    if (proposal.fState == CFund::NIL) {
-        std::string expiry = std::to_string(7 - proposal.nVotingCycle) +  " voting cycles";
-        ui->labelExpiresIn->setText(QString::fromStdString(expiry));
-    }
-    if (proposal.fState == CFund::ACCEPTED) {
-        uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
+    uint64_t deadline = proptime - pindexBestHeader->GetBlockTime();
 
-        uint64_t deadline_d = std::floor(deadline/86400);
-        uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
-        uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
+    uint64_t deadline_d = std::floor(deadline/86400);
+    uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
+    uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
 
-        std::string s_deadline = "";
-        if(deadline_d >= 14)
-        {
-            s_deadline = std::to_string(deadline_d) + std::string(" Days");
-        }
-        else
-        {
-            s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
-        }
-        ui->labelExpiresIn->setText(QString::fromStdString(s_deadline));
+    std::string s_deadline = "";
+    if(deadline_d >= 14)
+    {
+        s_deadline = std::to_string(deadline_d) + std::string(" Days");
     }
-    if (proposal.fState == CFund::REJECTED) {
+    else
+    {
+        s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
+    }
+
+    ui->labelDuration->setText(QString::fromStdString(s_deadline));
+
+    // Hide ability to vote is the status is expired
+    std::string status = ui->labelStatus->text().toStdString();
+    if (status.find("expired") != string::npos) {
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
+    }
+
+    // If prequest is accepted, show when it was accepted
+    if (prequest.fState == CFund::ACCEPTED) {
+        std::string duration_title = "Accepted on: ";
+        std::time_t t = static_cast<time_t>(proptime);
+        std::stringstream ss;
+        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
+        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+    }
+
+    // If prequest is pending show voting cycles left
+    if (prequest.fState == CFund::NIL) {
+        std::string duration_title = "Voting Cycle: ";
+        std::string duration = std::to_string(prequest.nVotingCycle) +  " of 8";
+        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
+        ui->labelDuration->setText(QString::fromStdString(duration));
+    }
+
+    // If prequest is rejected, show when it was rejected
+    if (prequest.fState == CFund::REJECTED) {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
         ss << std::put_time(std::gmtime(&t), "%c %Z");
-        ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-        ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
+        ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
+        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
-    if (proposal.fState == CFund::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) {
-        if (proposal.fState == CFund::EXPIRED) {
+
+    // If expired show when it expired
+    if (prequest.fState == CFund::EXPIRED || status.find("expired") != string::npos) {
+        if (prequest.fState == CFund::EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
             ss << std::put_time(std::gmtime(&t), "%c %Z");
-            ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-            ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
+            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
+            ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
         }
         else {
             std::string expiry_title = "Expires: ";
             std::string expiry = "At end of voting period";
-            ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-            ui->labelExpiresIn->setText(QString::fromStdString(expiry));
+            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
+            ui->labelDuration->setText(QString::fromStdString(expiry));
         }
     }
-    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
-    ui->labelNumberOfYesVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesYes)));
-    ui->labelNumberOfNoVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesNo)));
-
-    ui->labelTransactionBlockHash->setText(QString::fromStdString(proposal.blockhash.ToString()));
-    ui->labelTransactionHash->setText(QString::fromStdString(proposal.txblockhash.ToString()));
-    ui->labelVersionNumber->setText(QString::fromStdString(std::to_string(proposal.nVersion)));
-    ui->labelVotingCycleNumber->setText(QString::fromStdString(std::to_string(proposal.nVotingCycle)));
-    ui->labelLinkToProposal->setText(QString::fromStdString("https://navcommunity.net/view-proposal/" + proposal.hash.ToString()));
-    ui->labelProposalHash->setText(QString::fromStdString(proposal.hash.ToString()));
     */
 
     //set hyperlink for navcommunity proposal view
