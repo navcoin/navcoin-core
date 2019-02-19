@@ -175,36 +175,12 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelVotingCycleNumber->setText(QString::fromStdString(std::to_string(proposal.nVotingCycle)));
     ui->labelLinkToProposal->setText(QString::fromStdString("https://navcommunity.net/view-proposal/" + proposal.hash.ToString()));
     ui->labelProposalHash->setText(QString::fromStdString(proposal.hash.ToString()));
-
+    */
 
     //set hyperlink for navcommunity proposal view
-    ui->labelLinkToProposal->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    ui->labelLinkToProposal->setOpenExternalLinks(true);
-    //ui->labelLinkToProposal->setHtml(ui->labelLinkToProposal->text());
-
-
-    stringstream a;
-    a.imbue(std::locale(""));
-    a << fixed << setprecision(8) << proposal.nAmount/100000000.0;
-    string amount = a.str();
-    amount.erase(amount.find_last_not_of("0") + 1, std::string::npos );
-    if(amount.at(amount.length()-1) == '.') {
-        amount = amount.substr(0, amount.size()-1);
-    }
-    amount.append(" NAV");
-    ui->labelAmount->setText(QString::fromStdString(amount));
-
-    stringstream f;
-    f.imbue(std::locale(""));
-    f << fixed << setprecision(8) << proposal.nFee/100000000.0;
-    string fee = f.str();
-    fee.erase(fee.find_last_not_of("0") + 1, std::string::npos );
-    if(fee.at(fee.length()-1) == '.') {
-        fee = fee.substr(0, fee.size()-1);
-    }
-    fee.append(" NAV");
-    ui->labelFee->setText(QString::fromStdString(fee));
-    */
+    ui->labelPrequestLink->setText("<a href=\"" + ui->labelPrequestLink->text() + "\">" + ui->labelPrequestLink->text() + "</a>");
+    ui->labelPrequestLink->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->labelPrequestLink->setOpenExternalLinks(true);
 
     // If prequest is pending, hide the transaction hash
     if (prequest.fState == CFund::NIL) {

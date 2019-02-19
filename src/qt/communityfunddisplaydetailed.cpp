@@ -14,6 +14,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(ui->labelLinkToProposal, SIGNAL(linkActivated()), this, SLOT(go_to_explorer()));
 
     //update labels
     setProposalLabels();
@@ -133,9 +134,9 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
 
 
     //set hyperlink for navcommunity proposal view
+    ui->labelLinkToProposal->setText("<a href=\"" + ui->labelLinkToProposal->text() + "\">" + ui->labelLinkToProposal->text() + "</a>");
     ui->labelLinkToProposal->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->labelLinkToProposal->setOpenExternalLinks(true);
-    //ui->labelLinkToProposal->setHtml(ui->labelLinkToProposal->text());
 
 
     stringstream a;
