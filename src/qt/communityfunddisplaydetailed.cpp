@@ -159,6 +159,12 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     }
     fee.append(" NAV");
     ui->labelFee->setText(QString::fromStdString(fee));
+
+    // If proposal is pending, hide the transaction hash
+    if (proposal.fState == CFund::NIL) {
+        ui->labelTransactionBlockHashTitle->setVisible(false);
+        ui->labelTransactionBlockHash->setVisible(false);
+    }
 }
 
 void CommunityFundDisplayDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *button)
