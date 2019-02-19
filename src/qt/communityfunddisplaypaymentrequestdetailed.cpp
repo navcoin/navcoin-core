@@ -49,12 +49,6 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     {
         ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
     }
-
-    // Hide ability to vote is the status is expired
-    std::string status = ui->labelPrequestStatus->text().toStdString();
-    if (status.find("expired") != string::npos) {
-        ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
-    }
 }
 
 void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
@@ -107,34 +101,24 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     // Link
     ui->labelPrequestLink->setText(QString::fromStdString("https://www.navexplorer.com/community-fund/payment-request/" + prequest.hash.ToString()));
 
-    /*
+    // Hide ability to vote is the status is expired
+    std::string status = ui->labelPrequestStatus->text().toStdString();
+    if (status.find("expired") != string::npos) {
+        ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
+    }
+
+    // Expiry
     uint64_t proptime = 0;
     if (mapBlockIndex.count(prequest.blockhash) > 0) {
         proptime = mapBlockIndex[prequest.blockhash]->GetBlockTime();
     }
 
-    uint64_t deadline = proptime - pindexBestHeader->GetBlockTime();
-
-    uint64_t deadline_d = std::floor(deadline/86400);
-    uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
-    uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
-
-    std::string s_deadline = "";
-    if(deadline_d >= 14)
-    {
-        s_deadline = std::to_string(deadline_d) + std::string(" Days");
-    }
-    else
-    {
-        s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
-    }
-
-    ui->labelDuration->setText(QString::fromStdString(s_deadline));
-
-    // Hide ability to vote is the status is expired
-    std::string status = ui->labelStatus->text().toStdString();
-    if (status.find("expired") != string::npos) {
-        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
+    // If prequest is pending show voting cycles left
+    if (prequest.fState == CFund::NIL) {
+        std::string duration_title = "Expires in: ";
+        std::string duration = std::to_string(8-prequest.nVotingCycle) +  " voting cycles";
+        ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
+        ui->labelPrequestExpiry->setText(QString::fromStdString(duration));
     }
 
     // If prequest is accepted, show when it was accepted
@@ -143,16 +127,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
         ss << std::put_time(std::gmtime(&t), "%c %Z");
-        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
-        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
-    }
-
-    // If prequest is pending show voting cycles left
-    if (prequest.fState == CFund::NIL) {
-        std::string duration_title = "Voting Cycle: ";
-        std::string duration = std::to_string(prequest.nVotingCycle) +  " of 8";
-        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
-        ui->labelDuration->setText(QString::fromStdString(duration));
+        ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
+        ui->labelPrequestExpiry->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
 
     // If prequest is rejected, show when it was rejected
@@ -161,8 +137,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
         ss << std::put_time(std::gmtime(&t), "%c %Z");
-        ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+        ui->labelPrequestExpiryTitle->setText(QString::fromStdString(expiry_title));
+        ui->labelPrequestExpiry->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
 
     // If expired show when it expired
@@ -172,17 +148,16 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
             ss << std::put_time(std::gmtime(&t), "%c %Z");
-            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-            ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+            ui->labelPrequestExpiryTitle->setText(QString::fromStdString(expiry_title));
+            ui->labelPrequestExpiry->setText(QString::fromStdString(ss.str().erase(10, 9)));
         }
         else {
             std::string expiry_title = "Expires: ";
             std::string expiry = "At end of voting period";
-            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-            ui->labelDuration->setText(QString::fromStdString(expiry));
+            ui->labelPrequestExpiryTitle->setText(QString::fromStdString(expiry_title));
+            ui->labelPrequestExpiry->setText(QString::fromStdString(expiry));
         }
     }
-    */
 
     //set hyperlink for navcommunity proposal view
     ui->labelPrequestLink->setText("<a href=\"" + ui->labelPrequestLink->text() + "\">" + ui->labelPrequestLink->text() + "</a>");
