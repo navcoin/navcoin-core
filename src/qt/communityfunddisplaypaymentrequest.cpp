@@ -12,7 +12,7 @@
 #include "chain.h"
 
 // Unsure about this one as yet
-#include "communityfunddisplaydetailed.h"
+#include "communityfunddisplaypaymentrequestdetailed.h"
 
 CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *parent, CFund::CPaymentRequest prequest) :
     QWidget(parent),
@@ -200,9 +200,8 @@ void CommunityFundDisplayPaymentRequest::on_click_buttonBoxVote(QAbstractButton 
 
 void CommunityFundDisplayPaymentRequest::on_click_pushButtonDetails()
 {
-    // Wont work just yet due to needing to pass a payment request
-    //CommunityFundDisplayDetailed dlg(this, proposal);
-    //dlg.exec();
+    CommunityFundDisplayPaymentRequestDetailed dlg(this, prequest);
+    dlg.exec();
 }
 
 CommunityFundDisplayPaymentRequest::~CommunityFundDisplayPaymentRequest()

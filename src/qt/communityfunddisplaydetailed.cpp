@@ -166,9 +166,6 @@ void CommunityFundDisplayDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *
     //cast the vote
     bool duplicate = false;
 
-    //add a filter based on if proposal or payment request
-
-    //currently doesnt work
     if (ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
@@ -190,8 +187,6 @@ void CommunityFundDisplayDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *
     else {
         return;
     }
-
-    //update
 }
 
 CommunityFundDisplayDetailed::~CommunityFundDisplayDetailed()
