@@ -49,11 +49,11 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
     if(desc_size > 1024 || desc_size == 0)
     {
         isValid = false;
-        ui->plainTextEditDescription->setStyleSheet(STYLE_INVALID);
+        ui->plainTextEditDescription->setValid(false);
     }
     else
     {
-        ui->plainTextEditDescription->setStyleSheet(Skinize());
+        ui->plainTextEditDescription->setValid(true);
     }
 
     return isValid;

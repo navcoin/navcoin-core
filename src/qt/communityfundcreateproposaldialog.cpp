@@ -1,5 +1,9 @@
 #include "communityfundcreateproposaldialog.h"
 #include "ui_communityfundcreateproposaldialog.h"
+
+#include <QMessageBox>
+#include <QTextListFormat>
+
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "sync.h"
@@ -21,17 +25,18 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     ui->spinBoxHours->setRange(0, 59);
     ui->spinBoxMinutes->setRange(0, 59);
 
-    //connect
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this, SLOT(on_click_pushButtonCreateProposal()));
 }
 
-// validate input fields
+// Validate input fields
 bool CommunityFundCreateProposalDialog::validate()
 {
     bool isValid = true;
-    if(!ui->lineEditNavcoinAddress->isValid())
+    if(!ui->lineEditNavcoinAddress->isValid() || (ui->lineEditNavcoinAddress->text() == QString("")))
     {
+        // styling must be done manually as an empty field returns valid (true)
+        ui->lineEditNavcoinAddress->setStyleSheet(STYLE_INVALID);
         ui->lineEditNavcoinAddress->setValid(false);
         isValid = false;
     }
@@ -40,19 +45,24 @@ bool CommunityFundCreateProposalDialog::validate()
         ui->lineEditRequestedAmount->setValid(false);
         isValid = false;
     }
-    if(ui->plainTextEditDescription->toPlainText() == QString(""))
+    if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() == 0)
     {
         ui->plainTextEditDescription->setStyleSheet(STYLE_INVALID);
         isValid = false;
-    } else {
+    }
+    if(ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60 <= 0)
+    {
+        isValid = false;
+    }
+    else
+    {
         ui->plainTextEditDescription->setStyleSheet(styleSheet());
     }
 
     return isValid;
 }
 
-//Q_SLOTS
-
+// Q_SLOTS
 bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
 {
     if(this->validate())
@@ -67,7 +77,7 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
 
         CNavCoinAddress destaddress(Address);
         if (!destaddress.IsValid())
-          return false;
+            return false;
 
         CAmount nReqAmount = ui->lineEditRequestedAmount->value();
         int64_t nDeadline = ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60;
@@ -90,6 +100,7 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
 
         if(wtx.strDZeel.length() > 1024)
             return false;
+
 
         EnsureWalletIsUnlocked();
 
@@ -127,6 +138,25 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         ret.push_back(Pair("strDZeel",wtx.strDZeel));
 
         return true;
+    }
+    else
+    {
+        QMessageBox msgBox(this);
+        std::string str = "Please enter a valid:\n";
+        if(!ui->lineEditNavcoinAddress->isValid() || (ui->lineEditNavcoinAddress->text() == QString("")))
+            str += "- Address\n";
+        if(!ui->lineEditRequestedAmount->validate())
+            str += "- Requested Amount\n";
+        if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
+            str += "- Description\n";
+        if((ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60) <= 0)
+            str += "- Duration\n";
+
+        msgBox.setText(tr(str.c_str()));
+        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+        return false;
     }
     return true;
 }
