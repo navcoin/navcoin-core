@@ -211,6 +211,12 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         ui->labelPrequestTransactionBlockHashTitle->setVisible(false);
         ui->labelPrequestTransactionBlockHash->setVisible(false);
     }
+
+    // If the prequest is not accepted, hide the payment hash
+    if (prequest.fState != CFund::ACCEPTED) {
+        ui->labelPrequestPaymentHashTitle->setVisible(false);
+        ui->labelPrequestPaymentHash->setVisible(false);
+    }
 }
 
 void CommunityFundDisplayPaymentRequestDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *button)
