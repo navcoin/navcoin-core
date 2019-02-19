@@ -11,6 +11,7 @@
 #include "consensus/cfund.h"
 #include <iostream>
 #include "chain.h"
+#include "guiutil.h"
 
 #include "communityfunddisplaydetailed.h"
 
@@ -58,6 +59,11 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     }
 
     uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
+
+
+    //use guiutil formatDurationStr function here
+    //QString owo = GUIUtil::formatDurationStr(int(deadline));
+    //std::cout << owo.toStdString() << "\n";
 
     uint64_t deadline_d = std::floor(deadline/86400);
     uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);

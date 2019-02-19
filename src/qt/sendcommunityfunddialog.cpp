@@ -1,6 +1,10 @@
 #include "sendcommunityfunddialog.h"
 #include "ui_sendcommunityfunddialog.h"
 
+#include <QSettings>
+#include <guiutil.h>
+
+//temp headers
 #include <iostream>
 
 SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CProposal* proposal, int secDelay) :
@@ -22,7 +26,14 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPropos
     // Set UI elements to proposal view
     ui->labelProposalHashTitle->setVisible(false);
     ui->labelProposalHash->setVisible(false);
+    ui->labelAddress->setText(QString(proposal->Address.c_str()));
 
+    // Amount label
+    QSettings settings;
+    ui->labelRequestedAmount->setText(QString("%1 NAV / ").arg(proposal->nAmount/100000000.0).append("%1 EUR / ").arg(proposal->nAmount / settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(proposal->nAmount / settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(proposal->nAmount / settings.value("btcFactor", 0).toFloat()));
+
+    ui->labelDescription->setText(QString(proposal->strDZeel.c_str()));
+    ui->labelDuration->setText(GUIUtil::formatDurationStr(int(proposal->nDeadline)));
 }
 
 SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymentRequest* prequest, int secDelay) :
@@ -47,6 +58,13 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
     ui->labelAddress->setVisible(false);
     ui->labelDurationTitle->setVisible(false);
     ui->labelDuration->setVisible(false);
+
+    ui->labelProposalHash->setText(QString(proposal->hash.ToString().c_str()));
+    ui->labelDescription->setText(QString(proposal->strDZeel.c_str()));
+
+    // Amount label
+    QSettings settings;
+    ui->labelRequestedAmount->setText(QString("%1 NAV / ").arg(proposal->nAmount/100000000.0).append("%1 EUR / ").arg(proposal->nAmount / settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(proposal->nAmount / settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(proposal->nAmount / settings.value("btcFactor", 0).toFloat()));
 }
 
 void SendCommunityFundDialog::updateYesButton()
