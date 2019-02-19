@@ -10,6 +10,12 @@
     <height>497</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>740</width>
+    <height>497</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Proposal Details</string>
   </property>
@@ -83,6 +89,9 @@
          <property name="text">
           <string>100 NAV</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
       </layout>
@@ -127,6 +136,9 @@
          </property>
          <property name="text">
           <string>100 NAV</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -174,7 +186,7 @@
           <string>NfQJDyPrJ1DzyQQ29jQyewhS5qT3x3TMTG</string>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -221,6 +233,9 @@
          <property name="text">
           <string>100 Days 100 Minutes 100 Seconds</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
       </layout>
@@ -265,6 +280,9 @@
          </property>
          <property name="text">
           <string>100 Days 100 Minutes 100 Seconds</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -311,6 +329,9 @@
          <property name="text">
           <string>pending</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
       </layout>
@@ -356,6 +377,9 @@
          <property name="text">
           <string>100 Yes</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
       </layout>
@@ -400,6 +424,9 @@
          </property>
          <property name="text">
           <string>100 No</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -447,7 +474,7 @@
           <string>95dbb71cfa4b67b258b34c1489e11e96955e1a9f26dd58a19f63417a37bce5d4</string>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -495,7 +522,7 @@
           <string>2da711320aa9e83b91f6e4111898abc0214fdb347623a5b2286d3caf33c1e8dd</string>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -544,7 +571,7 @@
           <string>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</string>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -591,6 +618,9 @@
          <property name="text">
           <string>2</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
       </layout>
@@ -635,6 +665,9 @@
          </property>
          <property name="text">
           <string>100</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>

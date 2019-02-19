@@ -10,8 +10,14 @@
     <height>497</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>740</width>
+    <height>497</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Payment Request Details</string>
   </property>
   <widget class="QLabel" name="labelPaymentRequestTitle">
    <property name="geometry">
@@ -58,7 +64,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayoutAmount_2">
       <item>
-       <widget class="QLabel" name="labelAmountTitle_2">
+       <widget class="QLabel" name="labelPrequestAmountTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -87,7 +93,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelAmount_2">
+       <widget class="QLabel" name="labelPrequestAmount">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -95,6 +101,9 @@
         </property>
         <property name="text">
          <string>100 NAV</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>
@@ -103,190 +112,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayoutFee_2">
       <item>
-       <widget class="QLabel" name="labelFeeTitle_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Fee:</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::NoTextInteraction</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelFee_2">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>100 NAV</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutAddress_2">
-      <item>
-       <widget class="QLabel" name="labelAddressTitle_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Address:</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::NoTextInteraction</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelAddress_2">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>NfQJDyPrJ1DzyQQ29jQyewhS5qT3x3TMTG</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutDeadline_2">
-      <item>
-       <widget class="QLabel" name="labelDeadlineTitle_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Deadline:</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::NoTextInteraction</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelDeadline_2">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>100 Days 100 Minutes 100 Seconds</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutExpiresIn_2">
-      <item>
-       <widget class="QLabel" name="labelExpiresInTitle_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Expires In:</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::NoTextInteraction</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelExpiresIn_2">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>100 Days 100 Minutes 100 Seconds</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutStatus_2">
-      <item>
-       <widget class="QLabel" name="labelStatusTitle_2">
+       <widget class="QLabel" name="labelPrequestStatusTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -315,7 +141,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelStatus_2">
+       <widget class="QLabel" name="labelPrequestStatus">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -324,14 +150,17 @@
         <property name="text">
          <string>pending</string>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutNumberYesVotes_2">
+     <layout class="QHBoxLayout" name="horizontalLayoutAddress_2">
       <item>
-       <widget class="QLabel" name="labelNumberOfYesVotesTitle_2">
+       <widget class="QLabel" name="labelPrequestYesTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -360,23 +189,26 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelNumberOfYesVotes_2">
+       <widget class="QLabel" name="labelPrequestYes">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>100 Yes</string>
+         <string>1000</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutNumberNoVotes_2">
+     <layout class="QHBoxLayout" name="horizontalLayoutDeadline_2">
       <item>
-       <widget class="QLabel" name="labelNumberOfNoVotesTitle_2">
+       <widget class="QLabel" name="labelPrequestNoTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -405,23 +237,74 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelNumberOfNoVotes_2">
+       <widget class="QLabel" name="labelPrequestNo">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>100 No</string>
+         <string>1000</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutTransactionBlockHash_2">
+     <layout class="QHBoxLayout" name="horizontalLayoutExpiresIn_2">
       <item>
-       <widget class="QLabel" name="labelTransactionBlockHashTitle_2">
+       <widget class="QLabel" name="labelPrequestHashTitle">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Payment Request Hash:</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::NoTextInteraction</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelPrequestHash">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayoutStatus_2">
+      <item>
+       <widget class="QLabel" name="labelPrequestTransactionBlockHashTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -450,26 +333,26 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelTransactionBlockHash_2">
+       <widget class="QLabel" name="labelPrequestTransactionBlockHash">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>95dbb71cfa4b67b258b34c1489e11e96955e1a9f26dd58a19f63417a37bce5d4</string>
+         <string>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</string>
         </property>
         <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         <set>Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutTransactionHash_2">
+     <layout class="QHBoxLayout" name="horizontalLayoutNumberYesVotes_2">
       <item>
-       <widget class="QLabel" name="labelTransactionHashTitle_2">
+       <widget class="QLabel" name="labelPrequestTransactionHashTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -498,75 +381,26 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelTransactionHash_2">
+       <widget class="QLabel" name="labelPrequestTransactionHash">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
-        <property name="text">
-         <string>2da711320aa9e83b91f6e4111898abc0214fdb347623a5b2286d3caf33c1e8dd</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="labelPaymentRequestHashTitle_2">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>200</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Payment Request Hash</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelPaymentRequestHash_2">
         <property name="text">
          <string>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</string>
         </property>
         <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         <set>Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutVersionNumber_2">
+     <layout class="QHBoxLayout" name="horizontalLayoutNumberNoVotes_2">
       <item>
-       <widget class="QLabel" name="labelVersionNumberTitle_2">
+       <widget class="QLabel" name="labelPrequestVersionNoTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -595,7 +429,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelVersionNumber_2">
+       <widget class="QLabel" name="labelPrequestVersionNo">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -604,14 +438,17 @@
         <property name="text">
          <string>2</string>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayoutVotingCycleNumber_2">
+     <layout class="QHBoxLayout" name="horizontalLayoutTransactionBlockHash_2">
       <item>
-       <widget class="QLabel" name="labelVOtingCycleNumberTitle_2">
+       <widget class="QLabel" name="labelPrequestVotingCycleTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -640,14 +477,114 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelVotingCycleNumber_2">
+       <widget class="QLabel" name="labelPrequestVotingCycle">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>100</string>
+         <string>0</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayoutTransactionHash_2">
+      <item>
+       <widget class="QLabel" name="labelPrequestProposalHashTitle">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Proposal Hash:</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::NoTextInteraction</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelPrequestProposalHash">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>2da711320aa9e83b91f6e4111898abc0214fdb347623a5b2286d3caf33c1e8dd</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="labelPrequestPaymentHashTitle">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Payment Hash:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelPrequestPaymentHash">
+        <property name="text">
+         <string>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>
@@ -656,7 +593,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayoutLinkToPaymentRequest_2">
       <item>
-       <widget class="QLabel" name="labelLinkToPaymentRequestTitle_2">
+       <widget class="QLabel" name="labelPrequestLinkTitle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -685,7 +622,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="labelLinkToPaymentRequest_2">
+       <widget class="QLabel" name="labelPrequestLink">
         <property name="text">
          <string>https://navcommunity.net/view-proposal/95dbb71cfa4b67b258b34c1489e11e96955e1a9f26dd58a19f63417a37bce5d4</string>
         </property>

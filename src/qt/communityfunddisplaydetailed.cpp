@@ -128,7 +128,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     ui->labelTransactionHash->setText(QString::fromStdString(proposal.txblockhash.ToString()));
     ui->labelVersionNumber->setText(QString::fromStdString(std::to_string(proposal.nVersion)));
     ui->labelVotingCycleNumber->setText(QString::fromStdString(std::to_string(proposal.nVotingCycle)));
-    ui->labelLinkToProposal->setText(QString::fromStdString("https://navcommunity.net/view-proposal/" + proposal.hash.ToString()));
+    ui->labelLinkToProposal->setText(QString::fromStdString("https://www.navexplorer.com/community-fund/proposal/" + proposal.hash.ToString()));
     ui->labelProposalHash->setText(QString::fromStdString(proposal.hash.ToString()));
 
 

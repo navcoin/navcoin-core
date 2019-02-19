@@ -51,7 +51,7 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     }
 
     // Hide ability to vote is the status is expired
-    std::string status = ui->labelStatus_2->text().toStdString();
+    std::string status = ui->labelPrequestStatus->text().toStdString();
     if (status.find("expired") != string::npos) {
         ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
     }
@@ -59,10 +59,46 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
 
 void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
 {
-    /*
-    ui->labelPaymentRequestTitle_2->setText(QString::fromStdString(prequest.strDZeel));
-    ui->labelAddress_2->setText(QString::fromStdString(prequest.Address));
+    // Title
+    ui->labelPaymentRequestTitle->setText(QString::fromStdString(prequest.strDZeel));
 
+    // Amount
+    ui->labelPrequestAmount->setText(QString::fromStdString(std::to_string(prequest.nAmount)));
+
+    // Status
+    ui->labelPrequestStatus->setText(QString::fromStdString(std::to_string(prequest.fState)));
+
+    // Yes Votes
+    ui->labelPrequestYes->setText(QString::fromStdString(std::to_string(prequest.nVotesYes)));
+
+    // No Votes
+    ui->labelPrequestNo->setText(QString::fromStdString(std::to_string(prequest.nVotesNo)));
+
+    // Payment Request Hash
+    ui->labelPrequestHash->setText(QString::fromStdString(prequest.hash.ToString()));
+
+    // Transaction Block Hash
+    ui->labelPrequestTransactionBlockHash->setText(QString::fromStdString(prequest.blockhash.ToString()));
+
+    // Transaction Hash
+    ui->labelPrequestTransactionHash->setText(QString::fromStdString(prequest.txblockhash.ToString()));
+
+    // Version Number
+    ui->labelPrequestVersionNo->setText(QString::fromStdString(std::to_string(prequest.nVersion)));
+
+    // Voting Cycle
+    ui->labelPrequestVotingCycle->setText(QString::fromStdString(std::to_string(prequest.nVotingCycle)));
+
+    // Proposal Hash
+    ui->labelPrequestProposalHash->setText(QString::fromStdString(prequest.proposalhash.ToString()));
+
+    // Payment Hash
+    ui->labelPrequestPaymentHash->setText(QString::fromStdString(prequest.paymenthash.ToString()));
+
+    // Link
+    ui->labelPrequestLink->setText(QString::fromStdString("https://www.navexplorer.com/community-fund/payment-request/" + prequest.hash.ToString()));
+
+    /*
     uint64_t deadline_d = std::floor(prequest.nDeadline/86400);
     uint64_t deadline_h = std::floor((proposal.nDeadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((proposal.nDeadline-(deadline_d*86400 + deadline_h*3600))/60);
