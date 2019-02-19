@@ -160,6 +160,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     //set hyperlink for navcommunity proposal view
+    ui->labelPrequestLink->setTextFormat(Qt::RichText);
     ui->labelPrequestLink->setText("<a href=\"" + ui->labelPrequestLink->text() + "\">" + ui->labelPrequestLink->text() + "</a>");
     ui->labelPrequestLink->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->labelPrequestLink->setOpenExternalLinks(true);
