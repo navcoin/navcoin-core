@@ -75,7 +75,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestAmount->setText(QString::fromStdString(amount));
 
     // Status
-    ui->labelPrequestStatus->setText(QString::fromStdString(std::to_string(prequest.fState)));
+    ui->labelPrequestStatus->setText(QString::fromStdString(prequest.GetState()));
 
     // Yes Votes
     ui->labelPrequestYes->setText(QString::fromStdString(std::to_string(prequest.nVotesYes)));
