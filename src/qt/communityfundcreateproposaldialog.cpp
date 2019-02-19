@@ -1,8 +1,10 @@
 #include "communityfundcreateproposaldialog.h"
 #include "ui_communityfundcreateproposaldialog.h"
+#include "sendcommunityfunddialog.h"
 
 #include <QMessageBox>
 #include <QTextListFormat>
+#include <QDialog>
 
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -127,6 +129,23 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         int nChangePosRet = -1;
         CRecipient recipient = {scriptPubKey, nReqAmount, fSubtractFeeFromAmount, ""};
         vecSend.push_back(recipient);
+
+
+        //create partial proposal object with all nessesary display fields from input and create confirmation dialog
+        {
+            CFund::CProposal *proposal = new CFund::CProposal();
+            proposal->Address = Address;
+            proposal->nAmount = nReqAmount;
+            proposal->strDZeel = sDesc;
+            proposal->nDeadline = nDeadline;
+
+            SendCommunityFundDialog dlg(this, proposal, 10);
+            if(dlg.exec() == QDialog::Rejected)
+            {
+                return false;
+            }
+        }
+
         if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel.get_str())) {
             if (!fSubtractFeeFromAmount && nReqAmount + nFeeRequired > pwalletMain->GetBalance());
         }

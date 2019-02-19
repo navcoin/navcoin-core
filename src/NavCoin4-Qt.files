@@ -336,6 +336,12 @@ qt/forms/receivecoinsdialog.ui
 qt/forms/receiverequestdialog.ui
 qt/forms/sendcoinsdialog.ui
 qt/forms/sendcoinsentry.ui
+qt/forms/sendcommunityfunddialog.cpp
+qt/forms/sendcommunityfunddialog.cpp
+qt/forms/sendcommunityfunddialog.h
+qt/forms/sendcommunityfunddialog.h
+qt/forms/sendcommunityfunddialog.ui
+qt/forms/sendcommunityfunddialog.ui
 qt/forms/signverifymessagedialog.ui
 qt/forms/transactiondescdialog.ui
 qt/forms/ui_addressbookpage.h
@@ -643,6 +649,10 @@ qt/sendcoinsdialog.cpp
 qt/sendcoinsdialog.h
 qt/sendcoinsentry.cpp
 qt/sendcoinsentry.h
+qt/sendcommunityfunddialog.cpp
+qt/sendcommunityfunddialog.cpp
+qt/sendcommunityfunddialog.h
+qt/sendcommunityfunddialog.h
 qt/signverifymessagedialog.cpp
 qt/signverifymessagedialog.h
 qt/skinize.cpp

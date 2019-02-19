@@ -22,7 +22,6 @@ private:
 
 public Q_SLOTS:
     bool on_click_pushButtonSubmitPaymentRequest();
-    void on_click_plainTextEditDescription();
 };
 
 #endif // COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H

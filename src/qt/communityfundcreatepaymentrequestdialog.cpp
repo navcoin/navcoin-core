@@ -18,7 +18,6 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
     //connect
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonSubmitPaymentRequest, SIGNAL(clicked()), SLOT(on_click_pushButtonSubmitPaymentRequest()));
-    connect(ui->plainTextEditDescription, SIGNAL(clicked()), SLOT(on_click_plainTextEditDescription()));
 }
 
 bool CommunityFundCreatePaymentRequestDialog::validate()
@@ -166,12 +165,7 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
         return false;
 }
 
-void CommunityFundCreatePaymentRequestDialog::on_click_plainTextEditDescription()
-{
-    //reset style sheet
-    ui->plainTextEditDescription->setStyleSheet(Skinize());
-    return;
-}
+
 
 CommunityFundCreatePaymentRequestDialog::~CommunityFundCreatePaymentRequestDialog()
 {
