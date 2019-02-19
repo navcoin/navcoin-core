@@ -63,7 +63,16 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPaymentRequestTitle->setText(QString::fromStdString(prequest.strDZeel));
 
     // Amount
-    ui->labelPrequestAmount->setText(QString::fromStdString(std::to_string(prequest.nAmount)));
+    stringstream a;
+    a.imbue(std::locale(""));
+    a << fixed << setprecision(8) << prequest.nAmount/100000000.0;
+    string amount = a.str();
+    amount.erase(amount.find_last_not_of("0") + 1, std::string::npos );
+    if(amount.at(amount.length()-1) == '.') {
+        amount = amount.substr(0, amount.size()-1);
+    }
+    amount.append(" NAV");
+    ui->labelPrequestAmount->setText(QString::fromStdString(amount));
 
     // Status
     ui->labelPrequestStatus->setText(QString::fromStdString(std::to_string(prequest.fState)));
