@@ -205,6 +205,12 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     fee.append(" NAV");
     ui->labelFee->setText(QString::fromStdString(fee));
     */
+
+    // If prequest is pending, hide the transaction hash
+    if (prequest.fState == CFund::NIL) {
+        ui->labelPrequestTransactionBlockHashTitle->setVisible(false);
+        ui->labelPrequestTransactionBlockHash->setVisible(false);
+    }
 }
 
 void CommunityFundDisplayPaymentRequestDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *button)
