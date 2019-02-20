@@ -305,6 +305,9 @@ qt/communityfundpage.cpp
 qt/communityfundpage.h
 qt/communityfundpage.moc
 qt/communityfundpage.ui
+qt/communityfundsuccessdialog.cpp
+qt/communityfundsuccessdialog.h
+qt/communityfundsuccessdialog.ui
 qt/csvmodelwriter.cpp
 qt/csvmodelwriter.h
 qt/editaddressdialog.cpp
