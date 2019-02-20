@@ -108,6 +108,7 @@ QT_FORMS_UI = \
 	qt/forms/sendcoinsdialog.ui \
 	qt/forms/sendcoinsentry.ui \
         qt/forms/sendcommunityfunddialog.ui \
+        qt/forms/communityfundsuccessdialog.ui \
 	qt/forms/signverifymessagedialog.ui \
 	qt/forms/transactiondescdialog.ui \
 	qt/navtechinit.ui \
@@ -167,6 +168,7 @@ QT_MOC_CPP = \
 	qt/moc_sendcoinsdialog.cpp \
 	qt/moc_sendcoinsentry.cpp \
         qt/moc_sendcommunityfunddialog.cpp \
+        qt/moc_communityfundsuccessdialog.cpp \
 	qt/moc_signverifymessagedialog.cpp \
 	qt/moc_splashscreen.cpp \
 	qt/moc_trafficgraphwidget.cpp \
@@ -261,6 +263,7 @@ NAVCOIN_QT_H = \
 	qt/sendcoinsdialog.h \
 	qt/sendcoinsentry.h \
         qt/sendcommunityfunddialog.h \
+        qt/communityfundsuccessdialog.h \
 	qt/signverifymessagedialog.h \
 	qt/skinize.h \
 	qt/splashscreen.h \
@@ -417,6 +420,7 @@ NAVCOIN_QT_CPP += \
 	qt/sendcoinsdialog.cpp \
 	qt/sendcoinsentry.cpp \
         qt/sendcommunityfunddialog.cpp \
+        qt/communityfundsuccessdialog.cpp \
 	qt/signverifymessagedialog.cpp \
 	qt/transactiondesc.cpp \
 	qt/transactiondescdialog.cpp \

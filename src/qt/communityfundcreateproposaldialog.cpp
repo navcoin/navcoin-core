@@ -142,21 +142,24 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
             SendCommunityFundDialog dlg(this, proposal, 10);
             if(dlg.exec() == QDialog::Rejected)
             {
+                // User Declined to make the proposal
                 return false;
             }
         }
 
-        if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel.get_str())) {
-            if (!fSubtractFeeFromAmount && nReqAmount + nFeeRequired > pwalletMain->GetBalance());
+        // User accepted making the proposal
+        // This boolean is a placeholder for the logic that creates the proposal and detects whether it was created successfully
+        bool created_proposal = true;
+
+        // If the proposal was successfully made, confirm to the user it was made
+        if (created_proposal) {
+            // Display success UI
+            return true;
         }
-        if (!pwalletMain->CommitTransaction(wtx, reservekey));
-
-        UniValue ret(UniValue::VOBJ);
-
-        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
-
-        return true;
+        else {
+            // Display something went wrong UI, ie does not have the 50 NAV to create the proposal
+            return false;
+        }
     }
     else
     {
