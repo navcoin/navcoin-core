@@ -45,7 +45,7 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
 
     //desc
     size_t desc_size = ui->plainTextEditDescription->toPlainText().toStdString().length();
-    if(desc_size > 1024 || desc_size == 0)
+    if(desc_size >= 1024 || desc_size == 0)
     {
         isValid = false;
         ui->plainTextEditDescription->setValid(false);

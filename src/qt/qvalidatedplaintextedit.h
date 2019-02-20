@@ -19,7 +19,6 @@ protected:
 
 private:
     bool valid;
-    const QValidator *checkValidator;
 
 public Q_SLOTS:
     void setValid(bool valid);
