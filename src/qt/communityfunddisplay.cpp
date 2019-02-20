@@ -5,15 +5,14 @@
 #include "../txdb.h"
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 #include <ctime>
 
 #include "consensus/cfund.h"
-#include <iostream>
 #include "chain.h"
 #include "guiutil.h"
 
 #include "communityfunddisplaydetailed.h"
+#include "communityfundpage.h"
 
 CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
     QWidget(parent),
@@ -39,6 +38,11 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxVote(QAbstractButton*)));
     connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
 
+    refresh();
+}
+
+void CommunityFundDisplay::refresh()
+{
     //set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
@@ -127,24 +131,25 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     // If the proposal is pending and not prematurely expired (ie can be voted on):
     if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
         // Get proposal votes list
+        CFund::CProposal prop = this->proposal;
         auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+                                [&prop](const std::pair<std::string, bool>& element){ return element.first == prop.hash.ToString();} );
         if (it != vAddedProposalVotes.end()) {
             if (it->second) {
                 // Proposal was voted yes, shade in yes button and unshade no button
-                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
-                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             }
             else {
                 // Proposal was noted no, shade in no button and unshade yes button
-                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
             }
         }
         else {
             // Proposal was not voted on, reset shades of both buttons
-            ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-            ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+            ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
 
         }
     }
@@ -161,6 +166,31 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
         title_string.append("...");
     }
     ui->title->setText(QString::fromStdString(title_string));
+
+    //hide cancel button on proposals which have not been voted on
+
+    std::string cur_hash = proposal.hash.ToString();
+    for(std::pair<std::string, bool> obj: vAddedProposalVotes)
+    {
+        //add cancel button on hash match
+        if(obj.first == cur_hash)
+        {
+            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+
+            // add colour to vote type
+            if(obj.second == true)
+            {
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            }
+            else
+            {
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
+            }
+        }
+    }
+
 }
 
 void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
@@ -170,20 +200,23 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
 
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
-        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
+        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         CFund::VoteProposal(proposal.hash.ToString(), true, duplicate);
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
         CFund::VoteProposal(proposal.hash.ToString(), false, duplicate);
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
-        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+        ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         CFund::RemoveVoteProposal(proposal.hash.ToString());
     }
     else {
@@ -191,13 +224,13 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
     }
 }
 
-
 void CommunityFundDisplay::on_click_pushButtonDetails()
 {
     CommunityFundDisplayDetailed dlg(this, proposal);
     dlg.exec();
-}
+    refresh();
 
+}
 
 CommunityFundDisplay::~CommunityFundDisplay()
 {

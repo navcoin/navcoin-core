@@ -1,5 +1,7 @@
 #include "communityfunddisplaydetailed.h"
 #include "ui_communityfunddisplaydetailed.h"
+#include "communityfundpage.h"
+
 #include "main.h"
 #include <iomanip>
 #include <sstream>
@@ -28,19 +30,22 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
         if (it != vAddedProposalVotes.end()) {
             if (it->second) {
                 // Proposal was voted yes, shade in yes button and unshade no button
-                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
-                ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+                ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             }
             else {
                 // Proposal was noted no, shade in no button and unshade yes button
-                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-                ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+                ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
             }
         }
         else {
             // Proposal was not voted on, reset shades of both buttons
-            ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-            ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+            ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+            ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
 
         }
     }
@@ -175,20 +180,23 @@ void CommunityFundDisplayDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *
 
     if (ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
-        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         CFund::VoteProposal(proposal.hash.ToString(), true, duplicate);
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
         CFund::VoteProposal(proposal.hash.ToString(), false, duplicate);
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
-        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
-        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         CFund::RemoveVoteProposal(proposal.hash.ToString());
     }
     else {
