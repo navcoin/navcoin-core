@@ -14,7 +14,6 @@
 #include "communityfunddisplaydetailed.h"
 #include "communityfundpage.h"
 
-
 CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
     QWidget(parent),
     ui(new Ui::CommunityFundDisplay),
@@ -39,6 +38,11 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxVote(QAbstractButton*)));
     connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
 
+    refresh();
+}
+
+void CommunityFundDisplay::refresh()
+{
     //set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
@@ -127,8 +131,9 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     // If the proposal is pending and not prematurely expired (ie can be voted on):
     if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
         // Get proposal votes list
+        CFund::CProposal prop = this->proposal;
         auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+                                [&prop](const std::pair<std::string, bool>& element){ return element.first == prop.hash.ToString();} );
         if (it != vAddedProposalVotes.end()) {
             if (it->second) {
                 // Proposal was voted yes, shade in yes button and unshade no button
@@ -223,6 +228,7 @@ void CommunityFundDisplay::on_click_pushButtonDetails()
 {
     CommunityFundDisplayDetailed dlg(this, proposal);
     dlg.exec();
+    refresh();
 
 }
 

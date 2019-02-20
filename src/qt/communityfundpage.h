@@ -9,6 +9,10 @@
 #include <QListView>
 #include <QPainter>
 
+#define COLOR_VOTE_YES "background-color: #90ee90;"
+#define COLOR_VOTE_NO "background-color: #f08080;"
+#define COLOR_VOTE_NEUTRAL "background-color: #f3f4f6;"
+
 class ClientModel;
 class TransactionFilterProxy;
 class TxViewDelegate;
@@ -19,13 +23,8 @@ namespace Ui {
 class CommunityFundPage;
 }
 
-#define COLOR_VOTE_YES "background-color: #35db03;"
-#define COLOR_VOTE_NO "background-color: #de1300;"
-#define COLOR_VOTE_NEUTRAL "background-color: #F3F4F6;"
-
 class CommunityFundPage : public QWidget
 {
-    //find a fix for Q_OBJECT macro, vtable error
     Q_OBJECT
 
 public:
