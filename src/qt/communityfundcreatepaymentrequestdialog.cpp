@@ -63,8 +63,8 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
 
     if(this->validate())
     {
-        //create payment
         /*
+        //create payment request
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
         CFund::CProposal proposal = pblocktree->GetProposal(uint256S(ui->lineEditProposalHash->text().toStdString()));
@@ -155,13 +155,27 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
             if (!fSubtractFeeFromAmount && nReqAmount + nFeeRequired > pwalletMain->GetBalance());
         }
         if (!pwalletMain->CommitTransaction(wtx, reservekey));
-
-        return true;
         */
         return true;
 
     }
     else
+    {
+        /*
+        QMessageBox msgBox(this);
+        std::string str = "Please enter a valid:\n";
+        if(!ui->lineEditRequestedAmount->validate())
+            str += "- Requested Amount\n";
+        if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
+            str += "- Description\n";
+
+        msgBox.setText(tr(str.c_str()));
+        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+        */
+        return false;
+    }
         return false;
 }
 
