@@ -9,6 +9,7 @@ CommunityFundSuccessDialog::CommunityFundSuccessDialog(QWidget *parent, CFund::C
     prequest(prequest)
 {
     ui->setupUi(this);
+    connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 CommunityFundSuccessDialog::CommunityFundSuccessDialog(QWidget *parent, CFund::CProposal* proposal) :
@@ -18,6 +19,7 @@ CommunityFundSuccessDialog::CommunityFundSuccessDialog(QWidget *parent, CFund::C
     prequest(0)
 {
     ui->setupUi(this);
+    connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 CommunityFundSuccessDialog::~CommunityFundSuccessDialog()
