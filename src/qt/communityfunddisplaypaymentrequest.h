@@ -15,6 +15,7 @@ class CommunityFundDisplayPaymentRequest : public QWidget
 
 public:
     CommunityFundDisplayPaymentRequest(QWidget *parent = 0, CFund::CPaymentRequest prequest = CFund::CPaymentRequest());
+    void refresh();
     ~CommunityFundDisplayPaymentRequest();
 
 private:

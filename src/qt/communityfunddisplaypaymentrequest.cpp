@@ -38,6 +38,11 @@ CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *
     connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxVote(QAbstractButton*)));
     connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
 
+    refresh();
+}
+
+void CommunityFundDisplayPaymentRequest::refresh()
+{
     //set labels from community fund
     ui->title->setText(QString::fromStdString(prequest.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(prequest.GetState()));
@@ -131,8 +136,9 @@ CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *
     // If the prequest is pending and not prematurely expired (ie can be voted on):
     if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos) {
         // Get prequest votes list
+        CFund::CPaymentRequest preq = prequest;
         auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+                                [&preq](const std::pair<std::string, bool>& element){ return element.first == preq.hash.ToString();} );
         if (it != vAddedPaymentRequestVotes.end()) {
             if (it->second) {
                 // Prequest was voted yes, shade in yes button and unshade no button
@@ -165,7 +171,6 @@ CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *
         title_string.append("...");
     }
     ui->title->setText(QString::fromStdString(title_string));
-
 }
 
 void CommunityFundDisplayPaymentRequest::on_click_buttonBoxVote(QAbstractButton *button)
@@ -194,14 +199,13 @@ void CommunityFundDisplayPaymentRequest::on_click_buttonBoxVote(QAbstractButton 
     else {
         return;
     }
-
-    //update
 }
 
 void CommunityFundDisplayPaymentRequest::on_click_pushButtonDetails()
 {
     CommunityFundDisplayPaymentRequestDetailed dlg(this, prequest);
     dlg.exec();
+    refresh();
 }
 
 CommunityFundDisplayPaymentRequest::~CommunityFundDisplayPaymentRequest()
