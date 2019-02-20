@@ -306,6 +306,8 @@ qt/communityfundpage.h
 qt/communityfundpage.moc
 qt/communityfundpage.ui
 qt/communityfundsuccessdialog.cpp
+qt/communityfundsuccessdialog.cpp
+qt/communityfundsuccessdialog.h
 qt/communityfundsuccessdialog.h
 qt/communityfundsuccessdialog.ui
 qt/csvmodelwriter.cpp
@@ -328,6 +330,7 @@ qt/forms/communityfundcreateproposaldialog.ui
 qt/forms/communityfunddisplaydetailed.cpp
 qt/forms/communityfunddisplaydetailed.h
 qt/forms/communityfunddisplaydetailed.ui
+qt/forms/communityfundsuccessdialog.ui
 qt/forms/debugwindow.ui
 qt/forms/editaddressdialog.ui
 qt/forms/helpmessagedialog.ui

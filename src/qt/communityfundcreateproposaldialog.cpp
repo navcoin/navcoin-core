@@ -1,6 +1,7 @@
 #include "communityfundcreateproposaldialog.h"
 #include "ui_communityfundcreateproposaldialog.h"
 #include "sendcommunityfunddialog.h"
+#include "communityfundsuccessdialog.h"
 
 #include <QMessageBox>
 #include <QTextListFormat>
