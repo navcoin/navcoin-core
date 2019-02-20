@@ -161,6 +161,31 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
         title_string.append("...");
     }
     ui->title->setText(QString::fromStdString(title_string));
+
+    //hide cancel button on proposals which have not been voted on
+
+    std::string cur_hash = proposal.hash.ToString();
+    for(std::pair<std::string, bool> obj: vAddedProposalVotes)
+    {
+        //add cancel button on hash match
+        if(obj.first == cur_hash)
+        {
+            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+
+            // add colour to vote type
+            if(obj.second == true)
+            {
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
+            }
+            else
+            {
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
+            }
+        }
+    }
+
 }
 
 void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
@@ -170,18 +195,21 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
 
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
         ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #35db03;");
         ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
         CFund::VoteProposal(proposal.hash.ToString(), true, duplicate);
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
         ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
         ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #de1300;");
         CFund::VoteProposal(proposal.hash.ToString(), false, duplicate);
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
         ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet("background-color: #F3F4F6;");
         ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet("background-color: #F3F4F6;");
         CFund::RemoveVoteProposal(proposal.hash.ToString());
