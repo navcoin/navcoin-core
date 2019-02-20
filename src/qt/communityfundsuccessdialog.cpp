@@ -1,8 +1,9 @@
 #include "communityfundsuccessdialog.h"
 #include "ui_communityfundsuccessdialog.h"
+#include <QDialog>
 
 CommunityFundSuccessDialog::CommunityFundSuccessDialog(QWidget *parent, CFund::CPaymentRequest* prequest) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::CommunityFundSuccessDialog),
     proposal(0),
     prequest(prequest)
@@ -11,7 +12,7 @@ CommunityFundSuccessDialog::CommunityFundSuccessDialog(QWidget *parent, CFund::C
 }
 
 CommunityFundSuccessDialog::CommunityFundSuccessDialog(QWidget *parent, CFund::CProposal* proposal) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::CommunityFundSuccessDialog),
     proposal(proposal),
     prequest(0)
