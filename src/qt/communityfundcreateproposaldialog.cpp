@@ -104,7 +104,6 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         if(wtx.strDZeel.length() > 1024)
             return false;
 
-
         EnsureWalletIsUnlocked();
 
         bool donate = true;

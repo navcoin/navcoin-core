@@ -6,8 +6,7 @@
 #include "main.cpp"
 #include "guiconstants.h"
 #include "skinize.h"
-//#include "../rpc/server.h"
-//#include "../wallet/rpcwallet.cpp"
+#include <QMessageBox>
 
 CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog(QWidget *parent) :
     QDialog(parent),
@@ -63,8 +62,9 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
 
     if(this->validate())
     {
-        /*
+
         //create payment request
+        /*
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
         CFund::CProposal proposal = pblocktree->GetProposal(uint256S(ui->lineEditProposalHash->text().toStdString()));
@@ -161,9 +161,18 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
     }
     else
     {
-        /*
+
         QMessageBox msgBox(this);
         std::string str = "Please enter a valid:\n";
+        std::vector<CFund::CProposal> vec;
+        if(pblocktree->GetProposalIndex(vec))
+        {
+            uint256 input_hash = uint256S(ui->lineEditProposalHash->text().toStdString());\
+            if(std::find_if(vec.begin(), vec.end(), [&input_hash](CFund::CProposal& obj) {return obj.hash == input_hash;}) == vec.end())
+            {
+                str += "- Proposal Hash\n";
+            }
+        }
         if(!ui->lineEditRequestedAmount->validate())
             str += "- Requested Amount\n";
         if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
@@ -173,13 +182,11 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
-        */
+
         return false;
     }
         return false;
 }
-
-
 
 CommunityFundCreatePaymentRequestDialog::~CommunityFundCreatePaymentRequestDialog()
 {
