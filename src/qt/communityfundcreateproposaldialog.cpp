@@ -15,6 +15,7 @@
 #include "main.h"
 #include "wallet/rpcwallet.h"
 #include "wallet/rpcwallet.cpp"
+#include "wallet/wallet.h"
 #include <string>
 
 CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *parent) :
@@ -124,10 +125,7 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         }
 
         EnsureWalletIsUnlocked();
-
-        bool donate = true;
         CAmount curBalance = pwalletMain->GetBalance();
-
 
         if (curBalance < 50) {
             QMessageBox msgBox(this);
@@ -142,19 +140,6 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
 
         // Parse NavCoin address (currently crashes wallet)
         CScript scriptPubKey = GetScriptForDestination(address.Get());
-
-        if(donate)
-          CFund::SetScriptForCommunityFundContribution(scriptPubKey);
-
-        // Create and send the transaction
-        CReserveKey reservekey(pwalletMain);
-        CAmount nFeeRequired;
-        std::string strError;
-        vector<CRecipient> vecSend;
-        int nChangePosRet = -1;
-        CRecipient recipient = {scriptPubKey, nReqAmount, fSubtractFeeFromAmount, ""};
-        vecSend.push_back(recipient);
-
 
         //create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
@@ -172,8 +157,26 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
             }
             else {
                 // User accepted making the proposal
-                // This boolean is a placeholder for the logic that creates the proposal and detects whether it was created successfully
+                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+
+                // Create and send the transaction
+                CReserveKey reservekey(pwalletMain);
+                CAmount nValue = 50;
+                CAmount nFeeRequired;
+                std::string strError;
+                vector<CRecipient> vecSend;
+                int nChangePosRet = -1;
+                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+                vecSend.push_back(recipient);
+
                 bool created_proposal = true;
+
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+                    if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
+                        created_proposal = false;
+                }
+                if (!pwalletMain->CommitTransaction(wtx, reservekey))
+                    created_proposal = false;
 
                 // If the proposal was successfully made, confirm to the user it was made
                 if (created_proposal) {
@@ -183,7 +186,14 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
                     return true;
                 }
                 else {
-                    // Display something went wrong UI, ie does not have the 50 NAV to create the proposal
+                    // Display something went wrong UI
+                    QMessageBox msgBox(this);
+                    std::string str = "Proposal creation failed\n";
+                    msgBox.setText(tr(str.c_str()));
+                    msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+                    msgBox.setIcon(QMessageBox::Warning);
+                    msgBox.setWindowTitle("Error");
+                    msgBox.exec();
                     return false;
                 }
             }
