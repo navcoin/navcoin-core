@@ -1,6 +1,6 @@
 #include "communityfundcreatepaymentrequestdialog.h"
 #include "ui_communityfundcreatepaymentrequestdialog.h"
-#include "uint256.h"
+
 #include "consensus/cfund.h"
 #include "main.h"
 #include "main.cpp"
@@ -23,18 +23,12 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
 {
     bool isValid = true;
 
-    //uint256 proposal hash;
-    std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
+    //proposal hash;
+    if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
     {
-        uint256 input_hash = uint256S(ui->lineEditProposalHash->text().toStdString());\
-        if(std::find_if(vec.begin(), vec.end(), [&input_hash](CFund::CProposal& obj) {return obj.hash == input_hash;}) == vec.end())
-        {
-            isValid = false;
-            ui->lineEditProposalHash->setValid(false);
-        }
+        isValid = false;
+        ui->lineEditProposalHash->setValid(false);
     }
-
     //amount
     if(!ui->lineEditRequestedAmount->validate())
     {
@@ -164,15 +158,8 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
 
         QMessageBox msgBox(this);
         std::string str = "Please enter a valid:\n";
-        std::vector<CFund::CProposal> vec;
-        if(pblocktree->GetProposalIndex(vec))
-        {
-            uint256 input_hash = uint256S(ui->lineEditProposalHash->text().toStdString());\
-            if(std::find_if(vec.begin(), vec.end(), [&input_hash](CFund::CProposal& obj) {return obj.hash == input_hash;}) == vec.end())
-            {
-                str += "- Proposal Hash\n";
-            }
-        }
+        if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
+            str += "- Proposal Hash\n";
         if(!ui->lineEditRequestedAmount->validate())
             str += "- Requested Amount\n";
         if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
@@ -186,6 +173,19 @@ bool CommunityFundCreatePaymentRequestDialog::on_click_pushButtonSubmitPaymentRe
         return false;
     }
         return false;
+}
+bool CommunityFundCreatePaymentRequestDialog::isActiveProposal(uint256 hash)
+{
+    std::vector<CFund::CProposal> vec;
+    if(pblocktree->GetProposalIndex(vec))
+    {
+        if(std::find_if(vec.begin(), vec.end(), [&hash](CFund::CProposal& obj) {return obj.hash == hash;}) == vec.end())
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 CommunityFundCreatePaymentRequestDialog::~CommunityFundCreatePaymentRequestDialog()
