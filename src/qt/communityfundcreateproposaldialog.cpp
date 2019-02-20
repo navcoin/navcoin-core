@@ -47,18 +47,19 @@ bool CommunityFundCreateProposalDialog::validate()
         ui->lineEditRequestedAmount->setValid(false);
         isValid = false;
     }
-    if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() == 0)
+    size_t desc_size = ui->plainTextEditDescription->toPlainText().toStdString().length();
+    if(desc_size >= 1024 || desc_size == 0)
     {
-        ui->plainTextEditDescription->setStyleSheet(STYLE_INVALID);
         isValid = false;
+        ui->plainTextEditDescription->setValid(false);
+    }
+    else
+    {
+        ui->plainTextEditDescription->setValid(true);
     }
     if(ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60 <= 0)
     {
         isValid = false;
-    }
-    else
-    {
-        ui->plainTextEditDescription->setStyleSheet(styleSheet());
     }
 
     return isValid;
