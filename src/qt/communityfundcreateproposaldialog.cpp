@@ -162,21 +162,24 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
                 // User Declined to make the proposal
                 return false;
             }
-        }
+            else {
+                // User accepted making the proposal
+                // This boolean is a placeholder for the logic that creates the proposal and detects whether it was created successfully
+                bool created_proposal = true;
 
-        // User accepted making the proposal
-        // This boolean is a placeholder for the logic that creates the proposal and detects whether it was created successfully
-        bool created_proposal = true;
-
-        // If the proposal was successfully made, confirm to the user it was made
-        if (created_proposal) {
-            // Display success UI
-            return true;
-        }
-        else {
-            // Display something went wrong UI, ie does not have the 50 NAV to create the proposal
-            return false;
-        }
+                // If the proposal was successfully made, confirm to the user it was made
+                if (created_proposal) {
+                    // Display success UI
+                    CommunityFundSuccessDialog dlg(this, proposal);
+                    dlg.exec();
+                    return true;
+                }
+                else {
+                    // Display something went wrong UI, ie does not have the 50 NAV to create the proposal
+                    return false;
+                }
+            }
+        }      
     }
     else
     {

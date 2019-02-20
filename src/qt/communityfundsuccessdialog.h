@@ -10,7 +10,7 @@ namespace Ui {
 class CommunityFundSuccessDialog;
 }
 
-class CommunityFundSuccessDialog : public QWidget
+class CommunityFundSuccessDialog : public QDialog
 {
     Q_OBJECT
 
