@@ -58,6 +58,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
     ui->labelAddress->setVisible(false);
     ui->labelDurationTitle->setVisible(false);
     ui->labelDuration->setVisible(false);
+    ui->labelWarning->setVisible(false);
 
     ui->labelProposalHash->setText(QString(proposal->hash.ToString().c_str()));
     ui->labelDescription->setText(QString(proposal->strDZeel.c_str()));
