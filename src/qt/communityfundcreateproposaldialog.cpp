@@ -25,11 +25,27 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     GUIUtil::setupAddressWidget(ui->lineEditNavcoinAddress, this);
 
     ui->spinBoxDays->setRange(0, 999999999);
-    ui->spinBoxHours->setRange(0, 59);
-    ui->spinBoxMinutes->setRange(0, 59);
+    ui->spinBoxHours->setRange(0, 24);
+    ui->spinBoxMinutes->setRange(0, 60);
 
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this, SLOT(on_click_pushButtonCreateProposal()));
+    connect(ui->spinBoxMinutes, QOverload<int>::of(&QSpinBox::valueChanged),
+            [=](int minutes){
+                if(minutes == 60)
+                {
+                    ui->spinBoxMinutes->setValue(0);
+                    ui->spinBoxHours->setValue(ui->spinBoxHours->value()+1);
+                }
+    });
+    connect(ui->spinBoxHours, QOverload<int>::of(&QSpinBox::valueChanged),
+            [=](int hours){
+                if(hours == 24)
+                {
+                    ui->spinBoxHours->setValue(0);
+                    ui->spinBoxDays->setValue(ui->spinBoxDays->value()+1);
+                }
+    });
 }
 
 // Validate input fields

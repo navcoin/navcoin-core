@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "../qvalidatedplaintextedit.h"
+#include "uint256.h"
 
 namespace Ui {
 class CommunityFundCreatePaymentRequestDialog;
@@ -19,6 +20,7 @@ public:
 private:
     Ui::CommunityFundCreatePaymentRequestDialog *ui;
     bool validate();
+    bool isActiveProposal(uint256 hash);
 
 public Q_SLOTS:
     bool on_click_pushButtonSubmitPaymentRequest();
