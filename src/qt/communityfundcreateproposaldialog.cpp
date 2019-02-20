@@ -112,8 +112,16 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
 
-        if(wtx.strDZeel.length() > 1024)
+        if(wtx.strDZeel.length() > 1024) {
+            QMessageBox msgBox(this);
+            std::string str = "Please shorten your description\n";
+            msgBox.setText(tr(str.c_str()));
+            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setWindowTitle("Description too long");
+            msgBox.exec();
             return false;
+        }
 
         EnsureWalletIsUnlocked();
 
@@ -127,6 +135,7 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setWindowTitle("Insufficient NAV");
             msgBox.exec();
             return false;
         }
@@ -196,6 +205,7 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         msgBox.setText(tr(str.c_str()));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowTitle("Please enter valid fields");
         msgBox.exec();
         return false;
     }
