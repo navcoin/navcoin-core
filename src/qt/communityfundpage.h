@@ -19,6 +19,10 @@ namespace Ui {
 class CommunityFundPage;
 }
 
+#define COLOR_VOTE_YES "background-color: #35db03;"
+#define COLOR_VOTE_NO "background-color: #de1300;"
+#define COLOR_VOTE_NEUTRAL "background-color: #F3F4F6;"
+
 class CommunityFundPage : public QWidget
 {
     //find a fix for Q_OBJECT macro, vtable error
