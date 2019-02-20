@@ -95,15 +95,9 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
 
         std::string Address = ui->lineEditNavcoinAddress->text().toStdString().c_str();
 
-        CNavCoinAddress destaddress(Address);
-        if (!destaddress.IsValid())
-            return false;
-
         CAmount nReqAmount = ui->lineEditRequestedAmount->value();
-        int64_t nDeadline = ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60;
 
-        if(nDeadline <= 0)
-            return false;
+        int64_t nDeadline = ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60;
 
         string sDesc = ui->plainTextEditDescription->toPlainText().toStdString();
 
@@ -126,11 +120,16 @@ bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
         bool donate = true;
         CAmount curBalance = pwalletMain->GetBalance();
 
-        if (nReqAmount <= 0)
-            return false;
 
-        if (nReqAmount > curBalance)
+        if (curBalance < 50) {
+            QMessageBox msgBox(this);
+            std::string str = "You require at least 50 NAV mature and available to create a proposal\n";
+            msgBox.setText(tr(str.c_str()));
+            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.exec();
             return false;
+        }
 
         // Parse NavCoin address (currently crashes wallet)
         CScript scriptPubKey = GetScriptForDestination(address.Get());
