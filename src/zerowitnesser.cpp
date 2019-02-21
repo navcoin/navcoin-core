@@ -20,6 +20,8 @@ void NavCoinWitnesser(const CChainParams& chainparams)
     try {
         while (true)
         {
+            boost::this_thread::interruption_point();
+
             while (!pwalletMain)
             {
                 MilliSleep(1000);
