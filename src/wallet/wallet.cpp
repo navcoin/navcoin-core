@@ -386,6 +386,7 @@ void CWallet::AvailableZeroCoinsForStaking(vector<COutput>& vCoins, unsigned int
 
                 CPubKey p(vSolutions[0]); CBigNum c(vSolutions[1]);
                 CKey zk; libzerocoin::BlindingCommitment bc;
+                libzerocoin::ObfuscationValue oj;
 
                 if(!GetZeroKey(zk))
                     break;
@@ -393,12 +394,15 @@ void CWallet::AvailableZeroCoinsForStaking(vector<COutput>& vCoins, unsigned int
                 if(!GetBlindingCommitment(bc))
                     break;
 
+                if(!GetObfuscationJ(oj))
+                    break;
+
                 libzerocoin::PrivateCoin privateCoin = libzerocoin::PrivateCoin(&Params().GetConsensus().Zerocoin_Params, pubCoin.getDenomination(), zk, p, bc, c, pubCoin.getPaymentId(), false);
 
                 uint256 txHash;
                 int nHeight;
 
-		if(pblocktree->ReadCoinSpend(privateCoin.getPublicSerialNumber(oj), txHash) && IsTransactionInChain(txHash, pcoinsTip, nHeight))
+                if(pblocktree->ReadCoinSpend(privateCoin.getPublicSerialNumber(oj), txHash) && IsTransactionInChain(txHash, pcoinsTip, nHeight))
                     continue;
 
                 if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue && pcoin->vout[i].IsZerocoinMint()){
