@@ -637,6 +637,8 @@ qt/platformstyle.cpp
 qt/platformstyle.h
 qt/qrc_navcoin.cpp
 qt/qrc_navcoin_locale.cpp
+qt/qspinboxtriad.cpp
+qt/qspinboxtriad.h
 qt/qvalidatedlineedit.cpp
 qt/qvalidatedlineedit.h
 qt/qvalidatedplaintextedit.cpp
