@@ -398,7 +398,7 @@ void CWallet::AvailableZeroCoinsForStaking(vector<COutput>& vCoins, unsigned int
                 uint256 txHash;
                 int nHeight;
 
-                if(pblocktree->ReadCoinSpend(privateCoin.getPublicSerialNumber(bc), txHash))
+		if(pblocktree->ReadCoinSpend(privateCoin.getPublicSerialNumber(oj), txHash) && IsTransactionInChain(txHash, pcoinsTip, nHeight))
                     continue;
 
                 if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue && pcoin->vout[i].IsZerocoinMint()){
