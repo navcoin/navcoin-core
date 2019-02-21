@@ -36,7 +36,7 @@ std::string CTxIn::ToString() const
     if(!scriptSig.IsZerocoinSpend())
         str += prevout.ToString();
     if(scriptSig.IsZerocoinSpend()) {
-        str += strprintf(", zerocoinspend");
+        str += strprintf("zerocoinspend");
     } else if (prevout.IsNull())
         str += strprintf(", coinbase %s", HexStr(scriptSig));
     else
