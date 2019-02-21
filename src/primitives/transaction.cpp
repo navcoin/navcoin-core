@@ -35,11 +35,11 @@ std::string CTxIn::ToString() const
     str += "CTxIn(";
     if(!scriptSig.IsZerocoinSpend())
         str += prevout.ToString();
-    if (prevout.IsNull())
-        str += strprintf(", coinbase %s", HexStr(scriptSig));
-    else if(scriptSig.IsZerocoinSpend()) {
+    if(scriptSig.IsZerocoinSpend()) {
         str += strprintf(", zerocoinspend");
-    } else
+    } else if (prevout.IsNull())
+        str += strprintf(", coinbase %s", HexStr(scriptSig));
+    else
         str += strprintf(", scriptSig=%s", HexStr(scriptSig).substr(0, 24));
     if (nSequence != SEQUENCE_FINAL)
         str += strprintf(", nSequence=%u", nSequence);
