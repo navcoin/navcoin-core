@@ -35,8 +35,8 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     ui->pushButtonDetails->setFont(f_label);
     ui->buttonBoxVote->setFont(f_label);
 
-    connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxVote(QAbstractButton*)));
-    connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
+    connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxVote(QAbstractButton*)));
+    connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(click_pushButtonDetails()));
 
     refresh();
 }
@@ -193,7 +193,7 @@ void CommunityFundDisplay::refresh()
 
 }
 
-void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
+void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
 {
     //cast the vote
     bool duplicate = false;
@@ -224,7 +224,7 @@ void CommunityFundDisplay::on_click_buttonBoxVote(QAbstractButton *button)
     }
 }
 
-void CommunityFundDisplay::on_click_pushButtonDetails()
+void CommunityFundDisplay::click_pushButtonDetails()
 {
     CommunityFundDisplayDetailed dlg(this, proposal);
     dlg.exec();

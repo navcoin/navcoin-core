@@ -13,7 +13,7 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     ui->setupUi(this);
 
     //connect ui elements to functions
-    connect(ui->buttonBoxYesNoVote_2, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxYesNoVote(QAbstractButton*)));
+    connect(ui->buttonBoxYesNoVote_2, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose_2, SIGNAL(clicked()), this, SLOT(reject()));
 
     //update labels
@@ -179,7 +179,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 }
 
-void CommunityFundDisplayPaymentRequestDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *button)
+void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
 {
     //cast the vote
     bool duplicate = false;

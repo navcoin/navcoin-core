@@ -30,7 +30,7 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     ui->spinBoxMinutes->setRange(0, 60);
 
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this, SLOT(on_click_pushButtonCreateProposal()));
+    connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this, SLOT(click_pushButtonCreateProposal()));
     connect(ui->spinBoxMinutes, QOverload<int>::of(&QSpinBox::valueChanged),
             [=](int minutes){
                 if(minutes == 60)
@@ -84,7 +84,7 @@ bool CommunityFundCreateProposalDialog::validate()
 }
 
 // Q_SLOTS
-bool CommunityFundCreateProposalDialog::on_click_pushButtonCreateProposal()
+bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 {
     if(this->validate())
     {

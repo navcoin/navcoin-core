@@ -43,16 +43,16 @@ private:
     bool viewing_voted;
 
 private Q_SLOTS:
-    void on_click_pushButtonProposals();
-    void on_click_pushButtonPaymentRequests();
-    void on_click_radioButtonAll();
-    void on_click_radioButtonYourVote();
-    void on_click_radioButtonPending();
-    void on_click_radioButtonAccepted();
-    void on_click_radioButtonRejected();
-    void on_click_radioButtonExpired();
-    void on_click_pushButtonCreateProposal();
-    void on_click_pushButtonCreatePaymentRequest();
+    void click_pushButtonProposals();
+    void click_pushButtonPaymentRequests();
+    void click_radioButtonAll();
+    void click_radioButtonYourVote();
+    void click_radioButtonPending();
+    void click_radioButtonAccepted();
+    void click_radioButtonRejected();
+    void click_radioButtonExpired();
+    void click_pushButtonCreateProposal();
+    void click_pushButtonCreatePaymentRequest();
 
 };
 

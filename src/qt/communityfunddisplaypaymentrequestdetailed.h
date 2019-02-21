@@ -24,7 +24,7 @@ private:
     void setPrequestLabels() const;
 
 public Q_SLOTS:
-    void on_click_buttonBoxYesNoVote(QAbstractButton *button);
+    void click_buttonBoxYesNoVote(QAbstractButton *button);
 };
 
 #endif // COMMUNITYFUNDDISPLAYPAYMENTREQUESTDETAILED_H

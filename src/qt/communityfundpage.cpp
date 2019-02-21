@@ -27,21 +27,21 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     // Hide horizontal scrollArea scroll bar
     ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    connect(ui->pushButtonProposals, SIGNAL(clicked()), this, SLOT(on_click_pushButtonProposals()));
-    connect(ui->pushButtonPaymentRequests, SIGNAL(clicked()), this, SLOT(on_click_pushButtonPaymentRequests()));
+    connect(ui->pushButtonProposals, SIGNAL(clicked()), this, SLOT(click_pushButtonProposals()));
+    connect(ui->pushButtonPaymentRequests, SIGNAL(clicked()), this, SLOT(click_pushButtonPaymentRequests()));
 
     // Enable selection of pushButtonProposals by default
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
-    connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAll()));
-    connect(ui->radioButtonYourVote, SIGNAL(clicked()), this, SLOT(on_click_radioButtonYourVote()));
-    connect(ui->radioButtonPending, SIGNAL(clicked()), this, SLOT(on_click_radioButtonPending()));
-    connect(ui->radioButtonAccepted, SIGNAL(clicked()), this, SLOT(on_click_radioButtonAccepted()));
-    connect(ui->radioButtonRejected, SIGNAL(clicked()), this, SLOT(on_click_radioButtonRejected()));
-    connect(ui->radioButtonExpired, SIGNAL(clicked()), this, SLOT(on_click_radioButtonExpired()));
-    connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this , SLOT(on_click_pushButtonCreateProposal()));
-    connect(ui->pushButtonCreatePaymentRequest, SIGNAL(clicked()), this, SLOT(on_click_pushButtonCreatePaymentRequest()));
+    connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(click_radioButtonAll()));
+    connect(ui->radioButtonYourVote, SIGNAL(clicked()), this, SLOT(click_radioButtonYourVote()));
+    connect(ui->radioButtonPending, SIGNAL(clicked()), this, SLOT(click_radioButtonPending()));
+    connect(ui->radioButtonAccepted, SIGNAL(clicked()), this, SLOT(click_radioButtonAccepted()));
+    connect(ui->radioButtonRejected, SIGNAL(clicked()), this, SLOT(click_radioButtonRejected()));
+    connect(ui->radioButtonExpired, SIGNAL(clicked()), this, SLOT(click_radioButtonExpired()));
+    connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this , SLOT(click_pushButtonCreateProposal()));
+    connect(ui->pushButtonCreatePaymentRequest, SIGNAL(clicked()), this, SLOT(click_pushButtonCreatePaymentRequest()));
 
     //fetch cfund info
     Refresh(true, true);
@@ -280,7 +280,7 @@ void CommunityFundPage::Refresh(bool all, bool proposal)
     }
 }
 
-void CommunityFundPage::on_click_pushButtonProposals()
+void CommunityFundPage::click_pushButtonProposals()
 {
     QFont font = ui->pushButtonProposals->property("font").value<QFont>();
 
@@ -301,7 +301,7 @@ void CommunityFundPage::on_click_pushButtonProposals()
     }
 }
 
-void CommunityFundPage::on_click_pushButtonPaymentRequests()
+void CommunityFundPage::click_pushButtonPaymentRequests()
 {
     QFont font = ui->pushButtonPaymentRequests->property("font").value<QFont>();
 
@@ -322,55 +322,55 @@ void CommunityFundPage::on_click_pushButtonPaymentRequests()
     }
 }
 
-void CommunityFundPage::on_click_radioButtonAll()
+void CommunityFundPage::click_radioButtonAll()
 {
     flag = CFund::NIL;
     viewing_voted = false;
     Refresh(true, viewing_proposals);
 }
 
-void CommunityFundPage::on_click_radioButtonYourVote()
+void CommunityFundPage::click_radioButtonYourVote()
 {
     flag = CFund::NIL;
     viewing_voted = true;
     Refresh(false, viewing_proposals);
 }
 
-void CommunityFundPage::on_click_radioButtonPending()
+void CommunityFundPage::click_radioButtonPending()
 {
     flag = CFund::NIL;
     viewing_voted = false;
     Refresh(false, viewing_proposals);
 }
 
-void CommunityFundPage::on_click_radioButtonAccepted()
+void CommunityFundPage::click_radioButtonAccepted()
 {
     flag = CFund::ACCEPTED;
     viewing_voted = false;
     Refresh(false, viewing_proposals);
 }
 
-void CommunityFundPage::on_click_radioButtonRejected()
+void CommunityFundPage::click_radioButtonRejected()
 {
     flag = CFund::REJECTED;
     viewing_voted = false;
     Refresh(false, viewing_proposals);
 }
 
-void CommunityFundPage::on_click_radioButtonExpired()
+void CommunityFundPage::click_radioButtonExpired()
 {
     flag = CFund::EXPIRED;
     viewing_voted = false;
     Refresh(false, viewing_proposals);
 }
 
-void CommunityFundPage::on_click_pushButtonCreateProposal()
+void CommunityFundPage::click_pushButtonCreateProposal()
 {
         CommunityFundCreateProposalDialog dlg(this);
         dlg.exec();
 }
 
-void CommunityFundPage::on_click_pushButtonCreatePaymentRequest()
+void CommunityFundPage::click_pushButtonCreatePaymentRequest()
 {
     CommunityFundCreatePaymentRequestDialog dlg(this);
     dlg.exec();

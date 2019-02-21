@@ -14,7 +14,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     ui->setupUi(this);
 
     //connect ui elements to functions
-    connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxYesNoVote(QAbstractButton*)));
+    connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->labelLinkToProposal, SIGNAL(linkActivated()), this, SLOT(go_to_explorer()));
 
@@ -173,7 +173,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     }
 }
 
-void CommunityFundDisplayDetailed::on_click_buttonBoxYesNoVote(QAbstractButton *button)
+void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
 {
     //cast the vote
     bool duplicate = false;

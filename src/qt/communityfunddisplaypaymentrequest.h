@@ -23,8 +23,8 @@ private:
     CFund::CPaymentRequest prequest;
 
 public Q_SLOTS:
-    void on_click_buttonBoxVote(QAbstractButton *button);
-    void on_click_pushButtonDetails();
+    void click_buttonBoxVote(QAbstractButton *button);
+    void click_pushButtonDetails();
 };
 
 #endif // COMMUNITYFUNDDISPLAYPAYMENTREQUEST_H

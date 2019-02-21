@@ -35,8 +35,8 @@ CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *
     ui->pushButtonDetails->setFont(f_label);
     ui->buttonBoxVote->setFont(f_label);
 
-    connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(on_click_buttonBoxVote(QAbstractButton*)));
-    connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(on_click_pushButtonDetails()));
+    connect(ui->buttonBoxVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxVote(QAbstractButton*)));
+    connect(ui->pushButtonDetails, SIGNAL(clicked()), this, SLOT(click_pushButtonDetails()));
 
     refresh();
 }
@@ -173,7 +173,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     ui->title->setText(QString::fromStdString(title_string));
 }
 
-void CommunityFundDisplayPaymentRequest::on_click_buttonBoxVote(QAbstractButton *button)
+void CommunityFundDisplayPaymentRequest::click_buttonBoxVote(QAbstractButton *button)
 {
     //cast the vote
     bool duplicate = false;
@@ -201,7 +201,7 @@ void CommunityFundDisplayPaymentRequest::on_click_buttonBoxVote(QAbstractButton 
     }
 }
 
-void CommunityFundDisplayPaymentRequest::on_click_pushButtonDetails()
+void CommunityFundDisplayPaymentRequest::click_pushButtonDetails()
 {
     CommunityFundDisplayPaymentRequestDetailed dlg(this, prequest);
     dlg.exec();
