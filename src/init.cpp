@@ -1231,10 +1231,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     LogPrintf("Using %u threads for script and zerocoin verification\n", nScriptCheckThreads);
     if (nScriptCheckThreads) {
-        for (int i=0; i<nScriptCheckThreads-1; i++)
+        for (int i=0; i<nScriptCheckThreads-1; i++) {
             threadGroup.create_thread(&ThreadScriptCheck);
             threadGroup.create_thread(&ThreadCoinSpendCheck);
             threadGroup.create_thread(&ThreadPublicCoinCheck);
+        }
     }
 
     // Start the lightweight task scheduler thread
