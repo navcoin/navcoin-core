@@ -498,7 +498,7 @@ bool CWallet::SelectZeroCoinsForStaking(int64_t nTargetValue, unsigned int nSpen
     return true;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, int64_t nPrivateFees, CMutableTransaction& txNew, CKey& key, CBigNum& serialNumberPrivKey)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, int64_t nPrivateFees, CMutableTransaction& txNew, CKey& key, CBigNum& serialNumberPrivKey, std::string sCoinStakeStrDZeel)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
     uint256 bnTargetPerCoinDay;
@@ -511,6 +511,11 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     CScript scriptEmpty;
     scriptEmpty.clear();
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
+
+    txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+    txNew.strDZeel = sCoinStakeStrDZeel == "" ?
+                GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION) :
+                sCoinStakeStrDZeel;
 
     // Choose coins to use
     int64_t nBalance = GetBalance() + GetColdStakingBalance();

@@ -802,7 +802,7 @@ public:
     void ListLockedCoins(std::vector<COutPoint>& vOutpts);
     uint64_t GetZeroStakeWeight() const;
     uint64_t GetStakeWeight() const;
-    bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, int64_t nPrivateFees, CMutableTransaction& txNew, CKey& key, CBigNum& serialNumberPrivKey);
+    bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, int64_t nPrivateFees, CMutableTransaction& txNew, CKey& key, CBigNum& serialNumberPrivKey, std::string sCoinStakeStrDZeel);
     int64_t GetStake() const;
     int64_t GetNewMint() const;
 

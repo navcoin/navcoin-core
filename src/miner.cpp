@@ -896,8 +896,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
   if (nSearchTime > nLastCoinStakeSearchTime)
   {
       int64_t nSearchInterval = nBestHeight+1 > 0 ? 1 : nSearchTime - nLastCoinStakeSearchTime;
-      CBigNum zerokey;
-      if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, chainActive.Tip()->nAccumulatedPublicFee+nFees, chainActive.Tip()->nAccumulatedPrivateFee+nPrivateFees, txCoinStake, key, zerokey))
+      CBigNum zerokey = 0;
+      if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, chainActive.Tip()->nAccumulatedPublicFee+nFees, chainActive.Tip()->nAccumulatedPrivateFee+nPrivateFees, txCoinStake, key, zerokey, sCoinStakeStrDZeel))
       {
 
           if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
@@ -910,11 +910,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
               //    our transactions set
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
-
-              txCoinStake.nVersion = CTransaction::TXDZEEL_VERSION_V2;
-              txCoinStake.strDZeel = sCoinStakeStrDZeel == "" ?
-                          GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION) :
-                          sCoinStakeStrDZeel;
 
               for(unsigned int i = 0; i < vCoinStakeOutputs.size(); i++)
               {
@@ -935,28 +930,26 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
               }
 
               // After the changes, we need to resign inputs.
-              bool fZeroStake = false;
+              if (vCoinStakeOutputs.size() > 0 || vCoinStakeInputs.size() > 0) {
+                  CTransaction txNewConst(txCoinStake);
+                  for(unsigned int i = 0; i < txCoinStake.vin.size(); i++)
+                  {
+                      if (txCoinStake.vin[i].scriptSig.IsZerocoinSpend())
+                          continue;
+                      bool signSuccess;
+                      uint256 prevHash = txCoinStake.vin[i].prevout.hash;
+                      uint32_t n = txCoinStake.vin[i].prevout.n;
+                      assert(pwalletMain->mapWallet.count(prevHash));
+                      CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
+                      const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
+                      SignatureData sigdata;
+                      signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata, true);
 
-              CTransaction txNewConst(txCoinStake);
-              for(unsigned int i = 0; i < txCoinStake.vin.size(); i++)
-              {
-                  if (txCoinStake.vin[i].scriptSig.IsZerocoinSpend())
-                      fZeroStake = true;
-                  if (fZeroStake)
-                      continue;
-                  bool signSuccess;
-                  uint256 prevHash = txCoinStake.vin[i].prevout.hash;
-                  uint32_t n = txCoinStake.vin[i].prevout.n;
-                  assert(pwalletMain->mapWallet.count(prevHash));
-                  CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
-                  const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
-                  SignatureData sigdata;
-                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata, true);
-
-                  if (!signSuccess) {
-                      return false;
-                  } else {
-                      UpdateTransaction(txCoinStake, i, sigdata);
+                      if (!signSuccess) {
+                          return false;
+                      } else {
+                          UpdateTransaction(txCoinStake, i, sigdata);
+                      }
                   }
               }
 
@@ -985,7 +978,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
 
               pblock->vtx[0].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-              if (fZeroStake) {
+              
+              if (zerokey != CBigNum(0)) {
                   libzerocoin::SerialNumberProofOfKnowledge serialNumberPoK = SerialNumberProofOfKnowledge(&Params().GetConsensus().Zerocoin_Params.coinCommitmentGroup, zerokey, pblock->GetHash());
                   CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                   ss << serialNumberPoK;
