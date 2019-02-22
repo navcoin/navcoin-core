@@ -537,7 +537,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         return false;
 
     // Select zerocoins with suitable depth
-    if (!SelectZeroCoinsForStaking(nBalance - nReserveBalance, txNew.nTime, setZeroCoins, nZeroValueIn))
+    if (!SelectZeroCoinsForStaking(nPrivateBalance - nReserveBalance, txNew.nTime, setZeroCoins, nZeroValueIn))
         return false;
 
     if (setCoins.empty() && setZeroCoins.empty())
