@@ -22,7 +22,7 @@ static std::map<uint256, bool> mapCacheValidCoinSpends;
 
 extern CCriticalSection cs_dummy;
 
-bool CheckZerocoinMint(const ZerocoinParams *params, const CTransaction& tx, const int& nout, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, PublicMintChainData>> vSeen = std::vector<std::pair<CBigNum, PublicMintChainData>>(), PublicCoin* pPubCoin = NULL, bool fCheck = true, bool fFast = false);
+bool CheckZerocoinMint(const ZerocoinParams *params, const CTransaction& tx, const unsigned int& nout, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, PublicMintChainData>> vSeen = std::vector<std::pair<CBigNum, PublicMintChainData>>(), PublicCoin* pPubCoin = NULL, bool fCheck = true, bool fFast = false);
 bool BlockToZerocoinMints(const ZerocoinParams *params, const CBlock* block, std::vector<PublicCoin> &vPubCoins);
 bool CountMintsFromHeight(unsigned int nInitialHeight, CoinDenomination denom, unsigned int& nRet);
 bool CalculateWitnessForMint(const CTxOut& txout, const PublicCoin& pubCoin, Accumulator& accumulator, AccumulatorWitness& AccumulatorWitness, uint256& AccumulatorChecksum, std::string& strError, int nRequiredMints, int nMaxHeight);
