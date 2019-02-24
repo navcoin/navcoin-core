@@ -37,10 +37,12 @@ bool BlockToZerocoinMints(const ZerocoinParams *params, const CBlock* block, std
     return true;
 }
 
-bool CheckZerocoinMint(const ZerocoinParams *params, const CTxOut& txout, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, PublicMintChainData>> vSeen, PublicCoin* pPubCoin, bool fCheck, bool fFast)
+bool CheckZerocoinMint(const ZerocoinParams *params, const CTransaction& tx, const int& nOut, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, PublicMintChainData>> vSeen, PublicCoin* pPubCoin, bool fCheck, bool fFast)
 {
+    assert(nOut < tx.vout.size);
+
     PublicCoin pubCoin(params);
-    if(!TxOutToPublicCoin(params, txout, pubCoin, &state, false))
+    if(!TxOutToPublicCoin(params, tx.vout[nOut], pubCoin, &state, false))
         return state.DoS(100, error("CheckZerocoinMint(): TxOutToPublicCoin() failed"));
 
     if (pPubCoin)
@@ -59,7 +61,7 @@ bool CheckZerocoinMint(const ZerocoinParams *params, const CTxOut& txout, const 
     PublicMintChainData zeroMint;
     int nHeight;
 
-    if (pblocktree->ReadCoinMint(pubCoin.getValue(), zeroMint) && zeroMint.GetTxHash() != 0 && IsTransactionInChain(zeroMint.GetTxHash(), view, nHeight))
+    if (pblocktree->ReadCoinMint(pubCoin.getValue(), zeroMint) && zeroMint.GetTxHash() != 0 && IsTransactionInChain(zeroMint.GetTxHash(), view, nHeight) && zeroMint.GetTxHash() != tx.GetHash())
         return error("%s: pubcoin %s was already accumulated in tx %s from block %d", __func__,
                      pubCoin.getValue().GetHex().substr(0, 10),
                      zeroMint.GetTxHash().GetHex(), nHeight);

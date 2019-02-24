@@ -1482,10 +1482,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             }
         }
 
-        BOOST_FOREACH(const CTxOut &txout, tx.vout) {
-            if (!txout.IsZerocoinMint())
+        for(unsigned int n = 0; n < tx.vout.size(); n++) {
+            if (!tx.vout[n].IsZerocoinMint())
                 continue;
-            if (!CheckZerocoinMint(&Params().GetConsensus().Zerocoin_Params, txout, view, state))
+            if (!CheckZerocoinMint(&Params().GetConsensus().Zerocoin_Params, tx, n, view, state))
                 return state.DoS(100, false, REJECT_INVALID, "bad-zerocoin-mint");
         }
         CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainActive.Height(), pool.HasNoInputsOf(tx), inChainInputValue, fSpendsCoinbase, nSigOpsCost, lp);
@@ -3099,7 +3099,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 libzerocoin::PublicCoin pubCoin(&Params().GetConsensus().Zerocoin_Params);
 
-                if (!CheckZerocoinMint(&Params().GetConsensus().Zerocoin_Params, out, view, state, vZeroMints, &pubCoin, fScriptChecks && !nScriptCheckThreads, IsInitialBlockDownload()))
+                if (!CheckZerocoinMint(&Params().GetConsensus().Zerocoin_Params, tx, i, view, state, vZeroMints, &pubCoin, fScriptChecks && !nScriptCheckThreads, IsInitialBlockDownload()))
                     return state.Invalid(error("%s: zerocoin mint failed contextual check", __func__));
 
                 vPubCoinCheck.push_back(CPublicCoinCheck(pubCoin, IsInitialBlockDownload()));
