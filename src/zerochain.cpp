@@ -37,9 +37,9 @@ bool BlockToZerocoinMints(const ZerocoinParams *params, const CBlock* block, std
     return true;
 }
 
-bool CheckZerocoinMint(const ZerocoinParams *params, const CTransaction& tx, const int& nOut, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, PublicMintChainData>> vSeen, PublicCoin* pPubCoin, bool fCheck, bool fFast)
+bool CheckZerocoinMint(const ZerocoinParams *params, const CTransaction& tx, const unsigned int& nOut, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, PublicMintChainData>> vSeen, PublicCoin* pPubCoin, bool fCheck, bool fFast)
 {
-    assert(nOut < tx.vout.size);
+    assert(nOut < tx.vout.size());
 
     PublicCoin pubCoin(params);
     if(!TxOutToPublicCoin(params, tx.vout[nOut], pubCoin, &state, false))
