@@ -3130,7 +3130,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 libzerocoin::CoinSpend coinSpend(&Params().GetConsensus().Zerocoin_Params);
                 libzerocoin::Accumulator accumulator(&Params().GetConsensus().Zerocoin_Params.accumulatorParams);
 
-                if (!CheckZerocoinSpend(&Params().GetConsensus().Zerocoin_Params, tx.vin[n], view, state, vZeroSpents, &coinSpend, &accumulator, fScriptChecks && !nScriptCheckThreads))
+                if (!CheckZerocoinSpend(&Params().GetConsensus().Zerocoin_Params, tx, n, view, state, vZeroSpents, &coinSpend, &accumulator, fScriptChecks && !nScriptCheckThreads))
                     return state.DoS(100, false, REJECT_INVALID, "bad-zerocoin-spend");
 
                 vCoinSpendCheck.push_back(CCoinSpendCheck(coinSpend, accumulator));
