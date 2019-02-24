@@ -1412,10 +1412,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         }
 
         if (tx.IsZerocoinSpend()) {
-            BOOST_FOREACH(const CTxIn txin, tx.vin) {
-                if (!txin.scriptSig.IsZerocoinSpend())
+            for (unsigned int n = 0; n < tx.vin.size(); n++) {
+                if (!tx.vin[n].scriptSig.IsZerocoinSpend())
                     return state.DoS(100, false, REJECT_INVALID, "bad-mix-zerocoin-and-transparent-inputs");
-                if (!CheckZerocoinSpend(&Params().GetConsensus().Zerocoin_Params, txin, view, state))
+                if (!CheckZerocoinSpend(&Params().GetConsensus().Zerocoin_Params, tx, n, view, state))
                     return state.DoS(100, false, REJECT_INVALID, "bad-zerocoin-spend");
             }
         } else {
@@ -3122,15 +3122,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         std::vector<CCoinSpendCheck> vCoinSpendCheck;
 
         if (tx.IsZerocoinSpend()) {
-            for (auto& in : tx.vin) {
-                if (!in.scriptSig.IsZerocoinSpend()) {
+            for (unsigned int n = 0; n < tx.vin.size(); n++) {
+                if (!tx.vin[n].scriptSig.IsZerocoinSpend()) {
                     return state.Invalid(error("%s: zerocoin spend can't be combined with transparent inputs", __func__));
                 }
 
                 libzerocoin::CoinSpend coinSpend(&Params().GetConsensus().Zerocoin_Params);
                 libzerocoin::Accumulator accumulator(&Params().GetConsensus().Zerocoin_Params.accumulatorParams);
 
-                if (!CheckZerocoinSpend(&Params().GetConsensus().Zerocoin_Params, in, view, state, vZeroSpents, &coinSpend, &accumulator, fScriptChecks && !nScriptCheckThreads))
+                if (!CheckZerocoinSpend(&Params().GetConsensus().Zerocoin_Params, tx.vin[n], view, state, vZeroSpents, &coinSpend, &accumulator, fScriptChecks && !nScriptCheckThreads))
                     return state.DoS(100, false, REJECT_INVALID, "bad-zerocoin-spend");
 
                 vCoinSpendCheck.push_back(CCoinSpendCheck(coinSpend, accumulator));

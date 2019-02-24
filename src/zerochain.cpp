@@ -69,11 +69,13 @@ bool CheckZerocoinMint(const ZerocoinParams *params, const CTransaction& tx, con
     return true;
 }
 
-bool CheckZerocoinSpend(const ZerocoinParams *params, const CTxIn& txin, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, uint256>> vSeen, CoinSpend* pCoinSpend, Accumulator* pAccumulator, bool fSpendCheck)
+bool CheckZerocoinSpend(const ZerocoinParams *params, const CTransaction& tx, const unsigned int& nIn, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, uint256>> vSeen, CoinSpend* pCoinSpend, Accumulator* pAccumulator, bool fSpendCheck)
 {
+    assert(nIn < tx.vin.size());
+
     CoinSpend coinSpend(params);
 
-    if(!TxInToCoinSpend(params, txin, coinSpend))
+    if(!TxInToCoinSpend(params, tx.vin[nIn], coinSpend))
         return state.DoS(100, error("CheckZerocoinSpend() : TxInToCoinSpend() failed"));
 
     if (pCoinSpend)
@@ -99,7 +101,7 @@ bool CheckZerocoinSpend(const ZerocoinParams *params, const CTxIn& txin, const C
     uint256 txHash;
     int nHeight;
 
-    if (pblocktree->ReadCoinSpend(coinSpend.getCoinSerialNumber(), txHash) && IsTransactionInChain(txHash, view, nHeight))
+    if (pblocktree->ReadCoinSpend(coinSpend.getCoinSerialNumber(), txHash) && IsTransactionInChain(txHash, view, nHeight) && txHash != tx.GetHash())
         return state.DoS(100, error(strprintf("CheckZerocoinSpend() : Serial Number %s is already spent in tx %s in block %d", coinSpend.getCoinSerialNumber().ToString(16), txHash.ToString(), nHeight)));
 
     for(auto& it : vSeen)
