@@ -15,8 +15,8 @@ class CommunityFundSuccessDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CommunityFundSuccessDialog(QWidget *parent = 0, CFund::CPaymentRequest* prequest = 0);
-    explicit CommunityFundSuccessDialog(QWidget *parent = 0, CFund::CProposal* proposal = 0);
+    explicit CommunityFundSuccessDialog(uint256 hash, QWidget *parent = 0, CFund::CPaymentRequest* prequest = 0);
+    explicit CommunityFundSuccessDialog(uint256 hash, QWidget *parent = 0, CFund::CProposal* proposal = 0);
     ~CommunityFundSuccessDialog();
 
 private:

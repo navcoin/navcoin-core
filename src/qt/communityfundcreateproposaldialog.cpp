@@ -193,7 +193,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 // If the proposal was successfully made, confirm to the user it was made
                 if (created_proposal) {
                     // Display success UI
-                    CommunityFundSuccessDialog dlg(this, proposal);
+                    CommunityFundSuccessDialog dlg(wtx.GetHash(), this, proposal);
                     dlg.exec();
                     return true;
                 }
