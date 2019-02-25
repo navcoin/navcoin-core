@@ -41,7 +41,6 @@ public:
 
   /**
    * A list of ZKP_N + ZKP_PAD generators for the group.
-   * The first one is g (i.e. gis[0] = g)
    */
   CBN_vector gis;
 
@@ -51,6 +50,11 @@ public:
    * be unknown.
    */
   CBigNum h;
+
+  /**
+   * A list of ZKP_N + ZKP_PAD second generators for the group.
+   */
+  CBN_vector his;
 
   /**
    * A third generator for the group.

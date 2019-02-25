@@ -42,6 +42,7 @@ NAVCOIN_TESTS =\
   test/allocator_tests.cpp \
   test/base32_tests.cpp \
   test/base64_tests.cpp \
+  test/bulletproofsrangeproof_tests.cpp \
   test/bip32_tests.cpp \
   test/Checkpoints_tests.cpp \
   test/coins_tests.cpp \

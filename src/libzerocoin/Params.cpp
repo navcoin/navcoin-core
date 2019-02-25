@@ -14,6 +14,7 @@
 #include "Params.h"
 #include "ParamGeneration.h"
 #include "ArithmeticCircuit.h"
+#include "BulletproofsRangeproof.h"
 
 namespace libzerocoin {
 
@@ -43,7 +44,8 @@ AccumulatorAndProofParams::AccumulatorAndProofParams() {
 }
 
 IntegerGroupParams::IntegerGroupParams() :
-    gis(ZKP_N+ZKP_PADS)
+    gis(BulletproofsRangeproof::maxM*BulletproofsRangeproof::maxN),
+    his(BulletproofsRangeproof::maxM*BulletproofsRangeproof::maxN)
 {
     this->initialized = false;
 }

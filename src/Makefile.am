@@ -391,6 +391,8 @@ libzerocoin_libnavcoin_zerocoin_a_SOURCES = \
   libzerocoin/bignum.h \
   libzerocoin/bignum.cpp \
   libzerocoin/Bulletproofs.h \
+  libzerocoin/BulletproofsRangeproof.cpp \
+  libzerocoin/BulletproofsRangeproof.h \
   libzerocoin/Coin.h \
   libzerocoin/CoinSpend.h \
   libzerocoin/Commitment.h \

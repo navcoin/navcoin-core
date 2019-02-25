@@ -15,6 +15,7 @@
 #include <cmath>
 #include "hash.h"
 #include "uint256.h"
+#include "BulletproofsRangeproof.h"
 
 #include <iostream>
 
@@ -266,20 +267,31 @@ deriveIntegerGroupParams(uint256 seed, uint32_t pLen, uint32_t qLen)
   result.h = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, 2);
   result.g2 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, 3);
 
-  // Calculate the generators gis[0] = g, ..., gis[ZKP_N+ZKP_PADS-1] (subsequents have index 3...513)
-  result.gis[0] = result.g;
-  result.gis[1] = result.g2;
-  for(unsigned int i=2; i<ZKP_N+ZKP_PADS; i++) {
-      CBigNum t1 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, i+3);
-      if (t1 == result.gis[0] || t1 == result.h || t1 == result.gis[1]){ // || ((t1.pow_mod(CBigNum(100), result.modulus)).isOne()) || !((t1.pow_mod(result.groupOrder, result.modulus)).isOne())) {
+  unsigned int maxMN = BulletproofsRangeproof::maxM*BulletproofsRangeproof::maxN;
+
+  // Calculate the generators gis[maxN*maxM]
+  for(unsigned int i=0; i<maxMN; i++) {
+      CBigNum t1 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, i+4);
+      if (t1 == result.g || t1 == result.h || t1 == result.g2) {
           i--;
           continue;
       }
       result.gis[i] = t1;
   }
 
-  // Calculate the generator u_inner_prod (with index 514)
-  result.u_inner_prod = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, ZKP_N+ZKP_PADS+2);
+  // Calculate the generators his[maxN*maxM]
+  for(unsigned int i=0; i<maxMN; i++) {
+      CBigNum t1 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, maxMN+i+4);
+      if (t1 == result.g || t1 == result.h || t1 == result.g2) {
+          i--;
+          continue;
+      }
+      result.his[i] = t1;
+  }
+
+
+  // Calculate the generator u_inner_prod
+  result.u_inner_prod = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, 2*maxMN+5);
 
 	// Perform some basic tests to make sure we have good parameters
   if ((uint32_t)(result.modulus.bitSize()) < pLen ||              // modulus is pLen bits long
@@ -342,21 +354,31 @@ deriveIntegerGroupFromOrder(CBigNum &groupOrder)
       result.h = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, 2);
       result.g2 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, 3);
 
-      // Calculate the generators gis[0] = g, ..., gis[ZKP_N+ZKP_PADS-1] (subsequents have index 3...513)
-      result.gis[0] = result.g;
-      result.gis[1] = result.g2;
-      for(unsigned int i=2; i<ZKP_N+ZKP_PADS; i++) {
-          CBigNum t1 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, i+3);
-          if (t1 == result.gis[0] || t1 == result.h || t1 == result.gis[1]) {
+      unsigned int maxMN = BulletproofsRangeproof::maxM*BulletproofsRangeproof::maxN;
+
+      // Calculate the generators gis[maxN*maxM]
+      for(unsigned int i=0; i<maxMN; i++) {
+          CBigNum t1 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, i+4);
+          if (t1 == result.g || t1 == result.h || t1 == result.g2) {
               i--;
               continue;
           }
           result.gis[i] = t1;
       }
 
-      // Calculate the generator u_inner_prod (with index 514)
-      result.u_inner_prod = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, ZKP_N+ZKP_PADS+2);
+      // Calculate the generators his[maxN*maxM]
+      for(unsigned int i=0; i<maxMN; i++) {
+          CBigNum t1 = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, maxMN+i+4);
+          if (t1 == result.g || t1 == result.h || t1 == result.g2) {
+              i--;
+              continue;
+          }
+          result.his[i] = t1;
+      }
 
+
+      // Calculate the generator u_inner_prod
+      result.u_inner_prod = calculateGroupGenerator(seed, pSeed, qSeed, result.modulus, result.groupOrder, 2*maxMN+5);
 
 			// Perform some basic tests to make sure we have good parameters
 			if (!(result.modulus.isPrime()) ||                          // modulus is prime
@@ -512,6 +534,18 @@ calculateGroupGenerator(uint256 seed, uint256 pSeed, uint256 qSeed, CBigNum modu
   if (index > 255) {
       index -= 256;
       magic_string = "coin";
+  }
+  if (index > 255) {
+      index -= 256;
+      magic_string = "zeroct";
+  }
+  if (index > 255) {
+      index -= 256;
+      magic_string = "nums";
+  }
+  if (index > 255) {
+      index -= 256;
+      magic_string = "private";
   }
 
   // Compute e = (modulus - 1) / groupOrder

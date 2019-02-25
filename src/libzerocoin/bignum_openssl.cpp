@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Copyright (c) 2017-2018 The PIVX developers
+// Copyright (c) 2018-2019 The NavCoin Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -258,6 +259,11 @@ std::vector<unsigned char> CBigNum::getvch() const
 void CBigNum::SetDec(const std::string& str)
 {
     BN_dec2bn(&bn, str.c_str());
+}
+
+int CBigNum::GetBit(unsigned int n) const
+{
+    return BN_is_bit_set(&bn, n);
 }
 
 bool CBigNum::SetHexBool(const std::string& str)
