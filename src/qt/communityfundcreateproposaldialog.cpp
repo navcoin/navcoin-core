@@ -91,15 +91,23 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
         CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+        // CFund Fee Amount
+        CAmount nAmount = Params().GetConsensus().nProposalMinimalFee;
+
         CWalletTx wtx;
         bool fSubtractFeeFromAmount = false;
 
-        std::string Address = ui->lineEditNavcoinAddress->text().toStdString().c_str();
+        // Address
+        string Address = ui->lineEditNavcoinAddress->text().toStdString().c_str();
 
+        // Requested Amount
         CAmount nReqAmount = ui->lineEditRequestedAmount->value();
 
+        // Deadline
         int64_t nDeadline = ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60;
 
+        // Description
         string sDesc = ui->plainTextEditDescription->toPlainText().toStdString();
 
         UniValue strDZeel(UniValue::VOBJ);
@@ -125,6 +133,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         }
 
         EnsureWalletIsUnlocked();
+
         CAmount curBalance = pwalletMain->GetBalance();
 
         if (curBalance < 50) {
@@ -138,7 +147,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             return false;
         }
 
-        // Parse NavCoin address (currently crashes wallet)
+        // Parse NavCoin address
         CScript scriptPubKey = GetScriptForDestination(address.Get());
 
         //create partial proposal object with all nessesary display fields from input and create confirmation dialog
@@ -156,6 +165,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 return false;
             }
             else {
+
                 // User accepted making the proposal
                 CFund::SetScriptForCommunityFundContribution(scriptPubKey);
 
@@ -169,14 +179,19 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
                 vecSend.push_back(recipient);
 
-                bool created_proposal = true;
 
+                bool created_proposal = false;
+                SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
+                created_proposal = true;
+
+                /*
                 if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
                         created_proposal = false;
                 }
                 if (!pwalletMain->CommitTransaction(wtx, reservekey))
                     created_proposal = false;
+                */
 
                 // If the proposal was successfully made, confirm to the user it was made
                 if (created_proposal) {
