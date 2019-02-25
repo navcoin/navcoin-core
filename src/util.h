@@ -150,6 +150,8 @@ void PoolInitAccount(std::string spendingAddress, std::string stakingAddress, st
 std::string PoolReadFile(boost::filesystem::path poolFile, std::string strKey);
 void PoolWriteFile(boost::filesystem::path poolFile, std::string key, std::string value);
 void PoolRemoveFile(boost::filesystem::path poolFile, std::string key, std::string value);
+void PoolUpdateProposalVotes(std::string stakingAddress);
+void PoolUpdatePaymentRequestVotes(std::string stakingAddress);
 
 #ifdef WIN32
 boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);

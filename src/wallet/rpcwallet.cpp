@@ -3641,6 +3641,10 @@ UniValue poolProposalVote(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_VERIFY_ERROR, "Unable to verify signature");
     }
 
+    if (PoolExistsAccountFile(spendingAddress) == false) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address not recognised");
+    }
+
     boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);
     std::string stakingAddress = PoolReadFile(accountFile, "stakingAddress");
 
@@ -3710,6 +3714,10 @@ UniValue poolPaymentRequestVote(const UniValue& params, bool fHelp)
     bool signatureValid = pubkey.RecoverCompact(ss.GetHash(), vchSig) && pubkey.GetID() == keyID;
     if (!signatureValid) {
         throw JSONRPCError(RPC_VERIFY_ERROR, "Unable to verify signature");
+    }
+
+    if (PoolExistsAccountFile(spendingAddress) == false) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address not recognised");
     }
 
     boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);

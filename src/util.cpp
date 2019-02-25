@@ -777,6 +777,40 @@ std::string PoolReadFile(boost::filesystem::path poolFile, std::string strKey)
     throw;
 }
 
+void PoolUpdateProposalVotes(std::string stakingAddress)
+{
+    vAddedProposalVotes.clear();
+
+    boost::filesystem::ifstream streamConfig(PoolGetCFundFile(stakingAddress));
+    if (streamConfig.good()) {
+        set <string> setOptions;
+        setOptions.insert("*");
+
+        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
+            if (it->string_key == "addproposalvoteyes" || it->string_key == "addproposalvoteno") {
+                vAddedProposalVotes.push_back(make_pair(it->value[0], it->string_key == "addproposalvoteyes"));
+            }
+        }
+    }
+}
+
+void PoolUpdatePaymentRequestVotes(std::string stakingAddress)
+{
+    vAddedPaymentRequestVotes.clear();
+
+    boost::filesystem::ifstream streamConfig(PoolGetCFundFile(stakingAddress));
+    if (streamConfig.good()) {
+        set<string> setOptions;
+        setOptions.insert("*");
+
+        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
+            if (it->string_key == "addpaymentrequestvoteyes" || it->string_key == "addpaymentrequestvoteno") {
+                vAddedPaymentRequestVotes.push_back(make_pair(it->value[0], it->string_key == "addpaymentrequestvoteyes"));
+            }
+        }
+    }
+}
+
 void PoolWriteFile(boost::filesystem::path poolFile, std::string key, std::string value)
 {
     bool alreadyInConfigFile = false;
