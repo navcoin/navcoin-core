@@ -398,6 +398,7 @@ libzerocoin_libnavcoin_zerocoin_a_SOURCES = \
   libzerocoin/Commitment.h \
   libzerocoin/Denominations.h \
   libzerocoin/Keys.h \
+  libzerocoin/Math.h \
   libzerocoin/ParamGeneration.h \
   libzerocoin/Params.h \
   libzerocoin/PolynomialCommitment.h \
@@ -416,6 +417,7 @@ libzerocoin_libnavcoin_zerocoin_a_SOURCES = \
   libzerocoin/Commitment.cpp \
   libzerocoin/Denominations.cpp \
   libzerocoin/Keys.cpp \
+  libzerocoin/Math.cpp \
   libzerocoin/ParamGeneration.cpp \
   libzerocoin/Params.cpp \
   libzerocoin/PolynomialCommitment.cpp \
