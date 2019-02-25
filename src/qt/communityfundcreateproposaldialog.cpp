@@ -134,8 +134,8 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         EnsureWalletIsUnlocked();
 
+        // Check balance
         CAmount curBalance = pwalletMain->GetBalance();
-
         if (curBalance < 50) {
             QMessageBox msgBox(this);
             std::string str = "You require at least 50 NAV mature and available to create a proposal\n";
@@ -146,9 +146,6 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             msgBox.exec();
             return false;
         }
-
-        // Parse NavCoin address
-        CScript scriptPubKey = GetScriptForDestination(address.Get());
 
         //create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
@@ -167,31 +164,31 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             else {
 
                 // User accepted making the proposal
+                // Parse NavCoin address
+                CScript CFContributionScript;
+                CScript scriptPubKey = GetScriptForDestination(address.Get());
                 CFund::SetScriptForCommunityFundContribution(scriptPubKey);
 
                 // Create and send the transaction
                 CReserveKey reservekey(pwalletMain);
-                CAmount nValue = 50;
                 CAmount nFeeRequired;
                 std::string strError;
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
+                CAmount nValue = Params().GetConsensus().nProposalMinimalFee;
                 CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
                 vecSend.push_back(recipient);
 
+                bool created_proposal = true;
 
-                bool created_proposal = false;
-                SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
-                created_proposal = true;
-
-                /*
                 if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
-                    if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
+                    if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_proposal = false;
+                    }
                 }
-                if (!pwalletMain->CommitTransaction(wtx, reservekey))
+                if (!pwalletMain->CommitTransaction(wtx, reservekey)) {
                     created_proposal = false;
-                */
+                }
 
                 // If the proposal was successfully made, confirm to the user it was made
                 if (created_proposal) {
