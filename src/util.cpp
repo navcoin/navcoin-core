@@ -696,14 +696,29 @@ void RemoveConfigFile(std::string key)
 
 boost::filesystem::path GetPoolDir() {
     boost::filesystem::path poolDir = GetDataDir().string() + "/pool";
+    TryCreateDirectory(poolDir);
 
     return poolDir;
 }
 
-boost::filesystem::path PoolGetAddressFile(std::string spendingAddress)
+boost::filesystem::path GetPoolAccountDir() {
+    boost::filesystem::path accountDir = GetPoolDir().string() + "/account";
+    TryCreateDirectory(accountDir);
+
+    return accountDir;
+}
+
+boost::filesystem::path GetPoolCFundDir() {
+    boost::filesystem::path cfundDir = GetPoolDir().string() + "/cfund";
+    TryCreateDirectory(cfundDir);
+
+    return cfundDir;
+}
+
+boost::filesystem::path PoolGetAccountFile(std::string spendingAddress)
 {
     string addressFile = spendingAddress + ".conf";
-    boost::filesystem::path pathConfigFile = GetPoolDir() / addressFile;
+    boost::filesystem::path pathConfigFile = GetPoolAccountDir() / addressFile;
 
     if (!pathConfigFile.is_complete()) {
         pathConfigFile = GetDataDir(false) / pathConfigFile;
@@ -712,24 +727,42 @@ boost::filesystem::path PoolGetAddressFile(std::string spendingAddress)
     return pathConfigFile;
 }
 
-bool PoolExistsAddressFile(std::string spendingAddress) {
-    boost::filesystem::ifstream streamConfig(PoolGetAddressFile(spendingAddress));
+boost::filesystem::path PoolGetCFundFile(std::string stakingAddress)
+{
+    string addressFile = stakingAddress + ".conf";
+    boost::filesystem::path pathConfigFile = GetPoolCFundDir() / addressFile;
+
+    if (!pathConfigFile.is_complete()) {
+        pathConfigFile = GetDataDir(false) / pathConfigFile;
+    }
+
+    return pathConfigFile;
+}
+
+bool PoolExistsAccountFile(std::string spendingAddress) {
+    boost::filesystem::ifstream streamConfig(PoolGetAccountFile(spendingAddress));
 
     return streamConfig.good();
 }
 
-void PoolInitAddressFile(std::string spendingAddress, std::string stakingAddress, std::string coldStakingAddress)
-{
-    TryCreateDirectory(GetPoolDir());
+bool PoolExistsCFundFile(std::string stakingAddress) {
+    boost::filesystem::ifstream streamConfig(PoolGetCFundFile(stakingAddress));
 
-    PoolWriteAddressFile(spendingAddress, "spendingAddress", spendingAddress);
-    PoolWriteAddressFile(spendingAddress, "stakingAddress", stakingAddress);
-    PoolWriteAddressFile(spendingAddress, "coldStakingAddress", coldStakingAddress);
+    return streamConfig.good();
 }
 
-std::string PoolReadAddressFile(std::string spendingAddress, std::string strKey)
+void PoolInitAccount(std::string spendingAddress, std::string stakingAddress, std::string coldStakingAddress)
 {
-    boost::filesystem::ifstream streamConfig(PoolGetAddressFile(spendingAddress));
+    boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);
+
+    PoolWriteFile(accountFile, "spendingAddress", spendingAddress);
+    PoolWriteFile(accountFile, "stakingAddress", stakingAddress);
+    PoolWriteFile(accountFile, "coldStakingAddress", coldStakingAddress);
+}
+
+std::string PoolReadFile(boost::filesystem::path poolFile, std::string strKey)
+{
+    boost::filesystem::ifstream streamConfig(poolFile);
     if (streamConfig.good()) {
         set<string> setOptions;
         setOptions.insert("*");
@@ -744,11 +777,11 @@ std::string PoolReadAddressFile(std::string spendingAddress, std::string strKey)
     throw;
 }
 
-void PoolWriteAddressFile(std::string spendingAddress, std::string key, std::string value)
+void PoolWriteFile(boost::filesystem::path poolFile, std::string key, std::string value)
 {
     bool alreadyInConfigFile = false;
 
-    boost::filesystem::ifstream streamConfig(PoolGetAddressFile(spendingAddress));
+    boost::filesystem::ifstream streamConfig(poolFile);
     if (streamConfig.good()) {
         set<string> setOptions;
         setOptions.insert("*");
@@ -761,16 +794,16 @@ void PoolWriteAddressFile(std::string spendingAddress, std::string key, std::str
     }
 
     if (!alreadyInConfigFile) {
-        boost::filesystem::ofstream outStream(PoolGetAddressFile(spendingAddress), std::ios_base::app);
+        boost::filesystem::ofstream outStream(poolFile, std::ios_base::app);
         outStream << std::endl << key + string("=") + value;
 
         outStream.close();
     }
 }
 
-void PoolRemoveAddressFile(std::string spendingAddress, std::string key, std::string value)
+void PoolRemoveFile(boost::filesystem::path poolFile, std::string key, std::string value)
 {
-    boost::filesystem::ifstream streamConfig(PoolGetAddressFile(spendingAddress));
+    boost::filesystem::ifstream streamConfig(poolFile);
 
     if (streamConfig.good()) {
         std::string configBuffer, line;
@@ -783,7 +816,7 @@ void PoolRemoveAddressFile(std::string spendingAddress, std::string key, std::st
             }
         }
 
-        boost::filesystem::ofstream outStream(PoolGetAddressFile(spendingAddress));
+        boost::filesystem::ofstream outStream(poolFile);
         outStream << configBuffer;
         outStream.close();
     }

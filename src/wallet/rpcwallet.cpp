@@ -3552,11 +3552,12 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid spending address");
     }
 
-    if (PoolExistsAddressFile(spendingAddress.ToString())) {
+    if (PoolExistsAccountFile(spendingAddress.ToString())) {
+        boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress.ToString());
         UniValue result(UniValue::VOBJ);
-        result.push_back(Pair("stakingAddress", PoolReadAddressFile(spendingAddress.ToString(), "stakingAddress")));
+        result.push_back(Pair("stakingAddress", PoolReadFile(accountFile, "stakingAddress")));
         result.push_back(Pair("spendingAddress", spendingAddress.ToString()));
-        result.push_back(Pair("coldStakingAddress", PoolReadAddressFile(spendingAddress.ToString(), "coldStakingAddress")));
+        result.push_back(Pair("coldStakingAddress", PoolReadFile(accountFile, "coldStakingAddress")));
 
         return result;
     }
@@ -3580,7 +3581,7 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
 
     CNavCoinAddress coldStakingAddress(stakingKeyID, spendingKeyID);
 
-    PoolInitAddressFile(spendingAddress.ToString(), stakingAddress.ToString(), coldStakingAddress.ToString());
+    PoolInitAccount(spendingAddress.ToString(), stakingAddress.ToString(), coldStakingAddress.ToString());
 
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("stakingAddress", stakingAddress.ToString()));
@@ -3592,11 +3593,11 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
 
 UniValue poolProposalVote(const UniValue& params, bool fHelp)
 {
-    string strCommand;
+    string command;
     if (params.size() >= 2) {
-        strCommand = params[2].get_str();
+        command = params[2].get_str();
     }
-    if (fHelp || params.size() > 4 || (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
+    if (fHelp || params.size() > 4 || (command != "yes" && command != "no" && command != "remove"))
         throw runtime_error(
                 "poolproposalvote \"spending_address\" \"proposal_hash\" \"yes|no|remove\" \"signature\"\n"
                 "\nAdds a pool proposal to the list of votes.\n"
@@ -3609,12 +3610,12 @@ UniValue poolProposalVote(const UniValue& params, bool fHelp)
                 "                      <spending_address><proposal_hash><command>\n"
         );
 
-    string strAddress = params[0].get_str();
-    string strHash = params[1].get_str();
-    string strMessage  = strAddress + strHash + strCommand;
+    string spendingAddress = params[0].get_str();
+    string proposalHash = params[1].get_str();
+    string strMessage  = spendingAddress + proposalHash + command;
     string strSign = params[3].get_str();
 
-    CNavCoinAddress addr(strAddress);
+    CNavCoinAddress addr(spendingAddress);
     if (!addr.IsValid()) {
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
     }
@@ -3640,31 +3641,34 @@ UniValue poolProposalVote(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_VERIFY_ERROR, "Unable to verify signature");
     }
 
-    if (strCommand == "yes") {
-        CFund::PoolVoteProposal(strAddress, strHash, true);
+    boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);
+    std::string stakingAddress = PoolReadFile(accountFile, "stakingAddress");
+
+    if (command == "yes") {
+        CFund::PoolVoteProposal(stakingAddress, proposalHash, true);
         return NullUniValue;
     }
 
-    if (strCommand == "no") {
-        CFund::PoolVoteProposal(strAddress, strHash, false);
+    if (command == "no") {
+        CFund::PoolVoteProposal(stakingAddress, proposalHash, false);
         return NullUniValue;
     }
 
-    if (strCommand == "remove") {
-        CFund::PoolRemoveVoteProposal(strAddress, strHash);
+    if (command == "remove") {
+        CFund::PoolRemoveVoteProposal(stakingAddress, proposalHash);
         return NullUniValue;
     }
 
-    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+proposalHash);
 }
 
 UniValue poolPaymentRequestVote(const UniValue& params, bool fHelp)
 {
-    string strCommand;
+    string command;
     if (params.size() >= 2) {
-        strCommand = params[2].get_str();
+        command = params[2].get_str();
     }
-    if (fHelp || params.size() > 4 || (strCommand != "yes" && strCommand != "no" && strCommand != "remove"))
+    if (fHelp || params.size() > 4 || (command != "yes" && command != "no" && command != "remove"))
         throw runtime_error(
                 "poolpaymentrequestlvote \"spending_address\" \"payment_hash\" \"yes|no|remove\" \"signature\"\n"
                 "\nAdds a pool payment request to the list of votes.\n"
@@ -3677,12 +3681,12 @@ UniValue poolPaymentRequestVote(const UniValue& params, bool fHelp)
                 "                      <spending_address><payment_hash><command>\n"
         );
 
-    string strAddress = params[0].get_str();
-    string strHash = params[1].get_str();
-    string strMessage  = strAddress + strHash + strCommand;
+    string spendingAddress = params[0].get_str();
+    string paymentRequestHash = params[1].get_str();
+    string strMessage  = spendingAddress + paymentRequestHash + command;
     string strSign = params[3].get_str();
 
-    CNavCoinAddress addr(strAddress);
+    CNavCoinAddress addr(spendingAddress);
     if (!addr.IsValid()) {
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
     }
@@ -3708,22 +3712,25 @@ UniValue poolPaymentRequestVote(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_VERIFY_ERROR, "Unable to verify signature");
     }
 
-    if (strCommand == "yes") {
-        CFund::PoolVotePaymentRequest(strAddress, strHash, true);
+    boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);
+    std::string stakingAddress = PoolReadFile(accountFile, "stakingAddress");
+
+    if (command == "yes") {
+        CFund::PoolVotePaymentRequest(stakingAddress, paymentRequestHash, true);
         return NullUniValue;
     }
 
-    if (strCommand == "no") {
-        CFund::PoolVotePaymentRequest(strAddress, strHash, false);
+    if (command == "no") {
+        CFund::PoolVotePaymentRequest(stakingAddress, paymentRequestHash, false);
         return NullUniValue;
     }
 
-    if (strCommand == "remove") {
-        CFund::PoolRemoveVotePaymentRequest(strAddress, strHash);
+    if (command == "remove") {
+        CFund::PoolRemoveVotePaymentRequest(stakingAddress, paymentRequestHash);
         return NullUniValue;
     }
 
-    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find payment request ")+strHash);
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find payment request ")+paymentRequestHash);
 }
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp

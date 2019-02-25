@@ -110,15 +110,16 @@ bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
     return VoteProposal(proposalHash.ToString(), vote, duplicate);
 }
 
-void CFund::PoolVoteProposal(string spendingAddress, string strProp, bool vote) {
+void CFund::PoolVoteProposal(string stakingAddress, string strProp, bool vote) {
     CFund::CProposal proposal;
 
     bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
     if (found && !proposal.IsNull()) {
-        PoolRemoveAddressFile(spendingAddress, "addproposalvoteyes", strProp);
-        PoolRemoveAddressFile(spendingAddress, "addproposalvoteno", strProp);
-        PoolWriteAddressFile(spendingAddress, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
+        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+        PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
+        PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
+        PoolWriteFile(cFundFile, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
     }
 }
 
@@ -144,10 +145,11 @@ bool CFund::RemoveVoteProposal(uint256 proposalHash)
     return RemoveVoteProposal(proposalHash.ToString());
 }
 
-void CFund::PoolRemoveVoteProposal(string spendingAddress, string strProp)
+void CFund::PoolRemoveVoteProposal(string stakingAddress, string strProp)
 {
-    PoolRemoveAddressFile(spendingAddress, "addproposalvoteyes", strProp);
-    PoolRemoveAddressFile(spendingAddress, "addproposalvoteno", strProp);
+    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+    PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
+    PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
 }
 
 bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
@@ -184,14 +186,16 @@ bool CFund::VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate)
     return VotePaymentRequest(proposalHash.ToString(), vote, duplicate);
 }
 
-void CFund::PoolVotePaymentRequest(string spendingAddress, string strProp, bool vote) {
-    CFund::CPaymentRequest prequest;
-    bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
+void CFund::PoolVotePaymentRequest(string stakingAddress, string strProp, bool vote) {
+    CFund::CProposal proposal;
 
-    if (found && !prequest.IsNull()) {
-        PoolRemoveAddressFile(spendingAddress, "addpaymentrequestvoteyes", strProp);
-        PoolRemoveAddressFile(spendingAddress, "addpaymentrequestvoteno", strProp);
-        PoolWriteAddressFile(spendingAddress, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
+    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
+
+    if (found && !proposal.IsNull()) {
+        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+        PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
+        PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
+        PoolWriteFile(cFundFile, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
     }
 }
 
@@ -217,10 +221,11 @@ bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
     return RemoveVotePaymentRequest(proposalHash.ToString());
 }
 
-void CFund::PoolRemoveVotePaymentRequest(string spendingAddress, string strProp)
+void CFund::PoolRemoveVotePaymentRequest(string stakingAddress, string strProp)
 {
-    PoolRemoveAddressFile(spendingAddress, "addpaymentrequestvoteyes", strProp);
-    PoolRemoveAddressFile(spendingAddress, "addpaymentrequestvoteno", strProp);
+    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+    PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
+    PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
 }
 
 bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
