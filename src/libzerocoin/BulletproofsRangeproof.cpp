@@ -383,10 +383,6 @@ bool VerifyBulletproof(const libzerocoin::IntegerGroupParams* params, const std:
 
     inverses = VectorInvert(to_invert, q);
 
-    for (size_t n = 0; n < to_invert.size(); n++) {
-        inverses[n] = to_invert[n].inverse(q);
-    }
-
     CBigNum z1 = 0;
     CBigNum z3 = 0;
     CBN_vector z4(maxMN, 0);
