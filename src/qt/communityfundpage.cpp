@@ -65,16 +65,33 @@ void CommunityFundPage::refreshTab()
     }
 }
 
+void CommunityFundPage::deleteChildWidgets(QLayoutItem *item) {
+  QLayout *layout = item->layout();
+  if (layout) {
+    // Process all child items recursively.
+    int itemCount = ui->gridLayout->count();
+    for (int i = 0; i < itemCount; i++) {
+      deleteChildWidgets(ui->gridLayout->itemAt(i));
+    }
+  }
+  delete item->widget();
+}
+
+void CommunityFundPage::reset()
+{
+    for (int i = ui->gridLayout->count() - 1; i >= 0; i--) {
+      int r, c, rs, cs;
+      ui->gridLayout->getItemPosition(i, &r, &c, &rs, &cs);
+        // This layout item is subject to deletion.
+        QLayoutItem *item = ui->gridLayout->takeAt(i);
+        deleteChildWidgets(item);
+        delete item;
+      }
+}
+
 void CommunityFundPage::Refresh(bool all, bool proposal)
 {
-    for (int i = 0; i < ui->gridLayout->count(); ++i)
-    {
-      QWidget *widget = ui->gridLayout->itemAt(i)->widget();
-      if (widget != NULL)
-      {
-        widget->setVisible(false);
-      }
-    }
+    reset();
 
     stringstream a;
     a.imbue(std::locale(""));

@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QListView>
 #include <QPainter>
+#include <QLayoutItem>
 
 #define COLOR_VOTE_YES "background-color: #90ee90;"
 #define COLOR_VOTE_NO "background-color: #f08080;"
@@ -33,6 +34,8 @@ public:
     void refreshTab();
     ~CommunityFundPage();
     void Refresh(bool all, bool proposal);
+    void deleteChildWidgets(QLayoutItem *item);
+    void reset();
 
 private:
     Ui::CommunityFundPage *ui;
