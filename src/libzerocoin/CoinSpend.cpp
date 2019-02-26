@@ -77,8 +77,11 @@ CoinSpend::CoinSpend(const ZerocoinParams* params, const PrivateCoin& coin, cons
         this->serialNumberSoK_small = SerialNumberSoK_small(params, obfuscatedSerial, obfuscatedRandomness, fullCommitmentToCoinUnderSerialParams, hashSig);
     }
 
+    CBigNum base;
+    base.SetHex(BASE_BLOCK_SIGNATURE);
+
     //5. Zero knowledge proof of the serial number
-    this->serialNumberPoK = SerialNumberProofOfKnowledge(&params->coinCommitmentGroup, obfuscatedSerial, hashSig, BASE_SPEND_SIGNATURE);
+    this->serialNumberPoK = SerialNumberProofOfKnowledge(&params->coinCommitmentGroup, obfuscatedSerial, hashSig, base);
 }
 
 bool CoinSpend::Verify(const Accumulator& a, bool fUseBulletproofs) const
@@ -106,7 +109,10 @@ bool CoinSpend::Verify(const Accumulator& a, bool fUseBulletproofs) const
         }
     }
 
-    if (!serialNumberPoK.Verify(coinValuePublic, signatureHash(), BASE_SPEND_SIGNATURE)) {
+    CBigNum base;
+    base.SetHex(BASE_BLOCK_SIGNATURE);
+
+    if (!serialNumberPoK.Verify(coinValuePublic, signatureHash(), base)) {
         return error("CoinsSpend::Verify: serialNumberPoK failed.");
     }
 

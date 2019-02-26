@@ -980,7 +980,9 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
               
               if (zerokey != CBigNum(0)) {
-                  libzerocoin::SerialNumberProofOfKnowledge serialNumberPoK = SerialNumberProofOfKnowledge(&Params().GetConsensus().Zerocoin_Params.coinCommitmentGroup, zerokey, pblock->GetHash(), BASE_BLOCK_SIGNATURE);
+		  CBigNum base;
+		  base.SetHex(BASE_BLOCK_SIGNATURE);
+                  libzerocoin::SerialNumberProofOfKnowledge serialNumberPoK = SerialNumberProofOfKnowledge(&Params().GetConsensus().Zerocoin_Params.coinCommitmentGroup, zerokey, pblock->GetHash(), base);
                   CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                   ss << serialNumberPoK;
                   pblock->vchBlockSig = std::vector<unsigned char>(ss.begin(), ss.end());
