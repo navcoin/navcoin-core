@@ -262,8 +262,8 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                                                         flag != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos ||
                                                         flag != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos))
                             continue;
-                    }
                         append(new CommunityFundDisplayPaymentRequest(0, prequest));
+                    }
                 }
             }
         }
