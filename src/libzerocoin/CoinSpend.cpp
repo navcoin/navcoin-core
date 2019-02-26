@@ -78,7 +78,7 @@ CoinSpend::CoinSpend(const ZerocoinParams* params, const PrivateCoin& coin, cons
     }
 
     //5. Zero knowledge proof of the serial number
-    this->serialNumberPoK = SerialNumberProofOfKnowledge(&params->coinCommitmentGroup, obfuscatedSerial, hashSig);
+    this->serialNumberPoK = SerialNumberProofOfKnowledge(&params->coinCommitmentGroup, obfuscatedSerial, hashSig, BASE_SPEND_SIGNATURE);
 }
 
 bool CoinSpend::Verify(const Accumulator& a, bool fUseBulletproofs) const
@@ -106,7 +106,7 @@ bool CoinSpend::Verify(const Accumulator& a, bool fUseBulletproofs) const
         }
     }
 
-    if (!serialNumberPoK.Verify(coinValuePublic, signatureHash())) {
+    if (!serialNumberPoK.Verify(coinValuePublic, signatureHash(), BASE_SPEND_SIGNATURE)) {
         return error("CoinsSpend::Verify: serialNumberPoK failed.");
     }
 

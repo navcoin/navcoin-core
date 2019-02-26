@@ -5149,7 +5149,7 @@ bool CheckBlockSignature(const CBlock& block)
         if(!TxInToCoinSpend(&Params().GetConsensus().Zerocoin_Params, block.vtx[1].vin[0], coinSpend))
             return error("%s: Could not get coin spend from tx in", __func__);
 
-        return snpok.Verify(coinSpend.getCoinSerialNumber(), block.GetHash());
+        return snpok.Verify(coinSpend.getCoinSerialNumber(), block.GetHash(), BASE_BLOCK_SIGNATURE);
     }
 
 
