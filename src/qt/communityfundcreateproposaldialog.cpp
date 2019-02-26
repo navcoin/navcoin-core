@@ -150,7 +150,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         // Check balance
         CAmount curBalance = pwalletMain->GetBalance();
-        if (curBalance < 50) {
+        if (curBalance <= Params().GetConsensus().nProposalMinimalFee) {
             QMessageBox msgBox(this);
             std::string str = "You require at least 50 NAV mature and available to create a proposal\n";
             msgBox.setText(tr(str.c_str()));
