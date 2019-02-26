@@ -32,11 +32,11 @@ public:
     explicit CommunityFundPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
     void setWalletModel(WalletModel *walletModel);
     void refreshTab();
-    ~CommunityFundPage();
     void append(QWidget* widget);
-    void Refresh(bool all, bool proposal);
+    void refresh(bool all, bool proposal);
     void deleteChildWidgets(QLayoutItem *item);
     void reset();
+    ~CommunityFundPage();
 
 private:
     Ui::CommunityFundPage *ui;
