@@ -88,6 +88,25 @@ void CommunityFundPage::reset()
         delete item;
       }
 }
+void CommunityFundPage::append(QWidget* widget)
+{
+    // fetch state of last widget
+    int index = ui->gridLayout->count();
+    int* row = 0;
+    int* column = 0;
+    int* rowSpan = 0;
+    int* columnSpan = 0;
+
+    ui->gridLayout->getItemPosition(index, row, column, rowSpan, columnSpan);
+    if(ui->gridLayout->count() % 2 == 0)
+    {
+        ui->gridLayout->addWidget(widget,(*row)+1,0);
+    }
+    else
+    {
+        ui->gridLayout->addWidget(widget,(*row),(*column)+1);
+    }
+}
 
 void CommunityFundPage::Refresh(bool all, bool proposal)
 {
