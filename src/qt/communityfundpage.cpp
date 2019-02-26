@@ -1,13 +1,14 @@
 #include "communityfundpage.h"
 #include "ui_communityfundpage.h"
-#include <QAbstractScrollArea>
 #include "communityfundpage.moc"
-#include <iostream>
+
 #include "main.h"
 #include "txdb.h"
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <QAbstractScrollArea>
+
 #include "communityfunddisplay.h"
 #include "communityfunddisplaypaymentrequest.h"
 #include "communityfundcreateproposaldialog.h"

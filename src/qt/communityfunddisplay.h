@@ -9,7 +9,6 @@ namespace Ui {
 class CommunityFundDisplay;
 }
 
-
 class CommunityFundDisplay : public QWidget
 {
     Q_OBJECT
@@ -22,6 +21,7 @@ private:
     Ui::CommunityFundDisplay *ui;
     CFund::CProposal proposal;
     void refresh();
+
 public Q_SLOTS:
     void click_buttonBoxVote(QAbstractButton *button);
     void click_pushButtonDetails();
