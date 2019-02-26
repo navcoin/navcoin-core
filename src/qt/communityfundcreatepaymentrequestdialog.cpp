@@ -3,20 +3,19 @@
 #include "communityfundsuccessdialog.h"
 #include "sendcommunityfunddialog.h"
 
+#include <QMessageBox>
 #include "consensus/cfund.h"
 #include "main.h"
 #include "main.cpp"
 #include "guiconstants.h"
 #include "skinize.h"
-#include <QMessageBox>
-#include <iostream>
 #include "guiutil.h"
 #include "sync.h"
 #include "wallet/wallet.h"
 #include "base58.h"
 #include <string>
 
-std::string random_string_owo( size_t length )
+std::string random_str(size_t length)
 {
     auto randchar = []() -> char
     {
@@ -38,7 +37,6 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
 {
     ui->setupUi(this);
 
-    //connect
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonSubmitPaymentRequest, SIGNAL(clicked()), SLOT(click_pushButtonSubmitPaymentRequest()));
 }
@@ -47,20 +45,21 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
 {
     bool isValid = true;
 
-    //proposal hash;
+    // Proposal hash;
     if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
     {
         isValid = false;
         ui->lineEditProposalHash->setValid(false);
     }
-    //amount
+
+    // Amount
     if(!ui->lineEditRequestedAmount->validate())
     {
         isValid = false;
         ui->lineEditRequestedAmount->setValid(false);
     }
 
-    //desc
+    // Description
     size_t desc_size = ui->plainTextEditDescription->toPlainText().toStdString().length();
     if(desc_size >= 1024 || desc_size == 0)
     {
@@ -169,7 +168,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Get fields from form
         CAmount nReqAmount = ui->lineEditRequestedAmount->value();
         std::string id = ui->plainTextEditDescription->toPlainText().toStdString();
-        std::string sRandom = random_string_owo(16); // Check this implementation
+        std::string sRandom = random_str(16);
 
         // Construct Secret
         std::string Secret = sRandom + "I kindly ask to withdraw " +
@@ -249,9 +248,9 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             return false;
         }
 
-        //create partial proposal object with all nessesary display fields from input and create confirmation dialog
+        // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
-            //create confirmation dialog
+            // Create confirmation dialog
             CFund::CPaymentRequest* preq = new CFund::CPaymentRequest();
             preq->nAmount = ui->lineEditRequestedAmount->value();
             preq->proposalhash = proposal.hash;
@@ -263,7 +262,6 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                 return false;
             }
             else {
-
                 // User accepted making the prequest
                 // Parse NavCoin address
                 CScript CFContributionScript;
@@ -349,5 +347,3 @@ CommunityFundCreatePaymentRequestDialog::~CommunityFundCreatePaymentRequestDialo
 {
     delete ui;
 }
-
-

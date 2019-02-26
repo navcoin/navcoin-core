@@ -59,7 +59,6 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
     ui->labelDurationTitle->setVisible(false);
     ui->labelDuration->setVisible(false);
     ui->labelWarning->setVisible(false);
-
     ui->labelProposalHash->setText(QString(prequest->proposalhash.ToString().c_str()));
     ui->labelDescription->setText(QString(prequest->strDZeel.c_str()));
 
@@ -88,9 +87,7 @@ void SendCommunityFundDialog::countDown()
     updateYesButton();
 
     if(secDelay <= 0)
-    {
         countDownTimer.stop();
-    }
 }
 
 int SendCommunityFundDialog::exec()
