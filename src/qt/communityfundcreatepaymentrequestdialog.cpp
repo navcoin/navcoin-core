@@ -125,7 +125,27 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             return false;
         }
 
-        //EnsureWalletIsUnlocked(); TODO Replace this
+        // Ensure wallet is unlocked
+        if (pwalletMain->IsLocked()) {
+            QMessageBox msgBox(this);
+            std::string str = "Please unlock the wallet\n";
+            msgBox.setText(tr(str.c_str()));
+            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setWindowTitle("Error");
+            msgBox.exec();
+            return false;
+        }
+        if (fWalletUnlockStakingOnly) {
+            QMessageBox msgBox(this);
+            std::string str = "Wallet is unlocked for staking only\n";
+            msgBox.setText(tr(str.c_str()));
+            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setWindowTitle("Error");
+            msgBox.exec();
+            return false;
+        }
 
         // Get Key
         CKey key;
