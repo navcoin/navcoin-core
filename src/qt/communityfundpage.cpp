@@ -208,8 +208,18 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                         if (prequest.fState != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos && flag == CFund::EXPIRED) {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
+                        // If the prequest is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
+                        if (flag == CFund::ACCEPTED && prequest.fState != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos) {
+                            append(new CommunityFundDisplayPaymentRequest(0, prequest));
+                        }
+                        // If the prequest is rejected and waiting for funds or the end of the voting cycle, show in the rejected filter
+                        if (flag == CFund::REJECTED && prequest.fState != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos) {
+                            append(new CommunityFundDisplayPaymentRequest(0, prequest));
+                        }
                         // Display prequests with the appropriate flag and have not expired before the voting cycle has ended
-                        if (prequest.fState != flag || (flag != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos))
+                        if (prequest.fState != flag || (flag != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos ||
+                                                        flag != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos ||
+                                                        flag != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos))
                             continue;
                         append(new CommunityFundDisplayPaymentRequest(0, prequest));
                     }
