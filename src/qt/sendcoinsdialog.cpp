@@ -20,7 +20,6 @@
 #include "utilstrencodings.h"
 #include "navtechinit.h"
 #include "navtechsetup.h"
-//#include "chainparams.h"
 
 #include "base58.h"
 #include "coincontrol.h"
@@ -60,7 +59,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
     connect(ui->noNavtechButton, SIGNAL(clicked()), this, SLOT(showNavTechDialog()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
-    connect(ui->donateCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setDonate(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
 
     // Coin Control: clipboard actions
@@ -232,17 +230,12 @@ void SendCoinsDialog::on_sendButton_clicked()
     SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
     if(entry)
     {
-        if(entry->validate(ui->donateCheckBox))
+        if(entry->validate())
         {
             SendCoinsRecipient recipient = entry->getValue();
             CAmount nAmount = recipient.amount;
             double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
-            if(ui->donateCheckBox->checkState() == Qt::Checked)
-            {
-                recipient.address = QString("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
-                recipient.isDonation = true;
-            }
             if(ui->anonsendCheckbox->checkState() != 0) {
                 try
                 {
@@ -349,8 +342,10 @@ void SendCoinsDialog::on_sendButton_clicked()
             }
             else
             {
+
                 recipient.isanon = false;
                 recipients.append(recipient);
+
             }
 
         }
@@ -364,6 +359,8 @@ void SendCoinsDialog::on_sendButton_clicked()
     {
         return;
     }
+
+
     fNewRecipientAllowed = false;
     WalletModel::UnlockContext ctx(model->requestUnlock());
     if(!ctx.isValid())
@@ -381,6 +378,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         prepareStatus = model->prepareTransaction(currentTransaction, CoinControlDialog::coinControl);
     else
         prepareStatus = model->prepareTransaction(currentTransaction);
+
     // process prepareStatus and on error generate message shown to user
     processSendCoinsReturn(prepareStatus,
         NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
@@ -405,6 +403,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         }
     }
 
+
     CAmount txFee = currentTransaction.getTransactionFee();
     CAmount anonfee;
     CAmount nTotalAmount = 0;
@@ -426,10 +425,9 @@ void SendCoinsDialog::on_sendButton_clicked()
         QString amount = "<b>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount);
         amount.append("</b>");
         // generate monospace address string
-        QString address = rcp.isDonation ? QString(tr("the community fund")) : "<span style='font-family: monospace;'>" + rcp.address + "</span>";
-        //QString address = "<span style='font-family: monospace;'>";
-        //address += rcp.isDonation ? QString(tr("the community fund")) : rcp.address;
-        //address.append("</span>");
+        QString address = "<span style='font-family: monospace;'>" + rcp.address;
+        address.append("</span>");
+
         QString recipientElement;
         int nLength = currentTransaction.recipients.length();
 
@@ -489,6 +487,8 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     }
 
+
+
     // add total amount in all subdivision units
     questionString.append("<hr />");
     CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee + anonfee;
@@ -515,6 +515,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     }
 
     WalletModel::SendCoinsReturn sendStatus;
+
     // now send the prepared transaction
     if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
         sendStatus = model->sendCoins(currentTransaction, CoinControlDialog::coinControl);
@@ -531,9 +532,6 @@ void SendCoinsDialog::on_sendButton_clicked()
         coinControlUpdateLabels();
     }
     fNewRecipientAllowed = true;
-
-    // reset donation box (does emit SIGNAL)
-    ui->donateCheckBox->setCheckState(Qt::Unchecked);
 }
 
 void SendCoinsDialog::clear()
@@ -544,6 +542,7 @@ void SendCoinsDialog::clear()
         ui->entries->takeAt(0)->widget()->deleteLater();
     }
     addEntry();
+
     updateTabsAndLabels();
 }
 
@@ -558,26 +557,6 @@ void SendCoinsDialog::showNavTechDialog()
     checkNavtechServers();
 }
 
-void SendCoinsDialog::setDonate(int state)
-{
-    SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
-    QValidatedLineEdit* addressLine = entry->findChild<QValidatedLineEdit*>("payTo");
-    entry->clear();
-    if(state)
-    {
-        addressLine->setPlaceholderText(QObject::tr("Community Fund Contribution"));
-        addressLine->setEnabled(false);
-    }
-    else
-    {
-        addressLine->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address"));
-
-        //addressLine->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address (e.g. %1)").arg(
-        //    QString::fromStdString(GUIUtil::DummyAddress(Params()))));
-
-        addressLine->setEnabled(true);
-    }
-}
 void SendCoinsDialog::reject()
 {
     clear();
@@ -656,6 +635,7 @@ void SendCoinsDialog::setAddress(const QString &address)
     {
         entry = addEntry();
     }
+
     entry->setAddress(address);
 }
 
@@ -1053,6 +1033,7 @@ void SendCoinsDialog::coinControlUpdateLabels()
         ui->radioCustomAtLeast->setVisible(false);
         return;
     }
+
     // set pay amounts
     CoinControlDialog::payAmounts.clear();
     CoinControlDialog::fSubtractFeeFromAmount = false;
