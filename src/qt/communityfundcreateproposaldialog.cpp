@@ -52,7 +52,7 @@ bool CommunityFundCreateProposalDialog::validate()
     bool isValid = true;
     if(!ui->lineEditNavcoinAddress->isValid() || (ui->lineEditNavcoinAddress->text() == QString("")))
     {
-        // styling must be done manually as an empty field returns valid (true)
+        // Styling must be done manually as an empty field returns valid (true)
         ui->lineEditNavcoinAddress->setStyleSheet(STYLE_INVALID);
         ui->lineEditNavcoinAddress->setValid(false);
         isValid = false;

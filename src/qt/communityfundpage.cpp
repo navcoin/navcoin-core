@@ -34,6 +34,7 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
+    // Connect push buttons to functions
     connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(click_radioButtonAll()));
     connect(ui->radioButtonYourVote, SIGNAL(clicked()), this, SLOT(click_radioButtonYourVote()));
     connect(ui->radioButtonPending, SIGNAL(clicked()), this, SLOT(click_radioButtonPending()));
@@ -43,35 +44,32 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this , SLOT(click_pushButtonCreateProposal()));
     connect(ui->pushButtonCreatePaymentRequest, SIGNAL(clicked()), this, SLOT(click_pushButtonCreatePaymentRequest()));
 
-    //fetch cfund info
     refresh(true, true);
 }
 
 void CommunityFundPage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
-
     refresh(true, true);
     ui->radioButtonAll->setChecked(true);
 }
 
 void CommunityFundPage::refreshTab()
 {
-    if(ui->radioButtonAll->isChecked()) {
+    if(ui->radioButtonAll->isChecked())
         refresh(true, viewing_proposals);
-    }
-    else {
+    else
         refresh(false, viewing_proposals);
-    }
 }
 
 void CommunityFundPage::deleteChildWidgets(QLayoutItem *item) {
   QLayout *layout = item->layout();
-  if (layout) {
-    // Process all child items recursively.
+  if (layout)
+  {
     int itemCount = ui->gridLayout->count();
-    for (int i = 0; i < itemCount; i++) {
-      deleteChildWidgets(ui->gridLayout->itemAt(i));
+    for (int index = 0; index < itemCount; index++)
+    {
+      deleteChildWidgets(ui->gridLayout->itemAt(index));
     }
   }
   delete item->widget();
@@ -79,32 +77,31 @@ void CommunityFundPage::deleteChildWidgets(QLayoutItem *item) {
 
 void CommunityFundPage::reset()
 {
-    for (int i = ui->gridLayout->count() - 1; i >= 0; i--) {
-      int r, c, rs, cs;
-      ui->gridLayout->getItemPosition(i, &r, &c, &rs, &cs);
-        // This layout item is subject to deletion.
-        QLayoutItem *item = ui->gridLayout->takeAt(i);
+    for (int index = ui->gridLayout->count() - 1; index >= 0; --index)
+    {
+      int row, column, rowSpan, columnSpan;
+      ui->gridLayout->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
+        QLayoutItem *item = ui->gridLayout->takeAt(index);
         deleteChildWidgets(item);
         delete item;
-      }
+    }
 }
+
 void CommunityFundPage::append(QWidget* widget)
 {
     int index = ui->gridLayout->count();
-    int* row = new int(0);
-    int* column = new int(0);
-    int* rowSpan = new int(0);
-    int* columnSpan = new int(0);
-    ui->gridLayout->getItemPosition(index, row, column, rowSpan,columnSpan);
-    *row = int(index/2);
-    *column = index%2;
-    ui->gridLayout->addWidget(widget,*row,*column);
+    int row, column, rowSpan, columnSpan;
+    ui->gridLayout->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
+    row = int(index/2);
+    column = index%2;
+    ui->gridLayout->addWidget(widget, row, column);
 }
 
 void CommunityFundPage::refresh(bool all, bool proposal)
 {
     reset();
 
+    // Format avaliable amount in the community fund
     stringstream a;
     a.imbue(std::locale(""));
     a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/100000000.0;
@@ -116,6 +113,7 @@ void CommunityFundPage::refresh(bool all, bool proposal)
     available.append(" NAV");
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
+    // Format locked amount in the community fund
     stringstream l;
     l.imbue(std::locale(""));
     l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/100000000.0;
@@ -127,6 +125,33 @@ void CommunityFundPage::refresh(bool all, bool proposal)
     locked.append(" NAV");
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
 
+    {
+        int64_t spent_nav = 0;
+        std::vector<CFund::CPaymentRequest> vec;
+        if(pblocktree->GetPaymentRequestIndex(vec))
+        {
+            BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec)
+            {
+                if(prequest.fState == CFund::ACCEPTED)
+                {
+                    spent_nav = spent_nav + prequest.nAmount;
+                }
+            }
+            stringstream s;
+            s.imbue(std::locale(""));
+            s << fixed << setprecision(8) << spent_nav/100000000.0;
+            string spent = s.str();
+            spent.erase(spent.find_last_not_of("0") + 1, std::string::npos );
+            if(spent.at(spent.length()-1) == '.')
+            {
+                spent = spent.substr(0, spent.size()-1);
+            }
+            spent.append(" NAV");
+            ui->labelSpentAmount->setText(QString::fromStdString(spent));
+        }
+    }
+
+    // Propulate proposal grid
     if (proposal) {
         std::vector<CFund::CProposal> vec;
         if(pblocktree->GetProposalIndex(vec))
@@ -138,23 +163,30 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                 }
                 else {
                     // If the filter is set to my vote, filter to only pending proposals which have been voted for
-                    if (viewing_voted) {
-                        if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
+                    if (viewing_voted)
+                    {
+                        if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+                        {
                             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
                                                     [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-                            if (it != vAddedProposalVotes.end()) {
+                            if (it != vAddedProposalVotes.end())
+                            {
                                 append(new CommunityFundDisplay(0, proposal));
-                            } else {
+                            } else
+                            {
                                 continue;
                             }
                         }
-                        else {
+                        else
+                        {
                             continue;
                         }
                     }
-                    else {
+                    else
+                    {
                         // If the flag is expired, be sure to display proposals without the expired state if they have expired before the end of the voting cycle
-                        if (proposal.fState != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == CFund::EXPIRED) {
+                        if (proposal.fState != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == CFund::EXPIRED)
+                        {
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // If the proposal is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
@@ -176,36 +208,44 @@ void CommunityFundPage::refresh(bool all, bool proposal)
             }
         }
     }
-    else {
+    else
+    { //Payment request listings
         std::vector<CFund::CPaymentRequest> vec;
         if(pblocktree->GetPaymentRequestIndex(vec))
         {
             BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-                // List each payment request here
-
                 // If wanting to view all prequests
-                if (all) {
+                if (all)
+                {
                     append(new CommunityFundDisplayPaymentRequest(0, prequest));
                 }
-                else {
+                else
+                {
                     // If the filter is set to my vote, filter to only pending proposals which have been voted for
-                    if (viewing_voted) {
-                        if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos) {
+                    if (viewing_voted)
+                    {
+                        if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos)
+                        {
                             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
                                                     [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
-                            if (it != vAddedPaymentRequestVotes.end()) {
+                            if (it != vAddedPaymentRequestVotes.end())
+                            {
                                 append(new CommunityFundDisplayPaymentRequest(0, prequest));
-                            } else {
+                            } else
+                            {
                                 continue;
                             }
                         }
-                        else {
+                        else
+                        {
                             continue;
                         }
                     }
-                    else {
+                    else
+                    {
                         // If the flag is expired, be sure to display prequests without the expired state if they have expired before the end of the voting cycle
-                        if (prequest.fState != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos && flag == CFund::EXPIRED) {
+                        if (prequest.fState != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos && flag == CFund::EXPIRED)
+                        {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // If the prequest is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
@@ -221,35 +261,12 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                                                         flag != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos ||
                                                         flag != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos))
                             continue;
+                        }
                         append(new CommunityFundDisplayPaymentRequest(0, prequest));
                     }
                 }
             }
         }
-    }
-
-    {
-    int64_t spent_nav = 0;
-    std::vector<CFund::CPaymentRequest> vec;
-    if(pblocktree->GetPaymentRequestIndex(vec))
-    {
-        BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-            if(prequest.fState == CFund::ACCEPTED) {
-                spent_nav = spent_nav + prequest.nAmount;
-            }
-        }
-
-        stringstream s;
-        s.imbue(std::locale(""));
-        s << fixed << setprecision(8) << spent_nav/100000000.0;
-        string spent = s.str();
-        spent.erase(spent.find_last_not_of("0") + 1, std::string::npos );
-        if(spent.at(spent.length()-1) == '.') {
-            spent = spent.substr(0, spent.size()-1);
-        }
-        spent.append(" NAV");
-        ui->labelSpentAmount->setText(QString::fromStdString(spent));
-    }
     }
 }
 
@@ -266,12 +283,7 @@ void CommunityFundPage::click_pushButtonProposals()
 
     viewing_proposals = true;
 
-    if(ui->radioButtonAll->isChecked()) {
-        refresh(true, true);
-    }
-    else {
-        refresh(false, true);
-    }
+    refresh(ui->radioButtonAll->isChecked(), true);
 }
 
 void CommunityFundPage::click_pushButtonPaymentRequests()
@@ -287,12 +299,7 @@ void CommunityFundPage::click_pushButtonPaymentRequests()
 
     viewing_proposals = false;
 
-    if(ui->radioButtonAll->isChecked()) {
-        refresh(true, false);
-    }
-    else {
-        refresh(false, false);
-    }
+    refresh(ui->radioButtonAll->isChecked(), false);
 }
 
 void CommunityFundPage::click_radioButtonAll()
@@ -340,13 +347,15 @@ void CommunityFundPage::click_radioButtonExpired()
 void CommunityFundPage::click_pushButtonCreateProposal()
 {
     CommunityFundCreateProposalDialog dlg(this);
-    dlg.exec();
+    dlg.exec();  
+    refresh(ui->radioButtonAll->isChecked(), true);
 }
 
 void CommunityFundPage::click_pushButtonCreatePaymentRequest()
 {
     CommunityFundCreatePaymentRequestDialog dlg(this);
     dlg.exec();
+    refresh(ui->radioButtonAll->isChecked(), false);
 }
 
 CommunityFundPage::~CommunityFundPage()

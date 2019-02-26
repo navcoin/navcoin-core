@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QLayoutItem>
 
+// Color constants
 #define COLOR_VOTE_YES "background-color: #90ee90;"
 #define COLOR_VOTE_NO "background-color: #f08080;"
 #define COLOR_VOTE_NEUTRAL "background-color: #f3f4f6;"
