@@ -157,8 +157,18 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                         if (proposal.fState != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == CFund::EXPIRED) {
                             append(new CommunityFundDisplay(0, proposal));
                         }
+                        // If the proposal is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
+                        if (flag == CFund::ACCEPTED && proposal.fState != CFund::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) {
+                            append(new CommunityFundDisplay(0, proposal));
+                        }
+                        // If the proposal is rejected and waiting for funds or the end of the voting cycle, show in the rejected filter
+                        if (flag == CFund::REJECTED && proposal.fState != CFund::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos) {
+                            append(new CommunityFundDisplay(0, proposal));
+                        }
                         // Display proposals with the appropriate flag and have not expired before the voting cycle has ended
-                        if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos))
+                        if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos ||
+                                                        flag != CFund::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos ||
+                                                         flag != CFund::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos))
                             continue;
                         append(new CommunityFundDisplay(0, proposal));
                     }
