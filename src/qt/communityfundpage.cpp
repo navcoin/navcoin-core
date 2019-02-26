@@ -44,24 +44,24 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->pushButtonCreatePaymentRequest, SIGNAL(clicked()), this, SLOT(click_pushButtonCreatePaymentRequest()));
 
     //fetch cfund info
-    Refresh(true, true);
+    refresh(true, true);
 }
 
 void CommunityFundPage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
 
-    Refresh(true, true);
+    refresh(true, true);
     ui->radioButtonAll->setChecked(true);
 }
 
 void CommunityFundPage::refreshTab()
 {
     if(ui->radioButtonAll->isChecked()) {
-        Refresh(true, viewing_proposals);
+        refresh(true, viewing_proposals);
     }
     else {
-        Refresh(false, viewing_proposals);
+        refresh(false, viewing_proposals);
     }
 }
 
@@ -101,7 +101,7 @@ void CommunityFundPage::append(QWidget* widget)
     ui->gridLayout->addWidget(widget,*row,*column);
 }
 
-void CommunityFundPage::Refresh(bool all, bool proposal)
+void CommunityFundPage::refresh(bool all, bool proposal)
 {
     reset();
 
@@ -247,10 +247,10 @@ void CommunityFundPage::click_pushButtonProposals()
     viewing_proposals = true;
 
     if(ui->radioButtonAll->isChecked()) {
-        Refresh(true, true);
+        refresh(true, true);
     }
     else {
-        Refresh(false, true);
+        refresh(false, true);
     }
 }
 
@@ -268,10 +268,10 @@ void CommunityFundPage::click_pushButtonPaymentRequests()
     viewing_proposals = false;
 
     if(ui->radioButtonAll->isChecked()) {
-        Refresh(true, false);
+        refresh(true, false);
     }
     else {
-        Refresh(false, false);
+        refresh(false, false);
     }
 }
 
@@ -279,48 +279,48 @@ void CommunityFundPage::click_radioButtonAll()
 {
     flag = CFund::NIL;
     viewing_voted = false;
-    Refresh(true, viewing_proposals);
+    refresh(true, viewing_proposals);
 }
 
 void CommunityFundPage::click_radioButtonYourVote()
 {
     flag = CFund::NIL;
     viewing_voted = true;
-    Refresh(false, viewing_proposals);
+    refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::click_radioButtonPending()
 {
     flag = CFund::NIL;
     viewing_voted = false;
-    Refresh(false, viewing_proposals);
+    refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::click_radioButtonAccepted()
 {
     flag = CFund::ACCEPTED;
     viewing_voted = false;
-    Refresh(false, viewing_proposals);
+    refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::click_radioButtonRejected()
 {
     flag = CFund::REJECTED;
     viewing_voted = false;
-    Refresh(false, viewing_proposals);
+    refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::click_radioButtonExpired()
 {
     flag = CFund::EXPIRED;
     viewing_voted = false;
-    Refresh(false, viewing_proposals);
+    refresh(false, viewing_proposals);
 }
 
 void CommunityFundPage::click_pushButtonCreateProposal()
 {
-        CommunityFundCreateProposalDialog dlg(this);
-        dlg.exec();
+    CommunityFundCreateProposalDialog dlg(this);
+    dlg.exec();
 }
 
 void CommunityFundPage::click_pushButtonCreatePaymentRequest()
