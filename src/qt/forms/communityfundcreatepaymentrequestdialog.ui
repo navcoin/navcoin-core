@@ -83,7 +83,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Description:</string>
+        <string>ID:</string>
        </property>
       </widget>
      </item>
