@@ -1,7 +1,8 @@
 #include "communityfundcreatepaymentrequestdialog.h"
 #include "ui_communityfundcreatepaymentrequestdialog.h"
-
+#include "communityfundsuccessdialog.h"
 #include "sendcommunityfunddialog.h"
+
 #include "consensus/cfund.h"
 #include "main.h"
 #include "main.cpp"
@@ -9,6 +10,11 @@
 #include "skinize.h"
 #include <QMessageBox>
 #include <iostream>
+#include "guiutil.h"
+#include "sync.h"
+#include "wallet/wallet.h"
+#include "base58.h"
+#include <string>
 
 std::string random_string_owo( size_t length )
 {
@@ -230,54 +236,84 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             return false;
         }
 
-        // TODO Implement the SendMoney() part
-        //SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true);
-
-        bool donate = true;
+        // Check balance
         CAmount curBalance = pwalletMain->GetBalance();
-
-        if (nReqAmount <= 0)
+        if (curBalance <= 10000) {
+            QMessageBox msgBox(this);
+            std::string str = "You require at least 50 NAV mature and available to create a proposal\n";
+            msgBox.setText(tr(str.c_str()));
+            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setWindowTitle("Insufficient NAV");
+            msgBox.exec();
             return false;
+        }
 
-        if (nReqAmount > curBalance)
-            return false;
-
-        // Parse NavCoin address (currently crashes wallet)
-        CScript scriptPubKey = GetScriptForDestination(address.Get());
-
-        if(donate)
-          CFund::SetScriptForCommunityFundContribution(scriptPubKey);
-
-        // Create and send the transaction
-        CReserveKey reservekey(pwalletMain);
-        CAmount nFeeRequired;
-        std::string strError;
-        vector<CRecipient> vecSend;
-        int nChangePosRet = -1;
-        CRecipient recipient = {scriptPubKey, nReqAmount, fSubtractFeeFromAmount, ""};
-        vecSend.push_back(recipient);
-
-        //create confirmation dialog
+        //create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
-        CFund::CPaymentRequest* preq = new CFund::CPaymentRequest();
-        preq->nAmount = proposal.nAmount;
-        preq->fState = proposal.fState;
-        preq->strDZeel = proposal.strDZeel;
-        SendCommunityFundDialog dlg(this, preq, 10);
-        if(dlg.exec()== QDialog::Rejected)
-            return false;
-        }
+            //create confirmation dialog
+            CFund::CPaymentRequest* preq = new CFund::CPaymentRequest();
+            preq->nAmount = ui->lineEditRequestedAmount->value();
+            preq->proposalhash = proposal.hash;
+            preq->strDZeel = ui->plainTextEditDescription->toPlainText().toStdString();
 
-        if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel.get_str())) {
-            if (!fSubtractFeeFromAmount && nReqAmount + nFeeRequired > pwalletMain->GetBalance());
-        }
-        if (!pwalletMain->CommitTransaction(wtx, reservekey));
-        return true;
+            SendCommunityFundDialog dlg(this, preq, 10);
+            if(dlg.exec()== QDialog::Rejected) {
+                // User Declined to make the prequest
+                return false;
+            }
+            else {
 
+                // User accepted making the prequest
+                // Parse NavCoin address
+                CScript CFContributionScript;
+                CScript scriptPubKey = GetScriptForDestination(address.Get());
+                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+
+                // Create and send the transaction
+                CReserveKey reservekey(pwalletMain);
+                CAmount nFeeRequired;
+                std::string strError;
+                vector<CRecipient> vecSend;
+                int nChangePosRet = -1;
+                CAmount nValue = 1000;
+                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+                vecSend.push_back(recipient);
+
+                bool created_prequest = true;
+
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+                    if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
+                        created_prequest = false;
+                    }
+                }
+                if (!pwalletMain->CommitTransaction(wtx, reservekey)) {
+                    created_prequest = false;
+                }
+
+                // If the proposal was successfully made, confirm to the user it was made
+                if (created_prequest) {
+                    // Display success UI
+                    CommunityFundSuccessDialog dlg(wtx.GetHash(), this, preq);
+                    dlg.exec();
+                    return true;
+                }
+                else {
+                    // Display something went wrong UI
+                    QMessageBox msgBox(this);
+                    std::string str = "Payment Request creation failed\n";
+                    msgBox.setText(tr(str.c_str()));
+                    msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+                    msgBox.setIcon(QMessageBox::Warning);
+                    msgBox.setWindowTitle("Error");
+                    msgBox.exec();
+                    return false;
+                }
+            }
+        }
     }
     else
     {
-
         QMessageBox msgBox(this);
         std::string str = "Please enter a valid:\n";
         if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
@@ -294,6 +330,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         return false;
     }
 }
+
 bool CommunityFundCreatePaymentRequestDialog::isActiveProposal(uint256 hash)
 {
     std::vector<CFund::CProposal> vec;
