@@ -33,6 +33,7 @@ public:
     void setWalletModel(WalletModel *walletModel);
     void refreshTab();
     ~CommunityFundPage();
+    void append(QWidget* widget);
     void Refresh(bool all, bool proposal);
     void deleteChildWidgets(QLayoutItem *item);
     void reset();
