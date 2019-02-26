@@ -13,9 +13,6 @@
 #include "wallet/wallet.h"
 #include "base58.h"
 #include "main.h"
-#include "wallet/rpcwallet.h"
-#include "wallet/rpcwallet.cpp"
-#include "wallet/wallet.h"
 #include <string>
 
 CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *parent) :
@@ -92,9 +89,6 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
-        // CFund Fee Amount
-        CAmount nAmount = Params().GetConsensus().nProposalMinimalFee;
-
         CWalletTx wtx;
         bool fSubtractFeeFromAmount = false;
 
@@ -132,7 +126,27 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             return false;
         }
 
-        EnsureWalletIsUnlocked();
+        // Ensure wallet is unlocked
+        if (pwalletMain->IsLocked()) {
+            QMessageBox msgBox(this);
+            std::string str = "Please unlock the wallet\n";
+            msgBox.setText(tr(str.c_str()));
+            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setWindowTitle("Error");
+            msgBox.exec();
+            return false;
+        }
+        if (fWalletUnlockStakingOnly) {
+            QMessageBox msgBox(this);
+            std::string str = "Wallet is unlocked for staking only\n";
+            msgBox.setText(tr(str.c_str()));
+            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setWindowTitle("Error");
+            msgBox.exec();
+            return false;
+        }
 
         // Check balance
         CAmount curBalance = pwalletMain->GetBalance();
