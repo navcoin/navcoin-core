@@ -266,12 +266,7 @@ void CommunityFundPage::click_pushButtonProposals()
 
     viewing_proposals = true;
 
-    if(ui->radioButtonAll->isChecked()) {
-        refresh(true, true);
-    }
-    else {
-        refresh(false, true);
-    }
+    refresh(ui->radioButtonAll->isChecked(), true);
 }
 
 void CommunityFundPage::click_pushButtonPaymentRequests()
@@ -287,12 +282,7 @@ void CommunityFundPage::click_pushButtonPaymentRequests()
 
     viewing_proposals = false;
 
-    if(ui->radioButtonAll->isChecked()) {
-        refresh(true, false);
-    }
-    else {
-        refresh(false, false);
-    }
+    refresh(ui->radioButtonAll->isChecked(), false);
 }
 
 void CommunityFundPage::click_radioButtonAll()
