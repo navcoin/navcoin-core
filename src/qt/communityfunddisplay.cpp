@@ -64,11 +64,6 @@ void CommunityFundDisplay::refresh()
 
     uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
 
-
-    //use guiutil formatDurationStr function here
-    //QString owo = GUIUtil::formatDurationStr(int(deadline));
-    //std::cout << owo.toStdString() << "\n";
-
     uint64_t deadline_d = std::floor(deadline/86400);
     uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
@@ -137,17 +132,20 @@ void CommunityFundDisplay::refresh()
         if (it != vAddedProposalVotes.end()) {
             if (it->second) {
                 // Proposal was voted yes, shade in yes button and unshade no button
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             }
             else {
                 // Proposal was noted no, shade in no button and unshade yes button
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
             }
         }
         else {
             // Proposal was not voted on, reset shades of both buttons
+            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
             ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
 
@@ -166,31 +164,6 @@ void CommunityFundDisplay::refresh()
         title_string.append("...");
     }
     ui->title->setText(QString::fromStdString(title_string));
-
-    //hide cancel button on proposals which have not been voted on
-
-    std::string cur_hash = proposal.hash.ToString();
-    for(std::pair<std::string, bool> obj: vAddedProposalVotes)
-    {
-        //add cancel button on hash match
-        if(obj.first == cur_hash)
-        {
-            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
-
-            // add colour to vote type
-            if(obj.second == true)
-            {
-                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
-                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-            }
-            else
-            {
-                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
-            }
-        }
-    }
-
 }
 
 void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
@@ -229,7 +202,6 @@ void CommunityFundDisplay::click_pushButtonDetails()
     CommunityFundDisplayDetailed dlg(this, proposal);
     dlg.exec();
     refresh();
-
 }
 
 CommunityFundDisplay::~CommunityFundDisplay()

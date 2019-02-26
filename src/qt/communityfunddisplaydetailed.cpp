@@ -46,7 +46,6 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
             ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
             ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-
         }
     }
 
