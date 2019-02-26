@@ -282,8 +282,7 @@ void CommunityFundPage::click_pushButtonProposals()
     ui->pushButtonPaymentRequests->setFont(f);
 
     viewing_proposals = true;
-
-    refresh(ui->radioButtonAll->isChecked(), true);
+    refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
 void CommunityFundPage::click_pushButtonPaymentRequests()
@@ -298,8 +297,7 @@ void CommunityFundPage::click_pushButtonPaymentRequests()
     ui->pushButtonPaymentRequests->setFont(f);
 
     viewing_proposals = false;
-
-    refresh(ui->radioButtonAll->isChecked(), false);
+    refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
 void CommunityFundPage::click_radioButtonAll()
@@ -348,14 +346,14 @@ void CommunityFundPage::click_pushButtonCreateProposal()
 {
     CommunityFundCreateProposalDialog dlg(this);
     dlg.exec();  
-    refresh(ui->radioButtonAll->isChecked(), true);
+    refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
 void CommunityFundPage::click_pushButtonCreatePaymentRequest()
 {
     CommunityFundCreatePaymentRequestDialog dlg(this);
     dlg.exec();
-    refresh(ui->radioButtonAll->isChecked(), false);
+    refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
 CommunityFundPage::~CommunityFundPage()
