@@ -111,15 +111,15 @@ QT_FORMS_UI = \
         qt/forms/communityfundsuccessdialog.ui \
 	qt/forms/signverifymessagedialog.ui \
 	qt/forms/transactiondescdialog.ui \
+        qt/forms/communityfundpage.ui \
+        qt/forms/communityfunddisplay.ui \
+        qt/forms/communityfunddisplaypaymentrequest.ui \
+        qt/forms/communityfunddisplaypaymentrequestdetailed.ui \
 	qt/navtechinit.ui \
 	qt/navtechitem.ui \
 	qt/navtechsetup.ui \
 	qt/forms/cfund_voting.ui \
-	qt/getaddresstoreceive.ui\
-	qt/communityfundpage.ui \
-	qt/communityfunddisplay.ui \
-        qt/communityfunddisplaypaymentrequest.ui \
-        qt/communityfunddisplaypaymentrequestdetailed.ui
+        qt/getaddresstoreceive.ui
 
 QT_MOC_CPP = \
 	qt/moc_addressbookpage.cpp \
