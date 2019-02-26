@@ -2,6 +2,7 @@
 #define COMMUNITYFUNDCREATEPROPOSALDIALOG_H
 
 #include <QDialog>
+#include "qvalidatedspinbox.h"
 
 namespace Ui {
 class CommunityFundCreateProposalDialog;

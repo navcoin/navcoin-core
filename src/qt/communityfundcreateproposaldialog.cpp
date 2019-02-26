@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QTextListFormat>
 #include <QDialog>
+#include <QSpinBox>
 
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -14,6 +15,7 @@
 #include "base58.h"
 #include "main.h"
 #include <string>
+#include "qvalidatedspinbox.h"
 
 CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *parent) :
     QDialog(parent),
