@@ -198,17 +198,10 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // Display proposals with the appropriate flag and have not expired before the voting cycle has ended
-<<<<<<< HEAD
-                        if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos))
-                        {
-                         continue;
-                        }
-=======
                         if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos ||
                                                         flag != CFund::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos ||
                                                          flag != CFund::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos))
                             continue;
->>>>>>> 8c4a7c8b16e2bc9e8981414af54e00e7362da5fd
                         append(new CommunityFundDisplay(0, proposal));
                     }
                 }
