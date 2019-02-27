@@ -342,7 +342,7 @@ void CommunityFundPage::click_radioButtonExpired()
 void CommunityFundPage::click_pushButtonCreateProposal()
 {
     CommunityFundCreateProposalDialog dlg(this);
-    dlg.exec();  
+    dlg.exec();
     refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 

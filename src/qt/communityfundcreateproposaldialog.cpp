@@ -225,6 +225,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                     // Display success UI
                     CommunityFundSuccessDialog dlg(wtx.GetHash(), this, proposal);
                     dlg.exec();
+                    QDialog::accept();
                     return true;
                 }
                 else {

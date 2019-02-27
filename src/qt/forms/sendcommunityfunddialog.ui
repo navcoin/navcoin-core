@@ -18,6 +18,13 @@
     <layout class="QVBoxLayout" name="verticalLayoutCommunityFundDialog">
      <item>
       <widget class="QLabel" name="labelQuestionTitle">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>Are you sure you would like to create the following proposal?</string>
        </property>
@@ -44,6 +51,13 @@
            <width>120</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
          </property>
          <property name="text">
           <string>Address:</string>
@@ -87,6 +101,12 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Proposal Hash:</string>
          </property>
@@ -129,6 +149,12 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Requested Amount:</string>
          </property>
@@ -165,6 +191,12 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Description:</string>
          </property>
@@ -200,6 +232,12 @@
            <width>120</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
          </property>
          <property name="text">
           <string>Duration:</string>

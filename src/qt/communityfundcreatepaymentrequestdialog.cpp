@@ -294,6 +294,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                     // Display success UI
                     CommunityFundSuccessDialog dlg(wtx.GetHash(), this, preq);
                     dlg.exec();
+                    QDialog::accept();
                     return true;
                 }
                 else {
