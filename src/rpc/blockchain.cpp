@@ -77,6 +77,8 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
         }
     }
     result.push_back(Pair("accumulators", accumulators));
+    result.push_back(Pair("accumulatedpublicfee", FormatMoney(blockindex->nAccumulatedPublicFee)));
+    result.push_back(Pair("accumulatedprivatefee", FormatMoney(blockindex->nAccumulatedPrivateFee)));
     result.push_back(Pair("nonce", (uint64_t)blockindex->nNonce));
     result.push_back(Pair("bits", strprintf("%08x", blockindex->nBits)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
