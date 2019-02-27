@@ -57,10 +57,7 @@ void CommunityFundPage::setWalletModel(WalletModel *model)
 
 void CommunityFundPage::refreshTab()
 {
-    if(ui->radioButtonAll->isChecked())
-        refresh(true, viewing_proposals);
-    else
-        refresh(false, viewing_proposals);
+    refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
 void CommunityFundPage::deleteChildWidgets(QLayoutItem *item) {
@@ -199,9 +196,9 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // Display proposals with the appropriate flag and have not expired before the voting cycle has ended
-                        if (proposal.fState != flag || (flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos ||
-                                                        flag != CFund::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos ||
-                                                         flag != CFund::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos))
+                        if (proposal.fState != flag || ((flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) ||
+                                                        (flag != CFund::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) ||
+                                                         (flag != CFund::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos)))
                             continue;
                         append(new CommunityFundDisplay(0, proposal));
                     }
@@ -258,9 +255,9 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // Display prequests with the appropriate flag and have not expired before the voting cycle has ended
-                        if (prequest.fState != flag || (flag != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos ||
-                                                        flag != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos ||
-                                                        flag != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos))
+                        if (prequest.fState != flag || ((flag != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos) ||
+                                                        (flag != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos) ||
+                                                        (flag != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos)))
                             continue;
                         append(new CommunityFundDisplayPaymentRequest(0, prequest));
                     }
