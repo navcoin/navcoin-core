@@ -1103,7 +1103,7 @@
     </message>
     <message>
         <location line="+82"/>
-        <source>There are new proposals or payment requests in the Community Fund.&lt;br&gt;&lt;br&gt;As a staker it&apos;s important to engage in the voting process.&lt;br&gt;&lt;br&gt;Please cast your vote using the voting dialog!</source>
+        <source>There are new proposals or payment requests in the Community Fund.&lt;br&gt;&lt;br&gt;As a staker it&apos;s important to engage in the voting process.&lt;br&gt;&lt;br&gt;Please cast your vote using the Community Fund tab!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
