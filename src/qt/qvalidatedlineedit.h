@@ -6,6 +6,7 @@
 #define NAVCOIN_QT_QVALIDATEDLINEEDIT_H
 
 #include <QLineEdit>
+#include <QDialog>
 
 /** Line edit that can be marked as "invalid" to show input validation feedback. When marked as invalid,
    it will get a red background until it is focused.

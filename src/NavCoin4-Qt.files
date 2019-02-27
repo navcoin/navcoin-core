@@ -643,6 +643,8 @@ qt/qvalidatedlineedit.cpp
 qt/qvalidatedlineedit.h
 qt/qvalidatedplaintextedit.cpp
 qt/qvalidatedplaintextedit.h
+qt/qvalidatedspinbox.cpp
+qt/qvalidatedspinbox.h
 qt/qvaluecombobox.cpp
 qt/qvaluecombobox.h
 qt/receivecoinsdialog.cpp
