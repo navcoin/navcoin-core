@@ -30,6 +30,10 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
 
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this, SLOT(click_pushButtonCreateProposal()));
+    connect(ui->spinBoxDays, SIGNAL(clickedSpinBox()), this, SLOT(click_spinBox()));
+    connect(ui->spinBoxMinutes, SIGNAL(clickedSpinBox()), this, SLOT(click_spinBox()));
+    connect(ui->spinBoxHours, SIGNAL(clickedSpinBox()), this, SLOT(click_spinBox()));
+
     connect(ui->spinBoxMinutes, QOverload<int>::of(&QSpinBox::valueChanged),
             [=](int minutes){
                 if(minutes == 60)
@@ -76,6 +80,9 @@ bool CommunityFundCreateProposalDialog::validate()
     }
     if(ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60 <= 0)
     {
+        ui->spinBoxDays->setValid(false);
+        ui->spinBoxHours->setValid(false);
+        ui->spinBoxMinutes->setValid(false);
         isValid = false;
     }
 
@@ -83,6 +90,13 @@ bool CommunityFundCreateProposalDialog::validate()
 }
 
 // Q_SLOTS
+void CommunityFundCreateProposalDialog::click_spinBox() {
+    ui->spinBoxDays->setValid(true);
+    ui->spinBoxHours->setValid(true);
+    ui->spinBoxMinutes->setValid(true);
+}
+
+
 bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 {
     if(this->validate())

@@ -21,6 +21,7 @@ private:
     bool validate();
 private Q_SLOTS:
     bool click_pushButtonCreateProposal();
+    void click_spinBox();
 
 };
 
