@@ -582,9 +582,6 @@ void NavCoinGUI::createMenuBar()
         }
         connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
         settings->addAction(updatePriceAction);
-        QMenu *cfund = appMenuBar->addMenu(tr("&Community Fund"));
-        cfund->addAction(cfundProposalsAction);
-        cfund->addAction(cfundPaymentRequestsAction);
     }
     settings->addAction(optionsAction);
 
