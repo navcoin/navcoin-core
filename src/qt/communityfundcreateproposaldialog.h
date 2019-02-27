@@ -2,6 +2,7 @@
 #define COMMUNITYFUNDCREATEPROPOSALDIALOG_H
 
 #include <QDialog>
+#include "qvalidatedspinbox.h"
 
 namespace Ui {
 class CommunityFundCreateProposalDialog;
@@ -21,6 +22,7 @@ private:
 
 private Q_SLOTS:
     bool click_pushButtonCreateProposal();
+    void click_spinBox();
 
 };
 
