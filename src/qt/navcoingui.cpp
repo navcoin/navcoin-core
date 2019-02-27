@@ -17,7 +17,6 @@
 #include "notificator.h"
 #include "openuridialog.h"
 #include "optionsdialog.h"
-#include "forms/cfund_voting.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
 #include "rpcconsole.h"
@@ -81,6 +80,7 @@
 #include <QJsonObject>
 #include <QVariantMap>
 #include <QJsonArray>
+#include <QDesktopServices>
 
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
@@ -582,9 +582,6 @@ void NavCoinGUI::createMenuBar()
         }
         connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
         settings->addAction(updatePriceAction);
-        QMenu *cfund = appMenuBar->addMenu(tr("&Community Fund"));
-        cfund->addAction(cfundProposalsAction);
-        cfund->addAction(cfundPaymentRequestsAction);
     }
     settings->addAction(optionsAction);
 
@@ -893,27 +890,18 @@ void NavCoinGUI::cfundProposalsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
-
-    CFund_Voting dlg(this, false);
-    dlg.exec();
 }
 
 void NavCoinGUI::cfundProposalsOpen(bool fMode)
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
-
-    CFund_Voting dlg(this, fMode);
-    dlg.exec();
 }
 
 void NavCoinGUI::cfundPaymentRequestsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
-
-    CFund_Voting dlg(this, true);
-    dlg.exec();
 }
 
 void NavCoinGUI::aboutClicked()
@@ -1890,7 +1878,7 @@ void NavCoinGUI::updateStakingStatus()
                 msgbox.setIcon(QMessageBox::Icon::Warning);
                 msgbox.setCheckBox(cb);
                 QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
-                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Voting Window"), QMessageBox::YesRole);
+                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Community Fund"), QMessageBox::YesRole);
                 QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
                 pButtonClose->setVisible(false);
                 this->lastDialogShown = GetTimeNow();
@@ -1904,7 +1892,7 @@ void NavCoinGUI::updateStakingStatus()
                 }
 
                 if (msgbox.clickedButton()==pButtonOpen) {
-                    cfundProposalsOpen(fFoundPaymentRequest);
+                    gotoCommunityFundPage();
                 }
                 if (msgbox.clickedButton()==pButtonInfo) {
                     QString link = QString("https://navcoin.org/en/community-fund/");
