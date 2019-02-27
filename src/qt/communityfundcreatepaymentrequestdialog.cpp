@@ -74,7 +74,7 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
     return isValid;
 }
 
-bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentRequest()
+void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentRequest()
 {
 
     if(this->validate())
@@ -91,7 +91,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Proposal not found");
             msgBox.exec();
-            return false;
+            return;
         }
         if(proposal.fState != CFund::ACCEPTED) {
             QMessageBox msgBox(this);
@@ -101,7 +101,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Proposal not accepted");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Get Address
@@ -114,7 +114,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Address not valid");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Get KeyID
@@ -127,7 +127,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Address not valid");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Ensure wallet is unlocked
@@ -139,7 +139,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Error");
             msgBox.exec();
-            return false;
+            return;
         }
         if (fWalletUnlockStakingOnly) {
             QMessageBox msgBox(this);
@@ -149,7 +149,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Error");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Get Key
@@ -162,7 +162,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Not the owner");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Get fields from form
@@ -189,7 +189,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Sign Failed");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Create Signature
@@ -204,7 +204,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Invalid Amount");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Create wtx
@@ -232,7 +232,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Invalid String");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Check balance
@@ -245,7 +245,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Insufficient NAV");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
@@ -259,7 +259,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             SendCommunityFundDialog dlg(this, preq, 10);
             if(dlg.exec()== QDialog::Rejected) {
                 // User Declined to make the prequest
-                return false;
+                return;
             }
             else {
                 // User accepted making the prequest
@@ -295,7 +295,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                     CommunityFundSuccessDialog dlg(wtx.GetHash(), this, preq);
                     dlg.exec();
                     QDialog::accept();
-                    return true;
+                    return;
                 }
                 else {
                     // Display something went wrong UI
@@ -306,7 +306,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                     msgBox.setIcon(QMessageBox::Warning);
                     msgBox.setWindowTitle("Error");
                     msgBox.exec();
-                    return false;
+                    return;
                 }
             }
         }
@@ -326,7 +326,7 @@ bool CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
-        return false;
+        return;
     }
 }
 

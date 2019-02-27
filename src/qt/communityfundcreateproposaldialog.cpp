@@ -97,7 +97,7 @@ void CommunityFundCreateProposalDialog::click_spinBox() {
 }
 
 
-bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
+void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 {
     if(this->validate())
     {
@@ -139,7 +139,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Description too long");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Ensure wallet is unlocked
@@ -151,7 +151,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Error");
             msgBox.exec();
-            return false;
+            return;
         }
         if (fWalletUnlockStakingOnly) {
             QMessageBox msgBox(this);
@@ -161,7 +161,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Error");
             msgBox.exec();
-            return false;
+            return;
         }
 
         // Check balance
@@ -174,7 +174,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle("Insufficient NAV");
             msgBox.exec();
-            return false;
+            return;
         }
 
         //create partial proposal object with all nessesary display fields from input and create confirmation dialog
@@ -189,7 +189,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             if(dlg.exec() == QDialog::Rejected)
             {
                 // User Declined to make the proposal
-                return false;
+                return;
             }
             else {
 
@@ -226,7 +226,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                     CommunityFundSuccessDialog dlg(wtx.GetHash(), this, proposal);
                     dlg.exec();
                     QDialog::accept();
-                    return true;
+                    return;
                 }
                 else {
                     // Display something went wrong UI
@@ -237,7 +237,7 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                     msgBox.setIcon(QMessageBox::Warning);
                     msgBox.setWindowTitle("Error");
                     msgBox.exec();
-                    return false;
+                    return;
                 }
             }
         }      
@@ -260,9 +260,9 @@ bool CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle("Please enter valid fields");
         msgBox.exec();
-        return false;
+        return;
     }
-    return true;
+    return;
 }
 
 CommunityFundCreateProposalDialog::~CommunityFundCreateProposalDialog()

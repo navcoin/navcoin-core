@@ -23,7 +23,7 @@ private:
     bool isActiveProposal(uint256 hash);
 
 public Q_SLOTS:
-    bool click_pushButtonSubmitPaymentRequest();
+    void click_pushButtonSubmitPaymentRequest();
 };
 
 #endif // COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H
