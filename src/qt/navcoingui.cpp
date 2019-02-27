@@ -17,7 +17,6 @@
 #include "notificator.h"
 #include "openuridialog.h"
 #include "optionsdialog.h"
-#include "forms/cfund_voting.h"
 #include "optionsmodel.h"
 #include "platformstyle.h"
 #include "rpcconsole.h"
@@ -81,6 +80,7 @@
 #include <QJsonObject>
 #include <QVariantMap>
 #include <QJsonArray>
+#include <QDesktopServices>
 
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
@@ -890,27 +890,18 @@ void NavCoinGUI::cfundProposalsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
-
-    CFund_Voting dlg(this, false);
-    dlg.exec();
 }
 
 void NavCoinGUI::cfundProposalsOpen(bool fMode)
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
-
-    CFund_Voting dlg(this, fMode);
-    dlg.exec();
 }
 
 void NavCoinGUI::cfundPaymentRequestsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
-
-    CFund_Voting dlg(this, true);
-    dlg.exec();
 }
 
 void NavCoinGUI::aboutClicked()
