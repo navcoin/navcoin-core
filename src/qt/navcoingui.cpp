@@ -1887,7 +1887,7 @@ void NavCoinGUI::updateStakingStatus()
                 msgbox.setIcon(QMessageBox::Icon::Warning);
                 msgbox.setCheckBox(cb);
                 QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
-                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Voting Window"), QMessageBox::YesRole);
+                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Community Fund"), QMessageBox::YesRole);
                 QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
                 pButtonClose->setVisible(false);
                 this->lastDialogShown = GetTimeNow();
@@ -1901,7 +1901,7 @@ void NavCoinGUI::updateStakingStatus()
                 }
 
                 if (msgbox.clickedButton()==pButtonOpen) {
-                    cfundProposalsOpen(fFoundPaymentRequest);
+                    gotoCommunityFundPage();
                 }
                 if (msgbox.clickedButton()==pButtonInfo) {
                     QString link = QString("https://navcoin.org/en/community-fund/");
