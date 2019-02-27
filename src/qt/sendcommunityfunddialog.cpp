@@ -3,6 +3,10 @@
 
 #include <QSettings>
 #include <guiutil.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
 
 //temp headers
 #include <iostream>
@@ -32,7 +36,24 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPropos
     QSettings settings;
     ui->labelRequestedAmount->setText(QString("%1 NAV / ").arg(proposal->nAmount/100000000.0).append("%1 EUR / ").arg(proposal->nAmount / settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(proposal->nAmount / settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(proposal->nAmount / settings.value("btcFactor", 0).toFloat()));
 
-    ui->labelDescription->setText(QString(proposal->strDZeel.c_str()));
+    // Format long descriptions
+    std::string description = proposal->strDZeel.c_str();
+    std::istringstream buf(description);
+    std::istream_iterator<std::string> beg(buf), end;
+    std::string finalDescription = "";
+    std::vector<std::string> words(beg, end);
+    for(std::string word : words) {
+        int count = 0;
+        while(count < word.length()-1) {
+            if (count % 40 == 0 && count != 0) {
+                word.insert(count, "-");
+            }
+            count++;
+        }
+        finalDescription += word + " ";
+    }
+
+    ui->labelDescription->setText(QString::fromStdString(finalDescription));
     ui->labelDuration->setText(GUIUtil::formatDurationStr(int(proposal->nDeadline)));
 }
 
