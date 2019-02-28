@@ -49,6 +49,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 16 -< C FUND ACCUMULATION AMOUNT V2
 * Bit 17 -< C FUND REDUCED QUORUM
 * Bit 20 -< V451 FORK
+* Bit 21 -< V452 FORK
 *
 ***/
 
@@ -62,6 +63,7 @@ static const int32_t nCFundAmountV2Mask = 0x00010000;
 static const int32_t nCFundReducedQuorumMask = 0x00020000;
 static const int32_t nStaticRewardVersionMask = 0x00008000;
 static const int32_t nV451ForkMask = 0x00100000;
+static const int32_t nV452ForkMask = 0x00200000;
 
 static const std::vector<int> rejectedVersionBitsByDefault = {17};
 

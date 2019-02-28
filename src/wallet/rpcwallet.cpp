@@ -3125,11 +3125,15 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         nElement++;
 
         // use the cached amount if available
-        if (pcoin->fCreditCached && pcoin->fDebitCached && pcoin->nPrivateCreditCached && pcoin->nPrivateDebitCached)
-            nAmount = (pcoin->nCreditCached + pcoin->nPrivateCreditCached) - (pcoin->nDebitCached + pcoin->nPrivateDebitCached);
-        else
-            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE|ISMINE_SPENDABLE_PRIVATE) - pcoin->GetDebit(ISMINE_SPENDABLE|ISMINE_SPENDABLE_PRIVATE);
-
+        CAmount nCC = pcoin->fCreditCached ? pcoin->nCreditCached : pcoin->GetCredit(ISMINE_SPENDABLE);
+        CAmount nPCC = pcoin->fPrivateCreditCached ? pcoin->nPrivateCreditCached : pcoin->GetCredit(ISMINE_SPENDABLE_PRIVATE);
+        CAmount nCSCC = pcoin->fColdStakingCreditCached ? pcoin->fColdStakingCreditCached : pcoin->GetCredit(ISMINE_STAKABLE);
+      
+        CAmount nDC = pcoin->fDebitCached ? pcoin->nDebitCached : pcoin->GetDebit(ISMINE_SPENDABLE);
+        CAmount nPDC = pcoin->fPrivateDebitCached ? pcoin->nPrivateDebitCached : pcoin->GetDebit(ISMINE_SPENDABLE_PRIVATE);
+        CAmount nCSDC = pcoin->fColdStakingDebitCached ? pcoin->fColdStakingDebitCached : pcoin->GetDebit(ISMINE_STAKABLE);
+      
+        nAmount = (nCC + nPCC + nCSCC) - (nDC + nPDC + nCSDC);
 
         // scan the range
         for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)

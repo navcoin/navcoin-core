@@ -53,9 +53,9 @@ class CommunityFundPaymentRequestStateTest(NavCoinTestFramework):
             start_new_cycle(self.nodes[0])
             i = i + 1
 
-        # Validate that the payment request will expire at the end of the current voting cycle
+        # Validate that the status of the payment request is expired
         assert (self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
-        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "expired waiting for end of voting period")
+        assert (self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "expired")
 
         # Move to the last block of the voting cycle, where the payment request state changes
         end_cycle(self.nodes[0])
