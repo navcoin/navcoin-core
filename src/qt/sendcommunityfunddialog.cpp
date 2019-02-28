@@ -43,7 +43,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPropos
     std::string finalDescription = "";
     std::vector<std::string> words(beg, end);
     for(std::string word : words) {
-        int count = 0;
+        unsigned int count = 0;
         while(count < word.length()-1) {
             if (count % 40 == 0 && count != 0) {
                 word.insert(count, "-");
@@ -86,6 +86,25 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
     // Amount label
     QSettings settings;
     ui->labelRequestedAmount->setText(QString("%1 NAV / ").arg(prequest->nAmount/100000000.0).append("%1 EUR / ").arg(prequest->nAmount / settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(prequest->nAmount / settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(prequest->nAmount / settings.value("btcFactor", 0).toFloat()));
+
+    // Format long descriptions
+    std::string description = prequest->strDZeel.c_str();
+    std::istringstream buf(description);
+    std::istream_iterator<std::string> beg(buf), end;
+    std::string finalDescription = "";
+    std::vector<std::string> words(beg, end);
+    for(std::string word : words) {
+        unsigned int count = 0;
+        while(count < word.length()-1) {
+            if (count % 40 == 0 && count != 0) {
+                word.insert(count, "-");
+            }
+            count++;
+        }
+        finalDescription += word + " ";
+    }
+
+    ui->labelDescription->setText(QString::fromStdString(finalDescription));
 }
 
 void SendCommunityFundDialog::updateYesButton()

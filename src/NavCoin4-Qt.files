@@ -325,6 +325,7 @@ qt/forms/communityfundcreatepaymentrequestdialog.ui
 qt/forms/communityfundcreateproposaldialog.cpp
 qt/forms/communityfundcreateproposaldialog.h
 qt/forms/communityfundcreateproposaldialog.ui
+qt/forms/communityfunddisplay.ui
 qt/forms/communityfunddisplaydetailed.cpp
 qt/forms/communityfunddisplaydetailed.h
 qt/forms/communityfunddisplaydetailed.ui
