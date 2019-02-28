@@ -226,7 +226,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Validate wtx
         if(wtx.strDZeel.length() > 1024) {
             QMessageBox msgBox(this);
-            std::string str = "String too long\n";
+            std::string str = "Description too long\n";
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
