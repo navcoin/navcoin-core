@@ -45,14 +45,16 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->pushButtonCreateProposal, SIGNAL(clicked()), this , SLOT(click_pushButtonCreateProposal()));
     connect(ui->pushButtonCreatePaymentRequest, SIGNAL(clicked()), this, SLOT(click_pushButtonCreatePaymentRequest()));
 
-    refresh(true, true);
+    click_radioButtonPending();
+    refresh(false, true);
 }
 
 void CommunityFundPage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
-    refresh(true, true);
-    ui->radioButtonAll->setChecked(true);
+    flag = CFund::NIL;
+    refresh(false, true);
+    ui->radioButtonPending->setChecked(true);
 }
 
 void CommunityFundPage::refreshTab()
