@@ -46,7 +46,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPropos
         unsigned int count = 0;
         while(count < word.length()-1) {
             if (count % 40 == 0 && count != 0) {
-                word.insert(count, "-");
+                word.insert(count, "\n");
             }
             count++;
         }
@@ -99,7 +99,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
         unsigned int count = 0;
         while(count < word.length()-1) {
             if (count % 40 == 0 && count != 0) {
-                word.insert(count, "-");
+                word.insert(count, "\n");
             }
             count++;
         }
