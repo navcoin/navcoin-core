@@ -4,6 +4,8 @@
 #include "main.h"
 #include <iomanip>
 #include <sstream>
+#include "wallet/wallet.h"
+#include "base58.h"
 
 CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDetailed(QWidget *parent, CFund::CPaymentRequest prequest) :
     QDialog(parent),
@@ -120,7 +122,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     // If prequest is pending show voting cycles left
     if (prequest.fState == CFund::NIL) {
         std::string duration_title = "Expires in: ";
-        std::string duration = std::to_string(8-prequest.nVotingCycle) +  " voting cycles";
+        std::string duration = std::to_string(Params().GetConsensus().nCyclesPaymentRequestVoting-prequest.nVotingCycle) +  " voting cycles";
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
         ui->labelPrequestExpiry->setText(QString::fromStdString(duration));
     }

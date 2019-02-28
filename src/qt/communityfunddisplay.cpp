@@ -7,7 +7,8 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
-
+#include "wallet/wallet.h"
+#include "base58.h"
 #include "consensus/cfund.h"
 #include "chain.h"
 #include "guiutil.h"
@@ -87,7 +88,7 @@ void CommunityFundDisplay::refresh()
     if (proposal.fState == CFund::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
-        std::string duration = std::to_string(proposal.nVotingCycle) +  " of 6";
+        std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesProposalVoting);
         ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
         ui->labelDuration->setText(QString::fromStdString(duration));
     }

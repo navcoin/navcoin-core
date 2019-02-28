@@ -5,6 +5,8 @@
 #include "main.h"
 #include <iomanip>
 #include <sstream>
+#include "wallet/wallet.h"
+#include "base58.h"
 
 CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFund::CProposal proposal) :
     QDialog(parent),
@@ -80,7 +82,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
 
     ui->labelDeadline->setText(QString::fromStdString(s_deadline));
     if (proposal.fState == CFund::NIL) {
-        std::string expiry = std::to_string(7 - proposal.nVotingCycle) +  " voting cycles";
+        std::string expiry = std::to_string(Params().GetConsensus().nCyclesProposalVoting - proposal.nVotingCycle) +  " voting cycles";
         ui->labelExpiresIn->setText(QString::fromStdString(expiry));
     }
     if (proposal.fState == CFund::ACCEPTED) {
