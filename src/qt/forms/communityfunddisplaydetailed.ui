@@ -228,7 +228,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Deadline:</string>
+          <string>Proposal Duration:</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::NoTextInteraction</set>
