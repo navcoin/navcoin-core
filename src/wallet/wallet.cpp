@@ -671,7 +671,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     if (nCredit == 0 || (fKernelFound && nCredit > nBalance - nReserveBalance) || (fZeroKernelFound && nCredit > nPrivateBalance - nReserveBalance))
-        return error("CreateCoinStake : not enough balance");
+        return error("CreateCoinStake : did not find a stake");
 
     if (fKernelFound) {
         BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
@@ -779,6 +779,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 } else {
                     txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * Params().GetConsensus().nBlockSpreadCFundAccumulation;
                 }
+
             }
         }
         else
