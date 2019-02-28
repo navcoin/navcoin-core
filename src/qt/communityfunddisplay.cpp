@@ -158,6 +158,11 @@ void CommunityFundDisplay::refresh()
         }
     }
 
+    // If a proposal is expired pending voting of payment requests, change the expiry label text
+    if(status.find("expired pending voting of payment requests") != string::npos) {
+        ui->labelDuration->setText(QString::fromStdString("After payment request voting"));
+    }
+
     //hide ui voting elements on proposals which are not allowed vote states
     if(!proposal.CanVote())
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);

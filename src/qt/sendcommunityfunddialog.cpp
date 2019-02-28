@@ -66,6 +66,8 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
 {
     ui->setupUi(this);
 
+    QDialog::setWindowTitle("Confirm Payment Request Details");
+
     ui->pushButtonCancel->setDefault(true);
     updateYesButton();
 

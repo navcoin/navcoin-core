@@ -165,6 +165,12 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     fee.append(" NAV");
     ui->labelFee->setText(QString::fromStdString(fee));
 
+    // If a proposal is expired pending voting of payment requests, change the expiry label text
+    std::string status = ui->labelStatus->text().toStdString();
+    if(status.find("expired pending voting of payment requests") != string::npos) {
+        ui->labelExpiresIn->setText(QString::fromStdString("After payment request voting"));
+    }
+
     // If proposal is pending, hide the transaction hash
     if (proposal.fState == CFund::NIL) {
         ui->labelTransactionBlockHashTitle->setVisible(false);
