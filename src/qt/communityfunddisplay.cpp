@@ -176,6 +176,12 @@ void CommunityFundDisplay::refresh()
         title_string.append("...");
     }
     ui->title->setText(QString::fromStdString(title_string));
+
+    // Hide expiry label is proposal is accepted and waiting for coins
+    if(status.find("accepted waiting for enough coins in fund") != string::npos) {
+        ui->labelDuration->setVisible(false);
+        ui->labelTitleDuration->setVisible(false);
+    }
 }
 
 void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
