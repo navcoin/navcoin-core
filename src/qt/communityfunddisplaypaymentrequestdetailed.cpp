@@ -191,7 +191,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     std::vector<std::string> words(beg, end);
     for(std::string word : words) {
         int count = 0;
-        while(count < word.length()-1) {
+        while(count < (int)word.length()-1) {
             if (count % 40 == 0 && count != 0) {
                 word.insert(count, "\n");
             }
