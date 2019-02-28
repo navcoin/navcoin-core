@@ -176,6 +176,25 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         ui->labelTransactionBlockHashTitle->setVisible(false);
         ui->labelTransactionBlockHash->setVisible(false);
     }
+
+    // Format long descriptions
+    std::string description = proposal.strDZeel.c_str();
+    std::istringstream buf(description);
+    std::istream_iterator<std::string> beg(buf), end;
+    std::string finalDescription = "";
+    std::vector<std::string> words(beg, end);
+    for(std::string word : words) {
+        int count = 0;
+        while(count < word.length()-1) {
+            if (count % 40 == 0 && count != 0) {
+                word.insert(count, "-");
+            }
+            count++;
+        }
+        finalDescription += word + " ";
+    }
+
+    ui->labelProposalTitle->setText(QString::fromStdString(finalDescription));
 }
 
 void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
