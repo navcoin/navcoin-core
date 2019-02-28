@@ -717,8 +717,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if (nReward <= 0)
             return error("%s : no reward", __func__);
 
-        LogPrintf("Adding reward of %d NAV.\n", nReward);
-
         nCredit += nReward;
     }
 
