@@ -1204,21 +1204,20 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
     set<CScript> vZeroInOutPoints;
     BOOST_FOREACH(const CTxIn& txin, tx.vin)
     {
-        if (!txin.scriptSig.IsZerocoinSpend() && vInOutPoints.count(txin.prevout))
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-duplicate", false, strprintf("Duplicated input %s", txin.prevout.ToString()));
-
-        if (txin.scriptSig.IsZerocoinSpend() && vZeroInOutPoints.count(txin.scriptSig))
-            return state.DoS(100, false, REJECT_INVALID, "bad-zero-txns-inputs-duplicate");
+        if (!txin.scriptSig.IsZerocoinSpend()) {
+            if (vInOutPoints.count(txin.prevout))
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-duplicate", false, strprintf("Duplicated input %s %d", txin.prevout.ToString(), vInOutPoints.count(txin.prevout)));
+            vInOutPoints.insert(txin.prevout);
+        } else if (txin.scriptSig.IsZerocoinSpend()) {
+            if (vZeroInOutPoints.count(txin.scriptSig))
+                return state.DoS(100, false, REJECT_INVALID, "bad-zero-txns-inputs-duplicate");
+            vZeroInOutPoints.insert(txin.scriptSig);
+        }
 
         if ((tx.IsZerocoinSpend() && !txin.scriptSig.IsZerocoinSpend())
                 || (!tx.IsZerocoinSpend() && txin.scriptSig.IsZerocoinSpend())) {
             return state.DoS(100, false, REJECT_INVALID, "bad-mix-zerocoin-and-transparent-inputs");
         }
-
-        if (txin.scriptSig.IsZerocoinSpend())
-            vZeroInOutPoints.insert(txin.scriptSig);
-        else
-            vInOutPoints.insert(txin.prevout);
     }
 
     if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
@@ -3240,6 +3239,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if (!tx.IsCoinStake())
               nFees += view.GetValueIn(tx) - tx.GetValueOut();
+
             if (tx.IsCoinStake())
             {
 

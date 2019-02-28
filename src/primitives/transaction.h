@@ -45,7 +45,7 @@ public:
 
     friend bool operator<(const COutPoint& a, const COutPoint& b)
     {
-        return a.hash < b.hash;
+        return ((a.hash == b.hash && a.n < b.n) || (a.hash < b.hash));
     }
 
     friend bool operator==(const COutPoint& a, const COutPoint& b)
