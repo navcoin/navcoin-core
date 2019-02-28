@@ -1872,7 +1872,7 @@ void NavCoinGUI::updateStakingStatus()
             }
             if ((fFoundPaymentRequest || fFoundProposal) && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
                 QCheckBox *cb = new QCheckBox("Don't show this notification again until wallet is restarted.");
-                QMessageBox msgbox;
+                QMessageBox msgbox(this);
                 msgbox.setWindowTitle("Community Fund Update");
                 QString sWhat = fFoundProposal && fFoundPaymentRequest ? tr("Proposals and Payment Requests") : (fFoundProposal ? tr("Proposals") : tr("Payment Requests"));
                 msgbox.setText(tr("There are new %1 in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the Community Fund tab!").arg(sWhat));

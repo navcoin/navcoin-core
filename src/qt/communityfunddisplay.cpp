@@ -204,7 +204,8 @@ void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
         CFund::RemoveVoteProposal(proposal.hash.ToString());
         refresh();
     }
-    else {
+    else
+    {
         refresh();
         return;
     }
