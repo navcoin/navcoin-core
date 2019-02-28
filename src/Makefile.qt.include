@@ -472,7 +472,7 @@ qt_navcoin_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_navcoin_qt_SOURCES=qt/navcoin.cpp
 if TARGET_DARWIN
-	qt_navcoin_qt_SOURCES += $(NAVCOIN_MM)
+        qt_navcoin_qt_SOURCES+=$(NAVCOIN_MM)
 endif
 if TARGET_WINDOWS
 	qt_navcoin_qt_SOURCES += $(NAVCOIN_RC)
