@@ -3234,7 +3234,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         txdata.emplace_back(tx);
 
-        if (!tx.IsCoinBase() && !tx.IsZerocoinSpend())
+        if (!tx.IsCoinBase())
         {
 
             if (!tx.IsCoinStake())
@@ -3252,38 +3252,31 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                   int nMultiplier = 1;
 
                   if(IsCommunityFundAccumulationSpreadEnabled(pindex->pprev, Params().GetConsensus()))
-                  {
                       nMultiplier = (pindex->nHeight % Params().GetConsensus().nBlockSpreadCFundAccumulation) == 0 ? Params().GetConsensus().nBlockSpreadCFundAccumulation : 0;
-
-                  }
 
                   if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution() && nMultiplier > 0)
                     return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
                                      REJECT_INVALID, "no-cf-amount");
 
 
-                  if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus())) {
+                  if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus()))
                       if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier && nMultiplier > 0)
                         return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
                                                     tx.vout[tx.vout.size() - 1].nValue, Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier),
                             REJECT_INVALID, "bad-cf-amount");
-                  } else {
+                  else
                       if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmount * nMultiplier && nMultiplier > 0)
                         return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
                                                     tx.vout[tx.vout.size() - 1].nValue, Params().GetConsensus().nCommunityFundAmount * nMultiplier),
                             REJECT_INVALID, "bad-cf-amount");
-                  }
 
 
                   if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus()))
-                  {
                     nStakeReward -= Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier;
-                  } else {
+                  else
                     nStakeReward -= Params().GetConsensus().nCommunityFundAmount * nMultiplier;
-                  }
 
               }
-
             }
 
             std::vector<CScriptCheck> vChecks;
@@ -3299,11 +3292,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                              tx.nTime, block.nTime);
         }
         if(!tx.IsCoinStake() && !tx.IsCoinBase()) {
-            if (tx.IsZerocoinSpend()) {
+            if (tx.IsZerocoinSpend())
                 pindex->nAccumulatedPrivateFee += view.GetValueIn(tx) - tx.GetValueOut();
-            } else {
+            else
                 pindex->nAccumulatedPublicFee += view.GetValueIn(tx) - tx.GetValueOut();
-            }
         }
 
         nCreated += tx.GetValueOut() - view.GetValueIn(tx);;
