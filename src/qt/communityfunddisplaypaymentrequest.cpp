@@ -13,7 +13,6 @@
 #include <iostream>
 #include "chain.h"
 #include "communityfundpage.h"
-// Unsure about this one as yet
 #include "communityfunddisplaypaymentrequestdetailed.h"
 
 CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *parent, CFund::CPaymentRequest prequest) :
