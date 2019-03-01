@@ -34,6 +34,7 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     connect(ui->spinBoxMinutes, SIGNAL(clickedSpinBox()), this, SLOT(click_spinBox()));
     connect(ui->spinBoxHours, SIGNAL(clickedSpinBox()), this, SLOT(click_spinBox()));
 
+    // Allow rollover of spinboxes
     connect(ui->spinBoxMinutes, QOverload<int>::of(&QSpinBox::valueChanged),
             [=](int minutes){
                 if(minutes == 60)
@@ -68,8 +69,8 @@ bool CommunityFundCreateProposalDialog::validate()
         ui->lineEditRequestedAmount->setValid(false);
         isValid = false;
     }
-    size_t desc_size = ui->plainTextEditDescription->toPlainText().toStdString().length();
-    if(desc_size >= 1024 || desc_size == 0)
+    size_t desc_length = ui->plainTextEditDescription->toPlainText().toStdString().length();
+    if(desc_length >= 1024 || desc_length == 0)
     {
         isValid = false;
         ui->plainTextEditDescription->setValid(false);
@@ -95,7 +96,6 @@ void CommunityFundCreateProposalDialog::click_spinBox() {
     ui->spinBoxHours->setValid(true);
     ui->spinBoxMinutes->setValid(true);
 }
-
 
 void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 {
@@ -177,7 +177,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             return;
         }
 
-        //create partial proposal object with all nessesary display fields from input and create confirmation dialog
+        // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
             CFund::CProposal *proposal = new CFund::CProposal();
             proposal->Address = Address;
@@ -222,7 +222,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
                 // If the proposal was successfully made, confirm to the user it was made
                 if (created_proposal) {
-                    // Display success UI
+                    // Display success UI and close current dialog
                     CommunityFundSuccessDialog dlg(wtx.GetHash(), this, proposal);
                     dlg.exec();
                     QDialog::accept();
@@ -245,17 +245,17 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
     else
     {
         QMessageBox msgBox(this);
-        std::string str = "Please enter a valid:\n";
+        QString str = QString(tr("Please enter a valid:\n"));
         if(!ui->lineEditNavcoinAddress->isValid() || (ui->lineEditNavcoinAddress->text() == QString("")))
-            str += "- Address\n";
+            str += QString(tr("- Address\n"));
         if(!ui->lineEditRequestedAmount->validate())
-            str += "- Requested Amount\n";
+            str += QString(tr("- Requested Amount\n"));
         if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
-            str += "- Description\n";
+            str += QString(tr("- Description\n"));
         if((ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60) <= 0)
-            str += "- Duration\n";
+            str += QString(tr("- Duration\n"));
 
-        msgBox.setText(tr(str.c_str()));
+        msgBox.setText(str);
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle("Please enter valid fields");

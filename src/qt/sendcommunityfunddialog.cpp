@@ -3,13 +3,10 @@
 
 #include <QSettings>
 #include <guiutil.h>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
 
-//temp headers
-#include <iostream>
 
 SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CProposal* proposal, int secDelay) :
     QDialog(parent),

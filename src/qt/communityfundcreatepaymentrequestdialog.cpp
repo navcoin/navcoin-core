@@ -314,15 +314,15 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
     else
     {
         QMessageBox msgBox(this);
-        std::string str = "Please enter a valid:\n";
+        QString str = tr("Please enter a valid:\n");
         if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
-            str += "- Proposal Hash\n";
+            str += QString(tr("- Proposal Hash\n"));
         if(!ui->lineEditRequestedAmount->validate())
-            str += "- Requested Amount\n";
+            str += QString(tr("- Requested Amount\n"));
         if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
-            str += "- Description\n";
+            str += QString(tr("- Description\n"));
 
-        msgBox.setText(tr(str.c_str()));
+        msgBox.setText(str);
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();

@@ -1,19 +1,18 @@
 #include "communityfunddisplaypaymentrequest.h"
 #include "ui_communityfunddisplaypaymentrequest.h"
-#include "main.h"
+#include "communityfundpage.h"
+#include "communityfunddisplaypaymentrequestdetailed.h"
+
 #include <QtWidgets/QDialogButtonBox>
+#include "main.h"
 #include "../txdb.h"
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 #include <ctime>
 #include "consensus/cfund.h"
 #include "wallet/wallet.h"
 #include "base58.h"
-#include <iostream>
 #include "chain.h"
-#include "communityfundpage.h"
-#include "communityfunddisplaypaymentrequestdetailed.h"
 
 CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *parent, CFund::CPaymentRequest prequest) :
     QWidget(parent),
