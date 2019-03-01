@@ -348,15 +348,12 @@ qt/forms/helpmessagedialog.ui
 qt/forms/helpmessagedialog.ui
 qt/forms/intro.ui
 qt/forms/intro.ui
-qt/forms/moc_cfund_voting.cpp
 qt/forms/openuridialog.ui
 qt/forms/openuridialog.ui
 qt/forms/optionsdialog.ui
 qt/forms/optionsdialog.ui
 qt/forms/overviewpage.ui
 qt/forms/overviewpage.ui
-qt/forms/qt_libnavcoinqt_a-cfund_voting.o
-qt/forms/qt_libnavcoinqt_a-moc_cfund_voting.o
 qt/forms/receivecoinsdialog.ui
 qt/forms/receivecoinsdialog.ui
 qt/forms/receiverequestdialog.ui
