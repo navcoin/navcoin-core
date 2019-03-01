@@ -82,6 +82,8 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
 
     ui->labelDeadline->setText(QString::fromStdString(s_deadline));
     if (proposal.fState == CFund::NIL) {
+        std::string expiry_title = "Voting period finishes in: ";
+        ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
         std::string expiry = std::to_string(Params().GetConsensus().nCyclesProposalVoting - proposal.nVotingCycle) +  " voting cycles";
         ui->labelExpiresIn->setText(QString::fromStdString(expiry));
     }
