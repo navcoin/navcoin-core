@@ -1830,6 +1830,49 @@ static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
     }
 }
 
+void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strAccount, bool fLong, UniValue& ret, CAmount nFee, bool fAllAccounts, bool involvesWatchonly)
+{
+    string account;
+    if (pwalletMain->mapAddressBook.count(r.destination))
+        account = pwalletMain->mapAddressBook[r.destination].name;
+    if (fAllAccounts || (account == strAccount))
+    {
+        UniValue entry(UniValue::VOBJ);
+        if(involvesWatchonly || (::IsMine(*pwalletMain, r.destination) & ISMINE_WATCH_ONLY))
+            entry.push_back(Pair("involvesWatchonly", true));
+        entry.push_back(Pair("account", account));
+        MaybePushAddress(entry, r.destination);
+        if (wtx.IsCoinBase() || wtx.IsCoinStake())
+        {
+            if (wtx.GetDepthInMainChain() < 1)
+                entry.push_back(Pair("category", "orphan"));
+            else if (wtx.GetBlocksToMaturity() > 0)
+                entry.push_back(Pair("category", "immature"));
+            else
+                entry.push_back(Pair("category", "generate"));
+        }
+        else
+        {
+            entry.push_back(Pair("category", "receive"));
+        }
+        if (!wtx.IsCoinStake())
+            entry.push_back(Pair("amount", ValueFromAmount(r.amount)));
+        else {
+            entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
+        }
+        entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
+                                          (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
+                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
+        entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false));
+        if (pwalletMain->mapAddressBook.count(r.destination))
+            entry.push_back(Pair("label", account));
+        entry.push_back(Pair("vout", r.vout));
+        if (fLong)
+            WalletTxToJSON(wtx, entry);
+        ret.push_back(entry);
+    }
+}
+
 void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter)
 {
     CAmount nFee;
@@ -1874,52 +1917,20 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
     // Received
     if (listReceived.size() > 0 && wtx.GetDepthInMainChain() >= nMinDepth)
     {
-        bool stop = false;
-        BOOST_FOREACH(const COutputEntry& r, listReceived)
+        if (!wtx.IsCoinStake())
         {
-            string account;
-            if (pwalletMain->mapAddressBook.count(r.destination))
-                account = pwalletMain->mapAddressBook[r.destination].name;
-            if (fAllAccounts || (account == strAccount))
+            BOOST_FOREACH(const COutputEntry& r, listReceived)
             {
-                UniValue entry(UniValue::VOBJ);
-                if(involvesWatchonly || (::IsMine(*pwalletMain, r.destination) & ISMINE_WATCH_ONLY))
-                    entry.push_back(Pair("involvesWatchonly", true));
-                entry.push_back(Pair("account", account));
-                MaybePushAddress(entry, r.destination);
-                if (wtx.IsCoinBase() || wtx.IsCoinStake())
-                {
-                    if (wtx.GetDepthInMainChain() < 1)
-                        entry.push_back(Pair("category", "orphan"));
-                    else if (wtx.GetBlocksToMaturity() > 0)
-                        entry.push_back(Pair("category", "immature"));
-                    else
-                        entry.push_back(Pair("category", "generate"));
-                }
-                else
-                {
-                    entry.push_back(Pair("category", "receive"));
-                }
-                if (!wtx.IsCoinStake())
-                    entry.push_back(Pair("amount", ValueFromAmount(r.amount)));
-                else
-                {
-                    entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
-                    stop = true; // only one coinstake output
-                }
-                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
-                                                  (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
-                                                   !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
-                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false));
-                if (pwalletMain->mapAddressBook.count(r.destination))
-                    entry.push_back(Pair("label", account));
-                entry.push_back(Pair("vout", r.vout));
-                if (fLong)
-                    WalletTxToJSON(wtx, entry);
-                ret.push_back(entry);
-                if (stop)
-                    break;
+                 GetReceived(r, wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
             }
+        }
+        else
+        {
+            // only get the coinstake reward output
+            if (wtx.GetValueOutCFund() == 0)
+                GetReceived(listReceived.back(), wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
+            else
+                GetReceived(*std::prev(listReceived.end(),1), wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
         }
     }
 }
