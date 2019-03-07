@@ -63,14 +63,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPaymentRequestTitle->setText(QString::fromStdString(prequest.strDZeel));
 
     // Amount
-    stringstream a;
-    a.imbue(std::locale(""));
-    a << fixed << setprecision(8) << prequest.nAmount/COIN;
-    string amount = a.str();
-    if(amount.at(amount.length()-1) == '.') {
-        amount = amount.substr(0, amount.size()-1);
-    }
-    amount.append(" NAV");
+    string amount;
+    amount = wallet->formatDisplayAmount(prequest.nAmount);
     ui->labelPrequestAmount->setText(QString::fromStdString(amount));
 
     // Status

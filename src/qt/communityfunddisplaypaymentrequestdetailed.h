@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "consensus/cfund.h"
+#include "wallet/wallet.h"
 #include <QDialog>
 #include <QAbstractButton>
 
@@ -21,6 +22,7 @@ public:
 private:
     Ui::CommunityFundDisplayPaymentRequestDetailed *ui;
     CFund::CPaymentRequest prequest;
+    CWallet *wallet;
     void setPrequestLabels() const;
 
 public Q_SLOTS:

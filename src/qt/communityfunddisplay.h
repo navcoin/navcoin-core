@@ -2,6 +2,7 @@
 #define COMMUNITYFUNDDISPLAY_H
 
 #include "consensus/cfund.h"
+#include "wallet/wallet.h"
 #include <QWidget>
 #include <QAbstractButton>
 
@@ -20,6 +21,7 @@ public:
 private:
     Ui::CommunityFundDisplay *ui;
     CFund::CProposal proposal;
+    CWallet *wallet;
     void refresh();
 
 public Q_SLOTS:

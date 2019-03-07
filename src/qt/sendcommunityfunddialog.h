@@ -6,6 +6,7 @@
 #include <QTimer>
 
 #include "../consensus/cfund.h"
+#include "wallet/wallet.h"
 
 /* Confirmation dialog for proposals and payment requests. Widgets are hidden according if proposal or payment request*/
 
@@ -33,6 +34,7 @@ private:
     CFund::CPaymentRequest* prequest;
     QTimer countDownTimer;
     int secDelay;
+    CWallet *wallet;
 };
 
 #endif // SENDCOMMUNITYFUNDDIALOG_H

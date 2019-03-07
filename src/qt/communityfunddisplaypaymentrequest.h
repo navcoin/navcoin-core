@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QAbstractButton>
 #include "consensus/cfund.h"
+#include "wallet/wallet.h"
 
 namespace Ui {
 class CommunityFundDisplayPaymentRequest;
@@ -21,6 +22,7 @@ public:
 private:
     Ui::CommunityFundDisplayPaymentRequest *ui;
     CFund::CPaymentRequest prequest;
+    CWallet *wallet;
 
 public Q_SLOTS:
     void click_buttonBoxVote(QAbstractButton *button);

@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include "txdb.h"
+#include "wallet/wallet.h"
 #include <string>
 #include <iomanip>
 #include <sstream>
@@ -102,25 +103,13 @@ void CommunityFundPage::refresh(bool all, bool proposal)
     reset();
 
     // Format avaliable amount in the community fund
-    stringstream a;
-    a.imbue(std::locale(""));
-    a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/COIN;
-    string available = a.str();
-    if(available.at(available.length()-1) == '.') {
-        available = available.substr(0, available.size()-1);
-    }
-    available.append(" NAV");
+    string available;
+    available = wallet->formatDisplayAmount(pindexBestHeader->nCFSupply);
     ui->labelAvailableAmount->setText(QString::fromStdString(available));
 
     // Format locked amount in the community fund
-    stringstream l;
-    l.imbue(std::locale(""));
-    l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/COIN;
-    string locked = l.str();
-    if(locked.at(locked.length()-1) == '.') {
-        locked = locked.substr(0, locked.size()-1);
-    }
-    locked.append(" NAV");
+    string locked;
+    locked = wallet->formatDisplayAmount(pindexBestHeader->nCFLocked);
     ui->labelLockedAmount->setText(QString::fromStdString(locked));
 
     {
@@ -135,15 +124,9 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                     spent_nav = spent_nav + prequest.nAmount;
                 }
             }
-            stringstream s;
-            s.imbue(std::locale(""));
-            s << fixed << setprecision(8) << spent_nav/COIN;
-            string spent = s.str();
-            if(spent.at(spent.length()-1) == '.')
-            {
-                spent = spent.substr(0, spent.size()-1);
-            }
-            spent.append(" NAV");
+
+            string spent;
+            spent = wallet->formatDisplayAmount(spent_nav);
             ui->labelSpentAmount->setText(QString::fromStdString(spent));
         }
     }

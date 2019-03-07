@@ -46,14 +46,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(prequest.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(prequest.GetState()));
-    stringstream n;
-    n.imbue(std::locale(""));
-    n << fixed << setprecision(8) << prequest.nAmount/COIN;
-    string nav_amount = n.str();
-    if(nav_amount.at(nav_amount.length()-1) == '.') {
-        nav_amount = nav_amount.substr(0, nav_amount.size()-1);
-    }
-    nav_amount.append(" NAV");
+
+    string nav_amount;
+    nav_amount = wallet->formatDisplayAmount(prequest.nAmount);
     ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
     uint64_t proptime = 0;

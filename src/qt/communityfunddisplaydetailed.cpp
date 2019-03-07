@@ -146,25 +146,12 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     ui->labelLinkToProposal->setTextInteractionFlags(Qt::TextBrowserInteraction);
     ui->labelLinkToProposal->setOpenExternalLinks(true);
 
-
-    stringstream a;
-    a.imbue(std::locale(""));
-    a << fixed << setprecision(8) << proposal.nAmount/COIN;
-    string amount = a.str();
-    if(amount.at(amount.length()-1) == '.') {
-        amount = amount.substr(0, amount.size()-1);
-    }
-    amount.append(" NAV");
+    string amount;
+    amount = wallet->formatDisplayAmount(proposal.nAmount);
     ui->labelAmount->setText(QString::fromStdString(amount));
 
-    stringstream f;
-    f.imbue(std::locale(""));
-    f << fixed << setprecision(8) << proposal.nFee/COIN;
-    string fee = f.str();
-    if(fee.at(fee.length()-1) == '.') {
-        fee = fee.substr(0, fee.size()-1);
-    }
-    fee.append(" NAV");
+    string fee;
+    fee = wallet->formatDisplayAmount(proposal.nFee);
     ui->labelFee->setText(QString::fromStdString(fee));
 
     // If a proposal is expired pending voting of payment requests, change the expiry label text

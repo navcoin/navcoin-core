@@ -3,6 +3,7 @@
 
 #include "communityfundpage.moc"
 #include "consensus/cfund.h"
+#include "wallet/wallet.h"
 
 #include <QWidget>
 #include <QPushButton>
@@ -44,6 +45,7 @@ private:
     ClientModel *clientModel;
     WalletModel *walletModel;
     CFund::flags flag;
+    CWallet *wallet;
     bool viewing_proposals;
     bool viewing_voted;
 
