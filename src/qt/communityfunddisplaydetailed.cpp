@@ -149,9 +149,8 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
 
     stringstream a;
     a.imbue(std::locale(""));
-    a << fixed << setprecision(8) << proposal.nAmount/100000000.0;
+    a << fixed << setprecision(8) << proposal.nAmount/COIN;
     string amount = a.str();
-    amount.erase(amount.find_last_not_of("0") + 1, std::string::npos );
     if(amount.at(amount.length()-1) == '.') {
         amount = amount.substr(0, amount.size()-1);
     }
@@ -160,9 +159,8 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
 
     stringstream f;
     f.imbue(std::locale(""));
-    f << fixed << setprecision(8) << proposal.nFee/100000000.0;
+    f << fixed << setprecision(8) << proposal.nFee/COIN;
     string fee = f.str();
-    fee.erase(fee.find_last_not_of("0") + 1, std::string::npos );
     if(fee.at(fee.length()-1) == '.') {
         fee = fee.substr(0, fee.size()-1);
     }

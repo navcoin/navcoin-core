@@ -65,9 +65,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     // Amount
     stringstream a;
     a.imbue(std::locale(""));
-    a << fixed << setprecision(8) << prequest.nAmount/100000000.0;
+    a << fixed << setprecision(8) << prequest.nAmount/COIN;
     string amount = a.str();
-    amount.erase(amount.find_last_not_of("0") + 1, std::string::npos );
     if(amount.at(amount.length()-1) == '.') {
         amount = amount.substr(0, amount.size()-1);
     }

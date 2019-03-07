@@ -104,9 +104,8 @@ void CommunityFundPage::refresh(bool all, bool proposal)
     // Format avaliable amount in the community fund
     stringstream a;
     a.imbue(std::locale(""));
-    a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/100000000.0;
+    a << fixed << setprecision(8) << pindexBestHeader->nCFSupply/COIN;
     string available = a.str();
-    available.erase(available.find_last_not_of("0") + 1, std::string::npos );
     if(available.at(available.length()-1) == '.') {
         available = available.substr(0, available.size()-1);
     }
@@ -116,9 +115,8 @@ void CommunityFundPage::refresh(bool all, bool proposal)
     // Format locked amount in the community fund
     stringstream l;
     l.imbue(std::locale(""));
-    l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/100000000.0;
+    l << fixed << setprecision(8) << pindexBestHeader->nCFLocked/COIN;
     string locked = l.str();
-    locked.erase(locked.find_last_not_of("0") + 1, std::string::npos );
     if(locked.at(locked.length()-1) == '.') {
         locked = locked.substr(0, locked.size()-1);
     }
@@ -139,9 +137,8 @@ void CommunityFundPage::refresh(bool all, bool proposal)
             }
             stringstream s;
             s.imbue(std::locale(""));
-            s << fixed << setprecision(8) << spent_nav/100000000.0;
+            s << fixed << setprecision(8) << spent_nav/COIN;
             string spent = s.str();
-            spent.erase(spent.find_last_not_of("0") + 1, std::string::npos );
             if(spent.at(spent.length()-1) == '.')
             {
                 spent = spent.substr(0, spent.size()-1);

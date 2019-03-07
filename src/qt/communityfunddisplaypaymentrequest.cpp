@@ -48,9 +48,8 @@ void CommunityFundDisplayPaymentRequest::refresh()
     ui->labelStatus->setText(QString::fromStdString(prequest.GetState()));
     stringstream n;
     n.imbue(std::locale(""));
-    n << fixed << setprecision(8) << prequest.nAmount/100000000.0;
+    n << fixed << setprecision(8) << prequest.nAmount/COIN;
     string nav_amount = n.str();
-    nav_amount.erase(nav_amount.find_last_not_of("0") + 1, std::string::npos );
     if(nav_amount.at(nav_amount.length()-1) == '.') {
         nav_amount = nav_amount.substr(0, nav_amount.size()-1);
     }
