@@ -173,6 +173,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
 
     std::string title_string = prequest.strDZeel;
+    std::replace( title_string.begin(), title_string.end(), '\n', ' ');
     if (title_string.length() > 140) {
         title_string = title_string.substr(0, 140);
         title_string.append("...");

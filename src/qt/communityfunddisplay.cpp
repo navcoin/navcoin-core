@@ -170,6 +170,7 @@ void CommunityFundDisplay::refresh()
 
     // Prevent overflow of title
     std::string title_string = proposal.strDZeel;
+    std::replace( title_string.begin(), title_string.end(), '\n', ' ');
     if (title_string.length() > 140)
     {
         title_string = title_string.substr(0, 140);
