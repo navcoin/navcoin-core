@@ -181,23 +181,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         ui->labelTransactionBlockHash->setVisible(false);
     }
 
-    // Format long descriptions
-    std::string description = proposal.strDZeel.c_str();
-    std::istringstream buf(description);
-    std::istream_iterator<std::string> beg(buf), end;
-    std::string finalDescription = "";
-    std::vector<std::string> words(beg, end);
-    for(std::string word : words) {
-        int count = 0;
-        while(count < (int)word.length()-1) {
-            if (count % 40 == 0 && count != 0) {
-                word.insert(count, "\n");
-            }
-            count++;
-        }
-        finalDescription += word + " ";
-    }
-    ui->labelProposalTitle->setText(QString::fromStdString(finalDescription));
+    ui->labelProposalTitle->setText(QString::fromStdString(proposal.strDZeel.c_str()));
 
     // Hide expiry label is proposal is accepted and waiting for coins
     if(status.find("accepted waiting for enough coins in fund") != string::npos) {

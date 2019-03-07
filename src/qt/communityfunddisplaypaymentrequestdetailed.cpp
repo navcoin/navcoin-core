@@ -183,24 +183,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         ui->labelPrequestPaymentHash->setVisible(false);
     }
 
-    // Format long descriptions
-    std::string description = prequest.strDZeel.c_str();
-    std::istringstream buf(description);
-    std::istream_iterator<std::string> beg(buf), end;
-    std::string finalDescription = "";
-    std::vector<std::string> words(beg, end);
-    for(std::string word : words) {
-        int count = 0;
-        while(count < (int)word.length()-1) {
-            if (count % 40 == 0 && count != 0) {
-                word.insert(count, "\n");
-            }
-            count++;
-        }
-        finalDescription += word + " ";
-    }
+    ui->labelPaymentRequestTitle->setText(QString::fromStdString(prequest.strDZeel.c_str()));
 
-    ui->labelPaymentRequestTitle->setText(QString::fromStdString(finalDescription));
 }
 
 void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
