@@ -239,7 +239,8 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         CAmount curBalance = pwalletMain->GetBalance();
         if (curBalance <= 10000) {
             QMessageBox msgBox(this);
-            std::string str = "You require at least 50 NAV mature and available to create a proposal\n";
+            string fee = std::to_string(10000 / COIN);
+            std::string str = "You require at least " + fee + " NAV mature and available to create a payment request\n";
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);

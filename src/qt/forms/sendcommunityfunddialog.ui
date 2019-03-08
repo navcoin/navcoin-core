@@ -287,7 +287,7 @@
           </font>
          </property>
          <property name="text">
-          <string>By submitting the proposal a 50 NAV deduction will occur from your wallet </string>
+          <string>By submitting the proposal a X NAV deduction will occur from your wallet </string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

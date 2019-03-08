@@ -6,6 +6,10 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "consensus/cfund.h"
+#include "main.h"
+#include "base58.h"
+#include "chain.h"
 
 
 SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CProposal* proposal, int secDelay) :
@@ -52,6 +56,10 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPropos
 
     ui->labelDescription->setText(QString::fromStdString(finalDescription));
     ui->labelDuration->setText(GUIUtil::formatDurationStr(int(proposal->nDeadline)));
+
+    string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
+    string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
+    ui->labelWarning->setText(QString::fromStdString(warning));
 }
 
 SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymentRequest* prequest, int secDelay) :
