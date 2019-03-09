@@ -48,6 +48,7 @@ private:
     CWallet *wallet;
     bool viewing_proposals;
     bool viewing_voted;
+    bool viewing_unvoted;
 
 private Q_SLOTS:
     void click_pushButtonProposals();
@@ -60,6 +61,7 @@ private Q_SLOTS:
     void click_radioButtonExpired();
     void click_pushButtonCreateProposal();
     void click_pushButtonCreatePaymentRequest();
+    void click_radioButtonNoVote();
 
 };
 
