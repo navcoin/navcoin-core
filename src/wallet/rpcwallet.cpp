@@ -3597,23 +3597,20 @@ UniValue poolProposalVote(const UniValue& params, bool fHelp)
     if (params.size() >= 2) {
         command = params[2].get_str();
     }
-    if (fHelp || params.size() > 4 || (command != "yes" && command != "no" && command != "remove"))
+    if (fHelp || params.size() > 3 || (command != "yes" && command != "no" && command != "remove"))
         throw runtime_error(
-                "poolproposalvote \"spending_address\" \"proposal_hash\" \"yes|no|remove\" \"signature\"\n"
+                "poolproposalvote \"spending_address\" \"proposal_hash\" \"yes|no|remove\"\n"
                 "\nAdds a pool proposal to the list of votes.\n"
                 "\nArguments:\n"
                 "1. \"spending_address\" (string, required) The spending address\n"
-                "2. \"proposal_hash\" (string, required) The proposal hash\n"
-                "3. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
-                "                      'remove' to remove a proposal from the list\n"
-                "4. \"signature\"     (string, required) signature in the following format,\n"
-                "                      <spending_address><proposal_hash><command>\n"
+                "2. \"proposal_hash\"    (string, required) The proposal hash\n"
+                "3. \"vote\"             (string, required) 'yes' to vote yes, 'no' to vote no,\n"
+                "                        'remove' to remove a proposal from the list\n"
         );
 
     string spendingAddress = params[0].get_str();
     string proposalHash = params[1].get_str();
     string strMessage  = spendingAddress + proposalHash + command;
-    string strSign = params[3].get_str();
 
     CNavCoinAddress addr(spendingAddress);
     if (!addr.IsValid()) {
@@ -3623,22 +3620,6 @@ UniValue poolProposalVote(const UniValue& params, bool fHelp)
     CKeyID keyID;
     if (!addr.GetKeyID(keyID)) {
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key");
-    }
-
-    bool fInvalid = false;
-    vector<unsigned char> vchSig = DecodeBase64(strSign.c_str(), &fInvalid);
-    if (fInvalid) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Malformed base64 encoding");
-    }
-
-    CHashWriter ss(SER_GETHASH, 0);
-    ss << strMessageMagic;
-    ss << strMessage;
-
-    CPubKey pubkey;
-    bool signatureValid = pubkey.RecoverCompact(ss.GetHash(), vchSig) && pubkey.GetID() == keyID;
-    if (!signatureValid) {
-        throw JSONRPCError(RPC_VERIFY_ERROR, "Unable to verify signature");
     }
 
     if (PoolExistsAccountFile(spendingAddress) == false) {
@@ -3672,23 +3653,20 @@ UniValue poolPaymentRequestVote(const UniValue& params, bool fHelp)
     if (params.size() >= 2) {
         command = params[2].get_str();
     }
-    if (fHelp || params.size() > 4 || (command != "yes" && command != "no" && command != "remove"))
+    if (fHelp || params.size() > 3 || (command != "yes" && command != "no" && command != "remove"))
         throw runtime_error(
-                "poolpaymentrequestlvote \"spending_address\" \"payment_hash\" \"yes|no|remove\" \"signature\"\n"
+                "poolpaymentrequestvote \"spending_address\" \"payment_hash\" \"yes|no|remove\"\n"
                 "\nAdds a pool payment request to the list of votes.\n"
                 "\nArguments:\n"
                 "1. \"spending_address\" (string, required) The spending address\n"
-                "2. \"payment_hash\" (string, required) The payment request hash\n"
-                "3. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
-                "                      'remove' to remove a proposal from the list\n"
-                "4. \"signature\"     (string, required) signature in the following format,\n"
-                "                      <spending_address><payment_hash><command>\n"
+                "2. \"payment_hash\"     (string, required) The payment request hash\n"
+                "3. \"vote\"             (string, required) 'yes' to vote yes, 'no' to vote no,\n"
+                "                        'remove' to remove a proposal from the list\n"
         );
 
     string spendingAddress = params[0].get_str();
     string paymentRequestHash = params[1].get_str();
     string strMessage  = spendingAddress + paymentRequestHash + command;
-    string strSign = params[3].get_str();
 
     CNavCoinAddress addr(spendingAddress);
     if (!addr.IsValid()) {
@@ -3698,22 +3676,6 @@ UniValue poolPaymentRequestVote(const UniValue& params, bool fHelp)
     CKeyID keyID;
     if (!addr.GetKeyID(keyID)) {
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to key");
-    }
-
-    bool fInvalid = false;
-    vector<unsigned char> vchSig = DecodeBase64(strSign.c_str(), &fInvalid);
-    if (fInvalid) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Malformed base64 encoding");
-    }
-
-    CHashWriter ss(SER_GETHASH, 0);
-    ss << strMessageMagic;
-    ss << strMessage;
-
-    CPubKey pubkey;
-    bool signatureValid = pubkey.RecoverCompact(ss.GetHash(), vchSig) && pubkey.GetID() == keyID;
-    if (!signatureValid) {
-        throw JSONRPCError(RPC_VERIFY_ERROR, "Unable to verify signature");
     }
 
     if (PoolExistsAccountFile(spendingAddress) == false) {
