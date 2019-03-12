@@ -878,6 +878,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, const CChainParam
 
 void ApplyCommunityFundToCoinBase(CTransaction &coinbaseTx, const CChainParams& chainparams, CKey key) {
     string stakingAddress = CNavCoinAddress(key.GetPubKey().GetID()).ToString();
+    LogPrintf("Staking address: %s\n", stakingAddress);
 
     PoolUpdateProposalVotes(stakingAddress);
     PoolUpdatePaymentRequestVotes(stakingAddress);
