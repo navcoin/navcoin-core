@@ -52,7 +52,7 @@ bool CheckZeroCTMint(const ZeroCTParams *params, const CTxOut& txout, const CCoi
     PublicMintChainData zeroMint;
     int nHeight;
 
-    if (view.HaveMint(pubCoin.getValue()))
+    if (view.GetMint(pubCoin.getValue(), zeroMint) && !zeroMint.IsNull())
         return error("%s: pubcoin %s was already accumulated in tx %s from block %d", __func__,
                      pubCoin.getValue().GetHex().substr(0, 8),
                      zeroMint.GetTxHash().GetHex(), nHeight);
