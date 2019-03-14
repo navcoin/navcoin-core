@@ -432,10 +432,9 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
     nBlockWeight += iter->GetTxWeight();
     ++nBlockTx;
     nBlockSigOpsCost += iter->GetSigOpCost();
-    if (iter->GetTx().IsZeroCTSpend() || iter->GetTx().HasZeroCTMint()) {
-        LogPrintf("Adding private fee %d from %s\n", iter->GetFee(), iter->GetTx().ToString());
+    if (iter->GetTx().IsZeroCTSpend() || iter->GetTx().HasZeroCTMint())
         pblocktemplate->nPrivateFees += iter->GetFee();
-    } else
+    else
         pblocktemplate->nFees += iter->GetFee();
 
     inBlock.insert(iter);
