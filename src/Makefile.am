@@ -26,7 +26,7 @@ LIBNAVCOIN_CONSENSUS=libnavcoin_consensus.a
 LIBNAVCOIN_CLI=libnavcoin_cli.a
 LIBNAVCOIN_UTIL=libnavcoin_util.a
 LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
-LIBNAVCOIN_ZEROCOIN=libzerocoin/libnavcoin_zerocoin.a
+LIBNAVCOIN_ZEROCOIN=libzeroct/libnavcoin_zerocoin.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
@@ -383,59 +383,48 @@ libnavcoin_util_a_SOURCES = \
   utiltime.cpp \
   $(NAVCOIN_CORE_H)
 
-# libzerocoin library
-libzerocoin_libnavcoin_zerocoin_a_SOURCES = \
-  libzerocoin/Accumulator.h \
-  libzerocoin/AccumulatorProofOfKnowledge.h \
-  libzerocoin/ArithmeticCircuit.h \
-  libzerocoin/bignum.h \
-  libzerocoin/bignum.cpp \
-  libzerocoin/Bulletproofs.h \
-  libzerocoin/BulletproofsRangeproof.cpp \
-  libzerocoin/BulletproofsRangeproof.h \
-  libzerocoin/Coin.h \
-  libzerocoin/CoinSpend.h \
-  libzerocoin/Commitment.h \
-  libzerocoin/Denominations.h \
-  libzerocoin/Keys.h \
-  libzerocoin/Math.h \
-  libzerocoin/ParamGeneration.h \
-  libzerocoin/Params.h \
-  libzerocoin/PolynomialCommitment.h \
-  libzerocoin/SerialNumberSignatureOfKnowledge.h \
-  libzerocoin/SerialNumberSoK_small.h \
-  libzerocoin/SerialNumberProofOfKnowledge.h \
-  libzerocoin/SpendType.h \
-  libzerocoin/ZerocoinDefines.h \
-  libzerocoin/zkplib.h \
-  libzerocoin/Accumulator.cpp \
-  libzerocoin/AccumulatorProofOfKnowledge.cpp \
-  libzerocoin/ArithmeticCircuit.cpp \
-  libzerocoin/Bulletproofs.cpp \
-  libzerocoin/Coin.cpp \
-  libzerocoin/CoinSpend.cpp \
-  libzerocoin/Commitment.cpp \
-  libzerocoin/Denominations.cpp \
-  libzerocoin/Keys.cpp \
-  libzerocoin/Math.cpp \
-  libzerocoin/ParamGeneration.cpp \
-  libzerocoin/Params.cpp \
-  libzerocoin/PolynomialCommitment.cpp \
-  libzerocoin/SerialNumberSignatureOfKnowledge.cpp \
-  libzerocoin/SerialNumberSoK_small.cpp \
-  libzerocoin/SerialNumberProofOfKnowledge.cpp
+# libzeroct library
+libzeroct_libnavcoin_zerocoin_a_SOURCES = \
+  libzeroct/Accumulator.h \
+  libzeroct/AccumulatorProofOfKnowledge.h \
+  libzeroct/bignum.h \
+  libzeroct/bignum.cpp \
+  libzeroct/BulletproofsRangeproof.cpp \
+  libzeroct/BulletproofsRangeproof.h \
+  libzeroct/Coin.h \
+  libzeroct/CoinSpend.h \
+  libzeroct/Commitment.h \
+  libzeroct/Keys.h \
+  libzeroct/Math.cpp \
+  libzeroct/Math.h \
+  libzeroct/ParamGeneration.h \
+  libzeroct/Params.h \
+  libzeroct/SerialNumberSignatureOfKnowledge.h \
+  libzeroct/SerialNumberProofOfKnowledge.h \
+  libzeroct/SpendType.h \
+  libzeroct/ZerocoinDefines.h \
+  libzeroct/Accumulator.cpp \
+  libzeroct/AccumulatorProofOfKnowledge.cpp \
+  libzeroct/Coin.cpp \
+  libzeroct/CoinSpend.cpp \
+  libzeroct/Commitment.cpp \
+  libzeroct/Keys.cpp \
+  libzeroct/ParamGeneration.cpp \
+  libzeroct/Params.cpp \
+  libzeroct/SerialNumberSignatureOfKnowledge.cpp \
+  libzeroct/SerialNumberProofOfKnowledge.cpp
 
 if USE_NUM_GMP
-libzerocoin_libnavcoin_zerocoin_a_SOURCES += libzerocoin/bignum_gmp.cpp
+libzeroct_libnavcoin_zerocoin_a_SOURCES += libzeroct/bignum_gmp.cpp
 endif
 if USE_NUM_OPENSSL
-libzerocoin_libnavcoin_zerocoin_a_SOURCES += libzerocoin/bignum_openssl.cpp
+libzeroct_libnavcoin_zerocoin_a_SOURCES += libzeroct/bignum_openssl.cpp
 endif
 
-libzerocoin_libnavcoin_zerocoin_a_LIBADD = $(LIBSECP256K1)
-libzerocoin_libnavcoin_zerocoin_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/secp256k1/include $(SSL_CFLAGS)
-libzerocoin_libnavcoin_zerocoin_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libzerocoin_libnavcoin_zerocoin_a_CFLAGS = $(AM_CFLAGS)
+libzeroct_libnavcoin_zerocoin_a_LIBADD = $(LIBSECP256K1)
+libzeroct_libnavcoin_zerocoin_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/secp256k1/include $(SSL_CFLAGS)
+libzeroct_libnavcoin_zerocoin_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libzeroct_libnavcoin_zerocoin_a_CFLAGS = $(AM_CFLAGS)
 
 if GLIBC_BACK_COMPAT
 libnavcoin_util_a_SOURCES += compat/glibc_compat.cpp

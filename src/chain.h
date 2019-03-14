@@ -234,12 +234,10 @@ public:
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     uint32_t nSequenceId;
 
-    uint256 nAccumulatorChecksum;
+    CBigNum nAccumulatorValue;
     CAmount nMoneySupply;
     CAmount nAccumulatedPrivateFee;
-    CAmount nAccumulatedPublicFee;;
-
-    std::map<libzerocoin::CoinDenomination, int64_t> mapZerocoinSupply;
+    CAmount nAccumulatedPublicFee;
 
     void SetNull()
     {
@@ -271,7 +269,7 @@ public:
         vProposalVotes.clear();
         vPaymentRequestVotes.clear();
         nMoneySupply = 0;
-        nAccumulatorChecksum = 0;
+        nAccumulatorValue = 0;
         nAccumulatedPrivateFee = 0;
         nAccumulatedPublicFee = 0;
     }
@@ -290,8 +288,6 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
-        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
-            nAccumulatorChecksum = block.nAccumulatorChecksum;
     }
 
     CBlockIndex(const CBlock& block)
@@ -315,8 +311,6 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
-        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
-            nAccumulatorChecksum = block.nAccumulatorChecksum;
     }
 
     uint256 GetBlockTrust() const
@@ -358,18 +352,7 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
-        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
-            block.nAccumulatorChecksum = nAccumulatorChecksum;
         return block;
-    }
-
-    int64_t GetZerocoinSupply() const
-    {
-        int64_t nTotal = 0;
-        for (auto& denom : libzerocoin::zerocoinDenomList) {
-            nTotal += libzerocoin::ZerocoinDenominationToAmount(denom) * mapZerocoinSupply.at(denom);
-        }
-        return nTotal;
     }
 
     uint256 GetBlockHash() const
@@ -553,9 +536,8 @@ public:
         READWRITE(vPaymentRequestVotes);
         READWRITE(vProposalVotes);
         READWRITE(nMoneySupply);
-        if((this->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN) {
-            READWRITE(nAccumulatorChecksum);
-            READWRITE(mapZerocoinSupply);
+        if((this->nVersion & VERSIONBITS_TOP_BITS_ZEROCT) == VERSIONBITS_TOP_BITS_ZEROCT) {
+            READWRITE(nAccumulatorValue);
             READWRITE(nAccumulatedPrivateFee);
             READWRITE(nAccumulatedPublicFee);
         }
@@ -570,8 +552,6 @@ public:
         block.nTime           = nTime;
         block.nBits           = nBits;
         block.nNonce          = nNonce;
-        if((block.nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
-            block.nAccumulatorChecksum = nAccumulatorChecksum;
 
         const_cast<CDiskBlockIndex*>(this)->blockHash = block.GetHash();
 

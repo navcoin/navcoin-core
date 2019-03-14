@@ -1229,7 +1229,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     LogPrintf("Using at most %i connections (%i file descriptors available)\n", nMaxConnections, nFD);
     std::ostringstream strErrors;
 
-    LogPrintf("Using %u threads for script and zerocoin verification\n", nScriptCheckThreads);
+    LogPrintf("Using %u threads for script and ZeroCT verification\n", nScriptCheckThreads);
     if (nScriptCheckThreads) {
         for (int i=0; i<nScriptCheckThreads-1; i++) {
             threadGroup.create_thread(&ThreadScriptCheck);
@@ -1619,27 +1619,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     {
                         LogPrintf("Reindexing money supply...\n");
                         fReindexSupply = true;
-                    }
-
-                    std::pair<int, uint256> firstZero = make_pair(0, uint256());
-                    pblocktree->ReadFirstZerocoinBlock(firstZero);
-
-                    CBlockIndex* firstZeroBlock = chainActive[firstZero.first];
-                    CBlockIndex* prevZeroBlock = chainActive[firstZero.first-1];
-
-                    if(firstZero.first != 0
-                            && ((firstZeroBlock && (firstZeroBlock->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) != VERSIONBITS_TOP_BITS_ZEROCOIN)
-                            || (prevZeroBlock && (prevZeroBlock->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
-                            || (!firstZeroBlock)
-                            || (firstZeroBlock->GetBlockHash() != firstZero.second))) {
-                        CBlockIndex* pindex = chainActive.Genesis();
-                        while (pindex) {
-                            if ((pindex->nVersion & VERSIONBITS_TOP_BITS_ZEROCOIN) == VERSIONBITS_TOP_BITS_ZEROCOIN)
-                                break;
-                            pindex = chainActive.Next(pindex);
-                        }
-                        pblocktree->WriteFirstZerocoinBlock(make_pair(pindex ? pindex->nHeight : 0, pindex ? pindex->GetBlockHash() : uint256()));
-                        LogPrintf("First zerocoin block ammended to %d\n", pindex ? pindex->nHeight : 0);
                     }
                 }
 

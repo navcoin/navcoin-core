@@ -132,14 +132,11 @@ void BlockAssembler::resetBlock()
     fIncludeWitness = false;
 
     // These counters do not include coinbase tx
-    nBlockTx = 0;
-    nFees = 0;
-
     lastFewTxs = 0;
     blockFinished = false;
 }
 
-CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees, uint64_t* pPrivateFees)
+CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake)
 {
     resetBlock();
 
@@ -300,7 +297,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->vtx[0] = coinbaseTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
-    pblocktemplate->vTxFees[0] = -nFees;
+    pblocktemplate->vTxFees[0] = -pblocktemplate->nFees;
 
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
@@ -310,25 +307,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
-
-    if(!fProofOfStake && IsZerocoinEnabled(pindexPrev, Params().GetConsensus()))
-    {
-        AccumulatorMap accumulatorMap(&Params().GetConsensus().Zerocoin_Params);
-        std::vector<std::pair<CBigNum, uint256>> vDummy;
-        if (pindexPrev->nAccumulatorChecksum != uint256())
-            if (!accumulatorMap.Load(pindexPrev->nAccumulatorChecksum)) {
-                LogPrintf("%s : Could not load previous accumulator checksum %s\n",  __func__, pindexPrev->nAccumulatorChecksum.ToString());
-                return NULL;
-            }
-        CalculateAccumulatorChecksum(pblock, accumulatorMap, vDummy);
-        pblock->nAccumulatorChecksum = accumulatorMap.GetChecksum();
-    }
-
-    if (pFees)
-        *pFees = nFees;
-
-    if (pPrivateFees)
-        *pPrivateFees = nPrivateFees;
 
     return pblocktemplate.release();
 }
@@ -454,10 +432,12 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
     nBlockWeight += iter->GetTxWeight();
     ++nBlockTx;
     nBlockSigOpsCost += iter->GetSigOpCost();
-    if (iter->GetTx().IsZerocoinSpend())
-        nPrivateFees += iter->GetFee();
-    else
-        nFees += iter->GetFee();
+    if (iter->GetTx().IsZeroCTSpend() || iter->GetTx().HasZeroCTMint()) {
+        LogPrintf("Adding private fee %d from %s\n", iter->GetFee(), iter->GetTx().ToString());
+        pblocktemplate->nPrivateFees += iter->GetFee();
+    } else
+        pblocktemplate->nFees += iter->GetFee();
+
     inBlock.insert(iter);
 
     bool fPrintPriority = GetBoolArg("-printpriority", DEFAULT_PRINTPRIORITY);
@@ -825,10 +805,7 @@ void NavCoinStaker(const CChainParams& chainparams)
             //
             // Create new block
             //
-            uint64_t nFees = 0;
-            uint64_t nPrivateFees = 0;
-
-            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, true, &nFees, &nPrivateFees));
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, true));
             if (!pblocktemplate.get())
             {
                 LogPrintf("Error in NavCoinStaker: Keypool ran out, please call keypoolrefill before restarting the staking thread\n");
@@ -840,7 +817,7 @@ void NavCoinStaker(const CChainParams& chainparams)
             //     ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
             //Trying to sign a block
-            if (SignBlock(pblock, *pwalletMain, nFees, nPrivateFees))
+            if (SignBlock(pblock, *pwalletMain, pblocktemplate->nFees, pblocktemplate->nPrivateFees))
             {
                 LogPrint("coinstake", "PoS Block signed\n");
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
@@ -896,8 +873,9 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
   if (nSearchTime > nLastCoinStakeSearchTime)
   {
       int64_t nSearchInterval = nBestHeight+1 > 0 ? 1 : nSearchTime - nLastCoinStakeSearchTime;
-      CBigNum zerokey = 0;
-      if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, chainActive.Tip()->nAccumulatedPublicFee+nFees, chainActive.Tip()->nAccumulatedPrivateFee+nPrivateFees, txCoinStake, key, zerokey, sCoinStakeStrDZeel))
+      CBigNum zerokey;
+      CBigNum r_minus_gamma;
+      if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, chainActive.Tip()->nAccumulatedPublicFee+nFees, chainActive.Tip()->nAccumulatedPrivateFee+nPrivateFees, txCoinStake, key, zerokey, sCoinStakeStrDZeel, r_minus_gamma))
       {
 
           if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
@@ -930,26 +908,29 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
               }
 
               // After the changes, we need to resign inputs.
-              if (vCoinStakeOutputs.size() > 0 || vCoinStakeInputs.size() > 0) {
-                  CTransaction txNewConst(txCoinStake);
-                  for(unsigned int i = 0; i < txCoinStake.vin.size(); i++)
-                  {
-                      if (txCoinStake.vin[i].scriptSig.IsZerocoinSpend())
-                          continue;
-                      bool signSuccess;
-                      uint256 prevHash = txCoinStake.vin[i].prevout.hash;
-                      uint32_t n = txCoinStake.vin[i].prevout.n;
-                      assert(pwalletMain->mapWallet.count(prevHash));
-                      CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
-                      const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
-                      SignatureData sigdata;
-                      signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata, true);
+              bool fZeroStake = false;
 
-                      if (!signSuccess) {
-                          return false;
-                      } else {
-                          UpdateTransaction(txCoinStake, i, sigdata);
-                      }
+              CTransaction txNewConst(txCoinStake);            
+
+              for(unsigned int i = 0; i < txCoinStake.vin.size(); i++)
+              {
+                  if (txCoinStake.vin[i].scriptSig.IsZeroCTSpend())
+                      fZeroStake = true;
+                  if (fZeroStake)
+                      continue;
+                  bool signSuccess;
+                  uint256 prevHash = txCoinStake.vin[i].prevout.hash;
+                  uint32_t n = txCoinStake.vin[i].prevout.n;
+                  assert(pwalletMain->mapWallet.count(prevHash));
+                  CWalletTx& prevTx = pwalletMain->mapWallet[prevHash];
+                  const CScript& scriptPubKey = prevTx.vout[n].scriptPubKey;
+                  SignatureData sigdata;
+                  signSuccess = ProduceSignature(TransactionSignatureCreator(&wallet, &txNewConst, i, prevTx.vout[n].nValue, SIGHASH_ALL), scriptPubKey, sigdata, true);
+
+                  if (!signSuccess) {
+                      return false;
+                  } else {
+                      UpdateTransaction(txCoinStake, i, sigdata);
                   }
               }
 
@@ -965,34 +946,40 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, int64_t nPrivateF
                       pblock->vtx.insert(pblock->vtx.begin() + 2, forcedTx);
               }
 
-              if(IsZerocoinEnabled(chainActive.Tip(), Params().GetConsensus()))
+              const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
+              const libzeroct::IntegerGroupParams* group = &params->coinCommitmentGroup;
+
+              if (fZeroStake)
               {
-                  AccumulatorMap accumulatorMap(&Params().GetConsensus().Zerocoin_Params);
-                  if (chainActive.Tip()->nAccumulatorChecksum != uint256())
-                      if (!accumulatorMap.Load(chainActive.Tip()->nAccumulatorChecksum))
-                          return error("%s : Could not load previous accumulator checksum %s", __func__, chainActive.Tip()->nAccumulatorChecksum.ToString());
-                  std::vector<std::pair<CBigNum, uint256>> vDummy;
-                  CalculateAccumulatorChecksum(pblock, accumulatorMap, vDummy);
-                  pblock->nAccumulatorChecksum = accumulatorMap.GetChecksum();
+                  SerialNumberProofOfKnowledge txAmountSig = SerialNumberProofOfKnowledge(group,
+                                                                                          r_minus_gamma,
+                                                                                          txNew.GetHashAmountSig());
+
+                  CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                  ss << txAmountSig;
+                  *const_cast<std::vector<unsigned char>*>(&pblock->vtx[1].vchTxSig) = std::vector<unsigned char>(ss.begin(), ss.end());
+                  txNew.UpdateHash();
+
+                  r_minus_gamma.Nullify();
               }
 
               pblock->vtx[0].UpdateHash();
+              pblock->vtx[1].UpdateHash();
               pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-              
-              if (zerokey != CBigNum(0)) {
-                  CBigNum base;
-                  base.SetHex(BASE_BLOCK_SIGNATURE);
-                  libzerocoin::SerialNumberProofOfKnowledge serialNumberPoK = SerialNumberProofOfKnowledge(&Params().GetConsensus().Zerocoin_Params.coinCommitmentGroup, zerokey, pblock->GetHash(), base);
+
+              if (fZeroStake)
+              {
+                  SerialNumberProofOfKnowledge serialNumberPoK = SerialNumberProofOfKnowledge(group,
+                                                                                              zerokey,
+                                                                                              pblock->GetHash());
+
                   CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
                   ss << serialNumberPoK;
                   pblock->vchBlockSig = std::vector<unsigned char>(ss.begin(), ss.end());
+
                   return true;
               } else
                   return key.Sign(pblock->GetHash(), pblock->vchBlockSig);
-          }
-          else
-          {
-              LogPrintf("%s: Timestamp protocol not met (%d < %d)\n", __func__, txCoinStake.nTime, chainActive.Tip()->GetPastTimeLimit()+1);
           }
       }
       nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;

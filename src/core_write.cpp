@@ -173,14 +173,13 @@ void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry)
     UniValue vin(UniValue::VARR);
     BOOST_FOREACH(const CTxIn& txin, tx.vin) {
         UniValue in(UniValue::VOBJ);
-        if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
+        if (tx.IsCoinBase() && !tx.IsZeroCTSpend())
             in.pushKV("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end()));
-        else if(txin.scriptSig.IsZerocoinSpend()) {
-            libzerocoin::CoinSpend coinSpend(&Params().GetConsensus().Zerocoin_Params);
-            if (TxInToCoinSpend(&Params().GetConsensus().Zerocoin_Params, txin, coinSpend)) {
-                in.pushKV("zerocoinspend", coinSpend.getCoinSerialNumber().ToString(16));
-                in.pushKV("value", FormatMoney(libzerocoin::ZerocoinDenominationToAmount(coinSpend.getDenomination())));
-            }
+        else if(txin.scriptSig.IsZeroCTSpend()) {
+            const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
+            libzeroct::CoinSpend coinSpend(params);
+            if (TxInToCoinSpend(params, txin, coinSpend))
+                in.pushKV("zeroct_spend", coinSpend.getCoinSerialNumber().ToString(16));
         } else {
             in.pushKV("txid", txin.prevout.hash.GetHex());
             in.pushKV("vout", (int64_t)txin.prevout.n);

@@ -14,8 +14,8 @@
 #include "amount.h"
 #include "chain.h"
 #include "coins.h"
-#include "libzerocoin/Coin.h"
-#include "libzerocoin/CoinSpend.h"
+#include "libzeroct/Coin.h"
+#include "libzeroct/CoinSpend.h"
 #include "net.h"
 #include "script/interpreter.h"
 #include "script/script_error.h"
@@ -470,12 +470,12 @@ public:
 class CCoinSpendCheck
 {
 private:
-    libzerocoin::Accumulator accumulator;
-    libzerocoin::CoinSpend coinSpend;
+    libzeroct::Accumulator accumulator;
+    libzeroct::CoinSpend coinSpend;
 
 public:
-    CCoinSpendCheck() : accumulator(&Params().GetConsensus().Zerocoin_Params.accumulatorParams), coinSpend(&Params().GetConsensus().Zerocoin_Params) {}
-    CCoinSpendCheck(const libzerocoin::CoinSpend& coinSpendIn, const libzerocoin::Accumulator& accumulatorIn) :
+    CCoinSpendCheck() : accumulator(&Params().GetConsensus().ZeroCT_Params.accumulatorParams), coinSpend(&Params().GetConsensus().ZeroCT_Params) {}
+    CCoinSpendCheck(const libzeroct::CoinSpend& coinSpendIn, const libzeroct::Accumulator& accumulatorIn) :
         accumulator(accumulatorIn), coinSpend(coinSpendIn) { }
 
     bool operator()();
@@ -489,12 +489,12 @@ public:
 class CPublicCoinCheck
 {
 private:
-    libzerocoin::PublicCoin pubCoin;
+    libzeroct::PublicCoin pubCoin;
     bool fFast;
 
 public:
-    CPublicCoinCheck() : pubCoin(&Params().GetConsensus().Zerocoin_Params), fFast(false) {}
-    CPublicCoinCheck(const libzerocoin::PublicCoin& pubCoinIn, bool fFastIn) :
+    CPublicCoinCheck() : pubCoin(&Params().GetConsensus().ZeroCT_Params), fFast(false) {}
+    CPublicCoinCheck(const libzeroct::PublicCoin& pubCoinIn, bool fFastIn) :
         pubCoin(pubCoinIn), fFast(fFastIn) { }
 
     bool operator()();
@@ -567,8 +567,8 @@ bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& pa
 /** Check whether ColdStaking has been activated. */
 bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
-/** Check whether Zerocoin has been activated */
-bool IsZerocoinEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+/** Check whether ZeroCT has been activated */
+bool IsZeroCTEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 

@@ -92,11 +92,11 @@ void getAddressToReceive::showPrivateAddress()
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CKey zk; libzerocoin::BlindingCommitment bc;
+    CKey zk; libzeroct::BlindingCommitment bc;
     pwalletMain->GetBlindingCommitment(bc);
     pwalletMain->GetZeroKey(zk);
 
-    libzerocoin::CPrivateAddress pa(&Params().GetConsensus().Zerocoin_Params, bc, zk);
+    libzeroct::CPrivateAddress pa(&Params().GetConsensus().ZeroCT_Params, bc, zk, "", 0);
 
     QMessageBox::information(this, tr("Show Private Address"),
         tr("Private Address:<br><br>%1").arg(QString::fromStdString( CNavCoinAddress(pa).ToString())));

@@ -17,7 +17,7 @@
 
 #include "chainparams.h"
 #include "key.h"
-#include "libzerocoin/Keys.h"
+#include "libzeroct/Keys.h"
 #include "pubkey.h"
 #include "script/script.h"
 #include "script/standard.h"
@@ -111,7 +111,7 @@ class CNavCoinAddress : public CBase58Data {
 public:
     bool Set(const CKeyID &id);
     bool Set(const CKeyID &id, const CKeyID &id2);
-    bool Set(const libzerocoin::CPrivateAddress &id);
+    bool Set(const libzeroct::CPrivateAddress &id);
     bool Set(const CScriptID &id);
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
@@ -121,7 +121,7 @@ public:
     CNavCoinAddress() {}
     CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
     CNavCoinAddress(const CKeyID &id, const CKeyID &id2) { Set(id, id2); }
-    CNavCoinAddress(const libzerocoin::CPrivateAddress &id) { Set(id); }
+    CNavCoinAddress(const libzeroct::CPrivateAddress &id) { Set(id); }
     CNavCoinAddress(const std::string& strAddress) { SetString(strAddress); }
     CNavCoinAddress(const char* pszAddress) { SetString(pszAddress); }
 
@@ -137,7 +137,7 @@ public:
     bool GetStakingAddress(CNavCoinAddress &address) const;
     bool GetSpendingAddress(CNavCoinAddress &address) const;
 
-    bool GetBlindingCommitment(libzerocoin::BlindingCommitment &bc) const;
+    bool GetBlindingCommitment(libzeroct::BlindingCommitment &bc) const;
     bool GetZeroPubKey(CPubKey &zerokey) const;
 
 };

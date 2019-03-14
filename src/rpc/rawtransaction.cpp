@@ -10,7 +10,7 @@
 #include "core_io.h"
 #include "init.h"
 #include "keystore.h"
-#include "libzerocoin/CoinSpend.h"
+#include "libzeroct/CoinSpend.h"
 #include "main.h"
 #include "merkleblock.h"
 #include "net.h"
@@ -94,14 +94,12 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxIn& txin = tx.vin[i];
         UniValue in(UniValue::VOBJ);
-        if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
+        if (tx.IsCoinBase() && !tx.IsZeroCTSpend())
             in.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
-        else if (txin.scriptSig.IsZerocoinSpend()) {
-            libzerocoin::CoinSpend coinSpend(&Params().GetConsensus().Zerocoin_Params);
-            if (TxInToCoinSpend(&Params().GetConsensus().Zerocoin_Params, txin, coinSpend)) {
-                in.push_back(Pair("zerocoinspend", coinSpend.getCoinSerialNumber().ToString(16)));
-                in.push_back(Pair("value", FormatMoney(libzerocoin::ZerocoinDenominationToAmount(coinSpend.getDenomination()))));
-            }
+        else if (txin.scriptSig.IsZeroCTSpend()) {
+            libzeroct::CoinSpend coinSpend(&Params().GetConsensus().ZeroCT_Params);
+            if (TxInToCoinSpend(&Params().GetConsensus().ZeroCT_Params, txin, coinSpend))
+                in.push_back(Pair("zeroct_spend", coinSpend.getCoinSerialNumber().ToString(16)));
         }
         else {
             in.push_back(Pair("txid", txin.prevout.hash.GetHex()));
@@ -195,7 +193,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxIn& txin = tx.vin[i];
         UniValue in(UniValue::VOBJ);
-        if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
+        if (tx.IsCoinBase() && !tx.IsZeroCTSpend())
             in.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
         else {
             in.push_back(Pair("txid", txin.prevout.hash.GetHex()));

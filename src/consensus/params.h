@@ -8,8 +8,8 @@
 #define NAVCOIN_CONSENSUS_PARAMS_H
 
 #include "amount.h"
-#include "libzerocoin/bignum.h"
-#include "libzerocoin/Params.h"
+#include "libzeroct/bignum.h"
+#include "libzeroct/Params.h"
 #include "uint256.h"
 #include <map>
 #include <string>
@@ -29,7 +29,7 @@ enum DeploymentPos
     DEPLOYMENT_COLDSTAKING,
     DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD,
     DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2,
-    DEPLOYMENT_ZEROCOIN,
+    DEPLOYMENT_ZEROCT,
     DEPLOYMENT_NTPSYNC,
     DEPLOYMENT_STATIC_REWARD,
     DEPLOYMENT_QUORUM_CFUND,
@@ -115,7 +115,7 @@ struct Params {
 
     /** Zerocoin parameters **/
     std::string zerocoinModulus;
-    libzerocoin::ZerocoinParams Zerocoin_Params;
+    libzeroct::ZeroCTParams ZeroCT_Params;
 };
 } // namespace Consensus
 

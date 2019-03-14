@@ -63,6 +63,7 @@ static ScriptErrorDesc script_errors[]={
     {SCRIPT_ERR_UNKNOWN_ERROR, "UNKNOWN_ERROR"},
     {SCRIPT_ERR_EVAL_FALSE, "EVAL_FALSE"},
     {SCRIPT_ERR_OP_RETURN, "OP_RETURN"},
+    {SCRIPT_ERR_OP_FEE, "OP_FEE"},
     {SCRIPT_ERR_SCRIPT_SIZE, "SCRIPT_SIZE"},
     {SCRIPT_ERR_PUSH_SIZE, "PUSH_SIZE"},
     {SCRIPT_ERR_OP_COUNT, "OP_COUNT"},
@@ -478,6 +479,10 @@ BOOST_AUTO_TEST_CASE(script_build)
 
     std::vector<TestBuilder> tests;
 
+    tests.push_back(TestBuilder(CScript() << OP_FEE,
+                                "Fee Output", 0
+                               ).ScriptError(SCRIPT_ERR_OP_FEE));
+
     tests.push_back(TestBuilder(CScript() << ToByteVector(keys.pubkey0) << OP_CHECKSIG,
                                 "P2PK", 0
                                ).PushSig(keys.key0));
@@ -791,6 +796,7 @@ BOOST_AUTO_TEST_CASE(script_build)
                                 "P2WPKH with future witness version", SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_P2SH |
                                 SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM, false, WITNESS_PKH, 1
                                ).PushWitSig(keys.key0).Push(keys.pubkey0).AsWit().ScriptError(SCRIPT_ERR_DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM));
+
     {
         CScript witscript = CScript() << ToByteVector(keys.pubkey0);
         uint256 hash;

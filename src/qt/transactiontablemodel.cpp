@@ -381,6 +381,7 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
     case TransactionRecord::AnonTxRecv:
         return tr("Received Private Payment");
     case TransactionRecord::AnonTxSend:
+    case TransactionRecord::Fee:
         return tr("Sent Private Payment");
     case TransactionRecord::RecvWithAddress:
         return tr("Received with");
@@ -417,6 +418,7 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
     case TransactionRecord::SendToAddress:
     case TransactionRecord::SendToOther:
     case TransactionRecord::CFund:
+    case TransactionRecord::Fee:
         return QIcon(":/icons/tx_output");
     default:
         return QIcon(":/icons/tx_inout");
@@ -448,6 +450,8 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
         return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:
         return QString::fromStdString(wtx->address) + watchAddress;
+    case TransactionRecord::Fee:
+        return tr("Fee");
     case TransactionRecord::SendToSelf:
     default:
         return tr("(n/a)") + watchAddress;
@@ -461,6 +465,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     {
     case TransactionRecord::AnonTxRecv:
     case TransactionRecord::AnonTxSend:
+    case TransactionRecord::Fee:
         return QVariant();
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:

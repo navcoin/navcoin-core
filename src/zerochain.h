@@ -7,25 +7,30 @@
 
 #include "chainparams.h"
 #include "consensus/validation.h"
-#include "libzerocoin/Coin.h"
-#include "libzerocoin/CoinSpend.h"
+#include "libzeroct/Coin.h"
+#include "libzeroct/CoinSpend.h"
+#include "libzeroct/BulletproofsRangeproof.h"
 #include "main.h"
 #include "primitives/transaction.h"
 #include "zeromint.h"
 
 #define COINSPEND_CACHE_SIZE 255
 
-using namespace libzerocoin;
+using namespace libzeroct;
 
 // consider moving to unordered map
 static std::map<uint256, bool> mapCacheValidCoinSpends;
 
 extern CCriticalSection cs_dummy;
 
-bool CheckZerocoinMint(const ZerocoinParams *params, const CTransaction& tx, const unsigned int& nOut, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, PublicMintChainData>> vSeen = std::vector<std::pair<CBigNum, PublicMintChainData>>(), PublicCoin* pPubCoin = NULL, bool fCheck = true, bool fFast = false);
-bool BlockToZerocoinMints(const ZerocoinParams *params, const CBlock* block, std::vector<PublicCoin> &vPubCoins);
-bool CountMintsFromHeight(unsigned int nInitialHeight, CoinDenomination denom, unsigned int& nRet);
-bool CalculateWitnessForMint(const CTxOut& txout, const PublicCoin& pubCoin, Accumulator& accumulator, AccumulatorWitness& AccumulatorWitness, uint256& AccumulatorChecksum, std::string& strError, int nRequiredMints, int nMaxHeight);
-bool CheckZerocoinSpend(const ZerocoinParams *params, const CTransaction& tx, const unsigned int& nIn, const CCoinsViewCache& view, CValidationState& state, std::vector<std::pair<CBigNum, uint256>> vSeen = std::vector<std::pair<CBigNum, uint256>>(), CoinSpend* pCoinSpend = NULL, Accumulator* accumulator = NULL, bool fSpendCheck = true);
+bool CheckZeroCTMint(const ZeroCTParams *params, const CTxOut& txout, const CCoinsViewCache& view, CValidationState& state, PublicCoin* pPubCoin = NULL, bool fCheck = true, bool fFast = false);
+bool BlockToZeroCTMints(const ZeroCTParams *params, const CBlock* block, std::vector<PublicCoin> &vPubCoins);
+bool CountMintsFromHeight(unsigned int nInitialHeight, unsigned int& nRet);
+bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, const PublicCoin& pubCoin, Accumulator& accumulator, AccumulatorWitness& AccumulatorWitness, CBigNum& accumulatorValue, uint256& blockAccumulatorHash, std::string& strError, int nRequiredMints, int nMaxHeight);
+bool CheckZeroCTSpend(const ZeroCTParams *params, const CTxIn& txin, const CCoinsViewCache& view, CValidationState& state, CoinSpend* pCoinSpend = NULL, Accumulator* accumulator = NULL, bool fSpendCheck = true);
 bool VerifyCoinSpend(const CoinSpend& coinSpend, const Accumulator &accumulator, bool fWriteToCache);
+bool VerifyCoinSpendNoCache(const CoinSpend& coinSpend, const Accumulator &accumulator);
+bool VerifyCoinSpendCache(const CoinSpend& coinSpend, const Accumulator &accumulator);
+bool VerifyZeroCTBalance(const ZeroCTParams *params, const CTransaction& transaction, const CCoinsViewCache& view, const CAmount nReward = 0);
+
 #endif // ZEROCHAIN_H

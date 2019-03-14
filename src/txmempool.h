@@ -462,6 +462,8 @@ public:
 
     mutable CCriticalSection cs;
     indexed_transaction_set mapTx;
+    std::set<CBigNum> mapSerial;
+    std::set<CBigNum> mapMint;
 
     typedef indexed_transaction_set::nth_index<0>::type::iterator txiter;
     std::vector<std::pair<uint256, txiter> > vTxHashes; //!< All tx hashes/entries in mapTx, in random order
@@ -716,6 +718,8 @@ public:
     CCoinsViewMemPool(CCoinsView* baseIn, const CTxMemPool& mempoolIn);
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
+    bool HaveMint(const CBigNum &mintValue) const;
+    bool HaveSpendSerial(const CBigNum &spendSerial) const;
 };
 
 // We want to sort transactions by coin age priority

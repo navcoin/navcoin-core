@@ -54,31 +54,19 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.push_back(Pair("mediantime", (int64_t)blockindex->GetMedianTimePast()));
     result.push_back(Pair("mint", ValueFromAmount(blockindex->nMint)));
     result.push_back(Pair("publicmoneysupply", ValueFromAmount(blockindex->nMoneySupply)));
-    CAmount totalMoneySupply = 0;
-    UniValue privateMoneySupply(UniValue::VOBJ);
-    for (auto const& it : blockindex->mapZerocoinSupply)
-    {
-        privateMoneySupply.push_back(Pair(to_string(libzerocoin::ZerocoinDenominationToInt(it.first)), it.second));
-        totalMoneySupply += libzerocoin::ZerocoinDenominationToInt(it.first) * it.second;
-    }
-    totalMoneySupply *= COIN;
-    privateMoneySupply.push_back(Pair("total", ValueFromAmount(totalMoneySupply)));
-    result.push_back(Pair("privatemoneysupply", privateMoneySupply));
-    totalMoneySupply += blockindex->nMoneySupply;
-    result.push_back(Pair("totalmoneysupply", ValueFromAmount(totalMoneySupply)));
-    result.push_back(Pair("accumulatorschecksum", blockindex->nAccumulatorChecksum.GetHex()));
-
-    AccumulatorMap aMap(&Params().GetConsensus().Zerocoin_Params);
-    UniValue accumulators(UniValue::VOBJ);
-
-    if (aMap.Load(blockindex->nAccumulatorChecksum)) {
-        for (libzerocoin::CoinDenomination const &it: libzerocoin::zerocoinDenomList) {
-            accumulators.push_back(Pair(to_string(libzerocoin::ZerocoinDenominationToInt(it)), aMap.GetValue(it).ToString(16)));
-        }
-    }
-    result.push_back(Pair("accumulators", accumulators));
-    result.push_back(Pair("accumulatedpublicfee", FormatMoney(blockindex->nAccumulatedPublicFee)));
-    result.push_back(Pair("accumulatedprivatefee", FormatMoney(blockindex->nAccumulatedPrivateFee)));
+//    CAmount totalMoneySupply = 0;
+//    UniValue privateMoneySupply(UniValue::VOBJ);
+//    for (auto const& it : blockindex->mapZerocoinSupply)
+//    {
+//        privateMoneySupply.push_back(Pair(to_string(libzeroct::ZerocoinDenominationToInt(it.first)), it.second));
+//        totalMoneySupply += libzeroct::ZerocoinDenominationToInt(it.first) * it.second;
+//    }
+//    totalMoneySupply *= COIN;
+//    privateMoneySupply.push_back(Pair("total", ValueFromAmount(totalMoneySupply)));
+//    result.push_back(Pair("privatemoneysupply", privateMoneySupply));
+//    totalMoneySupply += blockindex->nMoneySupply;
+//    result.push_back(Pair("totalmoneysupply", ValueFromAmount(totalMoneySupply)));
+    result.push_back(Pair("accumulatorvalue", blockindex->nAccumulatorValue.ToString(16)));
     result.push_back(Pair("nonce", (uint64_t)blockindex->nNonce));
     result.push_back(Pair("bits", strprintf("%08x", blockindex->nBits)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
@@ -1347,7 +1335,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING);
     BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
-    BIP9SoftForkDescPushBack(bip9_softforks, "zerocoin", consensusParams, Consensus::DEPLOYMENT_ZEROCOIN);
+    BIP9SoftForkDescPushBack(bip9_softforks, "zeroct", consensusParams, Consensus::DEPLOYMENT_ZEROCT);
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
     obj.push_back(Pair("softforks",             softforks));

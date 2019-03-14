@@ -7,7 +7,7 @@
 #ifndef NAVCOIN_SCRIPT_STANDARD_H
 #define NAVCOIN_SCRIPT_STANDARD_H
 
-#include "libzerocoin/Keys.h"
+#include "libzeroct/Keys.h"
 #include "script/interpreter.h"
 #include "uint256.h"
 
@@ -78,7 +78,7 @@ public:
  *  * Pair of two CKeyID: TX_COLDSTAKING destination
  *  A CTxDestination is the internal data type encoded in a CNavCoinAddress
  */
-typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, libzerocoin::CPrivateAddress> CTxDestination;
+typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, libzeroct::CPrivateAddress> CTxDestination;
 
 const char* GetTxnOutputType(txnouttype t);
 

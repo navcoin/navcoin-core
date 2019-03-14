@@ -68,8 +68,6 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
 
     // draw the navcoin icon, expected size of PNG: 1024x1024
     QRect rectIcon(QPoint(0,0), QSize(480,320));
-
-    const QSize requiredSize(480,320);
     QPixmap icon(":icons/splash");
 
     pixPaint.drawPixmap(rectIcon, icon);

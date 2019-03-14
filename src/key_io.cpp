@@ -40,7 +40,7 @@ public:
         return EncodeBase58Check(data);
     }
 
-    std::string operator()(const libzerocoin::CPrivateAddress& id) const
+    std::string operator()(const libzeroct::CPrivateAddress& id) const
     {
         std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::PRIVATE_ADDRESS);
         CDataStream ss(SER_NETWORK, 0);

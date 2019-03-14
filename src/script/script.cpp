@@ -150,8 +150,9 @@ const char* GetOpName(opcodetype opcode)
     case OP_COINSTAKE              : return "OP_COINSTAKE";
 
     // zerocoin
-    case OP_ZEROCOINMINT           : return "OP_ZEROCOINMINT";
-    case OP_ZEROCOINSPEND          : return "OP_ZEROCOINSPEND";
+    case OP_ZEROCTMINT           : return "OP_ZEROCTMINT";
+    case OP_ZEROCTSPEND          : return "OP_ZEROCTSPEND";
+    case OP_FEE                    : return "OP_FEE";
 
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
@@ -252,19 +253,25 @@ bool CScript::IsPayToPublicKey() const
       (*this)[34] == OP_CHECKSIG);
 }
 
-bool CScript::IsZerocoinMint() const
+bool CScript::IsZeroCTMint() const
 {
     //fast test for Zerocoin Mint CScripts
     return (this->size() > 0 &&
-        (*this)[0] == OP_ZEROCOINMINT);
+        (*this)[0] == OP_ZEROCTMINT);
 }
 
-bool CScript::IsZerocoinSpend() const
+bool CScript::IsFee() const
+{
+    return (this->size() == 1 &&
+        (*this)[0] == OP_FEE);
+}
+
+bool CScript::IsZeroCTSpend() const
 {
     if (this->empty())
         return false;
 
-    return ((*this)[0] == OP_ZEROCOINSPEND);
+    return ((*this)[0] == OP_ZEROCTSPEND);
 }
 
 bool CScript::IsCommunityFundContribution() const
@@ -337,17 +344,33 @@ bool CScript::ExtractVote(uint256 &hash, bool &vote) const
     return true;
 }
 
-bool CScript::ExtractZerocoinMintData(CPubKey &zkey, std::vector<unsigned char> &commitment, std::vector<unsigned char> &paymentid) const
+bool CScript::ExtractZeroCTMintData(CPubKey &zkey, std::vector<unsigned char> &commitment, std::vector<unsigned char> &paymentid, std::vector<unsigned char> &obfamount, std::vector<unsigned char> &amcommitment) const
 {
-    if(!IsZerocoinMint())
+    if(!IsZeroCTMint())
         return false;
+
     CPubKey key;
     key.Set(this->begin()+2, this->begin()+2+(*this)[1]);
     if(!key.IsValid())
         return false;
     zkey = key;
-    commitment = std::vector<unsigned char>(this->begin()+4+(*this)[1],this->begin()+4+(*this)[1]+(*this)[3+(*this)[1]]);
-    paymentid = std::vector<unsigned char>(this->begin()+5+(*this)[1]+(*this)[3+(*this)[1]],this->end());
+
+    auto begin = this->begin()+3+(*this)[1];
+    auto end = begin + 1 + (*begin);
+    commitment = std::vector<unsigned char>(begin+1, end);
+
+    begin = end + 1;
+    end = begin + 1 + (*begin);
+    amcommitment = std::vector<unsigned char>(begin + 1, end);
+
+    begin = end;
+    end = begin + 1 + (*begin);
+    paymentid = std::vector<unsigned char>(begin + 1, end);
+
+    begin = end;
+    end = begin + 1 + (*begin);
+    obfamount = std::vector<unsigned char>(begin + 1, end);
+
     return true;
 }
 
