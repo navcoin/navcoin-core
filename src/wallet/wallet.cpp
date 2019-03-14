@@ -1805,6 +1805,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
 
         {
             LOCK(cs_witnesser);
+            LogPrintf("Writing %d witnesses\n", witnessToWrite.size());
             for(auto& it: witnessToWrite)
                 WriteWitness(it.first, it.second);
         }
@@ -2149,8 +2150,8 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
         if (txin.scriptSig.IsZeroCTSpend()) {
             libzeroct::CoinSpend zcs(&Params().GetConsensus().ZeroCT_Params);
             assert(TxInToCoinSpend(&Params().GetConsensus().ZeroCT_Params, txin, zcs));
-            if(!mapSerial.count(zcs.getCoinSerialNumber())) {LogPrintf("Not my input %s\n", txin.ToString());
-                return 0;}
+            if(!mapSerial.count(zcs.getCoinSerialNumber()))
+                return 0;
             prevout = mapSerial.at(zcs.getCoinSerialNumber());
         }
         map<uint256, CWalletTx>::const_iterator mi = mapWallet.find(prevout.hash);
@@ -3851,7 +3852,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 else
                     reservekey.ReturnKey();
 
-                if (fZeroCT)
+                if (fZeroCT || fPrivate)
                     txNew.vout.push_back(CTxOut(nFeeRet, CScript(OP_FEE)));
                 
                 // Fill vin

@@ -3286,6 +3286,26 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
   return result;
 }
 
+UniValue witnesserstats(const UniValue& params, bool fHelp)
+{
+  UniValue result(UniValue::VARR);
+
+  if (!EnsureWalletIsAvailable(fHelp))
+      return NullUniValue;
+
+  for (std::pair<const CBigNum, PublicMintWitnessData>& it: pwalletMain->mapWitness)
+  {
+      UniValue entry(UniValue::VOBJ);
+      entry.push_back(Pair("mint", it.second.GetPublicCoin().getValue().ToString(16).substr(0,32)));
+      entry.push_back(Pair("txout", it.second.GetChainData().GetOutpoint().ToString()));
+      entry.push_back(Pair("count", it.second.GetCount()));
+
+      result.push_back(entry);
+  }
+
+  return result;
+}
+
 UniValue proposalvotelist(const UniValue& params, bool fHelp)
 {
 
@@ -3566,6 +3586,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
     { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
+    { "wallet",             "witnesserstats",           &witnesserstats,           true  },
 };
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)
