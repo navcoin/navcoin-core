@@ -499,7 +499,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int64_t nBalance = GetBalance() + GetColdStakingBalance();
     int64_t nPrivateBalance = GetPrivateBalance();
 
-    if (nBalance <= nReserveBalance)
+    if ((nBalance + nPrivateBalance) <= nReserveBalance)
         return false;
 
     set<pair<const CWalletTx*,unsigned int> > vwtxPrev;
