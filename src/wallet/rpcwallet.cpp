@@ -24,6 +24,7 @@
 #include "wallet.h"
 #include "walletdb.h"
 #include "zerowallet.h"
+#include "zerotx.h"
 
 #include <stdint.h>
 
@@ -89,6 +90,47 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     entry.push_back(Pair("time", wtx.GetTxTime()));
     entry.push_back(Pair("timereceived", (int64_t)wtx.nTimeReceived));
     entry.push_back(Pair("strdzeel", wtx.strDZeel));
+    if (wtx.IsZeroCT()) {
+        if (wtx.HasZeroCTMint()) {
+            UniValue zeroct(UniValue::VARR);
+            if (wtx.vAmounts.size() > 0) {
+                for (unsigned int i = 0; i < wtx.vAmounts.size(); i++) {
+                    UniValue item(UniValue::VOBJ);
+                    item.push_back(Pair("nout", to_string(i)));
+                    item.push_back(Pair("spent", pwalletMain->IsSpent(wtx.GetHash(), i)));
+                    item.push_back(Pair("amount", wtx.vAmounts[i]));
+                    item.push_back(Pair("payment_id", wtx.vPaymentIds[i]));
+                    zeroct.push_back(item);
+                }
+            }
+            entry.push_back(Pair("zeroct_output_data", zeroct));
+        }
+        if (wtx.IsZeroCTSpend()) {
+            UniValue zeroctin(UniValue::VARR);
+            for (unsigned int i = 0; i < wtx.vin.size(); i++) {
+                CTxIn txin = wtx.vin[i];
+                if (!txin.scriptSig.IsZeroCTSpend())
+                    continue;
+                libzeroct::CoinSpend zcs(&Params().GetConsensus().ZeroCT_Params);
+                assert(TxInToCoinSpend(&Params().GetConsensus().ZeroCT_Params, txin, zcs));
+                if(!pwalletMain->mapSerial.count(zcs.getCoinSerialNumber()))
+                    continue;
+                COutPoint prevout = pwalletMain->mapSerial.at(zcs.getCoinSerialNumber());
+                if (!pwalletMain->mapWallet.count(prevout.hash))
+                    continue;
+                CWalletTx prevwtx = pwalletMain->mapWallet.at(prevout.hash);
+                if (prevwtx.vAmounts.size() <= prevout.n)
+                    continue;
+                UniValue item(UniValue::VOBJ);
+                item.push_back(Pair("nin", to_string(i)));
+                item.push_back(Pair("spent", pwalletMain->IsSpent(prevwtx.GetHash(), i)));
+                item.push_back(Pair("amount", prevwtx.vAmounts[prevout.n]));
+                item.push_back(Pair("payment_id", prevwtx.vPaymentIds[prevout.n]));
+                zeroctin.push_back(item);
+            }
+            entry.push_back(Pair("zeroct_input_data", zeroctin));
+        }
+    }
     // Add opt-in RBF status
     std::string rbfStatus = "no";
     if (confirms <= 0) {
@@ -1849,10 +1891,11 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                     stop = true; // only one coinstake output
                 }
                 entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
+                                                  ::IsMine(*pwalletMain, r.script) & ISMINE_SPENDABLE_PRIVATE ||
                                                   (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
                                                    !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
                 entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE ||
-                                                  ::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE_PRIVATE) ? true : false));
+                                                  ::IsMine(*pwalletMain, r.script) & ISMINE_SPENDABLE_PRIVATE) ? true : false));
                 if (pwalletMain->mapAddressBook.count(r.destination))
                     entry.push_back(Pair("label", account));
                 entry.push_back(Pair("vout", r.vout));
@@ -2190,12 +2233,13 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (fHelp || params.size() < 1 || params.size() > 3)
         throw runtime_error(
-            "gettransaction \"txid\" ( includeWatchonly )\n"
+            "gettransaction \"txid\" ( includeHex includeWatchonly )\n"
             "\nGet detailed information about in-wallet transaction <txid>\n"
             "\nArguments:\n"
             "1. \"txid\"    (string, required) The transaction id\n"
+            "1. \"includeHex\"    (bool, optional, default=false) Whether to include the transaction hex data\n"
             "2. \"includeWatchonly\"    (bool, optional, default=false) Whether to include watchonly addresses in balance calculation and details[]\n"
             "\nResult:\n"
             "{\n"
@@ -2234,20 +2278,28 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
     uint256 hash;
     hash.SetHex(params[0].get_str());
 
-    isminefilter filter = ISMINE_SPENDABLE;
+    bool includeHex = false;
     if(params.size() > 1)
-        if(params[1].get_bool())
-            filter = filter | ISMINE_WATCH_ONLY;
+        if(params[1].isBool())
+            includeHex = params[1].get_bool();
+
+    isminefilter filter = ISMINE_SPENDABLE;
+    if(params.size() > 2)
+        if(params[2].get_bool())
+            filter = filter | ISMINE_WATCH_ONLY; 
 
     UniValue entry(UniValue::VOBJ);
     if (!pwalletMain->mapWallet.count(hash))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
     const CWalletTx& wtx = pwalletMain->mapWallet[hash];
 
+    if (wtx.IsZeroCT())
+        filter = filter | ISMINE_SPENDABLE_PRIVATE;
+
     CAmount nCredit = wtx.GetCredit(filter);
     CAmount nDebit = wtx.GetDebit(filter);
     CAmount nNet = nCredit - nDebit;
-    CAmount nFee = (wtx.IsFromMe(filter) ? wtx.GetValueOut() - nDebit : 0);
+    CAmount nFee = (wtx.IsFromMe(filter) ? (wtx.IsZeroCT() ? wtx.GetFee() : wtx.GetValueOut() - nDebit) : 0);
 
     entry.push_back(Pair("amount", ValueFromAmount(nNet - nFee)));
     if (wtx.IsFromMe(filter))
@@ -2259,8 +2311,11 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
     ListTransactions(wtx, "*", 0, false, details, filter);
     entry.push_back(Pair("details", details));
 
-    string strHex = EncodeHexTx(static_cast<CTransaction>(wtx));
-    entry.push_back(Pair("hex", strHex));
+
+    if (includeHex) {
+        string strHex = EncodeHexTx(static_cast<CTransaction>(wtx));
+        entry.push_back(Pair("hex", strHex));
+    }
 
     return entry;
 }

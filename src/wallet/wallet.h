@@ -156,6 +156,7 @@ struct COutputEntry
     CTxDestination destination;
     CAmount amount;
     int vout;
+    CScript script;
 };
 
 /** A transaction with a merkle branch linking it to the block chain. */

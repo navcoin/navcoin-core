@@ -2418,7 +2418,7 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
 
         CAmount amount = txout.IsZeroCTMint() ? vAmounts[i] : txout.nValue;
 
-        COutputEntry output = {address, amount, (int)i};
+        COutputEntry output = {address, amount, (int)i, txout.scriptPubKey};
 
         // If we are debited by the transaction, add the output as a "sent" entry
         if (nDebit > 0)
@@ -2692,7 +2692,7 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
                 if (!txout.IsZeroCTMint())
                     continue;
 
-                CAmount amount = vAmounts[i];
+                CAmount amount = i < vAmounts.size() ? vAmounts[i] : 0;
 
                 if (!MoneyRange(amount))
                     throw std::runtime_error("CWallet::GetAvailableCredit(): value out of range");

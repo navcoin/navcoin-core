@@ -92,13 +92,20 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
                     sub.type = TransactionRecord::Staked;
 
+                    CAmount sumOuts = wtx.GetValueOut();
+
                     if(txout.scriptPubKey.IsZeroCTMint())
                     {
+                        sumOuts = 0;
                         sub.type = TransactionRecord::AnonTxRecv;
                         sub.paymentId = wtx.vPaymentIds[i];
+                        for (const CAmount& it: wtx.vAmounts)
+                        {
+                            sumOuts += it;
+                        }
                     }
 
-                    sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit - wtx.GetValueOutCFund();
+                    sub.credit = nNet > 0 ? nNet : sumOuts - nDebit - wtx.GetValueOutCFund();
                     hashPrev = hash;
                 }
                 else if(txout.scriptPubKey.IsZeroCTMint())
