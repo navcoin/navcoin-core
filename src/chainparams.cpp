@@ -414,9 +414,9 @@ public:
          * a large 32-bit integer with any alignment.
          */
         pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0xa4;
-        pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x22;
+        pchMessageStart[1] = 0xf4;
+        pchMessageStart[2] = 0xf2;
+        pchMessageStart[3] = 0x82;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = ~uint256() >> 16;
