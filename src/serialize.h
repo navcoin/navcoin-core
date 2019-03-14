@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <ios>
+#include <iostream>
 #include <limits>
 #include <map>
 #include <set>
@@ -20,8 +21,7 @@
 #include <utility>
 #include <vector>
 
-#include "libzerocoin/Denominations.h"
-#include "libzerocoin/SpendType.h"
+#include "libzeroct/SpendType.h"
 #include "prevector.h"
 
 static const unsigned int MAX_SIZE = 0x02000000;
@@ -171,6 +171,7 @@ enum
     SER_NETWORK         = (1 << 0),
     SER_DISK            = (1 << 1),
     SER_GETHASH         = (1 << 2),
+    SER_GETHASHNOTXSIG  = (1 << 3),
     SER_BLOCKHEADERONLY = (1 << 17),
 };
 
@@ -314,6 +315,7 @@ uint64_t ReadCompactSize(Stream& is)
     }
     if (nSizeRet > (uint64_t)MAX_SIZE)
         throw std::ios_base::failure("ReadCompactSize(): size too large");
+
     return nSizeRet;
 }
 
@@ -517,38 +519,21 @@ public:
 template<typename I>
 CVarInt<I> WrapVarInt(I& n) { return CVarInt<I>(n); }
 
-// Serialization for libzerocoin::CoinDenomination
-inline unsigned int GetSerializeSize(libzerocoin::CoinDenomination a, int, int = 0) { return sizeof(libzerocoin::CoinDenomination); }
+// Serialization for libzeroct::SpendType
+inline unsigned int GetSerializedSize(libzeroct::SpendType a, int, int = 0) { return sizeof(libzeroct::SpendType); }
 template <typename Stream>
-inline void Serialize(Stream& s, libzerocoin::CoinDenomination a, int nType, int nVersion = 0)
-{
-    int f = libzerocoin::ZerocoinDenominationToInt(a);
-    Serialize(s, f, nType, nVersion);
-}
-
-template <typename Stream>
-inline void Unserialize(Stream& s, libzerocoin::CoinDenomination& a, int nType, int nVersion= 0)
-{
-    int f=0;
-    Unserialize(s, f, nType, nVersion);
-    a = libzerocoin::IntToZerocoinDenomination(f);
-}
-
-// Serialization for libzerocoin::SpendType
-inline unsigned int GetSerializedSize(libzerocoin::SpendType a, int, int = 0) { return sizeof(libzerocoin::SpendType); }
-template <typename Stream>
-inline void Serialize(Stream& s, libzerocoin::SpendType a, int nType, int nVersion = 0)
+inline void Serialize(Stream& s, libzeroct::SpendType a, int nType, int nVersion = 0)
 {
     uint8_t f = static_cast<uint8_t>(a);
     Serialize(s, f, nType, nVersion);
 }
 
 template <typename Stream>
-inline void Unserialize(Stream& s, libzerocoin::SpendType & a, int nType, int nVersion = 0)
+inline void Unserialize(Stream& s, libzeroct::SpendType & a, int nType, int nVersion = 0)
 {
     uint8_t f=0;
     Unserialize(s, f, nType, nVersion);
-    a = static_cast<libzerocoin::SpendType>(f);
+    a = static_cast<libzeroct::SpendType>(f);
 }
 
 /**

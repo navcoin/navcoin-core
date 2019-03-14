@@ -10,9 +10,13 @@
 #include "wallet.h"
 #include "zerochain.h"
 
-#include "libzerocoin/Coin.h"
+#include "libzeroct/Coin.h"
 
-bool CheckZeroKernel(CBlockIndex* pindexPrev, const CCoinsViewCache& view, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime, CAmount& nValue);
-bool CheckZeroStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, const CBigNum& serialPublicNumber, CAmount nAmount, uint256& hashProofOfStake, uint256& targetProofOfStake);
+#define KERNEL_PROOF_BITS   7
+
+bool CheckZeroKernel(CBlockIndex* pindexPrev, const CCoinsViewCache& view, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime, CAmount& nValue, uint256& hashProofOfStake, uint256& targetProofOfStake);
+bool CheckZeroStakeKernelHashCandidate(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, const CBigNum& serialPublicNumber, CAmount nAmount, uint256& hashProofOfStake, uint256& targetProofOfStake);
+bool CheckZeroCTKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, const CTransaction& CTransaction, const libzeroct::CoinSpend& cs, uint256& hashProofOfStake, uint256& targetProofOfStake);
+uint256 GetZeroCTKernelHash(uint64_t nStakeModifier, int nStakeModifierHeight, int64_t nStakeModifierTime, CBigNum bnSerialNumber, uint64_t nTime, int nShift);
 
 #endif // ZEROPOS_H

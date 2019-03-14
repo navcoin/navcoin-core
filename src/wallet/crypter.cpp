@@ -328,7 +328,7 @@ bool CCryptoKeyStore::EncryptZeroParameters(CKeyingMaterial& vMasterKeyIn)
     return true;
 }
 
-bool CCryptoKeyStore::GetObfuscationK(libzerocoin::ObfuscationValue& ok) const
+bool CCryptoKeyStore::GetObfuscationK(libzeroct::ObfuscationValue& ok) const
 {
     if (!IsCrypted() || zcCryptedParameters.obfuscationK.first.empty() || zcCryptedParameters.obfuscationK.second.empty())
         return CBasicKeyStore::GetObfuscationK(ok);
@@ -358,7 +358,7 @@ bool CCryptoKeyStore::GetCryptedObfuscationK(std::pair<std::vector<unsigned char
     return true;
 }
 
-bool CCryptoKeyStore::SetObfuscationK(const libzerocoin::ObfuscationValue& ok)
+bool CCryptoKeyStore::SetObfuscationK(const libzeroct::ObfuscationValue& ok)
 {
     if (!IsCrypted())
         return CBasicKeyStore::SetObfuscationK(ok);

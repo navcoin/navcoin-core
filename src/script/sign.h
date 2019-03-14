@@ -7,9 +7,9 @@
 #define BITCOIN_SCRIPT_SIGN_H
 
 #include "script/interpreter.h"
-#include "libzerocoin/Params.h"
-#include "libzerocoin/Coin.h"
-#include "libzerocoin/Accumulator.h"
+#include "libzeroct/Params.h"
+#include "libzeroct/Coin.h"
+#include "libzeroct/Accumulator.h"
 
 class CKeyID;
 class CKeyStore;
@@ -31,9 +31,9 @@ public:
 
     /** Create a singular (non-script) signature. */
     virtual bool CreateSig(std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const =0;
-    virtual bool CreateCoinSpend(const libzerocoin::ZerocoinParams* params, const libzerocoin::PublicCoin& pubCoin,
-                                 const libzerocoin::Accumulator a, const uint256 aChecksum, const libzerocoin::AccumulatorWitness aw,
-                                 const CScript& scriptPubKey, CScript& scriptSig, std::string& strError) const=0;
+    virtual bool CreateCoinSpendScript(const libzeroct::ZeroCTParams* params, const libzeroct::PublicCoin& pubCoin,
+                                 const libzeroct::Accumulator a, const uint256 blockAccumulatorHash, const libzeroct::AccumulatorWitness aw,
+                                 const CScript& scriptPubKey, CScript& scriptSig, CBigNum& r, bool fStake, std::string& strError) const=0;
 };
 
 /** A signature creator for transactions. */
@@ -47,9 +47,9 @@ public:
     TransactionSignatureCreator(const CKeyStore* keystoreIn, const CTransaction* txToIn, unsigned int nInIn, const CAmount& amountIn, int nHashTypeIn=SIGHASH_ALL);
     const BaseSignatureChecker& Checker() const { return checker; }
     bool CreateSig(std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const;
-    bool CreateCoinSpend(const libzerocoin::ZerocoinParams* params, const libzerocoin::PublicCoin& pubCoin,
-                         const libzerocoin::Accumulator a, const uint256 aChecksum, const libzerocoin::AccumulatorWitness aw,
-                         const CScript& scriptPubKey, CScript& scriptSig, std::string& strError) const;
+    bool CreateCoinSpendScript(const libzeroct::ZeroCTParams* params, const libzeroct::PublicCoin& pubCoin,
+                         const libzeroct::Accumulator a, const uint256 blockAccumulatorHash, const libzeroct::AccumulatorWitness aw,
+                         const CScript& scriptPubKey, CScript& scriptSig, CBigNum& r, bool fStake, std::string& strError) const;
     CAmount amount;
 };
 
@@ -66,14 +66,15 @@ public:
     DummySignatureCreator(const CKeyStore* keystoreIn) : BaseSignatureCreator(keystoreIn) {}
     const BaseSignatureChecker& Checker() const;
     bool CreateSig(std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const;
-    bool CreateCoinSpend(const libzerocoin::ZerocoinParams* params, const libzerocoin::PublicCoin& pubCoin,
-                         const libzerocoin::Accumulator a, const uint256 aChecksum, const libzerocoin::AccumulatorWitness aw,
-                         const CScript& scriptPubKey, CScript& scriptSig, std::string& strError) const;
+    bool CreateCoinSpendScript(const libzeroct::ZeroCTParams* params, const libzeroct::PublicCoin& pubCoin,
+                         const libzeroct::Accumulator a, const uint256 blockAccumulatorHash, const libzeroct::AccumulatorWitness aw,
+                         const CScript& scriptPubKey, CScript& scriptSig, CBigNum& r, bool fStake, std::string& strError) const;
 };
 
 struct SignatureData {
     CScript scriptSig;
     CScriptWitness scriptWitness;
+    CBigNum r;
 
     SignatureData() {}
     explicit SignatureData(const CScript& script) : scriptSig(script) {}

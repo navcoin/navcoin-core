@@ -1,0 +1,132 @@
+/**
+ * @file       Commitment.h
+ *
+ * @brief      Commitment and CommitmentProof classes for the Zerocoin library.
+ *
+ * @author     Ian Miers, Christina Garman and Matthew Green
+ * @date       June 2013
+ *
+ * @copyright  Copyright 2013 Ian Miers, Christina Garman and Matthew Green
+ * @license    This project is released under the MIT license.
+ **/
+// Copyright (c) 2017 The PIVX developers
+// Copyright (c) 2018-2019 The NavCoin Core developers
+
+#ifndef COMMITMENT_H_
+#define COMMITMENT_H_
+
+#include "Params.h"
+#include "serialize.h"
+
+// We use a SHA256 hash for our PoK challenges. Update the following
+// if we ever change hash functions.
+#define COMMITMENT_EQUALITY_CHALLENGE_SIZE  256
+
+// A 512-bit security parameter for the statistical ZK PoK.
+#define COMMITMENT_EQUALITY_SECMARGIN       512
+
+namespace libzeroct {
+
+/**
+ * A commitment, complete with contents and opening randomness.
+ * These should remain secret. Publish only the commitment value.
+ */
+class Commitment {
+public:
+  /**Generates a Pedersen commitment to the given value.
+   *
+   * @param p the group parameters for the coin
+   * @param value the value to commit to
+   */
+    Commitment(const IntegerGroupParams* p, const CBigNum& value);
+    explicit Commitment(const IntegerGroupParams* p, const CBigNum& bnSerial, const CBigNum& bnRandomness);
+    explicit Commitment(const IntegerGroupParams* p, const CBigNum& bnSerial, const CBigNum& bnRandomness, const CBigNum& extra);
+    const CBigNum& getCommitmentValue() const;
+    const CBigNum& getRandomness() const;
+    const CBigNum& getContents() const;
+    const CBigNum& getExtra() const;
+private:
+    const IntegerGroupParams *params;
+    CBigNum commitmentValue;
+    CBigNum randomness;
+    CBigNum extra;
+    const CBigNum contents;
+    ADD_SERIALIZE_METHODS;
+    template <typename Stream, typename Operation>  inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(commitmentValue);
+        READWRITE(randomness);
+        READWRITE(contents);
+        READWRITE(extra);
+    }
+};
+
+/**Proof that two commitments open to the same value.
+ *
+ */
+class CommitmentProofOfKnowledge {
+public:
+    CommitmentProofOfKnowledge(const IntegerGroupParams* ap,
+                               const IntegerGroupParams* bp,
+                               const CBigNum& agIn,
+                               const CBigNum& ahIn,
+                               const CBigNum& bgIn,
+                               const CBigNum& bhIn);
+    /** Generates a proof that two commitments, a and b, open to the same value.
+   *
+   * @param ap the IntegerGroup for commitment a
+   * @param bp the IntegerGroup for commitment b
+   * @param a the first commitment
+   * @param b the second commitment
+   */
+    CommitmentProofOfKnowledge(const IntegerGroupParams* aParams,
+                               const IntegerGroupParams* bParams,
+                               const Commitment& a,
+                               const Commitment& b,
+                               const CBigNum& agIn,
+                               const CBigNum& ahIn,
+                               const CBigNum& bgIn,
+                               const CBigNum& bhIn);
+    //FIXME: is it best practice that this is here?
+    template<typename Stream>
+    CommitmentProofOfKnowledge(const IntegerGroupParams* aParams,
+                               const IntegerGroupParams* bParams,
+                               Stream& strm,
+                               const CBigNum& agIn,
+                               const CBigNum& ahIn,
+                               const CBigNum& bgIn,
+                               const CBigNum& bhIn):
+        ap(aParams), bp(bParams), ag(agIn), ah(ahIn), bg(bgIn), bh(bhIn)
+    {
+        strm >> *this;
+    }
+
+    const CBigNum calculateChallenge(const CBigNum& a, const CBigNum& b, const CBigNum &commitOne, const CBigNum &commitTwo) const;
+
+  /**Verifies the proof
+   *
+   * @return true if the proof is valid.
+   */
+  /**Verifies the proof of equality of the two commitments
+   *
+   * @param A value of commitment one
+   * @param B value of commitment two
+   * @return
+   */
+    bool Verify(const CBigNum& A, const CBigNum& B) const;
+    ADD_SERIALIZE_METHODS;
+    template <typename Stream, typename Operation>  inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(S1);
+        READWRITE(S2);
+        READWRITE(S3);
+        READWRITE(challenge);
+    }
+private:
+    const IntegerGroupParams *ap, *bp;
+
+    CBigNum ag, ah, bg, bh;
+
+    CBigNum S1, S2, S3, challenge;
+};
+
+} /* namespace libzeroct */
+#endif /* COMMITMENT_H_ */

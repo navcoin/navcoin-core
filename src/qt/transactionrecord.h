@@ -83,7 +83,8 @@ public:
         AnonTxSend,
         AnonTxRecv,
         CFund,
-        CFundPayment
+        CFundPayment,
+        Fee
     };
 
     /** Number of confirmation recommended for accepting a transaction */

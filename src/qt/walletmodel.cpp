@@ -268,7 +268,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                 const unsigned char* scriptStr = (const unsigned char*)out.script().data();
                 CScript scriptPubKey(scriptStr, scriptStr+out.script().size());
                 CAmount nAmount = out.amount();
-                CRecipient recipient = {scriptPubKey, nAmount, rcp.fSubtractFeeFromAmount, ""};
+                CRecipient recipient = {scriptPubKey, nAmount, rcp.fSubtractFeeFromAmount, "", 0};
                 vecSend.push_back(recipient);
             }
             if (subtotal <= 0)
@@ -291,7 +291,6 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             ++nAddresses;
 
             vector<CRecipient> vecSendTemp;
-            bool fNeedsMinting = false;
 
             CNavCoinAddress a(rcp.address.toStdString());
 
@@ -300,17 +299,14 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
             CTxDestination address = a.Get();
 
-            if (address.type() == typeid(libzerocoin::CPrivateAddress)) {
-                boost::get<libzerocoin::CPrivateAddress>(address).SetPaymentId(rcp.message.toStdString());
+            if (address.type() == typeid(libzeroct::CPrivateAddress)) {
+                boost::get<libzeroct::CPrivateAddress>(address).SetPaymentId(rcp.message.toStdString());
+                boost::get<libzeroct::CPrivateAddress>(address).SetAmount(rcp.amount);
             }
 
             // Parse NavCoin address
-            if (!DestinationToVecRecipients(rcp.amount, address, vecSendTemp, rcp.fSubtractFeeFromAmount, false, fNeedsMinting, rcp.isanon)) {
+            if (!DestinationToVecRecipients(rcp.amount, address, vecSendTemp, rcp.fSubtractFeeFromAmount, false, true)) {
                 return InvalidAddress;
-            }
-
-            if(fNeedsMinting && !MintVecRecipients(address, vecSendTemp)) {
-                return TransactionCreationFailed;
             }
 
             vecSend.insert(vecSend.end(), vecSendTemp.begin(), vecSendTemp.end());
@@ -404,6 +400,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
             } else if (!rcp.message.isEmpty())  // Message from normal navcoin:URI (navcoin:123...?message=example)
             {
                 newTx->vOrderForm.push_back(make_pair("Message", rcp.message.toStdString()));
+                newTx->vOrderForm.push_back(make_pair("Amount", to_string(rcp.amount)));
             }
         }
 
@@ -744,7 +741,7 @@ void WalletModel::listZeroCoins(std::map<QString, std::vector<COutput> >& mapCoi
         while (wallet->IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && wallet->IsMine(cout.tx->vin[0]))
         {
             if (!wallet->mapWallet.count(cout.tx->vin[0].prevout.hash)) break;
-            cout = COutput(&wallet->mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0, true, true);
+            cout = COutput(&wallet->mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0, true, true, "", out.nAmount);
         }
 
         CTxDestination address;

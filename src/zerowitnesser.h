@@ -15,6 +15,30 @@ class CChainParams;
 
 namespace Consensus { struct Params; };
 
+class CacheWitnessToWrite {
+public:
+    CacheWitnessToWrite() { }
+
+    void Add(const CBigNum witness, PublicMintWitnessData data)
+    {
+        std::pair<std::map<const CBigNum, PublicMintWitnessData>::iterator, bool> ret = map.insert(std::make_pair(witness, data));
+
+        if (!ret.second) {
+            map.erase(witness);
+            ret = map.insert(std::make_pair(witness, data));
+            assert(ret.second);
+        }
+    }
+
+    const std::map<const CBigNum, PublicMintWitnessData> GetMap()
+    {
+        return map;
+    }
+
+private:
+    std::map<const CBigNum, PublicMintWitnessData> map;
+};
+
 // NAVCoin - Zero witnesser thread
 void NavCoinWitnesser(const CChainParams& chainparams);
 

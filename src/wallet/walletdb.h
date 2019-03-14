@@ -8,8 +8,8 @@
 #define NAVCOIN_WALLET_WALLETDB_H
 
 #include "amount.h"
-#include "libzerocoin/bignum.h"
-#include "libzerocoin/Keys.h"
+#include "libzeroct/bignum.h"
+#include "libzeroct/Keys.h"
 #include "primitives/transaction.h"
 #include "wallet/db.h"
 #include "key.h"
@@ -152,9 +152,9 @@ public:
     bool WriteOrderPosNext(int64_t nOrderPosNext);
 
     bool WriteDefaultKey(const CPubKey& vchPubKey);
-    bool WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const libzerocoin::ObfuscationValue& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey);
-    bool WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey);
-    bool WriteZerocoinValues(const CWallet* pwallet);
+    bool WriteZeroCTValues(const libzeroct::ObfuscationValue& obfuscationJ, const libzeroct::ObfuscationValue& obfuscationK, const libzeroct::BlindingCommitment& blindingCommitment, const CKey& zerokey);
+    bool WriteZeroCTValues(const libzeroct::ObfuscationValue& obfuscationJ, const std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& obfuscationK, const libzeroct::BlindingCommitment& blindingCommitment, const CKey& zerokey);
+    bool WriteZeroCTValues(const CWallet* pwallet);
 
     bool ReadPool(int64_t nPool, CKeyPool& keypool);
     bool WritePool(int64_t nPool, const CKeyPool& keypool);

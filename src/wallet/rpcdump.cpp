@@ -575,7 +575,7 @@ UniValue dumpprivateparameters(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    libzerocoin::BlindingCommitment bc; libzerocoin::ObfuscationValue oj; libzerocoin::ObfuscationValue ok; CKey zk;
+    libzeroct::BlindingCommitment bc; libzeroct::ObfuscationValue oj; libzeroct::ObfuscationValue ok; CKey zk;
 
     if(!pwalletMain->GetObfuscationJ(oj))
         throw JSONRPCError(RPC_WALLET_ERROR, "Error reading obfuscation j value");

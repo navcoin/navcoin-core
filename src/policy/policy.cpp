@@ -33,7 +33,7 @@
 
 bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType, const bool witnessEnabled)
 {
-    if(scriptPubKey.IsZerocoinMint())
+    if(scriptPubKey.IsZeroCTMint())
         return true;
 
     std::vector<std::vector<unsigned char> > vSolutions;
@@ -71,7 +71,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnes
     // computing signature hashes is O(ninputs*txsize). Limiting transactions
     // to MAX_STANDARD_TX_SIZE mitigates CPU exhaustion attacks.
     unsigned int sz = GetTransactionWeight(tx);
-    if (sz >= (tx.IsZerocoinSpend() ? MAX_PRIVATE_TX_WEIGHT : MAX_STANDARD_TX_WEIGHT)) {
+    if (sz >= (tx.IsZeroCTSpend() ? MAX_PRIVATE_TX_WEIGHT : MAX_STANDARD_TX_WEIGHT)) {
         reason = "tx-size";
         return false;
     }
@@ -125,7 +125,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnes
 
 bool AreInputsStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs)
 {
-    if (tx.IsCoinBase() || tx.IsZerocoinSpend())
+    if (tx.IsCoinBase() || tx.IsZeroCTSpend())
         return true; // Coinbases don't use vin normally
 
     for (unsigned int i = 0; i < tx.vin.size(); i++)

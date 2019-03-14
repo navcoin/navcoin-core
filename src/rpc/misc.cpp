@@ -7,7 +7,7 @@
 #include "base58.h"
 #include "clientversion.h"
 #include "init.h"
-#include "libzerocoin/Coin.h"
+#include "libzeroct/Coin.h"
 #include "main.h"
 #include "net.h"
 #include "netbase.h"
@@ -105,18 +105,18 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     cf.push_back(Pair("locked",         ValueFromAmount(chainActive.Tip()->nCFLocked)));
     obj.push_back(Pair("communityfund", cf));
     obj.push_back(Pair("publicmoneysupply", ValueFromAmount(chainActive.Tip()->nMoneySupply)));
-    UniValue privateMoneySupply(UniValue::VOBJ);
-    CAmount totalMoneySupply = 0;
-    for (auto const& it : chainActive.Tip()->mapZerocoinSupply)
-    {
-        privateMoneySupply.push_back(Pair(to_string(libzerocoin::ZerocoinDenominationToInt(it.first)), it.second));
-        totalMoneySupply += libzerocoin::ZerocoinDenominationToInt(it.first) * it.second;
-    }
-    totalMoneySupply *= COIN;
-    privateMoneySupply.push_back(Pair("total", ValueFromAmount(totalMoneySupply)));
-    obj.push_back(Pair("privatemoneysupply", privateMoneySupply));
-    totalMoneySupply += chainActive.Tip()->nMoneySupply;
-    obj.push_back(Pair("totalmoneysupply", ValueFromAmount(totalMoneySupply)));
+//    UniValue privateMoneySupply(UniValue::VOBJ);
+//    CAmount totalMoneySupply = 0;
+//    for (auto const& it : chainActive.Tip()->mapZerocoinSupply)
+//    {
+//        privateMoneySupply.push_back(Pair(to_string(libzeroct::ZerocoinDenominationToInt(it.first)), it.second));
+//        totalMoneySupply += libzeroct::ZerocoinDenominationToInt(it.first) * it.second;
+//    }
+//    totalMoneySupply *= COIN;
+//    privateMoneySupply.push_back(Pair("total", ValueFromAmount(totalMoneySupply)));
+//    obj.push_back(Pair("privatemoneysupply", privateMoneySupply));
+//    totalMoneySupply += chainActive.Tip()->nMoneySupply;
+//    obj.push_back(Pair("totalmoneysupply", ValueFromAmount(totalMoneySupply)));
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
     obj.push_back(Pair("ntptimeoffset", GetNtpTimeOffset()));
     obj.push_back(Pair("connections",   (int)vNodes.size()));
@@ -142,7 +142,7 @@ class DescribeAddressVisitor : public boost::static_visitor<UniValue>
 public:
     UniValue operator()(const CNoDestination &dest) const { return UniValue(UniValue::VOBJ); }
 
-    UniValue operator()(const libzerocoin::CPrivateAddress &dest) const {
+    UniValue operator()(const libzeroct::CPrivateAddress &dest) const {
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("isscript", false));
         obj.push_back(Pair("iscoldstaking", false));
@@ -288,10 +288,10 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
         }
         if (address.IsPrivateAddress(Params())) {
             ret.push_back(Pair("isprivateaddress", true));
-            CKey zk; libzerocoin::BlindingCommitment bc;
+            CKey zk; libzeroct::BlindingCommitment bc;
             pwalletMain->GetBlindingCommitment(bc);
             pwalletMain->GetZeroKey(zk);
-            libzerocoin::CPrivateAddress pa(&Params().GetConsensus().Zerocoin_Params,bc,zk);
+            libzeroct::CPrivateAddress pa(&Params().GetConsensus().ZeroCT_Params,bc,zk);
             ret.push_back(Pair("ismine", CNavCoinAddress(pa) == address ? true :false));
         } else {
             ret.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));

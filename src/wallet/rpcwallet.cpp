@@ -161,11 +161,11 @@ UniValue getprivateaddress(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CKey zk; libzerocoin::BlindingCommitment bc;
+    CKey zk; libzeroct::BlindingCommitment bc;
     pwalletMain->GetBlindingCommitment(bc);
     pwalletMain->GetZeroKey(zk);
 
-    libzerocoin::CPrivateAddress pa(&Params().GetConsensus().Zerocoin_Params,bc,zk);
+    libzeroct::CPrivateAddress pa(&Params().GetConsensus().ZeroCT_Params,bc,zk);
 
     return CNavCoinAddress(pa).ToString();
 }
@@ -423,15 +423,10 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
 
     CScript CFContributionScript;
     vector<CRecipient> vecSend;
-    bool fNeedsMinting = false;
 
     // Parse NavCoin address
-    if (!DestinationToVecRecipients(nValue, address, vecSend, fSubtractFeeFromAmount, donate, fNeedsMinting, fPrivate)) {
+    if (!DestinationToVecRecipients(nValue, address, vecSend, fSubtractFeeFromAmount, donate, false)) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: Could not construct the vector of recipients!");
-    }
-
-    if(fNeedsMinting && !MintVecRecipients(address, vecSend)) {
-        throw JSONRPCError(RPC_WALLET_ERROR, "Error: Could not create Zerocoin Mints!");
     }
 
     // Create and send the transaction
@@ -445,9 +440,6 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
-
-    if (address.type() == typeid(libzerocoin::CPrivateAddress))
-        wtxNew.vOrderForm.push_back(make_pair("Message", boost::get<libzerocoin::CPrivateAddress>(address).GetPaymentId()));
 
     if (!pwalletMain->CommitTransaction(wtxNew, reservekey))
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
@@ -516,6 +508,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
 
     // Wallet comments
+    CTxDestination dest = address.Get();
     CWalletTx wtx;
     if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty())
         wtx.mapValue["comment"] = params[2].get_str();
@@ -535,13 +528,12 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     wtx.strDZeel = strDZeel;
 
-    CTxDestination dest = address.Get();
-
-    if (dest.type() == typeid(libzerocoin::CPrivateAddress)) {
-        boost::get<libzerocoin::CPrivateAddress>(dest).SetPaymentId(wtx.mapValue["comment"]);
+    if (dest.type() == typeid(libzeroct::CPrivateAddress)) {
+        boost::get<libzeroct::CPrivateAddress>(dest).SetPaymentId(wtx.mapValue["comment"]);
+        boost::get<libzeroct::CPrivateAddress>(dest).SetAmount(nAmount);
     }
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel, false);
+    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, strDZeel, false);
 
     return wtx.GetHash().GetHex();
 }
@@ -630,8 +622,9 @@ UniValue privatesendtoaddress(const UniValue& params, bool fHelp)
 
     CTxDestination dest = address.Get();
 
-    if (dest.type() == typeid(libzerocoin::CPrivateAddress)) {
-        boost::get<libzerocoin::CPrivateAddress>(dest).SetPaymentId(wtx.mapValue["comment"]);
+    if (dest.type() == typeid(libzeroct::CPrivateAddress)) {
+        boost::get<libzeroct::CPrivateAddress>(dest).SetPaymentId(wtx.mapValue["comment"]);
+        boost::get<libzeroct::CPrivateAddress>(dest).SetAmount(nAmount);
     }
 
     SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, strDZeel, true);
@@ -1401,7 +1394,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
                 fSubtractFeeFromAmount = true;
         }
 
-        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, ""};
+        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, "", 0};
         vecSend.push_back(recipient);
     }
 
@@ -1484,7 +1477,7 @@ public:
 
     bool operator()(const CNoDestination &dest) const { return false; }
 
-    bool operator()(const libzerocoin::CPrivateAddress &dest) const { return false; }
+    bool operator()(const libzeroct::CPrivateAddress &dest) const { return false; }
 
     bool operator()(const pair<CKeyID, CKeyID> &dest) const { return false; }
 
@@ -3125,16 +3118,15 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         nElement++;
 
         // use the cached amount if available
-        CAmount nCC = pcoin->fCreditCached ? pcoin->nCreditCached : pcoin->GetCredit(ISMINE_SPENDABLE);
+        CAmount nCC = pcoin->fCreditCached ? pcoin->nCreditCached : pcoin->GetCredit(ISMINE_SPENDABLE) + pcoin->GetCredit(ISMINE_SPENDABLE_STAKABLE);
         CAmount nPCC = pcoin->fPrivateCreditCached ? pcoin->nPrivateCreditCached : pcoin->GetCredit(ISMINE_SPENDABLE_PRIVATE);
         CAmount nCSCC = pcoin->fColdStakingCreditCached ? pcoin->fColdStakingCreditCached : pcoin->GetCredit(ISMINE_STAKABLE);
-      
-        CAmount nDC = pcoin->fDebitCached ? pcoin->nDebitCached : pcoin->GetDebit(ISMINE_SPENDABLE);
+
+        CAmount nDC = pcoin->fDebitCached ? pcoin->nDebitCached : pcoin->GetDebit(ISMINE_SPENDABLE) + pcoin->GetDebit(ISMINE_SPENDABLE_STAKABLE);;
         CAmount nPDC = pcoin->fPrivateDebitCached ? pcoin->nPrivateDebitCached : pcoin->GetDebit(ISMINE_SPENDABLE_PRIVATE);
         CAmount nCSDC = pcoin->fColdStakingDebitCached ? pcoin->fColdStakingDebitCached : pcoin->GetDebit(ISMINE_STAKABLE);
-      
-        nAmount = (nCC + nPCC + nCSCC) - (nDC + nPDC + nCSDC);
 
+        nAmount = (nCC + nPCC + nCSCC) - (nDC + nPDC + nCSDC);
         // scan the range
         for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)
         {

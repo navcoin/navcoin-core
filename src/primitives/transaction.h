@@ -15,6 +15,8 @@
 #include "univalue/include/univalue.h"
 #include "util.h"
 
+#define ZEROCT_TX_VERSION_FLAG 0x80
+
 static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 
 static const int WITNESS_SCALE_FACTOR = 4;
@@ -45,7 +47,7 @@ public:
 
     friend bool operator<(const COutPoint& a, const COutPoint& b)
     {
-        return ((a.hash == b.hash && a.n < b.n) || (a.hash < b.hash));
+        return a.hash < b.hash || (a.hash == b.hash && a.n < b.n);
     }
 
     friend bool operator==(const COutPoint& a, const COutPoint& b)
@@ -191,9 +193,14 @@ public:
         return scriptPubKey.IsPaymentRequestVote();
     }
 
-    bool IsZerocoinMint() const
+    bool IsZeroCTMint() const
     {
-        return scriptPubKey.IsZerocoinMint();
+        return scriptPubKey.IsZeroCTMint();
+    }
+
+    bool IsFee() const
+    {
+        return scriptPubKey.IsFee();
     }
 
     uint256 GetHash() const;
@@ -232,7 +239,7 @@ public:
 
     bool IsDust(const CFeeRate &minRelayTxFee) const
     {
-        return (nValue < GetDustThreshold(minRelayTxFee));
+        return (!IsZeroCTMint() && nValue < GetDustThreshold(minRelayTxFee));
     }
 
     friend bool operator==(const CTxOut& a, const CTxOut& b)
@@ -379,8 +386,18 @@ inline void SerializeTransaction(TxType& tx, Stream& s, Operation ser_action, in
         }
     }
     READWRITE(*const_cast<uint32_t*>(&tx.nLockTime));
-    if(tx.nVersion >= 2) {
-      READWRITE(*const_cast<std::string*>(&tx.strDZeel)); }
+    if (tx.nVersion >= 2) {
+        READWRITE(*const_cast<std::string*>(&tx.strDZeel));
+    }
+    if (tx.IsZeroCT()) {
+        if (!(nType & SER_GETHASHNOTXSIG)) {
+            READWRITE(*const_cast<std::vector<unsigned char>*>(&tx.vchTxSig));
+        }
+        READWRITE(*const_cast<std::vector<unsigned char>*>(&tx.vchRangeProof));
+        if (tx.IsCoinStake()) {
+            READWRITE(*const_cast<std::vector<unsigned char>*>(&tx.vchKernelHashProof));
+        }
+    }
 }
 
 /** The basic transaction that is broadcasted on the network and contained in
@@ -419,6 +436,9 @@ public:
     const uint32_t nLockTime;
     std::string strDZeel;
     const uint256 hash;
+    std::vector<unsigned char> vchTxSig;
+    std::vector<unsigned char> vchRangeProof;
+    std::vector<unsigned char> vchKernelHashProof;
 
     /** Construct a CTransaction that qualifies as IsNull() */
     CTransaction();
@@ -442,6 +462,8 @@ public:
         return vin.empty() && vout.empty();
     }
 
+    uint256 GetHashAmountSig() const;
+
     const uint256& GetHash() const {
         return hash;
     }
@@ -464,32 +486,48 @@ public:
 
     bool IsCoinBase() const
     {
-        return (vin.size() == 1 && vin[0].prevout.IsNull() && !vin[0].scriptSig.IsZerocoinSpend());
+        return (vin.size() == 1 && vin[0].prevout.IsNull() && !vin[0].scriptSig.IsZeroCTSpend());
     }
 
     bool IsCoinStake() const
     {
         // ppcoin: the coin stake transaction is marked with the first output empty
-        return (vin.size() > 0 && (!vin[0].prevout.IsNull() || vin[0].scriptSig.IsZerocoinSpend()) && vout.size() >= 2 && vout[0].IsEmpty());
+        return (vin.size() > 0 && (!vin[0].prevout.IsNull() || vin[0].scriptSig.IsZeroCTSpend()) && vout.size() >= 2 && vout[0].IsEmpty());
     }
 
-    bool IsZerocoinSpend() const
+    bool IsZeroCTSpend() const
     {
-        return (vin.size() > 0 && vin[0].prevout.hash == 0 && vin[0].scriptSig[0] == OP_ZEROCOINSPEND);
+        return (vin.size() > 0 && vin[0].prevout.hash == 0 && vin[0].scriptSig[0] == OP_ZEROCTSPEND);
     }
 
-    bool HasZerocoinMint() const
+    bool HasZeroCTMint() const
     {
         for(const CTxOut& txout : vout) {
-            if (txout.scriptPubKey.IsZerocoinMint())
+            if (txout.scriptPubKey.IsZeroCTMint())
                 return true;
         }
         return false;
     }
 
-    bool ContainsZerocoins() const
+    CAmount GetFee() const
     {
-        return IsZerocoinSpend() || HasZerocoinMint();
+        if (!HasZeroCTMint())
+            return 0;
+        for(const CTxOut& txout : vout) {
+            if (txout.scriptPubKey.IsFee())
+                return txout.nValue;
+        }
+        return 0;
+    }
+
+    bool ContainsZeroCT() const
+    {
+        return IsZeroCTSpend() || HasZeroCTMint();
+    }
+
+    bool IsZeroCT() const
+    {
+        return nVersion & ZEROCT_TX_VERSION_FLAG;
     }
 
     friend bool operator==(const CTransaction& a, const CTransaction& b)
@@ -520,6 +558,9 @@ struct CMutableTransaction
     CTxWitness wit;
     uint32_t nLockTime;
     std::string strDZeel;
+    std::vector<unsigned char> vchTxSig;
+    std::vector<unsigned char> vchRangeProof;
+    std::vector<unsigned char> vchKernelHashProof;
 
     CMutableTransaction();
     CMutableTransaction(const CTransaction& tx);
@@ -542,10 +583,16 @@ struct CMutableTransaction
         return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
     }
 
+    bool IsZeroCT() const
+    {
+        return nVersion & 0x80000000;
+    }
+
     /** Compute the hash of this CMutableTransaction. This is computed on the
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.
      */
     uint256 GetHash() const;
+    uint256 GetHashAmountSig() const;
     std::string ToString() const;
 };
 

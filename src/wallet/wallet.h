@@ -8,8 +8,7 @@
 #define NAVCOIN_WALLET_WALLET_H
 
 #include "amount.h"
-#include "libzerocoin/bignum.h"
-#include "libzerocoin/Denominations.h"
+#include "libzeroct/bignum.h"
 #include "streams.h"
 #include "tinyformat.h"
 #include "ui_interface.h"
@@ -216,7 +215,7 @@ public:
     int GetDepthInMainChain() const { const CBlockIndex *pindexRet; return GetDepthInMainChain(pindexRet); }
     bool IsInMainChain() const { const CBlockIndex *pindexRet; return GetDepthInMainChain(pindexRet) > 0; }
     int GetBlocksToMaturity() const;
-    int GetBlocksToMaturityZeroCoin() const;
+    int GetBlocksToMaturityZeroCT() const;
     /** Pass this transaction to the mempool. Fails if absolute fee exceeds absurd fee. */
     bool AcceptToMemoryPool(bool fLimitFree, const CAmount nAbsurdFee);
     bool hashUnset() const { return (hashBlock.IsNull() || hashBlock == ABANDON_HASH); }
@@ -236,6 +235,9 @@ private:
 public:
     mapValue_t mapValue;
     std::vector<std::pair<std::string, std::string> > vOrderForm;
+    std::vector<CAmount> vAmounts;
+    std::vector<std::string> vPaymentIds;
+
     unsigned int fTimeReceivedIsTxTime;
     unsigned int nTimeReceived; //!< time received by this node
     unsigned int nTimeSmart;
@@ -304,6 +306,8 @@ public:
         pwallet = pwalletIn;
         mapValue.clear();
         vOrderForm.clear();
+        vAmounts.clear();
+        vPaymentIds.clear();
         fTimeReceivedIsTxTime = false;
         nTimeReceived = 0;
         nTimeSmart = 0;
@@ -378,6 +382,12 @@ public:
             ReadOrderPos(nOrderPos, mapValue);
 
             nTimeSmart = mapValue.count("timesmart") ? (unsigned int)atoi64(mapValue["timesmart"]) : 0;
+        }
+
+        if (IsZeroCT())
+        {
+            READWRITE(vAmounts);
+            READWRITE(vPaymentIds);
         }
 
         mapValue.erase("fromaccount");
@@ -505,6 +515,7 @@ struct CRecipient
     CAmount nAmount;
     bool fSubtractFeeFromAmount;
     std::string strDZeel;
+    CBigNum gamma;
 };
 
 
@@ -518,10 +529,11 @@ public:
     bool fSpendable;
     bool fSolvable;
     std::string sPaymentId;
+    CAmount nAmount;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string sPaymentIdIn = "")
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string sPaymentIdIn = "", CAmount nAmountIn = 0)
     {
-        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; sPaymentId = sPaymentIdIn;
+        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; sPaymentId = sPaymentIdIn; nAmount = nAmountIn;
     }
 
     COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::string sPaymentIdIn = "")
@@ -802,7 +814,7 @@ public:
     void ListLockedCoins(std::vector<COutPoint>& vOutpts);
     uint64_t GetZeroStakeWeight() const;
     uint64_t GetStakeWeight() const;
-    bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, int64_t nPrivateFees, CMutableTransaction& txNew, CKey& key, CBigNum& serialNumberPrivKey, std::string sCoinStakeStrDZeel);
+    bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, int64_t nPrivateFees, CMutableTransaction& txNew, CKey& key, CBigNum& serialNumberPrivKey, std::string sCoinStakeStrDZeel, CBigNum& r_minus_gamma);
     int64_t GetStake() const;
     int64_t GetNewMint() const;
 
@@ -933,7 +945,7 @@ public:
     CAmount GetChange(const CTransaction& tx) const;
     void SetBestChain(const CBlockLocator& loc);
 
-    DBErrors LoadWallet(bool& fFirstRunRet, bool &fFirstZeroRunRet);
+    DBErrors LoadWallet(bool& fFirstRunRet, bool &fFirstZeroCTRunRet);
     DBErrors ZapWalletTx(std::vector<CWalletTx>& vWtx);
     DBErrors ZapSelectTx(std::vector<uint256>& vHashIn, std::vector<uint256>& vHashOut);
 
@@ -967,8 +979,8 @@ public:
     }
 
     bool SetDefaultKey(const CPubKey &vchPubKey);
-    bool SetZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const libzerocoin::ObfuscationValue& obfuscationK,
-                           const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey);
+    bool SetZeroCTValues(const libzeroct::ObfuscationValue& obfuscationJ, const libzeroct::ObfuscationValue& obfuscationK,
+                         const libzeroct::BlindingCommitment& blindingCommitment, const CKey& zerokey);
 
     //! signify that a particular wallet feature is now used. this may change nWalletVersion and nWalletMaxVersion if those are lower
     bool SetMinVersion(enum WalletFeature, CWalletDB* pwalletdbIn = NULL, bool fExplicit = false);

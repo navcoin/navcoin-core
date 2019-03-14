@@ -43,6 +43,8 @@ struct CBlockTemplate
     std::vector<CAmount> vTxFees;
     std::vector<int64_t> vTxSigOpsCost;
     std::vector<unsigned char> vchCoinbaseCommitment;
+    CAmount nFees;
+    CAmount nPrivateFees;
 };
 
 // Container for tracking updates to ancestor feerate as we include (parent)
@@ -162,8 +164,6 @@ private:
     uint64_t nBlockSize;
     uint64_t nBlockTx;
     uint64_t nBlockSigOpsCost;
-    CAmount nFees;
-    CAmount nPrivateFees;
     CTxMemPool::setEntries inBlock;
 
     // Chain context for the block
@@ -178,7 +178,7 @@ private:
 public:
     BlockAssembler(const CChainParams& chainparams);
     /** Construct a new block template with coinbase to scriptPubKeyIn */
-    CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees, uint64_t* pPrivateFees);
+    CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake);
 
 private:
     // utility functions

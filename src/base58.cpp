@@ -227,7 +227,7 @@ public:
 
     bool operator()(const CKeyID& id) const { return addr->Set(id); }
     bool operator()(const pair<CKeyID, CKeyID>& id) const { return addr->Set(id.first, id.second); }
-    bool operator()(const libzerocoin::CPrivateAddress &id) const { return addr->Set(id); }
+    bool operator()(const libzeroct::CPrivateAddress &id) const { return addr->Set(id); }
     bool operator()(const CScriptID& id) const { return addr->Set(id); }
     bool operator()(const CNoDestination& no) const { return false; }
 };
@@ -246,7 +246,7 @@ bool CNavCoinAddress::Set(const CKeyID& id, const CKeyID& id2)
     return true;
 }
 
-bool CNavCoinAddress::Set(const libzerocoin::CPrivateAddress& id)
+bool CNavCoinAddress::Set(const libzeroct::CPrivateAddress& id)
 {
     CDataStream ss(SER_NETWORK, 0);
     ss << id;
@@ -291,10 +291,10 @@ bool CNavCoinAddress::GetStakingAddress(CNavCoinAddress &address) const
     return true;
 }
 
-bool CNavCoinAddress::GetBlindingCommitment(libzerocoin::BlindingCommitment &bc) const {
+bool CNavCoinAddress::GetBlindingCommitment(libzeroct::BlindingCommitment &bc) const {
     if(!IsPrivateAddress(Params()))
         return false;
-    libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+    libzeroct::CPrivateAddress id(&Params().GetConsensus().ZeroCT_Params);
     CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
     ss >> id;
     if(!id.GetBlindingCommitment(bc)) return false;
@@ -304,7 +304,7 @@ bool CNavCoinAddress::GetBlindingCommitment(libzerocoin::BlindingCommitment &bc)
 bool CNavCoinAddress::GetZeroPubKey(CPubKey &zerokey) const{
     if(!IsPrivateAddress(Params()))
         return false;
-    libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+    libzeroct::CPrivateAddress id(&Params().GetConsensus().ZeroCT_Params);
     CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
     ss >> id;
     if(!id.GetPubKey(zerokey)) return false;
@@ -314,10 +314,10 @@ bool CNavCoinAddress::GetZeroPubKey(CPubKey &zerokey) const{
 bool CNavCoinAddress::IsValid(const CChainParams& params) const
 {
     if (vchVersion == params.Base58Prefix(CChainParams::PRIVATE_ADDRESS)) {
-        libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+        libzeroct::CPrivateAddress id(&Params().GetConsensus().ZeroCT_Params);
         CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
         ss >> id;
-        CPubKey zpk; libzerocoin::BlindingCommitment bc;
+        CPubKey zpk; libzeroct::BlindingCommitment bc;
         if(!id.GetPubKey(zpk)) return false;
         if(!id.GetBlindingCommitment(bc)) return false;
         return zpk.IsValid() && bc.first != CBigNum() && bc.second != CBigNum();
@@ -353,7 +353,7 @@ CTxDestination CNavCoinAddress::Get() const
     } else if (vchVersion == Params().Base58Prefix(CChainParams::PRIVATE_ADDRESS)) {
         if(!IsPrivateAddress(Params()))
             return CNoDestination();
-        libzerocoin::CPrivateAddress id(&Params().GetConsensus().Zerocoin_Params);
+        libzeroct::CPrivateAddress id(&Params().GetConsensus().ZeroCT_Params);
         CDataStream ss(std::vector<unsigned char>(vchData.begin(), vchData.end()), SER_NETWORK, 0);
         ss >> id;
         return id;

@@ -5,7 +5,7 @@
 #include "coins.h"
 
 #include "chainparams.h"
-#include "libzerocoin/CoinSpend.h"
+#include "libzeroct/CoinSpend.h"
 #include "memusage.h"
 #include "random.h"
 #include "zerochain.h"
@@ -46,18 +46,24 @@ bool CCoins::Spend(uint32_t nPos)
 }
 
 bool CCoinsView::GetCoins(const uint256 &txid, CCoins &coins) const { return false; }
+bool CCoinsView::GetMint(const CBigNum &mintValue, PublicMintChainData &mintData) const { return false; }
 bool CCoinsView::HaveCoins(const uint256 &txid) const { return false; }
+bool CCoinsView::HaveMint(const CBigNum &mintValue) const { return false; }
+bool CCoinsView::HaveSpendSerial(const CBigNum &spendSerial) const { return false; }
 uint256 CCoinsView::GetBestBlock() const { return uint256(); }
-bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return false; }
+bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, std::map<CBigNum, PublicMintChainData>& mapMintValue, std::map<CBigNum, bool>& mapSpendSerial, const uint256 &hashBlock) { return false; }
 CCoinsViewCursor *CCoinsView::Cursor() const { return 0; }
 
 
 CCoinsViewBacked::CCoinsViewBacked(CCoinsView *viewIn) : base(viewIn) { }
 bool CCoinsViewBacked::GetCoins(const uint256 &txid, CCoins &coins) const { return base->GetCoins(txid, coins); }
+bool CCoinsViewBacked::GetMint(const CBigNum &mintValue, PublicMintChainData &mintData) const { return base->GetMint(mintValue, mintData); }
 bool CCoinsViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
+bool CCoinsViewBacked::HaveMint(const CBigNum &mintValue) const { return base->HaveMint(mintValue); }
+bool CCoinsViewBacked::HaveSpendSerial(const CBigNum &spendSerial) const { return base->HaveSpendSerial(spendSerial); }
 uint256 CCoinsViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
-bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
+bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, std::map<CBigNum, PublicMintChainData>& mapMintValue, std::map<CBigNum, bool>& mapSpendSerial, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, mapMintValue, mapSpendSerial, hashBlock); }
 CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
@@ -91,6 +97,23 @@ CCoinsMap::const_iterator CCoinsViewCache::FetchCoins(const uint256 &txid) const
     return ret;
 }
 
+std::map<CBigNum, PublicMintChainData>::const_iterator CCoinsViewCache::FetchMint(const CBigNum &mintValue) const {
+    std::map<CBigNum, PublicMintChainData>::iterator it = cacheMints.find(mintValue);
+
+    if (it != cacheMints.end())
+        return it;
+
+    PublicMintChainData tmp;
+
+    if (!base->GetMint(mintValue, tmp))
+        return cacheMints.end();
+
+    std::map<CBigNum, PublicMintChainData>::iterator ret = cacheMints.insert(std::make_pair(mintValue, tmp)).first;
+    tmp.swap(ret->second);
+
+    return ret;
+}
+
 bool CCoinsViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     if (it != cacheCoins.end()) {
@@ -98,6 +121,48 @@ bool CCoinsViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
         return true;
     }
     return false;
+}
+
+bool CCoinsViewCache::GetMint(const CBigNum &mintValue, PublicMintChainData &mintData) const {
+    std::map<CBigNum, PublicMintChainData>::const_iterator it = FetchMint(mintValue);
+    if (it != cacheMints.end()) {
+        mintData = it->second;        
+        return true;
+    }
+    return false;
+}
+
+bool CCoinsViewCache::AddMint(const CBigNum &mintValue, const PublicMintChainData& mintData) const {
+    if (HaveMint(mintValue))
+        return false;
+    cacheMints.insert(std::make_pair(mintValue, mintData));
+    return true;
+}
+
+bool CCoinsViewCache::AddSpendSerial(const CBigNum &spendSerial) const {
+    if (HaveSpendSerial(spendSerial))
+        return false;
+    cacheSpendSerial.insert(std::make_pair(spendSerial, true));
+    return true;
+}
+
+bool CCoinsViewCache::RemoveMint(const CBigNum &mintValue) const {
+    if (!HaveMint(mintValue))
+        return false;
+
+    cacheMints[mintValue] = PublicMintChainData();
+    cacheMints[mintValue].SetNull();
+
+    assert(cacheMints[mintValue].IsNull());
+
+    return true;
+}
+
+bool CCoinsViewCache::RemoveSpendSerial(const CBigNum &spendSerial) const {
+    if (!HaveSpendSerial(spendSerial))
+        return false;
+    cacheSpendSerial[spendSerial] = false;
+    return true;
 }
 
 CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
@@ -145,6 +210,43 @@ const CCoins* CCoinsViewCache::AccessCoins(const uint256 &txid) const {
     }
 }
 
+const PublicMintChainData* CCoinsViewCache::AccessMint(const CBigNum &mintValue) const {
+    std::map<CBigNum, PublicMintChainData>::const_iterator it = FetchMint(mintValue);
+    if (it == cacheMints.end()) {
+        return NULL;
+    } else {
+        return &it->second;
+    }
+}
+
+bool CCoinsViewCache::HaveMint(const CBigNum &mintValue) const {
+    std::map<CBigNum, PublicMintChainData>::iterator it = cacheMints.find(mintValue);
+    std::string mintstr = "";
+    for (auto& it: cacheMints) {
+        mintstr += it.first.ToString(16).substr(0,8) + ", ";
+    }
+
+    if (it != cacheMints.end()) {
+        if (cacheMints[mintValue].IsNull())
+            return false;
+        return true;
+    }
+    PublicMintChainData mintData;
+    if (base->GetMint(mintValue, mintData) && !mintData.IsNull())
+        return true;
+    return false;
+}
+
+bool CCoinsViewCache::HaveSpendSerial(const CBigNum &spendSerial) const {
+    std::map<CBigNum, bool>::iterator it = cacheSpendSerial.find(spendSerial);
+    if (it != cacheSpendSerial.end())
+        return true;
+    if (base->HaveSpendSerial(spendSerial))
+        return true;
+    return false;
+}
+
+
 bool CCoinsViewCache::HaveCoins(const uint256 &txid) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     // We're using vtx.empty() instead of IsPruned here for performance reasons,
@@ -169,7 +271,7 @@ void CCoinsViewCache::SetBestBlock(const uint256 &hashBlockIn) {
     hashBlock = hashBlockIn;
 }
 
-bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn) {
+bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, std::map<CBigNum, PublicMintChainData>& mapMintValue, std::map<CBigNum, bool>& mapSpendSerial, const uint256 &hashBlockIn) {
     assert(!hasModifier);
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end();) {
         if (it->second.flags & CCoinsCacheEntry::DIRTY) { // Ignore non-dirty entries (optimization).
@@ -210,13 +312,41 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn
         CCoinsMap::iterator itOld = it++;
         mapCoins.erase(itOld);
     }
+    for (std::map<CBigNum, PublicMintChainData>::iterator it = mapMintValue.begin(); it != mapMintValue.end();) {
+        if (!it->second.IsNull()) {
+            std::map<CBigNum, PublicMintChainData>::iterator itUs = cacheMints.find(it->first);
+            if (itUs != cacheMints.end()) {
+                cacheMints.erase(itUs);
+            } else {
+                PublicMintChainData& entry = cacheMints[it->first];
+                entry.swap(it->second);
+            }
+        }
+        std::map<CBigNum, PublicMintChainData>::iterator itOld = it++;
+        mapMintValue.erase(itOld);
+    }
+    for (std::map<CBigNum, bool>::iterator it = mapSpendSerial.begin(); it != mapSpendSerial.end();) {
+        if (!it->second) {
+            std::map<CBigNum, bool>::iterator itUs = cacheSpendSerial.find(it->first);
+            if (itUs != cacheSpendSerial.end()) {
+                cacheSpendSerial.erase(itUs);
+            } else {
+                bool& entry = cacheSpendSerial[it->first];
+                std::swap(entry, it->second);
+            }
+        }
+        std::map<CBigNum, bool>::iterator itOld = it++;
+        mapSpendSerial.erase(itOld);
+    }
     hashBlock = hashBlockIn;
     return true;
 }
 
 bool CCoinsViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, hashBlock);
+    bool fOk = base->BatchWrite(cacheCoins, cacheMints, cacheSpendSerial, hashBlock);
     cacheCoins.clear();
+    cacheMints.clear();
+    cacheSpendSerial.clear();
     cachedCoinsUsage = 0;
     return fOk;
 }
@@ -243,20 +373,12 @@ const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
 
 CAmount CCoinsViewCache::GetValueIn(const CTransaction& tx) const
 {
-    if (tx.IsCoinBase() && !tx.IsZerocoinSpend())
+    if (tx.IsCoinBase() && !tx.IsZeroCTSpend())
         return 0;
 
     CAmount nResult = 0;
 
-    if (tx.IsZerocoinSpend()) {
-        for (unsigned int i = 0; i < tx.vin.size(); i++) {
-            if (tx.vin[i].scriptSig.IsZerocoinSpend()) {
-                libzerocoin::CoinSpend zcs(&Params().GetConsensus().Zerocoin_Params);
-                if (TxInToCoinSpend(&Params().GetConsensus().Zerocoin_Params, tx.vin[i], zcs))
-                    nResult += libzerocoin::ZerocoinDenominationToAmount(zcs.getDenomination());
-            }
-        }
-    } else {
+    if (!tx.IsZeroCTSpend()) {
         for (unsigned int i = 0; i < tx.vin.size(); i++) {
             nResult += GetOutputFor(tx.vin[i]).nValue;
         }
@@ -267,7 +389,7 @@ CAmount CCoinsViewCache::GetValueIn(const CTransaction& tx) const
 
 bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
 {
-    if (!tx.IsCoinBase() && !tx.IsZerocoinSpend()) {
+    if (!tx.IsCoinBase() && !tx.IsZeroCTSpend()) {
         for (unsigned int i = 0; i < tx.vin.size(); i++) {
             const COutPoint &prevout = tx.vin[i].prevout;
             const CCoins* coins = AccessCoins(prevout.hash);
@@ -282,7 +404,7 @@ bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
 double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount &inChainInputValue) const
 {
     inChainInputValue = 0;
-    if (tx.IsCoinBase() || tx.IsZerocoinSpend())
+    if (tx.IsCoinBase() || tx.IsZeroCT())
         return 0.0;
     double dResult = 0.0;
     BOOST_FOREACH(const CTxIn& txin, tx.vin)

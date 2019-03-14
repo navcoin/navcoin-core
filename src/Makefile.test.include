@@ -36,13 +36,18 @@ GENERATED_TEST_FILES = $(JSON_TEST_FILES:.json=.json.h) $(RAW_TEST_FILES:.raw=.r
 
 
 NAVCOIN_TESTS =\
+  test/zeroct_tutorial.cpp \
+  test/zeroct_bulletproofsrangeproof_tests.cpp \
+  test/zeroct_mint_script_tests.cpp \
+  test/zeroct_transaction_amount_signature_tests.cpp \
+  test/zeroct_tests.cpp \
+  test/zeroct_benchmark.cpp \
   test/scriptnum10.h \
   test/addrman_tests.cpp \
   test/amount_tests.cpp \
   test/allocator_tests.cpp \
   test/base32_tests.cpp \
   test/base64_tests.cpp \
-  test/bulletproofsrangeproof_tests.cpp \
   test/bip32_tests.cpp \
   test/Checkpoints_tests.cpp \
   test/coins_tests.cpp \
@@ -77,10 +82,7 @@ NAVCOIN_TESTS =\
   test/testutil.cpp \
   test/testutil.h \
   test/timedata_tests.cpp \
-  test/univalue_tests.cpp \
-  test/tutorial_zerocoin.cpp \
-  test/libzerocoin_tests.cpp \
-  test/benchmark_zerocoin.cpp
+  test/univalue_tests.cpp
 
 #NAVCOIN_TESTS =\
 #  test/arith_uint256_tests.cpp \

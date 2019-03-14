@@ -149,7 +149,7 @@ bool CWalletDB::WriteOrderPosNext(int64_t nOrderPosNext)
     return Write(std::string("orderposnext"), nOrderPosNext);
 }
 
-bool CWalletDB::WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const libzerocoin::ObfuscationValue& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey)
+bool CWalletDB::WriteZeroCTValues(const libzeroct::ObfuscationValue& obfuscationJ, const libzeroct::ObfuscationValue& obfuscationK, const libzeroct::BlindingCommitment& blindingCommitment, const CKey& zerokey)
 {
     nWalletDBUpdated++;
     return Write(std::string("obfuscationj"), obfuscationJ) &&
@@ -158,7 +158,7 @@ bool CWalletDB::WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfusca
            Write(std::string("zerokey"), std::vector<unsigned char>(zerokey.begin(), zerokey.end()));
 }
 
-bool CWalletDB::WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfuscationJ, const std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& obfuscationK, const libzerocoin::BlindingCommitment& blindingCommitment, const CKey& zerokey)
+bool CWalletDB::WriteZeroCTValues(const libzeroct::ObfuscationValue& obfuscationJ, const std::pair<std::vector<unsigned char>,std::vector<unsigned char>>& obfuscationK, const libzeroct::BlindingCommitment& blindingCommitment, const CKey& zerokey)
 {
     nWalletDBUpdated++;
     return Write(std::string("obfuscationj"), obfuscationJ) &&
@@ -168,10 +168,10 @@ bool CWalletDB::WriteZerocoinValues(const libzerocoin::ObfuscationValue& obfusca
            Write(std::string("zerokey"), std::vector<unsigned char>(zerokey.begin(), zerokey.end()));
 }
 
-bool CWalletDB::WriteZerocoinValues(const CWallet* pwallet)
+bool CWalletDB::WriteZeroCTValues(const CWallet* pwallet)
 {
     std::pair<std::vector<unsigned char>,std::vector<unsigned char>> vchCOk;
-    libzerocoin::ObfuscationValue oj; libzerocoin::ObfuscationValue ok; libzerocoin::BlindingCommitment bc; CKey zk;
+    libzeroct::ObfuscationValue oj; libzeroct::ObfuscationValue ok; libzeroct::BlindingCommitment bc; CKey zk;
 
     if (!pwallet->GetObfuscationJ(oj))
         return false;
@@ -187,9 +187,9 @@ bool CWalletDB::WriteZerocoinValues(const CWallet* pwallet)
         return false;
 
     if (vchCOk.first.empty() || vchCOk.second.empty()) {
-        if (!WriteZerocoinValues(oj, ok, bc, zk))
+        if (!WriteZeroCTValues(oj, ok, bc, zk))
             return false;
-    } else if (!WriteZerocoinValues(oj, vchCOk, bc, zk))
+    } else if (!WriteZeroCTValues(oj, vchCOk, bc, zk))
         return false;
 
     ok.first.Nullify();
@@ -429,7 +429,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         else if (strType == "witness")
         {
             CBigNum bnCoinValue;
-            PublicMintWitnessData witness(&Params().GetConsensus().Zerocoin_Params, ssValue);
+            PublicMintWitnessData witness(&Params().GetConsensus().ZeroCT_Params, ssValue);
             ssKey >> bnCoinValue;
 
             std::pair<std::map<CBigNum, PublicMintWitnessData>::iterator, bool> ret = pwallet->mapWitness.insert(std::make_pair(bnCoinValue, witness));
@@ -625,13 +625,13 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         }
         else if (strType == "obfuscationj")
         {
-            libzerocoin::ObfuscationValue oj;
+            libzeroct::ObfuscationValue oj;
             ssValue >> oj;
             pwallet->SetObfuscationJ(oj);
         }
         else if (strType == "obfuscationk")
         {
-            libzerocoin::ObfuscationValue ok;
+            libzeroct::ObfuscationValue ok;
             ssValue >> ok;
             pwallet->SetObfuscationK(ok);
         }
@@ -643,7 +643,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
         }
         else if (strType == "blindingcommitment")
         {
-            libzerocoin::BlindingCommitment bc;
+            libzeroct::BlindingCommitment bc;
             ssValue >> bc;
             pwallet->SetBlindingCommitment(bc);
         }
