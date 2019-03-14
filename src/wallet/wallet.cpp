@@ -1805,7 +1805,6 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
 
         {
             LOCK(cs_witnesser);
-            LogPrintf("Writing %d witnesses\n", witnessToWrite.size());
             for(auto& it: witnessToWrite)
                 WriteWitness(it.first, it.second);
         }
