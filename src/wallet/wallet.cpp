@@ -3851,7 +3851,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 else
                     reservekey.ReturnKey();
 
-                txNew.vout.push_back(CTxOut(nFeeRet, CScript(OP_FEE)));
+                if (fZeroCT)
+                    txNew.vout.push_back(CTxOut(nFeeRet, CScript(OP_FEE)));
                 
                 // Fill vin
                 //
