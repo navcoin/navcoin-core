@@ -231,10 +231,7 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
                 }
             }
 
-            accumulatorValue = pindex->nAccumulatorValue;
             blockAccumulatorHash = pindex->GetBlockHash();
-
-            assert(accumulator.getValue() == accumulatorValue);
 
             if(!chainActive.Next(pindex) || (nRequiredMints > 0 && nCount >= nRequiredMints))
                 break;
@@ -242,8 +239,6 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
             pindex = chainActive.Next(pindex);
         }
     }
-
-    accumulator.setValue(accumulatorValue);
 
     if (!accumulatorWitness.VerifyWitness(accumulator, pubCoin)) {
         strError = "Witness did not verify";
