@@ -157,6 +157,8 @@ bool CountMintsFromHeight(unsigned int nInitialHeight, unsigned int& nRet)
 
 bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, const libzeroct::PublicCoin& pubCoin, Accumulator& accumulator, AccumulatorWitness& accumulatorWitness, CBigNum& accumulatorValue, uint256& blockAccumulatorHash, std::string& strError, int nRequiredMints, int nMaxHeight)
 {
+    const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
+
     if (!txout.IsZeroCTMint()) {
         strError = "Transaction output script is not a ZeroCT mint.";
         return false;
@@ -192,6 +194,8 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
 
     if(pindex->nAccumulatorValue != 0)
         accumulator.setValue(pindex->nAccumulatorValue);
+    else
+        accumulator.setValue(params->accumulatorParams.accumulatorBase);
 
     accumulatorWitness.resetValue(accumulator, pubCoin);
 
@@ -217,9 +221,9 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
                     if (!out.IsZeroCTMint())
                         continue;
 
-                    PublicCoin pubCoinOut(&Params().GetConsensus().ZeroCT_Params);
+                    PublicCoin pubCoinOut(params);
 
-                    if (!TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, out, pubCoinOut)) {
+                    if (!TxOutToPublicCoin(params, out, pubCoinOut)) {
                         strError = strprintf("Could not extract ZeroCT mint data");
                         return false;
                     }
@@ -231,7 +235,10 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
                 }
             }
 
+            accumulatorValue = pindex->nAccumulatorValue;
             blockAccumulatorHash = pindex->GetBlockHash();
+
+            assert(accumulator.getValue() == accumulatorValue);
 
             if(!chainActive.Next(pindex) || (nRequiredMints > 0 && nCount >= nRequiredMints))
                 break;
@@ -239,6 +246,8 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
             pindex = chainActive.Next(pindex);
         }
     }
+
+    accumulator.setValue(accumulatorValue);
 
     if (!accumulatorWitness.VerifyWitness(accumulator, pubCoin)) {
         strError = "Witness did not verify";

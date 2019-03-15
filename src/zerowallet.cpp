@@ -57,17 +57,17 @@ bool PrepareAndSignCoinSpend(const BaseSignatureCreator& creator, const std::map
         return error(strprintf("Transaction output script is not a ZeroCT mint."));
 
     string strError = "";
-    libzeroct::Accumulator a(&Params().GetConsensus().ZeroCT_Params);
-    libzeroct::AccumulatorWitness aw(&Params().GetConsensus().ZeroCT_Params, a,
-                                       libzeroct::PublicCoin(&Params().GetConsensus().ZeroCT_Params));
+    const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
+    libzeroct::Accumulator a(params);
+    libzeroct::AccumulatorWitness aw(params, a, libzeroct::PublicCoin(params));
     uint256 bah;
     CBigNum ac;
 
     CTxOut txout(amount, scriptPubKey);
 
-    libzeroct::PublicCoin pubCoin(&Params().GetConsensus().ZeroCT_Params);
+    libzeroct::PublicCoin pubCoin(params);
 
-    if (!TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, txout, pubCoin, NULL))
+    if (!TxOutToPublicCoin(params, txout, pubCoin, NULL))
         return error(strprintf("Could not convert transaction otuput to public coin"));
 
     bool fFoundWitness = false;
@@ -103,7 +103,7 @@ bool PrepareAndSignCoinSpend(const BaseSignatureCreator& creator, const std::map
                                                    chainActive.Tip()->nHeight - (fStake ? COINBASE_MATURITY : 0)))
         return error(strprintf("Error calculating witness for mint: %s", strError));
 
-    if (!creator.CreateCoinSpendScript(&Params().GetConsensus().ZeroCT_Params, pubCoin, a, bah, aw, scriptPubKey, sigdata, r, fStake, strError))
+    if (!creator.CreateCoinSpendScript(params, pubCoin, a, bah, aw, scriptPubKey, sigdata, r, fStake, strError))
         return error(strprintf("Error creating coin spend: %s", strError));
 
     return true;
