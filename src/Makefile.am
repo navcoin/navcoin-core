@@ -422,7 +422,7 @@ libzeroct_libnavcoin_zerocoin_a_SOURCES += libzeroct/bignum_openssl.cpp
 endif
 
 libzeroct_libnavcoin_zerocoin_a_LIBADD = $(LIBSECP256K1)
-libzeroct_libnavcoin_zerocoin_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/secp256k1/include $(SSL_CFLAGS)
+libzeroct_libnavcoin_zerocoin_a_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/secp256k1/include $(SSL_CFLAGS) $(BOOST_LIBS)
 libzeroct_libnavcoin_zerocoin_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libzeroct_libnavcoin_zerocoin_a_CFLAGS = $(AM_CFLAGS)
 
