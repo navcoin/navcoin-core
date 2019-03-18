@@ -50,12 +50,15 @@ bool CheckZeroCTMint(const ZeroCTParams *params, const CTxOut& txout, const CCoi
         return state.DoS(100, error("CheckZeroCTMint() : PubCoin does not validate"));
 
     PublicMintChainData zeroMint;
-    int nHeight;
 
-    if (view.GetMint(pubCoin.getValue(), zeroMint) && !zeroMint.IsNull())
-        return error("%s: pubcoin %s was already accumulated in tx %s from block %d", __func__,
-                     pubCoin.getValue().GetHex().substr(0, 8),
-                     zeroMint.GetTxHash().GetHex(), nHeight);
+    if (view.GetMint(pubCoin.getValue(), zeroMint) && !zeroMint.IsNull() && mapBlockIndex.count(zeroMint.GetBlockHash())) {
+        CBlockIndex* pindex = mapBlockIndex.at(zeroMint.GetBlockHash());
+        if (chainActive.Contains(pindex))
+            return error("%s: pubcoin %s was already accumulated in tx %s from block %s", __func__,
+                         pubCoin.getValue().GetHex().substr(0, 8),
+                         zeroMint.GetTxHash().GetHex(),
+                         zeroMint.GetBlockHash().ToString());
+    }
 
     return true;
 }
@@ -91,11 +94,8 @@ bool CheckZeroCTSpend(const ZeroCTParams *params, const CTxIn& txin, const CCoin
             return state.DoS(100, error("CheckZeroCTSpend() : CoinSpend does not verify"));
     }
 
-    uint256 txHash;
-    int nHeight;
-
     if (view.HaveSpendSerial(coinSpend.getCoinSerialNumber()))
-        return state.DoS(100, error(strprintf("CheckZeroCTSpend() : Serial Number %s is already spent in tx %s in block %d", coinSpend.getCoinSerialNumber().ToString(16), txHash.ToString(), nHeight)));
+        return state.DoS(100, error(strprintf("CheckZeroCTSpend() : Serial Number %s is already spent", coinSpend.getCoinSerialNumber().ToString(16))));
 
     return true;
 
