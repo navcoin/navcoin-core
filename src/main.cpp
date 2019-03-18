@@ -4744,7 +4744,7 @@ static void NotifyHeaderTip() {
         }
     }
     // Send block tip changed notifications without cs_main
-    if (fNotify) {
+    if (fNotify && pindexHeader) {
         uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexHeader);
     }
 }
