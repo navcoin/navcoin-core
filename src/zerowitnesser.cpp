@@ -10,6 +10,8 @@
 #include "zerotx.h"
 #include "zerowitnesser.h"
 
+#include <boost/thread.hpp>
+
 typedef std::function<bool(std::pair<const CBigNum, PublicMintWitnessData>, std::pair<const CBigNum, PublicMintWitnessData>)> Comparator;
 
 Comparator compare =

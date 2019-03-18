@@ -34,7 +34,7 @@ public:
     }
 
     bool IsNull() const {
-        return outPoint.IsNull() && blockHash == 0;
+        return outPoint.IsNull() || blockHash == uint256(0);
     }
 
     void SetNull() const {
