@@ -89,17 +89,42 @@ void getAddressToReceive::getColdStakingAddress()
 
 void getAddressToReceive::showPrivateAddress()
 {
+    if (address.length() > 400)
+    {
+        LOCK(pwalletMain->cs_wallet);
+        BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
+        {
+            const CNavCoinAddress& addressbook = item.first;
+            bool fMine = IsMine(*pwalletMain, addressbook.Get());
+            if(fMine)
+            {
+              address = QString::fromStdString(addressbook.ToString());
+              break;
+            }
+        }
+        ui->privateAddressButton->setText(QString(tr("Show private address")));
+        ui->requestNewAddressButton->show();
+        ui->requestPaymentButton->show();
+        ui->coldStakingButton->show();
+        ui->newAddressButton->show();
+    }
+    else
+    {
+        LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+        CKey zk; libzeroct::BlindingCommitment bc;
+        pwalletMain->GetBlindingCommitment(bc);
+        pwalletMain->GetZeroKey(zk);
 
-    CKey zk; libzeroct::BlindingCommitment bc;
-    pwalletMain->GetBlindingCommitment(bc);
-    pwalletMain->GetZeroKey(zk);
-
-    libzeroct::CPrivateAddress pa(&Params().GetConsensus().ZeroCT_Params, bc, zk, "", 0);
-
-    QMessageBox::information(this, tr("Show Private Address"),
-        tr("Private Address:<br><br>%1").arg(QString::fromStdString( CNavCoinAddress(pa).ToString())));
+        libzeroct::CPrivateAddress pa(&Params().GetConsensus().ZeroCT_Params, bc, zk, "", 0);
+        address = QString::fromStdString(CNavCoinAddress(pa).ToString());
+        ui->privateAddressButton->setText(QString(tr("Show public address")));
+        ui->requestNewAddressButton->hide();
+        ui->requestPaymentButton->hide();
+        ui->coldStakingButton->hide();
+        ui->newAddressButton->hide();
+    }
+    showQR();
 }
 
 void getAddressToReceive::showQR()
@@ -121,28 +146,28 @@ void getAddressToReceive::showQR()
                 return;
             }
             QImage qrImage = QImage(code->width + 8, code->width + 8, QImage::Format_RGB32);
-            qrImage.fill(0xffffff);
+            qrImage.fill(0xE8EBF0);
             unsigned char *p = code->data;
             for (int y = 0; y < code->width; y++)
             {
                 for (int x = 0; x < code->width; x++)
                 {
-                    qrImage.setPixel(x + 4, y + 4, ((*p & 1) ? 0x0 : 0xffffff));
+                    qrImage.setPixel(x + 4, y + 4, ((*p & 1) ? 0x0 : 0xFFFFFF));
                     p++;
                 }
             }
             QRcode_free(code);
 
-            QImage qrAddrImage = QImage(QR_IMAGE_SIZE, QR_IMAGE_SIZE+20, QImage::Format_RGB32);
-            qrAddrImage.fill(0xffffff);
+            QImage qrAddrImage = QImage(QR_IMAGE_SIZE+(uri.length() > 400 ? 160 : 0), QR_IMAGE_SIZE+(uri.length() > 400 ? 140 : 20), QImage::Format_RGB32);
+            qrAddrImage.fill(0xE8EBF0);
             QPainter painter(&qrAddrImage);
-            painter.drawImage(0, 0, qrImage.scaled(QR_IMAGE_SIZE, QR_IMAGE_SIZE));
+            painter.drawImage((uri.length() > 400 ? 80 : 0), 0, qrImage.scaled(QR_IMAGE_SIZE, QR_IMAGE_SIZE));
             QFont font = GUIUtil::fixedPitchFont();
             font.setPixelSize(12);
             painter.setFont(font);
             QRect paddedRect = qrAddrImage.rect();
-            paddedRect.setHeight(QR_IMAGE_SIZE+12);
-            painter.drawText(paddedRect, Qt::AlignBottom|Qt::AlignCenter, address);
+            paddedRect.setHeight(QR_IMAGE_SIZE+(uri.length() > 400 ? 132     : 12));
+            painter.drawText(paddedRect, Qt::AlignBottom|Qt::AlignCenter|Qt::TextWrapAnywhere, address);
             painter.end();
 
             ui->lblQRCode->setPixmap(QPixmap::fromImage(qrAddrImage));
