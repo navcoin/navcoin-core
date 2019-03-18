@@ -4134,6 +4134,19 @@ bool CWallet::BackupWallet(const std::string& strDest)
     return false;
 }
 
+std::string CWallet::formatDisplayAmount(CAmount amount) {
+    stringstream n;
+    n.imbue(std::locale(""));
+    n << fixed << setprecision(8) << amount/COIN;
+    string nav_amount = n.str();
+    if(nav_amount.at(nav_amount.length()-1) == '.') {
+        nav_amount = nav_amount.substr(0, nav_amount.size()-1);
+    }
+    nav_amount.append(" NAV");
+
+    return nav_amount;
+}
+
 CKeyPool::CKeyPool()
 {
     nTime = GetTime();

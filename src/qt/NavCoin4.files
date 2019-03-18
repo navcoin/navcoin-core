@@ -12,6 +12,7 @@ coincontroldialog.cpp
 coincontroldialog.h
 coincontroltreewidget.cpp
 coincontroltreewidget.h
+communityfundpage.ui
 csvmodelwriter.cpp
 csvmodelwriter.h
 editaddressdialog.cpp
