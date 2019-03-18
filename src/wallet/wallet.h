@@ -995,6 +995,8 @@ public:
 
     bool BackupWallet(const std::string& strDest);
 
+    std::string formatDisplayAmount(CAmount amount);
+
     /* Set the HD chain model (chain child index counters) */
     bool SetHDChain(const CHDChain& chain, bool memonly);
     const CHDChain& GetHDChain() { return hdChain; }

@@ -133,3 +133,4 @@ src/NavCoin4-Qt.creator.user
 # IDE specific
 .idea/*
 .vscode
+*.creator.user

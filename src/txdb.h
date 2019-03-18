@@ -165,6 +165,7 @@ public:
     bool ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal);
     bool WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
     bool GetProposalIndex(std::vector<CFund::CProposal>&vect);
+    CFund::CProposal GetProposal(uint256 hash);
     bool UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect);
     bool ReadPaymentRequestIndex(const uint256 &prequestid, CFund::CPaymentRequest &prequest);
     bool WritePaymentRequestIndex(const std::vector<std::pair<uint256, CFund::CPaymentRequest> >&vect);
