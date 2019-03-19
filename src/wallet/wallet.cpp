@@ -526,124 +526,126 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     bool fKernelFound = false;
     bool fZeroKernelFound = false;
     uint256 hashProofOfStake, targetProofOfStake;
-    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setZeroCoins)
+
+    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
         static int nMaxStakeSearchInterval = 60;
-        for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fZeroKernelFound && pindexPrev == chainActive.Tip(); n++)
+        for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fKernelFound && pindexPrev == pindexBestHeader; n++)
         {
             boost::this_thread::interruption_point();
             // Search backward in time from the given txNew timestamp
             // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
             int64_t nBlockTime;
-            CAmount nValue;
-            if (CheckZeroKernel(pindexPrev, pcoinsTip, nBits, txNew.nTime - n, prevoutStake, &nBlockTime, nValue, hashProofOfStake, targetProofOfStake))
+            if (CheckKernel(pindexPrev, pcoinsTip, nBits, txNew.nTime - n, prevoutStake, &nBlockTime))
             {
                 // Found a kernel
                 LogPrint("coinstake", "%s : kernel found\n", __func__);
+                vector<std::vector<unsigned char>> vSolutions;
+                txnouttype whichType;
                 CScript scriptPubKeyOut;
                 scriptPubKeyKernel = pcoin.first->vout[pcoin.second].scriptPubKey;
+                if (!Solver(scriptPubKeyKernel, whichType, vSolutions))
+                {
+                    LogPrint("coinstake", "%s : failed to parse kernel\n", __func__);
+                    break;
+                }
+                LogPrint("coinstake", "CreateCoinStake : parsed kernel type=%d\n", whichType);
+                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_COLDSTAKING)
+                {
+                    LogPrint("coinstake", "%s : no support for kernel type=%d\n", __func__, whichType);
+                    break;  // only support pay to public key and pay to address
+                }
+                if (whichType == TX_COLDSTAKING) // cold staking
+                {
+                    // try to find staking key
+                    if (!keystore.GetKey(uint160(vSolutions[0]), key))
+                    {
+                        LogPrint("coinstake", "%s : failed to get key for kernel type=%d\n", __func__, whichType);
+                        break;  // unable to find corresponding public key
+                    } else {
+                        // we keep the same script
+                        scriptPubKeyOut = scriptPubKeyKernel;
+                    }
+                }
+                if (whichType == TX_PUBKEYHASH) // pay to address type
+                {
+                    // convert to pay to public key type
+                    if (!keystore.GetKey(uint160(vSolutions[0]), key))
+                    {
+                        LogPrint("coinstake", "%s : failed to get key for kernel type=%d\n", __func__, whichType);
+                        break;  // unable to find corresponding public key
+                    }
+                    scriptPubKeyOut << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
+                }
+                if (whichType == TX_PUBKEY)
+                {
+                    std::vector<unsigned char>& vchPubKey = vSolutions[0];
+                    if (!keystore.GetKey(Hash160(vchPubKey), key))
+                    {
+                        LogPrint("coinstake", "%s : failed to get key for kernel type=%d\n", __func__, whichType);
+                        break;  // unable to find corresponding public key
+                    }
+
+                    if (key.GetPubKey() != vchPubKey)
+                    {
+                        LogPrint("coinstake", "%s : invalid key for kernel type=%d\n", __func__, whichType);
+                        break; // keys mismatch
+                    }
+
+                    scriptPubKeyOut = scriptPubKeyKernel;
+                }
 
                 txNew.nTime -= n;
-                txNew.vin.push_back(CTxIn());
-                nCredit += nValue;
+                txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
+                nCredit += pcoin.first->vout[pcoin.second].nValue;
                 vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
+                txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
 
-                fZeroKernelFound = true;
+                LogPrint("coinstake", "%s : added kernel type=%d\n", __func__, whichType);
+                fKernelFound = true;
                 break;
+
             }
 
         }
 
-        if (fZeroKernelFound)
+        if (fKernelFound)
             break; // if kernel is found stop searching
     }
 
-    if (!fZeroKernelFound) {
-        BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
+    if (!fKernelFound)
+    {
+        BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setZeroCoins)
         {
             static int nMaxStakeSearchInterval = 60;
-            for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fKernelFound && pindexPrev == pindexBestHeader; n++)
+            for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fZeroKernelFound && pindexPrev == chainActive.Tip(); n++)
             {
                 boost::this_thread::interruption_point();
                 // Search backward in time from the given txNew timestamp
                 // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
                 COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
                 int64_t nBlockTime;
-                if (CheckKernel(pindexPrev, pcoinsTip, nBits, txNew.nTime - n, prevoutStake, &nBlockTime))
+                CAmount nValue;
+                if (CheckZeroKernel(pindexPrev, pcoinsTip, nBits, txNew.nTime - n, prevoutStake, &nBlockTime, nValue, hashProofOfStake, targetProofOfStake))
                 {
                     // Found a kernel
                     LogPrint("coinstake", "%s : kernel found\n", __func__);
-                    vector<std::vector<unsigned char>> vSolutions;
-                    txnouttype whichType;
                     CScript scriptPubKeyOut;
                     scriptPubKeyKernel = pcoin.first->vout[pcoin.second].scriptPubKey;
-                    if (!Solver(scriptPubKeyKernel, whichType, vSolutions))
-                    {
-                        LogPrint("coinstake", "%s : failed to parse kernel\n", __func__);
-                        break;
-                    }
-                    LogPrint("coinstake", "CreateCoinStake : parsed kernel type=%d\n", whichType);
-                    if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_COLDSTAKING)
-                    {
-                        LogPrint("coinstake", "%s : no support for kernel type=%d\n", __func__, whichType);
-                        break;  // only support pay to public key and pay to address
-                    }
-                    if (whichType == TX_COLDSTAKING) // cold staking
-                    {
-                        // try to find staking key
-                        if (!keystore.GetKey(uint160(vSolutions[0]), key))
-                        {
-                            LogPrint("coinstake", "%s : failed to get key for kernel type=%d\n", __func__, whichType);
-                            break;  // unable to find corresponding public key
-                        } else {
-                            // we keep the same script
-                            scriptPubKeyOut = scriptPubKeyKernel;
-                        }
-                    }
-                    if (whichType == TX_PUBKEYHASH) // pay to address type
-                    {
-                        // convert to pay to public key type
-                        if (!keystore.GetKey(uint160(vSolutions[0]), key))
-                        {
-                            LogPrint("coinstake", "%s : failed to get key for kernel type=%d\n", __func__, whichType);
-                            break;  // unable to find corresponding public key
-                        }
-                        scriptPubKeyOut << ToByteVector(key.GetPubKey()) << OP_CHECKSIG;
-                    }
-                    if (whichType == TX_PUBKEY)
-                    {
-                        std::vector<unsigned char>& vchPubKey = vSolutions[0];
-                        if (!keystore.GetKey(Hash160(vchPubKey), key))
-                        {
-                            LogPrint("coinstake", "%s : failed to get key for kernel type=%d\n", __func__, whichType);
-                            break;  // unable to find corresponding public key
-                        }
-
-                        if (key.GetPubKey() != vchPubKey)
-                        {
-                            LogPrint("coinstake", "%s : invalid key for kernel type=%d\n", __func__, whichType);
-                            break; // keys mismatch
-                        }
-
-                        scriptPubKeyOut = scriptPubKeyKernel;
-                    }
 
                     txNew.nTime -= n;
-                    txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
-                    nCredit += pcoin.first->vout[pcoin.second].nValue;
+                    txNew.vin.push_back(CTxIn());
+                    nCredit += nValue;
                     vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
-                    txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
 
-                    LogPrint("coinstake", "%s : added kernel type=%d\n", __func__, whichType);
-                    fKernelFound = true;
+                    fZeroKernelFound = true;
                     break;
-
                 }
 
             }
 
-            if (fKernelFound)
+            if (fZeroKernelFound)
                 break; // if kernel is found stop searching
         }
     }
