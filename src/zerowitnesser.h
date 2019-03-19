@@ -35,6 +35,16 @@ public:
         return map;
     }
 
+    void Clear()
+    {
+        map.clear();
+    }
+
+    size_t Size()
+    {
+        return map.size();
+    }
+
 private:
     std::map<const CBigNum, PublicMintWitnessData> map;
 };
