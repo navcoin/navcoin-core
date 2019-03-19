@@ -38,14 +38,15 @@ bool DestinationToVecRecipients(CAmount nValue, const CTxDestination &address, v
         CRecipient recipient = {scriptPubKey, nValue, false, "",
                                 boost::get<libzeroct::CPrivateAddress>(address).GetGamma()};
         vecSend.push_back(recipient);
-        if (fShowDialog)
-            uiInterface.ShowProgress(_("Constructing transaction..."), 100);
     } else {
         CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, "", 0};
         vecSend.push_back(recipient);
     }
 
     random_shuffle(vecSend.begin(), vecSend.end(), GetRandInt);
+
+    if (fShowDialog)
+        uiInterface.ShowProgress(_("Constructing transaction..."), 100);
 
     return true;
 }
