@@ -7,20 +7,17 @@
 
 bool CheckZeroKernel(CBlockIndex* pindexPrev, const CCoinsViewCache& view, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime, CAmount& nValue, uint256& hashProofOfStake, uint256& targetProofOfStake)
 {
-    CTransaction txPrev;
-    uint256 hashBlock = uint256();
+    if (!pwalletMain->mapWallet.count(prevout.hash))
+        return error("CheckKernel : Could not find previous transaction %s\n",prevout.hash.ToString());
 
-    if (!GetTransaction(prevout.hash, txPrev, view, Params().GetConsensus(), hashBlock, true)){
-        return error("CheckZeroKernel : Could not find previous transaction %s\n", prevout.ToString());
-    }
+    CWalletTx& pwtx = pwalletMain->mapWallet[prevout.hash];
 
-    if (!txPrev.vout[prevout.n].scriptPubKey.IsZeroCTMint()) {
+    if (!pwtx.vout[prevout.n].scriptPubKey.IsZeroCTMint())
         return error("CheckZeroKernel : Transaction output is no ZeroCT mint\n",prevout.hash.ToString());
-    }
 
     libzeroct::PublicCoin pubCoin(&Params().GetConsensus().ZeroCT_Params);
 
-    if (!TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, txPrev.vout[prevout.n], pubCoin, NULL)) {
+    if (!TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, pwtx.vout[prevout.n], pubCoin, NULL)) {
         return error("CheckZeroKernel : Can not convert to public coin\n",prevout.hash.ToString());;
     }
 

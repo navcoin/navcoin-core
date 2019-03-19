@@ -9397,19 +9397,20 @@ bool CheckCoinStakeTimestamp(int nHeight, int64_t nTimeBlock, int64_t nTimeTx)
 bool CheckKernel(CBlockIndex* pindexPrev, const CCoinsViewCache& view, unsigned int nBits, int64_t nTime, const COutPoint& prevout, int64_t* pBlockTime)
 {
     uint256 hashProofOfStake, targetProofOfStake;
-
-    CTransaction txPrev;
     uint256 hashBlock = uint256();
 
-    if (!GetTransaction(prevout.hash, txPrev, view, Params().GetConsensus(), hashBlock, true)){
+    if (!pwalletMain->mapWallet.count(prevout.hash))
+    {
         return error("CheckKernel : Could not find previous transaction %s\n",prevout.hash.ToString());
     }
 
-    if (mapBlockIndex.count(hashBlock) == 0){
+    CWalletTx& pwtx = pwalletMain->mapWallet[prevout.hash];
+
+    if (mapBlockIndex.count(pwtx.hashBlock) == 0){
         return error("CheckKernel : Could not find block of previous transaction %s\n",hashBlock.ToString());
     }
 
-    CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+    CBlockIndex* pblockindex = mapBlockIndex[pwtx.hashBlock];
 
     if (pblockindex->GetBlockTime() + Params().GetConsensus().nStakeMinAge > nTime)
         return false;
@@ -9417,11 +9418,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, const CCoinsViewCache& view, unsigned 
     if (pBlockTime)
         *pBlockTime = pblockindex->GetBlockTime();
 
-
-    if (!pwalletMain->mapWallet.count(prevout.hash))
-        return("CheckProofOfStake(): Couldn't get Tx Index");
-
-    return CheckStakeKernelHash(pindexPrev, nBits, *pblockindex, txPrev, prevout, nTime, hashProofOfStake, targetProofOfStake);
+    return CheckStakeKernelHash(pindexPrev, nBits, *pblockindex, pwtx, prevout, nTime, hashProofOfStake, targetProofOfStake);
 }
 
 // staker's coin stake reward based on coin age spent (coin-days)
