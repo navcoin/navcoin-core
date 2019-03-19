@@ -28,11 +28,22 @@ void NavCoinWitnesser(const CChainParams& chainparams)
 
     try {
         while (true)
-        {
+        {            
             while (!pwalletMain)
             {
                 MilliSleep(1000);
             }
+
+            do {
+                bool fmapWitnessEmpty;
+                {
+                    LOCK(pwalletMain->cs_witnesser);
+                    fmapWitnessEmpty = pwalletMain->mapWitness.empty();
+                }
+                if (!fmapWitnessEmpty && !IsInitialBlockDownload())
+                    break;
+                MilliSleep(1000);
+            } while (true);
 
             boost::this_thread::interruption_point();
 
