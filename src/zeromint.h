@@ -107,6 +107,13 @@ public:
         return nCount;
     }
 
+    bool operator==(const WitnessData& wd) const {
+        return (accumulator.getValue() == wd.GetAccumulator().getValue() &&
+                accumulatorWitness.getValue() == wd.GetAccumulatorWitness().getValue() &&
+                blockAccumulatorHash == wd.GetBlockAccumulatorHash() &&
+                nCount == wd.GetCount());
+    }
+
     ADD_SERIALIZE_METHODS;
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
@@ -167,6 +174,10 @@ public:
         currentData = copy;
     }
 
+    bool IsRecovered() const {
+        return (currentData == prevData);
+    }
+
     bool Verify() const {
         return currentData.GetAccumulatorWitness().VerifyWitness(currentData.GetAccumulator(), pubCoin);
     }
@@ -176,6 +187,10 @@ public:
                          initialData.GetBlockAccumulatorHash(), initialData.GetCount());
         currentData = copy;
         prevData = copy;
+    }
+
+    bool IsReset() const {
+        return (initialData == currentData && initialData == prevData);
     }
 
     uint256 GetBlockAccumulatorHash() const {
