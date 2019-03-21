@@ -689,6 +689,7 @@ public:
     bool IsPaymentRequestVote() const;
     bool IsPaymentRequestVoteYes() const;
     bool IsPaymentRequestVoteNo() const;
+    bool IsPool() const;
     bool ExtractVote(uint256 &hash, bool &vote) const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */

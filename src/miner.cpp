@@ -794,6 +794,13 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, const CChainParam
       int64_t nSearchInterval = nBestHeight+1 > 0 ? 1 : nSearchTime - nLastCoinStakeSearchTime;
       if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nFees, txCoinStake, key))
       {
+          // Add a OP_RETURN OP_POOL outut to the coinbase tx
+          pblock->vtx[0].vout.resize(coinbaseTx.vout.size()+1);
+          pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey.resize(2);
+          pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey[0] = OP_RETURN;
+          pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey[1] = OP_POOL;
+          pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
+
           ApplyCommunityFundToCoinBase(pblock->vtx[0], chainparams, key);
           if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
           {

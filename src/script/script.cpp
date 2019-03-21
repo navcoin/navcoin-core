@@ -151,6 +151,9 @@ const char* GetOpName(opcodetype opcode)
 
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
+    // pool
+    case OP_POOL                   : return "OP_POOL";
+
     // Note:
     //  The template matching params OP_SMALLDATA/etc are defined in opcodetype enum
     //  as kind of implementation hack, they are *NOT* real opcodes.  If found in real
@@ -303,6 +306,13 @@ bool CScript::IsPaymentRequestVoteNo() const
       (*this)[2] == OP_PREQ &&
       (*this)[3] == OP_NO &&
       (*this)[4] == 0x20);
+}
+
+bool CScript::IsPool() const
+{
+    return (this->size() == 2 &&
+            (*this)[0] == OP_RETURN &&
+            (*this)[1] == OP_POOL);
 }
 
 bool CScript::ExtractVote(uint256 &hash, bool &vote) const
