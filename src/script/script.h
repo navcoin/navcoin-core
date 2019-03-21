@@ -188,6 +188,8 @@ enum opcodetype
 
     OP_COINSTAKE = 0xc6,
 
+    OP_POOL = 0xd0,
+
     // template matching params
     OP_SMALLDATA = 0xf9,
     OP_SMALLINTEGER = 0xfa,
