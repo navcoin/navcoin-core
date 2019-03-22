@@ -101,6 +101,7 @@ public:
         consensus.nStakeCombineThreshold = 1000 * COIN;
         consensus.nZeroStakeCombineThreshold = 10000 * COIN;
         consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nZeroStakeSplitThreshold = 2 * consensus.nZeroStakeCombineThreshold;
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
@@ -314,6 +315,7 @@ public:
         consensus.nStakeCombineThreshold = 1000 * COIN;
         consensus.nZeroStakeCombineThreshold = 10000 * COIN;
         consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nZeroStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
@@ -508,6 +510,7 @@ public:
         consensus.nStakeCombineThreshold = 1000 * COIN;
         consensus.nZeroStakeCombineThreshold = 10000 * COIN;
         consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nZeroStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
@@ -711,6 +714,7 @@ public:
         consensus.nStakeCombineThreshold = 1000 * COIN;
         consensus.nZeroStakeCombineThreshold = 10000 * COIN;
         consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
+        consensus.nZeroStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;

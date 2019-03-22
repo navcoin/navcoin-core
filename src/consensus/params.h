@@ -101,6 +101,7 @@ struct Params {
     int nTargetSpacing;
     unsigned int nTargetTimespan;
     int64_t nStakeCombineThreshold;
+    int64_t nZeroStakeCombineThreshold;
     int64_t nStakeSplitThreshold;
     int64_t nZeroStakeSplitThreshold;
     int nDailyBlockCount;
