@@ -127,6 +127,8 @@ public:
         strm >> *this;
     }
 
+    PrivateCoin(const ZeroCTParams* p);
+
     /**Tries to obtain the private parameters of a Zerocoin by
    * (a) deriving a secret using DH with the mint pub key,
    * (b) using the secret as a seed for a PNRG from where obtain

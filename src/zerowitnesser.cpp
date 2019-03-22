@@ -47,11 +47,11 @@ void NavCoinWitnesser(const CChainParams& chainparams)
 
             boost::this_thread::interruption_point();
 
-            std::set<std::pair<const CBigNum, PublicMintWitnessData>, Comparator> cachedMapWitness;
+            std::map<CBigNum, PublicMintWitnessData> cachedMapWitness;
 
             {
                 LOCK(pwalletMain->cs_witnesser);
-                cachedMapWitness = std::set<std::pair<const CBigNum, PublicMintWitnessData>, Comparator>(pwalletMain->mapWitness.begin(), pwalletMain->mapWitness.end(), compare);
+                cachedMapWitness = pwalletMain->mapWitness;
             }
 
             CacheWitnessToWrite toWrite;
@@ -106,7 +106,7 @@ void NavCoinWitnesser(const CChainParams& chainparams)
                 {
                     CBlock block;
                     bool fRecover = false;
-                    bool fStake = (chainActive.Tip()->nHeight - pindex->nHeight) > COINBASE_MATURITY;
+                    bool fStake = (chainActive.Tip()->nHeight - pindex->nHeight) <= COINBASE_MATURITY;
 
                     if (GetStaking() && fStake && witnessData.GetCount() > 0)
                         break;

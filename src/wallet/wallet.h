@@ -733,6 +733,7 @@ public:
     bool WriteSerial(const CBigNum& bnSerialNumber, COutPoint& out);
 
     bool WriteWitness(const CBigNum& bnSerialNumber, PublicMintWitnessData& witness);
+    bool EraseWitness(const CBigNum& bnSerialNumber);
 
     const CWalletTx* GetWalletTx(const uint256& hash) const;
 

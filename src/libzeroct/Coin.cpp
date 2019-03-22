@@ -48,6 +48,13 @@ PublicCoin::PublicCoin(const ZeroCTParams* p):
     }
 };
 
+PrivateCoin::PrivateCoin(const ZeroCTParams* p):
+    params(p), publicCoin(p) {
+    if (this->params->initialized == false) {
+        throw std::runtime_error("Params are not initialized");
+    }
+};
+
 PublicCoin::PublicCoin(const ZeroCTParams* p, const CBigNum valueIn, const CPubKey pubKeyIn, const CBigNum pid,
                        CBigNum obfuscatedAmount, CBigNum amountCommitment, bool fCheck) : params(p), value(valueIn),
                        pubKey(pubKeyIn), paymentId(pid), amount(obfuscatedAmount), amountcommitment(amountCommitment) {
