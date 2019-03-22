@@ -795,7 +795,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, const CChainParam
       if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nFees, txCoinStake, key))
       {
           // Add a OP_RETURN OP_POOL outut to the coinbase tx
-          pblock->vtx[0].vout.resize(coinbaseTx.vout.size()+1);
+          pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey.resize(2);
           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey[0] = OP_RETURN;
           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey[1] = OP_POOL;
