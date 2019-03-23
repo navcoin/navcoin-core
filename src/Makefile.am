@@ -148,6 +148,7 @@ NAVCOIN_CORE_H = \
   untar.h \
   util.h \
   utilmoneystr.h \
+  utils/cbenchutil.h \
   utils/dns_utils.h \
   utiltime.h \
   validationinterface.h \
