@@ -2620,9 +2620,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if (tx.HasZeroCTMint()) {
             for (const CTxOut& out: tx.vout) {
                 if (out.IsZeroCTMint()) {
-                    libzeroct::PublicCoin pubCoin(params);
-                    if (TxOutToPublicCoin(params, out, pubCoin)) {
-                        view.RemoveMint(pubCoin.getValue());
+                    CBigNum pubCoinValue;
+                    if (TxOutToPublicCoinValue(params, out, pubCoinValue)) {
+                        view.RemoveMint(pubCoinValue);
                     }
                 }
             }
@@ -3212,7 +3212,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 nZeroCreated += out.nValue;
 
-                view.AddMint(pubCoin.getValue(), PublicMintChainData(COutPoint(tx.GetHash(), i), pindex->GetBlockHash()));
+                view.AddMint(pubCoin.getCoinValue(), PublicMintChainData(COutPoint(tx.GetHash(), i), pindex->GetBlockHash()));
 
                 nMintCount++;
             }
