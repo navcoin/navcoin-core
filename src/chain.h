@@ -586,6 +586,14 @@ public:
         return vChain.size() > 0 ? vChain[vChain.size() - 1] : NULL;
     }
 
+    /** Returns the index entry for the tip of this chain, or NULL if none. */
+    CBlockIndex *ZeroTip() const {
+        CBlockIndex* pindex = Tip();
+        while(pindex && pindex->pprev && pindex->nAccumulatorValue == pindex->pprev->nAccumulatorValue)
+            pindex = pindex->pprev;
+        return pindex;
+    }
+
     /** Returns the index entry at a particular height in this chain, or NULL if no such height exists. */
     CBlockIndex *operator[](int nHeight) const {
         if (nHeight < 0 || nHeight >= (int)vChain.size())
