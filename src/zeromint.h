@@ -103,6 +103,12 @@ public:
         nCount++;
     }
 
+    void Accumulate(CBigNum coinValue, CBigNum accumulatorValue) {
+        accumulator.setValue(accumulatorValue);
+        accumulatorWitness.AddElement(coinValue);
+        nCount++;
+    }
+
     int GetCount() const {
         return nCount;
     }
@@ -158,6 +164,10 @@ public:
         currentData.Accumulate(coinValue);
     }
 
+    void Accumulate(CBigNum coinValue, CBigNum accumulatorValue) {
+        currentData.Accumulate(coinValue, accumulatorValue);
+    }
+
     void SetBlockAccumulatorHash(uint256 blockAccumulatorHashIn) {
         currentData.SetBlockAccumulatorHash(blockAccumulatorHashIn);
     }
@@ -199,6 +209,10 @@ public:
 
     uint256 GetPrevBlockAccumulatorHash() const {
         return prevData.GetBlockAccumulatorHash();
+    }
+
+    uint256 GetInitialBlockAccumulatorHash() const {
+        return initialData.GetBlockAccumulatorHash();
     }
 
     libzeroct::Accumulator GetAccumulator() const {
