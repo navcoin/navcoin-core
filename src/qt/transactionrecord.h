@@ -80,6 +80,8 @@ public:
         RecvWithAddress,
         RecvFromOther,
         SendToSelf,
+        SendToSelfPrivate,
+        SendToSelfPublic,
         AnonTxSend,
         AnonTxRecv,
         CFund,
