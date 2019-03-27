@@ -16,6 +16,8 @@
 using namespace libzeroct;
 
 bool TxOutToPublicCoin(const ZeroCTParams *params, const CTxOut& txout, PublicCoin& pubCoin, CValidationState* state = NULL, bool fCheck = false);
+bool TxOutToPublicCoinValue(const ZeroCTParams *params, const CTxOut& txout, CBigNum& pubCoinValue, CValidationState* state = NULL, bool fCheck = false);
+bool TxOutToPublicCoinAmountCommitment(const ZeroCTParams *params, const CTxOut& txout, CBigNum& amountCommitment, CValidationState* state = NULL, bool fCheck = false);
 bool TxInToCoinSpend(const ZeroCTParams *params, const CTxIn& txin, CoinSpend& coinSpend);
 bool ScriptToCoinSpend(const ZeroCTParams *params, const CScript& scriptSig, CoinSpend& coinSpend);
 

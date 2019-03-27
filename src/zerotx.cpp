@@ -31,6 +31,36 @@ bool TxOutToPublicCoin(const ZeroCTParams *params, const CTxOut& txout, PublicCo
     return true;
 }
 
+bool TxOutToPublicCoinValue(const ZeroCTParams *params, const CTxOut& txout, CBigNum& pubCoinValue, CValidationState* state, bool fCheck)
+{
+    if (!txout.scriptPubKey.IsZeroCTMint())
+        return false;
+
+    std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> i; std::vector<unsigned char> a;
+    std::vector<unsigned char> ac;
+    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, i, a, ac))
+        return state != NULL ? state->DoS(100, error("TxOutToPublicCoin(): could not read mint data from txout.scriptPubKey")) : false;
+
+    pubCoinValue.setvch(c);
+
+    return true;
+}
+
+bool TxOutToPublicCoinAmountCommitment(const ZeroCTParams *params, const CTxOut& txout, CBigNum& amountCommitment, CValidationState* state, bool fCheck)
+{
+    if (!txout.scriptPubKey.IsZeroCTMint())
+        return false;
+
+    std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> i; std::vector<unsigned char> a;
+    std::vector<unsigned char> ac;
+    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, i, a, ac))
+        return state != NULL ? state->DoS(100, error("TxOutToPublicCoin(): could not read mint data from txout.scriptPubKey")) : false;
+
+    amountCommitment.setvch(ac);
+
+    return true;
+}
+
 bool TxInToCoinSpend(const ZeroCTParams *params, const CTxIn& txin, CoinSpend& coinSpend)
 {
     return ScriptToCoinSpend(params, txin.scriptSig, coinSpend);
