@@ -2430,7 +2430,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-                    if (prevout.scriptPubKey.IsColdStaking())
+                    if (out.scriptPubKey.IsColdStaking())
                         address.GetSpendingAddress(address);
                     address.GetIndexKey(hashBytes, type);
 
@@ -3098,9 +3098,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     uint160 hashBytes;
                     int type = 0;
 		    CTxDestination destination;
-                    ExtractDestination(prevout.scriptPubKey, destination);
+                    ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-                    if (prevout.scriptPubKey.IsColdStaking())
+                    if (out.scriptPubKey.IsColdStaking())
                         address.GetSpendingAddress(address);
                     address.GetIndexKey(hashBytes, type);
 
