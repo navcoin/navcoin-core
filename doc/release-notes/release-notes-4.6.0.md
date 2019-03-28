@@ -13,7 +13,7 @@
 ## Accumulation of staking rewards in different address
 
 <[Pull Request 401](https://github.com/NAVCoin/navcoin-core/pull/401)>
-<[Commit 2fb7b47](hhttps://github.com/NAVCoin/navcoin-core/commit/2fb7b47625dfe866f6079d8c7ac8c1dfb9f9de1d)>
+<[Commit 2fb7b47](https://github.com/NAVCoin/navcoin-core/commit/2fb7b47625dfe866f6079d8c7ac8c1dfb9f9de1d)>
 This features introduces support for the `-stakingaddress` launch argument which sets a NavCoin address where the staking rewards are accumulated. It also allows you to specify mappings from one address to another, such that the first addresses staking rewards will be deposisted in the seconds.
 
 Not compatible with cold staking.
