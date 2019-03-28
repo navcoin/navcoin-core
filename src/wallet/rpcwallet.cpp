@@ -3407,12 +3407,31 @@ UniValue witnesserstats(const UniValue& params, bool fHelp)
   if (!EnsureWalletIsAvailable(fHelp))
       return NullUniValue;
 
+  LOCK(cs_main);
+
+  int nZeroTipHeight = 0;
+  if (chainActive.ZeroTip())
+      nZeroTipHeight = chainActive.ZeroTip()->nHeight;
+
+  if (nZeroTipHeight == 0)
+      throw JSONRPCError(RPC_INTERNAL_ERROR, "ZeroCT is not started yet");
+
   for (std::pair<const CBigNum, PublicMintWitnessData>& it: pwalletMain->mapWitness)
   {
       UniValue entry(UniValue::VOBJ);
       entry.push_back(Pair("mint", it.second.GetPublicCoin().getValue().ToString(16).substr(0,32)));
       entry.push_back(Pair("txout", it.second.GetChainData().GetOutpoint().ToString()));
+      int nProgress = -1;
+      if (mapBlockIndex.count(it.second.GetBlockAccumulatorHash()) && mapBlockIndex.count(it.second.GetInitialBlockAccumulatorHash()))
+      {
+          nProgress = (mapBlockIndex[it.second.GetBlockAccumulatorHash()]->nHeight - mapBlockIndex[it.second.GetInitialBlockAccumulatorHash()]->nHeight) * 100 /
+                  (nZeroTipHeight - mapBlockIndex[it.second.GetInitialBlockAccumulatorHash()]->nHeight);
+      }
+      entry.push_back(Pair("mint_height", mapBlockIndex[it.second.GetInitialBlockAccumulatorHash()]->nHeight));
+      entry.push_back(Pair("witness_height", mapBlockIndex[it.second.GetBlockAccumulatorHash()]->nHeight));
+      entry.push_back(Pair("zerotip", nZeroTipHeight));
       entry.push_back(Pair("count", it.second.GetCount()));
+      entry.push_back(Pair("progress", nProgress));
 
       result.push_back(entry);
   }
