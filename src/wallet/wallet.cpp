@@ -321,11 +321,11 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
 void CWallet::AvailableZeroCoinsForStaking(vector<COutput>& vCoins, unsigned int nSpendTime) const
 {
     vCoins.clear();
-
     {
         const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
 
         LOCK2(cs_main, cs_wallet);
+
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
@@ -351,34 +351,32 @@ void CWallet::AvailableZeroCoinsForStaking(vector<COutput>& vCoins, unsigned int
                 if (!pcoin->vout[i].scriptPubKey.IsZeroCTMint())
                     continue;
 
-                libzeroct::PublicCoin pubCoin(params);
+                CBigNum pubCoinValue;
 
-                if (!TxOutToPublicCoin(params, pcoin->vout[i], pubCoin, NULL))
+                if (!TxOutToPublicCoinValue(params, pcoin->vout[i], pubCoinValue, NULL))
                     continue;
 
-                bool fFoundWitness = false;
-                {
-                    LOCK(cs_witnesser);
-                    if (mapWitness.count(pubCoin.getValue())) {
-
-                        PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoin.getValue());
-
-                        if (witnessData.GetCount() > (GetArg("-defaultsecuritylevel", DEFAULT_SPEND_MIN_MINT_COUNT)-1))
-                            fFoundWitness = true;
-
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                if (!fFoundWitness && GetArg("-enablewitnesser",true))
-                    continue;
+                bool fMinCountWitness = false;
 
                 libzeroct::PrivateCoin privateCoin(params);
 
-                privateCoin = mapWitness.at(pubCoin.getValue()).GetPrivateCoin();
+                {
+                    LOCK(cs_witnesser);
+                    if (mapWitness.count(pubCoinValue))
+                    {
+                        PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoinValue);
+
+                        if (witnessData.GetCount() > (GetArg("-defaultsecuritylevel", DEFAULT_SPEND_MIN_MINT_COUNT)-1))
+                            fMinCountWitness = true;
+
+                        privateCoin = witnessData.GetPrivateCoin();
+                    }
+                    else
+                        continue;
+                }
+
+                if (!fMinCountWitness && GetArg("-enablewitnesser",true))
+                    continue;
 
                 if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && privateCoin.getAmount() >= nMinimumInputValue && pcoin->vout[i].IsZeroCTMint()){
                     vCoins.push_back(COutput(pcoin, i, nDepth, true,
@@ -1366,6 +1364,7 @@ void CWallet::AddToSpends(const uint256& wtxid)
 
     if (thisTx.IsCoinBase() && !thisTx.IsZeroCTSpend()) // Coinbases don't spend anything!
         return;
+    std::vector<CBigNum> vWitnessToRemove;
 
     BOOST_FOREACH(const CTxIn& txin, thisTx.vin) {
         COutPoint prevout = txin.prevout;
@@ -1381,25 +1380,21 @@ void CWallet::AddToSpends(const uint256& wtxid)
             if (prevout.n >= prevtx.vout.size())
                 continue;
             const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
-            libzeroct::PublicCoin pubCoin(params);
-            if (!TxOutToPublicCoin(params, prevtx.vout[prevout.n], pubCoin))
+            CBigNum pubCoinValue;
+            if (!TxOutToPublicCoinValue(params, prevtx.vout[prevout.n], pubCoinValue))
                 continue;
-            CKey zk; libzeroct::BlindingCommitment bc; libzeroct::ObfuscationValue oj;
-            if (!GetZeroKey(zk))
-                continue;
-            if (!GetBlindingCommitment(bc))
-                continue;
-            if (!GetObfuscationJ(oj))
-                continue;
-            libzeroct::PrivateCoin privateCoin(params, zk, pubCoin.getPubKey(), bc, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount(), false);
-            if (!privateCoin.isValid())
-                continue;
-            {
-                LOCK(cs_witnesser);
-                EraseWitness(privateCoin.getPublicSerialNumber(oj));
-            }
+            vWitnessToRemove.push_back(pubCoinValue);
         }
         AddToSpends(prevout, wtxid);
+    }
+
+    if (vWitnessToRemove.size() > 0)
+    {
+        LOCK(cs_witnesser);
+        for (auto &it: vWitnessToRemove)
+        {
+            EraseWitness(it);
+        }
     }
 }
 
@@ -1614,7 +1609,6 @@ bool CWallet::WriteSerial(const CBigNum& bnSerialNumber, COutPoint& out)
 
 bool CWallet::WriteWitness(const CBigNum& bnCoinValue, PublicMintWitnessData& witness)
 {
-    AssertLockHeld(cs_wallet);
     AssertLockHeld(cs_witnesser);
 
     std::pair<std::map<CBigNum, PublicMintWitnessData>::iterator, bool> ret = mapWitness.insert(std::make_pair(bnCoinValue, witness));
@@ -1632,20 +1626,17 @@ bool CWallet::WriteWitness(const CBigNum& bnCoinValue, PublicMintWitnessData& wi
 
 bool CWallet::EraseWitness(const CBigNum& bnCoinValue)
 {
-    AssertLockHeld(cs_wallet);
     AssertLockHeld(cs_witnesser);
-
     mapWitness.erase(bnCoinValue);
 
     CWalletDB walletdb(strWalletFile);
-
     return walletdb.EraseWitnessData(bnCoinValue);
 }
 
 bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletDB* pwalletdb)
 {
-    uint256 hash = wtxIn.GetHash();
 
+    uint256 hash = wtxIn.GetHash();
     if (fFromLoadWallet)
     {
         mapWallet[hash] = wtxIn;
@@ -1805,7 +1796,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
 
                 {
                     LOCK(cs_witnesser);
-                    if (!mapWitness.count(pubCoin.getValue()))
+                    if (!mapWitness.count(pubCoin.getCoinValue()))
                     {
 
                         if (!mapBlockIndex.count(wtx.hashBlock))
@@ -1821,7 +1812,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
                         if (pindex->pprev->nAccumulatorValue != 0)
                             accumulator.setValue(pindex->pprev->nAccumulatorValue);
 
-                        witnessToWrite.push_back(std::make_pair(pubCoin.getValue(),
+                        witnessToWrite.push_back(std::make_pair(pubCoin.getCoinValue(),
                                                                 PublicMintWitnessData(&Params().GetConsensus().ZeroCT_Params,
                                                                                       privateCoin, PublicMintChainData(outWrite, wtx.hashBlock),
                                                                                       accumulator, pindex->pprev->GetBlockHash())));
@@ -1836,6 +1827,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
         for(auto& it: serialToWrite)
             WriteSerial(it.first, it.second);
 
+        if ((fInsertedNew || fUpdated) && witnessToWrite.size() > 0)
         {
             LOCK(cs_witnesser);
             for(auto& it: witnessToWrite)
@@ -2145,14 +2137,14 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
         BOOST_FOREACH(const CTxOut& txout, tx.vout)
         {
             if (txout.IsZeroCTMint()) {
-                libzeroct::PublicCoin pubCoin(&Params().GetConsensus().ZeroCT_Params);
-                assert(TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, txout, pubCoin));
+                CBigNum pubCoinValue;
+                assert(TxOutToPublicCoinValue(&Params().GetConsensus().ZeroCT_Params, txout, pubCoinValue));
                 {
                     LOCK(cs_witnesser);
-                    if (mapWitness.count(pubCoin.getValue())) {
-                        PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoin.getValue());
+                    if (mapWitness.count(pubCoinValue)) {
+                        PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoinValue);
                         if (witnessData.GetChainData().GetTxHash() == tx.GetHash()) {
-                            EraseWitness(witnessData.GetPrivateCoin().getPublicSerialNumber(oj));
+                            EraseWitness(witnessData.GetPrivateCoin().getPublicCoin().getCoinValue());
                         }
                     }
                 }
@@ -2166,12 +2158,20 @@ isminetype CWallet::IsMine(const CTxIn &txin) const
 {
     {
         LOCK(cs_wallet);
-        map<uint256, CWalletTx>::const_iterator mi = mapWallet.find(txin.prevout.hash);
+        COutPoint prevout = txin.prevout;
+        if (txin.scriptSig.IsZeroCTSpend()) {
+            libzeroct::CoinSpend zcs(&Params().GetConsensus().ZeroCT_Params);
+            assert(TxInToCoinSpend(&Params().GetConsensus().ZeroCT_Params, txin, zcs));
+            if(!mapSerial.count(zcs.getCoinSerialNumber()))
+                return ISMINE_NO;
+            prevout = mapSerial.at(zcs.getCoinSerialNumber());
+        }
+        map<uint256, CWalletTx>::const_iterator mi = mapWallet.find(prevout.hash);
         if (mi != mapWallet.end())
         {
             const CWalletTx& prev = (*mi).second;
-            if (txin.prevout.n < prev.vout.size())
-                return IsMine(prev.vout[txin.prevout.n]);
+            if (prevout.n < prev.vout.size())
+                return IsMine(prev.vout[prevout.n]);
         }
     }
     return ISMINE_NO;
@@ -2832,26 +2832,9 @@ CAmount CWalletTx::GetAvailablePrivateCredit() const
         if (!pwallet->IsSpent(hashTx, i))
         {
             const CTxOut &txout = vout[i];
-            libzeroct::PublicCoin pubCoin(&Params().GetConsensus().ZeroCT_Params);
+            CBigNum pubCoinValue;
 
-            if (!TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, txout, pubCoin, NULL))
-                continue;
-
-            bool fFoundWitness = false;
-
-            {
-                LOCK(pwalletMain->cs_witnesser);
-                if (pwalletMain->mapWitness.count(pubCoin.getValue())) {
-
-                    PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoin.getValue());
-
-                    if (witnessData.GetCount() > (GetArg("-defaultsecuritylevel", DEFAULT_SPEND_MIN_MINT_COUNT)-1))
-                        fFoundWitness = true;
-
-                }
-            }
-
-            if (!fFoundWitness && GetArg("-enablewitnesser",true))
+            if (!TxOutToPublicCoinValue(&Params().GetConsensus().ZeroCT_Params, txout, pubCoinValue, NULL))
                 continue;            
 
             nCredit += (pwallet->IsMine(txout) & ISMINE_SPENDABLE_PRIVATE) ? amount : 0;
@@ -2865,6 +2848,8 @@ CAmount CWalletTx::GetAvailablePrivateCredit() const
 
 CAmount CWalletTx::GetImmaturePrivateCredit(const bool& fUseCache) const
 {
+    return 0;
+
     if (pwallet == 0 || !IsInMainChain())
         return 0;
 
@@ -2878,18 +2863,18 @@ CAmount CWalletTx::GetImmaturePrivateCredit(const bool& fUseCache) const
         if (!pwallet->IsSpent(hashTx, i))
         {
             const CTxOut &txout = vout[i];
-            libzeroct::PublicCoin pubCoin(&Params().GetConsensus().ZeroCT_Params);
+            CBigNum pubCoinValue;
 
-            if (!TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, txout, pubCoin, NULL))
+            if (!TxOutToPublicCoinValue(&Params().GetConsensus().ZeroCT_Params, txout, pubCoinValue, NULL))
                 continue;
 
             bool fFoundWitness = false;
 
             {
                 LOCK(pwalletMain->cs_witnesser);
-                if (pwalletMain->mapWitness.count(pubCoin.getValue())) {
+                if (pwalletMain->mapWitness.count(pubCoinValue)) {
 
-                    PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoin.getValue());
+                    PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoinValue);
 
                     if (witnessData.GetCount() > (GetArg("-defaultsecuritylevel", DEFAULT_SPEND_MIN_MINT_COUNT)-1))
                         fFoundWitness = true;
@@ -3258,7 +3243,8 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
     vCoins.clear();
 
     {
-        LOCK2(cs_main, cs_wallet);        
+        LOCK2(cs_main, cs_wallet);
+        LOCK(cs_witnesser);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const uint256& wtxid = it->first;
@@ -3292,40 +3278,15 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
             if (!pindex)
                 continue;
 
-            for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
+            for (unsigned int i = 0; i < pcoin->vout.size(); i++)
+            {
                 isminetype mine = IsMine(pcoin->vout[i]);
+
                 if (!pcoin->vout[i].IsZeroCTMint())
                     continue;
 
                 std::string paymentId = pcoin->vPaymentIds[i];
                 CAmount amount = pcoin->vAmounts[i];
-
-                std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> id;  std::vector<unsigned char> a;
-                std::vector<unsigned char> ac;
-                if(!pcoin->vout[i].scriptPubKey.ExtractZeroCTMintData(p, c, id, a, ac))
-                    continue;
-                libzeroct::PublicCoin pubCoin(&Params().GetConsensus().ZeroCT_Params);
-
-                if (!TxOutToPublicCoin(&Params().GetConsensus().ZeroCT_Params, pcoin->vout[i], pubCoin, NULL))
-                    continue;
-
-                bool fFoundWitness = false;
-
-                {
-                    LOCK(cs_witnesser);
-                    if (mapWitness.count(pubCoin.getValue()))
-                    {
-
-                        PublicMintWitnessData witnessData = mapWitness.at(pubCoin.getValue());
-
-                        if (witnessData.GetCount() > (GetArg("-defaultsecuritylevel", DEFAULT_SPEND_MIN_MINT_COUNT)-1))
-                            fFoundWitness = true;
-
-                    }
-                }
-
-                if (!fFoundWitness && !coinControl && GetArg("-enablewitnesser",true))
-                    continue;
 
                 if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
                     !IsLockedCoin((*it).first, i) && (amount > 0 || fIncludeZeroValue) &&
