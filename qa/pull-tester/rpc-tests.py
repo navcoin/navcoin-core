@@ -174,6 +174,7 @@ testScripts = [
     'hardfork-452.py',
     'staticr-tx-send.py',
     'stakingaddress.py',
+    'mnemonic.py',
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py', 

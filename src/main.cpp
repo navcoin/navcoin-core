@@ -6653,7 +6653,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             std::vector<std::string> vBannedVersions = mapMultiArgs["-banversion"];
             bool fBanned = false;
 
-            for (unsigned int i = 0; i <= vBannedVersions.size(); i++)
+            for (unsigned int i = 0; i < vBannedVersions.size(); i++)
             {
                 if(vBannedVersions[i] == pfrom->cleanSubVer)
                 {

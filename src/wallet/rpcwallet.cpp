@@ -3176,10 +3176,10 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         nElement++;
 
         // use the cached amount if available
-        if (pcoin->fCreditCached && pcoin->fDebitCached)
-            nAmount = pcoin->nCreditCached - pcoin->nDebitCached;
+        if ((pcoin->fCreditCached || pcoin->fColdStakingCreditCached) && (pcoin->fDebitCached || pcoin->fColdStakingDebitCached))
+            nAmount = pcoin->nCreditCached  + pcoin->nColdStakingCreditCached - pcoin->nDebitCached - pcoin->nColdStakingDebitCached;
         else
-            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_SPENDABLE);
+            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) + pcoin->GetCredit(ISMINE_STAKABLE) - pcoin->GetDebit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_STAKABLE);
 
 
         // scan the range
@@ -3548,6 +3548,7 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
+extern UniValue dumpmnemonic(const UniValue& params, bool fHelp);
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
 extern UniValue importaddress(const UniValue& params, bool fHelp);
 extern UniValue importpubkey(const UniValue& params, bool fHelp);
@@ -3567,6 +3568,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "backupwallet",             &backupwallet,             true  },
     { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
     { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
+    { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
     { "wallet",             "dumpwallet",               &dumpwallet,               true  },
     { "wallet",             "encryptwallet",            &encryptwallet,            true  },
     { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
