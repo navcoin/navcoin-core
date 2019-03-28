@@ -17,6 +17,7 @@
 #include "compat.h"
 #include "tinyformat.h"
 #include "utiltime.h"
+#include "utils/cbenchutil.h"
 
 #include <atomic>
 #include <exception>
