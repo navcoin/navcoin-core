@@ -2428,11 +2428,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     uint160 hashBytes;
                     int type = 0;
                     CTxDestination destination;
-                    ExtractDestination(prevout.scriptPubKey, destination);
+                    ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
                     if (prevout.scriptPubKey.IsColdStaking())
                         address.GetSpendingAddress(address);
-                    address.GetIndexKey(hashBytes, addressType);
+                    address.GetIndexKey(hashBytes, type);
 
                     // undo spending activity
                     addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, hash, k, true), out.nValue));
@@ -2511,11 +2511,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking()) {
                         uint160 hashBytes;
                         int type = 0;
+			CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
                         if (prevout.scriptPubKey.IsColdStaking())
                             address.GetSpendingAddress(address);
-                        address.GetIndexKey(hashBytes, addressType);
+                        address.GetIndexKey(hashBytes, type);
 
                         // undo spending activity
                         addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
@@ -3096,11 +3097,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 } else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking()) {
                     uint160 hashBytes;
                     int type = 0;
+		    CTxDestination destination;
                     ExtractDestination(prevout.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
                     if (prevout.scriptPubKey.IsColdStaking())
                         address.GetSpendingAddress(address);
-                    address.GetIndexKey(hashBytes, addressType);
+                    address.GetIndexKey(hashBytes, type);
 
                     // undo spending activity
                     addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, txhash, k, true), out.nValue));
