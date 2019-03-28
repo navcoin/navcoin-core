@@ -51,11 +51,11 @@ bool CheckZeroCTMint(const ZeroCTParams *params, const CTxOut& txout, const CCoi
 
     PublicMintChainData zeroMint;
 
-    if (view.GetMint(pubCoin.getValue(), zeroMint) && !zeroMint.IsNull() && mapBlockIndex.count(zeroMint.GetBlockHash())) {
+    if (view.GetMint(pubCoin.getCoinValue(), zeroMint) && !zeroMint.IsNull() && mapBlockIndex.count(zeroMint.GetBlockHash())) {
         CBlockIndex* pindex = mapBlockIndex.at(zeroMint.GetBlockHash());
         if (chainActive.Contains(pindex))
             return error("%s: pubcoin %s was already accumulated in tx %s from block %s", __func__,
-                         pubCoin.getValue().GetHex().substr(0, 8),
+                         pubCoin.getCoinValue().GetHex().substr(0, 8),
                          zeroMint.GetTxHash().GetHex(),
                          zeroMint.GetBlockHash().ToString());
     }
@@ -158,46 +158,33 @@ bool CountMintsFromHeight(unsigned int nInitialHeight, unsigned int& nRet)
 bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, const libzeroct::PublicCoin& pubCoin, Accumulator& accumulator, AccumulatorWitness& accumulatorWitness, CBigNum& accumulatorValue, uint256& blockAccumulatorHash, std::string& strError, int nRequiredMints, int nMaxHeight)
 {
     const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
+    CBenchUtil bench;
 
     if (!txout.IsZeroCTMint()) {
         strError = "Transaction output script is not a ZeroCT mint.";
         return false;
     }
 
-    PublicMintChainData zeroMint;
-
-    if (!view.GetMint(pubCoin.getValue(), zeroMint)) {
-        strError = strprintf("Could not read mint with value %s from the db", pubCoin.getValue().ToString(16).substr(0,8));
+    if (!mapBlockIndex.count(blockAccumulatorHash)) {
+        strError = strprintf("Could not find block hash %s of mint %s", blockAccumulatorHash.ToString(), pubCoin.getValue().ToString(16).substr(0,8));
         return false;
     }
 
-    uint256 blockHash = zeroMint.GetBlockHash();
-
-    if (!mapBlockIndex.count(blockHash)) {
-        strError = strprintf("Could not find block hash %s of mint %s", blockHash.ToString(), pubCoin.getValue().ToString(16).substr(0,8));
-        return false;
-    }
-
-    CBlockIndex* pindex = mapBlockIndex[blockHash];
+    CBlockIndex* pindex = mapBlockIndex[blockAccumulatorHash];
 
     if (!chainActive.Contains(pindex)) {
-        strError = strprintf("Block %s is not part of the active chain", blockHash.ToString());
+        strError = strprintf("Block %s is not part of the active chain", blockAccumulatorHash.ToString());
         return false;
     }
 
-    pindex = chainActive[pindex->nHeight - 1];
-
-    if(!pindex) {
-        strError = strprintf("Could not move back to a block index previous to the coin mint");
-        return false;
+    if(pindex->nAccumulatorValue != accumulator.getValue())
+    {
+           strError = strprintf("Accumulator %s does not match provided block hash %s (computed value %s)", accumulator.getValue().ToString(16).substr(0,8), blockAccumulatorHash.ToString(),
+                                pindex->nAccumulatorValue.ToString(16).substr(0,8));
+           return false;
     }
 
-    if(pindex->nAccumulatorValue != 0)
-        accumulator.setValue(pindex->nAccumulatorValue);
-    else
-        accumulator.setValue(params->accumulatorParams.accumulatorBase);
-
-    accumulatorWitness.resetValue(accumulator, pubCoin);
+    accumulatorValue = accumulator.getValue();
 
     int nCount = 0;
 
@@ -216,6 +203,8 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
                 return false;
             }
 
+            bool fFoundMint = false;
+
             for (auto& tx : block.vtx) {
                 for (auto& out : tx.vout) {
                     if (!out.IsZeroCTMint())
@@ -229,16 +218,17 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
                     }
 
                     nCount++;
+                    fFoundMint = true;
 
                     accumulatorWitness.AddElement(pubCoinOut);
-                    accumulator.accumulate(pubCoinOut);
                 }
             }
 
-            accumulatorValue = pindex->nAccumulatorValue;
-            blockAccumulatorHash = pindex->GetBlockHash();
-
-            assert(accumulator.getValue() == accumulatorValue);
+            if (fFoundMint)
+            {
+                accumulatorValue = pindex->nAccumulatorValue;
+                blockAccumulatorHash = pindex->GetBlockHash();
+            }
 
             if(!chainActive.Next(pindex) || (nRequiredMints > 0 && nCount >= nRequiredMints))
                 break;
@@ -253,6 +243,8 @@ bool CalculateWitnessForMint(const CTxOut& txout, const CCoinsViewCache& view, c
         strError = "Witness did not verify";
         return false;
     }
+
+    LogPrint("bench", "- %s took %.3fms for %d mints\n", __func__, bench.Checkpoint(), nCount);
 
     return true;
 }
@@ -296,12 +288,12 @@ bool VerifyZeroCTBalance(const ZeroCTParams *params, const CTransaction& tx, con
     {
         if (out.IsZeroCTMint())
         {
-            libzeroct::PublicCoin pc(params);
+            CBigNum ac;
 
-            if (!TxOutToPublicCoin(params, out, pc))
+            if (!TxOutToPublicCoinAmountCommitment(params, out, ac))
                 return false;
 
-            bnOutputs = bnOutputs.mul_mod(pc.getAmountCommitment(), params->coinCommitmentGroup.modulus);
+            bnOutputs = bnOutputs.mul_mod(ac, params->coinCommitmentGroup.modulus);
         }
         else
         {
