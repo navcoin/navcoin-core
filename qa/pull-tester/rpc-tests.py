@@ -173,7 +173,7 @@ testScripts = [
     'hardfork-451.py',
     'hardfork-452.py',
     'staticr-tx-send.py',
-
+    'mnemonic.py',
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py', 
