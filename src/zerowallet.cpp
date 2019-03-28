@@ -55,7 +55,7 @@ bool PrepareAndSignCoinSpend(const BaseSignatureCreator& creator, const std::map
                              CScript& sigdata, CBigNum& r, bool fStake)
 {
     if (!scriptPubKey.IsZeroCTMint())
-        return error(strprintf("Transaction output script is not a ZeroCT mint."));
+        return error(strprintf("PrepareAndSignCoinSpend(): Transaction output script is not a ZeroCT mint."));
 
     string strError = "";
     const libzeroct::ZeroCTParams* params = &Params().GetConsensus().ZeroCT_Params;
@@ -66,46 +66,48 @@ bool PrepareAndSignCoinSpend(const BaseSignatureCreator& creator, const std::map
 
     CTxOut txout(amount, scriptPubKey);
 
-    libzeroct::PublicCoin pubCoin(params);
+    CBigNum pubCoinValue;
 
-    if (!TxOutToPublicCoin(params, txout, pubCoin, NULL))
-        return error(strprintf("Could not convert transaction otuput to public coin"));
+    if (!TxOutToPublicCoinValue(params, txout, pubCoinValue, NULL))
+        return error(strprintf("PrepareAndSignCoinSpend(): Could not convert transaction otuput to public coin"));
 
     bool fFoundWitness = false;
     int nEntropy = rand() % WITNESS_ADDED_ENTROPY;
 
-    if (mapWitness.count(pubCoin.getValue()))
-    {
-        PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoin.getValue());
+    libzeroct::PublicCoin pubCoin(params);
 
-        int nCalculatedBlocksAgo = std::numeric_limits<unsigned int>::max();
+    if (mapWitness.count(pubCoinValue))
+    {
+        PublicMintWitnessData witnessData = pwalletMain->mapWitness.at(pubCoinValue);
+        pubCoin = witnessData.GetPublicCoin();
 
         bah = witnessData.GetBlockAccumulatorHash();
         aw = witnessData.GetAccumulatorWitness();
         a = witnessData.GetAccumulator();
 
-        if (mapBlockIndex.count(bah))
-        {
-            LOCK(cs_main);
-            CBlockIndex* pindex = mapBlockIndex[bah];
-            if (chainActive.Contains(pindex))
-                nCalculatedBlocksAgo = chainActive.Height() - pindex->nHeight;
+        if (witnessData.Verify()) {
+            if (witnessData.GetCount() > (MIN_MINT_SECURITY + nEntropy))
+                fFoundWitness = true;
+        } else {
+            return error("PrepareAndSignCoinSpend(): Something is wrong with the witness map. One of the precomputed witnesses did not verify.\n");
         }
 
-        if (witnessData.Verify() &&
-                (witnessData.GetCount() > (MIN_MINT_SECURITY + nEntropy) || nCalculatedBlocksAgo < (MIN_MINT_SECURITY/2)))
-            fFoundWitness = true;
-
-        if (bah == uint256())
+        if (mapBlockIndex.count(bah) == 0) {
+            LogPrintf("PrepareAndSignCoinSpend(): block hash %s is not known", bah.ToString());
             fFoundWitness = false;
+        }
+    }
+    else
+    {
+        return error("PrepareAndSignCoinSpend(): Could not find public coin in the witness map");
     }
 
     if (!fFoundWitness && !CalculateWitnessForMint(txout, view, pubCoin, a, aw, ac, bah, strError, MIN_MINT_SECURITY + nEntropy,
                                                    chainActive.Tip()->nHeight - (fStake ? COINBASE_MATURITY : 0)))
-        return error(strprintf("Error calculating witness for mint: %s", strError));
+        return error(strprintf("PrepareAndSignCoinSpend(): Error calculating witness for mint: %s", strError));
 
     if (!creator.CreateCoinSpendScript(params, pubCoin, a, bah, aw, scriptPubKey, sigdata, r, fStake, strError))
-        return error(strprintf("Error creating coin spend: %s", strError));
+        return error(strprintf("PrepareAndSignCoinSpend(): Error creating coin spend: %s", strError));
 
     return true;
 }
