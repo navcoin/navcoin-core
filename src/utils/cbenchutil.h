@@ -15,11 +15,11 @@ public:
     {
         vCheckpoints.push_back(GetTimeMicros());
     }
-    int64_t Checkpoint()
+    float Checkpoint()
     {
         vCheckpoints.push_back(GetTimeMicros());
         assert(vCheckpoints.size() >= 2);
-        return vCheckpoints[vCheckpoints.size()-1] - vCheckpoints[vCheckpoints.size()-2];
+        return (vCheckpoints[vCheckpoints.size()-1] - vCheckpoints[vCheckpoints.size()-2]) * 0.001;
     }
 private:
     std::vector<int64_t> vCheckpoints;
