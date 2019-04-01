@@ -14,7 +14,11 @@
 
 <[Pull Request 401](https://github.com/NAVCoin/navcoin-core/pull/401)>
 <[Commit 2fb7b47](https://github.com/NAVCoin/navcoin-core/commit/2fb7b47625dfe866f6079d8c7ac8c1dfb9f9de1d)>
-This features introduces support for the `-stakingaddress` launch argument which sets a NavCoin address where the staking rewards are accumulated. It also allows you to specify mappings from one address to another, such that the first addresses staking rewards will be deposisted in the seconds.
+This features introduces support for the `-stakingaddress` launch argument which sets a NavCoin address where the staking rewards are accumulated. It also allows you to specify mappings from one address to another, such that the first address's staking rewards will be deposited in the second address.
+
+`stakingaddress` can take:
+- one argument (i.e. one NavCoin address), e.g. `-stakingaddress=NxxxxMyNavCoinAddressxxxxxxxxxxxxx`; or 
+- a JSON argument, mapping several staking addresses to corresponding receiving addresses, e.g. `-stakingaddress={"NxxxxMyStakingAddress1xxxxxxxxxxxx":"NxxxxMyReceivingAddress1xxxxxxxxxx","NxxxxMyStakingAddress2xxxxxxxxxxxx":"NxxxxMyReceivingAddress2xxxxxxxxxx","NxxxxMyStakingAddress3xxxxxxxxxxxx":"NxxxxMyReceivingAddress3xxxxxxxxxx"}`. One staking address in the JSON argument can also be set to `all` and stakes from any staking address will be sent to the receiving address unless otherwise specified, e.g. `-stakingaddress={"all":"NxxxxMyReceivingAddressALLxxxxxxxx",...}`
 
 Not compatible with cold staking.
 
