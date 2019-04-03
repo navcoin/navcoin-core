@@ -37,7 +37,11 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     QList<TransactionRecord> parts;
     int64_t nTime = wtx.GetTxTime();
     CAmount nCredit = wtx.GetCredit(ISMINE_ALL);
+    CAmount nPrivateCredit = wtx.GetCredit(ISMINE_SPENDABLE_PRIVATE);
+    CAmount nPublicCredit = wtx.GetCredit(ISMINE_SPENDABLE);
     CAmount nDebit = wtx.GetDebit((wtx.IsCoinStake() && wtx.vout[1].scriptPubKey.IsColdStaking()) ? ISMINE_STAKABLE : ISMINE_ALL);
+    CAmount nPrivateDebit = wtx.GetDebit(ISMINE_SPENDABLE_PRIVATE);
+    CAmount nPublicDebit = wtx.GetDebit(ISMINE_SPENDABLE);
     CAmount nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash(), hashPrev = uint256();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
@@ -105,7 +109,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                         }
                     }
 
-                    sub.credit = nNet > 0 ? nNet : sumOuts - nDebit - wtx.GetValueOutCFund();
+                    sub.credit = nNet > 0 ? nNet : sumOuts - (txout.scriptPubKey.IsZeroCTMint() ? nPrivateDebit : nDebit) - wtx.GetValueOutCFund();
                     hashPrev = hash;
                 }
                 else if(txout.scriptPubKey.IsZeroCTMint())
@@ -137,11 +141,13 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
 
         isminetype fAllToMe = ISMINE_SPENDABLE;
+        bool fHasSomeNormalOut = false;
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
         {
             if (txout.IsFee()) continue;
             isminetype mine = wallet->IsMine(txout);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
+            if(mine & ISMINE_SPENDABLE) fHasSomeNormalOut = true;
             if(fAllToMe > mine) fAllToMe = mine;
         }
 
@@ -153,23 +159,23 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
                             -(nDebit - nChange), nCredit - nChange));
             parts.last().involvesWatchAddress = involvesWatchAddress;   // maybe pass to TransactionRecord as constructor argument
+            if (wtx.IsZeroCTSpend() && fHasSomeNormalOut)
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPublic, "",
+                                               0, nPublicCredit));
+            else if (!wtx.IsZeroCTSpend() && wtx.HasZeroCTMint())
+                parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPrivate, "",
+                                               0, nPrivateCredit));
         }
         else if (fAllFromMe)
         {
             //
             // Debit
             //
-            CAmount nTxFee = nDebit - wtx.GetValueOut();
-
-            bool fZero = false;
+            CAmount nTxFee = wtx.IsZeroCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
                 const CTxOut& txout = wtx.vout[nOut];
-
-                if(txout.scriptPubKey.IsZeroCTMint()) {
-                    fZero = true;
-                }
 
                 TransactionRecord sub(hash, nTime);
 
@@ -209,13 +215,13 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     sub.type = TransactionRecord::AnonTxSend;
                     sub.paymentId = wtx.vPaymentIds[nOut];
-                    sub.debit = wtx.vAmounts[nOut];
+                    sub.debit = nPrivateDebit;
                 }
 
-                if (txout.scriptPubKey.IsCommunityFundContribution())
+                else if (txout.scriptPubKey.IsCommunityFundContribution())
                     sub.type = TransactionRecord::CFund;
 
-                if (txout.IsFee())
+                else if (txout.IsFee())
                     sub.type = TransactionRecord::Fee;
 
                 parts.append(sub);

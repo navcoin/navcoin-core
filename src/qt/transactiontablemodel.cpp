@@ -392,6 +392,10 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Sent to");
     case TransactionRecord::SendToSelf:
         return tr("Payment to yourself");
+    case TransactionRecord::SendToSelfPrivate:
+        return tr("Converted to private");
+    case TransactionRecord::SendToSelfPublic:
+        return tr("Converted to public");
     case TransactionRecord::Staked:
         return tr(wtx->status.status == TransactionStatus::Orphan || !(wtx->status.depth > 0) ? "Orphan" : "Staked");
     case TransactionRecord::Generated:
@@ -447,11 +451,14 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     case TransactionRecord::CFundPayment:
     case TransactionRecord::Staked:
     case TransactionRecord::Generated:
+    case TransactionRecord::SendToSelfPublic:
         return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:
         return QString::fromStdString(wtx->address) + watchAddress;
     case TransactionRecord::Fee:
         return tr("Fee");
+    case TransactionRecord::SendToSelfPrivate:
+        return tr("Private: %1").arg(QString::fromStdString(wtx->paymentId));
     case TransactionRecord::SendToSelf:
     default:
         return tr("(n/a)") + watchAddress;
