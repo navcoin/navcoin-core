@@ -222,6 +222,23 @@ bool CWalletDB::ErasePool(int64_t nPool)
     return Erase(std::make_pair(std::string("pool"), nPool));
 }
 
+bool CWalletDB::ReadZeroPool(int64_t nPool, CKeyPool& keypool)
+{
+    return Read(std::make_pair(std::string("zeropool"), nPool), keypool);
+}
+
+bool CWalletDB::WriteZeroPool(int64_t nPool, const CKeyPool& keypool)
+{
+    nWalletDBUpdated++;
+    return Write(std::make_pair(std::string("zeropool"), nPool), keypool);
+}
+
+bool CWalletDB::EraseZeroPool(int64_t nPool)
+{
+    nWalletDBUpdated++;
+    return Erase(std::make_pair(std::string("zeropool"), nPool));
+}
+
 bool CWalletDB::WriteMinVersion(int nVersion)
 {
     return Write(std::string("minversion"), nVersion);
@@ -662,6 +679,21 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             CKeyPool keypool;
             ssValue >> keypool;
             pwallet->setKeyPool.insert(nIndex);
+
+            // If no metadata exists yet, create a default with the pool key's
+            // creation time. Note that this may be overwritten by actually
+            // stored metadata for that key later, which is fine.
+            CKeyID keyid = keypool.vchPubKey.GetID();
+            if (pwallet->mapKeyMetadata.count(keyid) == 0)
+                pwallet->mapKeyMetadata[keyid] = CKeyMetadata(keypool.nTime);
+        }
+        else if (strType == "zeropool")
+        {
+            int64_t nIndex;
+            ssKey >> nIndex;
+            CKeyPool keypool;
+            ssValue >> keypool;
+            pwallet->setZeroKeyPool.insert(nIndex);
 
             // If no metadata exists yet, create a default with the pool key's
             // creation time. Note that this may be overwritten by actually

@@ -107,10 +107,13 @@ bool CWallet::IsHDEnabled() const
     return !hdChain.masterKeyID.IsNull();
 }
 
-CPubKey CWallet::GenerateNewKey()
+CPubKey CWallet::GenerateNewKey(const uint32_t nExtChain)
 {
     AssertLockHeld(cs_wallet); // mapKeyMetadata
     bool fCompressed = CanSupportFeature(FEATURE_COMPRPUBKEY); // default to compressed public keys if we want 0.6.0 wallets
+
+    if (nExtChain >= BIP32_HARDENED_KEY_LIMIT)
+        throw std::runtime_error("CWallet::GenerateNewKey(): nExtChain can't exceed BIP32_HARDENED_KEY_LIMIT");
 
     CKey secret;
 
@@ -120,12 +123,12 @@ CPubKey CWallet::GenerateNewKey()
 
     // use HD key derivation if HD was enabled during wallet creation
     if (!hdChain.masterKeyID.IsNull()) {
-        // for now we use a fixed keypath scheme of m/0'/0'/k
+        // for now we use a fixed keypath scheme of m/0'/<ext chain>'/k
         CKey key;                      //master key seed (256bit)
         CExtKey masterKey;             //hd master key
         CExtKey accountKey;            //key at m/0'
-        CExtKey externalChainChildKey; //key at m/0'/0'
-        CExtKey childKey;              //key at m/0'/0'/<n>'
+        CExtKey externalChainChildKey; //key at m/0'/<ext chain>'
+        CExtKey childKey;              //key at m/0'/<ext chain>'/<n>'
 
         // try to get the master key
         if (!GetKey(hdChain.masterKeyID, key))
@@ -138,7 +141,7 @@ CPubKey CWallet::GenerateNewKey()
         masterKey.Derive(accountKey, BIP32_HARDENED_KEY_LIMIT);
 
         // derive m/0'/0'
-        accountKey.Derive(externalChainChildKey, BIP32_HARDENED_KEY_LIMIT);
+        accountKey.Derive(externalChainChildKey, nExtChain | BIP32_HARDENED_KEY_LIMIT);
 
         // derive child key at next index, skip keys already known to the wallet
         do
@@ -147,7 +150,7 @@ CPubKey CWallet::GenerateNewKey()
             // childIndex | BIP32_HARDENED_KEY_LIMIT = derive childIndex in hardened child-index-range
             // example: 1 | BIP32_HARDENED_KEY_LIMIT == 0x80000001 == 2147483649
             externalChainChildKey.Derive(childKey, hdChain.nExternalChainCounter | BIP32_HARDENED_KEY_LIMIT);
-            metadata.hdKeypath     = "m/0'/0'/"+std::to_string(hdChain.nExternalChainCounter)+"'";
+            metadata.hdKeypath     = "m/0'/"+std::to_string(nExtChain)+"'/"+std::to_string(hdChain.nExternalChainCounter)+"'";
             metadata.hdMasterKeyID = hdChain.masterKeyID;
             // increment childkey index
             hdChain.nExternalChainCounter++;
@@ -1491,6 +1494,7 @@ bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
         }
 
         NewKeyPool();
+        NewZeroKeyPool();
         Lock();
 
         // Need to completely rewrite the wallet file; if we don't, bdb might keep
@@ -4449,6 +4453,147 @@ int64_t CWallet::GetOldestKeyPoolTime()
     return keypool.nTime;
 }
 
+bool CWallet::NewZeroKeyPool()
+{
+    {
+        LOCK(cs_wallet);
+        CWalletDB walletdb(strWalletFile);
+        BOOST_FOREACH(int64_t nIndex, setZeroKeyPool)
+            walletdb.EraseZeroPool(nIndex);
+        setZeroKeyPool.clear();
+
+        if (IsLocked())
+            return false;
+
+        int64_t nKeys = max(GetArg("-zerokeypool", DEFAULT_KEYPOOL_SIZE), (int64_t)0);
+        for (int i = 0; i < nKeys; i++)
+        {
+            int64_t nIndex = i+1;
+            walletdb.WriteZeroPool(nIndex, CKeyPool(GenerateNewKey()));
+            setZeroKeyPool.insert(nIndex);
+        }
+        LogPrintf("CWallet::NewZeroKeyPool wrote %d new keys\n", nKeys);
+    }
+    return true;
+}
+
+bool CWallet::TopUpZeroKeyPool(unsigned int kpSize)
+{
+    {
+        LOCK(cs_wallet);
+
+        if (IsLocked())
+            return false;
+
+        CWalletDB walletdb(strWalletFile);
+
+        // Top up key pool
+        unsigned int nTargetSize;
+        if (kpSize > 0)
+            nTargetSize = kpSize;
+        else
+            nTargetSize = max(GetArg("-zerokeypool", DEFAULT_KEYPOOL_SIZE), (int64_t) 0);
+
+        while (setZeroKeyPool.size() < (nTargetSize + 1))
+        {
+            int64_t nEnd = 1;
+            if (!setZeroKeyPool.empty())
+                nEnd = *(--setZeroKeyPool.end()) + 1;
+            if (!walletdb.WriteZeroPool(nEnd, CKeyPool(GenerateNewKey())))
+                throw runtime_error("TopUpZeroKeyPool(): writing generated key failed");
+            setZeroKeyPool.insert(nEnd);
+            LogPrintf("zerokeypool added key %d, size=%u\n", nEnd, setZeroKeyPool.size());
+        }
+    }
+    return true;
+}
+
+void CWallet::ReserveKeyFromZeroKeyPool(int64_t& nIndex, CKeyPool& keypool)
+{
+    nIndex = -1;
+    keypool.vchPubKey = CPubKey();
+    {
+        LOCK(cs_wallet);
+
+        if (!IsLocked())
+            TopUpZeroKeyPool();
+
+        // Get the oldest key
+        if(setZeroKeyPool.empty())
+            return;
+
+        CWalletDB walletdb(strWalletFile);
+
+        nIndex = *(setZeroKeyPool.begin());
+        setZeroKeyPool.erase(setZeroKeyPool.begin());
+        if (!walletdb.ReadZeroPool(nIndex, keypool))
+            throw runtime_error("ReserveKeyFromZeroKeyPool(): read failed");
+        if (!HaveKey(keypool.vchPubKey.GetID()))
+            throw runtime_error("ReserveKeyFromZeroKeyPool(): unknown key in key pool");
+        assert(keypool.vchPubKey.IsValid());
+        LogPrintf("zerokeypool reserve %d\n", nIndex);
+    }
+}
+
+void CWallet::KeepKeyZero(int64_t nIndex)
+{
+    // Remove from key pool
+    if (fFileBacked)
+    {
+        CWalletDB walletdb(strWalletFile);
+        walletdb.EraseZeroPool(nIndex);
+    }
+    LogPrintf("zerokeypool keep %d\n", nIndex);
+}
+
+void CWallet::ReturnKeyZero(int64_t nIndex)
+{
+    // Return to key pool
+    {
+        LOCK(cs_wallet);
+        setZeroKeyPool.insert(nIndex);
+    }
+    LogPrintf("zerokeypool return %d\n", nIndex);
+}
+
+bool CWallet::GetKeyFromZeroPool(CPubKey& result)
+{
+    int64_t nIndex = 0;
+    CKeyPool keypool;
+    {
+        LOCK(cs_wallet);
+        ReserveKeyFromZeroKeyPool(nIndex, keypool);
+        if (nIndex == -1)
+        {
+            if (IsLocked()) return false;
+            result = GenerateNewKey();
+            return true;
+        }
+        KeepKeyZero(nIndex);
+        result = keypool.vchPubKey;
+    }
+    return true;
+}
+
+int64_t CWallet::GetOldestZeroKeyPoolTime()
+{
+    LOCK(cs_wallet);
+
+    // if the keypool is empty, return <NOW>
+    if (setZeroKeyPool.empty())
+        return GetTime();
+
+    // load oldest key from keypool, get time and return
+    CKeyPool keypool;
+    CWalletDB walletdb(strWalletFile);
+    int64_t nIndex = *(setZeroKeyPool.begin());
+    if (!walletdb.ReadZeroPool(nIndex, keypool))
+        throw runtime_error("GetOldestZeroKeyPoolTime(): read oldest key in keypool failed");
+    assert(keypool.vchPubKey.IsValid());
+    return keypool.nTime;
+}
+
+
 std::map<CTxDestination, CAmount> CWallet::GetAddressBalances()
 {
     map<CTxDestination, CAmount> balances;
@@ -4678,6 +4823,27 @@ void CWallet::GetAllReserveKeys(set<CKeyID>& setAddress) const
         CKeyID keyID = keypool.vchPubKey.GetID();
         if (!HaveKey(keyID))
             throw runtime_error("GetAllReserveKeyHashes(): unknown key in key pool");
+        setAddress.insert(keyID);
+    }
+}
+
+
+void CWallet::GetAllReserveZeroKeys(set<CKeyID>& setAddress) const
+{
+    setAddress.clear();
+
+    CWalletDB walletdb(strWalletFile);
+
+    LOCK2(cs_main, cs_wallet);
+    BOOST_FOREACH(const int64_t& id, setZeroKeyPool)
+    {
+        CKeyPool keypool;
+        if (!walletdb.ReadZeroPool(id, keypool))
+            throw runtime_error("GetAllReserveZeroKeys(): read failed");
+        assert(keypool.vchPubKey.IsValid());
+        CKeyID keyID = keypool.vchPubKey.GetID();
+        if (!HaveKey(keyID))
+            throw runtime_error("GetAllReserveZeroKeys(): unknown key in key pool");
         setAddress.insert(keyID);
     }
 }

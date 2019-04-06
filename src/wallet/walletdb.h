@@ -160,6 +160,10 @@ public:
     bool WritePool(int64_t nPool, const CKeyPool& keypool);
     bool ErasePool(int64_t nPool);
 
+    bool ReadZeroPool(int64_t nPool, CKeyPool& keypool);
+    bool WriteZeroPool(int64_t nPool, const CKeyPool& keypool);
+    bool EraseZeroPool(int64_t nPool);
+
     bool WriteSerialNumber(const CBigNum& bnSerialNumber, const COutPoint& out);
     bool EraseSerialNumber(const CBigNum& bnSerialNumber);
 
