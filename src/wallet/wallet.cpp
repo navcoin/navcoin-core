@@ -1542,67 +1542,18 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
 {
     LOCK2(cs_main, cs_wallet);
 
-    if (!fConnect)
-    {
-        // wallets need to refund inputs when disconnecting coinstake
-        if (tx.IsCoinStake())
-        {
-            if (IsFromMe(tx))
-            {
-                // Do not flush the wallet here for performance reasons
-                CWalletDB walletdb(strWalletFile, "r+", false);
-
-                if (mapWallet.count(tx.hash))
-                {
-                    CWalletTx& wtx = mapWallet[tx.hash];
-                    wtx.MarkDirty();
-                    walletdb.WriteTx(wtx);
-                }
-                else
-                {
-                    LogPrintf("SyncTransaction : Warning: Could not find %s in wallet. Trying to refund someone else's tx?", tx.hash.ToString());
-                }
-
-                LogPrintf("SyncTransaction : Refunding inputs of orphan tx %s\n",tx.hash.ToString());
-
-                BOOST_FOREACH(const CTxIn& txin, tx.vin)
-                {
-                    if (mapWallet.count(txin.prevout.hash))
-                        mapWallet[txin.prevout.hash].MarkDirty();
-                }
-            }
-        }
-    }
-
-    bool isMine = true;
-
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
-        isMine = false; // Not one of ours
+       return; // Not one of ours
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be
     // recomputed, also:
-
-    if(isMine == true)
+    BOOST_FOREACH(const CTxIn& txin, tx.vin)
     {
-        BOOST_FOREACH(const CTxIn& txin, tx.vin)
-        {
-            if (mapWallet.count(txin.prevout.hash))
-                mapWallet[txin.prevout.hash].MarkDirty();
-        }
-    }
-
-    if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
-    {
-        AbandonTransaction(tx.hash);
-        LogPrintf("SyncTransaction : Removing tx %s from mapTxSpends\n",tx.hash.ToString());
-        BOOST_FOREACH(const CTxIn& txin, tx.vin)
-        {
-            mapTxSpends.erase(txin.prevout);
-        }
+        if (mapWallet.count(txin.prevout.hash))
+            mapWallet[txin.prevout.hash].MarkDirty();
     }
 }
-
 
 isminetype CWallet::IsMine(const CTxIn &txin) const
 {
