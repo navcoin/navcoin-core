@@ -1353,10 +1353,13 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
         //// debug print
         LogPrintf("AddToWallet %s  %s%s\n", wtxIn.GetHash().ToString(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""));
 
+        // Check for Write to disk need
+        if (!fInsertedNew && !fUpdated)
+            return false;
+
         // Write to disk
-        if (fInsertedNew || fUpdated)
-            if (!pwalletdb->WriteTx(wtx))
-                return false;
+        if (!pwalletdb->WriteTx(wtx))
+            return false;
 
         // Break debit/credit balance caches:
         wtx.MarkDirty();
