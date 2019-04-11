@@ -3655,7 +3655,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 AvailableCoins(vAvailableCoins, true, coinControl);
             nFeeRet = 0;
             // Start with no fee and loop until there is enough fee
-            // Unless it's a private transaction and the fee is fixed so we can already add it for efficiency
             while (true)
             {
                 nChangePosInOut = nChangePosRequest;
@@ -4220,6 +4219,7 @@ DBErrors CWallet::ZapWalletTx(std::vector<CWalletTx>& vWtx)
         {
             LOCK(cs_wallet);
             setKeyPool.clear();
+            setZeroKeyPool.clear();
             mapSerial.clear();
             mapWitness.clear();
             // Note: can't top-up keypool here, because wallet is locked.
