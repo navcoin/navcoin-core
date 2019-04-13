@@ -2036,7 +2036,7 @@ void static InvalidChainFound(CBlockIndex* pindexNew)
     CBlock block;
     CBlockIndex *tip = chainActive.Tip();
     assert (tip);
-    if (ReadBlockFromDisk(block, pindexNew, chainparams.GetConsensus())) {
+    if (ReadBlockFromDisk(block, pindexNew, Params().GetConsensus())) {
         BOOST_FOREACH(const CTransaction &tx, block.vtx) {
             SyncWithWallets(tx, tip, NULL, false);
         }
