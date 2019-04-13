@@ -2,7 +2,7 @@
 name: "navcoin-win-4.0.0"
 enable_cache: true
 suites:
-- "trusty"
+- "bionic"
 architectures:
 - "amd64"
 packages:
