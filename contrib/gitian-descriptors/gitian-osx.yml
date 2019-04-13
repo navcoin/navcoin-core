@@ -2,7 +2,7 @@
 name: "navcoin-osx-4.0.0"
 enable_cache: true
 suites:
-- "trust"
+- "trusty"
 architectures:
 - "amd64"
 packages:
