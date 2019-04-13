@@ -470,7 +470,7 @@ qt_navcoin_qt_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES) $(CURL_INCLUDES) $(N
 	$(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS)
 qt_navcoin_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
-qt_navcoin_qt_SOURCES=qt/navcoin.cpp
+qt_navcoin_qt_SOURCES = qt/navcoin.cpp
 if TARGET_DARWIN
         qt_navcoin_qt_SOURCES += $(NAVCOIN_MM)
 endif
