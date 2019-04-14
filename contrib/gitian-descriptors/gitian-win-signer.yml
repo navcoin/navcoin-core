@@ -1,7 +1,7 @@
 ---
 name: "navcoin-win-signer"
 suites:
-- "trustyy"
+- "trusty"
 architectures:
 - "amd64"
 packages:
