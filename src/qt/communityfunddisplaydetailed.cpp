@@ -109,7 +109,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-	char buf[24];
+        char buf[24];
         if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
             ss << buf;
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
