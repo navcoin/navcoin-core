@@ -1,7 +1,7 @@
 ---
 name: "navcoin-dmg-signer"
 suites:
-- "trustyy"
+- "trusty"
 architectures:
 - "amd64"
 packages:
