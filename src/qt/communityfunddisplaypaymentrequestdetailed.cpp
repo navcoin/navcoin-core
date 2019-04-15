@@ -125,7 +125,9 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        char buf[24];
+        if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
+            ss << buf;
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
         ui->labelPrequestExpiry->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
@@ -135,7 +137,9 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        char buf[24];
+        if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
+            ss << buf;
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(expiry_title));
         ui->labelPrequestExpiry->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
@@ -146,7 +150,9 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
-            ss << std::put_time(std::gmtime(&t), "%c %Z");
+            char buf[24];
+            if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
+                ss << buf;
             ui->labelPrequestExpiryTitle->setText(QString::fromStdString(expiry_title));
             ui->labelPrequestExpiry->setText(QString::fromStdString(ss.str().erase(10, 9)));
         }
