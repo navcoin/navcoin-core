@@ -30,6 +30,10 @@ This PR adds a new RPC command to export the existing master private key encoded
 `dumpmnemonic` It admits an argument specifying the language.
 Support for two new wallet options (`-importmnemonic` and `-mnemoniclanguage`) have also been added to allow to create a new wallet from the specified mnemonic.
 
+## Fix wrong balance after orphan stakes
+<[Pull Request 438](https://github.com/NAVCoin/navcoin-core/pull/438)>
+This PR fixes an historical issue which made the wallet show a wrong balance after orphan stakes.
+
 ## Other updates to the NavCoin client, docs and codebase
 
 - Update FreeType depend file to 2.7.1 <[Pull Request 433](https://github.com/NAVCoin/navcoin-core/pull/433)> <[Commit 6025758](60257582df85c07b794ceb186e2289eada4d3832)>
