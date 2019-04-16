@@ -40,9 +40,8 @@ CBigNum SeedTo1024(uint256 hashSeed) {
 
 SerialNumberSignatureOfKnowledge::SerialNumberSignatureOfKnowledge(const
                                                                    ZeroCTParams* p, const PrivateCoin& coin, const Commitment& commitmentToCoin, const Commitment& coinValuePublic,
-                                                                   CBigNum obfuscatedRandomness, Commitment amountCommitment, Commitment commitmentToValue, uint256 msghash):params(p),
+                                                                   CBigNum obfuscatedRandomness, CBigNum amountCommitmentRandomness, Commitment amountCommitment, Commitment commitmentToValue, uint256 msghash):params(p),
     xi(p->zkp_iterations),
-    iota(p->zkp_iterations),
     delta(p->zkp_iterations),
     psi(p->zkp_iterations),
     nu(p->zkp_iterations),
@@ -68,7 +67,6 @@ SerialNumberSignatureOfKnowledge::SerialNumberSignatureOfKnowledge(const
     hasher << *params << commitmentToCoin.getCommitmentValue() << coinValuePublic.getCommitmentValue() << amountCommitment.getCommitmentValue() << commitmentToValue.getCommitmentValue() << msghash;
 
     vector<CBigNum> rho(params->zkp_iterations);
-    vector<CBigNum> tau(params->zkp_iterations);
     vector<CBigNum> alpha(params->zkp_iterations);
     vector<CBigNum> gamma(params->zkp_iterations);
     vector<CBigNum> zeta_seed(params->zkp_iterations);
@@ -80,12 +78,10 @@ SerialNumberSignatureOfKnowledge::SerialNumberSignatureOfKnowledge(const
 
     vector<CBigNum> t(params->zkp_iterations);
     vector<CBigNum> upsilon(params->zkp_iterations);
-    vector<CBigNum> mu(params->zkp_iterations);
     vector<CBigNum> kappa(params->zkp_iterations);
 
     for(uint32_t i=0; i < params->zkp_iterations; i++) {
         rho[i] = CBigNum::randBignum(params->coinCommitmentGroup.groupOrder);
-        tau[i] = CBigNum::randBignum(params->coinCommitmentGroup.groupOrder);
         alpha[i] = CBigNum::randBignum(params->coinCommitmentGroup.groupOrder);
         gamma[i] = CBigNum::randBignum(params->coinCommitmentGroup.groupOrder);
 
@@ -116,10 +112,7 @@ SerialNumberSignatureOfKnowledge::SerialNumberSignatureOfKnowledge(const
 
         // compute g^{ {a^alpha b^gamma c^tau} h^varpi} mod p2
         upsilon[i]
-                = challengeCalculation(g, a, alpha[i], b, gamma[i], c, tau[i], h, varpi_expanded[i]);
-
-        // compute a^tau c^rho mod p1
-        mu[i]   = challengeCalculation(a, rho[i], 1, 1, c, tau[i]);
+                = challengeCalculation(g, a, alpha[i], b, gamma[i], amountCommitment.getCommitmentValue(), 1, h, varpi_expanded[i]);
 
         // compute g^gamma h^varpji mod p2
         kappa[i]
@@ -132,7 +125,6 @@ SerialNumberSignatureOfKnowledge::SerialNumberSignatureOfKnowledge(const
     for(uint32_t i=0; i < params->zkp_iterations; i++) {
         hasher << t[i];
         hasher << upsilon[i];
-        hasher << mu[i];
         hasher << kappa[i];
     }
     this->omega = hasher.GetHash();
@@ -145,7 +137,6 @@ SerialNumberSignatureOfKnowledge::SerialNumberSignatureOfKnowledge(const
         bool challenge_bit = ((hashbytes[byte] >> bit) & 0x01);
         if (challenge_bit) {
             xi[i]   = rho[i];
-            iota[i] = tau[i];
             delta[i]
                     = alpha[i];
             psi[i]  = zeta_seed[i];
@@ -155,17 +146,15 @@ SerialNumberSignatureOfKnowledge::SerialNumberSignatureOfKnowledge(const
             eta[i]  = varphi_seed[i];
         } else {
             xi[i]   = rho[i] - obfuscatedRandomness;
-            iota[i] = tau[i] - coin.getAmount();
             delta[i]
-                    = alpha[i] - coin.getRandomness();
-            psi[i]  = zeta_expanded[i] - (commitmentToValue.getRandomness() *
-                                  b.pow_mod(xi[i], q));
+                    = alpha[i] - coin.getRandomness() + amountCommitmentRandomness;
+            psi[i]  = zeta_expanded[i] - (commitmentToValue.getRandomness().mul_mod(
+                                          b.pow_mod(xi[i], q), q));
             nu[i]   = gamma[i] - coin.getPublicCoin().getCoinValue();
             Omega[i]
                     = varpi_expanded[i] - (commitmentToCoin.getRandomness().mul_mod(
                                            a.pow_mod(delta[i], q), q).mul_mod(
-                                           b.pow_mod(nu[i], q), q).mul_mod(
-                                           c.pow_mod(iota[i], q), q));
+                                           b.pow_mod(nu[i], q), q));
             eta[i]  = varphi_expanded[i] - commitmentToValue.getRandomness();
         }
     }
@@ -215,7 +204,6 @@ bool SerialNumberSignatureOfKnowledge::Verify(const CBigNum& valueOfCommitmentTo
 
     vector<CBigNum> t(params->zkp_iterations);
     vector<CBigNum> upsilon(params->zkp_iterations);
-    vector<CBigNum> mu(params->zkp_iterations);
     vector<CBigNum> kappa(params->zkp_iterations);
 
     unsigned char *hashbytes = (unsigned char*) &this->omega;
@@ -234,9 +222,7 @@ bool SerialNumberSignatureOfKnowledge::Verify(const CBigNum& valueOfCommitmentTo
 
             CBigNum varpi_expanded
                          = SeedTo1024(Omega[i].getuint256()) % q;
-            upsilon[i]   = challengeCalculation(g, a, delta[i], b, nu[i], c, iota[i], h, varpi_expanded);
-
-            mu[i]        = challengeCalculation(a, xi[i], 1, 1, c, iota[i]);
+            upsilon[i]   = challengeCalculation(g, a, delta[i], b, nu[i], amountCommitment, 1, h, varpi_expanded);
 
             CBigNum varphi_expanded
                          = SeedTo1024(eta[i].getuint256()) % q;
@@ -247,24 +233,19 @@ bool SerialNumberSignatureOfKnowledge::Verify(const CBigNum& valueOfCommitmentTo
             CBigNum exp  = b.pow_mod(xi[i], q);
             t[i]         = valueCommitment.pow_mod(exp, p).mul_mod(h.pow_mod(psi[i], p), p);
 
-            CBigNum exp2 = a.pow_mod(delta[i], q).mul_mod(b.pow_mod(nu[i], q), q).mul_mod(c.pow_mod(iota[i], q), q);
+            CBigNum exp2 = a.pow_mod(delta[i], q).mul_mod(b.pow_mod(nu[i], q), q);
             upsilon[i]   = valueOfCommitmentToCoin.pow_mod(exp2, p).mul_mod(h.pow_mod(Omega[i], p), p);
-
-            CBigNum exp3 = a.pow_mod(xi[i], q).mul_mod(c.pow_mod(iota[i], q), q);
-            mu[i]        = amountCommitment.mul_mod(exp3, q);
 
             CBigNum exp4 = g.pow_mod(nu[i], p).mul_mod(h.pow_mod(eta[i], p), p);
             kappa[i]     = valueCommitment.mul_mod(exp4, p);
 
         }
-
     }
 
     for(uint32_t i = 0; i < params->zkp_iterations; i++)
     {
         hasher << t[i];
         hasher << upsilon[i];
-        hasher << mu[i];
         hasher << kappa[i];
     }
 

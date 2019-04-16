@@ -69,14 +69,16 @@ CoinSpend::CoinSpend(const ZeroCTParams* params, const PrivateCoin& coin, const 
     this->accCommitmentToCoinValue = fullCommitmentToCoinUnderAccParams.getCommitmentValue();
 
     // Generate a new amount commitment with a different randomness value
-    const Commitment amountCommitment(group3, obfuscatedRandomness, 0, coin.getAmount());
+    CBigNum amountCommitmentRandomness = CBigNum::randBignum(group3->groupOrder);
+    const Commitment amountCommitment(group3, amountCommitmentRandomness, 0, coin.getAmount());
     this->amountCommitment = amountCommitment.getCommitmentValue();
 
     const Commitment valueCommitment(group1, coin.getPublicCoin().getCoinValue());
     this->commitmentToCoinValue = valueCommitment.getCommitmentValue();
 
     // 2. Generate a ZK proof that the two commitments contain the same public coin.
-    this->commitmentPoK = CommitmentProofOfKnowledge(group1, group2, fullCommitmentToCoinUnderSerialParams, fullCommitmentToCoinUnderAccParams, group1->g, group1->h, group2->g, group2->h);
+    this->commitmentPoK = CommitmentProofOfKnowledge(group1, group2, fullCommitmentToCoinUnderSerialParams, fullCommitmentToCoinUnderAccParams,
+                                                     group1->g, group1->h, group2->g, group2->h);
 
     // Now generate the two core ZK proofs:
     // 3. Proves that the committed public coin is in the Accumulator (PoK of "witness")
@@ -88,9 +90,11 @@ CoinSpend::CoinSpend(const ZeroCTParams* params, const PrivateCoin& coin, const 
     // 4. Proves that the coin is correct w.r.t. serial number and hidden coin secret and the serial number image
     // (This proof is bound to the coin 'metadata', i.e., transaction hash)
     uint256 hashSig = signatureHash();
-    this->serialNumberSoK = SerialNumberSignatureOfKnowledge(params, coin, fullCommitmentToCoinUnderSerialParams, publicSerialNumber, obfuscatedRandomness, amountCommitment, valueCommitment, hashSig);
+    this->serialNumberSoK = SerialNumberSignatureOfKnowledge(params, coin, fullCommitmentToCoinUnderSerialParams, publicSerialNumber,
+                                                             obfuscatedRandomness, amountCommitmentRandomness, amountCommitment,
+                                                             valueCommitment, hashSig);
 
-    r = obfuscatedRandomness;
+    r = amountCommitmentRandomness;
 
     //5. Zero knowledge proof of the serial number
     this->serialNumberPoK = SerialNumberProofOfKnowledge(group3, obfuscatedSerial, hashSig);
