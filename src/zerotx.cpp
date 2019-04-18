@@ -12,8 +12,8 @@ bool TxOutToPublicCoin(const ZeroCTParams *params, const CTxOut& txout, PublicCo
         return false;
 
     std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> i; std::vector<unsigned char> a;
-    std::vector<unsigned char> ac;
-    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, i, a, ac))
+    std::vector<unsigned char> ac; std::vector<unsigned char> n;
+    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, n, i, a, ac))
         return state != NULL ? state->DoS(100, error("TxOutToPublicCoin(): could not read mint data from txout.scriptPubKey")) : false;
 
     CBigNum pid;
@@ -25,7 +25,10 @@ bool TxOutToPublicCoin(const ZeroCTParams *params, const CTxOut& txout, PublicCo
     CBigNum aco;
     aco.setvch(ac);
 
-    PublicCoin checkPubCoin(params, CBigNum(c), p, pid, oa, aco, fCheck);
+    CBigNum nonce;
+    nonce.setvch(n);
+
+    PublicCoin checkPubCoin(params, CBigNum(c), p, pid, nonce, oa, aco, fCheck);
     pubCoin = checkPubCoin;
 
     return true;
@@ -37,8 +40,8 @@ bool TxOutToPublicCoinValue(const ZeroCTParams *params, const CTxOut& txout, CBi
         return false;
 
     std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> i; std::vector<unsigned char> a;
-    std::vector<unsigned char> ac;
-    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, i, a, ac))
+    std::vector<unsigned char> ac; std::vector<unsigned char> n;
+    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, n, i, a, ac))
         return state != NULL ? state->DoS(100, error("TxOutToPublicCoin(): could not read mint data from txout.scriptPubKey")) : false;
 
     pubCoinValue.setvch(c);
@@ -52,8 +55,8 @@ bool TxOutToPublicCoinAmountCommitment(const ZeroCTParams *params, const CTxOut&
         return false;
 
     std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> i; std::vector<unsigned char> a;
-    std::vector<unsigned char> ac;
-    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, i, a, ac))
+    std::vector<unsigned char> ac; std::vector<unsigned char> n;
+    if(!txout.scriptPubKey.ExtractZeroCTMintData(p, c, n, i, a, ac))
         return state != NULL ? state->DoS(100, error("TxOutToPublicCoin(): could not read mint data from txout.scriptPubKey")) : false;
 
     amountCommitment.setvch(ac);

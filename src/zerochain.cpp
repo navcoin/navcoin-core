@@ -16,8 +16,14 @@ bool BlockToZeroCTMints(const ZeroCTParams *params, const CBlock* block, std::ve
             if (!out.IsZeroCTMint())
                 continue;
 
-            std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> i;  std::vector<unsigned char> a;  std::vector<unsigned char> aco;
-            if(!out.scriptPubKey.ExtractZeroCTMintData(p, c, i, a, aco))
+            CPubKey p;
+            std::vector<unsigned char> c;
+            std::vector<unsigned char> n;
+            std::vector<unsigned char> i;
+            std::vector<unsigned char> a;
+            std::vector<unsigned char> aco;
+
+            if(!out.scriptPubKey.ExtractZeroCTMintData(p, c, n, i, a, aco))
                 return error("BlockToZeroCTMints(): Could not extract ZeroCT mint data");
 
             CBigNum pid;
@@ -29,7 +35,10 @@ bool BlockToZeroCTMints(const ZeroCTParams *params, const CBlock* block, std::ve
             CBigNum ac;
             ac.setvch(aco);
 
-            PublicCoin checkPubCoin(params, CBigNum(c), p, pid, oa, ac);
+            CBigNum nonce;
+            nonce.setvch(n);
+
+            PublicCoin checkPubCoin(params, CBigNum(c), p, pid, nonce, oa, ac);
             vPubCoins.push_back(checkPubCoin);
         }
     }

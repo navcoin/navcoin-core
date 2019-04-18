@@ -87,7 +87,11 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     }
     case TX_ZEROCOIN:
     {
-        CPubKey p(vSolutions[0]); CBigNum c(vSolutions[1]);  CBigNum a(vSolutions[2]); CBigNum ac(vSolutions[3]);
+        CPubKey p(vSolutions[0]);
+        CBigNum c(vSolutions[1]);
+        CBigNum a(vSolutions[2]);
+        CBigNum ac(vSolutions[3]);
+        CBigNum n(vSolutions[4]);
         CKey zk; libzeroct::BlindingCommitment bc;
         uint256 scriptHash = Hash(scriptPubKey.begin(), scriptPubKey.end());
         if(std::find(vMyMints.begin(), vMyMints.end(), scriptHash) != vMyMints.end())
@@ -96,7 +100,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
             break;
         if(!keystore.GetBlindingCommitment(bc))
             break;
-        if(libzeroct::PrivateCoin::QuickCheckIsMine(&Params().GetConsensus().ZeroCT_Params, zk, p, bc, c, a, ac)) {
+        if(libzeroct::PrivateCoin::QuickCheckIsMine(&Params().GetConsensus().ZeroCT_Params, zk, p, n, bc, c, a, ac)) {
             vMyMints.push_back(scriptHash);
             return ISMINE_SPENDABLE_PRIVATE;
         }

@@ -46,6 +46,7 @@ PrivateCoin    *ggCoins[TESTS_COINS_TO_ACCUMULATE];
 // Global params
 ZeroCTParams *gg_Params;
 CKey privKey_;
+CKey mintKey_;
 CPubKey pubKey_;
 CBigNum obfuscation_jj1;
 CBigNum obfuscation_jj2;
@@ -303,10 +304,10 @@ Testb_MintCoin()
         for (uint32_t i = 0; i < TESTS_COINS_TO_ACCUMULATE; i++) {
             CBigNum rpdata;
             timer.start();
-            PublicCoin pubCoin(gg_Params,pubKey_,blindingCommitment_, "test", COIN, &rpdata);
+            PublicCoin pubCoin(gg_Params,pubKey_,blindingCommitment_,mintKey_,"test", COIN, &rpdata);
             timer.stop();
             mintTotal += timer.duration();
-            ggCoins[i] = new PrivateCoin(gg_Params, privKey_,pubCoin.getPubKey(),blindingCommitment_,pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
+            ggCoins[i] = new PrivateCoin(gg_Params, privKey_,pubCoin.getPubKey(),pubCoin.getNonce(),blindingCommitment_,pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
 
             BulletproofsRangeproof bprp(&gg_Params->coinCommitmentGroup);
             CBN_matrix mValueCommitments;
@@ -426,6 +427,9 @@ Testb_RunAllTests()
     // Generate a new Key Pair
     privKey_.MakeNewKey(false);
     pubKey_ = privKey_.GetPubKey();
+
+    // Generate mint key
+    mintKey_.MakeNewKey(false);
 
     // Calculate obfuscation values
     obfuscation_jj1 = CBigNum::randBignum(gg_Params->coinCommitmentGroup.groupOrder);

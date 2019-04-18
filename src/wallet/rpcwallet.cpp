@@ -449,7 +449,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool fPrivate = false, bool donate = false)
+static void SendMoney(const CTxDestination &address, CAmount nValue, std::vector<shared_ptr<CReserveKey>>& vZeroReserveKey, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool fPrivate = false, bool donate = false)
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -473,17 +473,20 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
+    shared_ptr<CReserveKey> zerochangekey(new CReserveKey(pwalletMain, true));
+
+    vZeroReserveKey.insert(vZeroReserveKey.begin(), std::move(zerochangekey));
     CAmount nFeeRequired;
     std::string strError;
     int nChangePosRet = -1;
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, fPrivate, NULL, true, strDZeel)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, vZeroReserveKey, nFeeRequired, nChangePosRet, strError, fPrivate, NULL, true, strDZeel)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
 
-    if (!pwalletMain->CommitTransaction(wtxNew, reservekey))
+    if (!pwalletMain->CommitTransaction(wtxNew, reservekey, vZeroReserveKey))
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
 }
 
@@ -570,12 +573,22 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     wtx.strDZeel = strDZeel;
 
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
+
     if (dest.type() == typeid(libzeroct::CPrivateAddress)) {
         boost::get<libzeroct::CPrivateAddress>(dest).SetPaymentId(wtx.mapValue["comment"]);
         boost::get<libzeroct::CPrivateAddress>(dest).SetAmount(nAmount);
+        shared_ptr<CReserveKey> keyPrivate(new CReserveKey(pwalletMain, true));
+        vZeroReserveKey.push_back(keyPrivate);
+        CPubKey pubKey;
+        keyPrivate->GetReservedKey(pubKey);
+        CKey key;
+        if (!pwalletMain->GetKey(pubKey.GetID(), key))
+            throw JSONRPCError(RPC_WALLET_ERROR, "Could not get private key of address from zero pool");
+        boost::get<libzeroct::CPrivateAddress>(dest).SetKey(key);
     }
 
-    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, strDZeel, false);
+    SendMoney(dest, nAmount, vZeroReserveKey, fSubtractFeeFromAmount, wtx, strDZeel, false);
 
     return wtx.GetHash().GetHex();
 }
@@ -663,13 +676,22 @@ UniValue privatesendtoaddress(const UniValue& params, bool fHelp)
     wtx.strDZeel = strDZeel;
 
     CTxDestination dest = address.Get();
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
 
     if (dest.type() == typeid(libzeroct::CPrivateAddress)) {
         boost::get<libzeroct::CPrivateAddress>(dest).SetPaymentId(wtx.mapValue["comment"]);
         boost::get<libzeroct::CPrivateAddress>(dest).SetAmount(nAmount);
+        shared_ptr<CReserveKey> keyPrivate(new CReserveKey(pwalletMain, true));
+        vZeroReserveKey.push_back(keyPrivate);
+        CPubKey pubKey;
+        keyPrivate->GetReservedKey(pubKey);
+        CKey key;
+        if (!pwalletMain->GetKey(pubKey.GetID(), key))
+            throw JSONRPCError(RPC_WALLET_ERROR, "Could not get private key of address from zero pool");
+        boost::get<libzeroct::CPrivateAddress>(dest).SetKey(key);
     }
 
-    SendMoney(dest, nAmount, fSubtractFeeFromAmount, wtx, strDZeel, true);
+    SendMoney(dest, nAmount, vZeroReserveKey, fSubtractFeeFromAmount, wtx, strDZeel, true);
 
     return wtx.GetHash().GetHex();
 }
@@ -762,7 +784,9 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", false, true);
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
+
+    SendMoney(address.Get(), nAmount, vZeroReserveKey, fSubtractFeeFromAmount, wtx, "", false, true);
 
     UniValue ret(UniValue::VOBJ);
 
@@ -870,10 +894,12 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
 
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
+
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
-    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", false, true);
+    SendMoney(address.Get(), 10000, vZeroReserveKey, fSubtractFeeFromAmount, wtx, "", false, true);
 
     UniValue ret(UniValue::VOBJ);
 
@@ -921,7 +947,9 @@ UniValue donatefund(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", false, true);
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
+
+    SendMoney(address.Get(), nAmount, vZeroReserveKey, fSubtractFeeFromAmount, wtx, "", false, true);
 
     return wtx.GetHash().GetHex();
 }
@@ -1321,7 +1349,7 @@ UniValue sendfrom(const UniValue& params, bool fHelp)
 
     string strAccount = AccountFromValue(params[0]);
     CNavCoinAddress address(params[1].get_str());
-    if (!address.IsValid())
+    if (!address.IsValid() || address.IsPrivateAddress(Params()))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address");
     CAmount nAmount = AmountFromValue(params[2]);
     if (nAmount <= 0)
@@ -1344,7 +1372,9 @@ UniValue sendfrom(const UniValue& params, bool fHelp)
     if (nAmount > nBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
-    SendMoney(address.Get(), nAmount, false, wtx);
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
+
+    SendMoney(address.Get(), nAmount, vZeroReserveKey, false, wtx);
 
     return wtx.GetHash().GetHex();
 }
@@ -1410,6 +1440,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
 
     set<CNavCoinAddress> setAddress;
     vector<CRecipient> vecSend;
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
 
     CAmount totalAmount = 0;
     vector<string> keys = sendTo.getKeys();
@@ -1423,8 +1454,23 @@ UniValue sendmany(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
         setAddress.insert(address);
 
-        CScript scriptPubKey = GetScriptForDestination(address.Get());
+        CTxDestination dest = address.Get();
         CAmount nAmount = AmountFromValue(sendTo[name_]);
+
+        if (dest.type() == typeid(libzeroct::CPrivateAddress)) {
+            boost::get<libzeroct::CPrivateAddress>(dest).SetPaymentId(wtx.mapValue["comment"]);
+            boost::get<libzeroct::CPrivateAddress>(dest).SetAmount(nAmount);
+            shared_ptr<CReserveKey> keyPrivate(new CReserveKey(pwalletMain, true));
+            vZeroReserveKey.push_back(keyPrivate);
+            CPubKey pubKey;
+            keyPrivate->GetReservedKey(pubKey);
+            CKey key;
+            if (!pwalletMain->GetKey(pubKey.GetID(), key))
+                throw JSONRPCError(RPC_WALLET_ERROR, "Could not get private key of address from zero pool");
+            boost::get<libzeroct::CPrivateAddress>(dest).SetKey(key);
+        }
+
+        CScript scriptPubKey = GetScriptForDestination(dest);
         if (nAmount <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
         totalAmount += nAmount;
@@ -1449,13 +1495,15 @@ UniValue sendmany(const UniValue& params, bool fHelp)
 
     // Send
     CReserveKey keyChange(pwalletMain);
+    shared_ptr<CReserveKey> zerochangekey(new CReserveKey(pwalletMain, true));
+    vZeroReserveKey.insert(vZeroReserveKey.begin(), std::move(zerochangekey));
     CAmount nFeeRequired = 0;
     int nChangePosRet = -1;
     string strFailReason;
-    bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nChangePosRet, strFailReason, false);
+    bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, vZeroReserveKey, nFeeRequired, nChangePosRet, strFailReason, false);
     if (!fCreated)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, strFailReason);
-    if (!pwalletMain->CommitTransaction(wtx, keyChange))
+    if (!pwalletMain->CommitTransaction(wtx, keyChange, vZeroReserveKey))
         throw JSONRPCError(RPC_WALLET_ERROR, "Transaction commit failed");
 
     return wtx.GetHash().GetHex();

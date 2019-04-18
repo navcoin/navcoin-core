@@ -41,6 +41,7 @@ public:
     QList<SendCoinsRecipient> recipients;
 
     bool fSpendsColdStaking;
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
 
 private:
     CWalletTx *walletTransaction;

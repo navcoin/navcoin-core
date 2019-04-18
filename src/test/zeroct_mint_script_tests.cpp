@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_CASE(zeroct_mint_script)
     ZeroCTParams* params = new ZeroCTParams(testModulus);
 
     CKey zk;
+    CKey mintKey;
     ObfuscationValue oj;
     ObfuscationValue ok;
     BlindingCommitment bc;
@@ -40,8 +41,10 @@ BOOST_AUTO_TEST_CASE(zeroct_mint_script)
     seed = testModulus.getvch();
 
     GenerateParameters(params, seed, oj, ok, bc, zk);
+    mintKey.MakeNewKey(false);
 
     CPrivateAddress ad(params, bc, zk, "TEST", COIN);
+    ad.SetKey(mintKey);
     CTxDestination dest(ad);
 
     CScript mintScript = GetScriptForDestination(dest);
@@ -53,8 +56,9 @@ BOOST_AUTO_TEST_CASE(zeroct_mint_script)
     vector<unsigned char> i;
     vector<unsigned char> a;
     vector<unsigned char> ac;
+    vector<unsigned char> n;
 
-    BOOST_CHECK(mintScript.ExtractZeroCTMintData(p, c, i, a, ac));
+    BOOST_CHECK(mintScript.ExtractZeroCTMintData(p, c, n, i, a, ac));
 
     CBigNum cv;
     cv.setvch(c);
@@ -68,13 +72,18 @@ BOOST_AUTO_TEST_CASE(zeroct_mint_script)
     CBigNum aco;
     aco.setvch(ac);
 
-    PublicCoin publicCoin(params, cv, p, pid, oa, aco, true);
-    PrivateCoin privateCoin(params, zk, publicCoin.getPubKey(), bc,
+    CBigNum nonce;
+    nonce.setvch(n);
+
+    PublicCoin publicCoin(params, cv, p, pid, nonce, oa, aco, true);
+    PrivateCoin privateCoin(params, zk, publicCoin.getPubKey(), publicCoin.getNonce(), bc,
                             publicCoin.getValue(), publicCoin.getPaymentId(),
                             publicCoin.getAmount());
 
     BOOST_CHECK(privateCoin.getPublicCoin().getPubKey() == publicCoin.getPubKey());
     BOOST_CHECK(privateCoin.getPublicCoin().getPubKey() == p);
+    BOOST_CHECK(privateCoin.getPublicCoin().getNonce() == publicCoin.getNonce());
+    BOOST_CHECK(privateCoin.getPublicCoin().getNonce() == nonce);
     BOOST_CHECK(privateCoin.getPublicCoin().getValue() == publicCoin.getValue());
     BOOST_CHECK(privateCoin.getPublicCoin().getCoinValue() == publicCoin.getCoinValue());
     BOOST_CHECK(privateCoin.getPublicCoin().getCoinValue() == cv);

@@ -856,7 +856,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if (!GetObfuscationJ(oj))
                 return error("%s : Could not read obfuscation value j from wallet", __func__);
 
-            libzeroct::PrivateCoin privateCoin(&Params().GetConsensus().ZeroCT_Params, zk, pubCoin.getPubKey(), bc, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
+            libzeroct::PrivateCoin privateCoin(&Params().GetConsensus().ZeroCT_Params, zk, pubCoin.getPubKey(), pubCoin.getNonce(), bc, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
 
             if (!privateCoin.isValid()) {
                 return error("%s : The private coin did not validate", __func__);
@@ -1780,8 +1780,8 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
                 if (!GetBlindingCommitment(bc))
                     break;
 
-                libzeroct::PrivateCoin privateCoin(&Params().GetConsensus().ZeroCT_Params, zk, pubCoin.getPubKey(), bc, pubCoin.getValue(),
-                                                     pubCoin.getPaymentId(), pubCoin.getAmount());
+                libzeroct::PrivateCoin privateCoin(&Params().GetConsensus().ZeroCT_Params, zk, pubCoin.getPubKey(), pubCoin.getNonce(),
+                                                   bc, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
 
                 if (!privateCoin.isValid())
                     continue;
@@ -3536,8 +3536,9 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
         coinControl.Select(txin.prevout);
 
     CReserveKey reservekey(this);
+    std::vector<shared_ptr<CReserveKey>> vZeroReserveKey;
     CWalletTx wtx;
-    if (!CreateTransaction(vecSend, wtx, reservekey, nFeeRet, nChangePosInOut, strFailReason, fPrivate, &coinControl, false))
+    if (!CreateTransaction(vecSend, wtx, reservekey, vZeroReserveKey, nFeeRet, nChangePosInOut, strFailReason, fPrivate, &coinControl, false))
         return false;
 
     if (nChangePosInOut != -1)
@@ -3561,13 +3562,14 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
     return true;
 }
 
-bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
+bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveKey>>& vZeroReserveKey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, bool fPrivate, const CCoinControl* coinControl, bool sign, std::string strDZeel)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
     unsigned int nSubtractFeeFromAmount = 0;
     bool fZeroCT = false;
+    unsigned int nPrivateCount = 0;
 
     BOOST_FOREACH (const CRecipient& recipient, vecSend)
     {
@@ -3582,12 +3584,21 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
             nSubtractFeeFromAmount++;
 
         if (recipient.scriptPubKey.IsZeroCTMint())
+        {
             fZeroCT = true;
+            nPrivateCount++;
+        }
     }
 
     if (vecSend.empty() || nValue < 0)
     {
         strFailReason = _("Transaction amounts must be positive");
+        return false;
+    }
+
+    if (fZeroCT && nPrivateCount + 1 != vZeroReserveKey.size())
+    {
+        strFailReason = _("Wrong size of reserved keys vector for private transaction");
         return false;
     }
 
@@ -3760,6 +3771,16 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         pa.SetPaymentId("Transaction Change");
                         pa.SetAmount(nChange);
 
+                        CPubKey pubKey;
+                        vZeroReserveKey[0]->GetReservedKey(pubKey);
+                        CKey key;
+                        if (!GetKey(pubKey.GetID(), key))
+                        {
+                            strFailReason = _("Could not get private key of address from zero pool");
+                            return false;
+                        }
+                        pa.SetKey(key);
+
                         if (!DestinationToVecRecipients(nChange, pa, vecChange, false, false, true)) {
                             return false;
                         }
@@ -3771,6 +3792,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         gammas.push_back(vecChange[0].gamma);
 
                         fZeroCT = true;
+                        reservekey.ReturnKey();
                     }
                     else
                     {
@@ -4054,7 +4076,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 /**
  * Call after CreateTransaction unless you want to abort
  */
-bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
+bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveKey>>& zeroReservekey)
 {
     {
         LOCK2(cs_main, cs_wallet);
@@ -4066,7 +4088,11 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
             CWalletDB* pwalletdb = fFileBacked ? new CWalletDB(strWalletFile,"r+") : NULL;
 
             // Take key pair from key pool so it won't be used again
-            reservekey.KeepKey();
+            if (!wtxNew.IsZeroCTSpend())
+                reservekey.KeepKey();
+
+            for (auto &it: zeroReservekey)
+                it->KeepKey();
 
             // Add tx to wallet, because if it has change it's also ours,
             // otherwise just for transaction history.
@@ -4499,7 +4525,7 @@ bool CWallet::TopUpZeroKeyPool(unsigned int kpSize)
             int64_t nEnd = 1;
             if (!setZeroKeyPool.empty())
                 nEnd = *(--setZeroKeyPool.end()) + 1;
-            if (!walletdb.WriteZeroPool(nEnd, CKeyPool(GenerateNewKey())))
+            if (!walletdb.WriteZeroPool(nEnd, CKeyPool(GenerateNewKey(ZERO_KEYCHAIN))))
                 throw runtime_error("TopUpZeroKeyPool(): writing generated key failed");
             setZeroKeyPool.insert(nEnd);
             LogPrintf("zerokeypool added key %d, size=%u\n", nEnd, setZeroKeyPool.size());
@@ -4779,7 +4805,12 @@ bool CReserveKey::GetReservedKey(CPubKey& pubkey)
     if (nIndex == -1)
     {
         CKeyPool keypool;
-        pwallet->ReserveKeyFromKeyPool(nIndex, keypool);
+
+        if (fZero)
+            pwallet->ReserveKeyFromZeroKeyPool(nIndex, keypool);
+        else
+            pwallet->ReserveKeyFromKeyPool(nIndex, keypool);
+
         if (nIndex != -1)
             vchPubKey = keypool.vchPubKey;
         else {
@@ -4794,7 +4825,12 @@ bool CReserveKey::GetReservedKey(CPubKey& pubkey)
 void CReserveKey::KeepKey()
 {
     if (nIndex != -1)
-        pwallet->KeepKey(nIndex);
+    {
+        if (fZero)
+            pwallet->KeepKeyZero(nIndex);
+        else
+            pwallet->KeepKey(nIndex);
+    }
     nIndex = -1;
     vchPubKey = CPubKey();
 }
@@ -4802,7 +4838,12 @@ void CReserveKey::KeepKey()
 void CReserveKey::ReturnKey()
 {
     if (nIndex != -1)
-        pwallet->ReturnKey(nIndex);
+    {
+        if (fZero)
+            pwallet->ReturnKeyZero(nIndex);
+        else
+            pwallet->ReturnKey(nIndex);
+    }
     nIndex = -1;
     vchPubKey = CPubKey();
 }

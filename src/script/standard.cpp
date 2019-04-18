@@ -73,16 +73,18 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         typeRet = TX_ZEROCOIN;
         CPubKey p;
         vector<unsigned char> c;
+        vector<unsigned char> n;
         vector<unsigned char> i;
         vector<unsigned char> a;
         vector<unsigned char> ac;
-        if(!scriptPubKey.ExtractZeroCTMintData(p, c, i, a, ac))
+        if(!scriptPubKey.ExtractZeroCTMintData(p, c, n, i, a, ac))
             return false;
         vector<unsigned char> vp(p.begin(), p.end());
         vSolutionsRet.push_back(vp);
         vSolutionsRet.push_back(c);
         vSolutionsRet.push_back(a);
         vSolutionsRet.push_back(ac);
+        vSolutionsRet.push_back(n);
         return true;
     }
 
@@ -394,21 +396,26 @@ public:
     }
 
     bool operator()(const libzeroct::CPrivateAddress &dest) const {
-        CPubKey zpk; libzeroct::BlindingCommitment bc;
+        CPubKey zpk;
+        libzeroct::BlindingCommitment bc;
+
         if(!dest.GetPubKey(zpk))
             return false;
+
         if(!dest.GetBlindingCommitment(bc))
             return false;
 
         CBigNum tempdata;
-        libzeroct::PublicCoin pc(dest.GetParams(), zpk, bc, dest.GetPaymentId(), dest.GetAmount(), &tempdata);
+        libzeroct::PublicCoin pc(dest.GetParams(), zpk, bc, dest.GetKey(), dest.GetPaymentId(), dest.GetAmount(), &tempdata);
+
+        CPubKey mintkey = dest.GetKey().GetPubKey();
 
         dest.SetGamma(tempdata);
         script->clear();
 
         *script << OP_ZEROCTMINT << pc.getPubKey() << pc.getCoinValue().getvch()
-                << pc.getAmountCommitment().getvch() << pc.getPaymentId().getvch()
-                << pc.getAmount().getvch();
+                << pc.getAmountCommitment().getvch() << pc.getNonce().getvch()
+                << pc.getPaymentId().getvch() << pc.getAmount().getvch();
 
         return true;
     }

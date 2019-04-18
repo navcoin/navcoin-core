@@ -29,7 +29,8 @@ bool CheckZeroKernel(CBlockIndex* pindexPrev, const CCoinsViewCache& view, unsig
     if (!pwalletMain->GetBlindingCommitment(bc))
         return error("Could not get blinding commitment");
 
-    libzeroct::PrivateCoin privateCoin(&Params().GetConsensus().ZeroCT_Params, zk, pubCoin.getPubKey(), bc, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
+    libzeroct::PrivateCoin privateCoin(&Params().GetConsensus().ZeroCT_Params, zk, pubCoin.getPubKey(), pubCoin.getNonce(),
+                                       bc, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
 
     if (!privateCoin.isValid())
         return error("Private coin is not valid");

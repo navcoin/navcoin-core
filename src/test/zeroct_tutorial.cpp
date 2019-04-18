@@ -78,11 +78,15 @@ ZerocoinTutorial()
         libzeroct::ZeroCTParams* params = new libzeroct::ZeroCTParams(testModulus);
 
         CKey privKey;
+        CKey mintKey;
         CPubKey pubKey;
 
         // Generate a new Key Pair
         privKey.MakeNewKey(false);
         pubKey = privKey.GetPubKey();
+
+        // Generate a mint key
+        mintKey.MakeNewKey(false);
 
         // Generate obfuscation parameters and a blinding commitment
         CBigNum obfuscation_j1 = CBigNum::randBignum(params->coinCommitmentGroup.groupOrder);
@@ -112,9 +116,8 @@ ZerocoinTutorial()
         // along with a series of currency inputs totaling the assigned value of one zerocoin.
         CBigNum rpdata;
 
-        libzeroct::PublicCoin pubCoin(params, pubKey, blindingCommitment, "test_payment_id", COIN, &rpdata);
-
-        libzeroct::PrivateCoin newCoin(params, privKey, pubCoin.getPubKey(), blindingCommitment, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
+        libzeroct::PublicCoin pubCoin(params, pubKey, blindingCommitment, mintKey, "test_payment_id", COIN, &rpdata);
+        libzeroct::PrivateCoin newCoin(params, privKey, pubCoin.getPubKey(), pubCoin.getNonce(), blindingCommitment, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
 
         if (!newCoin.isValid()) {
             cout << "Error calculating private parameters of new zerocoin." << endl;
@@ -221,7 +224,7 @@ ZerocoinTutorial()
 
         // Add several coins to it (we'll generate them here on the fly).
         for (uint32_t i = 0; i < COINS_TO_ACCUMULATE; i++) {
-            libzeroct::PublicCoin testCoin(params, pubKey, blindingCommitment, "", COIN, &rpdata);
+            libzeroct::PublicCoin testCoin(params, pubKey, blindingCommitment, mintKey, "", COIN, &rpdata);
             accumulator += testCoin;
         }
 

@@ -62,12 +62,13 @@ public:
    **/
 
     PublicCoin(const ZeroCTParams* p, const CPubKey destPubKey, const BlindingCommitment blindingCommitment,
-               const std::string pid, const CAmount amount, CBigNum* prpval = NULL);
-    PublicCoin(const ZeroCTParams* p, const CBigNum value, const CPubKey pubKey, const CBigNum obfuscatedPid,
-               const CBigNum obfuscatedAmount, const CBigNum amountCommitment, bool fCheck = true);
+               const CKey mintkey, const std::string pid, const CAmount amount, CBigNum* prpval = NULL);
+    PublicCoin(const ZeroCTParams* p, const CBigNum valueIn, const CPubKey& pubKeyIn, const CBigNum& pid, const CBigNum& nonceIn,
+               const CBigNum& obfuscatedAmount, const CBigNum& amountCommitment, bool fCheck = true);
 
     const CBigNum getValue() const;
     const CBigNum getCoinValue() const { return this->value; }
+    const CBigNum getNonce() const { return this->nonce; }
     const CPubKey& getPubKey() const { return this->pubKey; }
     const uint8_t& getVersion() const { return this->version; }
     const CBigNum& getPaymentId() const { return this->paymentId; }
@@ -89,6 +90,7 @@ public:
         READWRITE(version);
         READWRITE(pubKey);
         READWRITE(value);
+        READWRITE(nonce);
         READWRITE(amountcommitment);
         READWRITE(coincommitment);
         READWRITE(paymentId);
@@ -99,6 +101,7 @@ private:
     const ZeroCTParams* params;
     uint8_t version;
     CBigNum value;
+    CBigNum nonce;
     CPubKey pubKey;
     CBigNum paymentId;
     CBigNum amount;
@@ -146,7 +149,7 @@ public:
    * @param commitment_value the commitment value specified on the mint
    **/
 
-    PrivateCoin(const ZeroCTParams* p, const CKey privKey, const CPubKey mintPubKey,
+    PrivateCoin(const ZeroCTParams* p, const CKey privKey, const CPubKey mintPubKey, const CBigNum nonce,
                 const BlindingCommitment blindingCommitment, const CBigNum commitment_value, const CBigNum obfuscatedPid,
                 const CBigNum obfuscatedAmount, bool fCheck = true);
 
@@ -166,7 +169,7 @@ public:
     const CBigNum& getRandomness() const { return this->randomness; }
     const uint8_t& getVersion() const { return this->version; }
 
-    static bool QuickCheckIsMine(const ZeroCTParams* p, const CKey& privKey, const CPubKey& mintPubKey, const BlindingCommitment& blindingCommitment,
+    static bool QuickCheckIsMine(const ZeroCTParams* p, const CKey& privKey, const CPubKey& mintPubKey, const CBigNum& nonce, const BlindingCommitment& blindingCommitment,
                                  const CBigNum& commitment_value, const CBigNum& obfuscationAmount, const CBigNum& amountCommitment);
 
     bool isValid();

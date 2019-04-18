@@ -45,8 +45,8 @@ public:
 	 * @param msghash hash of meta data to create a signature of knowledge on.
 	 */
   SerialNumberSignatureOfKnowledge(const ZeroCTParams* p, const PrivateCoin& coin, const Commitment& commitmentToCoin,
-                                   const Commitment& commitmentToSerial, CBigNum obfuscatedRandomness, Commitment amountCommitment,
-                                   Commitment valueCommitment, uint256 msghash);
+                                   const Commitment& commitmentToSerial, CBigNum obfuscatedRandomness, CBigNum amountCommitmentRandomness,
+                                   Commitment amountCommitment, Commitment valueCommitment, uint256 msghash);
 
 	/** Verifies the Signature of knowledge.
 	 *
@@ -59,8 +59,7 @@ public:
   template <typename Stream, typename Operation>
   inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
   {
-      READWRITE(xi);
-      READWRITE(iota);
+      READWRITE(xi);     
       READWRITE(delta);
       READWRITE(psi);
       READWRITE(nu);
@@ -78,7 +77,6 @@ private:
 	// because the serialization macros
 	// define something named s and it conflicts
   vector<CBigNum> xi;
-  vector<CBigNum> iota;
   vector<CBigNum> delta;
   vector<CBigNum> psi;
   vector<CBigNum> nu;

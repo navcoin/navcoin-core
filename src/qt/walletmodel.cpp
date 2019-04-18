@@ -302,6 +302,14 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             if (address.type() == typeid(libzeroct::CPrivateAddress)) {
                 boost::get<libzeroct::CPrivateAddress>(address).SetPaymentId(rcp.message.toStdString());
                 boost::get<libzeroct::CPrivateAddress>(address).SetAmount(rcp.amount);
+                shared_ptr<CReserveKey> keyPrivate(new CReserveKey(wallet, true));
+                transaction.vZeroReserveKey.push_back(keyPrivate);
+                CPubKey pubKey;
+                keyPrivate->GetReservedKey(pubKey);
+                CKey key;
+                if (!wallet->GetKey(pubKey.GetID(), key))
+                    return TransactionCreationFailed;
+                boost::get<libzeroct::CPrivateAddress>(address).SetKey(key);
             }
 
             // Parse NavCoin address
@@ -346,10 +354,13 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         std::string strFailReason;
         bool fCreated;
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
+        shared_ptr<CReserveKey> zerochangekey(new CReserveKey(wallet, true));
+
+        transaction.vZeroReserveKey.insert(transaction.vZeroReserveKey.begin(), std::move(zerochangekey));
 
         CWalletTx* newTx = transaction.getTransaction();
 
-        fCreated = wallet->CreateTransaction(vecSend, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true, "");
+        fCreated = wallet->CreateTransaction(vecSend, *newTx, *keyChange, transaction.vZeroReserveKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true, "");
         if (newTx->fSpendsColdStaking)
             transaction.fSpendsColdStaking = true;
 
@@ -407,7 +418,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         std::string strFailReason;
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
 
-        if(!wallet->CommitTransaction(*newTx, *keyChange))
+        if(!wallet->CommitTransaction(*newTx, *keyChange, transaction.vZeroReserveKey))
           return TransactionCommitFailed;
 
         CTransaction* t = (CTransaction*)newTx;

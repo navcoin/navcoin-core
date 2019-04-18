@@ -15,6 +15,7 @@
 #define MIN_MINT_SECURITY 100
 #define WITNESS_ADDED_ENTROPY 40
 #define DEFAULT_SPEND_MIN_MINT_COUNT 0
+#define ZERO_KEYCHAIN 0x10
 
 // NEEDS UNIT TEST
 bool DestinationToVecRecipients(CAmount nValue, const std::string &address, vector<CRecipient> &vecSend,

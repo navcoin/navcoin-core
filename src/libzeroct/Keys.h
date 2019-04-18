@@ -57,6 +57,14 @@ public:
         return nAmount;
     }
 
+    void SetKey(CKey keyIn) {
+        key = keyIn;
+    }
+
+    CKey GetKey() const {
+        return key;
+    }
+
     void SetGamma(CBigNum gamma) const {
         bnGamma = gamma;
     }
@@ -92,6 +100,7 @@ private:
     std::string strPid;
     CAmount nAmount;
     mutable CBigNum bnGamma;
+    mutable CKey key;
 };
 class CPrivateViewKey
 {

@@ -846,9 +846,9 @@ public:
      * selected by SelectCoins(); Also create the change output, when needed
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
-    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosInOut,
+    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveKey>>& zeroReservekey, CAmount& nFeeRet, int& nChangePosInOut,
                            std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, std::string strDZeel = "");
-    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
+    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveKey>>& zeroReservekey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
 
@@ -1019,11 +1019,13 @@ protected:
     CWallet* pwallet;
     int64_t nIndex;
     CPubKey vchPubKey;
+    bool fZero;
 public:
-    CReserveKey(CWallet* pwalletIn)
+    CReserveKey(CWallet* pwalletIn, bool fZeroIn = false)
     {
         nIndex = -1;
         pwallet = pwalletIn;
+        fZero = fZeroIn;
     }
 
     ~CReserveKey()

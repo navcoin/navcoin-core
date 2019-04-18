@@ -706,7 +706,7 @@ public:
     bool IsFee() const;
     bool IsZeroCTMint() const;
     bool IsZeroCTSpend() const;
-    bool ExtractZeroCTMintData(CPubKey &zkey, std::vector<unsigned char> &commitment, std::vector<unsigned char> &paymentid, std::vector<unsigned char> &obfamount, std::vector<unsigned char> &amcommitment) const;
+    bool ExtractZeroCTMintData(CPubKey &zkey, std::vector<unsigned char> &commitment, std::vector<unsigned char> &nonce, std::vector<unsigned char> &paymentid, std::vector<unsigned char> &obfamount, std::vector<unsigned char> &amcommitment) const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;

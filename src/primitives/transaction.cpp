@@ -63,8 +63,8 @@ std::string CTxOut::ToString() const
 {
     if (IsZeroCTMint()) {
         std::vector<unsigned char> c; CPubKey p; std::vector<unsigned char> i; std::vector<unsigned char> a;
-        std::vector<unsigned char> ac;
-        if(!scriptPubKey.ExtractZeroCTMintData(p, c, i, a, ac))
+        std::vector<unsigned char> ac; std::vector<unsigned char> n;
+        if(!scriptPubKey.ExtractZeroCTMintData(p, c, n, i, a, ac))
             return "CTxOut(zeroct_mint)";
         else
             return strprintf("CTxOut(zeroct_mint, coinvalue=%s, amountvalue=%s)", HexStr(c).substr(0,16), HexStr(ac).substr(0,16));

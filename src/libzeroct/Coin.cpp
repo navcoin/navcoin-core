@@ -55,8 +55,8 @@ PrivateCoin::PrivateCoin(const ZeroCTParams* p):
     }
 };
 
-PublicCoin::PublicCoin(const ZeroCTParams* p, const CBigNum valueIn, const CPubKey pubKeyIn, const CBigNum pid,
-                       CBigNum obfuscatedAmount, CBigNum amountCommitment, bool fCheck) : params(p), value(valueIn),
+PublicCoin::PublicCoin(const ZeroCTParams* p, const CBigNum valueIn, const CPubKey& pubKeyIn, const CBigNum& pid, const CBigNum& nonceIn,
+                       const CBigNum& obfuscatedAmount, const CBigNum& amountCommitment, bool fCheck) : params(p), value(valueIn), nonce(nonceIn),
                        pubKey(pubKeyIn), paymentId(pid), amount(obfuscatedAmount), amountcommitment(amountCommitment) {
     if (this->params->initialized == false) {
         throw std::runtime_error("Params are not initialized");
@@ -70,25 +70,30 @@ PublicCoin::PublicCoin(const ZeroCTParams* p, const CBigNum valueIn, const CPubK
 }
 
 PublicCoin::PublicCoin(const ZeroCTParams* p, const CPubKey destPubKey, const BlindingCommitment blindingCommitment,
-                       const std::string pid, CAmount amount, CBigNum* rpval): params(p) {
+                       const CKey mintkey, const std::string pid, CAmount amount, CBigNum* rpval): params(p) {
     // Verify that the parameters are valid
     if(this->params->initialized == false)
         throw std::runtime_error("Params are not initialized");
 
-    CKey key;
     bool fFound = false;
+
+    CPrivKey vch_shared_secret;
+    if(!mintkey.ECDHSecret(destPubKey, vch_shared_secret))
+        throw std::runtime_error("PrivateCoin::PrivateCoin(): Could not calculate ECDH Secret");
+
+    uint256 shared_secret(std::vector<unsigned char>(vch_shared_secret.begin(), vch_shared_secret.end()));
 
     // Repeat this process up to MAX_COINMINT_ATTEMPTS times until
     // we obtain a valid commitment value.
-    for (uint32_t attempt = 0; attempt < MAX_COINMINT_ATTEMPTS; attempt++) {
-        // Generate a new Key Pair
-        key.MakeNewKey(false);
+    for (uint32_t attempt = 0; attempt < MAX_COINMINT_ATTEMPTS; attempt++)
+    {
+        CHashWriter h(0, 0);
+        CBigNum lambda = CBigNum::RandKBitBigum(256);
 
-        CPrivKey shared_secret;
-        if(!key.ECDHSecret(destPubKey, shared_secret))
-            throw std::runtime_error("PrivateCoin::PrivateCoin(): Could not calculate ECDH Secret");
+        h << shared_secret;
+        h << lambda;
 
-        uint256 pre_chi(std::vector<unsigned char>(shared_secret.begin(), shared_secret.end()));
+        uint256 pre_chi = h.GetHash();
         uint256 pre_sigma(Hash(pre_chi.begin(), pre_chi.end()));
 
         CBigNum chi = CBigNum(pre_chi) % (this->params->coinCommitmentGroup.groupOrder);
@@ -111,7 +116,8 @@ PublicCoin::PublicCoin(const ZeroCTParams* p, const CPubKey destPubKey, const Bl
                 epsilon >= params->accumulatorParams.minCoinValue &&
                 epsilon <= params->accumulatorParams.maxCoinValue) {
             // Found a valid coin. Store it.
-            this->pubKey = key.GetPubKey();
+            this->pubKey = mintkey.GetPubKey();
+            this->nonce = lambda;
             this->value = c;
             this->amountcommitment = ac;
 
@@ -153,12 +159,12 @@ const CBigNum PublicCoin::getValue() const
 
 
 bool PublicCoin::isValid(bool fFast) const
-{
+{    
+    CBigNum acVal = getValue();
+
     if (value > this->params->coinCommitmentGroup.modulus || amountcommitment > this->params->coinCommitmentGroup.modulus) {
         throw std::runtime_error("PublicCoin::isValid(): values out of range");
     }
-
-    CBigNum acVal = getValue();
 
     if (this->params->accumulatorParams.minCoinValue >= acVal) {
         throw std::runtime_error("PublicCoin::isValid(): value is too low");
@@ -175,7 +181,7 @@ bool PublicCoin::isValid(bool fFast) const
     return true;
 }
 
-PrivateCoin::PrivateCoin(const ZeroCTParams* p, const CKey privKey, const CPubKey mintPubKey,
+PrivateCoin::PrivateCoin(const ZeroCTParams* p, const CKey privKey, const CPubKey mintPubKey, const CBigNum nonce,
                          const BlindingCommitment blindingCommitment, const CBigNum commitment_value, const CBigNum obfuscatedPid,
                          const CBigNum obfuscatedAmount, bool fCheck) : params(p), publicCoin(p), randomness(0), serialNumber(0), fValid(false)
 {
@@ -183,11 +189,18 @@ PrivateCoin::PrivateCoin(const ZeroCTParams* p, const CKey privKey, const CPubKe
     if(!this->params->initialized)
         throw std::runtime_error("PrivateCoin::PrivateCoin(): Params are not initialized");
 
-    CPrivKey shared_secret;
-    if(!privKey.ECDHSecret(mintPubKey, shared_secret))
+    CPrivKey vch_shared_secret;
+    if(!privKey.ECDHSecret(mintPubKey, vch_shared_secret))
         throw std::runtime_error("PrivateCoin::PrivateCoin(): Could not calculate ECDH Secret");
 
-    uint256 pre_chi(std::vector<unsigned char>(shared_secret.begin(), shared_secret.end()));
+    uint256 shared_secret(std::vector<unsigned char>(vch_shared_secret.begin(), vch_shared_secret.end()));
+
+    CHashWriter h(0, 0);
+
+    h << shared_secret;
+    h << nonce;
+
+    uint256 pre_chi = h.GetHash();
     uint256 pre_sigma(Hash(pre_chi.begin(), pre_chi.end()));
 
     CBigNum chi = CBigNum(pre_chi) % (this->params->coinCommitmentGroup.groupOrder);
@@ -223,7 +236,7 @@ PrivateCoin::PrivateCoin(const ZeroCTParams* p, const CKey privKey, const CPubKe
 
         o = uint256();
 
-        this->publicCoin = PublicCoin(p, c, mintPubKey, obfuscatedPid, obfuscatedAmount, ac, fCheck);
+        this->publicCoin = PublicCoin(p, c, mintPubKey, obfuscatedPid, nonce, obfuscatedAmount, ac, fCheck);
         fValid = true;
     }
 
@@ -236,18 +249,26 @@ PrivateCoin::PrivateCoin(const ZeroCTParams* p, const CKey privKey, const CPubKe
     this->version = CURRENT_VERSION;
 }
 
-bool PrivateCoin::QuickCheckIsMine(const ZeroCTParams* p, const CKey& privKey, const CPubKey& mintPubKey, const BlindingCommitment& blindingCommitment,
-                                   const CBigNum& commitment_value, const CBigNum& obfuscationAmount, const CBigNum& amountCommitment)
+bool PrivateCoin::QuickCheckIsMine(const ZeroCTParams* p, const CKey& privKey, const CPubKey& mintPubKey, const CBigNum& nonce,
+                                   const BlindingCommitment& blindingCommitment, const CBigNum& commitment_value,
+                                   const CBigNum& obfuscationAmount, const CBigNum& amountCommitment)
 {
     // Verify that the parameters are valid
     if(!p->initialized)
         throw std::runtime_error("PrivateCoin::PrivateCoin(): Params are not initialized");
 
-    CPrivKey shared_secret;
-    if(!privKey.ECDHSecret(mintPubKey, shared_secret))
+    CPrivKey vch_shared_secret;
+    if(!privKey.ECDHSecret(mintPubKey, vch_shared_secret))
         throw std::runtime_error("PrivateCoin::PrivateCoin(): Could not calculate ECDH Secret");
 
-    uint256 pre_chi(std::vector<unsigned char>(shared_secret.begin(), shared_secret.end()));
+    uint256 shared_secret(std::vector<unsigned char>(vch_shared_secret.begin(), vch_shared_secret.end()));
+
+    CHashWriter h(0, 0);
+
+    h << shared_secret;
+    h << nonce;
+
+    uint256 pre_chi = h.GetHash();
     uint256 pre_sigma(Hash(pre_chi.begin(), pre_chi.end()));
 
     CBigNum chi = CBigNum(pre_chi) % (p->coinCommitmentGroup.groupOrder);

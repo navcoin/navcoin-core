@@ -50,6 +50,7 @@ PrivateCoin    *gCoins[TESTS_COINS_TO_ACCUMULATE];
 // Global params
 ZeroCTParams *g_Params;
 CKey privKey;
+CKey mintKey;
 CPubKey pubKey;
 CBigNum obfuscation_j1;
 CBigNum obfuscation_j2;
@@ -347,8 +348,8 @@ Test_MintCoin()
         // Generate a list of coins
         for (uint32_t i = 0; i < TESTS_COINS_TO_ACCUMULATE; i++) {
             CBigNum rpdata;
-            PublicCoin pubCoin(g_Params, pubKey, blindingCommitment, "", COIN, &rpdata);
-            gCoins[i] = new PrivateCoin(g_Params, privKey, pubCoin.getPubKey(), blindingCommitment, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
+            PublicCoin pubCoin(g_Params, pubKey, blindingCommitment, mintKey, "", COIN, &rpdata);
+            gCoins[i] = new PrivateCoin(g_Params, privKey, pubCoin.getPubKey(), pubCoin.getNonce(), blindingCommitment, pubCoin.getValue(), pubCoin.getPaymentId(), pubCoin.getAmount());
             PublicCoin pc = gCoins[i]->getPublicCoin();
         }
 
@@ -378,7 +379,7 @@ bool Test_InvalidCoin()
             return false;
         }
 
-        PublicCoin pubCoin2(g_Params, coinValue, pubKey, CBigNum(1), CBigNum(1), CBigNum(1));
+        PublicCoin pubCoin2(g_Params, coinValue, pubKey, CBigNum(1), CBigNum(1), CBigNum(1), CBigNum(1));
         if (pubCoin2.isValid()) {
             // A non-prime coin should not be valid!
             return false;
@@ -474,6 +475,9 @@ Test_RunAllTests()
     // Generate a new Key Pair
     privKey.MakeNewKey(false);
     pubKey = privKey.GetPubKey();
+
+    // Generate mint key
+    mintKey.MakeNewKey(false);
 
     // Calculate obfuscation values
     obfuscation_j1 = CBigNum::randBignum(g_Params->coinCommitmentGroup.groupOrder);

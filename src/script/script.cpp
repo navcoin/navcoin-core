@@ -344,7 +344,7 @@ bool CScript::ExtractVote(uint256 &hash, bool &vote) const
     return true;
 }
 
-bool CScript::ExtractZeroCTMintData(CPubKey &zkey, std::vector<unsigned char> &commitment, std::vector<unsigned char> &paymentid, std::vector<unsigned char> &obfamount, std::vector<unsigned char> &amcommitment) const
+bool CScript::ExtractZeroCTMintData(CPubKey &zkey, std::vector<unsigned char> &commitment, std::vector<unsigned char> &nonce, std::vector<unsigned char> &paymentid, std::vector<unsigned char> &obfamount, std::vector<unsigned char> &amcommitment) const
 {
     if(!IsZeroCTMint())
         return false;
@@ -362,6 +362,10 @@ bool CScript::ExtractZeroCTMintData(CPubKey &zkey, std::vector<unsigned char> &c
     begin = end + 1;
     end = begin + 1 + (*begin);
     amcommitment = std::vector<unsigned char>(begin + 1, end);
+
+    begin = end + 1;
+    end = begin + 1 + (*begin);
+    nonce = std::vector<unsigned char>(begin + 1, end);
 
     begin = end;
     end = begin + 1 + (*begin);
