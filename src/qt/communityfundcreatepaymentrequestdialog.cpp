@@ -218,7 +218,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         strDZeel.push_back(Pair("s",Signature));
         strDZeel.push_back(Pair("r",sRandom));
         strDZeel.push_back(Pair("i",id));
-        strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
+        strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
