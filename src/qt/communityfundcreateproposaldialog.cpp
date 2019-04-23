@@ -130,7 +130,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         strDZeel.push_back(Pair("a",Address));
         strDZeel.push_back(Pair("d",nDeadline));
         strDZeel.push_back(Pair("s",sDesc));
-        strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2));
+        strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2));
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
