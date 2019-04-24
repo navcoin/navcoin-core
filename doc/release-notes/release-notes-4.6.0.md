@@ -32,14 +32,20 @@ Support for two new wallet options (`-importmnemonic` and `-mnemoniclanguage`) h
 
 ## Fix wrong balance after orphan stakes
 <[Pull Request 438](https://github.com/NAVCoin/navcoin-core/pull/438)>
+<[Commit 4041e3e](https://github.com/NAVCoin/navcoin-core/commit/4041e3ef5de672c6d4e6a20ce5b7f22df090ed14)>
 This PR fixes an historical issue which made the wallet show a wrong balance after orphan stakes.
+
+## Index cold staking address unspent output by spending address
+<[Pull Request 434](https://github.com/NAVCoin/navcoin-core/pull/434)>
+<[Commit 404d85f](https://github.com/NAVCoin/navcoin-core/commit/404d85f8ea65bf764d3fa681a4d1483c3e72c507)>
+
+When running a node with -addressindex=1 executing the RPC command “getaddressutxos” with the spending pubkeyhash of a cold staking address will now return any utxo’s available to spend by that key including those where the pubkeyhash is the spending key of a coldstaking transaction. Previously only regular utxo’s sent directly to that pubkeyhash were returned.
 
 ## Other updates to the NavCoin client, docs and codebase
 
 - Use chainActive.Tip() instead of pindexBestHeader <[Pull Request 442](https://github.com/NAVCoin/navcoin-core/pull/442)> <[Commit 4de0827](https://github.com/NAVCoin/navcoin-core/commit/4de08271f82f888d73024317af08723a82fca467)>
 - Fix Gitian Build <[Pull Request 441](https://github.com/NAVCoin/navcoin-core/pull/441)> <[Commit afa2e8b](https://github.com/NAVCoin/navcoin-core/commit/afa2e8b8e9fd8cf67605e15ac8671e996bcc2e2d)>
 - Adds arrayslice.h to Makefile.am <[Pull Request 440](https://github.com/NAVCoin/navcoin-core/pull/440)> <[Commit 5ba6b6a](https://github.com/NAVCoin/navcoin-core/commit/5ba6b6affbee20e9298776a99a70331384b1a1e2)>
-- Simplification of SyncTransaction <[Pull Request 438](https://github.com/NAVCoin/navcoin-core/pull/438)> <[Commit 4041e3e](https://github.com/NAVCoin/navcoin-core/commit/4041e3ef5de672c6d4e6a20ce5b7f22df090ed14)>
 - Update FreeType depend file to 2.7.1 <[Pull Request 433](https://github.com/NAVCoin/navcoin-core/pull/433)> <[Commit 6025758](https://github.com/NAVCoin/navcoin-core/commit/60257582df85c07b794ceb186e2289eada4d3832)>
 - Fix crash with -banversion <[Pull Request 432](https://github.com/NAVCoin/navcoin-core/pull/432)> <[Commit a25b139](https://github.com/NAVCoin/navcoin-core/commit/a25b1391120b3906d12173a88abce64b405fa0f4)>
 - Fixed cold staking report RPC command <[Pull Request 425](https://github.com/NAVCoin/navcoin-core/pull/425)> <[Commit 765d5be](https://github.com/NAVCoin/navcoin-core/commit/765d5bee07d1611acc12341f6b99d73c411095ac)>
