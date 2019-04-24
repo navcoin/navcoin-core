@@ -130,10 +130,11 @@ private:
     QAction *unlockWalletAction;
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
-    QPushButton *topMenu1;
-    QPushButton *topMenu2;
-    QPushButton *topMenu3;
-    QPushButton *topMenu4;
+    QPushButton *topMenu1; // Home
+    QPushButton *topMenu2; // Send
+    QPushButton *topMenu3; // Recieve
+    QPushButton *topMenu4; // Transaction History
+    QPushButton *topMenu5; // Community Fund
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -223,6 +224,8 @@ private Q_SLOTS:
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
+    /** Switch to community fund page*/
+    void gotoCommunityFundPage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */

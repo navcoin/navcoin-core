@@ -173,7 +173,7 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
             
         );
 
-    if (!IsColdStakingEnabled(pindexBestHeader,Params().GetConsensus()))
+    if (!IsColdStakingEnabled(chainActive.Tip(),Params().GetConsensus()))
         throw runtime_error(
             "Cold Staking is not active yet.");
 
@@ -592,7 +592,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("a",Address));
     strDZeel.push_back(Pair("d",nDeadline));
     strDZeel.push_back(Pair("s",sDesc));
-    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2));
+    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -705,7 +705,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("s",Signature));
     strDZeel.push_back(Pair("r",sRandom));
     strDZeel.push_back(Pair("i",id));
-    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
+    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
@@ -1830,6 +1830,49 @@ static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
     }
 }
 
+void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strAccount, bool fLong, UniValue& ret, CAmount nFee, bool fAllAccounts, bool involvesWatchonly)
+{
+    string account;
+    if (pwalletMain->mapAddressBook.count(r.destination))
+        account = pwalletMain->mapAddressBook[r.destination].name;
+    if (fAllAccounts || (account == strAccount))
+    {
+        UniValue entry(UniValue::VOBJ);
+        if(involvesWatchonly || (::IsMine(*pwalletMain, r.destination) & ISMINE_WATCH_ONLY))
+            entry.push_back(Pair("involvesWatchonly", true));
+        entry.push_back(Pair("account", account));
+        MaybePushAddress(entry, r.destination);
+        if (wtx.IsCoinBase() || wtx.IsCoinStake())
+        {
+            if (wtx.GetDepthInMainChain() < 1)
+                entry.push_back(Pair("category", "orphan"));
+            else if (wtx.GetBlocksToMaturity() > 0)
+                entry.push_back(Pair("category", "immature"));
+            else
+                entry.push_back(Pair("category", "generate"));
+        }
+        else
+        {
+            entry.push_back(Pair("category", "receive"));
+        }
+        if (!wtx.IsCoinStake())
+            entry.push_back(Pair("amount", ValueFromAmount(r.amount)));
+        else {
+            entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
+        }
+        entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
+                                          (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
+                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
+        entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false));
+        if (pwalletMain->mapAddressBook.count(r.destination))
+            entry.push_back(Pair("label", account));
+        entry.push_back(Pair("vout", r.vout));
+        if (fLong)
+            WalletTxToJSON(wtx, entry);
+        ret.push_back(entry);
+    }
+}
+
 void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter)
 {
     CAmount nFee;
@@ -1874,52 +1917,20 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
     // Received
     if (listReceived.size() > 0 && wtx.GetDepthInMainChain() >= nMinDepth)
     {
-        bool stop = false;
-        BOOST_FOREACH(const COutputEntry& r, listReceived)
+        if (!wtx.IsCoinStake())
         {
-            string account;
-            if (pwalletMain->mapAddressBook.count(r.destination))
-                account = pwalletMain->mapAddressBook[r.destination].name;
-            if (fAllAccounts || (account == strAccount))
+            BOOST_FOREACH(const COutputEntry& r, listReceived)
             {
-                UniValue entry(UniValue::VOBJ);
-                if(involvesWatchonly || (::IsMine(*pwalletMain, r.destination) & ISMINE_WATCH_ONLY))
-                    entry.push_back(Pair("involvesWatchonly", true));
-                entry.push_back(Pair("account", account));
-                MaybePushAddress(entry, r.destination);
-                if (wtx.IsCoinBase() || wtx.IsCoinStake())
-                {
-                    if (wtx.GetDepthInMainChain() < 1)
-                        entry.push_back(Pair("category", "orphan"));
-                    else if (wtx.GetBlocksToMaturity() > 0)
-                        entry.push_back(Pair("category", "immature"));
-                    else
-                        entry.push_back(Pair("category", "generate"));
-                }
-                else
-                {
-                    entry.push_back(Pair("category", "receive"));
-                }
-                if (!wtx.IsCoinStake())
-                    entry.push_back(Pair("amount", ValueFromAmount(r.amount)));
-                else
-                {
-                    entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
-                    stop = true; // only one coinstake output
-                }
-                entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
-                                                  (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
-                                                   !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
-                entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false));
-                if (pwalletMain->mapAddressBook.count(r.destination))
-                    entry.push_back(Pair("label", account));
-                entry.push_back(Pair("vout", r.vout));
-                if (fLong)
-                    WalletTxToJSON(wtx, entry);
-                ret.push_back(entry);
-                if (stop)
-                    break;
+                 GetReceived(r, wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
             }
+        }
+        else
+        {
+            // only get the coinstake reward output
+            if (wtx.GetValueOutCFund() == 0)
+                GetReceived(listReceived.back(), wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
+            else
+                GetReceived(*std::prev(listReceived.end(),1), wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
         }
     }
 }
@@ -3165,10 +3176,10 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         nElement++;
 
         // use the cached amount if available
-        if (pcoin->fCreditCached && pcoin->fDebitCached)
-            nAmount = pcoin->nCreditCached - pcoin->nDebitCached;
+        if ((pcoin->fCreditCached || pcoin->fColdStakingCreditCached) && (pcoin->fDebitCached || pcoin->fColdStakingDebitCached))
+            nAmount = pcoin->nCreditCached  + pcoin->nColdStakingCreditCached - pcoin->nDebitCached - pcoin->nColdStakingDebitCached;
         else
-            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_SPENDABLE);
+            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) + pcoin->GetCredit(ISMINE_STAKABLE) - pcoin->GetDebit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_STAKABLE);
 
 
         // scan the range
@@ -3537,6 +3548,7 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
+extern UniValue dumpmnemonic(const UniValue& params, bool fHelp);
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
 extern UniValue importaddress(const UniValue& params, bool fHelp);
 extern UniValue importpubkey(const UniValue& params, bool fHelp);
@@ -3556,6 +3568,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "backupwallet",             &backupwallet,             true  },
     { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
     { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
+    { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
     { "wallet",             "dumpwallet",               &dumpwallet,               true  },
     { "wallet",             "encryptwallet",            &encryptwallet,            true  },
     { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
