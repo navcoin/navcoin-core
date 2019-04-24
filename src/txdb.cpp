@@ -214,6 +214,34 @@ bool CBlockTreeDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
     return true;
 }
 
+CFund::CProposal CBlockTreeDB::GetProposal(uint256 hash)
+{
+    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
+
+    pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_PROPINDEX) {
+            CFund::CProposal proposal;
+            if (pcursor->GetValue(proposal)) {
+                if(proposal.hash == hash){
+                    return proposal;
+
+                }
+            pcursor->Next();
+            } else {
+                return CFund::CProposal();
+            }
+        } else {
+            break;
+        }
+    }
+
+    return CFund::CProposal();
+}
+
 bool CBlockTreeDB::ReadPaymentRequestIndex(const uint256 &prequestid, CFund::CPaymentRequest &prequest) {
     return Read(make_pair(DB_PREQINDEX, prequestid), prequest);
 }

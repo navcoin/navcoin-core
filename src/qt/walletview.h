@@ -13,6 +13,7 @@
 class NavCoinGUI;
 class ClientModel;
 class OverviewPage;
+class CommunityFundPage;
 class PlatformStyle;
 class ReceiveCoinsDialog;
 class SendCoinsDialog;
@@ -64,6 +65,7 @@ private:
     QWidget *transactionsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
+    CommunityFundPage *communityFundPage;
     getAddressToReceive *requestPaymentPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
@@ -78,6 +80,8 @@ public Q_SLOTS:
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
+    /** Switch to community fund page */
+    void gotoCommunityFundPage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */

@@ -268,7 +268,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO &&
                                            !pcoin->vout[i].scriptPubKey.IsColdStaking()) ||
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_STAKABLE)) != ISMINE_NO &&
-                                           IsColdStakingEnabled(pindexBestHeader, Params().GetConsensus()))));
+                                           IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))));
                 }
         }
     }
@@ -352,7 +352,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         static int nMaxStakeSearchInterval = 60;
         bool fKernelFound = false;
-        for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fKernelFound && pindexPrev == pindexBestHeader; n++)
+        for (unsigned int n=0; n<min(nSearchInterval,(int64_t)nMaxStakeSearchInterval) && !fKernelFound && pindexPrev == chainActive.Tip(); n++)
         {
             boost::this_thread::interruption_point();
             // Search backward in time from the given txNew timestamp
@@ -475,7 +475,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if (!TransactionGetCoinAge(ptxNew, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
-        nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees, pindexBestHeader);
+        nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees, chainActive.Tip());
         if (nReward <= 0)
             return false;
 
@@ -546,6 +546,47 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         txNew.vout[1].nValue = blockValue;
     }
 
+    if (GetArg("-stakingaddress", "") != "" && !txNew.vout[txNew.vout.size()-1].scriptPubKey.IsColdStaking()) {
+        CNavCoinAddress address;
+        UniValue stakingAddress;
+        UniValue addressMap(UniValue::VOBJ);
+
+        if (stakingAddress.read(GetArg("-stakingaddress", "")))
+        {
+            try {
+                if (stakingAddress.isObject())
+                    addressMap = stakingAddress.get_obj();
+                else
+                    return error("%s: Failed to read JSON from -stakingaddress argument", __func__);
+
+                // Use "all" address if present
+                if(find_value(addressMap, "all").isStr())
+                {
+                    address = CNavCoinAddress(find_value(addressMap, "all").get_str());
+                }
+                // Or use specified address if present
+                if(find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).isStr())
+                {
+                    address = CNavCoinAddress(find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).get_str());
+                }
+
+            } catch (const UniValue& objError) {
+                return error("%s: Failed to read JSON from -stakingaddress argument", __func__);
+            } catch (const std::exception& e) {
+                return error("%s: Failed to read JSON from -stakingaddress argument", __func__);
+            }
+        }
+        else
+        {
+            address = CNavCoinAddress(GetArg("-stakingaddress", ""));
+        }
+
+        if (address.IsValid()) {
+            txNew.vout[txNew.vout.size()-1].nValue -= nReward;
+            txNew.vout.push_back(CTxOut(nReward, GetScriptForDestination(address.Get())));
+        }
+    }
+
     // Adds Community Fund output if enabled
     if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
     {
@@ -578,7 +619,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         }
     }
 
-    txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+    txNew.nVersion = IsCommunityFundEnabled(chainActive.Tip(),Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
 
     // Sign
     int nIn = 0;
@@ -980,7 +1021,7 @@ bool CWallet::IsSpent(const uint256& hash, unsigned int n) const
         std::map<uint256, CWalletTx>::const_iterator mit = mapWallet.find(wtxid);
         if (mit != mapWallet.end()) {
             int depth = mit->second.GetDepthInMainChain();
-            if (depth > 0  || (depth == 0 && !mit->second.isAbandoned()))
+            if (depth > 0  || (depth == 0 && !mit->second.isAbandoned() && !mit->second.IsCoinStake()))
                 return true; // Spent
         }
     }
@@ -1501,67 +1542,18 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex,
 {
     LOCK2(cs_main, cs_wallet);
 
-    if (!fConnect)
-    {
-        // wallets need to refund inputs when disconnecting coinstake
-        if (tx.IsCoinStake())
-        {
-            if (IsFromMe(tx))
-            {
-                // Do not flush the wallet here for performance reasons
-                CWalletDB walletdb(strWalletFile, "r+", false);
-
-                if (mapWallet.count(tx.hash))
-                {
-                    CWalletTx& wtx = mapWallet[tx.hash];
-                    wtx.MarkDirty();
-                    walletdb.WriteTx(wtx);
-                }
-                else
-                {
-                    LogPrintf("SyncTransaction : Warning: Could not find %s in wallet. Trying to refund someone else's tx?", tx.hash.ToString());
-                }
-
-                LogPrintf("SyncTransaction : Refunding inputs of orphan tx %s\n",tx.hash.ToString());
-
-                BOOST_FOREACH(const CTxIn& txin, tx.vin)
-                {
-                    if (mapWallet.count(txin.prevout.hash))
-                        mapWallet[txin.prevout.hash].MarkDirty();
-                }
-            }
-        }
-    }
-
-    bool isMine = true;
-
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
-        isMine = false; // Not one of ours
+       return; // Not one of ours
 
     // If a transaction changes 'conflicted' state, that changes the balance
     // available of the outputs it spends. So force those to be
     // recomputed, also:
-
-    if(isMine == true)
+    BOOST_FOREACH(const CTxIn& txin, tx.vin)
     {
-        BOOST_FOREACH(const CTxIn& txin, tx.vin)
-        {
-            if (mapWallet.count(txin.prevout.hash))
-                mapWallet[txin.prevout.hash].MarkDirty();
-        }
-    }
-
-    if (!fConnect && tx.IsCoinStake() && IsFromMe(tx))
-    {
-        AbandonTransaction(tx.hash);
-        LogPrintf("SyncTransaction : Removing tx %s from mapTxSpends\n",tx.hash.ToString());
-        BOOST_FOREACH(const CTxIn& txin, tx.vin)
-        {
-            mapTxSpends.erase(txin.prevout);
-        }
+        if (mapWallet.count(txin.prevout.hash))
+            mapWallet[txin.prevout.hash].MarkDirty();
     }
 }
-
 
 isminetype CWallet::IsMine(const CTxIn &txin) const
 {
@@ -1683,6 +1675,40 @@ CAmount CWallet::GetChange(const CTransaction& tx) const
     }
     return nChange;
 }
+
+CPubKey CWallet::ImportMnemonic(word_list mnemonic, dictionary lang)
+{
+    CKey key;
+
+    std::vector<unsigned char> vKey = key_from_mnemonic(mnemonic, lang);
+
+    key.Set(vKey.begin(), vKey.end(), false);
+
+    int64_t nCreationTime = GetTime();
+    CKeyMetadata metadata(nCreationTime);
+
+    // calculate the pubkey
+    CPubKey pubkey = key.GetPubKey();
+    assert(key.VerifyPubKey(pubkey));
+
+    // set the hd keypath to "m" -> Master, refers the masterkeyid to itself
+    metadata.hdKeypath     = "m";
+    metadata.hdMasterKeyID = pubkey.GetID();
+
+    {
+        LOCK(cs_wallet);
+
+        // mem store the metadata
+        mapKeyMetadata[pubkey.GetID()] = metadata;
+
+        // write the key&metadata to the database
+        if (!AddKeyPubKey(key, pubkey))
+            throw std::runtime_error("CWallet::GenerateNewKey(): AddKey failed");
+    }
+
+    return pubkey;
+}
+
 
 CPubKey CWallet::GenerateNewHDMasterKey()
 {
@@ -2741,7 +2767,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     CMutableTransaction txNew;
 
-    txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+    txNew.nVersion = IsCommunityFundEnabled(chainActive.Tip(),Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
 
     if(wtxNew.nCustomVersion > 0) txNew.nVersion = wtxNew.nCustomVersion;
 
@@ -3848,6 +3874,8 @@ std::string CWallet::GetWalletHelpString(bool showDebug)
     strUsage += HelpMessageOpt("-keypool=<n>", strprintf(_("Set key pool size to <n> (default: %u)"), DEFAULT_KEYPOOL_SIZE));
     strUsage += HelpMessageOpt("-fallbackfee=<amt>", strprintf(_("A fee rate (in %s/kB) that will be used when fee estimation has insufficient data (default: %s)"),
                                                                CURRENCY_UNIT, FormatMoney(DEFAULT_FALLBACK_FEE)));
+    strUsage += HelpMessageOpt("-importmnemonic=\"<word list>\"", _("Create a new wallet out of the specified mnemonic"));
+    strUsage += HelpMessageOpt("-mnemoniclanguage=<lang>", _("Use the specified language for the mnemonic import"));
     strUsage += HelpMessageOpt("-mintxfee=<amt>", strprintf(_("Fees (in %s/kB) smaller than this are considered zero fee for transaction creation (default: %s)"),
                                                             CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MINFEE)));
     strUsage += HelpMessageOpt("-paytxfee=<amt>", strprintf(_("Fee (in %s/kB) to add to transactions you send (default: %s)"),
@@ -3857,6 +3885,7 @@ std::string CWallet::GetWalletHelpString(bool showDebug)
     if (showDebug)
         strUsage += HelpMessageOpt("-sendfreetransactions", strprintf(_("Send transactions as zero-fee transactions if possible (default: %u)"), DEFAULT_SEND_FREE_TRANSACTIONS));
     strUsage += HelpMessageOpt("-spendzeroconfchange", strprintf(_("Spend unconfirmed change when sending transactions (default: %u)"), DEFAULT_SPEND_ZEROCONF_CHANGE));
+    strUsage += HelpMessageOpt("-stakingaddress", strprintf(_("Specify a customised navcoin address to accumulate the staking rewards.")));
     strUsage += HelpMessageOpt("-txconfirmtarget=<n>", strprintf(_("If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)"), DEFAULT_TX_CONFIRM_TARGET));
     strUsage += HelpMessageOpt("-usehd", _("Use hierarchical deterministic key generation (HD) after BIP32. Only has effect during wallet creation/first start") + " " + strprintf(_("(default: %u)"), DEFAULT_USE_HD_WALLET));
     strUsage += HelpMessageOpt("-upgradewallet", _("Upgrade wallet to latest format on startup"));
@@ -3949,7 +3978,18 @@ bool CWallet::InitLoadWallet()
         if (GetBoolArg("-usehd", DEFAULT_USE_HD_WALLET) && walletInstance->hdChain.masterKeyID.IsNull()) {
             // generate a new master key
             CKey key;
-            CPubKey masterPubKey = walletInstance->GenerateNewHDMasterKey();
+            CPubKey masterPubKey;
+            if (GetArg("-importmnemonic","") != "") {
+                word_list words = sentence_to_word_list(GetArg("-importmnemonic",""));
+                dictionary lexicon = string_to_lexicon(GetArg("-mnemoniclanguage","english"));
+                if (!validate_mnemonic(words, lexicon)) {
+                    if (validate_mnemonic(words, language::all))
+                        return InitError(strprintf(_("The specified language does not correspond to the mnemonic.")));
+                    return InitError(strprintf(_("You specified a wrong mnemonic")));
+                }
+                masterPubKey = walletInstance->ImportMnemonic(words, lexicon);
+            } else
+                masterPubKey = walletInstance->GenerateNewHDMasterKey();
             if (!walletInstance->SetHDMasterKey(masterPubKey))
                 throw std::runtime_error("CWallet::GenerateNewKey(): Storing master key failed");
         }
@@ -3961,6 +4001,9 @@ bool CWallet::InitLoadWallet()
         }
 
         walletInstance->SetBestChain(chainActive.GetLocator());
+    }
+    else if (GetArg("-importmnemonic","") != "") {
+        return InitError(strprintf(_("You are trying to import a new mnemonic but a wallet already exists. Please rename the existing wallet.dat before trying to import again.")));
     }
     else if (mapArgs.count("-usehd")) {
         bool useHD = GetBoolArg("-usehd", DEFAULT_USE_HD_WALLET);
@@ -4132,6 +4175,19 @@ bool CWallet::BackupWallet(const std::string& strDest)
         MilliSleep(100);
     }
     return false;
+}
+
+std::string CWallet::formatDisplayAmount(CAmount amount) {
+    stringstream n;
+    n.imbue(std::locale(""));
+    n << fixed << setprecision(8) << amount/COIN;
+    string nav_amount = n.str();
+    if(nav_amount.at(nav_amount.length()-1) == '.') {
+        nav_amount = nav_amount.substr(0, nav_amount.size()-1);
+    }
+    nav_amount.append(" NAV");
+
+    return nav_amount;
 }
 
 CKeyPool::CKeyPool()

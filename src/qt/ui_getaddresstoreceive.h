@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'getaddresstoreceive.ui'
 **
-** Created by: Qt User Interface Compiler version 5.10.0
+** Created by: Qt User Interface Compiler version 5.9.5
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -219,16 +219,16 @@ public:
 
     void retranslateUi(QWidget *getAddressToReceive)
     {
-        getAddressToReceive->setWindowTitle(QApplication::translate("getAddressToReceive", "Form", nullptr));
-        label->setText(QApplication::translate("getAddressToReceive", "Use the following address to receive NavCoins:", nullptr));
+        getAddressToReceive->setWindowTitle(QApplication::translate("getAddressToReceive", "Form", Q_NULLPTR));
+        label->setText(QApplication::translate("getAddressToReceive", "Use the following address to receive NavCoins:", Q_NULLPTR));
 #ifndef QT_NO_TOOLTIP
-        lblQRCode->setToolTip(QApplication::translate("getAddressToReceive", "QR Code", nullptr));
+        lblQRCode->setToolTip(QApplication::translate("getAddressToReceive", "QR Code", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
-        copyClipboardButton->setText(QApplication::translate("getAddressToReceive", "Copy to clipboard", nullptr));
-        requestPaymentButton->setText(QApplication::translate("getAddressToReceive", "Request payment", nullptr));
-        requestNewAddressButton->setText(QApplication::translate("getAddressToReceive", "List old addresses", nullptr));
-        newAddressButton->setText(QApplication::translate("getAddressToReceive", "Generate a new address", nullptr));
-        coldStakingButton->setText(QApplication::translate("getAddressToReceive", "Create a Cold Staking address", nullptr));
+        copyClipboardButton->setText(QApplication::translate("getAddressToReceive", "Copy to clipboard", Q_NULLPTR));
+        requestPaymentButton->setText(QApplication::translate("getAddressToReceive", "Request payment", Q_NULLPTR));
+        requestNewAddressButton->setText(QApplication::translate("getAddressToReceive", "List old addresses", Q_NULLPTR));
+        newAddressButton->setText(QApplication::translate("getAddressToReceive", "Generate a new address", Q_NULLPTR));
+        coldStakingButton->setText(QApplication::translate("getAddressToReceive", "Create a Cold Staking address", Q_NULLPTR));
     } // retranslateUi
 
 };

@@ -24,7 +24,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.nodes[0].staking(False)
         activate_cfund(self.nodes[0])
 
-        proposal_duration = 3
+        proposal_duration = 30
 
         proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, proposal_duration, "test")["hash"]
         slow_gen(self.nodes[0], 1)
@@ -147,11 +147,19 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert (self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
         assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
 
-        # Wait for the proposal to expire
-        while int(time.time()) <= int(self.nodes[0].getproposal(proposalid0)["expiresOn"]):
-            time.sleep(1)
+        # Check the voting cycle does not increment in later cycle after reorg
+        votingCycle_after_state_change = self.nodes[0].getproposal(proposalid0)["votingCycle"]
+        start_new_cycle(self.nodes[0])
+        blocks=slow_gen(self.nodes[0], 1)
+        self.nodes[0].invalidateblock(blocks[-1])
+        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == votingCycle_after_state_change)
 
         blocks=slow_gen(self.nodes[0], 1)
+
+        # Wait for the proposal to expire
+        while int(self.nodes[0].getblock(blocks[0])["time"]) <= int(self.nodes[0].getproposal(proposalid0)["expiresOn"]):
+            blocks=slow_gen(self.nodes[0], 1)
+            time.sleep(1)
 
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
 

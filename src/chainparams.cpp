@@ -125,6 +125,7 @@ public:
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 2722100;
+        consensus.nHeightv452Fork = 2882875;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -316,6 +317,7 @@ public:
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 100000;
+        consensus.nHeightv452Fork = 100000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -380,14 +382,14 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
-        uint32_t nTimestamp = 1541978905;
-        uint256 hashGenesisBlock = uint256S("0x0000c493d0f928a9f0a0eb0e0d88d871f4f5ab8bacc308f77bb0e8c7adee1307");
-        uint256 hashMerkleRoot = uint256S("0xf3f3286d731fc322d34f6a7c4df3eecfc1abaa6032350acf6cd363eb34edf574");
-        uint32_t nNonce = 2043537527;
+        uint32_t nTimestamp = 1545341312;
+        uint256 hashGenesisBlock = uint256S("0x0000a2ed763c6efc24bbb3ac8d9f1ab9e8f1e7100d5221ad80815cd7b369dc2c");
+        uint256 hashMerkleRoot = uint256S("0x02128838f2516796eb04f5b3fd143a7786001301dc5ffcfd2b2c687a2864aae9");
+        uint32_t nNonce = 2043585747;
 	    
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
-	    
+
         if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
         {
             printf("recalculating params for testnet.\n");
@@ -487,6 +489,7 @@ public:
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
+        consensus.nHeightv452Fork = 1000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
@@ -507,7 +510,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556668800; // May 1st, 2019
-	    
+
         // Deployment of NTP Sync
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
@@ -668,6 +671,7 @@ public:
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
+        consensus.nHeightv452Fork = 1000;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
