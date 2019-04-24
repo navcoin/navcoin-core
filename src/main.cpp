@@ -2033,8 +2033,14 @@ void static InvalidChainFound(CBlockIndex* pindexNew)
       pindexNew->GetBlockHash().ToString(), pindexNew->nHeight,
       log(pindexNew->nChainWork.getdouble())/log(2.0), DateTimeStrFormat("%Y-%m-%d %H:%M:%S",
       pindexNew->GetBlockTime()));
+    CBlock block;
     CBlockIndex *tip = chainActive.Tip();
     assert (tip);
+    if (ReadBlockFromDisk(block, pindexNew, Params().GetConsensus())) {
+        BOOST_FOREACH(const CTransaction &tx, block.vtx) {
+            SyncWithWallets(tx, tip, NULL, false);
+        }
+    }
     LogPrintf("%s:  current best=%s  height=%d  log2_work=%.8g  date=%s\n", __func__,
       tip->GetBlockHash().ToString(), chainActive.Height(), log(tip->nChainWork.getdouble())/log(2.0),
       DateTimeStrFormat("%Y-%m-%d %H:%M:%S", tip->GetBlockTime()));
