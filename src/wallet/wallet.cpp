@@ -2021,6 +2021,7 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
         return 0;
 
     CAmount debit = 0;
+
     if(filter & ISMINE_SPENDABLE)
     {
         if (fDebitCached)
@@ -2043,6 +2044,7 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
             debit += nColdStakingDebitCached;
         }
     }
+
     if(filter & ISMINE_WATCH_ONLY)
     {
         if(fWatchDebitCached)
@@ -2054,6 +2056,7 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
             debit += nWatchDebitCached;
         }
     }
+
     return debit;
 }
 
@@ -2063,7 +2066,8 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
     if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
         return 0;
 
-    int64_t credit = 0;
+    CAmount credit = 0;
+
     if (filter & ISMINE_SPENDABLE)
     {
         // GetBalance can assume transactions in mapWallet won't change
@@ -2087,6 +2091,7 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
             credit += nColdStakingCreditCached;
         }
     }
+
     if (filter & ISMINE_WATCH_ONLY)
     {
         if (fWatchCreditCached)
