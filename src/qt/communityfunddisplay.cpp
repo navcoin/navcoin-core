@@ -163,7 +163,7 @@ void CommunityFundDisplay::refresh()
     }
 
     //hide ui voting elements on proposals which are not allowed vote states
-    if(!proposal.CanVote())
+    if(!proposal.CanVote(pcoinsTip))
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
 
     // Prevent overflow of title

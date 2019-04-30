@@ -53,7 +53,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
 
 
     //hide ui voting elements on proposals which are not allowed vote states
-    if(!proposal.CanVote())
+    if(!proposal.CanVote(pcoinsTip))
     {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
     }

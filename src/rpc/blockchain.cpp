@@ -947,7 +947,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                     || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
-                proposal.ToJson(o);
+                proposal.ToJson(o, *pcoinsTip);
                 ret.push_back(o);
             }
         }
@@ -1511,7 +1511,7 @@ UniValue getproposal(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VOBJ);
 
-    proposal.ToJson(ret);
+    proposal.ToJson(ret, *pcoinsTip);
 
     return ret;
 }
