@@ -15,6 +15,7 @@
 using namespace std;
 
 class CTransaction;
+class CCoinsViewCache;
 
 extern std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 extern std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
@@ -48,7 +49,7 @@ bool VotePaymentRequest(string strProp, bool vote, bool &duplicate);
 bool VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate);
 bool RemoveVotePaymentRequest(string strProp);
 bool RemoveVotePaymentRequest(uint256 proposalHash);
-bool IsValidPaymentRequest(CTransaction tx, int nMaxVersion);
+bool IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int nMaxVersion);
 bool IsValidProposal(CTransaction tx, int nMaxVersion);
 
 class CPaymentRequest
@@ -125,7 +126,7 @@ public:
 
     bool ExceededMaxVotingCycles() const;
 
-    bool CanVote() const;
+    bool CanVote(CCoinsViewCache& coins) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -212,23 +213,10 @@ public:
                 && nVotesNo == 0 && nDeadline == 0 && strDZeel == "");
     }
 
-    std::string ToString(uint32_t currentTime = 0) const {
-        std::string str;
-        str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
-                         "nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
-                         hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable()/COIN, (float)nFee/COIN, Address, nDeadline,
-                         nVotesYes, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
-        for (unsigned int i = 0; i < vPayments.size(); i++) {
-            CFund::CPaymentRequest prequest;
-            if(FindPaymentRequest(vPayments[i], prequest))
-                str += "\n    " + prequest.ToString();
-        }
-        return str + "\n";
-    }
-
+    std::string ToString(CCoinsViewCache& coins, uint32_t currentTime = 0) const;
     std::string GetState(uint32_t currentTime) const;
 
-    void ToJson(UniValue& ret) const;
+    void ToJson(UniValue& ret, CCoinsViewCache& coins) const;
 
     bool IsAccepted() const;
 
@@ -246,18 +234,9 @@ public:
         return fState == ACCEPTED;
     }
 
-    bool HasPendingPaymentRequests() const {
-        for (unsigned int i = 0; i < vPayments.size(); i++)
-        {
-            CFund::CPaymentRequest prequest;
-            if(FindPaymentRequest(vPayments[i], prequest))
-                if(prequest.CanVote())
-                    return true;
-        }
-        return false;
-    }
+    bool HasPendingPaymentRequests(CCoinsViewCache& coins) const;
 
-    CAmount GetAvailable(bool fIncludeRequests = false) const;
+    CAmount GetAvailable(CCoinsViewCache& coins, bool fIncludeRequests = false) const;
 
     ADD_SERIALIZE_METHODS;
 

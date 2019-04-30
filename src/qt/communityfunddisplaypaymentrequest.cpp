@@ -169,7 +169,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     //hide ui voting elements on proposals which are not allowed vote states
-    if(!prequest.CanVote())
+    if(!prequest.CanVote(pcoinsTip))
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
 
     std::string title_string = prequest.strDZeel;

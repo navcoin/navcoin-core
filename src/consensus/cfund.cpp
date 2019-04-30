@@ -188,7 +188,7 @@ bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
     return RemoveVotePaymentRequest(proposalHash.ToString());
 }
 
-bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
+bool CFund::IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int nMaxVersion)
 {    
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for payment request %s", __func__, tx.GetHash().ToString());
@@ -258,9 +258,9 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
     if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID)
         return error("%s: Invalid signature for payment request %s", __func__, tx.GetHash().ToString());
 
-    if(nAmount > proposal.GetAvailable(true))
+    if(nAmount > proposal.GetAvailable(coins, true))
         return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
-                     __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable(true));
+                     __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable(coins, true));
     
     bool ret = (nVersion <= nMaxVersion);
 
@@ -271,11 +271,23 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
 
 }
 
-bool CFund::CPaymentRequest::CanVote() const {
+bool CFund::CPaymentRequest::CanVote(CCoinsViewCache& coins) const
+{
+    AssertLockHeld(cs_main);
+
+    CBlockIndex* pindex;
+    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
+        return false;
+
+    pindex = mapBlockIndex[txblockhash];
+    if(!chainActive.Contains(pindex))
+        return false;
+
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && !ExceededMaxVotingCycles();
+
+    return nAmount <= proposal.GetAvailable(coins) && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && !ExceededMaxVotingCycles();
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
@@ -388,6 +400,16 @@ bool CFund::CProposal::IsRejected() const {
 }
 
 bool CFund::CProposal::CanVote() const {
+    AssertLockHeld(cs_main);
+
+    CBlockIndex* pindex;
+    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
+        return false;
+
+    pindex = mapBlockIndex[txblockhash];
+    if(!chainActive.Contains(pindex))
+        return false;
+
     return (fState == NIL) && (!ExceededMaxVotingCycles());
 }
 
@@ -418,7 +440,7 @@ bool CFund::CProposal::ExceededMaxVotingCycles() const {
     return nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
 }
 
-CAmount CFund::CProposal::GetAvailable(bool fIncludeRequests) const
+CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequests) const
 {
     AssertLockHeld(cs_main);
 
@@ -428,17 +450,45 @@ CAmount CFund::CProposal::GetAvailable(bool fIncludeRequests) const
         CFund::CPaymentRequest prequest;
         if(FindPaymentRequest(vPayments[i], prequest))
         {
-            CBlockIndex* pindex;
-            if(prequest.txblockhash == uint256() || !mapBlockIndex.count(prequest.txblockhash))
-                continue;
-            pindex = mapBlockIndex[prequest.txblockhash];
-            if(!chainActive.Contains(pindex))
-                continue;
+            if (!coins.HaveCoins(prequest.hash))
+            {
+                CBlockIndex* pindex;
+                if(prequest.txblockhash == uint256() || !mapBlockIndex.count(prequest.txblockhash))
+                    continue;
+                pindex = mapBlockIndex[prequest.txblockhash];
+                if(!chainActive.Contains(pindex))
+                    continue;
+            }
             if((fIncludeRequests && prequest.fState != REJECTED && prequest.fState != EXPIRED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
                 initial -= prequest.nAmount;
         }
     }
     return initial;
+}
+
+std::string CFund::CProposal::ToString(CCoinsViewCache& coins, uint32_t currentTime) const {
+    std::string str;
+    str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
+                     "nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
+                     hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable(coins)/COIN, (float)nFee/COIN, Address, nDeadline,
+                     nVotesYes, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
+    for (unsigned int i = 0; i < vPayments.size(); i++) {
+        CFund::CPaymentRequest prequest;
+        if(FindPaymentRequest(vPayments[i], prequest))
+            str += "\n    " + prequest.ToString();
+    }
+    return str + "\n";
+}
+
+bool CFund::CProposal::HasPendingPaymentRequests(CCoinsViewCache& coins) const {
+    for (unsigned int i = 0; i < vPayments.size(); i++)
+    {
+        CFund::CPaymentRequest prequest;
+        if(FindPaymentRequest(vPayments[i], prequest))
+            if(prequest.CanVote(coins))
+                return true;
+    }
+    return false;
 }
 
 std::string CFund::CProposal::GetState(uint32_t currentTime) const {
@@ -467,7 +517,7 @@ std::string CFund::CProposal::GetState(uint32_t currentTime) const {
     return sFlags;
 }
 
-void CFund::CProposal::ToJson(UniValue& ret) const {
+void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
     AssertLockHeld(cs_main);
 
     ret.push_back(Pair("version", nVersion));
@@ -475,7 +525,7 @@ void CFund::CProposal::ToJson(UniValue& ret) const {
     ret.push_back(Pair("blockHash", txblockhash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
-    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
+    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable(coins))));
     ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
     if(nVersion >= 2) {

@@ -692,7 +692,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
-    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(true))
+    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount.");
 
     CWalletTx wtx;
@@ -3377,7 +3377,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
              auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
                  [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
              UniValue p(UniValue::VOBJ);
-             proposal.ToJson(p);
+             proposal.ToJson(p, *pcoinsTip);
              if (it != vAddedProposalVotes.end()) {
                  if (it->second)
                      yesvotes.push_back(p);
