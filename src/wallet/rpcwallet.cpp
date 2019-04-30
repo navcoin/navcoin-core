@@ -3151,6 +3151,7 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 
     vStakePeriodRange_T::iterator vIt;
 
+    LOCK(cs_main);
     // scan the entire wallet transactions
     for (map<uint256, CWalletTx>::const_iterator it = pwalletMain->mapWallet.begin();
          it != pwalletMain->mapWallet.end();
