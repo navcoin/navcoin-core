@@ -31,7 +31,6 @@ class GetStakeReport(NavCoinTestFramework):
 
         # Make it to the static rewards fork!
         activate_staticr(self.nodes[0])
-        self.sync_all()
 
         # Use THE spending address
         spending_address_public_key = self.nodes[1].getnewaddress()
@@ -74,12 +73,9 @@ class GetStakeReport(NavCoinTestFramework):
         # So that means spending last 24h == 2
         # And staking last 24h == 0 We have not sent any coins yet
         # And merged will have the total of the spending + staking
-        assert('2.00' == merged_address_last_24h)
-        assert('2.00' == spending_address_last_24h)
-        assert('0.00' == staking_address_last_24h)
-
-        # Tun of staking for this node now
-        self.nodes[1].staking(False)
+        assert_equal('2.00', merged_address_last_24h)
+        assert_equal('2.00', spending_address_last_24h)
+        assert_equal('0.00', staking_address_last_24h)
 
         # Send funds to the cold staking address (leave some NAV for fees)
         self.nodes[1].sendtoaddress(coldstaking_address_staking, self.nodes[1].getbalance() - 1)
@@ -107,9 +103,9 @@ class GetStakeReport(NavCoinTestFramework):
         # So that means spending last 24h == 4
         # And staking last 24h == 2 We stake 2 NAV via COLD already
         # And merged will have the total of the spending + staking
-        assert('4.00' == merged_address_last_24h)
-        assert('4.00' == spending_address_last_24h)
-        assert('2.00' == staking_address_last_24h)
+        assert_equal('4.00', merged_address_last_24h)
+        assert_equal('4.00', spending_address_last_24h)
+        assert_equal('2.00', staking_address_last_24h)
 
     def stake_block(self, node):
         # Get the current block count to check against while we wait for a stake
