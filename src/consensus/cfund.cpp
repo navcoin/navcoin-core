@@ -260,7 +260,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
 
     if(nAmount > proposal.GetAvailable(true))
         return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
-                     __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable());
+                     __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable(true));
     
     bool ret = (nVersion <= nMaxVersion);
 
@@ -417,6 +417,30 @@ bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
 bool CFund::CProposal::ExceededMaxVotingCycles() const {
     return nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
 }
+
+CAmount CFund::CProposal::GetAvailable(bool fIncludeRequests) const
+{
+    AssertLockHeld(cs_main);
+
+    CAmount initial = nAmount;
+    for (unsigned int i = 0; i < vPayments.size(); i++)
+    {
+        CFund::CPaymentRequest prequest;
+        if(FindPaymentRequest(vPayments[i], prequest))
+        {
+            CBlockIndex* pindex;
+            if(prequest.txblockhash == uint256() || !mapBlockIndex.count(prequest.txblockhash))
+                continue;
+            pindex = mapBlockIndex[prequest.txblockhash];
+            if(!chainActive.Contains(pindex))
+                continue;
+            if((fIncludeRequests && prequest.fState != REJECTED && prequest.fState != EXPIRED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
+                initial -= prequest.nAmount;
+        }
+    }
+    return initial;
+}
+
 
 std::string CFund::CProposal::GetState(uint32_t currentTime) const {
     std::string sFlags = "pending";
