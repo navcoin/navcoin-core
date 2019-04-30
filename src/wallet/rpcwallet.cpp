@@ -3159,28 +3159,29 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
         pcoin = &(*it).second;
 
         // skip orphan block or immature
-        if  ((!pcoin->GetDepthInMainChain()) || (pcoin->GetBlocksToMaturity()>0))
+        if ((!pcoin->GetDepthInMainChain()) || (pcoin->GetBlocksToMaturity()>0))
             continue;
 
         // skip abandoned transactions
-        if(pcoin->isAbandoned())
+        if (pcoin->isAbandoned())
             continue;
 
         // skip transaction other than POS block
         if (!(pcoin->IsCoinStake()))
             continue;
 
-        if(pcoin->isAbandoned())
+        if (pcoin->isAbandoned())
             continue;
 
         nElement++;
 
         // use the cached amount if available
         if ((pcoin->fCreditCached || pcoin->fColdStakingCreditCached) && (pcoin->fDebitCached || pcoin->fColdStakingDebitCached))
-            nAmount = pcoin->nCreditCached  + pcoin->nColdStakingCreditCached - pcoin->nDebitCached - pcoin->nColdStakingDebitCached;
+            nAmount = pcoin->nCreditCached + pcoin->nColdStakingCreditCached - pcoin->nDebitCached - pcoin->nColdStakingDebitCached;
+        else if (pcoin->vout[1].scriptPubKey.IsColdStaking())
+            nAmount = pcoin->GetCredit(pwalletMain->IsMine(pcoin->vout[1])) - pcoin->GetDebit(pwalletMain->IsMine(pcoin->vout[1]));
         else
             nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) + pcoin->GetCredit(ISMINE_STAKABLE) - pcoin->GetDebit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_STAKABLE);
-
 
         // scan the range
         for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)
@@ -3264,8 +3265,7 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     x.Name = "Latest Stake";
     aRange.push_back(x);
 
-
-return aRange;
+    return aRange;
 }
 
 
