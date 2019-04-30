@@ -31,6 +31,7 @@ class GetStakeReport(NavCoinTestFramework):
 
         # Make it to the static rewards fork!
         activate_staticr(self.nodes[0])
+        self.sync_all()
 
         # Use THE spending address
         spending_address_public_key = self.nodes[1].getnewaddress()
@@ -120,7 +121,7 @@ class GetStakeReport(NavCoinTestFramework):
         # print("found a new block...")
 
         # Make sure the blocks are mature before we check the report
-        slow_gen(self.nodes[0], 5, 0.5)
+        slow_gen(node, 5, 0.5)
         self.sync_all()
 
 

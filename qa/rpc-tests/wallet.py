@@ -18,7 +18,7 @@ class WalletTest (NavCoinTestFramework):
         self.nodes = start_nodes(3, self.options.tmpdir)
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
-        connect_nodes_bi(self.nodes,0,2)
+        connect_nodes_bi(self.nodes,2,0)
         self.is_network_split = False
 
     def run_test(self):
@@ -36,14 +36,13 @@ class WalletTest (NavCoinTestFramework):
         print("Mining blocks...")
 
         slow_gen(self.nodes[0], 1)
+        self.sync_all()
 
         walletinfo = self.nodes[0].getwalletinfo()
         assert_equal(walletinfo['immature_balance'], 59800000)
         assert_equal(walletinfo['balance'], 0)
 
-        self.sync_all()
         slow_gen(self.nodes[1], 56)
-
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), 59800000)
@@ -156,17 +155,17 @@ class WalletTest (NavCoinTestFramework):
         txid2 = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         sync_mempools(self.nodes)
 
-
         self.nodes.append(start_node(3, self.options.tmpdir))
         connect_nodes_bi(self.nodes, 0, 3)
         sync_blocks(self.nodes)
+
+        self.nodes[3].staking(False)
 
         relayed = self.nodes[0].resendwallettransactions()
         assert_equal(set(relayed), {txid1, txid2})
         sync_mempools(self.nodes)
 
         assert(txid1 in self.nodes[3].getrawmempool())
-
 
         # Exercise balance rpcs
         assert_equal(self.nodes[0].getwalletinfo()["unconfirmed_balance"], 1)
@@ -206,7 +205,7 @@ class WalletTest (NavCoinTestFramework):
         self.nodes = start_nodes(3, self.options.tmpdir, [["-walletbroadcast=0"],["-walletbroadcast=0"],["-walletbroadcast=0"]])
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
-        connect_nodes_bi(self.nodes,0,2)
+        connect_nodes_bi(self.nodes,2,0)
         self.sync_all()
 
         txIdNotBroadcasted  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 2)
@@ -240,19 +239,18 @@ class WalletTest (NavCoinTestFramework):
         self.nodes = start_nodes(3, self.options.tmpdir)
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
-        connect_nodes_bi(self.nodes,0,2)
+        connect_nodes_bi(self.nodes,2,0)
         sync_blocks(self.nodes)
 
         slow_gen(self.nodes[0], 1)
-        sync_blocks(self.nodes)
+        self.sync_all()
 
-        # We need to adjust the balance since 2 new blocks have been confirmd
+        # We need to adjust the balance since 2 new blocks confirmed
         # And we sent 2 NAV to it
         node_2_bal += 102
 
         #tx should be added to balance because after restarting the nodes tx should be broadcastet
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
-
 
         #send a tx with value in a string (PR#6380 +)
         txId  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), "2")
