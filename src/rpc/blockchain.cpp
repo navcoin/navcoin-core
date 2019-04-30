@@ -894,18 +894,19 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
 
 UniValue listproposals(const UniValue& params, bool fHelp)
 {
-
-     if (fHelp)
+    if (fHelp)
         throw runtime_error(
-            "listproposals \"filter\"\n"
-            "\nList the proposals and all the relating data including payment requests and status.\n"
-            "\nNote passing no argument returns all proposals regardless of state.\n"
-            "\nArguments:\n"
-            "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\"\n"
-            "\nExamples:\n"
-            + HelpExampleCli("listproposal", "accepted")
-            + HelpExampleRpc("listproposal", "")
-        );
+                "listproposals \"filter\"\n"
+                "\nList the proposals and all the relating data including payment requests and status.\n"
+                "\nNote passing no argument returns all proposals regardless of state.\n"
+                "\nArguments:\n"
+                "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\"\n"
+                "\nExamples:\n"
+                + HelpExampleCli("listproposal", "accepted")
+                + HelpExampleRpc("listproposal", "")
+                );
+
+    LOCK(cs_main);
 
     UniValue ret(UniValue::VARR);
 
@@ -940,11 +941,11 @@ UniValue listproposals(const UniValue& params, bool fHelp)
             if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
                             || proposal.fState == CFund::PENDING_VOTING_PREQ
                             || proposal.fState == CFund::PENDING_FUNDS))
-               || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
-                                    || proposal.fState == CFund::PENDING_FUNDS))
-               || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
-               || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
-               || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
+                    || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
+                                         || proposal.fState == CFund::PENDING_FUNDS))
+                    || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
+                    || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
+                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o);
                 ret.push_back(o);
@@ -1501,6 +1502,8 @@ UniValue getproposal(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. hash   (string, required) the hash of the proposal\n"
         );
+
+    LOCK(cs_main);
 
     CFund::CProposal proposal;
     if(!CFund::FindProposal(params[0].get_str(), proposal))
