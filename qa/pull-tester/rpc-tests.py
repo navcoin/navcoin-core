@@ -167,6 +167,7 @@ testScripts = [
     'cfund-paymentrequestvotelist.py',
     'reject-version-bit.py',
     'getcoldstakingaddress.py',
+    'getstakereport.py',
     'coldstaking_staking.py',
     'coldstaking_spending.py',
     'staticr-staking-amount.py',
