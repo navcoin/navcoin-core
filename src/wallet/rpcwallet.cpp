@@ -3361,6 +3361,8 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
                 "}\n"
         );
 
+    LOCK(cs_main);
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);

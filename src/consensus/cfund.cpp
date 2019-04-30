@@ -468,6 +468,8 @@ std::string CFund::CProposal::GetState(uint32_t currentTime) const {
 }
 
 void CFund::CProposal::ToJson(UniValue& ret) const {
+    AssertLockHeld(cs_main);
+
     ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("blockHash", txblockhash.ToString()));
