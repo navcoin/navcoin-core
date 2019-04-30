@@ -257,18 +257,7 @@ public:
         return false;
     }
 
-    CAmount GetAvailable(bool fIncludeRequests = false) const
-    {
-        CAmount initial = nAmount;
-        for (unsigned int i = 0; i < vPayments.size(); i++)
-        {
-            CFund::CPaymentRequest prequest;
-            if(FindPaymentRequest(vPayments[i], prequest))
-                if((fIncludeRequests && prequest.fState != REJECTED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
-                    initial -= prequest.nAmount;
-        }
-        return initial;
-    }
+    CAmount GetAvailable(bool fIncludeRequests = false) const;
 
     ADD_SERIALIZE_METHODS;
 
