@@ -3413,6 +3413,8 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
             "                      'remove' to remove a proposal from the list\n"
         );
 
+    LOCK(cs_main);
+
     string strHash = params[0].get_str();
     bool duplicate = false;
 
@@ -3512,6 +3514,8 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
             "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
             "                      'remove' to remove a proposal from the list\n"
         );
+
+    LOCK(cs_main);
 
     string strHash = params[0].get_str();
     bool duplicate = false;
