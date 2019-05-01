@@ -127,6 +127,9 @@ public:
         consensus.nHeightv451Fork = 2722100;
         consensus.nHeightv452Fork = 2882875;
 
+        /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+        consensus.nCoinbaseMaturity = 50;
+
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
@@ -319,6 +322,9 @@ public:
         consensus.nHeightv451Fork = 100000;
         consensus.nHeightv452Fork = 100000;
 
+        /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+        consensus.nCoinbaseMaturity = 50;
+
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
@@ -460,7 +466,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
         consensus.nStakeMinAge = 2;	// minimum for coin age: 2 seconds
-        consensus.nTargetSpacing = 30; // Blocktime: 30 secs
+        consensus.nTargetSpacing = 5; // Blocktime: 5 secs
         consensus.nStakeCombineThreshold = 1000 * COIN;
         consensus.nStakeSplitThreshold = 2 * consensus.nStakeCombineThreshold;
         consensus.nDailyBlockCount =  (24 * 60 * 60) / consensus.nTargetSpacing;
@@ -491,7 +497,10 @@ public:
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
 
-	// Deployment of BIP68, BIP112, and BIP113.
+        /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+        consensus.nCoinbaseMaturity = 5;
+
+        // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1651363200; // May 1st, 2022
@@ -672,6 +681,9 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
+
+        /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+        consensus.nCoinbaseMaturity = 50;
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
