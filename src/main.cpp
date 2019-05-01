@@ -2771,17 +2771,17 @@ bool NewPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValida
     try {
         UniValue valRequest;
         if (!valRequest.read(tx.strDZeel))
-            return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
+            return error("%s: Could not read strDZeel of Payment Request\n", __func__);
 
         if (valRequest.isObject())
             metadata = valRequest.get_obj();
         else
-            return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
+            return error("%s: Could not read strDZeel of Payment Request\n", __func__);
 
     } catch (const UniValue& objError) {
-        return error("ConnectBlock(): Could not read strDZeel of Payment Request\n");
+        return error("%s: Could not read strDZeel of Payment Request\n", __func__);
     } catch (const std::exception& e) {
-        return error("ConnectBlock(): Could not read strDZeel of Payment Request: %s\n", e.what());
+        return error("%s: Could not read strDZeel of Payment Request: %s\n", __func__, e.what());
     }  // May not return ever false, as transactions were already chcked.
 
     CFund::CPaymentRequest prequest;
@@ -2794,12 +2794,12 @@ bool NewPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValida
     prequest.txblockhash = blockhash;
 
     if(prequest.nAmount < 0) {
-        return error("ConnectBlock(): Payment request cannot have an amount less than 0\n");
+        return error("%s: Payment request cannot have an amount less than 0\n", __func__);
     }
 
     CFund::CProposal proposal;
     if(!CFund::FindProposal(prequest.proposalhash, proposal))
-        return error("ConnectBlock(): Could not find parent proposal of Payment Request: %s\n",
+        return error("%s: Could not find parent proposal of Payment Request: %s\n", __func__,
                      proposal.hash.ToString(), prequest.proposalhash.ToString());
 
     std::vector<uint256>::iterator position = std::find(proposal.vPayments.begin(), proposal.vPayments.end(), tx.hash);
