@@ -6,6 +6,8 @@
 from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
 
+BLOCK_REWARD = 50
+
 class WalletTest (NavCoinTestFramework):
 
     def __init__(self):
@@ -213,8 +215,8 @@ class WalletTest (NavCoinTestFramework):
         slow_gen(self.nodes[1], 1) #mine a block, tx should not be in there
         self.sync_all()
 
-        # We need to adjust the balance since a new block has been confirmd
-        node_2_bal += 50
+        # We need to adjust the balance since new block/s got confirmed
+        node_2_bal += BLOCK_REWARD
 
         assert_equal(self.nodes[2].getbalance(), node_2_bal) #should not be changed because tx was not broadcasted
 
@@ -223,9 +225,9 @@ class WalletTest (NavCoinTestFramework):
         slow_gen(self.nodes[1], 1)
         self.sync_all()
 
-        # We need to adjust the balance since a new block has been confirmd
+        # We need to adjust the balance since new block/s got confirmed
         # And we sent 2 NAV to it
-        node_2_bal += 52
+        node_2_bal += BLOCK_REWARD + 2
         txObjNotBroadcasted = self.nodes[0].gettransaction(txIdNotBroadcasted)
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
 
@@ -240,14 +242,14 @@ class WalletTest (NavCoinTestFramework):
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
         connect_nodes_bi(self.nodes,2,0)
-        sync_blocks(self.nodes)
 
+        self.sync_all()
         slow_gen(self.nodes[0], 1)
         self.sync_all()
 
-        # We need to adjust the balance since 2 new blocks confirmed
+        # We need to adjust the balance since new block/s got confirmed
         # And we sent 2 NAV to it
-        node_2_bal += 102
+        node_2_bal += 2 * BLOCK_REWARD + 2
 
         #tx should be added to balance because after restarting the nodes tx should be broadcastet
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
