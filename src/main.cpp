@@ -3246,7 +3246,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 } else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking()) {
                     uint160 hashBytes;
                     int type = 0;
-		    CTxDestination destination;
+                    CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
                     if (out.scriptPubKey.IsColdStaking())
