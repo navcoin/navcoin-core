@@ -107,6 +107,9 @@ struct Params {
     int nHeightv451Fork;
     int nHeightv452Fork;
 
+    /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+    int nCoinbaseMaturity;
+
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
 };
 } // namespace Consensus
