@@ -164,20 +164,17 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
             "Arguments:\n"
             "1. \"stakingaddress\"  (string, required) The navcoin staking address.\n"
             "2. \"spendingaddress\" (string, required) The navcoin spending address.\n\n"
-            "Result:\n"
-            "coldstakingaddress (string) The coldstaking address\n\n"
-            "Examples:\n\n"
-            "> navcoin-cli getcoldstakingaddress \"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"\n"
-            "As a json rpc call:\n"
-       
-            
+            "\nExamples:\n"
+            + HelpExampleCli("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\", \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"")
         );
 
     if (!IsColdStakingEnabled(chainActive.Tip(),Params().GetConsensus()))
         throw runtime_error(
             "Cold Staking is not active yet.");
 
-    if (params[0].get_str() == params[1].get_str()) 
+    if (params[0].get_str() == params[1].get_str())
         throw runtime_error(
             "The staking address should be different to the spending address"
         );
