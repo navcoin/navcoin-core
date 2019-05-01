@@ -35,13 +35,13 @@ class SendToAddressTest (NavCoinTestFramework):
         slow_gen(self.nodes[0], 1)
         time.sleep(2)
         self.sync_all()
-        slow_gen(self.nodes[1], 75)
+        slow_gen(self.nodes[1], 30)
         self.sync_all()
-        
+
         # Assert correct amount of NAV generated
         assert_equal(self.nodes[0].getbalance(), 59800000)
         assert_equal(self.nodes[1].getbalance(), 1250)
-        
+
         # Make transactions to valid addresses
         txid0 = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 60)
         txid1 = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), Decimal("10.0"))

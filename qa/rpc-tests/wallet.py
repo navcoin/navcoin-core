@@ -6,6 +6,8 @@
 from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
 
+BLOCK_REWARD = 50
+
 class WalletTest (NavCoinTestFramework):
 
     def __init__(self):
@@ -18,7 +20,7 @@ class WalletTest (NavCoinTestFramework):
         self.nodes = start_nodes(3, self.options.tmpdir)
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
-        connect_nodes_bi(self.nodes,0,2)
+        connect_nodes_bi(self.nodes,2,0)
         self.is_network_split = False
 
     def run_test(self):
@@ -36,14 +38,13 @@ class WalletTest (NavCoinTestFramework):
         print("Mining blocks...")
 
         slow_gen(self.nodes[0], 1)
+        self.sync_all()
 
         walletinfo = self.nodes[0].getwalletinfo()
         assert_equal(walletinfo['immature_balance'], 59800000)
         assert_equal(walletinfo['balance'], 0)
 
-        self.sync_all()
-        slow_gen(self.nodes[1], 101)
-
+        slow_gen(self.nodes[1], 56)
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), 59800000)
@@ -75,8 +76,8 @@ class WalletTest (NavCoinTestFramework):
         self.nodes[2].lockunspent(True, [unspent_0])
         assert_equal(len(self.nodes[2].listlockunspent()), 0)
 
-        # Have node1 generate 100 blocks (so node0 can recover the fee)
-        slow_gen(self.nodes[1], 100)
+        # Have node1 generate 10 blocks (so node0 can recover the fee)
+        slow_gen(self.nodes[1], 10)
         self.sync_all()
 
         assert_equal(self.nodes[2].getbalance(), 21)
@@ -156,17 +157,17 @@ class WalletTest (NavCoinTestFramework):
         txid2 = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         sync_mempools(self.nodes)
 
-
         self.nodes.append(start_node(3, self.options.tmpdir))
         connect_nodes_bi(self.nodes, 0, 3)
         sync_blocks(self.nodes)
+
+        self.nodes[3].staking(False)
 
         relayed = self.nodes[0].resendwallettransactions()
         assert_equal(set(relayed), {txid1, txid2})
         sync_mempools(self.nodes)
 
         assert(txid1 in self.nodes[3].getrawmempool())
-
 
         # Exercise balance rpcs
         assert_equal(self.nodes[0].getwalletinfo()["unconfirmed_balance"], 1)
@@ -206,20 +207,27 @@ class WalletTest (NavCoinTestFramework):
         self.nodes = start_nodes(3, self.options.tmpdir, [["-walletbroadcast=0"],["-walletbroadcast=0"],["-walletbroadcast=0"]])
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
-        connect_nodes_bi(self.nodes,0,2)
+        connect_nodes_bi(self.nodes,2,0)
         self.sync_all()
 
         txIdNotBroadcasted  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 2)
         txObjNotBroadcasted = self.nodes[0].gettransaction(txIdNotBroadcasted)
         slow_gen(self.nodes[1], 1) #mine a block, tx should not be in there
         self.sync_all()
+
+        # We need to adjust the balance since new block/s got confirmed
+        node_2_bal += BLOCK_REWARD
+
         assert_equal(self.nodes[2].getbalance(), node_2_bal) #should not be changed because tx was not broadcasted
 
         #now broadcast from another node, mine a block, sync, and check the balance
         self.nodes[1].sendrawtransaction(txObjNotBroadcasted['hex'])
         slow_gen(self.nodes[1], 1)
         self.sync_all()
-        node_2_bal += 2
+
+        # We need to adjust the balance since new block/s got confirmed
+        # And we sent 2 NAV to it
+        node_2_bal += BLOCK_REWARD + 2
         txObjNotBroadcasted = self.nodes[0].gettransaction(txIdNotBroadcasted)
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
 
@@ -233,16 +241,18 @@ class WalletTest (NavCoinTestFramework):
         self.nodes = start_nodes(3, self.options.tmpdir)
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
-        connect_nodes_bi(self.nodes,0,2)
-        sync_blocks(self.nodes)
+        connect_nodes_bi(self.nodes,2,0)
 
+        self.sync_all()
         slow_gen(self.nodes[0], 1)
-        sync_blocks(self.nodes)
-        node_2_bal += 2
+        self.sync_all()
+
+        # We need to adjust the balance since new block/s got confirmed
+        # And we sent 2 NAV to it
+        node_2_bal += 2 * BLOCK_REWARD + 2
 
         #tx should be added to balance because after restarting the nodes tx should be broadcastet
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
-
 
         #send a tx with value in a string (PR#6380 +)
         txId  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), "2")
@@ -266,14 +276,14 @@ class WalletTest (NavCoinTestFramework):
         else:
             raise AssertionError("Must not parse invalid amounts")
 
-            
-        my_function_failed = False    
+
+        my_function_failed = False
         try:
             self.nodes[0].generate("2")
             raise AssertionError("Must not accept strings as numeric")
         except JSONRPCException as e:
             my_function_failed = True
-         
+
         assert(my_function_failed)
 
         # Import address and private key to check correct behavior of spendable unspents

@@ -676,12 +676,12 @@ def get_bip9_status(node, key):
     return info['bip9_softforks'][key]
 
 
-def slow_gen(node, count):
+def slow_gen(node, count, sleep = 0.1):
     total = count
     blocks = []
     while total > 0:
         now = min(total, 10)
         blocks.extend(node.generate(now))
         total -= now
-        time.sleep(0.1)
+        time.sleep(sleep)
     return blocks

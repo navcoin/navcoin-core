@@ -93,7 +93,7 @@ void CommunityFundDisplay::refresh()
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[24];
+        char buf[48];
         if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
 	    ss << buf;
         ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
@@ -108,7 +108,7 @@ void CommunityFundDisplay::refresh()
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
-            char buf[24];
+            char buf[48];
             if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
 		ss << buf;
             ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
