@@ -1028,7 +1028,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
     UniValue consensus(UniValue::VOBJ);
     consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
-    if (!IsReducedCFundQuorumEnabled(pindexBestHeader, Params().GetConsensus())){
+    if (!IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus())){
         consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorum));
     } else {
         consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumFirstHalf));

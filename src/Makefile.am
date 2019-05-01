@@ -156,6 +156,9 @@ NAVCOIN_CORE_H = \
   wallet/rpcwallet.h \
   wallet/wallet.h \
   wallet/walletdb.h \
+  mnemonic/dictionary.h \
+  mnemonic/mnemonic.h \
+  mnemonic/arrayslice.h \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
@@ -229,6 +232,8 @@ libnavcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_wallet_a_SOURCES = \
   consensus/cfund.cpp \
+  mnemonic/dictionary.cpp \
+  mnemonic/mnemonic.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/navtech.cpp \
@@ -252,6 +257,18 @@ crypto_libnavcoin_crypto_a_SOURCES = \
   crypto/hmac_sha512.h \
   crypto/ripemd160.cpp \
   crypto/ripemd160.h \
+  crypto/external/hmac_sha256.c \
+  crypto/external/hmac_sha256.h \
+  crypto/external/hmac_sha512.c \
+  crypto/external/hmac_sha512.h \
+  crypto/external/pkcs5_pbkdf2.c \
+  crypto/external/pkcs5_pbkdf2.h \
+  crypto/external/sha256.c \
+  crypto/external/sha256.h \
+  crypto/external/sha512.c \
+  crypto/external/sha512.h \
+  crypto/external/zeroize.c \
+  crypto/external/zeroize.h \
   crypto/sha1.cpp \
   crypto/sha1.h \
   crypto/sha256.cpp \

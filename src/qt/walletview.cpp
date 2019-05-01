@@ -11,6 +11,7 @@
 #include "guiutil.h"
 #include "optionsmodel.h"
 #include "overviewpage.h"
+#include "communityfundpage.h"
 #include "platformstyle.h"
 #include "getaddresstoreceive.h"
 #include "receivecoinsdialog.h"
@@ -54,6 +55,8 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     vbox->addLayout(hbox_buttons);
     transactionsPage->setLayout(vbox);
 
+    communityFundPage = new CommunityFundPage(platformStyle);
+
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
     sendCoinsPage = new SendCoinsDialog(platformStyle);
     requestPaymentPage = new getAddressToReceive();
@@ -66,6 +69,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
     addWidget(requestPaymentPage);
+    addWidget(communityFundPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -126,6 +130,7 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     // Put transaction list in tabs
     transactionView->setModel(walletModel);
     overviewPage->setWalletModel(walletModel);
+    communityFundPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     requestPaymentPage->setModel(walletModel);
     requestPaymentPage->showQR();
@@ -183,6 +188,13 @@ void WalletView::gotoOverviewPage()
 void WalletView::gotoHistoryPage()
 {
     setCurrentWidget(transactionsPage);
+}
+
+void WalletView::gotoCommunityFundPage()
+{
+    // Change to CommunityFund UI
+    setCurrentWidget(communityFundPage);
+    communityFundPage->refreshTab();
 }
 
 void WalletView::gotoReceiveCoinsPage()

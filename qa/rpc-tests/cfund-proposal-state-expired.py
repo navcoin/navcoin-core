@@ -41,9 +41,9 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
             start_new_cycle(self.nodes[0])
             i = i + 1
 
-        # Validate that the proposal will expire at the end of the current voting cycle
+        # Validate that the status of the proposal is expired
         assert (self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        assert (self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert (self.nodes[0].getproposal(proposalid0)["status"] == "expired")
 
         # Move to the last block of the voting cycle, where the proposal state changes
         end_cycle(self.nodes[0])

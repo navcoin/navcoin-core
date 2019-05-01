@@ -7,6 +7,7 @@
 #define NAVCOIN_WALLET_WALLET_H
 
 #include "amount.h"
+#include "mnemonic/mnemonic.h"
 #include "streams.h"
 #include "tinyformat.h"
 #include "ui_interface.h"
@@ -995,12 +996,15 @@ public:
 
     bool BackupWallet(const std::string& strDest);
 
+    std::string formatDisplayAmount(CAmount amount);
+
     /* Set the HD chain model (chain child index counters) */
     bool SetHDChain(const CHDChain& chain, bool memonly);
     const CHDChain& GetHDChain() { return hdChain; }
 
     /* Generates a new HD master key (will not be activated) */
     CPubKey GenerateNewHDMasterKey();
+    CPubKey ImportMnemonic(word_list mnemonic, dictionary lang);
 
     /* Set the current HD master key (will reset the chain child index counters) */
     bool SetHDMasterKey(const CPubKey& key);

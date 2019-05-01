@@ -324,97 +324,6 @@
     </message>
 </context>
 <context>
-    <name>CFund_Voting</name>
-    <message>
-        <location filename="../forms/cfund_voting.ui" line="+14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+27"/>
-        <location filename="../forms/cfund_voting.cpp" line="+134"/>
-        <source>Proposal Voting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+24"/>
-        <source>No vote selected:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Voting for:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Voting against:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+21"/>
-        <location filename="../forms/cfund_voting.cpp" line="-1"/>
-        <source>View Proposal Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+23"/>
-        <source>Stop Voting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Vote Yes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Vote No</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <location filename="../forms/cfund_voting.cpp" line="-1"/>
-        <source>Switch to Payment Request View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+20"/>
-        <source>Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../forms/cfund_voting.cpp" line="-5"/>
-        <source>Community Fund: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Payment Requests</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Proposals</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Switch to Proposal View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>View Payment Request Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Payment Request Voting</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CoinControlDialog</name>
     <message>
         <location filename="../forms/coincontroldialog.ui" line="+14"/>
@@ -1194,7 +1103,7 @@
     </message>
     <message>
         <location line="+82"/>
-        <source>There are new proposals or payment requests in the Community Fund.&lt;br&gt;&lt;br&gt;As a staker it&apos;s important to engage in the voting process.&lt;br&gt;&lt;br&gt;Please cast your vote using the voting dialog!</source>
+        <source>There are new proposals or payment requests in the Community Fund.&lt;br&gt;&lt;br&gt;As a staker it&apos;s important to engage in the voting process.&lt;br&gt;&lt;br&gt;Please cast your vote using the Community Fund tab!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -22,7 +22,7 @@ class Hardfork451(NavCoinTestFramework):
 
     def run_test(self):
         # test
-        activate_451(self.nodes[0])
+        activateHardFork(self.nodes[0], 20, 1000)
 
 
 if __name__ == '__main__':

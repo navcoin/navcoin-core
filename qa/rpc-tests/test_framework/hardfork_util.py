@@ -10,22 +10,21 @@
 
 from test_framework.util import *
 
-
-def activate_451(node):
-    # check the block reports the correct version bit (21) after the hardfork height
-    slow_gen(node, 100)
+def activateHardFork(node, versionBit, activationHeight):
+    # check the block reports the correct version bit after the hardfork height
+    slow_gen(node, 1)
 
     blockHash1 = node.getbestblockhash()
     block1 = node.getblock(blockHash1)
     versionBinary1 = bin(int(block1["versionHex"], 16))[2:]
-    versionBit1 = versionBinary1[-21]
+    versionBit1 = versionBinary1[(versionBit+1)*-1]
     assert(int(versionBit1) == 0)
 
     # activate hard fork
-    slow_gen(node, 901)
+    slow_gen(node, activationHeight - node.getblockchaininfo()["blocks"] + 1)
 
     blockHash2 = node.getbestblockhash()
     block2 = node.getblock(blockHash2)
     versionBinary2 = bin(int(block2["versionHex"], 16))[2:]
-    versionBit2 = versionBinary2[-21]
+    versionBit2 = versionBinary2[(versionBit+1)*-1]
     assert(int(versionBit2) == 1)
