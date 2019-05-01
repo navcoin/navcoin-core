@@ -639,7 +639,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 3)
+    if (fHelp || params.size() < 3)
         throw runtime_error(
             "createpaymentrequest \"hash\" \"amount\" \"id\" ( dump_raw )\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
