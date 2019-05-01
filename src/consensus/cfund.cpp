@@ -79,11 +79,12 @@ bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
 
 bool CFund::VoteProposal(string strProp, bool vote, bool &duplicate)
 {
+    AssertLockHeld(cs_main);
 
     CFund::CProposal proposal;
     bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
-    if(!found || proposal.IsNull())
+    if(!found || proposal.IsNull() || !proposal.CanVote())
         return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
@@ -133,11 +134,12 @@ bool CFund::RemoveVoteProposal(uint256 proposalHash)
 
 bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
 {
+    AssertLockHeld(cs_main);
 
     CFund::CPaymentRequest prequest;
     bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
-    if(!found || prequest.IsNull())
+    if(!found || prequest.IsNull() || !prequest.CanVote(*pcoinsTip))
         return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
@@ -481,6 +483,8 @@ std::string CFund::CProposal::ToString(CCoinsViewCache& coins, uint32_t currentT
 }
 
 bool CFund::CProposal::HasPendingPaymentRequests(CCoinsViewCache& coins) const {
+    AssertLockHeld(cs_main);
+
     for (unsigned int i = 0; i < vPayments.size(); i++)
     {
         CFund::CPaymentRequest prequest;
