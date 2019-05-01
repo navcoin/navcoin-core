@@ -3934,6 +3934,8 @@ std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
 
 void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCoinsViewCache& coins)
 {
+    AssertLockHeld(cs_main);
+
     int64_t nTimeStart = GetTimeMicros();
     CFund::CPaymentRequest prequest; CFund::CProposal proposal;
 
@@ -4034,6 +4036,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCo
             bool fUpdate = false;
             prequest = vecPaymentRequest[i];
 
+            if (prequest.txblockhash == uint256())
+                continue;
+
             if (mapBlockIndex.count(prequest.txblockhash) == 0){
                 LogPrintf("%s: Can't find block %s of payment request %s\n",
                           __func__, prequest.txblockhash.ToString(), prequest.hash.ToString());
@@ -4127,6 +4132,9 @@ void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCo
         for(unsigned int i = 0; i < vecProposal.size(); i++) {
             bool fUpdate = false;
             proposal = vecProposal[i];
+
+            if (proposal.txblockhash == uint256())
+                continue;
 
             if (mapBlockIndex.count(proposal.txblockhash) == 0) {
                 LogPrintf("%s: Can't find block %s of proposal %s\n",
