@@ -638,8 +638,11 @@ static const unsigned int MAX_STANDARD_TX_SIZE = MAX_BLOCK_SIZE_GEN/5;
 
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
-void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo);
+void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCoinsViewCache& coins);
 
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
+
+bool NewProposal(const CTransaction& tx, const uint256& blockhash, const CAmount& nProposalFee, CValidationState& state);
+bool NewPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValidationState& state);
 
 #endif // NAVCOIN_MAIN_H

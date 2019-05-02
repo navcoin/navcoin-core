@@ -71,6 +71,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createmultisig", 0 },
     { "createmultisig", 1 },
     { "createproposal", 2 },
+    { "createproposal", 5 },
+    { "createpaymentrequest", 3 },
     { "listunspent", 0 },
     { "listunspent", 1 },
     { "listunspent", 2 },
