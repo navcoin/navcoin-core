@@ -36,8 +36,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 {
     QList<TransactionRecord> parts;
     int64_t nTime = wtx.GetTxTime();
-    CAmount nCredit = wtx.GetCredit(ISMINE_ALL);
-    CAmount nDebit = wtx.GetDebit((wtx.IsCoinStake() && wtx.vout[1].scriptPubKey.IsColdStaking()) ? ISMINE_STAKABLE|ISMINE_SPENDABLE_STAKABLE : ISMINE_ALL);
+    isminefilter dCFilter = (wtx.IsCoinStake() && wtx.vout[1].scriptPubKey.IsColdStaking()) ? wallet->IsMine(wtx.vout[1]) : ISMINE_ALL;
+    CAmount nCredit = wtx.GetCredit(dCFilter);
+    CAmount nDebit = wtx.GetDebit(dCFilter);
     CAmount nCFundCredit = wtx.GetDebit(ISMINE_ALL);
     CAmount nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash();
@@ -45,9 +46,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     std::string dzeel = "";
 
     if (!wtx.fAnon)
-  	{
-  	    dzeel = wtx.strDZeel;
-  	}
+    {
+        dzeel = wtx.strDZeel;
+    }
 
     if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
