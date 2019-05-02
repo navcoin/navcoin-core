@@ -50,10 +50,13 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
         }
     }
 
-    //hide ui voting elements on prequests which are not allowed vote states
-    if(!prequest.CanVote())
     {
-        ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
+        LOCK(cs_main);
+        //hide ui voting elements on prequests which are not allowed vote states
+        if(!prequest.CanVote(*pcoinsTip))
+        {
+            ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
+        }
     }
 }
 
@@ -188,6 +191,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
 
 void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
 {
+    LOCK(cs_main);
+
     // Cast the vote
     bool duplicate = false;
 
