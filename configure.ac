@@ -504,12 +504,6 @@ if test x$TARGET_OS != xwindows; then
   # All windows code is PIC, forcing it on just adds useless compile warnings
   AX_CHECK_COMPILE_FLAG([-fPIC],[CFLAGS="-fPIC"])
 
-  # check to see if we are compiling on a x86_64-pc-linux-gnu the force fPIC for QT Build compliance
-  if test x$host == xx86_64-pc-linux-gnu ; then
-    # All windows code is PIC, forcing it on just adds useless compile warnings
-    AX_CHECK_COMPILE_FLAG([-fPIC],[PIC_FLAGS="-fPIC"])
-   fi
-
 fi
 
 
@@ -622,7 +616,7 @@ fi
 NAVCOIN_QT_INIT
 
 dnl sets $navcoin_enable_qt, $navcoin_enable_qt_test, $navcoin_enable_qt_dbus
-NAVCOIN_QT_CONFIGURE([$use_pkgconfig], [qt5])
+NAVCOIN_QT_CONFIGURE([$use_pkgconfig])
 
 if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests$use_bench = xnonononono; then
     use_boost=no
