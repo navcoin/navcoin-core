@@ -19,7 +19,7 @@
 
 #include <openssl/ssl.h>
 
-#if defined(QT_STATICPLUGIN) && QT_VERSION < 0x050000
+#if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
 Q_IMPORT_PLUGIN(qcncodecs)
 Q_IMPORT_PLUGIN(qjpcodecs)
