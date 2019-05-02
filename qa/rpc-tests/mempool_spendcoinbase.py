@@ -32,33 +32,33 @@ class MempoolSpendCoinbaseTest(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
-        slow_gen(self.nodes[0], 200)
+        slow_gen(self.nodes[0], 10)
         chain_height = self.nodes[0].getblockcount()
-        assert_equal(chain_height, 200)
+        assert_equal(chain_height, 10)
         node0_address = self.nodes[0].getnewaddress()
 
-        # Coinbase at height chain_height-150+1 ok in mempool, should
-        # get mined. Coinbase at height chain_height-150+2 is
+        # Coinbase at height chain_height-5+1 ok in mempool, should
+        # get mined. Coinbase at height chain_height-5+2 is
         # is too immature to spend.
-        b = [ self.nodes[0].getblockhash(n) for n in range(151, 153) ]
+        b = [ self.nodes[0].getblockhash(n) for n in range(6, 8) ]
         coinbase_txids = [ self.nodes[0].getblock(h)['tx'][0] for h in b ]
         spends_raw = [ create_tx(self.nodes[0], txid, node0_address, 49.99) for txid in coinbase_txids ]
 
-        spend_151_id = self.nodes[0].sendrawtransaction(spends_raw[0])
+        spend_6_id = self.nodes[0].sendrawtransaction(spends_raw[0])
 
-        # coinbase at height 152 should be too immature to spend
+        # coinbase at height 7 should be too immature to spend
         assert_raises(JSONRPCException, self.nodes[0].sendrawtransaction, spends_raw[1])
 
-        # mempool should have just spend_151:
-        assert_equal(self.nodes[0].getrawmempool(), [ spend_151_id ])
+        # mempool should have just spend_6:
+        assert_equal(self.nodes[0].getrawmempool(), [ spend_6_id ])
 
         # mine a block, spend_151 should get confirmed
         slow_gen(self.nodes[0], 1)
         assert_equal(set(self.nodes[0].getrawmempool()), set())
 
-        # ... and now height 152 can be spent:
-        spend_152_id = self.nodes[0].sendrawtransaction(spends_raw[1])
-        assert_equal(self.nodes[0].getrawmempool(), [ spend_152_id ])
+        # ... and now height 7 can be spent:
+        spend_7_id = self.nodes[0].sendrawtransaction(spends_raw[1])
+        assert_equal(self.nodes[0].getrawmempool(), [ spend_7_id ])
 
 if __name__ == '__main__':
     MempoolSpendCoinbaseTest().main()
