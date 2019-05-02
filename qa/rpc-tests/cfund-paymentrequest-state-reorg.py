@@ -92,7 +92,7 @@ class CFundPaymentRequestStateReorg(NavCoinTestFramework):
         node_0_best_hash = self.nodes[0].getblockhash(self.nodes[0].getblockcount())
         node_1_best_hash = self.nodes[1].getblockhash(self.nodes[1].getblockcount())
 
-        # Node 0 and Node 1 have forked. Difficulty in Node 0 must be higher (hence lower chainwork)
+        # Node 0 and Node 1 have forked.
         assert(node_0_best_hash != node_1_best_hash)
 
         connect_nodes(self.nodes[0], 1)
