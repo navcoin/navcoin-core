@@ -47,15 +47,21 @@ class CommunityFundPaymentRequestExtractFundsTest(NavCoinTestFramework):
 
         # Create 6 payment requests
         paymentRequests = []
-        for x in range(6):
+        for x in range(5):
             paymentRequests.append(self.nodes[0].createpaymentrequest(proposalid0, 20, "test0")["hash"])
+
+	# The last 1 should be rejected as it excedes proposal balance
+        try:
+            paymentRequests.append(self.nodes[0].createpaymentrequest(proposalid0, 20, "test0")["hash"])
+            raise ValueError("Error should be thrown for invalid prequest")
+        except JSONRPCException as e:
+            assert("The transaction was rejected" in e.error['message'])
 
         slow_gen(self.nodes[0], 1)
 
         # One of them should have been rejected at creation
         valid = 0
         invalid = 0
-        invalid_pos = -1
 
         for paymentReq in paymentRequests:
             try:
@@ -64,13 +70,10 @@ class CommunityFundPaymentRequestExtractFundsTest(NavCoinTestFramework):
                 valid = valid + 1
             except JSONRPCException:
                 invalid = invalid + 1
-                invalid_pos = valid 
                 continue
 
         assert(valid == 5)
-        assert(invalid == 1)
-
-        paymentRequests.pop(invalid_pos)
+        assert(invalid == 0)
 
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
         
