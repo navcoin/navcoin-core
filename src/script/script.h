@@ -188,6 +188,8 @@ enum opcodetype
 
     OP_COINSTAKE = 0xc6,
 
+    OP_POOL = 0xd0,
+
     // template matching params
     OP_SMALLDATA = 0xf9,
     OP_SMALLINTEGER = 0xfa,
@@ -689,6 +691,7 @@ public:
     bool IsPaymentRequestVote() const;
     bool IsPaymentRequestVoteYes() const;
     bool IsPaymentRequestVoteNo() const;
+    bool IsPool() const;
     bool ExtractVote(uint256 &hash, bool &vote) const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
