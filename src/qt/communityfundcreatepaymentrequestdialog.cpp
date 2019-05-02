@@ -196,7 +196,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
         // Validate requested amount
-        if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(true)) {
+        if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
             QMessageBox msgBox(this);
             std::string str = "Cannot create a Payment Request for the requested amount\n";
             msgBox.setText(tr(str.c_str()));
