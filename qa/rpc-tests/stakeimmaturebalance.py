@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from test_framework.test_framework import NavCoinTestFramework
-from test_framework.util import *
+from test_framework.staticr_util import *
 import logging
 
 '''
@@ -10,7 +10,7 @@ node0 has both confirmed and immature balance, it sends away its confirmed balan
 node0 checks that immature balance does not affect stake weight
 '''
 
-SENDING_FEE= 0.003
+SENDING_FEE= 0.003393
 BLOCK_REWARD = 50
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO, stream=sys.stdout)
@@ -28,7 +28,7 @@ class StakeImmatureBalance(NavCoinTestFramework):
 
     def run_test(self):
         addr = self.nodes[1].getnewaddress()
-        slow_gen(self.nodes[0], 300) #300 for soft fork voting
+        activate_staticr(self.nodes[0])
         self.nodes[0].sendtoaddress(addr, satoshi_round(float(self.nodes[0].getbalance()) - SENDING_FEE))
         slow_gen(self.nodes[0], 1)
         logging.info('Checking stake weight')
