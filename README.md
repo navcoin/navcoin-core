@@ -1,6 +1,6 @@
 ![NavCoin](./img/logo-extended.png)
 
-This is the working repository for NavCoin 4.5.2, our fork of bitcoin-core 0.13.
+This is the working repository for NavCoin 4.6.0, our fork of bitcoin-core 0.13.
 
 For more information please visit the website:
 
