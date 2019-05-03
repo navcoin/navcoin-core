@@ -50,10 +50,13 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
         }
     }
 
-    //hide ui voting elements on prequests which are not allowed vote states
-    if(!prequest.CanVote())
     {
-        ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
+        LOCK(cs_main);
+        //hide ui voting elements on prequests which are not allowed vote states
+        if(!prequest.CanVote(*pcoinsTip))
+        {
+            ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
+        }
     }
 }
 
@@ -125,7 +128,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[24];
+        char buf[48];
         if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
             ss << buf;
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
@@ -137,7 +140,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[24];
+        char buf[48];
         if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
             ss << buf;
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(expiry_title));
@@ -150,7 +153,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
-            char buf[24];
+            char buf[48];
             if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
                 ss << buf;
             ui->labelPrequestExpiryTitle->setText(QString::fromStdString(expiry_title));
@@ -188,6 +191,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
 
 void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
 {
+    LOCK(cs_main);
+
     // Cast the vote
     bool duplicate = false;
 
