@@ -52,10 +52,13 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     }
 
 
-    //hide ui voting elements on proposals which are not allowed vote states
-    if(!proposal.CanVote())
     {
-        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
+        LOCK(cs_main);
+        //hide ui voting elements on proposals which are not allowed vote states
+        if(!proposal.CanVote())
+        {
+            ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
+        }
     }
 
     // Hide ability to vote is the status is expired
@@ -109,7 +112,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[24];
+        char buf[48];
         if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
             ss << buf;
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
@@ -120,7 +123,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
-            char buf[24];
+            char buf[48];
             if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
                 ss << buf;
             ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
