@@ -41,8 +41,19 @@ This PR fixes an historical issue which made the wallet show a wrong balance aft
 
 When running a node with -addressindex=1 executing the RPC command “getaddressutxos” with the spending pubkeyhash of a cold staking address will now return any utxo’s available to spend by that key including those where the pubkeyhash is the spending key of a coldstaking transaction. Previously only regular utxo’s sent directly to that pubkeyhash were returned.
 
+## Fix for Payment Request reorganizations
+<[Pull Request 456](https://github.com/NAVCoin/navcoin-core/pull/456)>
+<[Commit 688bf4d](https://github.com/NAVCoin/navcoin-core/commit/688bf4d808ca5b5d3d08fef00d085397bb5b47f0)>
+
+This PR prevents payment requests with invalid hashes (not set yet or out of the main chain) to count for the already requested balance of a proposal.
+
 ## Other updates to the NavCoin client, docs and codebase
 
+- Missing increased buffer for cfund gui <[Pull Request 459](https://github.com/NAVCoin/navcoin-core/pull/459)> <[Commit 073ef14](https://github.com/NAVCoin/navcoin-core/commit/073ef14a9b46c92d03da20c3b279a8156f6cdaf9)>
+- Updated the help text for 'getcoldstakingaddress' RPC/cli call <[Pull Request 458](https://github.com/NAVCoin/navcoin-core/pull/458)> <[Commit b4a1db5](https://github.com/NAVCoin/navcoin-core/commit/b4a1db5cdd3afe8e1e7f4a50068b15d162548447)>
+- Combined fix for issues #445 and #446 <[Pull Request 450](https://github.com/NAVCoin/navcoin-core/pull/450)> <[Commit 96198f9](https://github.com/NAVCoin/navcoin-core/commit/96198f924bd71848d051e7a630c1818854bfa339)>
+- Fixes coldstake tx amount for spending wallets <[Pull Request 447](https://github.com/NAVCoin/navcoin-core/pull/447)> <[Commit 8c93c6b](https://github.com/NAVCoin/navcoin-core/commit/8c93c6bea3f8aa926675ebe2e9e4bb604738d964)>
+- Community Fund GUI date buffer increase <[Pull Request 443](https://github.com/NAVCoin/navcoin-core/pull/443)> <[Commit 8072efb](https://github.com/NAVCoin/navcoin-core/commit/8072efb01ad1882c7ea1a853d5d1e5960ae5c61b)>
 - Use chainActive.Tip() instead of pindexBestHeader <[Pull Request 442](https://github.com/NAVCoin/navcoin-core/pull/442)> <[Commit 4de0827](https://github.com/NAVCoin/navcoin-core/commit/4de08271f82f888d73024317af08723a82fca467)>
 - Fix Gitian Build <[Pull Request 441](https://github.com/NAVCoin/navcoin-core/pull/441)> <[Commit afa2e8b](https://github.com/NAVCoin/navcoin-core/commit/afa2e8b8e9fd8cf67605e15ac8671e996bcc2e2d)>
 - Adds arrayslice.h to Makefile.am <[Pull Request 440](https://github.com/NAVCoin/navcoin-core/pull/440)> <[Commit 5ba6b6a](https://github.com/NAVCoin/navcoin-core/commit/5ba6b6affbee20e9298776a99a70331384b1a1e2)>
