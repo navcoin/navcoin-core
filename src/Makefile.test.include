@@ -172,7 +172,7 @@ CLEAN_NAVCOIN_TEST = test/*.gcda test/*.gcno $(GENERATED_TEST_FILES)
 CLEANFILES += $(CLEAN_NAVCOIN_TEST)
 
 # This file is problematic for out-of-tree builds if it exists.
-DISTCLEANFILES += test/buildenv.pyc
+CLEANFILES += test/buildenv.pyc
 
 navcoin_test: $(TEST_BINARY)
 
