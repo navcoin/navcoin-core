@@ -72,6 +72,10 @@ bool SetupNetworking();
 
 /** Return true if log accepts specified category */
 bool LogAcceptCategory(const char* category);
+
+/** Returns the path to the debug.log file */
+boost::filesystem::path GetDebugLogPath();
+
 /** Send a string to the log output */
 int LogPrintStr(const std::string &str);
 

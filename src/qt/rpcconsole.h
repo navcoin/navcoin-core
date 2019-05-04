@@ -10,8 +10,11 @@
 
 #include "net.h"
 
-#include <QWidget>
 #include <QCompleter>
+#include <QFile>
+#include <QString>
+#include <QTimer>
+#include <QWidget>
 
 class ClientModel;
 class PlatformStyle;
@@ -61,6 +64,8 @@ private Q_SLOTS:
     void on_tabWidget_currentChanged(int index);
     /** open the debug.log from the current datadir */
     void on_openDebugLogfileButton_clicked();
+    /** copy the error log text from errorLogTextBrowser */
+    void on_errorLogCopyClipboardButton_clicked();
     /** change the time range of the network traffic graph */
     void on_sldGraphRange_valueChanged(int value);
     /** update traffic statistics */
@@ -106,6 +111,10 @@ public Q_SLOTS:
     void unbanSelectedNode();
     /** set which tab has the focus (is visible) */
     void setTabFocus(enum TabTypes tabType);
+    /** load the error log initial file pos */
+    void errorLogInitPos();
+    /** update the error log */
+    void errorLogRefresh();
 
 Q_SIGNALS:
     // For RPC command executor
@@ -140,6 +149,10 @@ private:
     QMenu *banTableContextMenu;
     int consoleFontSize;
     QCompleter *autoCompleter;
+    QTimer *errorLogTimer;
+    QFile *errorLogFile;
+    bool errorLogInitPosDone = false;
+    bool errorLogRefreshing = false;
 };
 
 #endif // NAVCOIN_QT_RPCCONSOLE_H
