@@ -77,7 +77,7 @@ class CFundPaymentRequestStateReorg(NavCoinTestFramework):
         self.nodes[1].staking(True)
 
         # Let's wait for at least 20 blocks from Node 0
-        while self.nodes[0].getblockcount() - blockcount_0 < 20:
+        while self.nodes[0].getblockcount() - blockcount_0 < 3:
             time.sleep(1)
 
         # Node 1 only has 1 output so it will only stake 1 block
