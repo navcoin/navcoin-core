@@ -52,10 +52,13 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     }
 
 
-    //hide ui voting elements on proposals which are not allowed vote states
-    if(!proposal.CanVote())
     {
-        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
+        LOCK(cs_main);
+        //hide ui voting elements on proposals which are not allowed vote states
+        if(!proposal.CanVote())
+        {
+            ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
+        }
     }
 
     // Hide ability to vote is the status is expired
