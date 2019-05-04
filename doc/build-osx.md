@@ -123,6 +123,6 @@ brew install qt@5.7
 
 ## Notes
 
-- Tested on OS X 10.7 through 10.13.5 on 64-bit Intel processors only.
+- Tested on OS X 10.10 through 10.13.5 on 64-bit Intel processors only.
 
 - Building with downloaded Qt binaries is not officially supported. See the notes in [#7714](https://github.com/navcoin/navcoin/issues/7714)
