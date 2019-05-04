@@ -61,7 +61,15 @@ else
   CXXFLAGS_overridden=no
 fi
 AC_PROG_CXX
-m4_ifdef([AC_PROG_OBJCXX],[AC_PROG_OBJCXX])
+
+dnl Unless the user specified OBJCXX, force it to be the same as CXX. This ensures
+dnl that we get the same -std flags for both.
+m4_ifdef([AC_PROG_OBJCXX],[
+if test "x${OBJCXX+set}" = "x"; then
+  OBJCXX="${CXX}"
+fi
+AC_PROG_OBJCXX
+])
 
 dnl By default, libtool for mingw refuses to link static libs into a dll for
 dnl fear of mixing pic/non-pic objects, and import/export complications. Since
@@ -1180,3 +1188,29 @@ case ${OS} in
      mv qa/pull-tester/tests_config-2.py qa/pull-tester/tests_config.py
    ;;
 esac
+
+
+echo
+echo "Options used to compile and link:"
+echo "  with wallet   = $enable_wallet"
+echo "  with gui / qt = $navcoin_enable_qt"
+if test x$navcoin_enable_qt != xno; then
+    echo "    with qr     = $use_qr"
+fi
+echo "  with zmq      = $use_zmq"
+echo "  with test     = $use_tests"
+echo "  with bench    = $use_bench"
+echo "  with upnp     = $use_upnp"
+echo "  debug enabled = $enable_debug"
+echo
+echo "  target os     = $TARGET_OS"
+echo "  build os      = $BUILD_OS"
+echo
+echo "  CC            = $CC"
+echo "  CFLAGS        = $CFLAGS"
+echo "  CPPFLAGS      = $HARDENED_CPPFLAGS $CPPFLAGS"
+echo "  CXX           = $CXX"
+echo "  CXXFLAGS      = $HARDENED_CXXFLAGS $CXXFLAGS"
+echo "  LDFLAGS       = $HARDENED_LDFLAGS $LDFLAGS"
+echo "  ARFLAGS       = $ARFLAGS"
+echo
