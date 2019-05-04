@@ -1582,6 +1582,42 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_error_log">
+      <attribute name="title">
+       <string>&amp;Error Log</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <property name="bottomMargin">
+        <number>5</number>
+       </property>
+       <item>
+        <widget class="QTextBrowser" name="errorLogTextBrowser">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="errorLogCopyClipboardButton">
+         <property name="toolTip">
+          <string>Copy Error Log contents to Clipboard</string>
+         </property>
+         <property name="text">
+          <string>Copy to Clipboard</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

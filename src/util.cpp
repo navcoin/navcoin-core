@@ -293,6 +293,11 @@ static std::string LogTimestampStr(const std::string &str, bool *fStartedNewLine
     return strStamped;
 }
 
+boost::filesystem::path GetDebugLogPath()
+{
+    return GetDataDir() / "debug.log";
+}
+
 int LogPrintStr(const std::string &str)
 {
     int ret = 0; // Returns total number of characters written
@@ -322,7 +327,7 @@ int LogPrintStr(const std::string &str)
             // reopen the log file, if requested
             if (fReopenDebugLog) {
                 fReopenDebugLog = false;
-                boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
+                boost::filesystem::path pathDebug = GetDebugLogPath();
                 if (freopen(pathDebug.string().c_str(),"a",fileout) != NULL)
                     setbuf(fileout, NULL); // unbuffered
             }
