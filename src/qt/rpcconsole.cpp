@@ -38,6 +38,7 @@
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
+#include <QTextCursor>
 #include <QThread>
 #include <QTime>
 #include <QTimer>
@@ -320,8 +321,9 @@ RPCConsole::~RPCConsole()
 
 void RPCConsole::errorLogInitPos()
 {
+    error("errorLogInitPos");
     // Get a QFile instance
-    errorLogFile = new QFile(QString::fromStdString(GetDebugLogPath().string()));
+    errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
 
     // Try to open file
     if (!errorLogFile->open(QFile::ReadOnly | QFile::Text))
@@ -370,21 +372,42 @@ void RPCConsole::errorLogRefresh()
     QTextStream in(errorLogFile);
 
     // Load up the lines
-    QString line;
     QString logLines = "";
     while (!in.atEnd()) {
         // Load the next line
-        line = in.readLine() + "\n";
-
-        // Check if it's an error
-        if (line.contains("error", Qt::CaseInsensitive) && !line.contains("ErrorFile"))
-            logLines += line; // Use the line
+        logLines += in.readLine() + "\n";
     }
 
     // Check if we have lines
     if (logLines != "") {
         ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
         ui->errorLogTextBrowser->textCursor().insertText(logLines);
+    }
+
+    // Count the lines in the UI textarea
+    int uiLineCount = ui->errorLogTextBrowser->document()->lineCount();
+
+    // Check if lines are more than ERROR_LOG_INITIAL_COUNT
+    if (uiLineCount > ERROR_LOG_INITIAL_COUNT) {
+        // Count how many to remove
+        int lineCountDiff = uiLineCount - ERROR_LOG_INITIAL_COUNT;
+
+        // Get our cursor
+        QTextCursor cursor = ui->errorLogTextBrowser->textCursor();
+
+        // REMOVE THEM
+        for (int i = 0; i < lineCountDiff; i++) {
+            cursor.movePosition(QTextCursor::Start);
+            cursor.select(QTextCursor::LineUnderCursor);
+            cursor.deleteChar(); // Remove the selected text
+            cursor.deleteChar(); // This is by design, this removes the \n
+        }
+
+        // Replace the cursor
+        ui->errorLogTextBrowser->setTextCursor(cursor);
+
+        // Move cursor back to the end
+        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
     }
 
     // Mark as done
