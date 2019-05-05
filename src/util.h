@@ -51,7 +51,7 @@ extern std::string strMiscWarning;
 extern bool fLogTimestamps;
 extern bool fLogTimeMicros;
 extern bool fLogIPs;
-extern std::atomic<bool> fReopenDebugLog;
+extern std::atomic<bool> fReopenLogFiles;
 extern CTranslationInterface translationInterface;
 
 extern const char * const NAVCOIN_CONF_FILENAME;
@@ -75,6 +75,9 @@ bool LogAcceptCategory(const char* category);
 
 /** Returns the path to the debug.log file */
 boost::filesystem::path GetDebugLogPath();
+
+/** Returns the path to the error.log file */
+boost::filesystem::path GetErrorLogPath();
 
 /** Send a string to the log output */
 int LogPrintStr(const std::string &str);
@@ -123,7 +126,7 @@ static inline bool error(std::string s)
 }
 void PrintExceptionContinue(const std::exception *pex, const char* pszThread);
 void ParseParameters(int argc, const char*const argv[]);
-void FileCommit(FILE *fileout);
+void FileCommit(FILE *file);
 bool TruncateFile(FILE *file, unsigned int length);
 int RaiseFileDescriptorLimit(int nMinFD);
 void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
@@ -147,6 +150,7 @@ boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
 void OpenDebugLog();
 void ShrinkDebugFile();
+void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize);
 void runCommand(const std::string& strCommand);
 
 inline bool IsSwitchChar(char c)

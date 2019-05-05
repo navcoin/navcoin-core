@@ -122,7 +122,7 @@ string strMiscWarning;
 bool fLogTimestamps = DEFAULT_LOGTIMESTAMPS;
 bool fLogTimeMicros = DEFAULT_LOGTIMEMICROS;
 bool fLogIPs = DEFAULT_LOGIPS;
-std::atomic<bool> fReopenDebugLog(false);
+std::atomic<bool> fReopenLogFiles(false);
 CTranslationInterface translationInterface;
 
 /** Init OpenSSL library multithreading support */
@@ -193,18 +193,36 @@ static boost::once_flag debugPrintInitFlag = BOOST_ONCE_INIT;
  * We use boost::call_once() to make sure mutexDebugLog and
  * vMsgsBeforeOpenLog are initialized in a thread-safe manner.
  *
- * NOTE: fileout, mutexDebugLog and sometimes vMsgsBeforeOpenLog
- * are leaked on exit. This is ugly, but will be cleaned up by
- * the OS/libc. When the shutdown sequence is fully audited and
+ * NOTE: fileoutDebugLog, fileoutErrorLog, mutexDebugLog and sometimes
+ * vMsgsBeforeOpenLog are leaked on exit. This is ugly, but will be cleaned
+ * up by the OS/libc. When the shutdown sequence is fully audited and
  * tested, explicit destruction of these objects can be implemented.
  */
-static FILE* fileout = NULL;
+static FILE* fileoutDebugLog = NULL;
+static FILE* fileoutErrorLog = NULL;
 static boost::mutex* mutexDebugLog = NULL;
 static list<string> *vMsgsBeforeOpenLog;
 
 static int FileWriteStr(const std::string &str, FILE *fp)
 {
     return fwrite(str.data(), 1, str.size(), fp);
+}
+
+static int LogWriteStr(const std::string &str)
+{
+    // Save the size of written data
+    int size = FileWriteStr(str, fileoutDebugLog); // write to debug log
+
+    // What is our prefix
+    std::string prefix = "ERROR";
+
+    // Check if we need to write to error log
+    if (str.find(prefix) != string::npos) {
+        FileWriteStr(str, fileoutErrorLog); // write to error log
+    }
+
+    // Return the int from the write size
+    return size;
 }
 
 static void DebugPrintInit()
@@ -219,15 +237,20 @@ void OpenDebugLog()
     boost::call_once(&DebugPrintInit, debugPrintInitFlag);
     boost::mutex::scoped_lock scoped_lock(*mutexDebugLog);
 
-    assert(fileout == NULL);
+    assert(fileoutDebugLog == NULL);
     assert(vMsgsBeforeOpenLog);
-    boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
-    fileout = fopen(pathDebug.string().c_str(), "a");
-    if (fileout) setbuf(fileout, NULL); // unbuffered
+
+    // Open the debug log
+    fileoutDebugLog = fopen(GetDebugLogPath().string().c_str(), "a");
+    if (fileoutDebugLog) setbuf(fileoutDebugLog, NULL); // unbuffered
+
+    // Open the error log
+    fileoutErrorLog = fopen(GetErrorLogPath().string().c_str(), "a");
+    if (fileoutErrorLog) setbuf(fileoutErrorLog, NULL); // unbuffered
 
     // dump buffered messages from before we opened the log
     while (!vMsgsBeforeOpenLog->empty()) {
-        FileWriteStr(vMsgsBeforeOpenLog->front(), fileout);
+        LogWriteStr(vMsgsBeforeOpenLog->front()); // write to log
         vMsgsBeforeOpenLog->pop_front();
     }
 
@@ -298,6 +321,11 @@ boost::filesystem::path GetDebugLogPath()
     return GetDataDir() / "debug.log";
 }
 
+boost::filesystem::path GetErrorLogPath()
+{
+    return GetDataDir() / "error.log";
+}
+
 int LogPrintStr(const std::string &str)
 {
     int ret = 0; // Returns total number of characters written
@@ -317,7 +345,7 @@ int LogPrintStr(const std::string &str)
         boost::mutex::scoped_lock scoped_lock(*mutexDebugLog);
 
         // buffer if we haven't opened the log yet
-        if (fileout == NULL) {
+        if (fileoutDebugLog == NULL) {
             assert(vMsgsBeforeOpenLog);
             ret = strTimestamped.length();
             vMsgsBeforeOpenLog->push_back(strTimestamped);
@@ -325,16 +353,17 @@ int LogPrintStr(const std::string &str)
         else
         {
             // reopen the log file, if requested
-            if (fReopenDebugLog) {
-                fReopenDebugLog = false;
-                boost::filesystem::path pathDebug = GetDebugLogPath();
-                if (freopen(pathDebug.string().c_str(),"a",fileout) != NULL)
-                    setbuf(fileout, NULL); // unbuffered
+            if (fReopenLogFiles) {
+                fReopenLogFiles = false;
+
+                // Open the log files
+                OpenDebugLog();
             }
 
-            ret = FileWriteStr(strTimestamped, fileout);
+            ret = LogWriteStr(strTimestamped);
         }
     }
+
     return ret;
 }
 
@@ -747,19 +776,19 @@ bool TryCreateDirectory(const boost::filesystem::path& p)
     return false;
 }
 
-void FileCommit(FILE *fileout)
+void FileCommit(FILE *file)
 {
-    fflush(fileout); // harmless if redundantly called
+    fflush(file); // harmless if redundantly called
 #ifdef WIN32
-    HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(fileout));
+    HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(file));
     FlushFileBuffers(hFile);
 #else
     #if defined(__linux__) || defined(__NetBSD__)
-    fdatasync(fileno(fileout));
+    fdatasync(fileno(file));
     #elif defined(__APPLE__) && defined(F_FULLFSYNC)
-    fcntl(fileno(fileout), F_FULLFSYNC, 0);
+    fcntl(fileno(file), F_FULLFSYNC, 0);
     #else
-    fsync(fileno(fileout));
+    fsync(fileno(file));
     #endif
 #endif
 }
@@ -843,10 +872,15 @@ void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length) {
 
 void ShrinkDebugFile()
 {
+    ShrinkDebugFile(GetDebugLogPath(), 10); // Shrink the debug log
+    ShrinkDebugFile(GetErrorLogPath(),  2); // Shrink the error log
+}
+
+void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize)
+{
     // Scroll debug.log if it's getting too big
-    boost::filesystem::path pathLog = GetDataDir() / "debug.log";
     FILE* file = fopen(pathLog.string().c_str(), "r");
-    if (file && boost::filesystem::file_size(pathLog) > 10 * 1000000)
+    if (file && boost::filesystem::file_size(pathLog) > maxSize * 1000000)
     {
         // Restart the file with some of the end
         std::vector <char> vch(200000,0);

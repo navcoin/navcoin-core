@@ -306,7 +306,7 @@ void HandleSIGTERM(int)
 
 void HandleSIGHUP(int)
 {
-    fReopenDebugLog = true;
+    fReopenLogFiles = true;
 }
 
 bool static Bind(const CService &addr, unsigned int flags) {
