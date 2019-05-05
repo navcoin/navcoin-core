@@ -321,7 +321,6 @@ RPCConsole::~RPCConsole()
 
 void RPCConsole::errorLogInitPos()
 {
-    error("errorLogInitPos");
     // Get a QFile instance
     errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
 
