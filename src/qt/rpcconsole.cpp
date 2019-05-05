@@ -321,8 +321,11 @@ RPCConsole::~RPCConsole()
 
 void RPCConsole::errorLogInitPos()
 {
-    // Get a QFile instance
-    errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
+    // Check if we already have the file
+    if (errorLogFile != NULL) {
+        // Get a QFile instance
+        errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
+    }
 
     // Try to open file
     if (!errorLogFile->open(QFile::ReadOnly | QFile::Text))
@@ -350,7 +353,10 @@ void RPCConsole::errorLogInitPos()
     // Move pos forward by 2 spaces
     errorLogFile->seek(errorLogFile->pos() + 2);
 
-    // Mark ini as done
+    // Clear the textarea
+    ui->errorLogTextBrowser->setText("");
+
+    // Mark init as done
     errorLogInitPosDone = true;
 }
 
@@ -379,8 +385,12 @@ void RPCConsole::errorLogRefresh()
 
     // Check if we have lines
     if (logLines != "") {
+        // Add the new lines, purpose of duplicate moveCursor calls is
+        // to auto scroll to the end of the log instead of sticking to the
+        // top of the text area
         ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
         ui->errorLogTextBrowser->textCursor().insertText(logLines);
+        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
     }
 
     // Count the lines in the UI textarea
@@ -951,11 +961,13 @@ void RPCConsole::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
+    // Mark init as not done
+    errorLogInitPosDone = false;
+
     // Load error log initial data
     errorLogRefresh();
 
     // Start the error log timer
-    errorLogRefresh();
     errorLogTimer->start();
 
     if (!clientModel || !clientModel->getPeerTableModel())
