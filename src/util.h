@@ -134,7 +134,7 @@ static inline bool info(const char* s)
 }
 static inline bool info(std::string s)
 {
-    return error(s.c_str());
+    return info(s.c_str());
 }
 void PrintExceptionContinue(const std::exception *pex, const char* pszThread);
 void ParseParameters(int argc, const char*const argv[]);
