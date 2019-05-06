@@ -45,6 +45,10 @@
 
 #include <iostream>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
 #include <QAction>
 #include <QApplication>
 #include <QCheckBox>
@@ -1709,42 +1713,106 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
-  QNetworkAccessManager *manager = new QNetworkAccessManager();
-  QNetworkRequest request;
-  QNetworkReply *reply = NULL;
+    QNetworkAccessManager *manager = new QNetworkAccessManager();
+    QNetworkRequest request;
+    QNetworkReply *reply = NULL;
 
-  QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-  config.setProtocol(QSsl::TlsV1_2);
-  request.setSslConfiguration(config);
-  request.setUrl(QUrl("https://api.coinmarketcap.com/v1/ticker/nav-coin/?convert=EUR"));
-  request.setHeader(QNetworkRequest::ServerHeader, "application/json");
-  reply = manager->get(request);
-  connect(manager, SIGNAL(finished(QNetworkReply*)), this,
-                   SLOT(replyFinished(QNetworkReply*)));
+    QString url = QString(
+        "https://min-api.cryptocompare.com/data/price?fsym=NAV&tsyms="
+        "BTC,"
+        "EUR,"
+        "USD,"
+        "AUD,"
+        "BRL,"
+        "CAD,"
+        "CHF,"
+        "CLP,"
+        "CZK,"
+        "DKK,"
+        "GBP,"
+        "HKD,"
+        "HUF,"
+        "IDR,"
+        "ILS,"
+        "INR,"
+        "JPY,"
+        "KRW,"
+        "MXN,"
+        "MYR,"
+        "NOK,"
+        "NZD,"
+        "PHP,"
+        "PKR,"
+        "PLN,"
+        "RUB,"
+        "SEK,"
+        "SGD,"
+        "THB,"
+        "TRY,"
+        "TWD,"
+        "ZAR"
+    );
+
+    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    config.setProtocol(QSsl::TlsV1_2);
+    request.setSslConfiguration(config);
+    request.setUrl(QUrl(url));
+    request.setHeader(QNetworkRequest::ServerHeader, "application/json");
+    reply = manager->get(request);
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
+            SLOT(replyFinished(QNetworkReply*)));
 }
 
 void NavCoinGUI::replyFinished(QNetworkReply *reply)
 {
+    // Parse json
+    // NOTE: Had to use boost json as Q5's json support would not work with
+    //       the json data that I was getting from the API, IDK why ¯\_(ツ)_/¯
+    boost::property_tree::ptree json;
+    std::istringstream jsonStream(QString(reply->readAll()).toUtf8().constData());
+    boost::property_tree::read_json(jsonStream, json);
 
-  QString strReply = reply->readAll();
+    // Get an instance of settings
+    QSettings settings;
 
-  //parse json
-  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+    // Save the values
+    settings.setValue("btcFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("BTC"))) * 100000000);
+    settings.setValue("eurFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("EUR"))) * 100000000);
+    settings.setValue("usdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("USD"))) * 100000000);
+    settings.setValue("audFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("AUD"))) * 100000000);
+    settings.setValue("brlFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("BRL"))) * 100000000);
+    settings.setValue("cadFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CAD"))) * 100000000);
+    settings.setValue("chfFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CHF"))) * 100000000);
+    settings.setValue("clpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CLP"))) * 100000000);
+    settings.setValue("czkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CZK"))) * 100000000);
+    settings.setValue("dkkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("DKK"))) * 100000000);
+    settings.setValue("gbpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("GBP"))) * 100000000);
+    settings.setValue("hkdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("HKD"))) * 100000000);
+    settings.setValue("hufFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("HUF"))) * 100000000);
+    settings.setValue("idrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("IDR"))) * 100000000);
+    settings.setValue("ilsFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ILS"))) * 100000000);
+    settings.setValue("inrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("INR"))) * 100000000);
+    settings.setValue("jpyFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("JPY"))) * 100000000);
+    settings.setValue("krwFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("KRW"))) * 100000000);
+    settings.setValue("mxnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("MXN"))) * 100000000);
+    settings.setValue("myrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("MYR"))) * 100000000);
+    settings.setValue("nokFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("NOK"))) * 100000000);
+    settings.setValue("nzdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("NZD"))) * 100000000);
+    settings.setValue("phpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PHP"))) * 100000000);
+    settings.setValue("pkrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PKR"))) * 100000000);
+    settings.setValue("plnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PLN"))) * 100000000);
+    settings.setValue("rubFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("RUB"))) * 100000000);
+    settings.setValue("sekFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("SEK"))) * 100000000);
+    settings.setValue("sgdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("SGD"))) * 100000000);
+    settings.setValue("thbFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("THB"))) * 100000000);
+    settings.setValue("tryFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("TRY"))) * 100000000);
+    settings.setValue("twdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("TWD"))) * 100000000);
+    settings.setValue("zarFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ZAR"))) * 100000000);
 
-  QJsonArray jsonObj = jsonResponse.array();
-  QJsonObject jsonObj2 = jsonObj[0].toObject();
+    if(clientModel)
+        clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
 
-  QSettings settings;
-
-  settings.setValue("eurFactor",(1.0 / jsonObj2["price_eur"].toString().toFloat()) * 100000000);
-  settings.setValue("usdFactor",(1.0 / jsonObj2["price_usd"].toString().toFloat()) * 100000000);
-  settings.setValue("btcFactor",(1.0 / jsonObj2["price_btc"].toString().toFloat()) * 100000000);
-
-  if(clientModel)
-    clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
-
-  reply->deleteLater();
-
+    reply->deleteLater();
 }
 
 void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
