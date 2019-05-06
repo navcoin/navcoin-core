@@ -271,13 +271,20 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
 
-    if (GetArg("-updatefiatperiod",0) > 120000)
+    updatePrice(); // First price update
+
+    int updateFiatPeriod = GetArg("-updatefiatperiod", PRICE_UPDATE_DELAY);
+    if (updateFiatPeriod >= PRICE_UPDATE_DELAY)
     {
         QTimer *timerPrice = new QTimer(labelPrice);
         connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
-        timerPrice->start(GetArg("-updatefiatperiod",0));
+        timerPrice->start(updateFiatPeriod);
+        info("Automatic price update set to" + std::to_string(updateFiatPeriod) + "ms");
     }
-    updatePrice();
+    else
+    {
+        info("Automatic price update turned OFF");
+    }
 
     QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
     connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
@@ -1713,6 +1720,8 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
+    info("Updating prices");
+
     QNetworkAccessManager *manager = new QNetworkAccessManager();
     QNetworkRequest request;
     QNetworkReply *reply = NULL;
@@ -1813,6 +1822,8 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
         clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
 
     reply->deleteLater();
+
+    info("Updated prices");
 }
 
 void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
