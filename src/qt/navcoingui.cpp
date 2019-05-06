@@ -1822,8 +1822,6 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
         if(clientModel)
             clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
 
-        reply->deleteLater();
-
         info("Updated prices");
     }
     catch (const boost::property_tree::json_parser::json_parser_error& e)
@@ -1838,6 +1836,9 @@ void NavCoinGUI::replyFinished(QNetworkReply *reply)
     {
         error("Could not parse price data json 'drunk'");
     }
+
+    // Moved to the end so it always runs
+    reply->deleteLater();
 }
 
 void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
