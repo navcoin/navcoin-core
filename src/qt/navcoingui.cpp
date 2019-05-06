@@ -279,7 +279,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
         QTimer *timerPrice = new QTimer(labelPrice);
         connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
         timerPrice->start(updateFiatPeriod);
-        info("Automatic price update set to" + std::to_string(updateFiatPeriod) + "ms");
+        info("Automatic price update set to " + std::to_string(updateFiatPeriod) + "ms");
     }
     else
     {
