@@ -56,12 +56,44 @@ public:
      */
     enum Unit
     {
-        NAV,
-        mNAV,
-        uNAV,
-        BTC,
-        EUR,
-        USD
+        // Base currencies
+        NAV, // Navcoin
+        mNAV, // back compat
+        uNAV, // back compat
+        BTC, // Bitcoin
+        EUR, // Euro
+        USD, // United States Dollar
+
+        // Added more currencies
+        AUD, // Australian dollar
+        BRL, // Brazilian real
+        CAD, // Canadian dollar
+        CHF, // Swiss franc
+        CLP, // Chilean peso
+        CZK, // Czech koruna
+        DKK, // Danish krone
+        GBP, // British pound
+        HKD, // Hong Kong dollar
+        HUF, // Hungarian forint
+        IDR, // Indonesian rupiah
+        ILS, // Israeli new shekel
+        INR, // Indian rupee
+        JPY, // Japanese Yen
+        KRW, // South Korean won
+        MXN, // Mexican peso
+        MYR, // Malaysian ringgit
+        NOK, // Norwegian krone
+        NZD, // New Zealand dollar
+        PHP, // Philippine peso
+        PKR, // Pakistani rupee
+        PLN, // Polish złoty
+        RUB, // Russian ruble
+        SEK, // Swedish krona
+        SGD, // Singapore dollar
+        THB, // Thai baht
+        TRY, // Turkish lira
+        TWD, // New Taiwan dollar
+        ZAR  // South African rand
     };
 
     enum SeparatorStyle
