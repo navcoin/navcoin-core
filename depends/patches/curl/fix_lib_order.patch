@@ -1,0 +1,33 @@
+--- old/configure.ac	2015-08-10 14:53:48.000000000 +0200
++++ new/configure.ac	2017-03-16 06:25:39.388000000 +0100
+@@ -1480,7 +1480,7 @@
+     *-*-msys* | *-*-mingw*)
+       AC_MSG_CHECKING([for gdi32])
+       my_ac_save_LIBS=$LIBS
+-      LIBS="-lgdi32 $LIBS"
++      LIBS="$LIBS -lgdi32"
+       AC_TRY_LINK([#include <windef.h>
+                    #include <wingdi.h>],
+                    [GdiFlush();],
+--- old/configure	2017-03-16 06:34:00.292000000 +0100
++++ new/configure	2017-03-16 06:34:39.192000000 +0100
+@@ -21647,7 +21647,7 @@
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gdi32" >&5
+ $as_echo_n "checking for gdi32... " >&6; }
+       my_ac_save_LIBS=$LIBS
+-      LIBS="-lgdi32 $LIBS"
++      LIBS="$LIBS -lgdi32"
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ #include <windef.h>
+--- old/src/Makefile.am	2015-06-11 19:50:43.000000000 +0200
++++ new/src/Makefile.am	2017-03-19 00:35:23.656000000 +0100
+@@ -54,7 +54,7 @@
+ include Makefile.inc
+ 
+ # This might hold -Werror
+-CFLAGS += @CURL_CFLAG_EXTRAS@
++CFLAGS += @CURL_CFLAG_EXTRAS@ -DBUILDING_LIBCURL
+ 
+ # Prevent LIBS from being used for all link targets
+ LIBS = $(BLANK_AT_MAKETIME)
