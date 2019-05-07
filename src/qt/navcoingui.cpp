@@ -766,17 +766,6 @@ bool NavCoinGUI::addWallet(const QString& name, WalletModel *walletModel)
     return walletFrame->addWallet(name, walletModel);
 }
 
-void NavCoinGUI::startVotingCounter()
-{
-    if (GetStaking())
-    {
-        QTimer *timerVotingIcon = new QTimer(labelStakingIcon);
-        connect(timerVotingIcon, SIGNAL(timeout()), this, SLOT(getVotingInfo()));
-        timerVotingIcon->start(1200 * 1000);
-        getVotingInfo();
-    }
-}
-
 bool NavCoinGUI::setCurrentWallet(const QString& name)
 {
     if(!walletFrame)
@@ -1851,91 +1840,6 @@ size_t NavCoinGUI::priceUdateWriteCallback(void *contents, size_t size, size_t n
 {
     ((std::string*) userp)->append((char*) contents, size * nmemb);
     return size * nmemb;
-}
-
-void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
-{
-
-  QString strReply = reply->readAll();
-  QSettings settings;
-
-  //parse json
-  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-
-  QJsonArray jsonObj = jsonResponse.array();
-  QJsonObject jsonObj2 = jsonObj[0].toObject();
-
-  QString oldmessage = settings.value("votingQuestion", "").toString();
-
-  std::string message   = jsonObj2["message"].toString().toStdString();
-  std::string signature = jsonObj2["signature"].toString().toStdString();
-
-  LOCK(cs_main);
-
-
-  CNavCoinAddress addr("NMYuCvBiRgvkzjdEBGJHj7rpAnRmfUD6gw");
-  CKeyID keyID;
-  addr.GetKeyID(keyID);
-
-  bool fInvalid = false;
-  std::vector<unsigned char> vchSig = DecodeBase64(signature.c_str(), &fInvalid);
-
-  if (fInvalid)
-  {
-      reply->deleteLater();
-      return;
-  }
-
-  CHashWriter ss(SER_GETHASH, 0);
-  ss << strMessageMagic;
-  ss << message;
-
-  CPubKey pubkey;
-  if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID){
-      reply->deleteLater();
-      return;
-  }
-
-  if((oldmessage != QString::fromStdString(message) || GetArg("-stakervote","") == "")
-          && !QString::fromStdString(message).isEmpty() && !fShowingVoting)
-  {
-      bool ok;
-      fShowingVoting = true;
-      RemoveConfigFile("stakervote");
-      QString vote = QInputDialog::getText(this, tr("Network vote."),
-                                           QString::fromStdString(message), QLineEdit::Normal,
-                                           "", &ok);
-
-      fShowingVoting = false;
-
-      if (ok && !vote.isEmpty())
-      {
-          SoftSetArg("-stakervote",vote.toStdString(),true);
-          RemoveConfigFile("stakervote");
-          WriteConfigFile("stakervote",vote.toStdString());
-      }
-  }
-
-  settings.setValue("votingQuestion", QString::fromStdString(message));
-
-  reply->deleteLater();
-
-}
-
-void NavCoinGUI::getVotingInfo()
-{
-    QNetworkAccessManager *manager = new QNetworkAccessManager();
-    QNetworkRequest request;
-    QNetworkReply *reply = NULL;
-
-    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-    config.setProtocol(QSsl::TlsV1_2);
-    request.setSslConfiguration(config);
-    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString::fromStdString(Params().NetworkIDString()) + QString("net.json")));
-    request.setHeader(QNetworkRequest::ServerHeader, "application/json");
-    reply = manager->get(request);
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
-                     SLOT(replyVotingFinished(QNetworkReply*)));
 }
 
 void NavCoinGUI::updateStakingStatus()
