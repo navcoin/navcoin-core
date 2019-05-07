@@ -4,7 +4,7 @@ sudo: required
 addons:
   hostname: bitcoin-tester
 
-dist: trusty
+dist: bionic
 os: linux
 language: generic
 cache:
