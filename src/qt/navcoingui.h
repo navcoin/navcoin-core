@@ -201,7 +201,6 @@ public Q_SLOTS:
        @param[in] ret       pointer to a bool that will be modified to whether Ok was clicked (modal only)
     */
     void message(const QString &title, const QString &message, unsigned int style, bool *ret = NULL);
-    void replyFinished(QNetworkReply *reply);
     void replyVotingFinished(QNetworkReply *reply);
     void startVotingCounter();
 
@@ -249,6 +248,9 @@ private Q_SLOTS:
 
     /** Repairs wallet **/
     void repairWallet();
+
+    /** Used by curl request in updatePrice */
+    static size_t priceUdateWriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
