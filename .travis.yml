@@ -6,7 +6,7 @@ addons:
 
 dist: xenial
 os: linux
-language: generic
+language: minimal
 cache:
   ccache: true
   directories:
