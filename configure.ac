@@ -289,6 +289,10 @@ case $host in
      # In libtool-speak, it's -all-static.
      AX_CHECK_LINK_FLAG([[-static]],[LIBTOOL_APP_LDFLAGS="$LIBTOOL_APP_LDFLAGS -all-static"])
 
+     # When building for windows we need static curl linking
+     # DO NOT REMOVE ^_^
+     CURL_CFLAGS="-DCURL_STATICLIB"
+
      AC_PATH_PROG([MAKENSIS], [makensis], none)
      if test x$MAKENSIS = xnone; then
        AC_MSG_WARN("makensis not found. Cannot create installer.")
@@ -558,14 +562,14 @@ AC_SEARCH_LIBS([inet_pton], [nsl resolv], [AC_DEFINE(HAVE_INET_PTON, 1, [Define 
 AC_CHECK_DECLS([strnlen])
 
 AC_CHECK_DECLS([le16toh, le32toh, le64toh, htole16, htole32, htole64, be16toh, be32toh, be64toh, htobe16, htobe32, htobe64],,,
-		[#if HAVE_ENDIAN_H
+        [#if HAVE_ENDIAN_H
                  #include <endian.h>
                  #elif HAVE_SYS_ENDIAN_H
                  #include <sys/endian.h>
                  #endif])
 
 AC_CHECK_DECLS([bswap_16, bswap_32, bswap_64],,,
-		[#if HAVE_BYTESWAP_H
+        [#if HAVE_BYTESWAP_H
                  #include <byteswap.h>
                  #endif])
 
@@ -832,7 +836,7 @@ else
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
   AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound
-	have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
+    have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
 
   if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
