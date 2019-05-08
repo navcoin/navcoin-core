@@ -1697,7 +1697,6 @@ void NavCoinGUI::updateWeight()
     nWeight = pwalletMain->GetStakeWeight();
 }
 
-
 void NavCoinGUI::updatePrice()
 {
   QNetworkAccessManager *manager = new QNetworkAccessManager();
