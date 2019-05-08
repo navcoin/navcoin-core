@@ -21,11 +21,11 @@ class GetStakingInfo(NavCoinTestFramework):
         self.is_network_split = False
 
     def run_test(self):
-        # Turn ON staking cause we need it
-        self.nodes[0].staking(True)
+        # Turn off staking
+        self.nodes[0].staking(False)
 
         # Check if we get the error for nWeight
-        assert(self.nodes[0].getstakinginfo()['enabled'])
+        assert(not self.nodes[0].getstakinginfo()['enabled'])
         assert(not self.nodes[0].getstakinginfo()['staking'])
         assert_equal("Warning: We don't appear to have mature coins.", self.nodes[0].getstakinginfo()['errors'])
 
@@ -35,9 +35,12 @@ class GetStakingInfo(NavCoinTestFramework):
         # Check balance
         assert_equal(59814950, self.nodes[0].getwalletinfo()['balance'] + self.nodes[0].getwalletinfo()['immature_balance'])
 
+        # Turn on staking
+        self.nodes[0].staking(True)
+
         # Check for staking after we have matured coins
         assert(self.nodes[0].getstakinginfo()['enabled'])
-        assert(self.nodes[0].getstakinginfo()['staking'])
+        assert(not self.nodes[0].getstakinginfo()['staking'])
         assert_equal("", self.nodes[0].getstakinginfo()['errors'])
 
         # Get the current block count to check against while we wait for a stake
@@ -61,6 +64,9 @@ class GetStakingInfo(NavCoinTestFramework):
 
         # LOCK the wallet
         self.nodes[0].encryptwallet("password")
+        stop_nodes(self.nodes)
+        wait_navcoinds()
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir)
 
         # Check if we get the error for nWeight again after a stake
         assert(self.nodes[0].getstakinginfo()['enabled'])
