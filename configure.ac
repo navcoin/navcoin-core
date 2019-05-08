@@ -291,7 +291,7 @@ case $host in
 
      # When building for windows we need static curl linking
      # DO NOT REMOVE ^_^
-     CURL_CFLAGS="-DCURL_STATICLIB"
+     CURL_CFLAGS="$CURL_CFLAGS -DCURL_STATICLIB"
 
      AC_PATH_PROG([MAKENSIS], [makensis], none)
      if test x$MAKENSIS = xnone; then
