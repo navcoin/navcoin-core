@@ -291,7 +291,7 @@ case $host in
 
      # When building for windows we need static curl linking
      # DO NOT REMOVE ^_^
-     CURL_CFLAGS="$CURL_CFLAGS -DCURL_STATICLIB"
+     CXXFLAGS="$CXXFLAGS -DCURL_STATICLIB"
 
      AC_PATH_PROG([MAKENSIS], [makensis], none)
      if test x$MAKENSIS = xnone; then
@@ -880,7 +880,6 @@ fi
 save_CXXFLAGS="${CXXFLAGS}"
 CXXFLAGS="${CXXFLAGS} ${CRYPTO_CFLAGS} ${SSL_CFLAGS}"
 AC_CHECK_DECLS([EVP_MD_CTX_new],,,[AC_INCLUDES_DEFAULT
-#include <openssl/x509_vfy.h>
 #include <openssl/x509_vfy.h>
 ])
 CXXFLAGS="${save_CXXFLAGS}"
