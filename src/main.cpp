@@ -2542,7 +2542,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking()) {
                         uint160 hashBytes;
                         int type = 0;
-			CTxDestination destination;
+                        CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
                         if (prevout.scriptPubKey.IsColdStaking())
@@ -6261,6 +6261,11 @@ void static CheckBlockIndex(const Consensus::Params& consensusParams)
 
 std::string GetWarnings(const std::string& strFor)
 {
+    return GetWarnings(strFor, false);
+}
+
+std::string GetWarnings(const std::string& strFor, bool verbose)
+{
     string strStatusBar;
     string strRPC;
     string strGUI;
@@ -6275,7 +6280,6 @@ std::string GetWarnings(const std::string& strFor)
             strStatusBar = "This is a Release Candidate build - use at your own risk - please make sure your wallet is backed up";
             strGUI = _("This is a Release Candidate build - use at your own risk - please make sure your wallet is backed up");
         }
-
     }
 
     if (GetBoolArg("-testsafemode", DEFAULT_TESTSAFEMODE))
@@ -6290,20 +6294,38 @@ std::string GetWarnings(const std::string& strFor)
     if (fLargeWorkForkFound)
     {
         strStatusBar = strRPC = "Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.";
-        strGUI = _("Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.");
+        strGUI = _(strRPC.c_str());
     }
     else if (fLargeWorkInvalidChainFound)
     {
         strStatusBar = strRPC = "Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.";
-        strGUI = _("Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.");
+        strGUI = _(strRPC.c_str());
+    }
+
+    if (verbose)
+    {
+        if (pwalletMain->IsLocked())
+        {
+            strStatusBar = strRPC = "Warning: Wallet is locked. Please enter the wallet passphrase with walletpassphrase first.";
+            strGUI = _(strRPC.c_str());
+        }
+
+        if (!pwalletMain->GetStakeWeight()) 
+        {
+            strStatusBar = strRPC = "Warning: We don't appear to have mature coins.";
+            strGUI = _(strRPC.c_str());
+        }
     }
 
     if (strFor == "gui")
         return strGUI;
-    else if (strFor == "statusbar")
+
+    if (strFor == "statusbar")
         return strStatusBar;
-    else if (strFor == "rpc")
+
+    if (strFor == "rpc")
         return strRPC;
+
     assert(!"GetWarnings(): invalid parameter");
     return "error";
 }
@@ -7120,7 +7142,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CTransaction tx;
         vRecv >> tx;
 
-	LogPrint("net", "Received tx %s peer=%d\n%s\n", tx.GetHash().ToString(), pfrom->id, tx.ToString());
+    LogPrint("net", "Received tx %s peer=%d\n%s\n", tx.GetHash().ToString(), pfrom->id, tx.ToString());
 
         CInv inv(MSG_TX, tx.GetHash());
         pfrom->AddInventoryKnown(inv);
