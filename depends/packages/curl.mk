@@ -1,8 +1,8 @@
 package=curl
-$(package)_version=7.58.0
+$(package)_version=7.64.1
 $(package)_download_path=https://curl.haxx.se/download/
-$(package)_file_name=$(package)-$($(package)_version).tar.gz
-$(package)_sha256_hash=cc245bf9a1a42a45df491501d97d5593392a03f7b4f07b952793518d97666115
+$(package)_file_name=$(package)-$($(package)_version).tar.xz
+$(package)_sha256_hash=9252332a7f871ce37bfa7f78bdd0a0e3924d8187cc27cb57c76c9474a7168fb3
 $(package)_dependencies=openssl
 $(package)_patches=fix_lib_order.patch
 
@@ -12,7 +12,7 @@ endef
 
 define $(package)_set_vars
   $(package)_config_env=CURL_CFLAG_EXTRAS="-DBUILDING_LIBCURL"
-  $(package)_config_opts=--with-ssl=$(host_prefix)/lib --enable-static --disable-shared
+  $(package)_config_opts=--with-ssl --enable-static --disable-shared
   $(package)_config_opts_mingw32=--with-random=/dev/urandom
   $(package)_config_opts_x86_64_mingw32=--target=x86_64-w64-mingw32
   $(package)_config_opts_i686_mingw32=--target=i686-w64-mingw32
