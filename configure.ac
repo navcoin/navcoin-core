@@ -35,8 +35,8 @@ AC_MSG_NOTICE([               __                   ])
 AC_MSG_NOTICE([     |\ | _   /   _ . _             ])
 AC_MSG_NOTICE([     | \|(_|\/\__(_)|| |            ])
 AC_MSG_NOTICE([                                    ])
-AC_MSG_NOTICE([     Setting up build for     ])
-AC_MSG_NOTICE([     $host      ])
+AC_MSG_NOTICE([     Setting up build for           ])
+AC_MSG_NOTICE([     $host                          ])
 AC_MSG_NOTICE([------------------------------------])
 AC_MSG_NOTICE([------------------------------------])
 
@@ -244,7 +244,10 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wunused-local-typedef],[CXXFLAGS="$CXXFLAGS -Wno-unused-local-typedef"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wdeprecated-register],[CXXFLAGS="$CXXFLAGS -Wno-deprecated-register"],,[[$CXXFLAG_WERROR]])
 fi
-CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS -DCURL_STATICLIB"
+CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS"
+
+# When building statically we need -DCURL_STATICLIB ^_^
+CXXFLAGS="$CXXFLAGS -DCURL_STATICLIB"
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],
