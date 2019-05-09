@@ -521,7 +521,7 @@ fi
 
 if test x$TARGET_OS != xwindows; then
   # All windows code is PIC, forcing it on just adds useless compile warnings
-  AX_CHECK_COMPILE_FLAG([-fPIC],[PIC_FLAGS="-fPIC"])
+  AX_CHECK_COMPILE_FLAG([-fPIC],[CFLAGS="$CFLAGS -fPIC"])
 fi
 
 if test x$use_hardening != xno; then
