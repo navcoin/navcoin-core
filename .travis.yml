@@ -29,7 +29,7 @@ env:
     - WINEDEBUG=fixme-all
   matrix:
 # ARM
-    - HOST=arm-linux-gnueabihf PACKAGES="ccache g++-arm-linux-gnueabihf" DEP_OPTS="NO_QT=1" CHECK_DOC=1 GOAL="install" BITCOIN_CONFIG="--disable-shared --enable-glibc-back-compat --enable-reduce-exports CXXFLAGS=-Wno-psabi"
+    - HOST=arm-linux-gnueabihf PACKAGES="ccache g++-arm-linux-gnueabihf" DEP_OPTS="NO_QT=1" CHECK_DOC=1 GOAL="install" BITCOIN_CONFIG="--disable-shared --enable-glibc-back-compat --enable-reduce-exports CXXFLAGS=-Wno-psabi LDFLAGS=-static-libstdc++"
 # Win32
     - HOST=i686-w64-mingw32 DPKG_ADD_ARCH="i386" DEP_OPTS="NO_QT=1" PACKAGES="ccache python3 nsis g++-mingw-w64-i686 wine1.6 bc openjdk-8-jre-headless" RUN_TESTS=false GOAL="install" BITCOIN_CONFIG="--enable-reduce-exports"
 # Win64
@@ -37,7 +37,7 @@ env:
 # 32-bit + dash
     - HOST=i686-pc-linux-gnu PACKAGES="ccache g++-multilib bc python3-zmq openjdk-8-jre-headless" DEP_OPTS="NO_QT=1" RUN_TESTS=false GOAL="install" BITCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++" USE_SHELL="/bin/dash"
 # bitcoind
-    - HOST=x86_64-unknown-linux-gnu PACKAGES="ccache bc python3-zmq openjdk-8-jre-headless" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--disable-shared --enable-zmq --enable-glibc-back-compat --enable-reduce-exports CPPFLAGS=-DDEBUG_LOCKORDER"
+    - HOST=x86_64-unknown-linux-gnu PACKAGES="ccache bc python3-zmq openjdk-8-jre-headless" DEP_OPTS="NO_QT=1 NO_UPNP=1 DEBUG=1" RUN_TESTS=true GOAL="install" BITCOIN_CONFIG="--disable-shared --enable-zmq --enable-glibc-back-compat --enable-reduce-exports CPPFLAGS=-DDEBUG_LOCKORDER LDFLAGS=-static-libstdc++"
 # Cross-Mac
     - HOST=x86_64-apple-darwin14 PACKAGES="ccache cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev python3-setuptools" BITCOIN_CONFIG="--enable-reduce-exports" OSX_SDK=10.11 GOAL="deploy"
 
