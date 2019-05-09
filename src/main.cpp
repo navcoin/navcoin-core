@@ -6264,7 +6264,7 @@ std::string GetWarnings(const std::string& strFor)
     return GetWarnings(strFor, false);
 }
 
-std::string GetWarnings(const std::string& strFor, bool verbose)
+std::string GetWarnings(const std::string& strFor, bool fForStaking)
 {
     string strStatusBar;
     string strRPC;
@@ -6302,7 +6302,7 @@ std::string GetWarnings(const std::string& strFor, bool verbose)
         strGUI = _(strRPC.c_str());
     }
 
-    if (verbose)
+    if (fForStaking)
     {
         if (pwalletMain->IsLocked())
         {
@@ -7142,7 +7142,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CTransaction tx;
         vRecv >> tx;
 
-    LogPrint("net", "Received tx %s peer=%d\n%s\n", tx.GetHash().ToString(), pfrom->id, tx.ToString());
+        LogPrint("net", "Received tx %s peer=%d\n%s\n", tx.GetHash().ToString(), pfrom->id, tx.ToString());
 
         CInv inv(MSG_TX, tx.GetHash());
         pfrom->AddInventoryKnown(inv);
