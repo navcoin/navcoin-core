@@ -29,7 +29,7 @@ packages:
 - "python"
 - "libexpat1-dev"
 remotes:
-- "url": "https://github.com/navcoindev/navcoin-core.git"
+- "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
 files: []
 script: |
