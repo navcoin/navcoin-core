@@ -27,25 +27,37 @@ class GetStakeReport(NavCoinTestFramework):
         self.nodes[1].staking(False)
 
         # Generate genesis block
-        self.nodes[0].generate(6)
+        activate_staticr(self.nodes[0])
         self.sync_all()
 
-        # Send some nav to node[0] new address (Fixed amount) 666 in
-        # 2 transactions (333 NAV each)
+        # Create a normal address
         address = self.nodes[0].getnewaddress()
-        self.nodes[0].sendtoaddress(address, 333)
-        self.nodes[0].sendtoaddress(address, 333)
+
+        # Create a spending address
+        spending_address = self.nodes[0].getnewaddress()
+
+        # Create a staking address
+        staking_address = self.nodes[1].getnewaddress()
+
+        # Create the cold address
+        coldstaking_address = self.nodes[0].getcoldstakingaddress(staking_address, spending_address)
+
+        # Send some nav to node[0] new addresses
+        self.nodes[0].sendtoaddress(address, 512)
+        self.nodes[0].sendtoaddress(coldstaking_address, 256)
+        self.nodes[0].sendtoaddress(coldstaking_address, 128)
         self.nodes[0].generate(6)
         self.sync_all()
 
-        # Import address with balance 666 to node[1]
+        # Import address with balances to node[1]
         self.nodes[1].importaddress(address)
-        time.sleep(5)
+        self.nodes[1].importaddress(coldstaking_address)
 
         # Assert transactions list has the old transactions with correct amounts
-        transactions = self.nodes[1].listtransactions("*", 2, 0, True)
-        assert_equal(333, transactions[0]['amount'])
-        assert_equal(333, transactions[1]['amount'])
+        transactions = self.nodes[1].listtransactions("*", 3, 0, True)
+        assert_equal(128, transactions[0]['amount'])
+        assert_equal(256, transactions[1]['amount'])
+        assert_equal(512, transactions[2]['amount'])
 
 
 
