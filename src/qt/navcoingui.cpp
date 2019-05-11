@@ -129,6 +129,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
+    infoAction(0),
     receiveCoinsAction(0),
     receiveCoinsMenuAction(0),
     optionsAction(0),
@@ -419,6 +420,10 @@ void NavCoinGUI::createActions()
     aboutAction->setStatusTip(tr("Show information about %1").arg(tr(PACKAGE_NAME)));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutAction->setEnabled(false);
+    infoAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("%1 &Knowledge Base").arg(tr(PACKAGE_NAME)), this);
+    infoAction->setStatusTip(tr("Open the %1 Knowledge Base in your browser").arg(tr(PACKAGE_NAME)));
+    infoAction->setMenuRole(QAction::NoRole);
+    infoAction->setEnabled(false);
     aboutQtAction = new QAction(platformStyle->TextColorIcon(":/icons/about_qt"), tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
@@ -476,6 +481,7 @@ void NavCoinGUI::createActions()
 
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
+    connect(infoAction, SIGNAL(triggered()), this, SLOT(infoClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
     connect(cfundProposalsAction, SIGNAL(triggered()), this, SLOT(cfundProposalsClicked()));
@@ -593,6 +599,7 @@ void NavCoinGUI::createMenuBar()
     help->addAction(showHelpMessageAction);
     help->addSeparator();
     help->addAction(aboutAction);
+    help->addAction(infoAction);
     help->addAction(aboutQtAction);
 }
 
@@ -911,6 +918,15 @@ void NavCoinGUI::aboutClicked()
 
     HelpMessageDialog dlg(this, true);
     dlg.exec();
+}
+
+void NavCoinGUI::infoClicked()
+{
+    if(!clientModel)
+        return;
+
+    QString link = QString("https://info.navcoin.org/");
+    QDesktopServices::openUrl(QUrl(link));
 }
 
 void NavCoinGUI::showDebugWindow()
@@ -1378,6 +1394,7 @@ void NavCoinGUI::showEvent(QShowEvent *event)
     // enable the debug window when the main window shows up
     openRPCConsoleAction->setEnabled(true);
     aboutAction->setEnabled(true);
+    infoAction->setEnabled(true);
     optionsAction->setEnabled(true);
 }
 
@@ -1696,7 +1713,6 @@ void NavCoinGUI::updateWeight()
 
     nWeight = pwalletMain->GetStakeWeight();
 }
-
 
 void NavCoinGUI::updatePrice()
 {

@@ -79,11 +79,12 @@ bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
 
 bool CFund::VoteProposal(string strProp, bool vote, bool &duplicate)
 {
+    AssertLockHeld(cs_main);
 
     CFund::CProposal proposal;
     bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
-    if(!found || proposal.IsNull())
+    if(!found || proposal.IsNull() || !proposal.CanVote())
         return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
@@ -111,16 +112,17 @@ bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
 }
 
 void CFund::PoolVoteProposal(string stakingAddress, string strProp, bool vote) {
+    AssertLockHeld(cs_main);
+
     CFund::CProposal proposal;
 
-    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
+    if(!found || proposal.IsNull() || !proposal.CanVote())
+        return false;
 
-    if (found && !proposal.IsNull()) {
-        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
-        PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
-        PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
-        PoolWriteFile(cFundFile, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
-    }
+    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+    PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
+    PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
+    PoolWriteFile(cFundFile, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
 }
 
 
@@ -154,10 +156,12 @@ void CFund::PoolRemoveVoteProposal(string stakingAddress, string strProp)
 
 bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
 {
+    AssertLockHeld(cs_main);
+
     CFund::CPaymentRequest prequest;
     bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
-    if(!found || prequest.IsNull())
+    if(!found || prequest.IsNull() || !prequest.CanVote(*pcoinsTip))
         return false;
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
@@ -189,14 +193,16 @@ bool CFund::VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate)
 void CFund::PoolVotePaymentRequest(string stakingAddress, string strProp, bool vote) {
     CFund::CProposal proposal;
 
-    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
+    CFund::CPaymentRequest prequest;
+    bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
-    if (found && !proposal.IsNull()) {
-        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
-        PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
-        PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
-        PoolWriteFile(cFundFile, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
-    }
+    if(!found || prequest.IsNull() || !prequest.CanVote(*pcoinsTip))
+        return false;
+
+    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+    PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
+    PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
+    PoolWriteFile(cFundFile, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
 }
 
 bool CFund::RemoveVotePaymentRequest(string strProp)
@@ -228,7 +234,7 @@ void CFund::PoolRemoveVotePaymentRequest(string stakingAddress, string strProp)
     PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
 }
 
-bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
+bool CFund::IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int nMaxVersion)
 {    
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for payment request %s", __func__, tx.GetHash().ToString());
@@ -298,9 +304,9 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
     if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID)
         return error("%s: Invalid signature for payment request %s", __func__, tx.GetHash().ToString());
 
-    if(nAmount > proposal.GetAvailable(true))
+    if(nAmount > proposal.GetAvailable(coins, true))
         return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
-                     __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable());
+                     __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable(coins, true));
     
     bool ret = (nVersion <= nMaxVersion);
 
@@ -311,11 +317,23 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, int nMaxVersion)
 
 }
 
-bool CFund::CPaymentRequest::CanVote() const {
+bool CFund::CPaymentRequest::CanVote(CCoinsViewCache& coins) const
+{
+    AssertLockHeld(cs_main);
+
+    CBlockIndex* pindex;
+    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
+        return false;
+
+    pindex = mapBlockIndex[txblockhash];
+    if(!chainActive.Contains(pindex))
+        return false;
+
     CFund::CProposal proposal;
     if(!CFund::FindProposal(proposalhash, proposal))
         return false;
-    return nAmount <= proposal.GetAvailable() && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && !ExceededMaxVotingCycles();
+
+    return nAmount <= proposal.GetAvailable(coins) && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && !ExceededMaxVotingCycles();
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
@@ -428,6 +446,16 @@ bool CFund::CProposal::IsRejected() const {
 }
 
 bool CFund::CProposal::CanVote() const {
+    AssertLockHeld(cs_main);
+
+    CBlockIndex* pindex;
+    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
+        return false;
+
+    pindex = mapBlockIndex[txblockhash];
+    if(!chainActive.Contains(pindex))
+        return false;
+
     return (fState == NIL) && (!ExceededMaxVotingCycles());
 }
 
@@ -458,6 +486,59 @@ bool CFund::CProposal::ExceededMaxVotingCycles() const {
     return nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
 }
 
+CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequests) const
+{
+    AssertLockHeld(cs_main);
+
+    CAmount initial = nAmount;
+    for (unsigned int i = 0; i < vPayments.size(); i++)
+    {
+        CFund::CPaymentRequest prequest;
+        if(FindPaymentRequest(vPayments[i], prequest))
+        {
+            if (!coins.HaveCoins(prequest.hash))
+            {
+                CBlockIndex* pindex;
+                if(prequest.txblockhash == uint256() || !mapBlockIndex.count(prequest.txblockhash))
+                    continue;
+                pindex = mapBlockIndex[prequest.txblockhash];
+                if(!chainActive.Contains(pindex))
+                    continue;
+            }
+            if((fIncludeRequests && prequest.fState != REJECTED && prequest.fState != EXPIRED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
+                initial -= prequest.nAmount;
+        }
+    }
+    return initial;
+}
+
+std::string CFund::CProposal::ToString(CCoinsViewCache& coins, uint32_t currentTime) const {
+    std::string str;
+    str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
+                     "nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
+                     hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable(coins)/COIN, (float)nFee/COIN, Address, nDeadline,
+                     nVotesYes, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
+    for (unsigned int i = 0; i < vPayments.size(); i++) {
+        CFund::CPaymentRequest prequest;
+        if(FindPaymentRequest(vPayments[i], prequest))
+            str += "\n    " + prequest.ToString();
+    }
+    return str + "\n";
+}
+
+bool CFund::CProposal::HasPendingPaymentRequests(CCoinsViewCache& coins) const {
+    AssertLockHeld(cs_main);
+
+    for (unsigned int i = 0; i < vPayments.size(); i++)
+    {
+        CFund::CPaymentRequest prequest;
+        if(FindPaymentRequest(vPayments[i], prequest))
+            if(prequest.CanVote(coins))
+                return true;
+    }
+    return false;
+}
+
 std::string CFund::CProposal::GetState(uint32_t currentTime) const {
     std::string sFlags = "pending";
     if(IsAccepted()) {
@@ -484,13 +565,15 @@ std::string CFund::CProposal::GetState(uint32_t currentTime) const {
     return sFlags;
 }
 
-void CFund::CProposal::ToJson(UniValue& ret) const {
+void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
+    AssertLockHeld(cs_main);
+
     ret.push_back(Pair("version", nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
     ret.push_back(Pair("blockHash", txblockhash.ToString()));
     ret.push_back(Pair("description", strDZeel));
     ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
-    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable())));
+    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable(coins))));
     ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
     ret.push_back(Pair("paymentAddress", Address));
     if(nVersion >= 2) {

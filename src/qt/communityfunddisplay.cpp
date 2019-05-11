@@ -44,7 +44,7 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 }
 
 void CommunityFundDisplay::refresh()
-{
+{    
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
@@ -162,9 +162,12 @@ void CommunityFundDisplay::refresh()
         ui->labelDuration->setText(QString::fromStdString("After payment request voting"));
     }
 
-    //hide ui voting elements on proposals which are not allowed vote states
-    if(!proposal.CanVote())
-        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
+    {
+        LOCK(cs_main);
+        //hide ui voting elements on proposals which are not allowed vote states
+        if(!proposal.CanVote())
+            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
+    }
 
     // Prevent overflow of title
     std::string title_string = proposal.strDZeel;

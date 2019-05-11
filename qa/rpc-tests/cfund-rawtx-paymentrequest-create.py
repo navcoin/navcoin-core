@@ -111,8 +111,16 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
 
         # Create multiple payment requests
         self.send_raw_paymentrequest(6, self.goodAddress, self.goodProposalHash, "sum_to_too_large_amount0")
-        self.send_raw_paymentrequest(6, self.goodAddress, self.goodProposalHash, "sum_to_too_large_amount1")
-        self.send_raw_paymentrequest(6, self.goodAddress, self.goodProposalHash, "sum_to_too_large_amount2")
+        try:
+            self.send_raw_paymentrequest(6, self.goodAddress, self.goodProposalHash, "sum_to_too_large_amount1")
+            raise ValueError("Error should be thrown for invalid rawtx (prequest)")
+        except JSONRPCException as e:
+            assert("bad-cfund-payment-request" in e.error['message'])
+        try:
+            self.send_raw_paymentrequest(6, self.goodAddress, self.goodProposalHash, "sum_to_too_large_amount2")
+            raise ValueError("Error should be thrown for invalid rawtx (prequest)")
+        except JSONRPCException as e:
+            assert("bad-cfund-payment-request" in e.error['message'])
 
         slow_gen(self.nodes[0], 1)
 
