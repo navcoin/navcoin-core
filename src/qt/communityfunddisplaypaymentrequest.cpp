@@ -168,9 +168,12 @@ void CommunityFundDisplayPaymentRequest::refresh()
         }
     }
 
-    //hide ui voting elements on proposals which are not allowed vote states
-    if(!prequest.CanVote())
-        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
+    {
+        LOCK(cs_main);
+        //hide ui voting elements on proposals which are not allowed vote states
+        if(!prequest.CanVote(*pcoinsTip))
+            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
+    }
 
     std::string title_string = prequest.strDZeel;
     std::replace( title_string.begin(), title_string.end(), '\n', ' ');
@@ -183,6 +186,8 @@ void CommunityFundDisplayPaymentRequest::refresh()
 
 void CommunityFundDisplayPaymentRequest::click_buttonBoxVote(QAbstractButton *button)
 {
+    LOCK(cs_main);
+
     //cast the vote
     bool duplicate = false;
 

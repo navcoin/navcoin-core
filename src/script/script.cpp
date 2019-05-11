@@ -151,7 +151,6 @@ const char* GetOpName(opcodetype opcode)
 
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
-    // pool
     case OP_POOL                   : return "OP_POOL";
 
     // Note:
@@ -311,8 +310,8 @@ bool CScript::IsPaymentRequestVoteNo() const
 bool CScript::IsPool() const
 {
     return (this->size() == 2 &&
-            (*this)[0] == OP_RETURN &&
-            (*this)[1] == OP_POOL);
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_POOL);
 }
 
 bool CScript::ExtractVote(uint256 &hash, bool &vote) const

@@ -164,20 +164,17 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
             "Arguments:\n"
             "1. \"stakingaddress\"  (string, required) The navcoin staking address.\n"
             "2. \"spendingaddress\" (string, required) The navcoin spending address.\n\n"
-            "Result:\n"
-            "coldstakingaddress (string) The coldstaking address\n\n"
-            "Examples:\n\n"
-            "> navcoin-cli getcoldstakingaddress \"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"\n"
-            "As a json rpc call:\n"
-       
-            
+            "\nExamples:\n"
+            + HelpExampleCli("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\", \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"")
         );
 
     if (!IsColdStakingEnabled(chainActive.Tip(),Params().GetConsensus()))
         throw runtime_error(
             "Cold Staking is not active yet.");
 
-    if (params[0].get_str() == params[1].get_str()) 
+    if (params[0].get_str() == params[1].get_str())
         throw runtime_error(
             "The staking address should be different to the spending address"
         );
@@ -391,7 +388,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool donate = false)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool donate = false, bool fDoNotSend = false)
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -423,7 +420,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
-    if (!pwalletMain->CommitTransaction(wtxNew, reservekey))
+    if (!fDoNotSend && !pwalletMain->CommitTransaction(wtxNew, reservekey))
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
 }
 
@@ -543,7 +540,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 4)
         throw runtime_error(
-            "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee )\n"
+            "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
             "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -552,6 +549,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
             "4. \"desc\"               (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
+            "6. dump_raw               (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
@@ -568,6 +566,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : Params().GetConsensus().nProposalMinimalFee;
     if (nAmount <= 0 || nAmount < Params().GetConsensus().nProposalMinimalFee)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() == 6 ? params[5].getBool() : false;
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
@@ -601,15 +601,18 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
 
-    UniValue ret(UniValue::VOBJ);
-
-    ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
-    ret.push_back(Pair("strDZeel",wtx.strDZeel));
-
-    return ret;
+        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+    else
+        return EncodeHexTx(wtx);
 }
 
 std::string random_string( size_t length )
@@ -633,15 +636,16 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 3)
+    if (fHelp || params.size() < 3)
         throw runtime_error(
-            "createpaymentrequest \"hash\" \"amount\" \"id\"\n"
+            "createpaymentrequest \"hash\" \"amount\" \"id\" ( dump_raw )\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"hash\"               (string, required) The hash of the proposal from which you want to withdraw funds. It must be approved.\n"
             "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to withdraw. eg 10\n"
             "3. \"id\"                 (string, required) Unique id to identify the payment request\n"
+            "4. dump_raw               (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
             "\nResult:\n"
             "\"{ hash: prequestid,\"             (string) The payment request id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
@@ -676,6 +680,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     std::string id = params[2].get_str();
+
+    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+
     std::string sRandom = random_string(16);
 
     std::string Secret = sRandom + "I kindly ask to withdraw " +
@@ -692,7 +699,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
-    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(true))
+    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount.");
 
     CWalletTx wtx;
@@ -713,14 +720,18 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
-    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true);
+    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true, fDump);
 
-    UniValue ret(UniValue::VOBJ);
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
 
-    ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
-    ret.push_back(Pair("strDZeel",wtx.strDZeel));
-
-    return ret;
+        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+    else
+        return EncodeHexTx(wtx);
 }
 
 UniValue donatefund(const UniValue& params, bool fHelp)
@@ -3362,6 +3373,8 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
                 "}\n"
         );
 
+    LOCK(cs_main);
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
@@ -3376,7 +3389,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
              auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
                  [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
              UniValue p(UniValue::VOBJ);
-             proposal.ToJson(p);
+             proposal.ToJson(p, *pcoinsTip);
              if (it != vAddedProposalVotes.end()) {
                  if (it->second)
                      yesvotes.push_back(p);
@@ -3411,6 +3424,8 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
             "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
             "                      'remove' to remove a proposal from the list\n"
         );
+
+    LOCK(cs_main);
 
     string strHash = params[0].get_str();
     bool duplicate = false;
@@ -3511,6 +3526,8 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
             "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
             "                      'remove' to remove a proposal from the list\n"
         );
+
+    LOCK(cs_main);
 
     string strHash = params[0].get_str();
     bool duplicate = false;
