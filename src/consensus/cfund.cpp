@@ -112,17 +112,15 @@ bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
 }
 
 void CFund::PoolVoteProposal(string stakingAddress, string strProp, bool vote) {
-    AssertLockHeld(cs_main);
-
     CFund::CProposal proposal;
+    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
-    if(!found || proposal.IsNull() || !proposal.CanVote())
-        return false;
-
-    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
-    PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
-    PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
-    PoolWriteFile(cFundFile, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
+    if(found && !proposal.IsNull()) {
+        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+        PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
+        PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
+        PoolWriteFile(cFundFile, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
+    }
 }
 
 
@@ -191,18 +189,15 @@ bool CFund::VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate)
 }
 
 void CFund::PoolVotePaymentRequest(string stakingAddress, string strProp, bool vote) {
-    CFund::CProposal proposal;
-
     CFund::CPaymentRequest prequest;
     bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
-    if(!found || prequest.IsNull() || !prequest.CanVote(*pcoinsTip))
-        return false;
-
-    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
-    PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
-    PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
-    PoolWriteFile(cFundFile, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
+    if(found && !prequest.IsNull()) {
+        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+        PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
+        PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
+        PoolWriteFile(cFundFile, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
+    }
 }
 
 bool CFund::RemoveVotePaymentRequest(string strProp)
