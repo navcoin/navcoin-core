@@ -115,12 +115,14 @@ void CFund::PoolVoteProposal(string stakingAddress, string strProp, bool vote) {
     CFund::CProposal proposal;
     bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
 
-    if(found && !proposal.IsNull()) {
-        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
-        PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
-        PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
-        PoolWriteFile(cFundFile, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
+    if (!found || !proposal.IsNull()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not recognised");
     }
+
+    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+    PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
+    PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
+    PoolWriteFile(cFundFile, vote ? "addproposalvoteyes" : "addproposalvoteno", strProp);
 }
 
 
@@ -192,12 +194,14 @@ void CFund::PoolVotePaymentRequest(string stakingAddress, string strProp, bool v
     CFund::CPaymentRequest prequest;
     bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
 
-    if(found && !prequest.IsNull()) {
-        boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
-        PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
-        PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
-        PoolWriteFile(cFundFile, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
+    if(!found || prequest.IsNull()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Payment Request not recognised");
     }
+
+    boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
+    PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
+    PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);
+    PoolWriteFile(cFundFile, vote ? "addpaymentrequestvoteyes" : "addpaymentrequestvoteno", strProp);
 }
 
 bool CFund::RemoveVotePaymentRequest(string strProp)
