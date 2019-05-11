@@ -112,13 +112,6 @@ bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
 }
 
 void CFund::PoolVoteProposal(string stakingAddress, string strProp, bool vote) {
-    CFund::CProposal proposal;
-    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
-
-    if (!found || !proposal.IsNull()) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not recognised");
-    }
-
     boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
     PoolRemoveFile(cFundFile, "addproposalvoteyes", strProp);
     PoolRemoveFile(cFundFile, "addproposalvoteno", strProp);
@@ -191,13 +184,6 @@ bool CFund::VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate)
 }
 
 void CFund::PoolVotePaymentRequest(string stakingAddress, string strProp, bool vote) {
-    CFund::CPaymentRequest prequest;
-    bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
-
-    if(!found || prequest.IsNull()) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Payment Request not recognised");
-    }
-
     boost::filesystem::path cFundFile = PoolGetCFundFile(stakingAddress);
     PoolRemoveFile(cFundFile, "addpaymentrequestvoteyes", strProp);
     PoolRemoveFile(cFundFile, "addpaymentrequestvoteno", strProp);

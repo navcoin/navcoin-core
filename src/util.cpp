@@ -856,6 +856,40 @@ void PoolRemoveFile(boost::filesystem::path poolFile, std::string key, std::stri
     }
 }
 
+void PoolVoteProposalList(string spendingAddress, std::vector<std::pair<std::string, bool>> &votes)
+{
+    boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);
+    boost::filesystem::ifstream streamConfig(PoolGetCFundFile(PoolReadFile(accountFile, "stakingAddress")));
+    if (streamConfig.good()) {
+        set <string> setOptions;
+        setOptions.insert("*");
+
+        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
+            if (it->string_key == "addproposalvoteyes")
+                votes.push_back(make_pair(it->value[0], true));
+            else if (it->string_key == "addproposalvoteno")
+                votes.push_back(make_pair(it->value[0], false));
+        }
+    }
+}
+
+void PoolVotePaymentRequestList(string spendingAddress, std::vector<std::pair<std::string, bool>> &votes)
+{
+    boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);
+    boost::filesystem::ifstream streamConfig(PoolGetCFundFile(PoolReadFile(accountFile, "stakingAddress")));
+    if (streamConfig.good()) {
+        set <string> setOptions;
+        setOptions.insert("*");
+
+        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
+            if (it->string_key == "addpaymentrequestvoteyes")
+                votes.push_back(make_pair(it->value[0], true));
+            else if (it->string_key == "addpaymentrequestvoteno")
+                votes.push_back(make_pair(it->value[0], false));
+        }
+    }
+}
+
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {
