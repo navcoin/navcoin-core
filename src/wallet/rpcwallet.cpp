@@ -3620,78 +3620,6 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
     return result;
 }
 
-UniValue poolProposalVoteList(const UniValue& params, bool fHelp)
-{
-    if (!EnsureWalletIsAvailable(fHelp))
-        return NullUniValue;
-
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-                "poolproposalvotelist\n"
-
-                "\nReturns a list containing the wallet's current voting status for all active proposals for a given address.\n"
-
-                "\nResult:\n"
-                "{\n"
-                "      \"yes\":   List of proposals this wallet is casting a 'yes' vote for.\n"
-                "      \"no\":    List of proposals this wallet is casting a 'no' vote for.\n"
-                "      \"null\":  List of proposals this wallet has NOT yet cast a vote for.\n"
-                "}\n"
-        );
-
-    LOCK(cs_main);
-
-    UniValue ret(UniValue::VOBJ);
-    UniValue yesvotes(UniValue::VARR);
-    UniValue novotes(UniValue::VARR);
-    UniValue nullvotes(UniValue::VARR);
-
-    boost::filesystem::ifstream streamConfig(PoolGetCFundFile(stakingAddress));
-    if (streamConfig.good()) {
-        set <string> setOptions;
-        setOptions.insert("*");
-
-        for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
-            if (it->string_key == "addproposalvoteyes") {
-                yesvotes.push_back(it->value[0]);
-            } else if (it->string_key == "addproposalvoteno") {
-                vAddedProposalVotes.push_back(make_pair(it->value[0], it->string_key == "addproposalvoteyes"));
-            } else {
-
-            }
-        }
-    }
-
-
-    std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
-    {
-        BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-            if (proposal.fState != CFund::NIL)
-                continue;
-
-            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-            UniValue p(UniValue::VOBJ);
-            proposal.ToJson(p, *pcoinsTip);
-            if (it != vAddedProposalVotes.end()) {
-                if (it->second)
-                    yesvotes.push_back(p);
-                else
-                    novotes.push_back(p);
-            } else {
-                nullvotes.push_back(p);
-            }
-        }
-    }
-
-    ret.push_back(Pair("yes",yesvotes));
-    ret.push_back(Pair("no",novotes));
-    ret.push_back(Pair("null",nullvotes));
-
-    return ret;
-}
-
 UniValue poolProposalVote(const UniValue& params, bool fHelp)
 {
     string command;
@@ -3786,8 +3714,6 @@ UniValue poolPaymentRequestVote(const UniValue& params, bool fHelp)
     boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress);
     std::string stakingAddress = PoolReadFile(accountFile, "stakingAddress");
 
-    LogPrint("pool", "Casting payment request vote for %s %s.\n", spendingAddress, stakingAddress);
-
     if (command == "yes") {
         CFund::PoolVotePaymentRequest(stakingAddress, paymentRequestHash, true);
         return NullUniValue;
@@ -3819,74 +3745,72 @@ extern UniValue removeprunedfunds(const UniValue& params, bool fHelp);
 
 static const CRPCCommand commands[] =
 { //  category              name                        actor (function)           okSafeMode
-    //  --------------------- ------------------------    -----------------------    ----------
-    {"rawtransactions", "fundrawtransaction",         &fundrawtransaction,         false},
-    {"hidden",          "resendwallettransactions",   &resendwallettransactions,   true},
-    {"wallet",          "abandontransaction",         &abandontransaction,         false},
-    {"wallet",          "addmultisigaddress",         &addmultisigaddress,         true},
-    {"wallet",          "addwitnessaddress",          &addwitnessaddress,          true},
-    {"wallet",          "backupwallet",               &backupwallet,               true},
-    {"wallet",          "dumpprivkey",                &dumpprivkey,                true},
-    {"wallet",          "dumpmasterprivkey",          &dumpmasterprivkey,          true},
-    {"wallet",          "dumpmnemonic",               &dumpmnemonic,               true},
-    {"wallet",          "dumpwallet",                 &dumpwallet,                 true},
-    {"wallet",          "encryptwallet",              &encryptwallet,              true},
-    {"wallet",          "getaccountaddress",          &getaccountaddress,          true},
-    {"wallet",          "getaccount",                 &getaccount,                 true},
-    {"wallet",          "getaddressesbyaccount",      &getaddressesbyaccount,      true},
-    {"wallet",          "getbalance",                 &getbalance,                 false},
-    {"wallet",          "getnewaddress",              &getnewaddress,              true},
-    {"wallet",          "getcoldstakingaddress",      &getcoldstakingaddress,      true},
-    {"wallet",          "getrawchangeaddress",        &getrawchangeaddress,        true},
-    {"wallet",          "getreceivedbyaccount",       &getreceivedbyaccount,       false},
-    {"wallet",          "getreceivedbyaddress",       &getreceivedbyaddress,       false},
-    {"wallet",          "getstakereport",             &getstakereport,             false},
-    {"wallet",          "gettransaction",             &gettransaction,             false},
-    {"wallet",          "getunconfirmedbalance",      &getunconfirmedbalance,      false},
-    {"wallet",          "getwalletinfo",              &getwalletinfo,              false},
-    {"wallet",          "importprivkey",              &importprivkey,              true},
-    {"wallet",          "importwallet",               &importwallet,               true},
-    {"wallet",          "importaddress",              &importaddress,              true},
-    {"wallet",          "importprunedfunds",          &importprunedfunds,          true},
-    {"wallet",          "importpubkey",               &importpubkey,               true},
-    {"wallet",          "keypoolrefill",              &keypoolrefill,              true},
-    {"wallet",          "listaccounts",               &listaccounts,               false},
-    {"wallet",          "listaddressgroupings",       &listaddressgroupings,       false},
-    {"wallet",          "listlockunspent",            &listlockunspent,            false},
-    {"wallet",          "listreceivedbyaccount",      &listreceivedbyaccount,      false},
-    {"wallet",          "listreceivedbyaddress",      &listreceivedbyaddress,      false},
-    {"wallet",          "listsinceblock",             &listsinceblock,             false},
-    {"wallet",          "listtransactions",           &listtransactions,           false},
-    {"wallet",          "listunspent",                &listunspent,                false},
-    {"wallet",          "lockunspent",                &lockunspent,                true},
-    {"wallet",          "move",                       &movecmd,                    false},
-    {"wallet",          "sendfrom",                   &sendfrom,                   false},
-    {"wallet",          "sendmany",                   &sendmany,                   false},
-    {"wallet",          "sendtoaddress",              &sendtoaddress,              false},
-    {"communityfund",   "donatefund",                 &donatefund,                 false},
-    {"communityfund",   "createpaymentrequest",       &createpaymentrequest,       false},
-    {"communityfund",   "createproposal",             &createproposal,             false},
-    {"wallet",          "stakervote",                 &stakervote,                 false},
-    {"communityfund",   "proposalvote",               &proposalvote,               false},
-    {"communityfund",   "proposalvotelist",           &proposalvotelist,           false},
-    {"communityfund",   "paymentrequestvote",         &paymentrequestvote,         false},
-    {"communityfund",   "paymentrequestvotelist",     &paymentrequestvotelist,     false},
-    {"wallet",          "anonsend",                   &anonsend,                   false},
-    {"wallet",          "getanondestination",         &getanondestination,         false},
-    {"wallet",          "setaccount",                 &setaccount,                 true},
-    {"wallet",          "settxfee",                   &settxfee,                   true},
-    {"wallet",          "signmessage",                &signmessage,                true},
-    {"wallet",          "walletlock",                 &walletlock,                 true},
-    {"wallet",          "walletpassphrasechange",     &walletpassphrasechange,     true},
-    {"wallet",          "walletpassphrase",           &walletpassphrase,           true},
-    {"wallet",          "removeprunedfunds",          &removeprunedfunds,          true},
-    {"wallet",          "resolveopenalias",           &resolveopenalias,           true},
-    {"pool",            "newpooladdress",             &newPoolAddress,             true},
-    {"pool",            "poolproposalvote",           &poolProposalVote,           true},
-    {"pool",            "poolproposalvoteList",       &poolProposalVoteList,       true},
-    {"pool",            "poolpaymentrequestvote",     &poolPaymentRequestVote,     true},
-    {"pool",            "poolpaymentrequestvotelist", &poolPaymentRequestVoteList, true},
-}
+  //  --------------------- ------------------------    -----------------------    ----------
+    { "rawtransactions",    "fundrawtransaction",       &fundrawtransaction,       false },
+    { "hidden",             "resendwallettransactions", &resendwallettransactions, true  },
+    { "wallet",             "abandontransaction",       &abandontransaction,       false },
+    { "wallet",             "addmultisigaddress",       &addmultisigaddress,       true  },
+    { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true  },
+    { "wallet",             "backupwallet",             &backupwallet,             true  },
+    { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
+    { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
+    { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
+    { "wallet",             "dumpwallet",               &dumpwallet,               true  },
+    { "wallet",             "encryptwallet",            &encryptwallet,            true  },
+    { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
+    { "wallet",             "getaccount",               &getaccount,               true  },
+    { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    true  },
+    { "wallet",             "getbalance",               &getbalance,               false },
+    { "wallet",             "getnewaddress",            &getnewaddress,            true  },
+    { "wallet",             "getcoldstakingaddress",    &getcoldstakingaddress,    true  },
+    { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      true  },
+    { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     false },
+    { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     false },
+    { "wallet",             "getstakereport",           &getstakereport,           false },
+    { "wallet",             "gettransaction",           &gettransaction,           false },
+    { "wallet",             "getunconfirmedbalance",    &getunconfirmedbalance,    false },
+    { "wallet",             "getwalletinfo",            &getwalletinfo,            false },
+    { "wallet",             "importprivkey",            &importprivkey,            true  },
+    { "wallet",             "importwallet",             &importwallet,             true  },
+    { "wallet",             "importaddress",            &importaddress,            true  },
+    { "wallet",             "importprunedfunds",        &importprunedfunds,        true  },
+    { "wallet",             "importpubkey",             &importpubkey,             true  },
+    { "wallet",             "keypoolrefill",            &keypoolrefill,            true  },
+    { "wallet",             "listaccounts",             &listaccounts,             false },
+    { "wallet",             "listaddressgroupings",     &listaddressgroupings,     false },
+    { "wallet",             "listlockunspent",          &listlockunspent,          false },
+    { "wallet",             "listreceivedbyaccount",    &listreceivedbyaccount,    false },
+    { "wallet",             "listreceivedbyaddress",    &listreceivedbyaddress,    false },
+    { "wallet",             "listsinceblock",           &listsinceblock,           false },
+    { "wallet",             "listtransactions",         &listtransactions,         false },
+    { "wallet",             "listunspent",              &listunspent,              false },
+    { "wallet",             "lockunspent",              &lockunspent,              true  },
+    { "wallet",             "move",                     &movecmd,                  false },
+    { "wallet",             "sendfrom",                 &sendfrom,                 false },
+    { "wallet",             "sendmany",                 &sendmany,                 false },
+    { "wallet",             "sendtoaddress",            &sendtoaddress,            false },
+    { "communityfund",      "donatefund",               &donatefund,               false },
+    { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
+    { "communityfund",      "createproposal",           &createproposal,           false },
+    { "wallet",             "stakervote",               &stakervote,               false },
+    { "communityfund",      "proposalvote",             &proposalvote,             false },
+    { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
+    { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
+    { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
+    { "wallet",             "anonsend",                 &anonsend,                 false },
+    { "wallet",             "getanondestination",       &getanondestination,       false },
+    { "wallet",             "setaccount",               &setaccount,               true  },
+    { "wallet",             "settxfee",                 &settxfee,                 true  },
+    { "wallet",             "signmessage",              &signmessage,              true  },
+    { "wallet",             "walletlock",               &walletlock,               true  },
+    { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true  },
+    { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
+    { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true  },
+    { "wallet",             "resolveopenalias",         &resolveopenalias,         true  },
+    { "pool",               "newpooladdress",           &newPoolAddress,           true  },
+    { "pool",               "poolproposalvote",         &poolProposalVote,         true  },
+    { "pool",               "poolpaymentrequestvote",   &poolPaymentRequestVote,   true  },
+};
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC)
 {
