@@ -33,7 +33,7 @@ packages:
 - "ca-certificates"
 - "python3"
 remotes:
-- "url": "https://github.com/NAVCoin/navcoin-core.git"
+- "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
 files: []
 script: |
