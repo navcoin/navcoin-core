@@ -649,7 +649,7 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
 
     obj.push_back(Pair("enabled", GetStaking()));
     obj.push_back(Pair("staking", staking));
-    obj.push_back(Pair("errors", GetWarnings("statusbar")));
+    obj.push_back(Pair("errors", GetWarnings("statusbar", true)));
 
     obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblocktx", (uint64_t)nLastBlockTx));
