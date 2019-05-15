@@ -75,9 +75,11 @@ private:
     CAmount currentStakingBalance;
     CAmount currentColdStakingBalance;
     CAmount currentImmatureBalance;
+    CAmount currentTotalBalance;
     CAmount currentWatchOnlyBalance;
     CAmount currentWatchUnconfBalance;
     CAmount currentWatchImmatureBalance;
+    CAmount currentWatchOnlyTotalBalance;
 
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
