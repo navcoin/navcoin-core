@@ -59,7 +59,6 @@ class GetStakeReport(NavCoinTestFramework):
 
         # Assert transactions list has the old transactions with correct amounts
         transactions = self.nodes[2].listtransactions("*", 3, 0, True)
-        print(transactions)
         assert_equal(512, transactions[0]['amount'])
         assert_equal(128, transactions[1]['amount'])
         assert_equal(256, transactions[2]['amount'])
