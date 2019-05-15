@@ -209,6 +209,7 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     bool showWatchOnly = currentWatchOnlyTotalBalance != 0;
 
     ui->labelWatchedBalance->setVisible(showWatchOnly);
+    ui->labelWatchedBalanceText->setVisible(showWatchOnly);
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
