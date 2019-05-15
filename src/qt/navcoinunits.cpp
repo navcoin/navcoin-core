@@ -30,6 +30,7 @@ QList<NavCoinUnits::Unit> NavCoinUnits::availableUnits()
     unitlist.append(BTC); // Bitcoin
     unitlist.append(EUR); // Euro
     unitlist.append(USD); // United States Dollar
+    unitlist.append(ARS); // Argentine Peso
     unitlist.append(AUD); // Australian dollar
     unitlist.append(BRL); // Brazilian real
     unitlist.append(CAD); // Canadian dollar
@@ -71,6 +72,7 @@ bool NavCoinUnits::valid(int unit)
         case BTC:
         case EUR:
         case USD:
+        case ARS:
         case AUD:
         case BRL:
         case CAD:
@@ -114,6 +116,7 @@ QString NavCoinUnits::name(int unit)
         case BTC: return QString("BTC");
         case EUR: return QString("EUR");
         case USD: return QString("USD");
+        case ARS: return QString("ARS");
         case AUD: return QString("AUD");
         case BRL: return QString("BRL");
         case CAD: return QString("CAD");
@@ -155,6 +158,7 @@ QString NavCoinUnits::description(int unit)
         case BTC: return QString("Bitcoin");
         case EUR: return QString("Euro");
         case USD: return QString("United States Dollar");
+        case ARS: return QString("Argentine Peso");
         case AUD: return QString("Australian dollar");
         case BRL: return QString("Brazilian real");
         case CAD: return QString("Canadian dollar");
@@ -199,6 +203,7 @@ qint64 NavCoinUnits::factor(int unit)
         case BTC: return settings.value("btcFactor", 0).toFloat();
         case EUR: return settings.value("eurFactor", 0).toFloat();
         case USD: return settings.value("usdFactor", 0).toFloat();
+        case ARS: return settings.value("arsFactor", 0).toFloat();
         case AUD: return settings.value("audFactor", 0).toFloat();
         case BRL: return settings.value("brlFactor", 0).toFloat();
         case CAD: return settings.value("cadFactor", 0).toFloat();
@@ -240,6 +245,7 @@ int NavCoinUnits::decimals(int unit)
         case BTC: return 8;
         case EUR:
         case USD:
+        case ARS:
         case AUD:
         case BRL:
         case CAD:

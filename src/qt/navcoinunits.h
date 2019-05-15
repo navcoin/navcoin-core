@@ -65,6 +65,7 @@ public:
         USD, // United States Dollar
 
         // Added more currencies
+        ARS, // Argentine Peso
         AUD, // Australian dollar
         BRL, // Brazilian real
         CAD, // Canadian dollar
