@@ -184,6 +184,16 @@ CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
     return CCoinsModifier(*this, ret.first, cachedCoinUsage);
 }
 
+CProposalModifier CCoinsViewCache::ModifyProposal(const uint256 &pid) {
+    std::pair<CProposalMap::iterator, bool> ret = cacheProposals.insert(std::make_pair(pid, CProposal()));
+    return CProposalModifier(*this, ret.first);
+}
+
+CPaymentRequestModifier CCoinsViewCache::ModifyPaymentRequest(const uint256 &prid) {
+    std::pair<CPaymentRequestMap::iterator, bool> ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest()));
+    return CPaymentRequestModifier(*this, ret.first);
+}
+
 // ModifyNewCoins has to know whether the new outputs its creating are for a
 // coinbase or not.  If they are for a coinbase, it can not mark them as fresh.
 // This is to ensure that the historical duplicate coinbases before BIP30 was
