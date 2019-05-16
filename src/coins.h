@@ -446,7 +446,6 @@ protected:
     /* Whether this cache has an active modifier. */
     bool hasModifier;
 
-
     /**
      * Make mutable so that we can "fill the cache" even from Get-methods
      * declared as "const".
@@ -554,6 +553,8 @@ public:
     const CTxOut &GetOutputFor(const CTxIn& input) const;
 
     friend class CCoinsModifier;
+    friend class CProposalModifier;
+    friend class CPaymentRequestModifier;
 
 private:
     CCoinsMap::iterator FetchCoins(const uint256 &txid);
