@@ -3258,7 +3258,7 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     }
 
     // prepare subtotal range of last 24H, 1 week, 30 days, 1 years
-    int GroupDays[5][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}, {99999999, 0}};
+    int GroupDays[5][2] = { {1, 0}, {7, 0}, {30, 0}, {365, 0}, {99999999, 0}};
     std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days", "All" };
 
     nToday = GetTime();
@@ -3301,10 +3301,29 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 
     vStakePeriodRange_T::iterator vIt;
 
+    // Span of days to compute average over
+    int nDays = 0;
+
     // report it
     for(vIt = aRange.begin(); vIt != aRange.end(); vIt++)
     {
+        // Add it to results
         result.push_back(Pair(vIt->Name, FormatMoney(vIt->Total).c_str()));
+
+        // Get the nDays value
+        nDays = 0;
+        if (vIt->Name == "Last 7 Days")
+            nDays = 7;
+        else if (vIt->Name == "Last 30 Days")
+            nDays = 30;
+        else if (vIt->Name == "Last 365 Days")
+            nDays = 365;
+
+        // Check if we need to add the average
+        if (nDays > 0) {
+            // Add the Average
+            result.push_back(Pair(vIt->Name + " Avg", FormatMoney(vIt->Total / nDays).c_str()));
+        }
     }
 
     vIt--;

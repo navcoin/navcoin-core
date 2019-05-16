@@ -48,19 +48,13 @@ class GetStakeReport(NavCoinTestFramework):
         # Create the cold address
         coldstaking_address_staking = self.nodes[1].getcoldstakingaddress(staking_address_public_key, spending_address_public_key)
 
-        # Send funds to the spending address (leave some NAV for fees)
+        # Send funds to the spending address (leave me NAV for fees)
         self.nodes[0].sendtoaddress(spending_address_public_key, self.nodes[0].getbalance() - 1)
         self.nodes[0].generate(1)
         self.sync_all()
 
-        # Turn staking on
-        self.nodes[1].staking(True)
-
         # Stake a block
         self.stake_block(self.nodes[1])
-
-        # Turn staking off again
-        self.nodes[1].staking(False)
 
         # Load the last 24h stake amount for the wallets/nodes
         merged_address_last_24h = self.nodes[0].getstakereport()['Last 24H']
@@ -83,14 +77,8 @@ class GetStakeReport(NavCoinTestFramework):
         self.nodes[1].generate(1)
         self.sync_all()
 
-        # Turn staking on
-        self.nodes[2].staking(True)
-
         # Stake a block
         self.stake_block(self.nodes[2])
-
-        # Turn staking off again
-        self.nodes[2].staking(False)
 
         # Load the last 24h stake amount for the wallets/nodes
         merged_address_last_24h = self.nodes[0].getstakereport()['Last 24H']
@@ -108,9 +96,51 @@ class GetStakeReport(NavCoinTestFramework):
         assert_equal('4.00', spending_address_last_24h)
         assert_equal('2.00', staking_address_last_24h)
 
+        # Time travel 2 days in the future
+        cur_time = int(time.time())
+        self.nodes[0].setmocktime(cur_time + 172800)
+        self.nodes[1].setmocktime(cur_time + 172800)
+        self.nodes[2].setmocktime(cur_time + 172800)
+
+        # Stake a block
+        self.stake_block(self.nodes[2])
+
+        # Load the last 24h stake amount for the wallets/nodes
+        merged_address_last_24h = self.nodes[0].getstakereport()['Last 24H']
+        spending_address_last_24h = self.nodes[1].getstakereport()['Last 24H']
+        staking_address_last_24h = self.nodes[2].getstakereport()['Last 24H']
+
+        # Check the amounts
+        assert_equal('2.00', merged_address_last_24h)
+        assert_equal('2.00', spending_address_last_24h)
+        assert_equal('2.00', staking_address_last_24h)
+
+        # Load the last 7 days stake amount for the wallets/nodes
+        merged_address_last_7d = self.nodes[0].getstakereport()['Last 7 Days']
+        spending_address_last_7d = self.nodes[1].getstakereport()['Last 7 Days']
+        staking_address_last_7d = self.nodes[2].getstakereport()['Last 7 Days']
+
+        # Check the amounts
+        assert_equal('6.00', merged_address_last_7d)
+        assert_equal('6.00', spending_address_last_7d)
+        assert_equal('4.00', staking_address_last_7d)
+
+        # Load the averages for stake amounts 
+        avg_last7d   = self.nodes[0].getstakereport()['Last 7 Days Avg']
+        avg_last30d  = self.nodes[0].getstakereport()['Last 30 Days Avg']
+        avg_last365d = self.nodes[0].getstakereport()['Last 365 Days Avg']
+
+        # Check the amounts
+        assert_equal('0.85714285', avg_last7d)
+        assert_equal('0.20', avg_last30d)
+        assert_equal('0.01643835', avg_last365d)
+
     def stake_block(self, node):
         # Get the current block count to check against while we wait for a stake
         blockcount = node.getblockcount()
+
+        # Turn staking on
+        node.staking(True)
 
         # wait for a new block to be mined
         while node.getblockcount() == blockcount:
@@ -119,6 +149,9 @@ class GetStakeReport(NavCoinTestFramework):
 
         # We got one
         # print("found a new block...")
+
+        # Turn staking off
+        node.staking(False)
 
         # Make sure the blocks are mature before we check the report
         slow_gen(node, 5, 0.5)
