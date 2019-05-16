@@ -87,6 +87,21 @@ public:
         nVotingCycle = 0;
     }
 
+    void swap(CPaymentRequest &to) {
+        std::swap(to.nAmount, nAmount);
+        std::swap(to.fState, fState);
+        std::swap(to.hash, hash);
+        std::swap(to.proposalhash, proposalhash);
+        std::swap(to.txblockhash, txblockhash);
+        std::swap(to.blockhash, blockhash);
+        std::swap(to.paymenthash, paymenthash);
+        std::swap(to.nVotesYes, nVotesYes);
+        std::swap(to.nVotesNo, nVotesNo);
+        std::swap(to.strDZeel, strDZeel);
+        std::swap(to.nVersion, nVersion);
+        std::swap(to.nVotingCycle, nVotingCycle);
+    }
+
     bool IsNull() const {
         return (nAmount == 0 && fState == NIL && nVotesYes == 0 && nVotesNo == 0 && strDZeel == "");
     }
@@ -206,6 +221,23 @@ public:
         blockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
+    }
+
+    void swap(CProposal &to) {
+        std::swap(to.nAmount, nAmount);
+        std::swap(to.nFee, nFee);
+        std::swap(to.Address, Address);
+        std::swap(to.nDeadline, nDeadline);
+        std::swap(to.fState, fState);
+        std::swap(to.nVotesYes, nVotesYes);
+        std::swap(to.nVotesNo, nVotesNo);
+        std::swap(to.vPayments, vPayments);
+        std::swap(to.strDZeel, strDZeel);
+        std::swap(to.hash, hash);
+        std::swap(to.txblockhash, txblockhash);
+        std::swap(to.blockhash, blockhash);
+        std::swap(to.nVersion, nVersion);
+        std::swap(to.nVotingCycle, nVotingCycle);
     }
 
     bool IsNull() const {
