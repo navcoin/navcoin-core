@@ -40,7 +40,10 @@ class GetStakingInfo(NavCoinTestFramework):
 
         # Check for staking after we have matured coins
         assert(self.nodes[0].getstakinginfo()['enabled'])
-        assert(not self.nodes[0].getstakinginfo()['staking'])
+        # Wait for the node to start staking
+        while not self.nodes[0].getstakinginfo()['staking']:
+            time.sleep(0.5)
+        assert(self.nodes[0].getstakinginfo()['staking'])
         assert_equal("", self.nodes[0].getstakinginfo()['errors'])
 
         # Get the current block count to check against while we wait for a stake
@@ -61,6 +64,9 @@ class GetStakingInfo(NavCoinTestFramework):
         assert(self.nodes[0].getstakinginfo()['enabled'])
         assert(self.nodes[0].getstakinginfo()['staking'])
         assert_equal("", self.nodes[0].getstakinginfo()['errors'])
+
+        # Check expecteddailyreward
+        assert_equal(86400 / (self.nodes[0].getstakinginfo()['expectedtime'] + 1) * 2, self.nodes[0].getstakinginfo()['expecteddailyreward'])
 
         # LOCK the wallet
         self.nodes[0].encryptwallet("password")
