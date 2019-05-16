@@ -185,11 +185,13 @@ CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
 }
 
 CProposalModifier CCoinsViewCache::ModifyProposal(const uint256 &pid) {
+    assert(!hasModifier);
     std::pair<CProposalMap::iterator, bool> ret = cacheProposals.insert(std::make_pair(pid, CProposal()));
     return CProposalModifier(*this, ret.first);
 }
 
 CPaymentRequestModifier CCoinsViewCache::ModifyPaymentRequest(const uint256 &prid) {
+    assert(!hasModifier);
     std::pair<CPaymentRequestMap::iterator, bool> ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest()));
     return CPaymentRequestModifier(*this, ret.first);
 }
@@ -442,6 +444,36 @@ CCoinsModifier::~CCoinsModifier()
     } else {
         // If the coin still exists after the modification, add the new usage
         cache.cachedCoinsUsage += it->second.coins.DynamicMemoryUsage();
+    }
+}
+
+CProposalModifier::CProposalModifier(CCoinsViewCache& cache_, CProposalMap::iterator it_) : cache(cache_), it(it_) {
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
+}
+
+CProposalModifier::~CProposalModifier()
+{
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
+
+    if (it->second.IsNull()) {
+        cache.cacheProposals.erase(it);
+    }
+}
+
+CPaymentRequestModifier::CPaymentRequestModifier(CCoinsViewCache& cache_, CPaymentRequestMap::iterator it_) : cache(cache_), it(it_) {
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
+}
+
+CPaymentRequestModifier::~CPaymentRequestModifier()
+{
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
+
+    if (it->second.IsNull()) {
+        cache.cachePaymentRequests.erase(it);
     }
 }
 
