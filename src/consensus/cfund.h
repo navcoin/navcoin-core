@@ -72,6 +72,7 @@ public:
     string strDZeel;
     int nVersion;
     unsigned int nVotingCycle;
+    bool fDirty;
 
     CPaymentRequest() { SetNull(); }
 
@@ -88,6 +89,7 @@ public:
         strDZeel = "";
         nVersion = 0;
         nVotingCycle = 0;
+        fDirty = false;
     }
 
     void swap(CPaymentRequest &to) {
@@ -103,6 +105,7 @@ public:
         std::swap(to.strDZeel, strDZeel);
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
+        std::swap(to.fDirty, fDirty);
     }
 
     bool IsNull() const {
@@ -207,6 +210,7 @@ public:
     uint256 txblockhash;
     int nVersion;
     unsigned int nVotingCycle;
+    bool fDirty;
 
     CProposal() { SetNull(); }
 
@@ -224,6 +228,7 @@ public:
         blockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
+        fDirty = false;
     }
 
     void swap(CProposal &to) {
@@ -241,6 +246,7 @@ public:
         std::swap(to.blockhash, blockhash);
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
+        std::swap(to.fDirty, fDirty);
     }
 
     bool IsNull() const {
@@ -326,7 +332,7 @@ public:
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
 bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
-void EndOfCycle(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCoinsViewCache& coins);
+void CFundRound(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CCoinsViewCache& coins);
 
 }
 
