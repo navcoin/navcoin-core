@@ -197,6 +197,24 @@ public:
             abort();
         }
     }
+    bool GetProposal(const uint256 &id, CFund::CProposal &proposal) const {
+        try {
+            return CCoinsViewBacked::GetProposal(id, proposal);
+        } catch(const std::runtime_error& e) {
+            uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
+            LogPrintf("Error reading from database: %s\n", e.what());
+            abort();
+        }
+    }
+    bool GetPaymentRequest(const uint256 &id, CFund::CPaymentRequest &prequest) const {
+        try {
+            return CCoinsViewBacked::GetPaymentRequest(id, prequest);
+        } catch(const std::runtime_error& e) {
+            uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
+            LogPrintf("Error reading from database: %s\n", e.what());
+            abort();
+        }
+    }
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 

@@ -934,10 +934,16 @@ UniValue listproposals(const UniValue& params, bool fHelp)
         }
     }
 
-    std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals))
     {
-        BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            CFund::CProposal proposal;
+            if (!pcoinsTip->GetProposal(it->first, proposal))
+                continue;
+
             if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
                             || proposal.fState == CFund::PENDING_VOTING_PREQ
                             || proposal.fState == CFund::PENDING_FUNDS))

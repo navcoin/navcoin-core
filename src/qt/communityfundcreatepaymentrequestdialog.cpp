@@ -328,8 +328,18 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 bool CommunityFundCreatePaymentRequestDialog::isActiveProposal(uint256 hash)
 {
     std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals))
     {
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            CFund::CProposal proposal;
+            if (!pcoinsTip->GetProposal(it->first, proposal))
+                continue;
+            vec.push_back(proposal);
+        }
+
         if(std::find_if(vec.begin(), vec.end(), [&hash](CFund::CProposal& obj) {return obj.hash == hash;}) == vec.end())
         {
             return false;
