@@ -310,7 +310,7 @@ struct CCacheEntry
 
 typedef CCacheEntry<CCoins> CCoinsCacheEntry;
 typedef boost::unordered_map<uint256, CCoinsCacheEntry, SaltedTxidHasher> CCoinsMap;
-typedef boost::unordered_map<uint256, CProposal, SaltedTxidHasher> CProposalMap;
+typedef std::map<uint256, CProposal> CProposalMap;
 typedef boost::unordered_map<uint256, CPaymentRequest, SaltedTxidHasher> CPaymentRequestMap;
 
 /** Cursor for iterating over CoinsView state */
