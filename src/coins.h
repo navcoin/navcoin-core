@@ -347,7 +347,9 @@ public:
 
     //! Community Fund
     virtual bool GetProposal(const uint256 &pid, CProposal &proposal) const;
+    virtual bool GetAllProposals(CProposalMap& map) const;
     virtual bool GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const;
+    virtual bool GetAllPaymentRequests(CPaymentRequestMap& map) const;
     virtual bool HaveProposal(const uint256 &pid) const;
     virtual bool HavePaymentRequest(const uint256 &prid) const;
 
@@ -378,7 +380,9 @@ public:
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
+    bool GetAllProposals(CProposalMap& map) const;
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
+    bool GetAllPaymentRequests(CPaymentRequestMap& map) const;
     bool HaveProposal(const uint256 &pid) const;
     bool HavePaymentRequest(const uint256 &prid) const;
     uint256 GetBestBlock() const;
@@ -466,7 +470,9 @@ public:
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
+    bool GetAllProposals(CProposalMap& map) const;
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
+    bool GetAllPaymentRequests(CPaymentRequestMap& map) const;
     uint256 GetBestBlock() const;
     void SetBestBlock(const uint256 &hashBlock);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
