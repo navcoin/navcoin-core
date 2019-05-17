@@ -975,6 +975,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
     LogPrint("bench-cfund", "  - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
 
     int64_t nTimeEnd = GetTimeMicros();
-    LogPrint("bench", "- CFund total CountVotes() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+    LogPrint("bench", "- CFund total CFundStep() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
 }
 
