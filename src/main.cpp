@@ -1377,6 +1377,47 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         nValueIn = view.GetValueIn(tx);
 
+        if(IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus())) {
+            CAmount nProposalFee = 0;
+            bool fReducedQuorum = IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus());
+            int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
+            int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
+
+            BOOST_FOREACH(const CTxOut& vout, tx.vout)
+            {
+              if(vout.IsCommunityFundContribution())
+              {
+                nProposalFee += vout.nValue;
+              }
+            }
+
+            if(nProposalFee > 0 && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
+                CFund::CProposal proposal;
+                if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
+                {
+                    viewMemPool.AddProposal(proposal);
+                    LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, GetTime()));
+                }
+                else
+                {
+                    return state.DoS(0, false, REJECT_NONSTANDARD, "invalid proposal");
+                }
+            }
+
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
+                CFund::CPaymentRequest prequest;
+                if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest, view))
+                {
+                    viewMemPool.AddPaymentRequest(prequest);
+                    LogPrint("cfund","New payment request (mempool) %s\n", prequest.ToString());
+                }
+                else
+                {
+                    return state.DoS(0, false, REJECT_NONSTANDARD, "invalid payment request");
+                }
+            }
+        }
+
         // we have all inputs cached now, so switch back to dummy, so we don't need to keep lock on mempool
         view.SetBackend(dummy);
 
@@ -1682,47 +1723,6 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             LimitMempoolSize(pool, GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000, GetArg("-mempoolexpiry", DEFAULT_MEMPOOL_EXPIRY) * 60 * 60);
             if (!pool.exists(hash))
                 return state.DoS(0, false, REJECT_INSUFFICIENTFEE, "mempool full");
-        }
-
-        if(IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus())) {
-            CAmount nProposalFee = 0;
-            bool fReducedQuorum = IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus());
-            int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
-            int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
-
-            BOOST_FOREACH(const CTxOut& vout, tx.vout)
-            {
-              if(vout.IsCommunityFundContribution())
-              {
-                nProposalFee += vout.nValue;
-              }
-            }
-
-            if(nProposalFee > 0 && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
-                CFund::CProposal proposal;
-                if (TxToProposal(tx, uint256(), nProposalFee, state, proposal))
-                {
-                    view.AddProposal(proposal);
-                    LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, GetTime()));
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
-                CFund::CPaymentRequest prequest;
-                if (TxToPaymentRequest(tx, uint256(), state, prequest, view))
-                {
-                    view.AddPaymentRequest(prequest);
-                    LogPrint("cfund","New payment request (mempool) %s\n", prequest.ToString());
-                }
-                else
-                {
-                    return false;
-                }
-            }
         }
     }
 
@@ -2431,19 +2431,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             }
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)) {
-                CFund::CPaymentRequest prequest;
-                if (view.GetPaymentRequest(hash, prequest))
-                {
-                    if (view.HaveProposal(prequest.proposalhash))
-                    {
-                        CProposalModifier proposal = view.ModifyProposal(prequest.proposalhash);
-                        std::vector<uint256>::iterator position = std::find(proposal->vPayments.begin(), proposal->vPayments.end(), prequest.hash);
-                        if (position != proposal->vPayments.end()) {
-                            proposal->vPayments.erase(position);
-                        }
-                    }
-                    view.RemovePaymentRequest(prequest.proposalhash);
-                }
+                view.RemovePaymentRequest(hash);
             }
         }
 
@@ -2722,12 +2710,12 @@ public:
     }
 };
 
-bool TxToProposal(const CTransaction& tx, const uint256& blockhash, const CAmount& nProposalFee, CValidationState& state, CFund::CProposal& proposal)
+bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal)
 {
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
-        if (!valRequest.read(tx.strDZeel))
+        if (!valRequest.read(strDZeel))
             return error("%s: Could not read strDZeel of Proposal\n", __func__);
 
         if (valRequest.isObject())
@@ -2747,7 +2735,7 @@ bool TxToProposal(const CTransaction& tx, const uint256& blockhash, const CAmoun
     proposal.strDZeel = find_value(metadata, "s").get_str();
     proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
     proposal.nFee = nProposalFee;
-    proposal.hash = tx.GetHash();
+    proposal.hash = hash;
     proposal.txblockhash = blockhash;
     proposal.fDirty = true;
 
@@ -2758,12 +2746,12 @@ bool TxToProposal(const CTransaction& tx, const uint256& blockhash, const CAmoun
     return true;
 }
 
-bool TxToPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValidationState& state, CFund::CPaymentRequest& prequest, CCoinsViewCache& view)
+bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash,  CFund::CPaymentRequest& prequest, CCoinsViewCache& view)
 {
     UniValue metadata(UniValue::VOBJ);
     try {
         UniValue valRequest;
-        if (!valRequest.read(tx.strDZeel))
+        if (!valRequest.read(strDZeel))
             return error("%s: Could not read strDZeel of Payment Request\n", __func__);
 
         if (valRequest.isObject())
@@ -2777,7 +2765,7 @@ bool TxToPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValid
         return error("%s: Could not read strDZeel of Payment Request: %s\n", __func__, e.what());
     }  // May not return ever false, as transactions were already checked.
 
-    prequest.hash = tx.GetHash();
+    prequest.hash = hash;
     prequest.nAmount = find_value(metadata, "n").get_int64();
     prequest.proposalhash = uint256S("0x" + find_value(metadata, "h").get_str());
     prequest.strDZeel = find_value(metadata, "i").get_str();
@@ -2788,16 +2776,6 @@ bool TxToPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValid
     if(prequest.nAmount < 0) {
         return error("%s: Payment request cannot have an amount less than 0\n", __func__);
     }
-
-    if(!view.HaveProposal(prequest.proposalhash))
-        return error("%s: Could not find parent proposal of Payment Request: %s\n", __func__,
-                     prequest.proposalhash.ToString());
-
-    CProposalModifier proposal = view.ModifyProposal(prequest.proposalhash);
-
-    std::vector<uint256>::iterator position = std::find(proposal->vPayments.begin(), proposal->vPayments.end(), tx.hash);
-    if (position == proposal->vPayments.end())
-        proposal->vPayments.push_back(tx.hash);
 
     return true;
 }
@@ -3297,7 +3275,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
                 CFund::CProposal proposal;
-                if (TxToProposal(tx, block.GetHash(), nProposalFee, state, proposal))
+                if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
                     view.AddProposal(proposal);
                     LogPrint("cfund","New proposal %s\n", proposal.ToString(view, block.nTime));
@@ -3310,7 +3288,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
                 CFund::CPaymentRequest prequest;
-                if (TxToPaymentRequest(tx, block.GetHash(), state, prequest, view))
+                if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest, view))
                 {
                     view.AddPaymentRequest(prequest);
                     LogPrint("cfund","New payment request %s\n", prequest.ToString());

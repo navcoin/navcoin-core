@@ -641,7 +641,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
 
-bool TxToProposal(const CTransaction& tx, const uint256& blockhash, const CAmount& nProposalFee, CValidationState& state, CFund::CProposal& proposal);
-bool TxToPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValidationState& state, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
+bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal);
+bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
 
 #endif // NAVCOIN_MAIN_H
