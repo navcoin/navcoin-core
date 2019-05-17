@@ -3430,32 +3430,47 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CFund::CProposal proposal;
+    if (!pcoinsTip->GetProposal(uint256S(strHash), proposal))
+    {
+        return NullUniValue;
+    }
+
     if (strCommand == "yes")
     {
-      bool ret = CFund::VoteProposal(strHash,true,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
+        bool ret = CFund::VoteProposal(proposal,true,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
     }
     else if (strCommand == "no")
     {
-      bool ret = CFund::VoteProposal(strHash,false,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
+        bool ret = CFund::VoteProposal(proposal,false,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
     }
     else if(strCommand == "remove")
     {
-      bool ret = CFund::RemoveVoteProposal(strHash);
-      if (ret) {
-        return NullUniValue;
-      } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is not in the list: ")+strHash);
-      }
+        bool ret = CFund::RemoveVoteProposal(strHash);
+        if (ret)
+        {
+            return NullUniValue;
+        }
+        else
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is not in the list: ")+strHash);
+        }
     }
 
     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);

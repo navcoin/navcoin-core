@@ -37,55 +37,14 @@ void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash
     memcpy(&script[5], prequesthash.begin(), 32);
 }
 
-bool CFund::FindProposal(string propstr, CFund::CProposal &proposal)
-{
-
-    return CFund::FindProposal(uint256S("0x"+propstr), proposal);
-
-}
-
-bool CFund::FindProposal(uint256 prophash, CFund::CProposal &proposal)
-{
-
-    CFund::CProposal temp;
-    if(pblocktree->ReadProposalIndex(prophash, temp)) {
-        proposal = temp;
-        return true;
-    }
-
-    return false;
-
-}
-
-bool CFund::FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest)
-{
-
-    CFund::CPaymentRequest temp;
-    if(pblocktree->ReadPaymentRequestIndex(preqhash, temp)) {
-        prequest = temp;
-        return true;
-    }
-
-    return false;
-
-}
-
-bool CFund::FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest)
-{
-
-    return CFund::FindPaymentRequest(uint256S("0x"+preqstr), prequest);
-
-}
-
-bool CFund::VoteProposal(string strProp, bool vote, bool &duplicate)
+bool CFund::VoteProposal(CFund::CProposal proposal, bool vote, bool &duplicate)
 {
     AssertLockHeld(cs_main);
 
-    CFund::CProposal proposal;
-    bool found = CFund::FindProposal(uint256S("0x"+strProp), proposal);
-
-    if(!found || proposal.IsNull() || !proposal.CanVote())
+    if(proposal.IsNull() || !proposal.CanVote())
         return false;
+
+    std::string strProp = proposal.hash.ToString();
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedProposalVotes.begin();
     for(; it != vAddedProposalVotes.end(); it++)
@@ -104,11 +63,6 @@ bool CFund::VoteProposal(string strProp, bool vote, bool &duplicate)
         vAddedProposalVotes.push_back(make_pair(strProp, vote));
     }
     return true;
-}
-
-bool CFund::VoteProposal(uint256 proposalHash, bool vote, bool &duplicate)
-{
-    return VoteProposal(proposalHash.ToString(), vote, duplicate);
 }
 
 bool CFund::RemoveVoteProposal(string strProp)
@@ -132,15 +86,14 @@ bool CFund::RemoveVoteProposal(uint256 proposalHash)
     return RemoveVoteProposal(proposalHash.ToString());
 }
 
-bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
+bool CFund::VotePaymentRequest(CFund::CPaymentRequest prequest, bool vote, bool &duplicate)
 {
     AssertLockHeld(cs_main);
 
-    CFund::CPaymentRequest prequest;
-    bool found = CFund::FindPaymentRequest(uint256S("0x"+strProp), prequest);
-
-    if(!found || prequest.IsNull() || !prequest.CanVote(*pcoinsTip))
+    if(prequest.IsNull() || !prequest.CanVote(*pcoinsTip))
         return false;
+
+    std::string strProp = prequest.hash.ToString();
 
     vector<std::pair<std::string, bool>>::iterator it = vAddedPaymentRequestVotes.begin();
     for(; it != vAddedPaymentRequestVotes.end(); it++)
@@ -161,11 +114,6 @@ bool CFund::VotePaymentRequest(string strProp, bool vote, bool &duplicate)
 
     return true;
 
-}
-
-bool CFund::VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate)
-{
-    return VotePaymentRequest(proposalHash.ToString(), vote, duplicate);
 }
 
 bool CFund::RemoveVotePaymentRequest(string strProp)
