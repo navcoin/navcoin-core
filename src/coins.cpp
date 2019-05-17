@@ -305,6 +305,16 @@ bool CCoinsViewCache::HaveCoins(const uint256 &txid) const {
     return (it != cacheCoins.end() && !it->second.coins.vout.empty());
 }
 
+bool CCoinsViewCache::HaveProposal(const uint256 &id) const {
+    CProposalMap::const_iterator it = FetchProposal(id);
+    return (it != cacheProposals.end() && !it->second.IsNull());
+}
+
+bool CCoinsViewCache::HavePaymentRequest(const uint256 &id) const {
+    CPaymentRequestMap::const_iterator it = FetchPaymentRequest(id);
+    return (it != cachePaymentRequests.end() && !it->second.IsNull());
+}
+
 bool CCoinsViewCache::HaveCoinsInCache(const uint256 &txid) const {
     CCoinsMap::const_iterator it = cacheCoins.find(txid);
     return it != cacheCoins.end();
