@@ -45,7 +45,9 @@ bool CCoins::Spend(uint32_t nPos)
 
 bool CCoinsView::GetCoins(const uint256 &txid, CCoins &coins) const { return false; }
 bool CCoinsView::GetProposal(const uint256 &pid, CProposal &proposal) const { return false; }
+bool CCoinsView::GetAllProposals(CProposalMap& map) const { return false; }
 bool CCoinsView::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return false; }
+bool CCoinsView::GetAllPaymentRequests(CPaymentRequestMap& map) const { return false; }
 bool CCoinsView::HaveCoins(const uint256 &txid) const { return false; }
 bool CCoinsView::HaveProposal(const uint256 &pid) const { return false; }
 bool CCoinsView::HavePaymentRequest(const uint256 &prid) const { return false; }
@@ -58,7 +60,9 @@ CCoinsViewCursor *CCoinsView::Cursor() const { return 0; }
 CCoinsViewBacked::CCoinsViewBacked(CCoinsView *viewIn) : base(viewIn) { }
 bool CCoinsViewBacked::GetCoins(const uint256 &txid, CCoins &coins) const { return base->GetCoins(txid, coins); }
 bool CCoinsViewBacked::GetProposal(const uint256 &pid, CProposal &proposal) const { return base->GetProposal(pid, proposal); }
+bool CCoinsViewBacked::GetAllProposals(CProposalMap& map) const { return base->GetAllProposals(map); }
 bool CCoinsViewBacked::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return base->GetPaymentRequest(prid, prequest); }
+bool CCoinsViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) const { return base->GetAllPaymentRequests(map); }
 bool CCoinsViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
 bool CCoinsViewBacked::HaveProposal(const uint256 &pid) const { return base->HaveProposal(pid); }
 bool CCoinsViewBacked::HavePaymentRequest(const uint256 &prid) const { return base->HavePaymentRequest(prid); }
@@ -154,6 +158,21 @@ bool CCoinsViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const
     return false;
 }
 
+bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) const {
+    mapProposal.clear();
+    mapProposal.insert(cacheProposals.begin(), cacheProposals.end());
+
+    CProposalMap baseMap;
+
+    if (!base->GetAllProposals(baseMap))
+        return false;
+
+    for (CProposalMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapProposal.insert(make_pair(it->first, it->second));
+
+    return true;
+}
+
 bool CCoinsViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &prequest) const {
     CPaymentRequestMap::const_iterator it = FetchPaymentRequest(pid);
     if (it != cachePaymentRequests.end()) {
@@ -161,6 +180,21 @@ bool CCoinsViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &pre
         return true;
     }
     return false;
+}
+
+bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) const {
+    mapPaymentRequests.clear();
+    mapPaymentRequests.insert(cachePaymentRequests.begin(), cachePaymentRequests.end());
+
+    CPaymentRequestMap baseMap;
+
+    if (!base->GetAllPaymentRequests(baseMap))
+        return false;
+
+    for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapPaymentRequests.insert(make_pair(it->first, it->second));
+
+    return true;
 }
 
 CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
