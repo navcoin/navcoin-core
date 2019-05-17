@@ -595,7 +595,7 @@ bool CFund::IsEndCycle(const CBlockIndex* pindex, CChainParams params)
 std::map<uint256, std::pair<int, int>> vCacheProposalsToUpdate;
 std::map<uint256, std::pair<int, int>> vCachePaymentRequestToUpdate;
 
-void CFund::CFundRound(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CCoinsViewCache& view)
+void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CCoinsViewCache& view)
 {
     AssertLockHeld(cs_main);
 
