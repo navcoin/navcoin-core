@@ -175,7 +175,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int n
 
     CFund::CProposal proposal;
 
-    if(!CFund::FindProposal(Hash, proposal) || proposal.fState != CFund::ACCEPTED)
+    if(!coins.GetProposal(uint256S(Hash), proposal) || proposal.fState != CFund::ACCEPTED)
         return error("%s: Could not find parent proposal %s for payment request %s", __func__, Hash.c_str(),tx.GetHash().ToString());
 
     std::string sRandom = "";
@@ -234,7 +234,7 @@ bool CFund::CPaymentRequest::CanVote(CCoinsViewCache& coins) const
         return false;
 
     CFund::CProposal proposal;
-    if(!CFund::FindProposal(proposalhash, proposal))
+    if(!coins.GetProposal(proposalhash, proposal))
         return false;
 
     return nAmount <= proposal.GetAvailable(coins) && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && !ExceededMaxVotingCycles();
@@ -398,7 +398,7 @@ CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequ
     for (unsigned int i = 0; i < vPayments.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(FindPaymentRequest(vPayments[i], prequest))
+        if(coins.GetPaymentRequest(vPayments[i], prequest))
         {
             if (!coins.HaveCoins(prequest.hash))
             {
@@ -424,7 +424,7 @@ std::string CFund::CProposal::ToString(CCoinsViewCache& coins, uint32_t currentT
                      nVotesYes, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
     for (unsigned int i = 0; i < vPayments.size(); i++) {
         CFund::CPaymentRequest prequest;
-        if(FindPaymentRequest(vPayments[i], prequest))
+        if(coins.GetPaymentRequest(vPayments[i], prequest))
             str += "\n    " + prequest.ToString();
     }
     return str + "\n";
@@ -436,7 +436,7 @@ bool CFund::CProposal::HasPendingPaymentRequests(CCoinsViewCache& coins) const {
     for (unsigned int i = 0; i < vPayments.size(); i++)
     {
         CFund::CPaymentRequest prequest;
-        if(FindPaymentRequest(vPayments[i], prequest))
+        if(coins.GetPaymentRequest(vPayments[i], prequest))
             if(prequest.CanVote(coins))
                 return true;
     }
@@ -502,7 +502,7 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
         for(unsigned int i = 0; i < vPayments.size(); i++) {
             UniValue preq(UniValue::VOBJ);
             CFund::CPaymentRequest prequest;
-            if(CFund::FindPaymentRequest(vPayments[i],prequest)) {
+            if(coins.GetPaymentRequest(vPayments[i],prequest)) {
                 prequest.ToJson(preq);
                 arr.push_back(preq);
             }
