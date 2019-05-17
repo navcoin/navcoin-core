@@ -16,6 +16,9 @@ using namespace std;
 
 class CTransaction;
 class CCoinsViewCache;
+class CBlockIndex;
+class CChainParams;
+class CValidationState;
 
 extern std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 extern std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
@@ -320,6 +323,10 @@ public:
 
     }
 };
+
+bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
+bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
+void EndOfCycle(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCoinsViewCache& coins);
 
 }
 
