@@ -395,11 +395,20 @@ CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequ
     AssertLockHeld(cs_main);
 
     CAmount initial = nAmount;
-    for (unsigned int i = 0; i < vPayments.size(); i++)
+    CPaymentRequestMap mapPaymentRequests;
+
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
-        CFund::CPaymentRequest prequest;
-        if(coins.GetPaymentRequest(vPayments[i], prequest))
+        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
+            CFund::CPaymentRequest prequest;
+
+            if (!coins.GetPaymentRequest(it_->first, prequest))
+                continue;
+
+            if (prequest.proposalhash != hash)
+                continue;
+
             if (!coins.HaveCoins(prequest.hash))
             {
                 CBlockIndex* pindex;
@@ -409,6 +418,7 @@ CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequ
                 if(!chainActive.Contains(pindex))
                     continue;
             }
+            std::cout << prequest.fState << std::endl;
             if((fIncludeRequests && prequest.fState != REJECTED && prequest.fState != EXPIRED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
                 initial -= prequest.nAmount;
         }
@@ -422,10 +432,22 @@ std::string CFund::CProposal::ToString(CCoinsViewCache& coins, uint32_t currentT
                      "nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
                      hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable(coins)/COIN, (float)nFee/COIN, Address, nDeadline,
                      nVotesYes, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
-    for (unsigned int i = 0; i < vPayments.size(); i++) {
-        CFund::CPaymentRequest prequest;
-        if(coins.GetPaymentRequest(vPayments[i], prequest))
+    CPaymentRequestMap mapPaymentRequests;
+
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
+    {
+        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+        {
+            CFund::CPaymentRequest prequest;
+
+            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                continue;
+
+            if (prequest.proposalhash != hash)
+                continue;
+
             str += "\n    " + prequest.ToString();
+        }
     }
     return str + "\n";
 }
@@ -433,12 +455,23 @@ std::string CFund::CProposal::ToString(CCoinsViewCache& coins, uint32_t currentT
 bool CFund::CProposal::HasPendingPaymentRequests(CCoinsViewCache& coins) const {
     AssertLockHeld(cs_main);
 
-    for (unsigned int i = 0; i < vPayments.size(); i++)
+    CPaymentRequestMap mapPaymentRequests;
+
+    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
     {
-        CFund::CPaymentRequest prequest;
-        if(coins.GetPaymentRequest(vPayments[i], prequest))
+        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+        {
+            CFund::CPaymentRequest prequest;
+
+            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                continue;
+
+            if (prequest.proposalhash != hash)
+                continue;
+
             if(prequest.CanVote(coins))
                 return true;
+        }
     }
     return false;
 }
@@ -497,16 +530,28 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
     ret.push_back(Pair("state", (uint64_t)fState));
     if(fState == ACCEPTED)
         ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
-    if(vPayments.size() > 0) {
+    CPaymentRequestMap mapPaymentRequests;
+
+    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    {
+        UniValue preq(UniValue::VOBJ);
         UniValue arr(UniValue::VARR);
-        for(unsigned int i = 0; i < vPayments.size(); i++) {
-            UniValue preq(UniValue::VOBJ);
+        CFund::CPaymentRequest prequest;
+
+        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+        {
             CFund::CPaymentRequest prequest;
-            if(coins.GetPaymentRequest(vPayments[i],prequest)) {
-                prequest.ToJson(preq);
-                arr.push_back(preq);
-            }
+
+            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                continue;
+
+            if (prequest.proposalhash != hash)
+                continue;
+
+            prequest.ToJson(preq);
+            arr.push_back(preq);
         }
+
         ret.push_back(Pair("paymentRequests", arr));
     }
 }
