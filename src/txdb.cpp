@@ -45,6 +45,22 @@ bool CCoinsViewDB::HaveCoins(const uint256 &txid) const {
     return db.Exists(make_pair(DB_COINS, txid));
 }
 
+bool CCoinsViewDB::GetProposal(const uint256 &pid, CProposal &proposal) const {
+    return db.Read(make_pair(DB_PROPINDEX, pid), proposal);
+}
+
+bool CCoinsViewDB::HaveProposal(const uint256 &pid) const {
+    return db.Exists(make_pair(DB_PROPINDEX, pid));
+}
+
+bool CCoinsViewDB::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const {
+    return db.Read(make_pair(DB_PREQINDEX, prid), prequest);
+}
+
+bool CCoinsViewDB::HavePaymentRequest(const uint256 &prid) const {
+    return db.Exists(make_pair(DB_PREQINDEX, prid));
+}
+
 uint256 CCoinsViewDB::GetBestBlock() const {
     uint256 hashBestChain;
     if (!db.Read(DB_BEST_BLOCK, hashBestChain))
@@ -52,7 +68,8 @@ uint256 CCoinsViewDB::GetBestBlock() const {
     return hashBestChain;
 }
 
-bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) {
+bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
+                              CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock) {
     CDBBatch batch(db);
     size_t count = 0;
     size_t changed = 0;
@@ -68,6 +85,31 @@ bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) {
         CCoinsMap::iterator itOld = it++;
         mapCoins.erase(itOld);
     }
+
+    for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end();) {
+        if (it->second.fDirty)
+        {
+            if (it->second.IsNull())
+                batch.Erase(make_pair(DB_PROPINDEX, it->first));
+            else
+                batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
+        }
+        CProposalMap::iterator itOld = it++;
+        mapProposals.erase(itOld);
+    }
+
+    for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();) {
+        if (it->second.fDirty)
+        {
+            if (it->second.IsNull())
+                batch.Erase(make_pair(DB_PREQINDEX, it->first));
+            else
+                batch.Write(make_pair(DB_PREQINDEX, it->first), it->second);
+        }
+        CPaymentRequestMap::iterator itOld = it++;
+        mapPaymentRequests.erase(itOld);
+    }
+
     if (!hashBlock.IsNull())
         batch.Write(DB_BEST_BLOCK, hashBlock);
 
