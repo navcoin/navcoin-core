@@ -418,7 +418,6 @@ CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequ
                 if(!chainActive.Contains(pindex))
                     continue;
             }
-            std::cout << prequest.fState << std::endl;
             if((fIncludeRequests && prequest.fState != REJECTED && prequest.fState != EXPIRED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
                 initial -= prequest.nAmount;
         }
