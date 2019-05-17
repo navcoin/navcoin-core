@@ -657,7 +657,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CFund::CProposal proposal;
 
-    if(!CFund::FindProposal(params[0].get_str(),proposal))
+    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
     if(proposal.fState != CFund::ACCEPTED)

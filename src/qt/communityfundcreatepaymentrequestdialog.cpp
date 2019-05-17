@@ -91,7 +91,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
         // Get Proposal
         CFund::CProposal proposal;
-        if(!CFund::FindProposal(ui->lineEditProposalHash->text().toStdString(), proposal)) {
+        if(!pcoinsTip->GetProposal(uint256S(ui->lineEditProposalHash->text().toStdString()), proposal)) {
             QMessageBox msgBox(this);
             std::string str = "Proposal could not be found with that hash\n";
             msgBox.setText(tr(str.c_str()));
