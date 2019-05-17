@@ -469,6 +469,8 @@ public:
     // Standard CCoinsView methods
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
+    bool HaveProposal(const uint256 &pid) const;
+    bool HavePaymentRequest(const uint256 &prid) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
     bool GetAllProposals(CProposalMap& map);
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
