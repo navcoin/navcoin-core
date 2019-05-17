@@ -109,6 +109,8 @@ public:
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock);
+    bool GetAllProposals(CProposalMap& map);
+    bool GetAllPaymentRequests(CPaymentRequestMap& map);
     CCoinsViewCursor *Cursor() const;
 };
 

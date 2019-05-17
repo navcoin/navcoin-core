@@ -3380,26 +3380,33 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     UniValue novotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    std::vector<CFund::CProposal> vec;
-     if(pblocktree->GetProposalIndex(vec))
-     {
-         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-             if (proposal.fState != CFund::NIL)
-                 continue;
-             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                 [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-             UniValue p(UniValue::VOBJ);
-             proposal.ToJson(p, *pcoinsTip);
-             if (it != vAddedProposalVotes.end()) {
-                 if (it->second)
-                     yesvotes.push_back(p);
-                 else
-                     novotes.push_back(p);
-             } else {
-                 nullvotes.push_back(p);
-             }
-         }
-     }
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals))
+    {
+        for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
+        {
+            CFund::CProposal proposal;
+
+            if (!pcoinsTip->GetProposal(it_->first, proposal))
+                continue;
+
+            if (proposal.fState != CFund::NIL)
+                continue;
+            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+            UniValue p(UniValue::VOBJ);
+            proposal.ToJson(p, *pcoinsTip);
+            if (it != vAddedProposalVotes.end()) {
+                if (it->second)
+                    yesvotes.push_back(p);
+                else
+                    novotes.push_back(p);
+            } else {
+                nullvotes.push_back(p);
+            }
+        }
+    }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));
@@ -3497,26 +3504,33 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue novotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    std::vector<CFund::CPaymentRequest> vec;
-     if(pblocktree->GetPaymentRequestIndex(vec))
-     {
-         BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-             if (prequest.fState != CFund::NIL)
-                 continue;
-             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                 [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
-             UniValue p(UniValue::VOBJ);
-             prequest.ToJson(p);
-             if (it != vAddedPaymentRequestVotes.end()) {
-                 if (it->second)
-                     yesvotes.push_back(p);
-                 else
-                     novotes.push_back(p);
-             } else {
-                 nullvotes.push_back(p);
-             }
-         }
-     }
+    CPaymentRequestMap mapPaymentRequests;
+
+    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    {
+        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+        {
+            CFund::CPaymentRequest prequest;
+
+            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                continue;
+
+            if (prequest.fState != CFund::NIL)
+                continue;
+            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+            UniValue p(UniValue::VOBJ);
+            prequest.ToJson(p);
+            if (it != vAddedPaymentRequestVotes.end()) {
+                if (it->second)
+                    yesvotes.push_back(p);
+                else
+                    novotes.push_back(p);
+            } else {
+                nullvotes.push_back(p);
+            }
+        }
+    }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));

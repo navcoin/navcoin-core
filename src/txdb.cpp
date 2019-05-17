@@ -68,6 +68,58 @@ uint256 CCoinsViewDB::GetBestBlock() const {
     return hashBestChain;
 }
 
+bool CCoinsViewDB::GetAllProposals(CProposalMap& map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(make_pair(DB_PROPINDEX, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_PROPINDEX) {
+            CFund::CProposal proposal;
+            if (pcursor->GetValue(proposal)) {
+                map.insert(make_pair(key.second, proposal));
+                pcursor->Next();
+            } else {
+                return error("GetProposalIndex() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool CCoinsViewDB::GetAllPaymentRequests(CPaymentRequestMap &map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(make_pair(DB_PREQINDEX, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_PREQINDEX) {
+            CFund::CPaymentRequest prequest;
+            if (pcursor->GetValue(prequest)) {
+                map.insert(make_pair(key.second, prequest));
+                pcursor->Next();
+            } else {
+                return error("GetPaymentRequestIndex() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock) {
     CDBBatch batch(db);

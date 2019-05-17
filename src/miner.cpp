@@ -252,10 +252,17 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         }
 
         UniValue strDZeel(UniValue::VARR);
-        std::vector<CFund::CPaymentRequest> vec;
-        if(pblocktree->GetPaymentRequestIndex(vec))
+        CPaymentRequestMap mapPaymentRequests;
+
+        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
         {
-            BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+            for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+            {
+                CFund::CPaymentRequest prequest;
+
+                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                    continue;
+
                 if (mapBlockIndex.count(prequest.blockhash) == 0)
                     continue;
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];

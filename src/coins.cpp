@@ -45,9 +45,9 @@ bool CCoins::Spend(uint32_t nPos)
 
 bool CCoinsView::GetCoins(const uint256 &txid, CCoins &coins) const { return false; }
 bool CCoinsView::GetProposal(const uint256 &pid, CProposal &proposal) const { return false; }
-bool CCoinsView::GetAllProposals(CProposalMap& map) const { return false; }
+bool CCoinsView::GetAllProposals(CProposalMap& map) { return false; }
 bool CCoinsView::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return false; }
-bool CCoinsView::GetAllPaymentRequests(CPaymentRequestMap& map) const { return false; }
+bool CCoinsView::GetAllPaymentRequests(CPaymentRequestMap& map) { return false; }
 bool CCoinsView::HaveCoins(const uint256 &txid) const { return false; }
 bool CCoinsView::HaveProposal(const uint256 &pid) const { return false; }
 bool CCoinsView::HavePaymentRequest(const uint256 &prid) const { return false; }
@@ -60,9 +60,9 @@ CCoinsViewCursor *CCoinsView::Cursor() const { return 0; }
 CCoinsViewBacked::CCoinsViewBacked(CCoinsView *viewIn) : base(viewIn) { }
 bool CCoinsViewBacked::GetCoins(const uint256 &txid, CCoins &coins) const { return base->GetCoins(txid, coins); }
 bool CCoinsViewBacked::GetProposal(const uint256 &pid, CProposal &proposal) const { return base->GetProposal(pid, proposal); }
-bool CCoinsViewBacked::GetAllProposals(CProposalMap& map) const { return base->GetAllProposals(map); }
+bool CCoinsViewBacked::GetAllProposals(CProposalMap& map) { return base->GetAllProposals(map); }
 bool CCoinsViewBacked::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return base->GetPaymentRequest(prid, prequest); }
-bool CCoinsViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) const { return base->GetAllPaymentRequests(map); }
+bool CCoinsViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) { return base->GetAllPaymentRequests(map); }
 bool CCoinsViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
 bool CCoinsViewBacked::HaveProposal(const uint256 &pid) const { return base->HaveProposal(pid); }
 bool CCoinsViewBacked::HavePaymentRequest(const uint256 &prid) const { return base->HavePaymentRequest(prid); }
@@ -158,7 +158,7 @@ bool CCoinsViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const
     return false;
 }
 
-bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) const {
+bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) {
     mapProposal.clear();
     mapProposal.insert(cacheProposals.begin(), cacheProposals.end());
 
@@ -182,7 +182,7 @@ bool CCoinsViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &pre
     return false;
 }
 
-bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) const {
+bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
     mapPaymentRequests.clear();
     mapPaymentRequests.insert(cachePaymentRequests.begin(), cachePaymentRequests.end());
 
@@ -250,7 +250,9 @@ CCoinsModifier CCoinsViewCache::ModifyNewCoins(const uint256 &txid, bool coinbas
 bool CCoinsViewCache::AddProposal(const CProposal& proposal) const {
     if (HaveProposal(proposal.hash))
         return false;
+
     cacheProposals.insert(std::make_pair(proposal.hash, proposal));
+
     return true;
 }
 
@@ -361,28 +363,28 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
     }
 
     for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end();) {
-        if (!it->second.IsNull()) {
+        if (it->second.IsNull()) {
             CProposalMap::iterator itUs = cacheProposals.find(it->first);
             if (itUs != cacheProposals.end()) {
                 cacheProposals.erase(itUs);
-            } else {
-                CProposal& entry = cacheProposals[it->first];
-                entry.swap(it->second);
             }
+        } else {
+            CProposal& entry = cacheProposals[it->first];
+            entry.swap(it->second);
         }
         CProposalMap::iterator itOld = it++;
         mapProposals.erase(itOld);
     }
 
     for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();) {
-        if (!it->second.IsNull()) {
+        if (it->second.IsNull()) {
             CPaymentRequestMap::iterator itUs = cachePaymentRequests.find(it->first);
             if (itUs != cachePaymentRequests.end()) {
                 cachePaymentRequests.erase(itUs);
-            } else {
-                CPaymentRequest& entry = cachePaymentRequests[it->first];
-                entry.swap(it->second);
             }
+        } else {
+            CPaymentRequest& entry = cachePaymentRequests[it->first];
+            entry.swap(it->second);
         }
         CPaymentRequestMap::iterator itOld = it++;
         mapPaymentRequests.erase(itOld);

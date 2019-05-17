@@ -2751,6 +2751,7 @@ bool TxToProposal(const CTransaction& tx, const uint256& blockhash, const CAmoun
     proposal.nFee = nProposalFee;
     proposal.hash = tx.GetHash();
     proposal.txblockhash = blockhash;
+    proposal.fDirty = true;
 
     if(proposal.nAmount < 0) {
         return error("%s: Proposal cannot have an amount less than 0\n", __func__);
@@ -2784,6 +2785,7 @@ bool TxToPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValid
     prequest.strDZeel = find_value(metadata, "i").get_str();
     prequest.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
     prequest.txblockhash = blockhash;
+    prequest.fDirty = true;
 
     if(prequest.nAmount < 0) {
         return error("%s: Payment request cannot have an amount less than 0\n", __func__);

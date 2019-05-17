@@ -1855,10 +1855,17 @@ void NavCoinGUI::updateStakingStatus()
             bool fFoundProposal = false;
             bool fFoundPaymentRequest = false;
             {
-                std::vector<CFund::CProposal> vec;
-                if(pblocktree->GetProposalIndex(vec))
+                LOCK(cs_main);
+
+                CProposalMap mapProposals;
+
+                if(pcoinsTip->GetAllProposals(mapProposals))
                 {
-                    BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+                    for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+                    {
+                        CFund::CProposal proposal;
+                        if (!pcoinsTip->GetProposal(it->first, proposal))
+                            continue;
                         if (proposal.fState != CFund::NIL)
                             continue;
                         auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
@@ -1871,10 +1878,17 @@ void NavCoinGUI::updateStakingStatus()
                 }
             }
             {
-                std::vector<CFund::CPaymentRequest> vec;
-                if(pblocktree->GetPaymentRequestIndex(vec))
+                CPaymentRequestMap mapPaymentRequests;
+
+                if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
                 {
-                    BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+                    for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+                    {
+                        CFund::CPaymentRequest prequest;
+
+                        if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                            continue;
+
                         if (prequest.fState != CFund::NIL)
                             continue;
                         auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
