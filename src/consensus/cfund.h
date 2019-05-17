@@ -332,7 +332,7 @@ public:
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
 bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
-void CFundRound(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CCoinsViewCache& coins);
+void CFundStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CCoinsViewCache& coins);
 
 }
 
