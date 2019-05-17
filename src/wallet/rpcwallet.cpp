@@ -3547,9 +3547,16 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CFund::CPaymentRequest prequest;
+
+    if (!pcoinsTip->GetPaymentRequest(uint256S(strHash), prequest))
+    {
+        return NullUniValue;
+    }
+
     if (strCommand == "yes")
     {
-      bool ret = CFund::VotePaymentRequest(strHash,true,duplicate);
+      bool ret = CFund::VotePaymentRequest(prequest,true,duplicate);
       if (duplicate) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
       } else if (ret) {
@@ -3558,7 +3565,7 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     }
     else if (strCommand == "no")
     {
-      bool ret = CFund::VotePaymentRequest(strHash,false,duplicate);
+      bool ret = CFund::VotePaymentRequest(prequest,false,duplicate);
       if (duplicate) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
       } else if (ret) {
