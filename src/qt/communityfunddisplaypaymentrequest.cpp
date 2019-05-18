@@ -199,7 +199,7 @@ void CommunityFundDisplayPaymentRequest::click_buttonBoxVote(QAbstractButton *bu
 
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        CFund::VotePaymentRequest(pr), true, duplicate);
+        CFund::VotePaymentRequest(pr, true, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
