@@ -2569,6 +2569,56 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         }
     }
 
+    std::map<uint256, bool> vSeen;
+
+    for(unsigned int i = 0; i < pindex->vProposalVotes.size(); i++)
+    {
+        if(!view.HaveProposal(pindex->vProposalVotes[i].first))
+            continue;
+
+        CProposalModifier proposal = view.ModifyProposal(pindex->vProposalVotes[i].first);
+
+        if(vSeen.count(proposal->hash) == 0)
+        {
+            if(pindex->vProposalVotes[i].second)
+                proposal->nVotesYes = max(proposal->nVotesYes - 1, 0);
+            else
+                proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
+
+            vSeen[pindex->vProposalVotes[i].first]=true;
+        }
+    }
+
+    for(unsigned int i = 0; i < pindex->vPaymentRequestVotes.size(); i++)
+    {
+        if(!view.HavePaymentRequest(pindex->vPaymentRequestVotes[i].first))
+            continue;
+
+        CPaymentRequestModifier prequest = view.ModifyPaymentRequest(pindex->vPaymentRequestVotes[i].first);
+        CFund::CProposal proposal;
+
+        if(!view.GetProposal(prequest->proposalhash, proposal))
+            continue;
+
+        if (mapBlockIndex.count(proposal.blockhash) == 0)
+            continue;
+
+        CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
+
+        if(pindexblockparent == NULL)
+            continue;
+
+        if(vSeen.count(prequest->hash) == 0)
+        {
+            if(pindex->vPaymentRequestVotes[i].second)
+                prequest->nVotesYes = max(prequest->nVotesYes - 1, 0);
+            else
+                prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
+
+            vSeen[pindex->vPaymentRequestVotes[i].first]=true;
+        }
+    }
+
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
