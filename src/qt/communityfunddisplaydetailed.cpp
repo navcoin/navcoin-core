@@ -198,14 +198,14 @@ void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *but
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::VoteProposal(p.hash, true, duplicate);
+        CFund::VoteProposal(p, true, duplicate);
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
-        CFund::VoteProposal(p.hash, false, duplicate);
+        CFund::VoteProposal(p, false, duplicate);
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
