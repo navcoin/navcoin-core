@@ -1861,10 +1861,10 @@ void NavCoinGUI::updateStakingStatus()
 
                 if(pcoinsTip->GetAllProposals(mapProposals))
                 {
-                    for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+                    for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
                     {
                         CFund::CProposal proposal;
-                        if (!pcoinsTip->GetProposal(it->first, proposal))
+                        if (!pcoinsTip->GetProposal(it_->first, proposal))
                             continue;
                         if (proposal.fState != CFund::NIL)
                             continue;
