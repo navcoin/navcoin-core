@@ -978,9 +978,9 @@ void ApplyCommunityFundToCoinBase(CTransaction &coinbaseTx, const CChainParams& 
             CFund::CProposal proposal;
             bool vote = vAddedProposalVotes[i].second;
             std::map<uint256, bool>::iterator it = votes.find(proposal.hash);
-            if (it != votes.end()) {
-                continue;
-            }
+//            if (it != votes.end()) {
+//                continue;
+//            }
             if (CFund::FindProposal(vAddedProposalVotes[i].first, proposal)) {
                 if (proposal.CanVote() && votes.count(proposal.hash) == 0) {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
@@ -995,9 +995,9 @@ void ApplyCommunityFundToCoinBase(CTransaction &coinbaseTx, const CChainParams& 
             CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             bool vote = vAddedPaymentRequestVotes[i].second;
             std::map<uint256, bool>::iterator it = votes.find(prequest.hash);
-            if (it != votes.end()) {
-                continue;
-            }
+//            if (it != votes.end()) {
+//                continue;
+//            }
 
             if (CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest)) {
                 if (!CFund::FindProposal(prequest.proposalhash, proposal)) {
