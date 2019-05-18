@@ -180,7 +180,12 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         # Paymentrequest must be accepted now
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 1)
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
+
+
+        end_cycle(self.nodes[0])
+
         # Locked amount should be 0, as this was the only payment request and the proposal was expired
+        print(self.nodes[0].cfundstats())
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
 

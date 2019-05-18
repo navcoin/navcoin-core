@@ -808,8 +808,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                     {
                         if(prequest->nAmount <= pindexNew->nCFLocked && prequest->nAmount <= proposal.GetAvailable(view))
                         {
-                            if (!fUndo)
-                                pindexNew->nCFLocked -= prequest->nAmount;
+                            pindexNew->nCFLocked -= prequest->nAmount;
                             prequest->fState = CFund::ACCEPTED;
                             prequest->blockhash = pindexNew->GetBlockHash();
                             fUpdate = true;
@@ -904,7 +903,8 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
                 if(proposal->IsExpired(pindexNew->GetBlockTime()))
                 {
-                    if (proposal->fState != CFund::EXPIRED) {
+                    if (proposal->fState != CFund::EXPIRED)
+                    {
                         if (proposal->HasPendingPaymentRequests(view))
                         {
                             proposal->fState = CFund::PENDING_VOTING_PREQ;
@@ -912,7 +912,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                         }
                         else
                         {
-                            if(!fUndo && (proposal->fState == CFund::ACCEPTED || proposal->fState == CFund::PENDING_VOTING_PREQ))
+                            if(proposal->fState == CFund::ACCEPTED || proposal->fState == CFund::PENDING_VOTING_PREQ)
                             {
                                 pindexNew->nCFSupply += proposal->GetAvailable(view);
                                 pindexNew->nCFLocked -= proposal->GetAvailable(view);
@@ -937,11 +937,8 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                     {
                         if(pindexNew->nCFSupply >= proposal->GetAvailable(view))
                         {
-                            if (!fUndo)
-                            {
-                                pindexNew->nCFSupply -= proposal->GetAvailable(view);
-                                pindexNew->nCFLocked += proposal->GetAvailable(view);
-                            }
+                            pindexNew->nCFSupply -= proposal->GetAvailable(view);
+                            pindexNew->nCFLocked += proposal->GetAvailable(view);
                             proposal->fState = CFund::ACCEPTED;
                             proposal->blockhash = pindexNew->GetBlockHash();
                             fUpdate = true;
