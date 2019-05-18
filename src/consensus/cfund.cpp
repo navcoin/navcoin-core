@@ -672,10 +672,11 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
         pindexblock = pindexblock->pprev;
         nBlocks--;
     }
-    int64_t nTimeEnd2 = GetTimeMicros();
-    LogPrint("bench-cfund", "  - CFund count votes from headers: %.2fms\n", (nTimeEnd2 - nTimeStart2) * 0.001);
 
     vSeen.clear();
+
+    int64_t nTimeEnd2 = GetTimeMicros();
+    LogPrint("bench", "   - CFund count votes from headers: %.2fms\n", (nTimeEnd2 - nTimeStart2) * 0.001);
 
     int64_t nTimeStart3 = GetTimeMicros();
     std::map<uint256, std::pair<int, int>>::iterator it;
@@ -705,7 +706,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
     }
 
     int64_t nTimeEnd3 = GetTimeMicros();
-    LogPrint("bench-cfund", "  - CFund update votes: %.2fms\n", (nTimeEnd3 - nTimeStart3) * 0.001);
+    LogPrint("bench", "   - CFund update votes: %.2fms\n", (nTimeEnd3 - nTimeStart3) * 0.001);
 
     std::vector<CFund::CPaymentRequest> vecPaymentRequest;
 
@@ -833,7 +834,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
     }
 
     int64_t nTimeEnd4 = GetTimeMicros();
-    LogPrint("bench-cfund", "  - CFund update payment request status: %.2fms\n", (nTimeEnd4 - nTimeStart4) * 0.001);
+    LogPrint("bench", "   - CFund update payment request status: %.2fms\n", (nTimeEnd4 - nTimeStart4) * 0.001);
 
     std::vector<CFund::CProposal> vecProposal;
 
@@ -969,9 +970,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
     int64_t nTimeEnd5 = GetTimeMicros();
 
-    LogPrint("bench-cfund", "  - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
+    LogPrint("bench", "   - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
 
     int64_t nTimeEnd = GetTimeMicros();
-    LogPrint("bench", "- CFund total CFundStep() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+    LogPrint("bench", "  - CFund total CFundStep() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
 }
 
