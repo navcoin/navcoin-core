@@ -3150,6 +3150,55 @@ struct StakePeriodRange_T {
 
 typedef std::vector<StakePeriodRange_T> vStakePeriodRange_T;
 
+// Check if we have a Tx that can be counted in staking report
+bool IsTxCountedAsStaked(const CWalletTx* tx)
+{
+    // orphan block or immature
+    if ((!tx->GetDepthInMainChain()) || (tx->GetBlocksToMaturity() > 0))
+        return false;
+
+    // abandoned transactions
+    if (tx->isAbandoned())
+        return false;
+
+    // transaction other than POS block
+    return tx->IsCoinStake();
+}
+
+// Get the amount for a staked tx used in staking report
+CAmount GetTxStakeAmount(const CWalletTx* tx)
+{
+    // use the cached amount if available
+    if ((tx->fCreditCached || tx->fColdStakingCreditCached) && (tx->fDebitCached || tx->fColdStakingDebitCached))
+        return tx->nCreditCached + tx->nColdStakingCreditCached - tx->nDebitCached - tx->nColdStakingDebitCached;
+    // Check for cold staking 
+    else if (tx->vout[1].scriptPubKey.IsColdStaking())
+        return tx->GetCredit(pwalletMain->IsMine(tx->vout[1])) - tx->GetDebit(pwalletMain->IsMine(tx->vout[1]));
+
+    return tx->GetCredit(ISMINE_SPENDABLE) + tx->GetCredit(ISMINE_STAKABLE) - tx->GetDebit(ISMINE_SPENDABLE) - tx->GetDebit(ISMINE_STAKABLE);
+}
+
+// Gets timestamp for first stake
+// Returns -1 (Zero) if has not staked yet
+int64_t GetFirstStakeTime()
+{
+    // Need a pointer for the tx
+    const CWalletTx* tx;
+
+    // scan the entire wallet transactions
+    for (auto it = pwalletMain->mapWallet.end(); it != pwalletMain->mapWallet.begin(); --it)
+    {
+        tx = &(*it).second;
+
+        // Check if we have a useable tx
+        if (IsTxCountedAsStaked(tx))
+            return tx->nTime;
+    }
+
+    // Did not find the first stake
+    return -1;
+}
+
 // **em52: Get total coins staked on given period
 // inspired from CWallet::GetStake()
 // Parameter aRange = Vector with given limit date, and result
@@ -3171,30 +3220,14 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
     {
         pcoin = &(*it).second;
 
-        // skip orphan block or immature
-        if ((!pcoin->GetDepthInMainChain()) || (pcoin->GetBlocksToMaturity()>0))
-            continue;
-
-        // skip abandoned transactions
-        if (pcoin->isAbandoned())
-            continue;
-
-        // skip transaction other than POS block
-        if (!(pcoin->IsCoinStake()))
-            continue;
-
-        if (pcoin->isAbandoned())
+        // Check if we have a useable tx
+        if (!IsTxCountedAsStaked(pcoin))
             continue;
 
         nElement++;
 
-        // use the cached amount if available
-        if ((pcoin->fCreditCached || pcoin->fColdStakingCreditCached) && (pcoin->fDebitCached || pcoin->fColdStakingDebitCached))
-            nAmount = pcoin->nCreditCached + pcoin->nColdStakingCreditCached - pcoin->nDebitCached - pcoin->nColdStakingDebitCached;
-        else if (pcoin->vout[1].scriptPubKey.IsColdStaking())
-            nAmount = pcoin->GetCredit(pwalletMain->IsMine(pcoin->vout[1])) - pcoin->GetDebit(pwalletMain->IsMine(pcoin->vout[1]));
-        else
-            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) + pcoin->GetCredit(ISMINE_STAKABLE) - pcoin->GetDebit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_STAKABLE);
+        // Get the stake tx amount from pcoin
+        nAmount = GetTxStakeAmount(pcoin);
 
         // scan the range
         for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)
@@ -3213,12 +3246,10 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
                 }
             }
         }
-
     }
 
     return nElement;
 }
-
 
 // prepare range for stake report
 vStakePeriodRange_T PrepareRangeForStakeReport()
@@ -3295,7 +3326,6 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
     // get subtotal calc
     int64_t nTook = GetTimeMillis();
     int nItemCounted = GetsStakeSubTotal(aRange);
-    nTook = GetTimeMillis() - nTook;
 
     UniValue result(UniValue::VOBJ);
 
@@ -3303,6 +3333,13 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 
     // Span of days to compute average over
     int nDays = 0;
+
+    // Get the wallet's staking age in days
+    int nWalletDays = 0;
+
+    // Check if we have a stake already
+    if (GetFirstStakeTime() != -1)
+        nWalletDays = (GetTime() - GetFirstStakeTime()) / 86400;
 
     // report it
     for(vIt = aRange.begin(); vIt != aRange.end(); vIt++)
@@ -3321,6 +3358,10 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 
         // Check if we need to add the average
         if (nDays > 0) {
+            // Check if nDays is larger than the wallet's staking age in days
+            if (nDays > nWalletDays && nWalletDays > 0)
+                nDays = nWalletDays;
+
             // Add the Average
             result.push_back(Pair(vIt->Name + " Avg", FormatMoney(vIt->Total / nDays).c_str()));
         }
@@ -3331,10 +3372,12 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
        vIt->Start ? DateTimeStrFormat("%Y-%m-%d %H:%M:%S",vIt->Start).c_str() :
        "Never"));
 
+    // Moved nTook call down here to be more accurate
+    nTook = GetTimeMillis() - nTook;
 
     // report element counted / time took
     result.push_back(Pair("Stake counted", nItemCounted));
-    result.push_back(Pair("time took (ms)",  nTook ));
+    result.push_back(Pair("time took (ms)",  nTook));
 
     return  result;
 }

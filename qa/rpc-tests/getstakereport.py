@@ -131,9 +131,45 @@ class GetStakeReport(NavCoinTestFramework):
         avg_last365d = self.nodes[0].getstakereport()['Last 365 Days Avg']
 
         # Check the amounts
-        assert_equal('0.85714285', avg_last7d)
-        assert_equal('0.20', avg_last30d)
-        assert_equal('0.01643835', avg_last365d)
+        assert_equal('3.00', avg_last7d)
+        assert_equal('3.00', avg_last30d)
+        assert_equal('3.00', avg_last365d)
+
+        # Time travel 8 days in the future
+        cur_time = int(time.time())
+        self.nodes[0].setmocktime(cur_time + 691200)
+        self.nodes[1].setmocktime(cur_time + 691200)
+        self.nodes[2].setmocktime(cur_time + 691200)
+
+        # Load the last 24h stake amount for the wallets/nodes
+        merged_address_last_24h = self.nodes[0].getstakereport()['Last 24H']
+        spending_address_last_24h = self.nodes[1].getstakereport()['Last 24H']
+        staking_address_last_24h = self.nodes[2].getstakereport()['Last 24H']
+
+        # Check the amounts
+        assert_equal('0.00', merged_address_last_24h)
+        assert_equal('0.00', spending_address_last_24h)
+        assert_equal('0.00', staking_address_last_24h)
+
+        # Load the last 7 days stake amount for the wallets/nodes
+        merged_address_last_7d = self.nodes[0].getstakereport()['Last 7 Days']
+        spending_address_last_7d = self.nodes[1].getstakereport()['Last 7 Days']
+        staking_address_last_7d = self.nodes[2].getstakereport()['Last 7 Days']
+
+        # Check the amounts
+        assert_equal('2.00', merged_address_last_7d)
+        assert_equal('2.00', spending_address_last_7d)
+        assert_equal('2.00', staking_address_last_7d)
+
+        # Load the averages for stake amounts 
+        avg_last7d   = self.nodes[0].getstakereport()['Last 7 Days Avg']
+        avg_last30d  = self.nodes[0].getstakereport()['Last 30 Days Avg']
+        avg_last365d = self.nodes[0].getstakereport()['Last 365 Days Avg']
+
+        # Check the amounts
+        assert_equal('0.28571428', avg_last7d)
+        assert_equal('0.75',       avg_last30d)
+        assert_equal('0.75',       avg_last365d)
 
     def stake_block(self, node):
         # Get the current block count to check against while we wait for a stake
