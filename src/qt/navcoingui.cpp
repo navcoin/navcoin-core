@@ -250,7 +250,14 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
     frameBlocksLayout->setContentsMargins(3,0,3,0);
     frameBlocksLayout->setSpacing(3);
-    unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
+    unitDisplayControl = new QComboBox();
+    unitDisplayControl->setEditable(true);
+    unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
+    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+    {
+        unitDisplayControl->addItem(QString(NavCoinUnits::name(u)), u);
+    }
+    connect(unitDisplayControl,SIGNAL(currentIndexChanged(int)),this,SLOT(comboBoxChanged(int)));
     labelEncryptionIcon = new QLabel();
     labelStakingIcon = new QLabel();
     labelPrice = new QLabel();
@@ -585,14 +592,6 @@ void NavCoinGUI::createMenuBar()
         settings->addSeparator();
         settings->addAction(toggleStakingAction);
         settings->addSeparator();
-        QMenu* currency = settings->addMenu( tr("Currency") );
-        Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
-        {
-            QAction *menuAction = new QAction(QString(NavCoinUnits::name(u)), this);
-            menuAction->setData(QVariant(u));
-            currency->addAction(menuAction);
-        }
-        connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
         settings->addAction(updatePriceAction);
     }
     settings->addAction(optionsAction);
@@ -607,14 +606,6 @@ void NavCoinGUI::createMenuBar()
     help->addAction(aboutAction);
     help->addAction(infoAction);
     help->addAction(aboutQtAction);
-}
-
-void NavCoinGUI::onCurrencySelection(QAction* action)
-{
-    if (action)
-    {
-        clientModel->getOptionsModel()->setDisplayUnit(action->data());
-    }
 }
 
 void NavCoinGUI::createToolBars()
@@ -735,7 +726,6 @@ void NavCoinGUI::setClientModel(ClientModel *clientModel)
             walletFrame->setClientModel(clientModel);
         }
 #endif // ENABLE_WALLET
-        unitDisplayControl->setOptionsModel(clientModel->getOptionsModel());
 
         OptionsModel* optionsModel = clientModel->getOptionsModel();
         if(optionsModel)
@@ -745,6 +735,12 @@ void NavCoinGUI::setClientModel(ClientModel *clientModel)
 
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
+
+            // be aware of a display unit change reported by the OptionsModel object.
+            connect(optionsModel,SIGNAL(displayUnitChanged(int)),this,SLOT(updateDisplayUnit(int)));
+
+            // initialize the display units label with the current value in the model.
+            updateDisplayUnit(optionsModel->getDisplayUnit());
         }
     } else {
         // Disable possibility to show main window via action
@@ -1608,78 +1604,25 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
 }
 
-UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle) :
-    optionsModel(0),
-    menu(0)
-{
-    createContextMenu();
-    setToolTip(tr("Unit to show amounts in. Click to select another unit."));
-    QList<NavCoinUnits::Unit> units = NavCoinUnits::availableUnits();
-    int max_width = 0;
-    const QFontMetrics fm(font());
-    Q_FOREACH (const NavCoinUnits::Unit unit, units)
-    {
-        max_width = qMax(max_width, fm.width(NavCoinUnits::name(unit)));
-    }
-    setMinimumSize(max_width, 0);
-    setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    setStyleSheet(QString("QLabel { color : %1 }").arg(platformStyle->SingleColor().name()));
-}
-
-/** So that it responds to button clicks */
-void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
-{
-    onDisplayUnitsClicked(event->pos());
-}
-
-/** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
-void UnitDisplayStatusBarControl::createContextMenu()
-{
-    menu = new QMenu(this);
-    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
-    {
-        QAction *menuAction = new QAction(QString(NavCoinUnits::name(u)), this);
-        menuAction->setData(QVariant(u));
-        menu->addAction(menuAction);
-    }
-    connect(menu,SIGNAL(triggered(QAction*)),this,SLOT(onMenuSelection(QAction*)));
-}
-
-/** Lets the control know about the Options Model (and its signals) */
-void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel *optionsModel)
-{
-    if (optionsModel)
-    {
-        this->optionsModel = optionsModel;
-
-        // be aware of a display unit change reported by the OptionsModel object.
-        connect(optionsModel,SIGNAL(displayUnitChanged(int)),this,SLOT(updateDisplayUnit(int)));
-
-        // initialize the display units label with the current value in the model.
-        updateDisplayUnit(optionsModel->getDisplayUnit());
-    }
-}
-
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
-void UnitDisplayStatusBarControl::updateDisplayUnit(int newUnits)
+void NavCoinGUI::updateDisplayUnit(int unit)
 {
-    setText(NavCoinUnits::name(newUnits));
+    // Update the list value
+    unitDisplayControl->setCurrentText(NavCoinUnits::name(unit));
 }
 
-/** Shows context menu with Display Unit options by the mouse coordinates */
-void UnitDisplayStatusBarControl::onDisplayUnitsClicked(const QPoint& point)
+/** Update the display currency **/
+void NavCoinGUI::comboBoxChanged(int index)
 {
-    QPoint globalPos = mapToGlobal(point);
-    menu->exec(globalPos);
-}
+    // Make sure we have a client model
+    if (!clientModel)
+        return;
 
-/** Tells underlying optionsModel to update its current display unit. */
-void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
-{
-    if (action)
-    {
-        optionsModel->setDisplayUnit(action->data());
-    }
+    // Get the unit
+    QVariant unit = unitDisplayControl->itemData(index);
+
+    // Use the unit
+    clientModel->getOptionsModel()->setDisplayUnit(unit);
 }
 
 void NavCoinGUI::toggleStaking()
