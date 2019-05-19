@@ -3186,9 +3186,9 @@ int64_t GetFirstStakeTime()
     const CWalletTx* tx;
 
     // scan the entire wallet transactions
-    for (auto it = pwalletMain->mapWallet.end(); it != pwalletMain->mapWallet.begin(); --it)
+    for (auto it = pwalletMain->wtxOrdered.begin(); it != pwalletMain->wtxOrdered.end(); ++it)
     {
-        tx = &(*it).second;
+        tx = (*it).second.first;
 
         // Check if we have a useable tx
         if (IsTxCountedAsStaked(tx))
