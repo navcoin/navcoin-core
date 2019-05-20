@@ -284,7 +284,6 @@ RES_ICONS = \
 	qt/res/icons/background_top.png \
 	qt/res/icons/navcoin.png \
 	qt/res/icons/navcoin.ico \
-	qt/res/icons/navcoin_testnet.ico \
 	qt/res/icons/ghost.png \
 	qt/res/icons/address-book.png \
 	qt/res/icons/quit.png \
