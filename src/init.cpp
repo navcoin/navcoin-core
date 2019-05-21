@@ -825,6 +825,12 @@ void InitParameterInteraction()
             LogPrintf("%s: parameter interaction: -zapwallettxes=<mode> -> setting -rescan=1\n", __func__);
     }
 
+    // -importmnemonic implies a rescan
+    if (mapArgs.count("-importmnemonic")) {
+        if (SoftSetBoolArg("-rescan", true))
+            LogPrintf("%s: parameter interaction: -importmnemonic=\"word list\" -> setting -rescan=1\n", __func__);
+    }
+
     // disable walletbroadcast and whitelistrelay in blocksonly mode
     if (GetBoolArg("-blocksonly", DEFAULT_BLOCKSONLY)) {
         if (SoftSetBoolArg("-whitelistrelay", false))
