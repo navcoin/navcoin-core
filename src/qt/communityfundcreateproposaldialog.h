@@ -1,8 +1,10 @@
 #ifndef COMMUNITYFUNDCREATEPROPOSALDIALOG_H
 #define COMMUNITYFUNDCREATEPROPOSALDIALOG_H
 
-#include <QDialog>
 #include "qvalidatedspinbox.h"
+#include "walletmodel.h"
+
+#include <QDialog>
 
 namespace Ui {
 class CommunityFundCreateProposalDialog;
@@ -16,14 +18,16 @@ public:
     explicit CommunityFundCreateProposalDialog(QWidget *parent = 0);
     ~CommunityFundCreateProposalDialog();
 
+    void setModel(WalletModel *model);
+
 private:
     Ui::CommunityFundCreateProposalDialog *ui;
+    WalletModel *model;
     bool validate();
 
 private Q_SLOTS:
     void click_pushButtonCreateProposal();
     void click_spinBox();
-
 };
 
 #endif // COMMUNITYFUNDCREATEPROPOSALDIALOG_H

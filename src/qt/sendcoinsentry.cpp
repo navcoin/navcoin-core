@@ -34,9 +34,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
 
     if (platformStyle->getUseExtraSpacing())
         ui->payToLayout->setSpacing(4);
-#if QT_VERSION >= 0x040700
     ui->addAsLabel->setPlaceholderText(tr("Enter a label for this address to add it to your address book"));
-#endif
 
     // normal navcoin address field
     GUIUtil::setupAddressWidget(ui->payTo, this);

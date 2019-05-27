@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS = -I build-aux/m4
 SUBDIRS = src
 .PHONY: deploy FORCE
 
-GZIP_ENV="-9n"
+# GZIP_ENV="-9n" # Disabled cause it was giving out a warning
 export PYTHONPATH
 
 if BUILD_NAVCOIN_LIBS

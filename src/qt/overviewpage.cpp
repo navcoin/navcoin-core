@@ -119,9 +119,11 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     currentStakingBalance(-1),
     currentColdStakingBalance(-1),
     currentImmatureBalance(-1),
+    currentTotalBalance(-1),
     currentWatchOnlyBalance(-1),
     currentWatchUnconfBalance(-1),
     currentWatchImmatureBalance(-1),
+    currentWatchOnlyTotalBalance(-1),
     txdelegate(new TxViewDelegate(platformStyle)),
     filter(0)
 {
@@ -179,15 +181,18 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     currentStakingBalance = stakingBalance;
     currentColdStakingBalance = coldStakingBalance;
     currentImmatureBalance = immatureBalance;
+    currentTotalBalance = balance + unconfirmedBalance + immatureBalance;
     currentWatchOnlyBalance = watchOnlyBalance;
     currentWatchUnconfBalance = watchUnconfBalance;
     currentWatchImmatureBalance = watchImmatureBalance;
+    currentWatchOnlyTotalBalance = watchOnlyBalance + watchUnconfBalance + watchImmatureBalance;
     ui->labelBalance->setText(NavCoinUnits::formatWithUnit(unit, balance, false, NavCoinUnits::separatorAlways));
     ui->labelUnconfirmed->setText(NavCoinUnits::formatWithUnit(unit, unconfirmedBalance, false, NavCoinUnits::separatorAlways));
     ui->labelStaking->setText(NavCoinUnits::formatWithUnit(unit, stakingBalance, false, NavCoinUnits::separatorAlways));
     ui->labelColdStaking->setText(NavCoinUnits::formatWithUnit(unit, coldStakingBalance, false, NavCoinUnits::separatorAlways));
     ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, immatureBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, balance + unconfirmedBalance + stakingBalance, false, NavCoinUnits::separatorAlways));
+    ui->labelWatchedBalance->setText(NavCoinUnits::formatWithUnit(unit, currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
+    ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, currentTotalBalance + currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
 
     updateStakeReportNow();
 
@@ -200,6 +205,11 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
 
     ui->labelColdStaking->setVisible(showColdStaking);
     ui->labelColdStakingText->setVisible(showColdStaking);
+
+    bool showWatchOnly = currentWatchOnlyTotalBalance != 0;
+
+    ui->labelWatchedBalance->setVisible(showWatchOnly);
+    ui->labelWatchedBalanceText->setVisible(showWatchOnly);
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
