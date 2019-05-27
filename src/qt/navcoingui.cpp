@@ -47,16 +47,24 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
-#include <QCheckBox>
 #include <QInputDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QPushButton>
@@ -67,27 +75,12 @@
 #include <QStyle>
 #include <QTimer>
 #include <QToolBar>
+#include <QUrl>
+#include <QUrlQuery>
 #include <QVBoxLayout>
-#include <QWidget>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QUrl>
-#include <QUrlQuery>
 #include <QVariant>
-#include <QJsonValue>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QVariantMap>
-#include <QJsonArray>
-#include <QDesktopServices>
-
-#if QT_VERSION < 0x050000
-#include <QTextDocument>
-#include <QUrl>
-#else
-#include <QUrlQuery>
-#endif
+#include <QWidget>
 
 const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
 #if defined(Q_OS_MAC)
@@ -199,7 +192,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 #endif
     setWindowTitle(windowTitle);
 
-#if defined(Q_OS_MAC) && QT_VERSION < 0x050000
+#if defined(Q_OS_MAC)
     // This property is not implemented in Qt 5. Setting it has no effect.
     // A replacement API (QtMacUnifiedToolBar) is available in QtMacExtras.
     setUnifiedTitleAndToolBarOnMac(true);

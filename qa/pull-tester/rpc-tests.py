@@ -169,6 +169,7 @@ testScripts = [
     'reject-version-bit.py',
     'getcoldstakingaddress.py',
     'getstakereport.py',
+    'importaddress.py',
     'getstakinginfo.py',
     'coldstaking_staking.py',
     'coldstaking_spending.py',
