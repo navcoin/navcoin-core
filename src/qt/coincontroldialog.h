@@ -76,6 +76,7 @@ private:
         COLUMN_TXHASH,
         COLUMN_VOUT_INDEX,
         COLUMN_AMOUNT_INT64,
+        COLUMN_CONFIRMATIONS_INT64,
         COLUMN_PRIORITY_INT64,
         COLUMN_DATE_INT64
     };
@@ -91,6 +92,8 @@ private:
                 return COLUMN_PRIORITY;
             else if (column == COLUMN_DATE_INT64)
                 return COLUMN_DATE;
+            else if (column == COLUMN_CONFIRMATIONS_INT64)
+                return COLUMN_CONFIRMATIONS;
         }
         else
         {
@@ -100,6 +103,8 @@ private:
                 return COLUMN_PRIORITY_INT64;
             else if (column == COLUMN_DATE)
                 return COLUMN_DATE_INT64;
+            else if (column == COLUMN_CONFIRMATIONS)
+                return COLUMN_CONFIRMATIONS_INT64;
         }
 
         return column;
