@@ -1,19 +1,21 @@
 #include "communityfundcreatepaymentrequestdialog.h"
-#include "ui_communityfundcreatepaymentrequestdialog.h"
 #include "communityfundsuccessdialog.h"
 #include "sendcommunityfunddialog.h"
+#include "ui_communityfundcreatepaymentrequestdialog.h"
 
 #include <QMessageBox>
+#include <string>
+
+#include "base58.h"
 #include "consensus/cfund.h"
-#include "main.h"
-#include "main.cpp"
 #include "guiconstants.h"
-#include "skinize.h"
 #include "guiutil.h"
+#include "main.cpp"
+#include "main.h"
+#include "skinize.h"
 #include "sync.h"
 #include "wallet/wallet.h"
-#include "base58.h"
-#include <string>
+#include "walletmodel.h"
 
 std::string random_str(size_t length)
 {
@@ -33,12 +35,18 @@ std::string random_str(size_t length)
 
 CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CommunityFundCreatePaymentRequestDialog)
+    ui(new Ui::CommunityFundCreatePaymentRequestDialog),
+    model(0)
 {
     ui->setupUi(this);
 
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonSubmitPaymentRequest, SIGNAL(clicked()), SLOT(click_pushButtonSubmitPaymentRequest()));
+}
+
+void CommunityFundCreatePaymentRequestDialog::setModel(WalletModel *model)
+{
+    this->model = model;
 }
 
 bool CommunityFundCreatePaymentRequestDialog::validate()
@@ -131,24 +139,10 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         }
 
         // Ensure wallet is unlocked
-        if (pwalletMain->IsLocked()) {
-            QMessageBox msgBox(this);
-            std::string str = "Please unlock the wallet\n";
-            msgBox.setText(tr(str.c_str()));
-            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle("Error");
-            msgBox.exec();
-            return;
-        }
-        if (fWalletUnlockStakingOnly) {
-            QMessageBox msgBox(this);
-            std::string str = "Wallet is unlocked for staking only\n";
-            msgBox.setText(tr(str.c_str()));
-            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle("Error");
-            msgBox.exec();
+        WalletModel::UnlockContext ctx(model->requestUnlock());
+        if(!ctx.isValid())
+        {
+            // Unlock wallet was cancelled
             return;
         }
 

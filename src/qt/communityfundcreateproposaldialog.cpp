@@ -1,25 +1,27 @@
 #include "communityfundcreateproposaldialog.h"
-#include "ui_communityfundcreateproposaldialog.h"
-#include "sendcommunityfunddialog.h"
 #include "communityfundsuccessdialog.h"
+#include "sendcommunityfunddialog.h"
+#include "ui_communityfundcreateproposaldialog.h"
 
-#include <QMessageBox>
-#include <QTextListFormat>
 #include <QDialog>
+#include <QMessageBox>
 #include <QSpinBox>
+#include <QTextListFormat>
+#include <string>
 
+#include "base58.h"
 #include "guiconstants.h"
 #include "guiutil.h"
+#include "main.h"
+#include "qvalidatedspinbox.h"
 #include "sync.h"
 #include "wallet/wallet.h"
-#include "base58.h"
-#include "main.h"
-#include <string>
-#include "qvalidatedspinbox.h"
+#include "walletmodel.h"
 
 CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CommunityFundCreateProposalDialog)
+    ui(new Ui::CommunityFundCreateProposalDialog),
+    model(0)
 {
     ui->setupUi(this);
     GUIUtil::setupAddressWidget(ui->lineEditNavcoinAddress, this);
@@ -55,6 +57,11 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
     string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
     ui->labelWarning->setText(QString::fromStdString(warning));
+}
+
+void CommunityFundCreateProposalDialog::setModel(WalletModel *model)
+{
+    this->model = model;
 }
 
 // Validate input fields
@@ -103,6 +110,9 @@ void CommunityFundCreateProposalDialog::click_spinBox() {
 
 void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 {
+    if(!model)
+        return;
+
     if(this->validate())
     {
         LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -147,24 +157,10 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         }
 
         // Ensure wallet is unlocked
-        if (pwalletMain->IsLocked()) {
-            QMessageBox msgBox(this);
-            std::string str = "Please unlock the wallet\n";
-            msgBox.setText(tr(str.c_str()));
-            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle("Error");
-            msgBox.exec();
-            return;
-        }
-        if (fWalletUnlockStakingOnly) {
-            QMessageBox msgBox(this);
-            std::string str = "Wallet is unlocked for staking only\n";
-            msgBox.setText(tr(str.c_str()));
-            msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle("Error");
-            msgBox.exec();
+        WalletModel::UnlockContext ctx(model->requestUnlock());
+        if(!ctx.isValid())
+        {
+            // Unlock wallet was cancelled
             return;
         }
 
@@ -197,7 +193,6 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 return;
             }
             else {
-
                 // User accepted making the proposal
                 // Parse NavCoin address
                 CScript CFContributionScript;
