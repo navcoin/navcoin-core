@@ -3171,7 +3171,7 @@ CAmount GetTxStakeAmount(const CWalletTx* tx)
     // use the cached amount if available
     if ((tx->fCreditCached || tx->fColdStakingCreditCached) && (tx->fDebitCached || tx->fColdStakingDebitCached))
         return tx->nCreditCached + tx->nColdStakingCreditCached - tx->nDebitCached - tx->nColdStakingDebitCached;
-    // Check for cold staking 
+    // Check for cold staking
     else if (tx->vout[1].scriptPubKey.IsColdStaking())
         return tx->GetCredit(pwalletMain->IsMine(tx->vout[1])) - tx->GetDebit(pwalletMain->IsMine(tx->vout[1]));
 
@@ -3212,7 +3212,6 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 
     vStakePeriodRange_T::iterator vIt;
 
-    LOCK(cs_main);
     // scan the entire wallet transactions
     for (map<uint256, CWalletTx>::const_iterator it = pwalletMain->mapWallet.begin();
          it != pwalletMain->mapWallet.end();
@@ -3322,6 +3321,8 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
             "List last single 30 day stake subtotal and last 24h, 7, 30, 365 day subtotal.\n");
 
     vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
+
+    LOCK(cs_main);
 
     // get subtotal calc
     int64_t nTook = GetTimeMillis();
