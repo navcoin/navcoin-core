@@ -178,4 +178,6 @@ download-win:
 	@$(MAKE) -s HOST=x86_64-w64-mingw32 download-one
 download: download-osx download-linux download-win
 
-.PHONY: install cached download-one download-osx download-linux download-win download check-packages check-sources
+$(foreach package,$(all_packages),$(eval $(call ext_add_stages,$(package))))
+
+.PHONY: install cached clean clean-all download-one download-osx download-linux download-win download check-packages check-sources

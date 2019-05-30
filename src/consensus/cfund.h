@@ -16,6 +16,9 @@ using namespace std;
 
 class CTransaction;
 class CCoinsViewCache;
+class CBlockIndex;
+class CChainParams;
+class CValidationState;
 
 extern std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 extern std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
@@ -37,16 +40,10 @@ static const flags PENDING_VOTING_PREQ = 0x5;
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, bool vote);
-bool FindProposal(string propstr, CFund::CProposal &proposal);
-bool FindProposal(uint256 prophash, CFund::CProposal &proposal);
-bool FindPaymentRequest(uint256 preqhash, CFund::CPaymentRequest &prequest);
-bool FindPaymentRequest(string preqstr, CFund::CPaymentRequest &prequest);
-bool VoteProposal(string strProp, bool vote, bool &duplicate);
-bool VoteProposal(uint256 proposalHash, bool vote, bool &duplicate);
+bool VoteProposal(CProposal proposal, bool vote, bool &duplicate);
 bool RemoveVoteProposal(string strProp);
 bool RemoveVoteProposal(uint256 proposalHash);
-bool VotePaymentRequest(string strProp, bool vote, bool &duplicate);
-bool VotePaymentRequest(uint256 proposalHash, bool vote, bool &duplicate);
+bool VotePaymentRequest(CPaymentRequest prequest, bool vote, bool &duplicate);
 bool RemoveVotePaymentRequest(string strProp);
 bool RemoveVotePaymentRequest(uint256 proposalHash);
 bool IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int nMaxVersion);
@@ -69,6 +66,7 @@ public:
     string strDZeel;
     int nVersion;
     unsigned int nVotingCycle;
+    bool fDirty;
 
     CPaymentRequest() { SetNull(); }
 
@@ -85,6 +83,23 @@ public:
         strDZeel = "";
         nVersion = 0;
         nVotingCycle = 0;
+        fDirty = false;
+    }
+
+    void swap(CPaymentRequest &to) {
+        std::swap(to.nAmount, nAmount);
+        std::swap(to.fState, fState);
+        std::swap(to.hash, hash);
+        std::swap(to.proposalhash, proposalhash);
+        std::swap(to.txblockhash, txblockhash);
+        std::swap(to.blockhash, blockhash);
+        std::swap(to.paymenthash, paymenthash);
+        std::swap(to.nVotesYes, nVotesYes);
+        std::swap(to.nVotesNo, nVotesNo);
+        std::swap(to.strDZeel, strDZeel);
+        std::swap(to.nVersion, nVersion);
+        std::swap(to.nVotingCycle, nVotingCycle);
+        std::swap(to.fDirty, fDirty);
     }
 
     bool IsNull() const {
@@ -189,6 +204,7 @@ public:
     uint256 txblockhash;
     int nVersion;
     unsigned int nVotingCycle;
+    bool fDirty;
 
     CProposal() { SetNull(); }
 
@@ -206,6 +222,25 @@ public:
         blockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
+        fDirty = false;
+    }
+
+    void swap(CProposal &to) {
+        std::swap(to.nAmount, nAmount);
+        std::swap(to.nFee, nFee);
+        std::swap(to.Address, Address);
+        std::swap(to.nDeadline, nDeadline);
+        std::swap(to.fState, fState);
+        std::swap(to.nVotesYes, nVotesYes);
+        std::swap(to.nVotesNo, nVotesNo);
+        std::swap(to.vPayments, vPayments);
+        std::swap(to.strDZeel, strDZeel);
+        std::swap(to.hash, hash);
+        std::swap(to.txblockhash, txblockhash);
+        std::swap(to.blockhash, blockhash);
+        std::swap(to.nVersion, nVersion);
+        std::swap(to.nVotingCycle, nVotingCycle);
+        std::swap(to.fDirty, fDirty);
     }
 
     bool IsNull() const {
@@ -288,6 +323,10 @@ public:
 
     }
 };
+
+bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
+bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
+void CFundStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CCoinsViewCache& coins);
 
 }
 

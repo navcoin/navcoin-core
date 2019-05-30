@@ -289,6 +289,7 @@ bool IsInitialBlockDownload();
  * This function only returns the highest priority warning of the set selected by strFor.
  */
 std::string GetWarnings(const std::string& strFor);
+std::string GetWarnings(const std::string& strFor, bool fForStaking);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
@@ -638,11 +639,9 @@ static const unsigned int MAX_STANDARD_TX_SIZE = MAX_BLOCK_SIZE_GEN/5;
 
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
-void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCoinsViewCache& coins);
-
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
 
-bool NewProposal(const CTransaction& tx, const uint256& blockhash, const CAmount& nProposalFee, CValidationState& state);
-bool NewPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValidationState& state);
+bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal);
+bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
 
 #endif // NAVCOIN_MAIN_H
