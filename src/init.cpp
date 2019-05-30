@@ -197,6 +197,24 @@ public:
             abort();
         }
     }
+    bool GetProposal(const uint256 &id, CFund::CProposal &proposal) const {
+        try {
+            return CCoinsViewBacked::GetProposal(id, proposal);
+        } catch(const std::runtime_error& e) {
+            uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
+            LogPrintf("Error reading from database: %s\n", e.what());
+            abort();
+        }
+    }
+    bool GetPaymentRequest(const uint256 &id, CFund::CPaymentRequest &prequest) const {
+        try {
+            return CCoinsViewBacked::GetPaymentRequest(id, prequest);
+        } catch(const std::runtime_error& e) {
+            uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
+            LogPrintf("Error reading from database: %s\n", e.what());
+            abort();
+        }
+    }
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 
@@ -1632,6 +1650,49 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     strLoadError = _("Corrupted block database detected");
                     break;
                 }
+
+                std::vector<CFund::CProposal> vProposals;
+
+                if (pblocktree->GetProposalIndex(vProposals))
+                {
+                    if (vProposals.size() > 0)
+                    {
+                        LogPrintf("Importing %d proposals to the new CoinsDB...\n", vProposals.size());
+                        std::vector<std::pair<uint256, CFund::CProposal>> vToRemove;
+                        for (auto& it: vProposals)
+                        {
+                            pcoinsTip->AddProposal(it);
+                            vToRemove.push_back(make_pair(it.hash, CProposal()));
+                        }
+                        if (!pblocktree->UpdateProposalIndex(vToRemove))
+                        {
+                            strLoadError = _("Could not clean old Community Fund DB");
+                            break;
+                        }
+                    }
+                }
+
+                std::vector<CFund::CPaymentRequest> vPaymentRequests;
+
+                if (pblocktree->GetPaymentRequestIndex(vPaymentRequests))
+                {
+                    if (vPaymentRequests.size() > 0)
+                    {
+                        LogPrintf("Importing %d payment requests to the new CoinsDB...\n", vPaymentRequests.size());
+                        std::vector<std::pair<uint256, CFund::CPaymentRequest>> vToRemove;
+                        for (auto& it: vPaymentRequests)
+                        {
+                            pcoinsTip->AddPaymentRequest(it);
+                            vToRemove.push_back(make_pair(it.hash, CPaymentRequest()));
+                        }
+                        if (!pblocktree->UpdatePaymentRequestIndex(vToRemove))
+                        {
+                            strLoadError = _("Could not clean old Community Fund DB");
+                            break;
+                        }
+                    }
+                }
+
             } catch (const std::exception& e) {
                 if (fDebug) LogPrintf("%s\n", e.what());
                 strLoadError = _("Error opening block database");

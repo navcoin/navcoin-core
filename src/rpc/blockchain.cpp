@@ -934,10 +934,16 @@ UniValue listproposals(const UniValue& params, bool fHelp)
         }
     }
 
-    std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals))
     {
-        BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            CFund::CProposal proposal;
+            if (!pcoinsTip->GetProposal(it->first, proposal))
+                continue;
+
             if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
                             || proposal.fState == CFund::PENDING_VOTING_PREQ
                             || proposal.fState == CFund::PENDING_FUNDS))
@@ -966,6 +972,8 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             + HelpExampleRpc("cfundstats", "")
         );
 
+    LOCK(cs_main);
+
     CFund::CProposal proposal; CFund::CPaymentRequest prequest;
 
     int nBlocks = (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
@@ -981,7 +989,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     while(nBlocks > 0 && pindexblock != NULL) {
         vSeen.clear();
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
-            if(!CFund::FindProposal(pindexblock->vProposalVotes[i].first, proposal))
+            if(!pcoinsTip->GetProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
             if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
                 if(vCacheProposalsRPC.count(pindexblock->vProposalVotes[i].first) == 0)
@@ -994,9 +1002,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             }
         }
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
-            if(!CFund::FindPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
+            if(!pcoinsTip->GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
-            if(!CFund::FindProposal(prequest.proposalhash, proposal))
+            if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
                 continue;
             if (mapBlockIndex.count(proposal.blockhash) == 0)
                 continue;
@@ -1049,7 +1057,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     std::map<uint256, std::pair<int, int>>::iterator it;
     for(it = vCacheProposalsRPC.begin(); it != vCacheProposalsRPC.end(); it++) {
         CFund::CProposal proposal;
-        if(!CFund::FindProposal(it->first, proposal))
+        if(!pcoinsTip->GetProposal(it->first, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("str", proposal.strDZeel));
@@ -1061,9 +1069,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     }
     for(it = vCachePaymentRequestRPC.begin(); it != vCachePaymentRequestRPC.end(); it++) {
         CFund::CPaymentRequest prequest; CFund::CProposal proposal;
-        if(!CFund::FindPaymentRequest(it->first, prequest))
+        if(!pcoinsTip->GetPaymentRequest(it->first, prequest))
             continue;
-        if(!CFund::FindProposal(prequest.proposalhash, proposal))
+        if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
             continue;
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("hash", prequest.hash.ToString()));
@@ -1506,7 +1514,7 @@ UniValue getproposal(const UniValue& params, bool fHelp)
     LOCK(cs_main);
 
     CFund::CProposal proposal;
-    if(!CFund::FindProposal(params[0].get_str(), proposal))
+    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not found");
 
     UniValue ret(UniValue::VOBJ);
@@ -1526,8 +1534,10 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
                 "1. hash   (string, required) the hash of the payment request\n"
         );
 
+    LOCK(cs_main);
+
     CFund::CPaymentRequest prequest;
-    if(!CFund::FindPaymentRequest(params[0].get_str(), prequest))
+    if(!pcoinsTip->GetPaymentRequest(uint256S(params[0].get_str()), prequest))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Payment request not found");
 
     UniValue ret(UniValue::VOBJ);

@@ -91,7 +91,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
         // Get Proposal
         CFund::CProposal proposal;
-        if(!CFund::FindProposal(ui->lineEditProposalHash->text().toStdString(), proposal)) {
+        if(!pcoinsTip->GetProposal(uint256S(ui->lineEditProposalHash->text().toStdString()), proposal)) {
             QMessageBox msgBox(this);
             std::string str = "Proposal could not be found with that hash\n";
             msgBox.setText(tr(str.c_str()));
@@ -328,8 +328,18 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 bool CommunityFundCreatePaymentRequestDialog::isActiveProposal(uint256 hash)
 {
     std::vector<CFund::CProposal> vec;
-    if(pblocktree->GetProposalIndex(vec))
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals))
     {
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            CFund::CProposal proposal;
+            if (!pcoinsTip->GetProposal(it->first, proposal))
+                continue;
+            vec.push_back(proposal);
+        }
+
         if(std::find_if(vec.begin(), vec.end(), [&hash](CFund::CProposal& obj) {return obj.hash == hash;}) == vec.end())
         {
             return false;

@@ -136,4 +136,6 @@ ui_*.h
 # IDE specific
 .idea/*
 .vscode
-*.creator.user
+*.cflags
+*.cxxflags
+*.creator.*
