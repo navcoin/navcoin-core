@@ -27,6 +27,7 @@
 #include <stdint.h>
 
 #include <boost/assign/list_of.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/lexical_cast.hpp>
 #include <univalue.h>
 
@@ -657,7 +658,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CFund::CProposal proposal;
 
-    if(!CFund::FindProposal(params[0].get_str(),proposal))
+    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
     if(proposal.fState != CFund::ACCEPTED)
@@ -3225,15 +3226,15 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     vStakePeriodRange_T aRange;
     StakePeriodRange_T x;
 
-    struct tm Loc_MidNight;
 
     int64_t n1Hour = 60*60;
     int64_t n1Day = 24 * n1Hour;
 
     int64_t nToday = GetTime();
     time_t CurTime = nToday;
+    auto localTime = boost::posix_time::second_clock::local_time();
+    struct tm Loc_MidNight = boost::posix_time::to_tm(localTime);
 
-    localtime_r(&CurTime, &Loc_MidNight);
     Loc_MidNight.tm_hour = 0;
     Loc_MidNight.tm_min = 0;
     Loc_MidNight.tm_sec = 0;  // set midnight
@@ -3380,26 +3381,33 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     UniValue novotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    std::vector<CFund::CProposal> vec;
-     if(pblocktree->GetProposalIndex(vec))
-     {
-         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-             if (proposal.fState != CFund::NIL)
-                 continue;
-             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                 [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-             UniValue p(UniValue::VOBJ);
-             proposal.ToJson(p, *pcoinsTip);
-             if (it != vAddedProposalVotes.end()) {
-                 if (it->second)
-                     yesvotes.push_back(p);
-                 else
-                     novotes.push_back(p);
-             } else {
-                 nullvotes.push_back(p);
-             }
-         }
-     }
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals))
+    {
+        for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
+        {
+            CFund::CProposal proposal;
+
+            if (!pcoinsTip->GetProposal(it_->first, proposal))
+                continue;
+
+            if (proposal.fState != CFund::NIL)
+                continue;
+            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+            UniValue p(UniValue::VOBJ);
+            proposal.ToJson(p, *pcoinsTip);
+            if (it != vAddedProposalVotes.end()) {
+                if (it->second)
+                    yesvotes.push_back(p);
+                else
+                    novotes.push_back(p);
+            } else {
+                nullvotes.push_back(p);
+            }
+        }
+    }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));
@@ -3430,32 +3438,47 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CFund::CProposal proposal;
+    if (!pcoinsTip->GetProposal(uint256S(strHash), proposal))
+    {
+        return NullUniValue;
+    }
+
     if (strCommand == "yes")
     {
-      bool ret = CFund::VoteProposal(strHash,true,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
+        bool ret = CFund::VoteProposal(proposal,true,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
     }
     else if (strCommand == "no")
     {
-      bool ret = CFund::VoteProposal(strHash,false,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
+        bool ret = CFund::VoteProposal(proposal,false,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
     }
     else if(strCommand == "remove")
     {
-      bool ret = CFund::RemoveVoteProposal(strHash);
-      if (ret) {
-        return NullUniValue;
-      } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is not in the list: ")+strHash);
-      }
+        bool ret = CFund::RemoveVoteProposal(strHash);
+        if (ret)
+        {
+            return NullUniValue;
+        }
+        else
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is not in the list: ")+strHash);
+        }
     }
 
     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
@@ -3482,26 +3505,33 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue novotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    std::vector<CFund::CPaymentRequest> vec;
-     if(pblocktree->GetPaymentRequestIndex(vec))
-     {
-         BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-             if (prequest.fState != CFund::NIL)
-                 continue;
-             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                 [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
-             UniValue p(UniValue::VOBJ);
-             prequest.ToJson(p);
-             if (it != vAddedPaymentRequestVotes.end()) {
-                 if (it->second)
-                     yesvotes.push_back(p);
-                 else
-                     novotes.push_back(p);
-             } else {
-                 nullvotes.push_back(p);
-             }
-         }
-     }
+    CPaymentRequestMap mapPaymentRequests;
+
+    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    {
+        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+        {
+            CFund::CPaymentRequest prequest;
+
+            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                continue;
+
+            if (prequest.fState != CFund::NIL)
+                continue;
+            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+            UniValue p(UniValue::VOBJ);
+            prequest.ToJson(p);
+            if (it != vAddedPaymentRequestVotes.end()) {
+                if (it->second)
+                    yesvotes.push_back(p);
+                else
+                    novotes.push_back(p);
+            } else {
+                nullvotes.push_back(p);
+            }
+        }
+    }
 
     ret.push_back(Pair("yes",yesvotes));
     ret.push_back(Pair("no",novotes));
@@ -3532,9 +3562,16 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CFund::CPaymentRequest prequest;
+
+    if (!pcoinsTip->GetPaymentRequest(uint256S(strHash), prequest))
+    {
+        return NullUniValue;
+    }
+
     if (strCommand == "yes")
     {
-      bool ret = CFund::VotePaymentRequest(strHash,true,duplicate);
+      bool ret = CFund::VotePaymentRequest(prequest,true,duplicate);
       if (duplicate) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
       } else if (ret) {
@@ -3543,7 +3580,7 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     }
     else if (strCommand == "no")
     {
-      bool ret = CFund::VotePaymentRequest(strHash,false,duplicate);
+      bool ret = CFund::VotePaymentRequest(prequest,false,duplicate);
       if (duplicate) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
       } else if (ret) {

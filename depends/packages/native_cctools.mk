@@ -22,12 +22,12 @@ define $(package)_extract_cmds
   echo "$($(package)_clang_sha256_hash)  $($(package)_source_dir)/$($(package)_clang_file_name)" >> $($(package)_extract_dir)/.$($(package)_file_name).hash && \
   $(build_SHA256SUM) -c $($(package)_extract_dir)/.$($(package)_file_name).hash && \
   mkdir -p toolchain/bin toolchain/lib/clang/3.5/include && \
-  tar --strip-components=1 -C toolchain -xf $($(package)_source_dir)/$($(package)_clang_file_name) && \
+  tar --no-same-owner --strip-components=1 -C toolchain -xf $($(package)_source_dir)/$($(package)_clang_file_name) && \
   rm -f toolchain/lib/libc++abi.so* && \
   echo "#!/bin/sh" > toolchain/bin/$(host)-dsymutil && \
   echo "exit 0" >> toolchain/bin/$(host)-dsymutil && \
   chmod +x toolchain/bin/$(host)-dsymutil && \
-  tar --strip-components=1 -xf $($(package)_source)
+  tar --no-same-owner --strip-components=1 -xf $($(package)_source)
 endef
 
 define $(package)_set_vars
@@ -38,7 +38,8 @@ $(package)_cxx=$($(package)_extract_dir)/toolchain/bin/clang++
 endef
 
 define $(package)_preprocess_cmds
-  cd $($(package)_build_subdir); ./autogen.sh
+  cd $($(package)_build_subdir); ./autogen.sh && \
+  sed -i.old "/define HAVE_PTHREADS/d" ld64/src/ld/InputFiles.h
 endef
 
 define $(package)_config_cmds

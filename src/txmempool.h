@@ -226,7 +226,7 @@ struct mempoolentry_txid
 class CompareTxMemPoolEntryByDescendantScore
 {
 public:
-    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b)
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
     {
         bool fUseADescendants = UseDescendantScore(a);
         bool fUseBDescendants = UseDescendantScore(b);
@@ -248,7 +248,7 @@ public:
     }
 
     // Calculate which score to use for an entry (avoiding division).
-    bool UseDescendantScore(const CTxMemPoolEntry &a)
+    bool UseDescendantScore(const CTxMemPoolEntry &a) const
     {
         double f1 = (double)a.GetModifiedFee() * a.GetSizeWithDescendants();
         double f2 = (double)a.GetModFeesWithDescendants() * a.GetTxSize();
@@ -263,7 +263,7 @@ public:
 class CompareTxMemPoolEntryByScore
 {
 public:
-    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b)
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
     {
         double f1 = (double)a.GetModifiedFee() * b.GetTxSize();
         double f2 = (double)b.GetModifiedFee() * a.GetTxSize();
@@ -277,7 +277,7 @@ public:
 class CompareTxMemPoolEntryByEntryTime
 {
 public:
-    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b)
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
     {
         return a.GetTime() < b.GetTime();
     }
@@ -286,7 +286,7 @@ public:
 class CompareTxMemPoolEntryByAncestorFee
 {
 public:
-    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b)
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
     {
         double aFees = a.GetModFeesWithAncestors();
         double aSize = a.GetSizeWithAncestors();
@@ -462,6 +462,8 @@ public:
 
     mutable CCriticalSection cs;
     indexed_transaction_set mapTx;
+    CProposalMap mapProposal;
+    CPaymentRequestMap mapPaymentRequest;
 
     typedef indexed_transaction_set::nth_index<0>::type::iterator txiter;
     std::vector<std::pair<uint256, txiter> > vTxHashes; //!< All tx hashes/entries in mapTx, in random order
@@ -530,6 +532,9 @@ public:
     // then invoke the second version.
     bool addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry, bool fCurrentEstimate = true);
     bool addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry, setEntries &setAncestors, bool fCurrentEstimate = true);
+
+    bool AddProposal(const CProposal& proposal);
+    bool AddPaymentRequest(const CPaymentRequest& prequest);
 
     void addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
     bool getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
@@ -716,6 +721,13 @@ public:
     CCoinsViewMemPool(CCoinsView* baseIn, const CTxMemPool& mempoolIn);
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
+    bool HaveProposal(const uint256 &pid) const;
+    bool HavePaymentRequest(const uint256 &prid) const;
+    bool GetProposal(const uint256 &txid, CProposal &proposal) const;
+    bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
+    bool GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests);
+    bool AddProposal(const CProposal& proposal) const;
+    bool AddPaymentRequest(const CPaymentRequest& prequest) const;
 };
 
 // We want to sort transactions by coin age priority

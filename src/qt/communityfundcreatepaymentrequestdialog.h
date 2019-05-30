@@ -1,9 +1,11 @@
 #ifndef COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H
 #define COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H
 
-#include <QDialog>
 #include "../qvalidatedplaintextedit.h"
 #include "uint256.h"
+#include "walletmodel.h"
+
+#include <QDialog>
 
 namespace Ui {
 class CommunityFundCreatePaymentRequestDialog;
@@ -17,8 +19,11 @@ public:
     explicit CommunityFundCreatePaymentRequestDialog(QWidget *parent = 0);
     ~CommunityFundCreatePaymentRequestDialog();
 
+    void setModel(WalletModel *model);
+
 private:
     Ui::CommunityFundCreatePaymentRequestDialog *ui;
+    WalletModel *model;
     bool validate();
     bool isActiveProposal(uint256 hash);
 

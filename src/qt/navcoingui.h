@@ -114,6 +114,7 @@ private:
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
+    QAction *infoAction;
     QAction *receiveCoinsAction;
     QAction *receiveCoinsMenuAction;
     QAction *optionsAction;
@@ -257,6 +258,8 @@ private Q_SLOTS:
     void cfundPaymentRequestsClicked();
     /** Show about dialog */
     void aboutClicked();
+    /** Open NavCoin Knowledge base */
+    void infoClicked();
     /** Show debug window */
     void showDebugWindow();
     /** Show debug window and set focus to the console */

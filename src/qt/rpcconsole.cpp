@@ -35,6 +35,7 @@
 #include <QScrollBar>
 #include <QSettings>
 #include <QSignalMapper>
+
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
