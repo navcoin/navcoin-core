@@ -118,11 +118,17 @@ void CommunityFundPage::refresh(bool all, bool proposal)
 
     {
         int64_t spent_nav = 0;
-        std::vector<CFund::CPaymentRequest> vec;
-        if(pblocktree->GetPaymentRequestIndex(vec))
+        CPaymentRequestMap mapPaymentRequests;
+
+        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
         {
-            BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec)
+            for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
+                CFund::CPaymentRequest prequest;
+
+                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                    continue;
+
                 if(prequest.fState == CFund::ACCEPTED)
                 {
                     spent_nav = spent_nav + prequest.nAmount;
@@ -137,10 +143,16 @@ void CommunityFundPage::refresh(bool all, bool proposal)
 
     // Propulate proposal grid
     if (proposal) {
-        std::vector<CFund::CProposal> vec;
-        if(pblocktree->GetProposalIndex(vec))
+        CProposalMap mapProposals;
+
+        if(pcoinsTip->GetAllProposals(mapProposals))
         {
-            BOOST_FOREACH(const CFund::CProposal proposal, vec) {
+            for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+            {
+                CFund::CProposal proposal;
+                if (!pcoinsTip->GetProposal(it->first, proposal))
+                    continue;
+
                 // If wanting to view all proposals
                 if (all) {
                     append(new CommunityFundDisplay(0, proposal));
@@ -214,10 +226,17 @@ void CommunityFundPage::refresh(bool all, bool proposal)
     }
     else
     { //Payment request listings
-        std::vector<CFund::CPaymentRequest> vec;
-        if(pblocktree->GetPaymentRequestIndex(vec))
+        CPaymentRequestMap mapPaymentRequests;
+
+        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
         {
-            BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+            for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+            {
+                CFund::CPaymentRequest prequest;
+
+                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                    continue;
+
                 // If wanting to view all prequests
                 if (all)
                 {

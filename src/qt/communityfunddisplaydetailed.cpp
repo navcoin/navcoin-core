@@ -187,26 +187,32 @@ void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *but
     //cast the vote
     bool duplicate = false;
 
+    CFund::CProposal p;
+    if (!pcoinsTip->GetProposal(uint256S(proposal.hash.ToString()), p))
+    {
+        return;
+    }
+
     if (ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::VoteProposal(proposal.hash.ToString(), true, duplicate);
+        CFund::VoteProposal(p, true, duplicate);
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
-        CFund::VoteProposal(proposal.hash.ToString(), false, duplicate);
+        CFund::VoteProposal(p, false, duplicate);
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::RemoveVoteProposal(proposal.hash.ToString());
+        CFund::RemoveVoteProposal(p.hash.ToString());
     }
     else {
         return;

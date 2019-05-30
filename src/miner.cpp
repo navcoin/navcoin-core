@@ -213,7 +213,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             CFund::CProposal proposal;
             bool vote = vAddedProposalVotes[i].second;
-            if(CFund::FindProposal(vAddedProposalVotes[i].first, proposal))
+            if(pcoinsTip->GetProposal(uint256S(vAddedProposalVotes[i].first), proposal))
             {
                 if(proposal.CanVote() && votes.count(proposal.hash) == 0)
                 {
@@ -230,9 +230,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             bool vote = vAddedPaymentRequestVotes[i].second;
-            if(CFund::FindPaymentRequest(vAddedPaymentRequestVotes[i].first, prequest))
+            if(pcoinsTip->GetPaymentRequest(uint256S(vAddedPaymentRequestVotes[i].first), prequest))
             {
-                if(!CFund::FindProposal(prequest.proposalhash, proposal))
+                if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
                     continue;
                 if (mapBlockIndex.count(proposal.blockhash) == 0)
                     continue;
@@ -252,10 +252,17 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         }
 
         UniValue strDZeel(UniValue::VARR);
-        std::vector<CFund::CPaymentRequest> vec;
-        if(pblocktree->GetPaymentRequestIndex(vec))
+        CPaymentRequestMap mapPaymentRequests;
+
+        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
         {
-            BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
+            for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+            {
+                CFund::CPaymentRequest prequest;
+
+                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                    continue;
+
                 if (mapBlockIndex.count(prequest.blockhash) == 0)
                     continue;
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
@@ -266,7 +273,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal proposal;
-                    if(CFund::FindProposal(prequest.proposalhash, proposal)) {
+                    if(pcoinsTip->GetProposal(prequest.proposalhash, proposal)) {
                         CNavCoinAddress addr(proposal.Address);
                         if (!addr.IsValid())
                             continue;
