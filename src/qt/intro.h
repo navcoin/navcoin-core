@@ -44,6 +44,7 @@ public:
      * Determine default data directory for operating system.
      */
     static QString getDefaultDataDirectory();
+    static void makeDefaultConfF();
 
 Q_SIGNALS:
     void requestCheck();
