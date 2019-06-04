@@ -515,6 +515,7 @@ if test x$use_glibc_compat != xno; then
   AC_DEFINE_UNQUOTED(FDELT_TYPE, $fdelt_type,[parameter and return value type for __fdelt_chk])
   AX_CHECK_LINK_FLAG([[-Wl,--wrap=__divmoddi4]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=__divmoddi4"])
   AX_CHECK_LINK_FLAG([[-Wl,--wrap=log2f]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=log2f"])
+  AX_CHECK_LINK_FLAG([[-Wl,--wrap=glob]], [COMPAT_LDFLAGS="$COMPAT_LDFLAGS -Wl,--wrap=glob"])
 else
   AC_SEARCH_LIBS([clock_gettime],[rt])
 fi
@@ -835,8 +836,7 @@ else
 
   AC_CHECK_HEADER([openssl/ssl.h],, AC_MSG_ERROR(libssl headers missing),)
   AC_CHECK_LIB([ssl],         [main],SSL_LIBS=-lssl, AC_MSG_ERROR(libssl missing))
-  AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound
-    have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
+  AC_CHECK_LIB([unbound],     [main],[UNBOUND_LIBS=-lunbound have_unbound=yes], [AC_MSG_ERROR(libunbound missing)])
   AC_CHECK_LIB([curl],        [main],CURL_LIBS=-lcurl, AC_MSG_ERROR(libcurl missing))
 
   if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
