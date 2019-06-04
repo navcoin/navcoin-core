@@ -315,7 +315,8 @@ RPCConsole::~RPCConsole()
     GUIUtil::saveWindowGeometry("nRPCConsoleWindow", this);
     Q_EMIT stopExecutor();
     RPCUnsetTimerInterface(rpcTimerInterface);
-    errorLogFile->close();
+    if (errorLogFile)
+        errorLogFile->close();
     delete rpcTimerInterface;
     delete ui;
 }
