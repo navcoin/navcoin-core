@@ -101,6 +101,13 @@ extern "C" int __wrap_glob(const char * pattern, int flags, int (*errfunc) (cons
     return glob_old(pattern, flags, errfunc, pglob);
 }
 
+#ifdef __i386__
+extern "C" int __wrap_glob64(const char * pattern, int flags, int (*errfunc) (const char *epath, int eerrno), glob_t *pglob)
+{
+    return glob_old(pattern, flags, errfunc, pglob);
+}
+#endif
+
 extern "C" int __poll_chk(struct pollfd *fds, nfds_t nfds, int timeout, size_t fdslen)
 {
     assert((fdslen / sizeof(*fds)) < nfds);
