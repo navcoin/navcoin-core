@@ -101,7 +101,7 @@ extern "C" int __wrap_glob(const char * pattern, int flags, int (*errfunc) (cons
     return glob_old(pattern, flags, errfunc, pglob);
 }
 
-#ifdef __i386__
+#if defined(__i386__) || defined(__arm__)
 extern "C" int __wrap_glob64(const char * pattern, int flags, int (*errfunc) (const char *epath, int eerrno), glob_t *pglob)
 {
     return glob_old(pattern, flags, errfunc, pglob);
