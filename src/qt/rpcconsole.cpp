@@ -323,7 +323,7 @@ RPCConsole::~RPCConsole()
 void RPCConsole::errorLogInitPos()
 {
     // Check if we already have the file
-    if (errorLogFile != NULL) {
+    if (errorLogFile == NULL) {
         // Get a QFile instance
         errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
     }
