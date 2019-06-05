@@ -196,8 +196,8 @@ DNSResolver::DNSResolver() : m_data(new DNSResolverData())
         ub_ctx_set_option(m_data->m_ub_context, string_copy("do-tcp:"), string_copy("yes"));
     } else {
         // look for "/etc/resolv.conf" and "/etc/hosts" or platform equivalent
-        ub_ctx_resolvconf(m_data->m_ub_context, NULL);
-        ub_ctx_hosts(m_data->m_ub_context, NULL);
+        ub_ctx_resolvconf(m_data->m_ub_context, nullptr);
+        ub_ctx_hosts(m_data->m_ub_context, nullptr);
     }
 
     const char * const *ds = ::get_builtin_ds();
@@ -212,7 +212,7 @@ DNSResolver::~DNSResolver()
 {
     if (m_data)
     {
-        if (m_data->m_ub_context != NULL)
+        if (m_data->m_ub_context != nullptr)
         {
             ub_ctx_delete(m_data->m_ub_context);
         }
@@ -244,7 +244,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
             if(!result->secure && result->bogus)
                 LogPrintf("[DNSResolver] DNSSec bogus entry for %s found: %s\n", url.c_str(), result->why_bogus);
 
-            for (size_t i=0; result->data[i] != NULL; i++)
+            for (size_t i=0; result->data[i] != nullptr; i++)
             {
                 addresses.push_back((*reader)(result->data[i], result->len[i]));
             }
@@ -298,7 +298,7 @@ std::vector<std::string> DNSResolver::get_record(const std::string& url, int rec
     bool DNSResolver::check_address_syntax(const char *addr) const
     {
         // if string doesn't contain a dot, we won't consider it a url for now.
-        if (strchr(addr,'.') == NULL)
+        if (strchr(addr,'.') == nullptr)
         {
             return false;
         }

@@ -199,10 +199,10 @@ static boost::once_flag errorPrintInitFlag = BOOST_ONCE_INIT;
  * up by the OS/libc. When the shutdown sequence is fully audited and
  * tested, explicit destruction of these objects can be implemented.
  */
-static FILE* fileoutDebugLog = NULL;
-static FILE* fileoutErrorLog = NULL;
-static boost::mutex* mutexDebugLog = NULL;
-static boost::mutex* mutexErrorLog = NULL;
+static FILE* fileoutDebugLog = nullptr;
+static FILE* fileoutErrorLog = nullptr;
+static boost::mutex* mutexDebugLog = nullptr;
+static boost::mutex* mutexErrorLog = nullptr;
 static list<string> *vMsgsBeforeOpenDebugLog;
 static list<string> *vMsgsBeforeOpenErrorLog;
 
@@ -226,14 +226,14 @@ static int ErrorLogWriteStr(const std::string &str)
 
 static void DebugPrintInit()
 {
-    assert(mutexDebugLog == NULL);
+    assert(mutexDebugLog == nullptr);
     mutexDebugLog = new boost::mutex();
     vMsgsBeforeOpenDebugLog = new list<string>;
 }
 
 static void ErrorPrintInit()
 {
-    assert(mutexErrorLog == NULL);
+    assert(mutexErrorLog == nullptr);
     mutexErrorLog = new boost::mutex();
     vMsgsBeforeOpenErrorLog = new list<string>;
 }
@@ -245,18 +245,18 @@ void OpenDebugLog()
     boost::mutex::scoped_lock scoped_lock_debug(*mutexDebugLog);
     boost::mutex::scoped_lock scoped_lock_error(*mutexErrorLog);
 
-    assert(fileoutDebugLog == NULL);
-    assert(fileoutErrorLog == NULL);
+    assert(fileoutDebugLog == nullptr);
+    assert(fileoutErrorLog == nullptr);
     assert(vMsgsBeforeOpenDebugLog);
     assert(vMsgsBeforeOpenErrorLog);
 
     // Open the debug log
     fileoutDebugLog = fopen(GetDebugLogPath().string().c_str(), "a");
-    if (fileoutDebugLog) setbuf(fileoutDebugLog, NULL); // unbuffered
+    if (fileoutDebugLog) setbuf(fileoutDebugLog, nullptr); // unbuffered
 
     // Open the error log
     fileoutErrorLog = fopen(GetErrorLogPath().string().c_str(), "a");
-    if (fileoutErrorLog) setbuf(fileoutErrorLog, NULL); // unbuffered
+    if (fileoutErrorLog) setbuf(fileoutErrorLog, nullptr); // unbuffered
 
     // dump buffered messages from before we opened the log
     while (!vMsgsBeforeOpenDebugLog->empty()) {
@@ -272,13 +272,13 @@ void OpenDebugLog()
 
     delete vMsgsBeforeOpenDebugLog;
     delete vMsgsBeforeOpenErrorLog;
-    vMsgsBeforeOpenDebugLog = NULL;
-    vMsgsBeforeOpenErrorLog = NULL;
+    vMsgsBeforeOpenDebugLog = nullptr;
+    vMsgsBeforeOpenErrorLog = nullptr;
 }
 
 bool LogAcceptCategory(const char* category)
 {
-    if (category != NULL)
+    if (category != nullptr)
     {
         if (!fDebug)
             return false;
@@ -288,7 +288,7 @@ bool LogAcceptCategory(const char* category)
         // where mapMultiArgs might be deleted before another
         // global destructor calls LogPrint()
         static boost::thread_specific_ptr<set<string> > ptrCategory;
-        if (ptrCategory.get() == NULL)
+        if (ptrCategory.get() == nullptr)
         {
             const vector<string>& categories = mapMultiArgs["-debug"];
             ptrCategory.reset(new set<string>(categories.begin(), categories.end()));
@@ -364,7 +364,7 @@ int DebugLogPrintStr(const std::string &str)
         boost::mutex::scoped_lock scoped_lock_debug(*mutexDebugLog);
 
         // buffer if we haven't opened the log yet
-        if (fileoutDebugLog == NULL) {
+        if (fileoutDebugLog == nullptr) {
             assert(vMsgsBeforeOpenDebugLog);
             ret = strTimestamped.length();
             vMsgsBeforeOpenDebugLog->push_back(strTimestamped);
@@ -405,7 +405,7 @@ int ErrorLogPrintStr(const std::string &str)
         boost::mutex::scoped_lock scoped_lock_error(*mutexErrorLog);
 
         // buffer if we haven't opened the log yet
-        if (fileoutErrorLog == NULL) {
+        if (fileoutErrorLog == nullptr) {
             assert(vMsgsBeforeOpenErrorLog);
             ret = strTimestamped.length();
             vMsgsBeforeOpenErrorLog->push_back(strTimestamped);
@@ -955,7 +955,7 @@ void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize)
             fclose(file);
         }
     }
-    else if (file != NULL)
+    else if (file != nullptr)
         fclose(file);
 }
 

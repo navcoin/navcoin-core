@@ -233,7 +233,7 @@ int Navtech::PublicEncrypt(unsigned char* data, int data_len, unsigned char* key
 
 RSA * Navtech::CreateRSA(unsigned char * key,int isPublic)
 {
-    RSA *rsa= NULL;
+    RSA *rsa= nullptr;
     BIO *keybio ;
     keybio = BIO_new_mem_buf(key, -1);
     if (keybio==NULL)
@@ -243,13 +243,13 @@ RSA * Navtech::CreateRSA(unsigned char * key,int isPublic)
     }
     if(isPublic)
     {
-        rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
+        rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, nullptr);
     }
     else
     {
-        rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
+        rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, nullptr);
     }
-    if(rsa == NULL)
+    if(rsa == nullptr)
     {
         LogPrintf("Failed to create RSA\n");
     }
