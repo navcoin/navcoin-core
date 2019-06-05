@@ -196,7 +196,6 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
 
     def check_good_proposal(self, proposal):
 
-        assert (proposal['votingCycle'] == 0)
         assert (proposal['version'] == 2)
         assert (proposal['paymentAddress'] == self.goodAddress)
         assert (proposal['proposalDuration'] == self.goodDuration)
