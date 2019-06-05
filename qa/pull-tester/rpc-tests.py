@@ -28,7 +28,6 @@ import sys
 import subprocess
 import tempfile
 import re
-import logging
 
 sys.path.append("qa/pull-tester/")
 from tests_config import *
@@ -264,7 +263,7 @@ def runtests():
 
         # Check if we need to quit
         if FAILFAST and not passed:
-            logging.debug("Early exiting after test failure")
+            print("Early exiting after test failure")
             break
 
     results += BOLD[1] + "\n%s | %s | %s s (accumulated)" % ("ALL".ljust(max_len_name), str(all_passed).ljust(6), time_sum) + BOLD[0]
