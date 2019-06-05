@@ -258,7 +258,8 @@ RPCConsole::RPCConsole(const PlatformStyle *platformStyle, QWidget *parent) :
     platformStyle(platformStyle),
     peersTableContextMenu(0),
     banTableContextMenu(0),
-    consoleFontSize(0)
+    consoleFontSize(0),
+    errorLogFile(0)
 {
     ui->setupUi(this);
     GUIUtil::restoreWindowGeometry("nRPCConsoleWindow", this->size(), this);
@@ -328,6 +329,11 @@ void RPCConsole::errorLogInitPos()
         errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
     }
 
+    // Check if we have a log file
+    // We can't tail a missing file
+    if (!errorLogFile->exists())
+        return;
+
     // Try to open file
     if (!errorLogFile->open(QFile::ReadOnly | QFile::Text))
         return;
@@ -373,6 +379,11 @@ void RPCConsole::errorLogRefresh()
     // Check if we have initialized debug log already
     if (!errorLogInitPosDone)
         errorLogInitPos();
+
+    // Check if log initialized
+    // We can't tail a missing file
+    if (!errorLogInitPosDone)
+        return;
 
     // Load the stream
     QTextStream in(errorLogFile);
