@@ -202,6 +202,8 @@ void Intro::pickDataDirectory()
                     boost::filesystem::detail::copy_file(GUIUtil::qstringToBoostPath(oldWallet),GUIUtil::qstringToBoostPath(dataDir + QDir::separator() + "wallet.dat"),boost::filesystem::detail::none);
                     SoftSetArg("-zapwallettxes","2");
                 }
+                makeDefaultConfF();
+
                 WriteConfigFile("addanonserver", "95.183.52.55:3000");
                 WriteConfigFile("addanonserver", "95.183.52.28:3000");
                 WriteConfigFile("addanonserver", "95.183.52.29:3000");
@@ -224,6 +226,64 @@ void Intro::pickDataDirectory()
      */
     if(dataDir != getDefaultDataDirectory())
         SoftSetArg("-datadir", GUIUtil::qstringToBoostPath(dataDir).string()); // use OS locale for path setting
+}
+
+void Intro::makeDefaultConfF()
+{
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+
+    if (streamConfig.good() == false)
+    {
+        char t[] = R"(##
+## navcoin.conf configuration file. Lines beginning with # are comments.
+##
+ 
+# Network-related settings:
+
+# Run on the test network instead of the real navcoin network.
+#testnet=0
+
+# Run a regression test network
+#regtest=0
+
+#
+# JSON-RPC options (for controlling a running NavCoin/navcoind process)
+#
+
+# server=1 tells NavCoin-Qt and navcoind to accept JSON-RPC commands
+#server=0
+
+# You must set rpcuser and rpcpassword to secure the JSON-RPC api
+#rpcuser=Ulysseys
+#rpcpassword=YourSuperGreatPasswordNumber_DO_NOT_USE_THIS_OR_YOU_WILL_GET_ROBBED_385593
+
+# By default, only RPC connections from localhost are allowed.
+
+# server=1 tells NavCoin-Qt to accept JSON-RPC commands.
+# it is also read by navcoind to determine if RPC should be enabled 
+
+# Listen for RPC connections on this TCP port:
+# it's default port . turns on by below line.
+#rpcport=44446
+
+# Transaction Fee Changes in 0.10.0
+
+# Create transactions that have enough fees (or priority) so they are likely to begin confirmation within n blocks (default: 1).
+# This setting is over-ridden by the -paytxfee option.
+#txconfirmtarget=n
+
+# User interface options
+
+# Start NavCoin minimized
+#min=1
+
+# Minimize to the system tray 
+#minimizetotray=1)";
+
+        boost::filesystem::ofstream outStream(GetConfigFile(), std::ios_base::app);
+        outStream << t ;
+        outStream.close();
+    }
 }
 
 void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable)
