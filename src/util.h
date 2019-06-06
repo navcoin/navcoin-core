@@ -129,7 +129,7 @@ static inline bool error(std::string s)
 }
 static inline bool info(const char* s)
 {
-    LogPrintStr(std::string("INFO: ") + s + "\n");
+    DebugLogPrintStr(std::string("INFO: ") + s + "\n");
     return false;
 }
 static inline bool info(std::string s)
