@@ -39,7 +39,7 @@ MAX_VERSIONS = {
 'GCC':       (4,4,0),
 'CXXABI':    (1,3,3),
 'GLIBCXX':   (3,4,13),
-'GLIBC':     (2,27),
+'GLIBC':     (2,11),
 }
 # See here for a description of _IO_stdin_used:
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=634261#109
@@ -73,8 +73,8 @@ ALLOWED_LIBRARIES = {
 'libdl.so.2' # programming interface to dynamic linker
 }
 ARCH_MIN_GLIBC_VER = {
-'80386':  (2,27),
-'X86-64': (2,27),
+'80386':  (2,1),
+'X86-64': (2,2,5),
 'ARM':    (2,4),
 'AArch64':(2,17),
 'RISC-V': (2,27)
