@@ -2889,11 +2889,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (pindex->IsProofOfStake())
         setStakeSeen.insert(make_pair(pindex->prevoutStake, pindex->nStakeTime));
 
-    // Check proof of stake
-    if (block.nBits != GetNextTargetRequired(pindex->pprev, block.IsProofOfStake())){
-        return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake",pindex->pprev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
-    }
-
     arith_uint256 hashProof;
 
     // Verify hash target and signature of coinstake tx
@@ -4722,6 +4717,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected, block version isn't v4.5.2");
+    
     return true;
 }
 
@@ -4734,6 +4730,11 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     int nLockTimeFlags = 0;
     if (VersionBitsState(pindexPrev, consensusParams, Consensus::DEPLOYMENT_CSV, versionbitscache) == THRESHOLD_ACTIVE) {
         nLockTimeFlags |= LOCKTIME_MEDIAN_TIME_PAST;
+    }
+    
+    // Check proof of stake
+    if (block.nBits != GetNextTargetRequired(pindexPrev, block.IsProofOfStake())){
+        return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake",pindexPrev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
     }
 
     if (block.IsProofOfWork() && nHeight > Params().GetConsensus().nLastPOWBlock)
