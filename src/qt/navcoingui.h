@@ -109,6 +109,7 @@ private:
     QAction *usedReceivingAddressesAction;
     QAction *repairWalletAction;
     QAction *importPrivateKeyAction;
+    QAction *sweepPrivateKeyAction;
     QAction *bootstrapBlockchainAction;
     QAction *exportMasterPrivateKeyAction;
     QAction *signMessageAction;

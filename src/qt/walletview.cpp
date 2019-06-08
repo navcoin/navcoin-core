@@ -461,6 +461,13 @@ void WalletView::importPrivateKey()
     }
 }
 
+//SWEEPING STARTS
+
+void WalletView::sweepPrivateKey()
+{}
+
+//SWEEPING ENDS HERE
+
 void WalletView::unlockWalletStaking()
 {
     if(!walletModel)

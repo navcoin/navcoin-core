@@ -29,7 +29,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     menuLayout->setSpacing(0);
 
     walletFrameLayout->setSpacing(0);
-    walletFrameLayout->setContentsMargins(0,0,0,0);    
+    walletFrameLayout->setContentsMargins(0,0,0,0);
 
     setContentsMargins(0,0,0,0);
 
@@ -303,6 +303,13 @@ void WalletFrame::importPrivateKey()
     WalletView *walletView = currentWalletView();
     if(walletView)
         walletView->importPrivateKey();
+}
+
+void WalletFrame::sweepPrivateKey()
+{
+    WalletView *walletView = currentWalletView();
+    if(walletView)
+        walletView->sweepPrivateKey();
 }
 
 void WalletFrame::exportMasterPrivateKeyAction()

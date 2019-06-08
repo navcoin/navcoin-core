@@ -117,6 +117,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     usedReceivingAddressesAction(0),
     repairWalletAction(0),
     importPrivateKeyAction(0),
+    sweepPrivateKeyAction(0),
     bootstrapBlockchainAction(0),
     exportMasterPrivateKeyAction(0),
     signMessageAction(0),
@@ -459,6 +460,9 @@ void NavCoinGUI::createActions()
     importPrivateKeyAction = new QAction(tr("&Import private key"), this);
     importPrivateKeyAction->setToolTip(tr("Import private key"));
 
+    sweepPrivateKeyAction = new QAction(tr("&Sweep private key"), this);
+    sweepPrivateKeyAction->setToolTip(tr("Sweep private key"));
+
     bootstrapBlockchainAction = new QAction(tr("&Bootstrap blockchain"), this);
     bootstrapBlockchainAction->setToolTip(tr("Bootstrap blockchain"));
 
@@ -499,6 +503,7 @@ void NavCoinGUI::createActions()
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
         connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
+        connect(sweepPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(sweepPrivateKey()));
         connect(exportMasterPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(exportMasterPrivateKeyAction()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
@@ -558,6 +563,7 @@ void NavCoinGUI::createMenuBar()
         file->addAction(repairWalletAction);
         file->addSeparator();
         file->addAction(importPrivateKeyAction);
+        file->addAction(sweepPrivateKeyAction);
         file->addAction(exportMasterPrivateKeyAction);
         file->addAction(bootstrapBlockchainAction);
     }
@@ -813,6 +819,7 @@ void NavCoinGUI::setWalletActionsEnabled(bool enabled)
     usedReceivingAddressesAction->setEnabled(enabled);
     repairWalletAction->setEnabled(enabled);
     importPrivateKeyAction->setEnabled(enabled);
+    sweepPrivateKeyAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
 }
 

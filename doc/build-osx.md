@@ -27,7 +27,9 @@ NOTE: Building with Qt4 is still supported, however, could result in a broken UI
 
 ## Compiling libunbound from source
 
-Libunbound needs to be compiled from source. Download last version from http://www.unbound.net, untar, cd to the folder and then `./configure`, `make` and `make install-all`.
+Libunbound needs to be compiled from source. Download last version from http://www.unbound.net, untar, cd to the folder and then `./configure --disable-gost`, `make` and `make install-all`.
+
+*OpenSSL 1.1.0 and later no longer include the GOST engine.* Refer:https://www.openssl.org/news/cl110.txt
 
 
 ## Build NavCoin Core

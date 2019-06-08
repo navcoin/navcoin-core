@@ -88,6 +88,7 @@ public Q_SLOTS:
     void unlockWalletStaking();
     void lockWallet();
     void importPrivateKey();
+    void sweepPrivateKey();
     void exportMasterPrivateKeyAction();
 
     void setStatusTitleBlocks(QString text);
