@@ -126,6 +126,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 2722100;
         consensus.nHeightv452Fork = 2882875;
+        consensus.nMaxReorganizationDepth = 100;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -321,6 +322,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 100000;
         consensus.nHeightv452Fork = 100000;
+        consensus.nMaxReorganizationDepth = 100;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -496,6 +498,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
+        consensus.nMaxReorganizationDepth = 100;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 5;
@@ -681,6 +684,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
+        consensus.nMaxReorganizationDepth = 100;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;

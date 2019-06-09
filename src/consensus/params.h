@@ -106,6 +106,7 @@ struct Params {
     CAmount nStaticReward;
     int nHeightv451Fork;
     int nHeightv452Fork;
+    int nMaxReorganizationDepth;
 
     /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
     int nCoinbaseMaturity;

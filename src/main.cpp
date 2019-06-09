@@ -71,6 +71,7 @@ CBlockIndex *pindexBestHeader = NULL;
 int64_t nTimeBestReceived = 0;
 CWaitableCriticalSection csBestBlock;
 CConditionVariable cvBlockChange;
+map<COutPoint, int> mapStakeSpent;
 int nScriptCheckThreads = 0;
 bool fImporting = false;
 bool fReindex = false;
@@ -95,8 +96,6 @@ CAmount maxTxFee = DEFAULT_TRANSACTION_MAXFEE;
 
 uint256 hashBestChain = uint256();
 CBlockIndex* pindexBest = NULL;
-
-set<pair<COutPoint, unsigned int> > setStakeSeen;
 
 CTxMemPool mempool(::minRelayTxFee);
 FeeFilterRounder filterRounder(::minRelayTxFee);
@@ -127,9 +126,6 @@ static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned 
 static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
 /* Proof of Stake constants */
-
-extern std::set<std::pair<COutPoint, unsigned int> > setStakeSeen;
-
 arith_uint256 bnProofOfStakeLimit(~arith_uint256() >> 20);
 arith_uint256 bnProofOfStakeLimitV2(~arith_uint256() >> 20);
 
@@ -2517,6 +2513,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
                 const CTxIn input = tx.vin[j];
 
+                // erase the spent input
+                mapStakeSpent.erase(out);
+
                 if (fSpentIndex) {
                     // undo and delete the spent index
                     spentIndex.push_back(make_pair(CSpentIndexKey(input.prevout.hash, input.prevout.n), CSpentIndexValue()));
@@ -2885,9 +2884,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             view.SetBestBlock(pindex->GetBlockHash());
         return true;
     }
-
-    if (pindex->IsProofOfStake())
-        setStakeSeen.insert(make_pair(pindex->prevoutStake, pindex->nStakeTime));
 
     // Check proof of stake
     if (block.nBits != GetNextTargetRequired(pindex->pprev, block.IsProofOfStake())){
@@ -3522,6 +3518,23 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!pblocktree->WriteTimestampBlockIndex(CTimestampBlockIndexKey(pindex->GetBlockHash()), CTimestampBlockIndexValue(logicalTS)))
             return AbortNode(state, "Failed to write blockhash index");
     }
+
+    for (const CTransaction tx: block.vtx) {
+        if (tx.IsCoinBase())
+            continue;
+        for (const CTxIn in: tx.vin) {
+            mapStakeSpent.insert(std::make_pair(in.prevout, pindex->nHeight));
+        }
+    }
+
+    // delete old entries
+    for (auto it = mapStakeSpent.begin(); it != mapStakeSpent.end();) {
+        if (it->second < pindex->nHeight - Params().GetConsensus().nMaxReorganizationDepth)
+            it = mapStakeSpent.erase(it);
+        else
+            it++;
+    }
+
 
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
@@ -4663,7 +4676,6 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
 
 bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex * const pindexPrev, int64_t nAdjustedTime)
 {
-
     // Check timestamp
     if (block.GetBlockTime() > nAdjustedTime + (IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()) ? Params().GetConsensus().nMaxFutureDrift : 2 * 60 * 60))
         return state.Invalid(false, REJECT_INVALID, "time-too-new", "block timestamp too far in the future");
@@ -4910,6 +4922,59 @@ static bool AcceptBlock(const CBlock& block, CValidationState& state, const CCha
     }
 
     int nHeight = pindex->nHeight;
+    CBlockIndex* pindexPrev = pindex->pprev;
+
+    if (block.IsProofOfStake()) {
+
+        int64_t nStartTime = GetTimeMillis();
+
+        CCoinsViewCache coins(pcoinsTip);
+
+        if (!coins.HaveInputs(block.vtx[1])) {
+            // the inputs are spent at the chain tip so we should look at the recently spent outputs
+
+            for (CTxIn in : block.vtx[1].vin) {
+                auto it = mapStakeSpent.find(in.prevout);
+                if (it == mapStakeSpent.end()) {
+                    return false;
+                }
+                if (it->second <= pindexPrev->nHeight) {
+                    return false;
+                }
+            }
+        }
+
+        // if this is on a fork
+        if (!chainActive.Contains(pindexPrev)) {
+            // start at the block we're adding on to
+            CBlockIndex *last = pindexPrev;
+
+            // while that block is not on the main chain
+            while (!chainActive.Contains(last)) {
+                CBlock block;
+                ReadBlockFromDisk(block, last, Params().GetConsensus());
+                // loop through every spent input from said block
+                for (CTransaction t : block.vtx) {
+                    for (CTxIn in: t.vin) {
+                        // loop through every spent input in the staking transaction of the new block
+                        for (CTxIn stakeIn : block.vtx[1].vin) {
+                            // if they spend the same input
+                            if (stakeIn.prevout == in.prevout) {
+                                // reject the block
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+                // go to the parent block
+                last = pindexPrev->pprev;
+            }
+        }
+
+        LogPrintf("bench","Stake txchecks took %dms\n", (GetTimeMillis() - nStartTime));
+    }
+
 
     // Write block to history file
     try {
@@ -6043,7 +6108,7 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                         // chain if they are valid, and no more than a month older (both in time, and in
                         // best equivalent proof of work) than the best header chain we know about.
                         send = mi->second->IsValid(BLOCK_VALID_SCRIPTS) && (pindexBestHeader != NULL) &&
-                            (pindexBestHeader->GetBlockTime() - mi->second->GetBlockTime() < nOneMonth) &&
+                            (chainActive.Height() - mi->second->nHeight < Params().GetConsensus().nMaxReorganizationDepth) &&
                             (GetBlockProofEquivalentTime(*pindexBestHeader, *mi->second, *pindexBestHeader, consensusParams) < nOneMonth);
                         if (!send) {
                             LogPrintf("%s: ignoring request from peer=%i for old block that isn't in the main chain\n", __func__, pfrom->GetId());
