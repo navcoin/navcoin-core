@@ -8,6 +8,7 @@ from test_framework.util import (
     start_node,
     assert_equal,
     slow_gen,
+    connect_nodes
 )
 import os
 
@@ -24,7 +25,7 @@ class MnemonicTest(NavCoinTestFramework):
 
     def setup_network(self):
         self.nodes = []
-        self.nodes.append(start_node(0, self.options.tmpdir, []))
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-keypool=5"]))
         self.is_network_split = False
 
     def run_test (self):
@@ -38,6 +39,10 @@ class MnemonicTest(NavCoinTestFramework):
         for language in self.languages:
             self.mnemonics[language] = self.nodes[0].dumpmnemonic(language)
 
+        self.nodes[0].staking(False)
+        self.nodes[0].generate(1)
+        self.sync_all()
+
         print("Restoring from mnemonic ...")
         self.check_mnemonic_works(masterkeyid, mnemonic_eng)
 
@@ -48,7 +53,10 @@ class MnemonicTest(NavCoinTestFramework):
         self.stop_node(0)
         os.remove(self.options.tmpdir + "/node0/devnet/wallet.dat")
 
-        self.nodes[0] = start_node(0, self.options.tmpdir, ["-importmnemonic=" + mnemonic, "-mnemoniclanguage=" + language])
+        self.nodes[0] = start_node(0, self.options.tmpdir, ["-importmnemonic=" + mnemonic, "-mnemoniclanguage=" + language, "-keypool=5"])
+        self.nodes[0].staking(False)
+
+        assert(len(self.nodes[0].listtransactions()) == 1);
         assert_equal(masterprivkey, self.nodes[0].dumpmasterprivkey())
 
 if __name__ == '__main__':
