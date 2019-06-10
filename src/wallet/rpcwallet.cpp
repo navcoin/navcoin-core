@@ -34,6 +34,7 @@
 using namespace std;
 
 int64_t nWalletUnlockTime;
+int64_t nWalletFirstStakeTime = -1;
 static CCriticalSection cs_nWalletUnlockTime;
 Navtech navtech;
 
@@ -3182,6 +3183,10 @@ CAmount GetTxStakeAmount(const CWalletTx* tx)
 // Returns -1 (Zero) if has not staked yet
 int64_t GetFirstStakeTime()
 {
+    // Check if we already know when
+    if (nWalletFirstStakeTime > 0)
+        return nWalletFirstStakeTime;
+
     // Need a pointer for the tx
     const CWalletTx* tx;
 
@@ -3191,12 +3196,14 @@ int64_t GetFirstStakeTime()
         tx = (*it).second.first;
 
         // Check if we have a useable tx
-        if (IsTxCountedAsStaked(tx))
-            return tx->nTime;
+        if (IsTxCountedAsStaked(tx)) {
+            nWalletFirstStakeTime = tx->nTime; // Save it for later use
+            return nWalletFirstStakeTime;
+        }
     }
 
     // Did not find the first stake
-    return -1;
+    return nWalletFirstStakeTime;
 }
 
 // **em52: Get total coins staked on given period
