@@ -44,6 +44,12 @@
 #include "main.h"
 
 #include <iostream>
+#include <thread>
+
+#include <curl/curl.h>
+#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <QAction>
 #include <QApplication>
@@ -243,7 +249,14 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
     frameBlocksLayout->setContentsMargins(3,0,3,0);
     frameBlocksLayout->setSpacing(3);
-    unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
+    unitDisplayControl = new QComboBox();
+    unitDisplayControl->setEditable(true);
+    unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
+    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+    {
+        unitDisplayControl->addItem(QString(NavCoinUnits::name(u)), u);
+    }
+    connect(unitDisplayControl,SIGNAL(currentIndexChanged(int)),this,SLOT(comboBoxChanged(int)));
     labelEncryptionIcon = new QLabel();
     labelStakingIcon = new QLabel();
     labelPrice = new QLabel();
@@ -266,13 +279,20 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
 
-    if (GetArg("-updatefiatperiod",0) > 120000)
+    updatePrice(); // First price update
+
+    int updateFiatPeriod = GetArg("-updatefiatperiod", PRICE_UPDATE_DELAY);
+    if (updateFiatPeriod >= PRICE_UPDATE_DELAY)
     {
         QTimer *timerPrice = new QTimer(labelPrice);
         connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
-        timerPrice->start(GetArg("-updatefiatperiod",0));
+        timerPrice->start(updateFiatPeriod);
+        info("Automatic price update set to " + std::to_string(updateFiatPeriod) + "ms");
     }
-    updatePrice();
+    else
+    {
+        info("Automatic price update turned OFF");
+    }
 
     QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
     connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingStatus()));
@@ -541,14 +561,6 @@ void NavCoinGUI::createMenuBar()
         settings->addSeparator();
         settings->addAction(toggleStakingAction);
         settings->addSeparator();
-        QMenu* currency = settings->addMenu( tr("Currency") );
-        Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
-        {
-            QAction *menuAction = new QAction(QString(NavCoinUnits::name(u)), this);
-            menuAction->setData(QVariant(u));
-            currency->addAction(menuAction);
-        }
-        connect(currency,SIGNAL(triggered(QAction*)),this,SLOT(onCurrencySelection(QAction*)));
         settings->addAction(updatePriceAction);
     }
     settings->addAction(optionsAction);
@@ -563,14 +575,6 @@ void NavCoinGUI::createMenuBar()
     help->addAction(aboutAction);
     help->addAction(infoAction);
     help->addAction(aboutQtAction);
-}
-
-void NavCoinGUI::onCurrencySelection(QAction* action)
-{
-    if (action)
-    {
-        clientModel->getOptionsModel()->setDisplayUnit(action->data());
-    }
 }
 
 void NavCoinGUI::createToolBars()
@@ -691,7 +695,6 @@ void NavCoinGUI::setClientModel(ClientModel *clientModel)
             walletFrame->setClientModel(clientModel);
         }
 #endif // ENABLE_WALLET
-        unitDisplayControl->setOptionsModel(clientModel->getOptionsModel());
 
         OptionsModel* optionsModel = clientModel->getOptionsModel();
         if(optionsModel)
@@ -701,6 +704,12 @@ void NavCoinGUI::setClientModel(ClientModel *clientModel)
 
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
+
+            // be aware of a display unit change reported by the OptionsModel object.
+            connect(optionsModel,SIGNAL(displayUnitChanged(int)),this,SLOT(updateDisplayUnit(int)));
+
+            // initialize the display units label with the current value in the model.
+            updateDisplayUnit(optionsModel->getDisplayUnit());
         }
     } else {
         // Disable possibility to show main window via action
@@ -720,17 +729,6 @@ bool NavCoinGUI::addWallet(const QString& name, WalletModel *walletModel)
         return false;
     setWalletActionsEnabled(true);
     return walletFrame->addWallet(name, walletModel);
-}
-
-void NavCoinGUI::startVotingCounter()
-{
-    if (GetStaking())
-    {
-        QTimer *timerVotingIcon = new QTimer(labelStakingIcon);
-        connect(timerVotingIcon, SIGNAL(timeout()), this, SLOT(getVotingInfo()));
-        timerVotingIcon->start(1200 * 1000);
-        getVotingInfo();
-    }
 }
 
 bool NavCoinGUI::setCurrentWallet(const QString& name)
@@ -1575,78 +1573,25 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
 }
 
-UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle) :
-    optionsModel(0),
-    menu(0)
-{
-    createContextMenu();
-    setToolTip(tr("Unit to show amounts in. Click to select another unit."));
-    QList<NavCoinUnits::Unit> units = NavCoinUnits::availableUnits();
-    int max_width = 0;
-    const QFontMetrics fm(font());
-    Q_FOREACH (const NavCoinUnits::Unit unit, units)
-    {
-        max_width = qMax(max_width, fm.width(NavCoinUnits::name(unit)));
-    }
-    setMinimumSize(max_width, 0);
-    setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    setStyleSheet(QString("QLabel { color : %1 }").arg(platformStyle->SingleColor().name()));
-}
-
-/** So that it responds to button clicks */
-void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
-{
-    onDisplayUnitsClicked(event->pos());
-}
-
-/** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
-void UnitDisplayStatusBarControl::createContextMenu()
-{
-    menu = new QMenu(this);
-    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
-    {
-        QAction *menuAction = new QAction(QString(NavCoinUnits::name(u)), this);
-        menuAction->setData(QVariant(u));
-        menu->addAction(menuAction);
-    }
-    connect(menu,SIGNAL(triggered(QAction*)),this,SLOT(onMenuSelection(QAction*)));
-}
-
-/** Lets the control know about the Options Model (and its signals) */
-void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel *optionsModel)
-{
-    if (optionsModel)
-    {
-        this->optionsModel = optionsModel;
-
-        // be aware of a display unit change reported by the OptionsModel object.
-        connect(optionsModel,SIGNAL(displayUnitChanged(int)),this,SLOT(updateDisplayUnit(int)));
-
-        // initialize the display units label with the current value in the model.
-        updateDisplayUnit(optionsModel->getDisplayUnit());
-    }
-}
-
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
-void UnitDisplayStatusBarControl::updateDisplayUnit(int newUnits)
+void NavCoinGUI::updateDisplayUnit(int unit)
 {
-    setText(NavCoinUnits::name(newUnits));
+    // Update the list value
+    unitDisplayControl->setCurrentText(NavCoinUnits::name(unit));
 }
 
-/** Shows context menu with Display Unit options by the mouse coordinates */
-void UnitDisplayStatusBarControl::onDisplayUnitsClicked(const QPoint& point)
+/** Update the display currency **/
+void NavCoinGUI::comboBoxChanged(int index)
 {
-    QPoint globalPos = mapToGlobal(point);
-    menu->exec(globalPos);
-}
+    // Make sure we have a client model
+    if (!clientModel)
+        return;
 
-/** Tells underlying optionsModel to update its current display unit. */
-void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
-{
-    if (action)
-    {
-        optionsModel->setDisplayUnit(action->data());
-    }
+    // Get the unit
+    QVariant unit = unitDisplayControl->itemData(index);
+
+    // Use the unit
+    clientModel->getOptionsModel()->setDisplayUnit(unit);
 }
 
 void NavCoinGUI::toggleStaking()
@@ -1678,127 +1623,137 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
-  QNetworkAccessManager *manager = new QNetworkAccessManager();
-  QNetworkRequest request;
-  QNetworkReply *reply = NULL;
+    info("Updating prices");
 
-  QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-  config.setProtocol(QSsl::TlsV1_2);
-  request.setSslConfiguration(config);
-  request.setUrl(QUrl("https://api.coinmarketcap.com/v1/ticker/nav-coin/?convert=EUR"));
-  request.setHeader(QNetworkRequest::ServerHeader, "application/json");
-  reply = manager->get(request);
-  connect(manager, SIGNAL(finished(QNetworkReply*)), this,
-                   SLOT(replyFinished(QNetworkReply*)));
+    std::thread pThread{[this]{
+        try {
+            CURL *curl;
+            CURLcode curlCode;
+            std::string response;
+            std::string url(
+                    "https://min-api.cryptocompare.com/data/price?fsym=NAV&tsyms="
+                    "BTC,"
+                    "EUR,"
+                    "USD,"
+                    "ARS,"
+                    "AUD,"
+                    "BRL,"
+                    "CAD,"
+                    "CHF,"
+                    "CLP,"
+                    "CZK,"
+                    "DKK,"
+                    "GBP,"
+                    "HKD,"
+                    "HUF,"
+                    "IDR,"
+                    "ILS,"
+                    "INR,"
+                    "JPY,"
+                    "KRW,"
+                    "MXN,"
+                    "MYR,"
+                    "NOK,"
+                    "NZD,"
+                    "PHP,"
+                    "PKR,"
+                    "PLN,"
+                    "RUB,"
+                    "SEK,"
+                    "SGD,"
+                    "THB,"
+                    "TRY,"
+                    "TWD,"
+                    "ZAR"
+                    );
+
+            // Start curl
+            curl = curl_easy_init();
+
+            // Check that we started
+            if(!curl) {
+                error("Update prices could not init curl");
+                return;
+            }
+
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, priceUdateWriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+            curlCode = curl_easy_perform(curl);
+            curl_easy_cleanup(curl);
+
+            // Parse json
+            // NOTE: Had to use boost json as Q5's json support would not work with
+            //       the json data that I was getting from the API, IDK why ¯\_(ツ)_/¯
+            boost::property_tree::ptree json;
+            std::istringstream jsonStream(response);
+            boost::property_tree::read_json(jsonStream, json);
+
+            // Get an instance of settings
+            QSettings settings;
+
+            // Save the values
+            settings.setValue("btcFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("BTC"))) * 100000000);
+            settings.setValue("eurFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("EUR"))) * 100000000);
+            settings.setValue("usdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("USD"))) * 100000000);
+            settings.setValue("arsFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ARS"))) * 100000000);
+            settings.setValue("audFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("AUD"))) * 100000000);
+            settings.setValue("brlFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("BRL"))) * 100000000);
+            settings.setValue("cadFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CAD"))) * 100000000);
+            settings.setValue("chfFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CHF"))) * 100000000);
+            settings.setValue("clpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CLP"))) * 100000000);
+            settings.setValue("czkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("CZK"))) * 100000000);
+            settings.setValue("dkkFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("DKK"))) * 100000000);
+            settings.setValue("gbpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("GBP"))) * 100000000);
+            settings.setValue("hkdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("HKD"))) * 100000000);
+            settings.setValue("hufFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("HUF"))) * 100000000);
+            settings.setValue("idrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("IDR"))) * 100000000);
+            settings.setValue("ilsFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ILS"))) * 100000000);
+            settings.setValue("inrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("INR"))) * 100000000);
+            settings.setValue("jpyFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("JPY"))) * 100000000);
+            settings.setValue("krwFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("KRW"))) * 100000000);
+            settings.setValue("mxnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("MXN"))) * 100000000);
+            settings.setValue("myrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("MYR"))) * 100000000);
+            settings.setValue("nokFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("NOK"))) * 100000000);
+            settings.setValue("nzdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("NZD"))) * 100000000);
+            settings.setValue("phpFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PHP"))) * 100000000);
+            settings.setValue("pkrFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PKR"))) * 100000000);
+            settings.setValue("plnFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("PLN"))) * 100000000);
+            settings.setValue("rubFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("RUB"))) * 100000000);
+            settings.setValue("sekFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("SEK"))) * 100000000);
+            settings.setValue("sgdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("SGD"))) * 100000000);
+            settings.setValue("thbFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("THB"))) * 100000000);
+            settings.setValue("tryFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("TRY"))) * 100000000);
+            settings.setValue("twdFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("TWD"))) * 100000000);
+            settings.setValue("zarFactor", (1.0 / boost::lexical_cast<double>(json.get<std::string>("ZAR"))) * 100000000);
+
+            if(clientModel)
+                clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
+
+            info("Updated prices");
+        }
+        catch (const boost::property_tree::json_parser::json_parser_error& e)
+        {
+            error("Could not parse price data json 'boost::property_tree::json_parser::json_parser_error'");
+        }
+        catch (const std::runtime_error& e)
+        {
+            error("Could not parse price data json 'std::runtime_error'");
+        }
+        catch (...)
+        {
+            error("Could not parse price data json 'drunk'");
+        }
+    }};
+
+    // Make sure we don't get in anyones way :D
+    pThread.detach();
 }
 
-void NavCoinGUI::replyFinished(QNetworkReply *reply)
+size_t NavCoinGUI::priceUdateWriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-
-  QString strReply = reply->readAll();
-
-  //parse json
-  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-
-  QJsonArray jsonObj = jsonResponse.array();
-  QJsonObject jsonObj2 = jsonObj[0].toObject();
-
-  QSettings settings;
-
-  settings.setValue("eurFactor",(1.0 / jsonObj2["price_eur"].toString().toFloat()) * 100000000);
-  settings.setValue("usdFactor",(1.0 / jsonObj2["price_usd"].toString().toFloat()) * 100000000);
-  settings.setValue("btcFactor",(1.0 / jsonObj2["price_btc"].toString().toFloat()) * 100000000);
-
-  if(clientModel)
-    clientModel->getOptionsModel()->setDisplayUnit(clientModel->getOptionsModel()->getDisplayUnit());
-
-  reply->deleteLater();
-
-}
-
-void NavCoinGUI::replyVotingFinished(QNetworkReply *reply)
-{
-
-  QString strReply = reply->readAll();
-  QSettings settings;
-
-  //parse json
-  QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-
-  QJsonArray jsonObj = jsonResponse.array();
-  QJsonObject jsonObj2 = jsonObj[0].toObject();
-
-  QString oldmessage = settings.value("votingQuestion", "").toString();
-
-  std::string message   = jsonObj2["message"].toString().toStdString();
-  std::string signature = jsonObj2["signature"].toString().toStdString();
-
-  LOCK(cs_main);
-
-
-  CNavCoinAddress addr("NMYuCvBiRgvkzjdEBGJHj7rpAnRmfUD6gw");
-  CKeyID keyID;
-  addr.GetKeyID(keyID);
-
-  bool fInvalid = false;
-  std::vector<unsigned char> vchSig = DecodeBase64(signature.c_str(), &fInvalid);
-
-  if (fInvalid)
-  {
-      reply->deleteLater();
-      return;
-  }
-
-  CHashWriter ss(SER_GETHASH, 0);
-  ss << strMessageMagic;
-  ss << message;
-
-  CPubKey pubkey;
-  if (!pubkey.RecoverCompact(ss.GetHash(), vchSig) || pubkey.GetID() != keyID){
-      reply->deleteLater();
-      return;
-  }
-
-  if((oldmessage != QString::fromStdString(message) || GetArg("-stakervote","") == "")
-          && !QString::fromStdString(message).isEmpty() && !fShowingVoting)
-  {
-      bool ok;
-      fShowingVoting = true;
-      RemoveConfigFile("stakervote");
-      QString vote = QInputDialog::getText(this, tr("Network vote."),
-                                           QString::fromStdString(message), QLineEdit::Normal,
-                                           "", &ok);
-
-      fShowingVoting = false;
-
-      if (ok && !vote.isEmpty())
-      {
-          SoftSetArg("-stakervote",vote.toStdString(),true);
-          RemoveConfigFile("stakervote");
-          WriteConfigFile("stakervote",vote.toStdString());
-      }
-  }
-
-  settings.setValue("votingQuestion", QString::fromStdString(message));
-
-  reply->deleteLater();
-
-}
-
-void NavCoinGUI::getVotingInfo()
-{
-    QNetworkAccessManager *manager = new QNetworkAccessManager();
-    QNetworkRequest request;
-    QNetworkReply *reply = NULL;
-
-    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-    config.setProtocol(QSsl::TlsV1_2);
-    request.setSslConfiguration(config);
-    request.setUrl(QUrl(QString("https://www.navcoin.org/voting.") + QString::fromStdString(Params().NetworkIDString()) + QString("net.json")));
-    request.setHeader(QNetworkRequest::ServerHeader, "application/json");
-    reply = manager->get(request);
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
-                     SLOT(replyVotingFinished(QNetworkReply*)));
+    ((std::string*) userp)->append((char*) contents, size * nmemb);
+    return size * nmemb;
 }
 
 void NavCoinGUI::updateStakingStatus()
