@@ -1186,8 +1186,6 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
-        if(txout.scriptPubKey.IsColdStaking() && !IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))
-            return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
     }
 
     // Check for duplicate inputs
@@ -1376,6 +1374,15 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         view.GetBestBlock();
 
         nValueIn = view.GetValueIn(tx);
+
+        if (!IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            for (const CTxOut& txout: tx.vout)
+            {
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+            }
+        }
 
         if(IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus())) {
             CAmount nProposalFee = 0;
@@ -4454,11 +4461,22 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         return error("CheckBlock() : bad proof-of-stake block signature");
     }
 
+    bool fColdStakingEnabled = IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus());
+
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
+    {
         if (!CheckTransaction(tx, state))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s\n%s", tx.GetHash().ToString(), state.GetDebugMessage(), tx.ToString()));
+
+        if (!fColdStakingEnabled)
+        {
+            for (const CTxOut& txout: tx.vout)
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+        }
+    }
 
     unsigned int nSigOps = 0;
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
