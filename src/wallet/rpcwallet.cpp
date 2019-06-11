@@ -3191,7 +3191,7 @@ int64_t GetFirstStakeTime()
     const CWalletTx* tx;
 
     // scan the entire wallet transactions
-    for (auto it = pwalletMain->wtxOrdered.begin(); it != pwalletMain->wtxOrdered.end(); ++it)
+    for(auto& it: pwalletMain->wtxOrdered)
     {
         tx = (*it).second.first;
 
