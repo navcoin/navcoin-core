@@ -3193,7 +3193,7 @@ int64_t GetFirstStakeTime()
     // scan the entire wallet transactions
     for(auto& it: pwalletMain->wtxOrdered)
     {
-        tx = (*it).second.first;
+        tx = it.second.first;
 
         // Check if we have a useable tx
         if (IsTxCountedAsStaked(tx)) {
