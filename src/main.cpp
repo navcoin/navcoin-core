@@ -5963,7 +5963,7 @@ std::string GetWarnings(const std::string& strFor, bool fForStaking)
             strGUI = _(strRPC.c_str());
         }
 
-        if (!pwalletMain->GetStakeWeight()) 
+        if (!pwalletMain->GetStakeWeight())
         {
             strStatusBar = strRPC = "Warning: We don't appear to have mature coins.";
             strGUI = _(strRPC.c_str());
