@@ -2898,7 +2898,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
         if (!CheckProofOfStake(pindex->pprev, block.vtx[1], block.nBits, hashProof, targetProofOfStake, NULL, false))
         {
-              return error("ContextualCheckBlock() : check proof-of-stake signature failed for block %s", block.GetHash().GetHex());
+              return error("ConnectBlock() : check proof-of-stake signature failed for block %s", block.GetHash().GetHex());
         }
     }
 
@@ -2908,7 +2908,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
-        return state.DoS(1,error("ContextualCheckBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
+        return state.DoS(1,error("ConnectBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
 
     // Record proof hash value
     pindex->hashProof = hashProof;
@@ -2916,7 +2916,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
     if (!ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier))
-        return state.DoS(1, error("ContextualCheckBlock() : ComputeNextStakeModifier() failed"), REJECT_INVALID, "bad-stake-modifier");
+        return state.DoS(1, error("ConnectBlock() : ComputeNextStakeModifier() failed"), REJECT_INVALID, "bad-stake-modifier");
 
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
 
@@ -4734,7 +4734,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     
     // Check proof of stake
     if (block.nBits != GetNextTargetRequired(pindexPrev, block.IsProofOfStake())){
-        return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake",pindexPrev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
+        return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake", nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
     }
 
     if (block.IsProofOfWork() && nHeight > Params().GetConsensus().nLastPOWBlock)
