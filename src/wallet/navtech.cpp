@@ -63,15 +63,15 @@ vector<anonServer> Navtech::GetAnonServers() {
 
   vector<string> confAnonServers = mapMultiArgs["-addanonserver"];
 
-  BOOST_FOREACH(string confAnonServer, confAnonServers) {
+  for(string confAnonServer: confAnonServers) {
       anonServers.push_back(confAnonServer);
   }
 
-  BOOST_FOREACH(string vAddedAnonServer, vAddedAnonServers) {
+  for(string vAddedAnonServer: vAddedAnonServers) {
       anonServers.push_back(vAddedAnonServer);
   }
 
-  BOOST_FOREACH(string currentServer, anonServers) {
+  for(string currentServer: anonServers) {
       anonServer tempServer;
 
       string::size_type portPos;
