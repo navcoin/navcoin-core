@@ -146,7 +146,7 @@ bool IsVersionBitRejected(const Consensus::Params& params, Consensus::Deployment
 
     int bitTest = params.vDeployments[pos].bit;
 
-    BOOST_FOREACH(std::string acceptedBit, versionBitVotesAccepted)
+    for(std::string acceptedBit: versionBitVotesAccepted)
     {
         if (isdigit(acceptedBit[0]))
         {
@@ -162,7 +162,7 @@ bool IsVersionBitRejected(const Consensus::Params& params, Consensus::Deployment
             return true;
     }
 
-    BOOST_FOREACH(std::string rejectedBit, versionBitVotesRejected)
+    for(std::string rejectedBit: versionBitVotesRejected)
     {
         if (isdigit(rejectedBit[0]))
         {
