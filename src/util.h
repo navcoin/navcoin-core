@@ -51,7 +51,7 @@ extern std::string strMiscWarning;
 extern bool fLogTimestamps;
 extern bool fLogTimeMicros;
 extern bool fLogIPs;
-extern std::atomic<bool> fReopenDebugLog;
+extern std::atomic<bool> fReopenLogFiles;
 extern CTranslationInterface translationInterface;
 
 extern const char * const NAVCOIN_CONF_FILENAME;
@@ -72,8 +72,18 @@ bool SetupNetworking();
 
 /** Return true if log accepts specified category */
 bool LogAcceptCategory(const char* category);
-/** Send a string to the log output */
-int LogPrintStr(const std::string &str);
+
+/** Returns the path to the debug.log file */
+boost::filesystem::path GetDebugLogPath();
+
+/** Returns the path to the error.log file */
+boost::filesystem::path GetErrorLogPath();
+
+/** Send a string to the debug log output */
+int DebugLogPrintStr(const std::string &str);
+
+/** Send a string to the error log output */
+int ErrorLogPrintStr(const std::string &str);
 
 #define LogPrintf(...) LogPrint(NULL, __VA_ARGS__)
 
@@ -87,14 +97,14 @@ static inline int LogPrint(const char* category, const char* fmt, const T1& v1, 
     } catch (std::runtime_error &e) {
         _log_msg_ = "Error \"" + std::string(e.what()) + "\" while formatting log message: " + fmt;
     }
-    return LogPrintStr(_log_msg_);
 
+    return DebugLogPrintStr(_log_msg_);
 }
 
 template<typename T1, typename... Args>
 bool error(const char* fmt, const T1& v1, const Args&... args)
 {
-    LogPrintStr("ERROR: " + tfm::format(fmt, v1, args...) + "\n");
+    ErrorLogPrintStr("ERROR: " + tfm::format(fmt, v1, args...) + "\n");
     return false;
 }
 
@@ -106,20 +116,29 @@ bool error(const char* fmt, const T1& v1, const Args&... args)
 static inline int LogPrint(const char* category, const char* s)
 {
     if(!LogAcceptCategory(category)) return 0;
-    return LogPrintStr(s);
+    return DebugLogPrintStr(s);
 }
 static inline bool error(const char* s)
 {
-    LogPrintStr(std::string("ERROR: ") + s + "\n");
+    ErrorLogPrintStr(std::string("ERROR: ") + s + "\n");
     return false;
 }
 static inline bool error(std::string s)
 {
     return error(s.c_str());
 }
+static inline bool info(const char* s)
+{
+    DebugLogPrintStr(std::string("INFO: ") + s + "\n");
+    return false;
+}
+static inline bool info(std::string s)
+{
+    return info(s.c_str());
+}
 void PrintExceptionContinue(const std::exception *pex, const char* pszThread);
 void ParseParameters(int argc, const char*const argv[]);
-void FileCommit(FILE *fileout);
+void FileCommit(FILE *file);
 bool TruncateFile(FILE *file, unsigned int length);
 int RaiseFileDescriptorLimit(int nMinFD);
 void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
@@ -143,6 +162,7 @@ boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
 void OpenDebugLog();
 void ShrinkDebugFile();
+void ShrinkDebugFile(boost::filesystem::path pathLog, int maxSize);
 void runCommand(const std::string& strCommand);
 
 inline bool IsSwitchChar(char c)

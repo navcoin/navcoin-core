@@ -644,12 +644,13 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     uint64_t nNetworkWeight = GetPoSKernelPS();
     bool staking = nLastCoinStakeSearchInterval && nWeight;
     uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
+    CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * Params().GetConsensus().nStaticReward : 0.0;
 
     UniValue obj(UniValue::VOBJ);
 
     obj.push_back(Pair("enabled", GetStaking()));
     obj.push_back(Pair("staking", staking));
-    obj.push_back(Pair("errors", GetWarnings("statusbar")));
+    obj.push_back(Pair("errors", GetWarnings("statusbar", true)));
 
     obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblocktx", (uint64_t)nLastBlockTx));
@@ -661,6 +662,7 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("netstakeweight", (uint64_t)nNetworkWeight));
 
     obj.push_back(Pair("expectedtime", nExpectedTime));
+    obj.push_back(Pair("expecteddailyreward", (double) nExpectedDailyReward / COIN));
 
     return obj;
 }

@@ -245,6 +245,8 @@ UniValue importaddress(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid NavCoin address or script");
     }
 
+    pwalletMain->nTimeFirstKey = 1; // 0 would be considered 'no value'
+
     if (fRescan)
     {
         pwalletMain->ScanForWalletTransactions(chainActive.Genesis(), true);

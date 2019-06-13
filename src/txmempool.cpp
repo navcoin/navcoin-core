@@ -393,6 +393,18 @@ void CTxMemPool::AddTransactionsUpdated(unsigned int n)
     nTransactionsUpdated += n;
 }
 
+bool CTxMemPool::AddProposal(const CProposal& proposal)
+{
+    mapProposal.insert(make_pair(proposal.hash, proposal));
+    return true;
+}
+
+bool CTxMemPool::AddPaymentRequest(const CPaymentRequest& prequest)
+{
+    mapPaymentRequest.insert(make_pair(prequest.hash, prequest));
+    return true;
+}
+
 bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry, setEntries &setAncestors, bool fCurrentEstimate)
 {
     // Add to memory pool without checking anything.
@@ -759,6 +771,8 @@ void CTxMemPool::removeForBlock(const std::vector<CTransaction>& vtx, unsigned i
         }
         removeConflicts(tx, conflicts);
         ClearPrioritisation(tx.GetHash());
+        mapProposal.erase(tx.GetHash());
+        mapPaymentRequest.erase(tx.GetHash());
     }
     // After the txs in the new block have been removed from the mempool, update policy estimates
     minerPolicyEstimator->processBlock(nBlockHeight, entries, fCurrentEstimate);
@@ -1120,9 +1134,61 @@ bool CCoinsViewMemPool::GetCoins(const uint256 &txid, CCoins &coins) const {
     return (base->GetCoins(txid, coins) && !coins.IsPruned());
 }
 
+bool CCoinsViewMemPool::GetProposal(const uint256 &txid, CProposal &proposal) const {
+    if (mempool.mapProposal.count(txid))
+    {
+        proposal = mempool.mapProposal.at(txid);
+        return true;
+    }
+    return (base->GetProposal(txid, proposal) && !proposal.IsNull());
+}
+
+bool CCoinsViewMemPool::GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const
+{
+    if (mempool.mapPaymentRequest.count(txid))
+    {
+        prequest = mempool.mapPaymentRequest.at(txid);
+        return true;
+    }
+    return (base->GetPaymentRequest(txid, prequest) && !prequest.IsNull());
+}
+
+bool CCoinsViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
+    mapPaymentRequests.clear();
+    mapPaymentRequests.insert(mempool.mapPaymentRequest.begin(), mempool.mapPaymentRequest.end());
+
+    CPaymentRequestMap baseMap;
+
+    if (!base->GetAllPaymentRequests(baseMap))
+        return false;
+
+    for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapPaymentRequests.insert(make_pair(it->first, it->second));
+
+    return true;
+}
+
 bool CCoinsViewMemPool::HaveCoins(const uint256 &txid) const {
     return mempool.exists(txid) || base->HaveCoins(txid);
 }
+
+bool CCoinsViewMemPool::HaveProposal(const uint256 &txid) const {
+    return mempool.mapProposal.count(txid) || base->HaveProposal(txid);
+}
+
+bool CCoinsViewMemPool::HavePaymentRequest(const uint256 &txid) const {
+    return mempool.mapPaymentRequest.count(txid) || base->HavePaymentRequest(txid);
+}
+
+bool CCoinsViewMemPool::AddProposal(const CProposal& proposal) const
+{
+    return const_cast<CTxMemPool&>(mempool).AddProposal(proposal);
+};
+
+bool CCoinsViewMemPool::AddPaymentRequest(const CPaymentRequest& prequest) const
+{
+    return const_cast<CTxMemPool&>(mempool).AddPaymentRequest(prequest);
+};
 
 size_t CTxMemPool::DynamicMemoryUsage() const {
     LOCK(cs);

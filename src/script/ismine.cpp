@@ -5,6 +5,7 @@
 
 #include "ismine.h"
 
+#include "base58.h"
 #include "key.h"
 #include "keystore.h"
 #include "script/script.h"
@@ -51,6 +52,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     {
     case TX_NONSTANDARD:
     case TX_NULL_DATA:
+    case TX_POOL:
     case TX_CONTRIBUTION:
     case TX_PROPOSALNOVOTE:
     case TX_PROPOSALYESVOTE:
@@ -79,6 +81,20 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
             return ISMINE_SPENDABLE;
         else if (fStakable)
             return ISMINE_STAKABLE;
+
+        // if spending/staking address is being watched
+        CNavCoinAddress spendingAddress(keyID);
+        CNavCoinAddress stakingAddress(keyID2);
+        CScript spendingScript = GetScriptForDestination(spendingAddress.Get());
+        CScript stakingScript = GetScriptForDestination(stakingAddress.Get());
+        SignatureData sigs;
+
+        if (keystore.HaveWatchOnly(spendingScript)) {
+            return ProduceSignature(DummySignatureCreator(&keystore), spendingScript, sigs) ? ISMINE_WATCH_SOLVABLE : ISMINE_WATCH_UNSOLVABLE;
+        } else if (keystore.HaveWatchOnly(stakingScript)) {
+            return ProduceSignature(DummySignatureCreator(&keystore), stakingScript, sigs) ? ISMINE_WATCH_SOLVABLE : ISMINE_WATCH_UNSOLVABLE;
+        }
+
         break;
     }
     case TX_SCRIPTHASH:

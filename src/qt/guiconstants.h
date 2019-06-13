@@ -5,8 +5,17 @@
 #ifndef NAVCOIN_QT_GUICONSTANTS_H
 #define NAVCOIN_QT_GUICONSTANTS_H
 
+/* Milliseconds between price updates */
+static const int PRICE_UPDATE_DELAY = 300000;
+
 /* Milliseconds between model updates */
 static const int MODEL_UPDATE_DELAY = 250;
+
+/* Milliseconds between error log refreshes */
+static const int ERROR_LOG_UPDATE_DELAY = 2500;
+
+/* Initial number of debug logs to parse error log entries from */
+static const int ERROR_LOG_INITIAL_COUNT = 500;
 
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
