@@ -9,12 +9,13 @@
 
 #include <QEvent>
 #include <QHeaderView>
+#include <QLabel>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QObject>
 #include <QProgressBar>
 #include <QString>
 #include <QTableView>
-#include <QLabel>
 
 #include <boost/filesystem.hpp>
 
