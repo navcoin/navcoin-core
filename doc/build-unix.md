@@ -7,7 +7,11 @@ Some notes on how to build NavCoin Core in Unix.
 
 ## Building in Ubuntu 18.04
 
-You can easily build the dependencies by running the [NavCoin dev tools script here](https://github.com/NAVCoin/navcoin-dev-tools/blob/master/ubuntu-18.04-navcoin-core-dev-setup.sh).
+You can easily build the dependencies by running the [NavCoin dev tools script](https://github.com/NAVCoin/navcoin-dev-tools/blob/master/ubuntu-18.04-navcoin-core-dev-setup.sh) using the command bellow.
+
+```bash
+curl -o- https://raw.githubusercontent.com/NAVCoin/navcoin-dev-tools/master/ubuntu-18.04-navcoin-core-dev-setup.sh | bash
+```
 
 From the navcoin-core directory, you will still need to:
 ```bash

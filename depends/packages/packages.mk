@@ -1,5 +1,4 @@
-packages:=boost openssl libevent curl zeromq unbound expat
-native_packages := native_ccache native_comparisontool
+packages:=boost openssl libevent zeromq curl unbound expat
 
 qt_native_packages = native_protobuf
 qt_packages = qrencode protobuf zlib

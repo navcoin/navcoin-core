@@ -12,6 +12,7 @@
 #include "bantablemodel.h"
 #include "clientmodel.h"
 #include "guiutil.h"
+#include "guiconstants.h"
 #include "platformstyle.h"
 #include "bantablemodel.h"
 
@@ -28,15 +29,20 @@
 #include <db_cxx.h>
 #endif
 
+#include <QFile>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QScrollBar>
 #include <QSettings>
 #include <QSignalMapper>
+
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
+#include <QTextCursor>
 #include <QThread>
 #include <QTime>
 #include <QTimer>
-#include <QStringList>
 
 #if QT_VERSION < 0x050000
 #include <QUrl>
@@ -252,7 +258,8 @@ RPCConsole::RPCConsole(const PlatformStyle *platformStyle, QWidget *parent) :
     platformStyle(platformStyle),
     peersTableContextMenu(0),
     banTableContextMenu(0),
-    consoleFontSize(0)
+    consoleFontSize(0),
+    errorLogFile(0)
 {
     ui->setupUi(this);
     GUIUtil::restoreWindowGeometry("nRPCConsoleWindow", this->size(), this);
@@ -294,6 +301,11 @@ RPCConsole::RPCConsole(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->detailWidget->hide();
     ui->peerHeading->setText(tr("Select a peer to view detailed information."));
 
+    // set up timer for auto refresh for error log
+    errorLogTimer = new QTimer();
+    connect(errorLogTimer, SIGNAL(timeout()), SLOT(errorLogRefresh()));
+    errorLogTimer->setInterval(ERROR_LOG_UPDATE_DELAY);
+
     QSettings settings;
     consoleFontSize = settings.value(fontSizeSettingsKey, QFontInfo(QFont()).pointSize()).toInt();
     clear();
@@ -304,8 +316,124 @@ RPCConsole::~RPCConsole()
     GUIUtil::saveWindowGeometry("nRPCConsoleWindow", this);
     Q_EMIT stopExecutor();
     RPCUnsetTimerInterface(rpcTimerInterface);
+    if (errorLogFile)
+        errorLogFile->close();
     delete rpcTimerInterface;
     delete ui;
+}
+
+void RPCConsole::errorLogInitPos()
+{
+    // Check if we already have the file
+    if (errorLogFile == NULL) {
+        // Get a QFile instance
+        errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
+    }
+
+    // Check if we have a log file
+    // We can't tail a missing file
+    if (!errorLogFile->exists())
+        return;
+
+    // Try to open file
+    if (!errorLogFile->open(QFile::ReadOnly | QFile::Text))
+        return;
+
+    // Seek to the end of file
+    errorLogFile->seek(errorLogFile->size() - 1);
+
+    // We need to move the file pos back by ERROR_LOG_INITIAL_COUNT lines
+    QString ch;
+    int lineCount = 0;
+    while ((lineCount < ERROR_LOG_INITIAL_COUNT) && (errorLogFile->pos() > 0))
+    {
+        // Load the current character
+        ch = errorLogFile->read(1);
+
+        // Move pos back by 2 spaces
+        errorLogFile->seek(errorLogFile->pos() - 2);
+
+        // Check if we have a newline
+        if (ch == "\n")
+            lineCount++; // Count it
+    }
+
+    // Move pos forward by 2 spaces
+    errorLogFile->seek(errorLogFile->pos() + 2);
+
+    // Clear the textarea
+    ui->errorLogTextBrowser->setText("");
+
+    // Mark init as done
+    errorLogInitPosDone = true;
+}
+
+void RPCConsole::errorLogRefresh()
+{
+    // Check if we are still refreshing
+    if (errorLogRefreshing)
+        return;
+
+    // Set to refreshing
+    errorLogRefreshing = true;
+
+    // Check if we have initialized debug log already
+    if (!errorLogInitPosDone)
+        errorLogInitPos();
+
+    // Check if log initialized
+    // We can't tail a missing file
+    if (!errorLogInitPosDone)
+        return;
+
+    // Load the stream
+    QTextStream in(errorLogFile);
+
+    // Load up the lines
+    QString logLines = "";
+    while (!in.atEnd()) {
+        // Load the next line
+        logLines += in.readLine() + "\n";
+    }
+
+    // Check if we have lines
+    if (logLines != "") {
+        // Add the new lines, purpose of duplicate moveCursor calls is
+        // to auto scroll to the end of the log instead of sticking to the
+        // top of the text area
+        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
+        ui->errorLogTextBrowser->textCursor().insertText(logLines);
+        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
+    }
+
+    // Count the lines in the UI textarea
+    int uiLineCount = ui->errorLogTextBrowser->document()->lineCount();
+
+    // Check if lines are more than ERROR_LOG_INITIAL_COUNT
+    if (uiLineCount > ERROR_LOG_INITIAL_COUNT) {
+        // Count how many to remove
+        int lineCountDiff = uiLineCount - ERROR_LOG_INITIAL_COUNT;
+
+        // Get our cursor
+        QTextCursor cursor = ui->errorLogTextBrowser->textCursor();
+
+        // REMOVE THEM
+        for (int i = 0; i < lineCountDiff; i++) {
+            cursor.movePosition(QTextCursor::Start);
+            cursor.select(QTextCursor::LineUnderCursor);
+            cursor.deleteChar(); // Remove the selected text
+            cursor.deleteChar(); // This is by design, this removes the \n
+        }
+
+        // Replace the cursor
+        ui->errorLogTextBrowser->setTextCursor(cursor);
+
+        // Move cursor back to the end
+        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
+    }
+
+    // Mark as done
+    errorLogRefreshing = false;
 }
 
 bool RPCConsole::eventFilter(QObject* obj, QEvent *event)
@@ -676,6 +804,11 @@ void RPCConsole::on_tabWidget_currentChanged(int index)
         clearSelectedNode();
 }
 
+void RPCConsole::on_errorLogCopyClipboardButton_clicked()
+{
+    GUIUtil::setClipboard(ui->errorLogTextBrowser->toPlainText());
+}
+
 void RPCConsole::on_openDebugLogfileButton_clicked()
 {
     GUIUtil::openDebugLogfile();
@@ -841,6 +974,15 @@ void RPCConsole::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
+    // Mark init as not done
+    errorLogInitPosDone = false;
+
+    // Load error log initial data
+    errorLogRefresh();
+
+    // Start the error log timer
+    errorLogTimer->start();
+
     if (!clientModel || !clientModel->getPeerTableModel())
         return;
 
@@ -851,6 +993,9 @@ void RPCConsole::showEvent(QShowEvent *event)
 void RPCConsole::hideEvent(QHideEvent *event)
 {
     QWidget::hideEvent(event);
+
+    // Stop the error log timer
+    errorLogTimer->stop();
 
     if (!clientModel || !clientModel->getPeerTableModel())
         return;

@@ -102,8 +102,15 @@ public:
 
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
+    bool GetProposal(const uint256 &pid, CProposal &coins) const;
+    bool HaveProposal(const uint256 &pid) const;
+    bool GetPaymentRequest(const uint256 &prid, CPaymentRequest &coins) const;
+    bool HavePaymentRequest(const uint256 &prid) const;
     uint256 GetBestBlock() const;
-    bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock);
+    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
+                    CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock);
+    bool GetAllProposals(CProposalMap& map);
+    bool GetAllPaymentRequests(CPaymentRequestMap& map);
     CCoinsViewCursor *Cursor() const;
 };
 
