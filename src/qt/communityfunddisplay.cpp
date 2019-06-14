@@ -27,6 +27,9 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     QFont f_label_title("Sans Serif", 10, QFont::Bold);
     QFont f_label("Sans Serif", 10, QFont::Normal);
 
+    ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+    ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
+
     ui->title->setFont(f_title);
     ui->labelTitleDuration->setFont(f_label_title);
     ui->labelDuration->setFont(f_label);
@@ -130,30 +133,41 @@ void CommunityFundDisplay::refresh()
         // Get proposal votes list
         CFund::CProposal prop = this->proposal;
         auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&prop](const std::pair<std::string, bool>& element){ return element.first == prop.hash.ToString();} );
+                                [&prop](const std::pair<std::string, signed int>& element){ return element.first == prop.hash.ToString();} );
         if (it != vAddedProposalVotes.end())
         {
-            if (it->second)
+            if (it->second == 1)
             {
                 // Proposal was voted yes, shade in yes button and unshade no button
-                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             }
-            else
+            else if (it->second == 0)
             {
                 // Proposal was noted no, shade in no button and unshade yes button
-                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            }
+            else if (it->second == -1)
+            {
+                // Proposal was noted abstain, shade in no button and unshade yes button
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_ABSTAIN);
             }
         }
         else
         {
             // Proposal was not voted on, reset shades of both buttons
-            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore);
             ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         }
     }
 
@@ -188,6 +202,8 @@ void CommunityFundDisplay::refresh()
 
 void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
 {
+    LOCK(cs_main);
+
     // Cast the vote
     bool duplicate = false;
 
@@ -199,12 +215,17 @@ void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
 
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        CFund::VoteProposal(p, true, duplicate);
+        CFund::VoteProposal(p, 1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        CFund::VoteProposal(p, false, duplicate);
+        CFund::VoteProposal(p, 0, duplicate);
+        refresh();
+    }
+    else if(ui->buttonBoxVote->standardButton(button) == QDialogButtonBox::Ignore)
+    {
+        CFund::VoteProposal(p, -1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)

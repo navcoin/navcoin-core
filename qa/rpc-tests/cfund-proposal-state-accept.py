@@ -47,7 +47,9 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.nodes[0].proposalvote(proposalid0, "yes")
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].proposalvote(proposalid0, "no")
-        slow_gen(self.nodes[0], total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 2)
+        self.nodes[0].proposalvote(proposalid0, "abs")
+        slow_gen(self.nodes[0], 2)
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         # Should still be in pending
@@ -70,7 +72,9 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.nodes[0].proposalvote(proposalid0, "yes")
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].proposalvote(proposalid0, "no")
-        slow_gen(self.nodes[0], total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 5)
+        self.nodes[0].proposalvote(proposalid0, "abs")
+        slow_gen(self.nodes[0], 5)
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
@@ -92,7 +96,9 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.nodes[0].proposalvote(proposalid0, "yes")
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].proposalvote(proposalid0, "no")
-        blocks = slow_gen(self.nodes[0], total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 4)
+        self.nodes[0].proposalvote(proposalid0, "abs")
+        blocks = slow_gen(self.nodes[0], 4)
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)

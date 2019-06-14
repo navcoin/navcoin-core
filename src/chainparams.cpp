@@ -120,8 +120,8 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 6;
         consensus.nCyclesPaymentRequestVoting = 8;
-        consensus.nPaymentRequestMaxVersion = 3;
-        consensus.nProposalMaxVersion = 3;
+        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 2722100;
@@ -192,6 +192,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
+
+        // Deployment of ABSTAIN VOTING for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -315,8 +320,8 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
-        consensus.nPaymentRequestMaxVersion = 3;
-        consensus.nProposalMaxVersion = 3;
+        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 100000;
@@ -374,6 +379,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
+
+        // Deployment of ABSTAIN VOTING for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -490,8 +500,8 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
-        consensus.nPaymentRequestMaxVersion = 3;
-        consensus.nProposalMaxVersion = 3;
+        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
@@ -549,6 +559,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1651363200; // May 1st, 2022
+
+        // Deployment of ABSTAIN VOTING for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -675,8 +690,8 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
-        consensus.nPaymentRequestMaxVersion = 3;
-        consensus.nProposalMaxVersion = 3;
+        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
@@ -734,6 +749,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
+
+        // Deployment of ABSTAIN VOTING for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

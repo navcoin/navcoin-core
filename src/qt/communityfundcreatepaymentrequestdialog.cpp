@@ -206,13 +206,20 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         bool fSubtractFeeFromAmount = false;
 
         UniValue strDZeel(UniValue::VOBJ);
+        uint64_t nVersion = CFund::CPaymentRequest::BASE_VERSION;
+
+        if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CFund::CPaymentRequest::REDUCED_QUORUM_VERSION;
+
+        if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CFund::CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
         strDZeel.push_back(Pair("h",ui->lineEditProposalHash->text().toStdString()));
         strDZeel.push_back(Pair("n",nReqAmount));
         strDZeel.push_back(Pair("s",Signature));
         strDZeel.push_back(Pair("r",sRandom));
         strDZeel.push_back(Pair("i",id));
-        strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
+        strDZeel.push_back(Pair("v",nVersion));
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;

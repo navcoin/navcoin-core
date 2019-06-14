@@ -1786,7 +1786,7 @@ void NavCoinGUI::updateStakingStatus()
                         if (proposal.fState != CFund::NIL)
                             continue;
                         auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                                [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
+                                                [&proposal](const std::pair<std::string, signed int>& element){ return element.first == proposal.hash.ToString();} );
                         if (it == vAddedProposalVotes.end()) {
                             fFoundProposal = true;
                             break;
@@ -1809,7 +1809,7 @@ void NavCoinGUI::updateStakingStatus()
                         if (prequest.fState != CFund::NIL)
                             continue;
                         auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                                [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
+                                                [&prequest](const std::pair<std::string, signed int>& element){ return element.first == prequest.hash.ToString();} );
                         if (it == vAddedPaymentRequestVotes.end()) {
                             fFoundPaymentRequest = true;
                             break;

@@ -742,7 +742,7 @@
           <enum>Qt::RightToLeft</enum>
          </property>
          <property name="standardButtons">
-          <set>QDialogButtonBox::Cancel|QDialogButtonBox::No|QDialogButtonBox::Yes</set>
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ignore|QDialogButtonBox::No|QDialogButtonBox::Yes</set>
          </property>
         </widget>
        </item>

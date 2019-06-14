@@ -514,6 +514,7 @@ bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Param
 bool IsCommunityFundAccumulationEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params, bool fStrict = true);
 bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsAbstainVoteEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether the static reward has been activated **/
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);

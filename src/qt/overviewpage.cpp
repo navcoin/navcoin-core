@@ -17,6 +17,7 @@
 #include "walletmodel.h"
 #include "walletframe.h"
 #include "askpassphrasedialog.h"
+#include "main.h"
 #include "util.h"
 
 
@@ -364,6 +365,8 @@ extern int GetsStakeSubTotal(vStakePeriodRange_T& aRange);
 
 void OverviewPage::updateStakeReport(bool fImmediate=false)
 {
+    LOCK(cs_main);
+
     static vStakePeriodRange_T aRange;
     int nItemCounted=0;
 

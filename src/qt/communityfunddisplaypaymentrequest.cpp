@@ -25,6 +25,9 @@ CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *
     QFont f_label_title("Sans Serif", 10, QFont::Bold);
     QFont f_label("Sans Serif", 10, QFont::Normal);
 
+    ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+    ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
+
     ui->title->setFont(f_title);
     ui->labelTitleDuration->setFont(f_label_title);
     ui->labelDuration->setFont(f_label);
@@ -140,22 +143,31 @@ void CommunityFundDisplayPaymentRequest::refresh()
         // Get prequest votes list
         CFund::CPaymentRequest preq = prequest;
         auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                [&preq](const std::pair<std::string, bool>& element){ return element.first == preq.hash.ToString();} );
+                                [&preq](const std::pair<std::string, signed int>& element){ return element.first == preq.hash.ToString();} );
         if (it != vAddedPaymentRequestVotes.end())
         {
-            if (it->second)
+            if (it->second == 1)
             {
                 // Prequest was voted yes, shade in yes button and unshade no button
-                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             }
-            else
+            else if (it->second == 0)
             {
                 // Prequest was noted no, shade in no button and unshade yes button
-                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            } else if (it->second == -1)
+            {
+                // Prequest was noted abstain, shade in no button and unshade yes button
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_ABSTAIN);
             }
         }
         else
@@ -164,7 +176,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
             ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
             ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-
+            ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         }
     }
 
@@ -199,12 +211,17 @@ void CommunityFundDisplayPaymentRequest::click_buttonBoxVote(QAbstractButton *bu
 
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        CFund::VotePaymentRequest(pr, true, duplicate);
+        CFund::VotePaymentRequest(pr, 1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        CFund::VotePaymentRequest(pr, false, duplicate);
+        CFund::VotePaymentRequest(pr, 0, duplicate);
+        refresh();
+    }
+    else if(ui->buttonBoxVote->standardButton(button) == QDialogButtonBox::Ignore)
+    {
+        CFund::VotePaymentRequest(pr, -1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)

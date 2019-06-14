@@ -108,8 +108,8 @@ const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 std::vector<std::string> vAddedAnonServers;
 CCriticalSection cs_vAddedAnonServers;
 
-std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
-std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
+std::vector<std::pair<std::string, signed int>> vAddedProposalVotes;
+std::vector<std::pair<std::string, signed int>> vAddedPaymentRequestVotes;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -654,25 +654,37 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 
         if(strKey == "-addproposalvoteyes")
         {
-            vAddedProposalVotes.push_back(make_pair(strValue,true));
+            vAddedProposalVotes.push_back(make_pair(strValue,1));
             continue;
         }
 
         if(strKey == "-addproposalvoteno")
         {
-            vAddedProposalVotes.push_back(make_pair(strValue,false));
+            vAddedProposalVotes.push_back(make_pair(strValue,0));
+            continue;
+        }
+
+        if(strKey == "-addproposalvoteabs")
+        {
+            vAddedProposalVotes.push_back(make_pair(strValue,-1));
             continue;
         }
 
         if(strKey == "-addpaymentrequestvoteyes")
         {
-            vAddedPaymentRequestVotes.push_back(make_pair(strValue,true));
+            vAddedPaymentRequestVotes.push_back(make_pair(strValue,1));
             continue;
         }
 
         if(strKey == "-addpaymentrequestvoteno")
         {
-            vAddedPaymentRequestVotes.push_back(make_pair(strValue,false));
+            vAddedPaymentRequestVotes.push_back(make_pair(strValue,0));
+            continue;
+        }
+
+        if(strKey == "-addpaymentrequestvotabs")
+        {
+            vAddedPaymentRequestVotes.push_back(make_pair(strValue,-1));
             continue;
         }
 

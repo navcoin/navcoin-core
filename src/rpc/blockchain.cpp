@@ -61,6 +61,14 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.push_back(Pair("proofhash", blockindex->hashProof.GetHex()));
     result.push_back(Pair("entropybit", (int)blockindex->GetStakeEntropyBit()));
     result.push_back(Pair("modifier", strprintf("%016x", blockindex->nStakeModifier)));
+    UniValue votes(UniValue::VARR);
+    for (auto& it: blockindex->vProposalVotes)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("hash", it.first.ToString());
+        entry.pushKV("vote", it.second);
+    }
+    result.push_back(Pair("cfund_votes", votes));
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
     CBlockIndex *pnext = chainActive.Next(blockindex);
@@ -980,69 +988,99 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     CBlockIndex* pindexblock = chainActive.Tip();
 
     std::map<uint256, bool> vSeen;
-    std::map<uint256, std::pair<int, int>> vCacheProposalsRPC;
-    std::map<uint256, std::pair<int, int>> vCachePaymentRequestRPC;
+    std::map<uint256, std::pair<std::pair<int, int>, int>> vCacheProposalsRPC;
+    std::map<uint256, std::pair<std::pair<int, int>, int>> vCachePaymentRequestRPC;
 
     vCacheProposalsRPC.clear();
     vCachePaymentRequestRPC.clear();
 
-    while(nBlocks > 0 && pindexblock != NULL) {
+    while(nBlocks > 0 && pindexblock != NULL)
+    {
         vSeen.clear();
-        for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
+
+        for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
+        {
             if(!pcoinsTip->GetProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
-            if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
+
+            if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0)
+            {
                 if(vCacheProposalsRPC.count(pindexblock->vProposalVotes[i].first) == 0)
-                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
-                if(pindexblock->vProposalVotes[i].second)
-                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].first += 1;
-                else
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first] = make_pair(make_pair(0,0), 0);
+
+                if(pindexblock->vProposalVotes[i].second == 1)
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].first.first += 1;
+                else if(pindexblock->vProposalVotes[i].second == -1)
                     vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].second += 1;
+                else if (pindexblock->vProposalVotes[i].second == 0)
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].first.second += 1;
+
                 vSeen[pindexblock->vProposalVotes[i].first]=true;
             }
         }
-        for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
+
+        for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++)
+        {
             if(!pcoinsTip->GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
+
             if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
                 continue;
+
             if (mapBlockIndex.count(proposal.blockhash) == 0)
                 continue;
+
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
+
             if(pindexblockparent == NULL)
                 continue;
-            if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
+
+            if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
+            {
                 if(vCachePaymentRequestRPC.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
-                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
-                if(pindexblock->vPaymentRequestVotes[i].second)
-                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].first += 1;
-                else
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first] = make_pair(make_pair(0,0), 0);
+
+                if(pindexblock->vPaymentRequestVotes[i].second == 1)
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].first.first += 1;
+                else if(pindexblock->vPaymentRequestVotes[i].second == -1)
                     vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].second += 1;
+                else if (pindexblock->vPaymentRequestVotes[i].second == 0)
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].first.second += 1;
+
                 vSeen[pindexblock->vPaymentRequestVotes[i].first]=true;
             }
         }
+
         pindexblock = pindexblock->pprev;
         nBlocks--;
     }
 
     UniValue ret(UniValue::VOBJ);
     UniValue cf(UniValue::VOBJ);
+
     cf.push_back(Pair("available",      ValueFromAmount(pindexBestHeader->nCFSupply)));
     cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
     ret.push_back(Pair("funds", cf));
+
     UniValue vp(UniValue::VOBJ);
     int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
+
     vp.push_back(Pair("starting",       starting));
     vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle-1));
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
+
     UniValue consensus(UniValue::VOBJ);
+
     consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
-    if (!IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus())){
+
+    if (!IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
         consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorum));
-    } else {
+    else
+    {
         consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumFirstHalf));
         consensus.push_back(Pair("minSumVotesPerVotingCycleSecondHalf",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumSecondHalf));
     }
+
     consensus.push_back(Pair("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting));
     consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting));
     consensus.push_back(Pair("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100));
@@ -1051,37 +1089,51 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     consensus.push_back(Pair("votesRejectPaymentRequestPercentage",Params().GetConsensus().nVotesRejectPaymentRequest*100));
     consensus.push_back(Pair("proposalMinimalFee",ValueFromAmount(Params().GetConsensus().nProposalMinimalFee)));
     ret.push_back(Pair("consensus", consensus));
+
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 
-    std::map<uint256, std::pair<int, int>>::iterator it;
-    for(it = vCacheProposalsRPC.begin(); it != vCacheProposalsRPC.end(); it++) {
+    std::map<uint256, std::pair<std::pair<int, int>, int>>::iterator it;
+
+    for(auto& it: vCacheProposalsRPC)
+    {
         CFund::CProposal proposal;
-        if(!pcoinsTip->GetProposal(it->first, proposal))
+
+        if(!pcoinsTip->GetProposal(it.first, proposal))
             continue;
+
         UniValue op(UniValue::VOBJ);
+
         op.push_back(Pair("str", proposal.strDZeel));
         op.push_back(Pair("hash", proposal.hash.ToString()));
         op.push_back(Pair("amount", ValueFromAmount(proposal.nAmount)));
-        op.push_back(Pair("yes", it->second.first));
-        op.push_back(Pair("no", it->second.second));
+        op.push_back(Pair("yes", it.second.first.first));
+        op.push_back(Pair("abs", it.second.second));
+        op.push_back(Pair("no", it.second.first.second));
         votesProposals.push_back(op);
     }
-    for(it = vCachePaymentRequestRPC.begin(); it != vCachePaymentRequestRPC.end(); it++) {
+
+    for(auto& it: vCachePaymentRequestRPC)
+    {
         CFund::CPaymentRequest prequest; CFund::CProposal proposal;
-        if(!pcoinsTip->GetPaymentRequest(it->first, prequest))
+
+        if(!pcoinsTip->GetPaymentRequest(it.first, prequest))
             continue;
+
         if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
             continue;
+
         UniValue op(UniValue::VOBJ);
         op.push_back(Pair("hash", prequest.hash.ToString()));
         op.push_back(Pair("proposalDesc", proposal.strDZeel));
         op.push_back(Pair("desc", prequest.strDZeel));
         op.push_back(Pair("amount", ValueFromAmount(prequest.nAmount)));
-        op.push_back(Pair("yes", it->second.first));
-        op.push_back(Pair("no", it->second.second));
+        op.push_back(Pair("yes", it.second.first.first));
+        op.push_back(Pair("abs", it.second.second));
+        op.push_back(Pair("no", it.second.first.second));
         votesPaymentRequests.push_back(op);
     }
+
     vp.push_back(Pair("votedProposals",       votesProposals));
     vp.push_back(Pair("votedPaymentrequests", votesPaymentRequests));
     ret.push_back(Pair("votingPeriod", vp));
@@ -1332,6 +1384,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
+    BIP9SoftForkDescPushBack(bip9_softforks, "abstain_vote", consensusParams, Consensus::DEPLOYMENT_ABSTAIN_VOTE);
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 

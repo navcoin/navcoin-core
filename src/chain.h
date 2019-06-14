@@ -215,8 +215,8 @@ public:
     int64_t nCFSupply;
     int64_t nCFLocked;
 
-    std::vector<std::pair<uint256, bool>> vProposalVotes;
-    std::vector<std::pair<uint256, bool>> vPaymentRequestVotes;
+    std::vector<std::pair<uint256, int>> vProposalVotes;
+    std::vector<std::pair<uint256, int>> vPaymentRequestVotes;
 
     std::string strDZeel;
 

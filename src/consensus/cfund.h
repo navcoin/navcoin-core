@@ -20,8 +20,8 @@ class CBlockIndex;
 class CChainParams;
 class CValidationState;
 
-extern std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
-extern std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
+extern std::vector<std::pair<std::string, signed int>> vAddedProposalVotes;
+extern std::vector<std::pair<std::string, signed int>> vAddedPaymentRequestVotes;
 
 namespace CFund {
 
@@ -38,21 +38,25 @@ static const flags PENDING_FUNDS = 0x4;
 static const flags PENDING_VOTING_PREQ = 0x5;
 
 void SetScriptForCommunityFundContribution(CScript &script);
-void SetScriptForProposalVote(CScript &script, uint256 proposalhash, bool vote);
-void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, bool vote);
-bool VoteProposal(CProposal proposal, bool vote, bool &duplicate);
+void SetScriptForProposalVote(CScript &script, uint256 proposalhash, signed int vote);
+void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, signed int vote);
+bool VoteProposal(CProposal proposal, signed int vote, bool &duplicate);
 bool RemoveVoteProposal(string strProp);
 bool RemoveVoteProposal(uint256 proposalHash);
-bool VotePaymentRequest(CPaymentRequest prequest, bool vote, bool &duplicate);
+bool VotePaymentRequest(CPaymentRequest prequest, signed int vote, bool &duplicate);
 bool RemoveVotePaymentRequest(string strProp);
 bool RemoveVotePaymentRequest(uint256 proposalHash);
-bool IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int nMaxVersion);
-bool IsValidProposal(CTransaction tx, int nMaxVersion);
+bool IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, uint64_t nMaxVersion);
+bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
+void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask);
 
 class CPaymentRequest
 {
 public:
-    static const int32_t CURRENT_VERSION=3;
+    static const uint64_t BASE_VERSION=1<<1;
+    static const uint64_t REDUCED_QUORUM_VERSION=1<<2;
+    static const uint64_t ABSTAIN_VOTE_VERSION=1<<3;
+    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION;
 
     CAmount nAmount;
     flags fState;
@@ -63,8 +67,9 @@ public:
     uint256 paymenthash;
     int nVotesYes;
     int nVotesNo;
+    int nVotesAbs;
     string strDZeel;
-    int nVersion;
+    uint64_t nVersion;
     unsigned int nVotingCycle;
     bool fDirty;
 
@@ -75,6 +80,7 @@ public:
         fState = NIL;
         nVotesYes = 0;
         nVotesNo = 0;
+        nVotesAbs = 0;
         hash = uint256();
         blockhash = uint256();
         txblockhash = uint256();
@@ -96,6 +102,7 @@ public:
         std::swap(to.paymenthash, paymenthash);
         std::swap(to.nVotesYes, nVotesYes);
         std::swap(to.nVotesNo, nVotesNo);
+        std::swap(to.nVotesAbs, nVotesAbs);
         std::swap(to.strDZeel, strDZeel);
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
@@ -103,7 +110,7 @@ public:
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && fState == NIL && nVotesYes == 0 && nVotesNo == 0 && strDZeel == "");
+        return (nAmount == 0 && fState == NIL && nVotesYes == 0  && nVotesYes == 0 && nVotesAbs == 0 && strDZeel == "");
     }
 
     std::string GetState() const {
@@ -124,9 +131,9 @@ public:
     }
 
     std::string ToString() const {
-        return strprintf("CPaymentRequest(hash=%s, nVersion=%d, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotingCycle=%u, "
+        return strprintf("CPaymentRequest(hash=%s, nVersion=%d, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotesAbs=%u, nVotingCycle=%u, "
                          " proposalhash=%s, blockhash=%s, paymenthash=%s, strDZeel=%s)",
-                         hash.ToString(), nVersion, (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo,
+                         hash.ToString(), nVersion, (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo, nVotesAbs,
                          nVotingCycle, proposalhash.ToString(), blockhash.ToString().substr(0,10),
                          paymenthash.ToString().substr(0,10), strDZeel);
     }
@@ -179,8 +186,11 @@ public:
         READWRITE(txblockhash);
 
         // Version-based read/write
-        if(nVersion >= 2)
+        if(nVersion & BASE_VERSION)
            READWRITE(nVotingCycle);
+
+        if(nVersion & ABSTAIN_VOTE_VERSION)
+           READWRITE(nVotesAbs);
     }
 
 };
@@ -188,7 +198,10 @@ public:
 class CProposal
 {
 public:
-    static const int32_t CURRENT_VERSION=3;
+    static const uint64_t BASE_VERSION=1<<1;
+    static const uint64_t REDUCED_QUORUM_VERSION=1<<2;
+    static const uint64_t ABSTAIN_VOTE_VERSION=1<<3;
+    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION;
 
     CAmount nAmount;
     CAmount nFee;
@@ -197,12 +210,13 @@ public:
     flags fState;
     int nVotesYes;
     int nVotesNo;
+    int nVotesAbs;
     std::vector<uint256> vPayments;
     std::string strDZeel;
     uint256 hash;
     uint256 blockhash;
     uint256 txblockhash;
-    int nVersion;
+    uint64_t nVersion;
     unsigned int nVotingCycle;
     bool fDirty;
 
@@ -215,6 +229,7 @@ public:
         fState = NIL;
         nVotesYes = 0;
         nVotesNo = 0;
+        nVotesAbs = 0;
         nDeadline = 0;
         vPayments.clear();
         strDZeel = "";
@@ -233,6 +248,7 @@ public:
         std::swap(to.fState, fState);
         std::swap(to.nVotesYes, nVotesYes);
         std::swap(to.nVotesNo, nVotesNo);
+        std::swap(to.nVotesAbs, nVotesAbs);
         std::swap(to.vPayments, vPayments);
         std::swap(to.strDZeel, strDZeel);
         std::swap(to.hash, hash);
@@ -245,7 +261,7 @@ public:
 
     bool IsNull() const {
         return (nAmount == 0 && nFee == 0 && Address == "" && nVotesYes == 0 && fState == NIL
-                && nVotesNo == 0 && nDeadline == 0 && strDZeel == "");
+                && nVotesYes == 0 && nVotesNo == 0 && nVotesAbs == 0 && nDeadline == 0 && strDZeel == "");
     }
 
     std::string ToString(CCoinsViewCache& coins, uint32_t currentTime = 0) const;
@@ -317,8 +333,12 @@ public:
         READWRITE(txblockhash);
 
         // Version-based read/write
-        if(nVersion >= 2) {
-           READWRITE(nVotingCycle);
+        if(nVersion & BASE_VERSION) {
+            READWRITE(nVotingCycle);
+        }
+
+        if(nVersion & ABSTAIN_VOTE_VERSION) {
+           READWRITE(nVotesAbs);
         }
 
     }

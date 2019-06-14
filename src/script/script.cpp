@@ -146,6 +146,7 @@ const char* GetOpName(opcodetype opcode)
     case OP_PREQ                   : return "OP_PREQ";
     case OP_YES                    : return "OP_YES";
     case OP_NO                     : return "OP_NO";
+    case OP_ABSTAIN                : return "OP_ABSTAIN";
 
     case OP_COINSTAKE              : return "OP_COINSTAKE";
 
@@ -259,7 +260,7 @@ bool CScript::IsCommunityFundContribution() const
 
 bool CScript::IsProposalVote() const
 {
-    return IsProposalVoteYes() || IsProposalVoteNo();
+    return IsProposalVoteYes() || IsProposalVoteNo() || IsProposalVoteAbs();
 }
 
 bool CScript::IsProposalVoteYes() const
@@ -282,9 +283,19 @@ bool CScript::IsProposalVoteNo() const
       (*this)[4] == 0x20);
 }
 
+bool CScript::IsProposalVoteAbs() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_ABSTAIN &&
+      (*this)[4] == 0x20);
+}
+
 bool CScript::IsPaymentRequestVote() const
 {
-    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo();
+    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo() || IsPaymentRequestVoteAbs();
 }
 
 bool CScript::IsPaymentRequestVoteYes() const
@@ -307,6 +318,16 @@ bool CScript::IsPaymentRequestVoteNo() const
       (*this)[4] == 0x20);
 }
 
+bool CScript::IsPaymentRequestVoteAbs() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_ABSTAIN &&
+      (*this)[4] == 0x20);
+}
+
 bool CScript::IsPool() const
 {
     return (this->size() == 2 &&
@@ -314,15 +335,17 @@ bool CScript::IsPool() const
       (*this)[1] == OP_POOL);
 }
 
-bool CScript::ExtractVote(uint256 &hash, bool &vote) const
+bool CScript::ExtractVote(uint256 &hash, int &vote) const
 {
-    if(!IsPaymentRequestVoteNo() && !IsPaymentRequestVoteYes() && !IsProposalVoteYes()
-            && !IsProposalVoteNo())
+    if(!IsPaymentRequestVote() && !IsProposalVote())
         return false;
 
     vector<unsigned char> vHash(this->begin()+5, this->begin()+37);
     hash = uint256(vHash);
-    vote = (*this)[3] == OP_YES ? true : false;
+    vote = (*this)[3] == OP_YES ? 1 : 0;
+
+    if ((*this)[3] == OP_ABSTAIN)
+        vote = -1;
 
     return true;
 }
