@@ -4033,21 +4033,17 @@ static void NotifyHeaderTip() {
     bool fNotify = false;
     bool fInitialBlockDownload = false;
     static CBlockIndex* pindexHeaderOld = NULL;
-    CBlockIndex* pindexHeader = NULL;
     {
         LOCK(cs_main);
-        if (!setBlockIndexCandidates.empty()) {
-            pindexHeader = *setBlockIndexCandidates.rbegin();
-        }
-        if (pindexHeader != pindexHeaderOld) {
+        if (pindexBestHeader != pindexHeaderOld) {
             fNotify = true;
             fInitialBlockDownload = IsInitialBlockDownload();
-            pindexHeaderOld = pindexHeader;
+            pindexHeaderOld = pindexBestHeader;
         }
     }
     // Send block tip changed notifications without cs_main
     if (fNotify) {
-        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexHeader);
+        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexBestHeader);
     }
 }
 
@@ -4216,8 +4212,6 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
 
 CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
 {
-
-
     // Check for duplicate
     uint256 hash = block.GetHash();
     BlockMap::iterator it = mapBlockIndex.find(hash);
@@ -5963,7 +5957,7 @@ std::string GetWarnings(const std::string& strFor, bool fForStaking)
             strGUI = _(strRPC.c_str());
         }
 
-        if (!pwalletMain->GetStakeWeight()) 
+        if (!pwalletMain->GetStakeWeight())
         {
             strStatusBar = strRPC = "Warning: We don't appear to have mature coins.";
             strGUI = _(strRPC.c_str());
