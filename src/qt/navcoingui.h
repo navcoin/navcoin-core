@@ -35,6 +35,7 @@ class SendCoinsRecipient;
 class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
+class ModalOverlay;
 
 class CWallet;
 
@@ -44,6 +45,11 @@ class QProgressBar;
 class QProgressDialog;
 class QAbstractButton;
 QT_END_NAMESPACE
+
+namespace GUIUtil {
+class ClickableLabel;
+class ClickableProgressBar;
+}
 
 /**
   NavCoin GUI main class. This class represents the main window of the NavCoin UI. It communicates with both the client and
@@ -92,11 +98,11 @@ private:
     QComboBox *unitDisplayControl;
     QLabel *labelEncryptionIcon;
     QLabel *labelConnectionsIcon;
-    QLabel *labelBlocksIcon;
+    GUIUtil::ClickableLabel* labelBlocksIcon;
     QLabel *labelStakingIcon;
     QLabel *labelPrice;
     QLabel *progressBarLabel;
-    QProgressBar *progressBar;
+    GUIUtil::ClickableProgressBar* progressBar;
     QProgressDialog *progressDialog;
 
     QMenuBar *appMenuBar;
@@ -141,6 +147,7 @@ private:
     Notificator *notificator;
     RPCConsole *rpcConsole;
     HelpMessageDialog *helpMessageDialog;
+    ModalOverlay* modalOverlay;
 
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
@@ -286,6 +293,9 @@ private Q_SLOTS:
 
     /** When hideTrayIcon setting is changed in OptionsModel hide or show the icon accordingly. */
     void setTrayIconVisible(bool);
+
+    /** When the progressBar is clicked, this will show the details */
+    void showModalOverlay();
 };
 
 #endif // NAVCOIN_QT_NAVCOINGUI_H
