@@ -139,7 +139,7 @@ bool CFund::RemoveVotePaymentRequest(uint256 proposalHash)
 }
 
 bool CFund::IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int nMaxVersion)
-{    
+{
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for payment request %s", __func__, tx.GetHash().ToString());
 
@@ -211,7 +211,7 @@ bool CFund::IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, int n
     if(nAmount > proposal.GetAvailable(coins, true))
         return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
                      __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable(coins, true));
-    
+
     bool ret = (nVersion <= nMaxVersion);
 
     if(!ret)
@@ -504,31 +504,31 @@ std::string CFund::CProposal::GetState(uint32_t currentTime) const {
 void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
     AssertLockHeld(cs_main);
 
-    ret.push_back(Pair("version", nVersion));
-    ret.push_back(Pair("hash", hash.ToString()));
-    ret.push_back(Pair("blockHash", txblockhash.ToString()));
-    ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
-    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable(coins))));
-    ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
-    ret.push_back(Pair("paymentAddress", Address));
+    ret.pushKV("version", nVersion);
+    ret.pushKV("hash", hash.ToString());
+    ret.pushKV("blockHash", txblockhash.ToString());
+    ret.pushKV("description", strDZeel);
+    ret.pushKV("requestedAmount", FormatMoney(nAmount));
+    ret.pushKV("notPaidYet", FormatMoney(GetAvailable(coins)));
+    ret.pushKV("userPaidFee", FormatMoney(nFee));
+    ret.pushKV("paymentAddress", Address);
     if(nVersion >= 2) {
-        ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
+        ret.pushKV("proposalDuration", (uint64_t)nDeadline);
         if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
             CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
-            ret.push_back(Pair("expiresOn", pBlockIndex->GetBlockTime() + (uint64_t)nDeadline));
+            ret.pushKV("expiresOn", pBlockIndex->GetBlockTime() + (uint64_t)nDeadline);
         }
     } else {
-        ret.push_back(Pair("expiresOn", (uint64_t)nDeadline));
+        ret.pushKV("expiresOn", (uint64_t)nDeadline);
     }
-    ret.push_back(Pair("votesYes", nVotesYes));
-    ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesProposalVoting)));
+    ret.pushKV("votesYes", nVotesYes);
+    ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesProposalVoting));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
-    ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
-    ret.push_back(Pair("state", (uint64_t)fState));
+    ret.pushKV("status", GetState(chainActive.Tip()->GetBlockTime()));
+    ret.pushKV("state", (uint64_t)fState);
     if(fState == ACCEPTED)
-        ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
+        ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     CPaymentRequestMap mapPaymentRequests;
 
     if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
@@ -551,25 +551,25 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
             arr.push_back(preq);
         }
 
-        ret.push_back(Pair("paymentRequests", arr));
+        ret.pushKV("paymentRequests", arr);
     }
 }
 
 void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
-    ret.push_back(Pair("version", nVersion));
-    ret.push_back(Pair("hash", hash.ToString()));
-    ret.push_back(Pair("blockHash", txblockhash.ToString()));
-    ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
-    ret.push_back(Pair("votesYes", nVotesYes));
-    ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesPaymentRequestVoting)));
+    ret.pushKV("version", nVersion);
+    ret.pushKV("hash", hash.ToString());
+    ret.pushKV("blockHash", txblockhash.ToString());
+    ret.pushKV("description", strDZeel);
+    ret.pushKV("requestedAmount", FormatMoney(nAmount));
+    ret.pushKV("votesYes", nVotesYes);
+    ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesPaymentRequestVoting));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
-    ret.push_back(Pair("status", GetState()));
-    ret.push_back(Pair("state", (uint64_t)fState));
-    ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
-    if(fState == ACCEPTED) {        
-        ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
+    ret.pushKV("status", GetState());
+    ret.pushKV("state", (uint64_t)fState);
+    ret.pushKV("stateChangedOnBlock", blockhash.ToString());
+    if(fState == ACCEPTED) {
+        ret.pushKV("paidOnBlock", paymenthash.ToString());
     }
 }
 
