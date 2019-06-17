@@ -41,3 +41,8 @@ leveldb/doc/bench
 leveldb/issues
 univalue/test
 univalue/gen
+mnemonic
+utils
+crypto/external
+test/data
+dao

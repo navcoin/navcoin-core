@@ -37,6 +37,10 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_PAYMENTREQUESTYESVOTE: return "payment_request_yes_vote";
     case TX_PROPOSALNOVOTE: return "proposal_no_vote";
     case TX_PAYMENTREQUESTNOVOTE: return "payment_request_no_vote";
+    case TX_PROPOSALABSVOTE: return "proposal_abstain_vote";
+    case TX_PROPOSALREMOVEVOTE: return "proposal_remove_vote";
+    case TX_PAYMENTREQUESTABSVOTE: return "payment_request_abstain_vote";
+    case TX_PAYMENTREQUESTREMOVEVOTE: return "payment_request_remove_vote";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     case TX_COLDSTAKING: return "cold_staking";
@@ -93,33 +97,24 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         return true;
     }
 
-    if(scriptPubKey.IsProposalVoteYes())
+    if(scriptPubKey.IsProposalVote() || scriptPubKey.IsPaymentRequestVote())
     {
-        typeRet = TX_PROPOSALYESVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
-        vSolutionsRet.push_back(hashBytes);
-        return true;
-    }
-
-    if(scriptPubKey.IsProposalVoteNo())
-    {
-        typeRet = TX_PROPOSALNOVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
-        vSolutionsRet.push_back(hashBytes);
-        return true;
-    }
-
-    if(scriptPubKey.IsPaymentRequestVoteYes())
-    {
-        typeRet = TX_PAYMENTREQUESTYESVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
-        vSolutionsRet.push_back(hashBytes);
-        return true;
-    }
-
-    if(scriptPubKey.IsPaymentRequestVoteNo())
-    {
-        typeRet = TX_PAYMENTREQUESTNOVOTE;
+        if (scriptPubKey.IsProposalVoteYes())
+            typeRet = TX_PROPOSALYESVOTE;
+        else if (scriptPubKey.IsProposalVoteNo())
+            typeRet = TX_PROPOSALNOVOTE;
+        else if (scriptPubKey.IsProposalVoteAbs())
+            typeRet = TX_PROPOSALABSVOTE;
+        else if (scriptPubKey.IsProposalVoteRemove())
+            typeRet = TX_PROPOSALREMOVEVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteYes())
+            typeRet = TX_PAYMENTREQUESTYESVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteNo())
+            typeRet = TX_PAYMENTREQUESTNOVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteAbs())
+            typeRet = TX_PAYMENTREQUESTABSVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteRemove())
+            typeRet = TX_PAYMENTREQUESTREMOVEVOTE;
         vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
         return true;

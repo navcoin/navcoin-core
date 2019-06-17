@@ -142,9 +142,8 @@ void CommunityFundDisplayPaymentRequest::refresh()
     {
         // Get prequest votes list
         CFund::CPaymentRequest preq = prequest;
-        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                [&preq](const std::pair<std::string, signed int>& element){ return element.first == preq.hash.ToString();} );
-        if (it != vAddedPaymentRequestVotes.end())
+        auto it = mapAddedVotes.find(prequest.hash);
+        if (it != mapAddedVotes.end())
         {
             if (it->second == 1)
             {

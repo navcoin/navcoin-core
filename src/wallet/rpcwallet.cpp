@@ -3481,13 +3481,12 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
             if (proposal.fState != CFund::NIL)
                 continue;
 
-            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                    [&proposal](const std::pair<std::string, signed int>& element){ return element.first == proposal.hash.ToString();} );
+            auto it = mapAddedVotes.find(proposal.hash);
 
             UniValue p(UniValue::VOBJ);
             proposal.ToJson(p, *pcoinsTip);
 
-            if (it != vAddedProposalVotes.end())
+            if (it != mapAddedVotes.end())
             {
                 if (it->second == 1)
                     yesvotes.push_back(p);
@@ -3534,7 +3533,7 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     CFund::CProposal proposal;
     if (!pcoinsTip->GetProposal(uint256S(strHash), proposal))
     {
-        return NullUniValue;
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
     }
 
     if (strCommand == "yes" || strCommand == "no" || strCommand == "abs")
@@ -3610,13 +3609,12 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
             if (prequest.fState != CFund::NIL)
                 continue;
 
-            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                    [&prequest](const std::pair<std::string, signed int>& element){ return element.first == prequest.hash.ToString();} );
+            auto it = mapAddedVotes.find(prequest.hash);
 
             UniValue p(UniValue::VOBJ);
             prequest.ToJson(p);
 
-            if (it != vAddedPaymentRequestVotes.end())
+            if (it != mapAddedVotes.end())
             {
                 if (it->second == 1)
                     yesvotes.push_back(p);
@@ -3663,7 +3661,7 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
 
     if (!pcoinsTip->GetPaymentRequest(uint256S(strHash), prequest))
     {
-        return NullUniValue;
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find payment request: ")+strHash);
     }
 
     if (strCommand == "yes" || strCommand == "no" || strCommand == "abs")

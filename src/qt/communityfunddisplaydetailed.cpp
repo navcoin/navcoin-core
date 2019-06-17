@@ -30,9 +30,10 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     // If the proposal is pending and not prematurely expired (ie can be voted on):
     if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
         // Get proposal votes list
-        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&proposal](const std::pair<std::string, signed int>& element){ return element.first == proposal.hash.ToString();} );
-        if (it != vAddedProposalVotes.end()) {
+        auto it = mapAddedVotes.find(proposal.hash);
+
+        if (it != mapAddedVotes.end())
+        {
             if (it->second == 1) {
                 // Proposal was voted yes, shade in yes button and unshade no button
                 ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);

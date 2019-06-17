@@ -132,9 +132,9 @@ void CommunityFundDisplay::refresh()
     {
         // Get proposal votes list
         CFund::CProposal prop = this->proposal;
-        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&prop](const std::pair<std::string, signed int>& element){ return element.first == prop.hash.ToString();} );
-        if (it != vAddedProposalVotes.end())
+        auto it = mapAddedVotes.find(proposal.hash);
+
+        if (it != mapAddedVotes.end())
         {
             if (it->second == 1)
             {

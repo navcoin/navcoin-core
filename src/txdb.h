@@ -106,11 +106,16 @@ public:
     bool HaveProposal(const uint256 &pid) const;
     bool GetPaymentRequest(const uint256 &prid, CPaymentRequest &coins) const;
     bool HavePaymentRequest(const uint256 &prid) const;
+    bool GetCachedVote(const CVoteMapKey &voter, CVoteMapValue& vote) const;
+    bool HaveCachedVote(const CVoteMapKey &voter) const;
+
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock);
+                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                    const uint256 &hashBlock);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
+    bool GetAllVotes(CVoteMap &map);
     CCoinsViewCursor *Cursor() const;
 };
 

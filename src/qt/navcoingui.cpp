@@ -1781,13 +1781,17 @@ void NavCoinGUI::updateStakingStatus()
                     for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
                     {
                         CFund::CProposal proposal;
+
                         if (!pcoinsTip->GetProposal(it_->first, proposal))
                             continue;
+
                         if (proposal.fState != CFund::NIL)
                             continue;
-                        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                                [&proposal](const std::pair<std::string, signed int>& element){ return element.first == proposal.hash.ToString();} );
-                        if (it == vAddedProposalVotes.end()) {
+
+                        auto it = mapAddedVotes.find(proposal.hash);
+
+                        if (it != mapAddedVotes.end())
+                        {
                             fFoundProposal = true;
                             break;
                         }
@@ -1808,9 +1812,11 @@ void NavCoinGUI::updateStakingStatus()
 
                         if (prequest.fState != CFund::NIL)
                             continue;
-                        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                                [&prequest](const std::pair<std::string, signed int>& element){ return element.first == prequest.hash.ToString();} );
-                        if (it == vAddedPaymentRequestVotes.end()) {
+
+                        auto it = mapAddedVotes.find(prequest.hash);
+
+                        if (it != mapAddedVotes.end())
+                        {
                             fFoundPaymentRequest = true;
                             break;
                         }

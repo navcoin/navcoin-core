@@ -108,8 +108,7 @@ const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 std::vector<std::string> vAddedAnonServers;
 CCriticalSection cs_vAddedAnonServers;
 
-std::vector<std::pair<std::string, signed int>> vAddedProposalVotes;
-std::vector<std::pair<std::string, signed int>> vAddedPaymentRequestVotes;
+std::map<uint256, int64_t> mapAddedVotes;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -652,39 +651,21 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
             continue;
         }
 
-        if(strKey == "-addproposalvoteyes")
+        if(strKey == "-addproposalvoteyes" || strKey == "-addpaymentrequestvoteyes" || strKey == "-voteyes")
         {
-            vAddedProposalVotes.push_back(make_pair(strValue,1));
+            mapAddedVotes[uint256S(strValue)]=1;
             continue;
         }
 
-        if(strKey == "-addproposalvoteno")
+        if(strKey == "-addproposalvoteno" || strKey == "-addpaymentrequestvoteno" || strKey == "-voteno")
         {
-            vAddedProposalVotes.push_back(make_pair(strValue,0));
+            mapAddedVotes[uint256S(strValue)]=0;
             continue;
         }
 
-        if(strKey == "-addproposalvoteabs")
+        if(strKey == "-addproposalvoteabs" || strKey == "-addpaymentrequestvotabs" || strKey == "-voteabs")
         {
-            vAddedProposalVotes.push_back(make_pair(strValue,-1));
-            continue;
-        }
-
-        if(strKey == "-addpaymentrequestvoteyes")
-        {
-            vAddedPaymentRequestVotes.push_back(make_pair(strValue,1));
-            continue;
-        }
-
-        if(strKey == "-addpaymentrequestvoteno")
-        {
-            vAddedPaymentRequestVotes.push_back(make_pair(strValue,0));
-            continue;
-        }
-
-        if(strKey == "-addpaymentrequestvotabs")
-        {
-            vAddedPaymentRequestVotes.push_back(make_pair(strValue,-1));
+            mapAddedVotes[uint256S(strValue)]=-1;
             continue;
         }
 

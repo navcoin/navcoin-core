@@ -2633,6 +2633,93 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         }
     }
 
+    bool fStake = block.IsProofOfStake();
+    bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, Params().GetConsensus());
+    bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
+
+    std::vector<unsigned char> stakerScript;
+
+    if (fStake && fVoteCacheState && fCFund)
+    {
+        stakerScript = std::vector<unsigned char>(block.vtx[1].vout[1].scriptPubKey.begin(),block.vtx[1].vout[1].scriptPubKey.end());
+
+        std::map<uint256, int64_t> mapHashesToRestore;
+        std::map<uint256, int64_t> mapRestoredHashes;
+
+        const CTransaction &tx = block.vtx[0];
+
+        for (size_t j = 0; j < tx.vout.size(); j++)
+        {
+            uint256 hash_;
+            int64_t vote;
+
+            if(tx.vout[j].IsVote())
+            {
+                tx.vout[j].scriptPubKey.ExtractVote(hash_, vote);
+                mapHashesToRestore.insert(make_pair(hash_, -2));
+            }
+        }
+
+        CBlockIndex* pindexIterator = pindex->pprev;
+
+        while (pindexIterator)
+        {
+            CBlock block;
+
+            if (ReadBlockFromDisk(block, pindexIterator, Params().GetConsensus())) {
+                for (const CTxOut& out: block.vtx[0].vout)
+                {
+                    uint256 hash_;
+                    int64_t vote;
+
+                    if(out.IsVote())
+                    {
+                        out.scriptPubKey.ExtractVote(hash_, vote);
+
+                        if (mapHashesToRestore.count(hash_) && !mapRestoredHashes.count(hash_))
+                        {
+                            mapRestoredHashes[hash_] = vote;
+                        }
+                    }
+                }
+            }
+
+            if (pindexIterator->nHeight % Params().GetConsensus().nBlocksPerVotingCycle == 0
+                    || mapRestoredHashes.size() == mapHashesToRestore.size())
+            {
+                break;
+            }
+
+            pindexIterator = pindexIterator->pprev;
+        }
+
+        for (auto& it: mapHashesToRestore)
+        {
+            uint256 hash_ = it.first;
+            int64_t vote = it.second;
+
+            if (mapRestoredHashes.count(hash_) == 0)
+                mapRestoredHashes[hash_] = mapHashesToRestore[hash_];
+        }
+
+        for (auto& it: mapRestoredHashes)
+        {
+            uint256 hash_ = it.first;
+            int64_t vote = it.second;
+
+            if (vote == -2)
+            {
+                CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                pVoteList->Clear(hash_);
+            }
+            else
+            {
+                CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                pVoteList->Set(hash_, vote);
+            }
+        }
+    }
+
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
@@ -3046,6 +3133,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
 
+    bool fStake = block.IsProofOfStake();
+    bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, chainparams.GetConsensus());
+
+    std::vector<unsigned char> stakerScript;
+
+    if (fStake)
+    {
+        stakerScript = std::vector<unsigned char>(block.vtx[1].vout[1].scriptPubKey.begin(),block.vtx[1].vout[1].scriptPubKey.end());
+    }
+
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = block.vtx[i];
@@ -3062,7 +3159,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 {
                     std::map<uint256, int> votes;
                     uint256 hash;
-                    signed int vote;
+                    int64_t vote;
 
                     if(tx.vout[j].IsVote())
                         tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
@@ -3075,7 +3172,25 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CProposal proposal;
                             if(view.GetProposal(hash, proposal))
                                 if(proposal.CanVote())
-                                    pindex->vProposalVotes.push_back(make_pair(hash, vote));
+                                {
+                                    if (fStake && fVoteCacheState)
+                                    {
+                                        if (vote == -2)
+                                        {
+                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                                            pVoteList->Clear(hash);
+                                        }
+                                        else
+                                        {
+                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                                            pVoteList->Set(hash, vote);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        pindex->vProposalVotes.push_back(make_pair(hash, vote));
+                                    }
+                                }
                         }
                     }
                     else if (tx.vout[j].IsPaymentRequestVote())
@@ -3371,6 +3486,33 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         vPos.push_back(std::make_pair(tx.GetHash(), pos));
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
+    }
+
+    if (fStake && fVoteCacheState)
+    {
+        CFund::CVoteList pVoteList;
+
+        if (view.GetCachedVote(stakerScript, pVoteList))
+        {
+            std::map<uint256, CFund::CVote> list = pVoteList.GetList();
+
+            for (auto& it: list)
+            {
+                if (!it.second.IsNull())
+                {
+                    int64_t val;
+                    it.second.GetValue(val);
+                    if (view.HaveProposal(it.first))
+                    {
+                        pindex->vProposalVotes.push_back(make_pair(it.first, val));
+                    }
+                    if (view.HavePaymentRequest(it.first))
+                    {
+                        pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
+                    }
+                }
+            }
+        }
     }
 
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
@@ -4617,6 +4759,12 @@ bool IsAbstainVoteEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_ABSTAIN_VOTE, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_VOTE_STATE_CACHE, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)

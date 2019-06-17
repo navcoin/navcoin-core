@@ -28,6 +28,8 @@ static const char DB_BLOCKHASHINDEX = 'z';
 static const char DB_SPENTINDEX = 'q';
 static const char DB_BLOCK_INDEX = 'b';
 
+static const char DB_VOTEINDEX = 'C';
+
 static const char DB_BEST_BLOCK = 'B';
 static const char DB_FLAG = 'F';
 static const char DB_REINDEX_FLAG = 'R';
@@ -59,6 +61,14 @@ bool CCoinsViewDB::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequ
 
 bool CCoinsViewDB::HavePaymentRequest(const uint256 &prid) const {
     return db.Exists(make_pair(DB_PREQINDEX, prid));
+}
+
+bool CCoinsViewDB::GetCachedVote(const CVoteMapKey &voter, CVoteMapValue &vote) const {
+    return db.Read(make_pair(DB_VOTEINDEX, voter), vote);
+}
+
+bool CCoinsViewDB::HaveCachedVote(const CVoteMapKey &voter) const {
+    return db.Exists(make_pair(DB_VOTEINDEX, voter));
 }
 
 uint256 CCoinsViewDB::GetBestBlock() const {
@@ -120,8 +130,35 @@ bool CCoinsViewDB::GetAllPaymentRequests(CPaymentRequestMap &map) {
     return true;
 }
 
+bool CCoinsViewDB::GetAllVotes(CVoteMap &map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(make_pair(DB_VOTEINDEX, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, CVoteMapKey> key;
+        if (pcursor->GetKey(key) && key.first == DB_VOTEINDEX) {
+            CVoteMapValue vote;
+            if (pcursor->GetValue(vote)) {
+                map.insert(make_pair(key.second, vote));
+                pcursor->Next();
+            } else {
+                return error("GetAllVotes() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                              CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock) {
+                              CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                              const uint256 &hashBlock) {
     CDBBatch batch(db);
     size_t count = 0;
     size_t changed = 0;
@@ -160,6 +197,19 @@ bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         }
         CPaymentRequestMap::iterator itOld = it++;
         mapPaymentRequests.erase(itOld);
+    }
+
+
+    for (CVoteMap::iterator it = mapVotes.begin(); it != mapVotes.end();) {
+        if (it->second.fDirty)
+        {
+            if (it->second.IsNull())
+                batch.Erase(make_pair(DB_VOTEINDEX, it->first));
+            else
+                batch.Write(make_pair(DB_VOTEINDEX, it->first), it->second);
+        }
+        CVoteMap::iterator itOld = it++;
+        mapVotes.erase(itOld);
     }
 
     if (!hashBlock.IsNull())

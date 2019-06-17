@@ -20,8 +20,7 @@ class CBlockIndex;
 class CChainParams;
 class CValidationState;
 
-extern std::vector<std::pair<std::string, signed int>> vAddedProposalVotes;
-extern std::vector<std::pair<std::string, signed int>> vAddedPaymentRequestVotes;
+extern std::map<uint256, int64_t> mapAddedVotes;
 
 namespace CFund {
 
@@ -38,17 +37,150 @@ static const flags PENDING_FUNDS = 0x4;
 static const flags PENDING_VOTING_PREQ = 0x5;
 
 void SetScriptForCommunityFundContribution(CScript &script);
-void SetScriptForProposalVote(CScript &script, uint256 proposalhash, signed int vote);
-void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, signed int vote);
-bool VoteProposal(CProposal proposal, signed int vote, bool &duplicate);
+void SetScriptForProposalVote(CScript &script, uint256 proposalhash, int64_t vote);
+void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, int64_t vote);
+bool VoteProposal(CProposal proposal, int64_t vote, bool &duplicate);
 bool RemoveVoteProposal(string strProp);
 bool RemoveVoteProposal(uint256 proposalHash);
-bool VotePaymentRequest(CPaymentRequest prequest, signed int vote, bool &duplicate);
+bool VotePaymentRequest(CPaymentRequest prequest, int64_t vote, bool &duplicate);
 bool RemoveVotePaymentRequest(string strProp);
 bool RemoveVotePaymentRequest(uint256 proposalHash);
 bool IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, uint64_t nMaxVersion);
 bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
 void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask);
+
+class CVote
+{
+public:
+    CVote() { SetNull(); }
+
+    void SetNull()
+    {
+        fNull = true;
+    }
+
+    bool IsNull() const
+    {
+        return (fNull == true);
+    }
+
+    bool GetValue(int64_t& nVal) const
+    {
+        if (fNull)
+            return false;
+        nVal = nValue;
+        return true;
+    }
+
+    void SetValue(const int64_t& nVal)
+    {
+        fNull = false;
+        nValue = nVal;
+    }
+
+    void swap(CVote &to) {
+        std::swap(to.fNull, fNull);
+        std::swap(to.nValue, nValue);
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(nValue);
+        READWRITE(fNull);
+    }
+
+private:
+    int64_t nValue;
+    bool fNull;
+};
+
+class CVoteList
+{
+public:
+    bool fDirty;
+
+    CVoteList() { SetNull(); }
+
+    void SetNull()
+    {
+        list.clear();
+        fDirty = false;
+    }
+
+    bool IsNull() const
+    {
+        for (auto& it: list)
+        {
+            if (!it.second.IsNull())
+                return false;
+        }
+
+        return true;
+    }
+
+    CFund::CVote* Get(const uint256& hash)
+    {
+        if (list.count(hash) == 0)
+            return nullptr;
+        return &list[hash];
+    }
+
+    bool Set(const uint256& hash, int64_t vote)
+    {
+        if (list.count(hash) == 0)
+            list[hash] = CVote();
+        list[hash].SetValue(vote);
+        fDirty = true;
+        return true;
+    }
+
+    bool Set(const uint256& hash, CVote vote)
+    {
+        list[hash] = vote;
+        fDirty = true;
+        return true;
+    }
+
+    bool Clear(const uint256& hash)
+    {
+        if (list.count(hash) == 0)
+            list[hash] = CVote();
+        list[hash].SetNull();
+        fDirty = true;
+        return true;
+    }
+
+    bool Erase(const uint256& hash)
+    {
+        if (list.count(hash) == 0)
+            return false;
+        list.erase(hash);
+        fDirty = true;
+        return true;
+    }
+
+    std::map<uint256, CFund::CVote> GetList()
+    {
+        return list;
+    }
+
+    void swap(CVoteList &to) {
+        std::swap(to.fDirty, fDirty);
+        std::swap(to.list, list);
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(list);
+    }
+
+private:
+    std::map<uint256, CFund::CVote> list;
+};
 
 class CPaymentRequest
 {

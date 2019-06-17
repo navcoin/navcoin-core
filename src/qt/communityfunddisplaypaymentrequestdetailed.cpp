@@ -28,9 +28,9 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     // If the prequest is pending and not prematurely expired (ie can be voted on):
     if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos) {
         // Get prequest votes list
-        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                [&prequest](const std::pair<std::string, signed int>& element){ return element.first == prequest.hash.ToString();} );
-        if (it != vAddedPaymentRequestVotes.end()) {
+        auto it = mapAddedVotes.find(prequest.hash);
+        if (it != mapAddedVotes.end())
+        {
             if (it->second == 1) {
                 // Payment Request was voted yes, shade in yes button and unshade no button
                 ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);

@@ -36,29 +36,29 @@ void CFund::SetScriptForCommunityFundContribution(CScript &script)
     script[1] = OP_CFUND;
 }
 
-void CFund::SetScriptForProposalVote(CScript &script, uint256 proposalhash, signed int vote)
+void CFund::SetScriptForProposalVote(CScript &script, uint256 proposalhash, int64_t vote)
 {
     script.resize(37);
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PROP;
-    script[3] = vote == -1 ? OP_ABSTAIN : (vote == 1 ? OP_YES : OP_NO);
+    script[3] = vote == -2 ? OP_REMOVE : (vote == -1 ? OP_ABSTAIN : (vote == 1 ? OP_YES : OP_NO));
     script[4] = 0x20;
     memcpy(&script[5], proposalhash.begin(), 32);
 }
 
-void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash, signed int vote)
+void CFund::SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash, int64_t vote)
 {
     script.resize(37);
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PREQ;
-    script[3] = vote == -1 ? OP_ABSTAIN : (vote == 1 ? OP_YES : OP_NO);
+    script[3] = vote == -2 ? OP_REMOVE : (vote == -1 ? OP_ABSTAIN : (vote == 1 ? OP_YES : OP_NO));
     script[4] = 0x20;
     memcpy(&script[5], prequesthash.begin(), 32);
 }
 
-bool CFund::VoteProposal(CFund::CProposal proposal, signed int vote, bool &duplicate)
+bool CFund::VoteProposal(CFund::CProposal proposal, int64_t vote, bool &duplicate)
 {
     AssertLockHeld(cs_main);
 
@@ -67,50 +67,42 @@ bool CFund::VoteProposal(CFund::CProposal proposal, signed int vote, bool &dupli
 
     std::string strProp = proposal.hash.ToString();
 
-    vector<std::pair<std::string, signed int>>::iterator it = vAddedProposalVotes.begin();
-    for(; it != vAddedProposalVotes.end(); it++)
-        if (strProp == (*it).first) {
-            if (vote == (*it).second)
-                duplicate = true;
-            break;
-        }
+    if (mapAddedVotes.count(proposal.hash) > 0 && mapAddedVotes[proposal.hash] == vote)
+        duplicate = true;
 
+    RemoveConfigFile("voteyes", strProp);
+    RemoveConfigFile("voteabs", strProp);
+    RemoveConfigFile("voteno", strProp);
     RemoveConfigFile("addproposalvoteyes", strProp);
     RemoveConfigFile("addproposalvoteabs", strProp);
     RemoveConfigFile("addproposalvoteno", strProp);
 
-    std::string strCmd = "addproposalvoteno";
+    std::string strCmd = "voteno";
 
     if (vote == -1)
-        strCmd = "addproposalvoteabs";
+        strCmd = "voteabs";
 
     if (vote == 1)
-        strCmd = "addproposalvoteyes";
+        strCmd = "voteyes";
 
     WriteConfigFile(strCmd, strProp);
 
-    if (it == vAddedProposalVotes.end()) {
-        vAddedProposalVotes.push_back(make_pair(strProp, vote));
-    } else {
-        vAddedProposalVotes.erase(it);
-        vAddedProposalVotes.push_back(make_pair(strProp, vote));
-    }
+    mapAddedVotes[proposal.hash] = vote;
 
     return true;
 }
 
 bool CFund::RemoveVoteProposal(string strProp)
 {
-    vector<std::pair<std::string, signed int>>::iterator it = vAddedProposalVotes.begin();
-    for(; it != vAddedProposalVotes.end(); it++)
-        if (strProp == (*it).first)
-            break;
 
+    RemoveConfigFile("voteyes", strProp);
+    RemoveConfigFile("voteabs", strProp);
+    RemoveConfigFile("voteno", strProp);
     RemoveConfigFile("addproposalvoteyes", strProp);
     RemoveConfigFile("addproposalvoteabs", strProp);
     RemoveConfigFile("addproposalvoteno", strProp);
-    if (it != vAddedProposalVotes.end())
-        vAddedProposalVotes.erase(it);
+    if (mapAddedVotes.count(uint256S(strProp)) > 0)
+        mapAddedVotes.erase(uint256S(strProp));
     else
         return false;
     return true;
@@ -121,7 +113,7 @@ bool CFund::RemoveVoteProposal(uint256 proposalHash)
     return RemoveVoteProposal(proposalHash.ToString());
 }
 
-bool CFund::VotePaymentRequest(CFund::CPaymentRequest prequest, signed int vote, bool &duplicate)
+bool CFund::VotePaymentRequest(CFund::CPaymentRequest prequest, int64_t vote, bool &duplicate)
 {
     AssertLockHeld(cs_main);
 
@@ -130,34 +122,27 @@ bool CFund::VotePaymentRequest(CFund::CPaymentRequest prequest, signed int vote,
 
     std::string strProp = prequest.hash.ToString();
 
-    vector<std::pair<std::string, signed int>>::iterator it = vAddedPaymentRequestVotes.begin();
-    for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strProp == (*it).first) {
-            if (vote == (*it).second)
-                duplicate = true;
-            break;
-        }
+    if (mapAddedVotes.count(prequest.hash) > 0 && mapAddedVotes[prequest.hash] == vote)
+        duplicate = true;
 
+    RemoveConfigFile("voteyes", strProp);
+    RemoveConfigFile("voteabs", strProp);
+    RemoveConfigFile("voteno", strProp);
     RemoveConfigFile("addpaymentrequestvoteyes", strProp);
     RemoveConfigFile("addpaymentrequestvoteabs", strProp);
     RemoveConfigFile("addpaymentrequestvoteno", strProp);
 
-    std::string strCmd = "addpaymentrequestvoteno";
+    std::string strCmd = "voteno";
 
     if (vote == -1)
         strCmd = "addpaymentrequestabs";
 
     if (vote == 1)
-        strCmd = "addpaymentrequestvoteyes";
+        strCmd = "voteyes";
 
     WriteConfigFile(strCmd, strProp);
 
-    if (it == vAddedPaymentRequestVotes.end()) {
-        vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
-    } else {
-        vAddedPaymentRequestVotes.erase(it);
-        vAddedPaymentRequestVotes.push_back(make_pair(strProp, vote));
-    }
+    mapAddedVotes[prequest.hash] = vote;
 
     return true;
 
@@ -165,16 +150,15 @@ bool CFund::VotePaymentRequest(CFund::CPaymentRequest prequest, signed int vote,
 
 bool CFund::RemoveVotePaymentRequest(string strProp)
 {
-    vector<std::pair<std::string, signed int>>::iterator it = vAddedPaymentRequestVotes.begin();
-    for(; it != vAddedPaymentRequestVotes.end(); it++)
-        if (strProp == (*it).first)
-            break;
-
+    RemoveConfigFile("voteyes", strProp);
+    RemoveConfigFile("voteabs", strProp);
+    RemoveConfigFile("voteno", strProp);
     RemoveConfigFile("addpaymentrequestvoteyes", strProp);
     RemoveConfigFile("addpaymentrequestvoteabs", strProp);
     RemoveConfigFile("addpaymentrequestvoteno", strProp);
-    if (it != vAddedPaymentRequestVotes.end())
-        vAddedPaymentRequestVotes.erase(it);
+
+    if (mapAddedVotes.count(uint256S(strProp)) > 0)
+        mapAddedVotes.erase(uint256S(strProp));
     else
         return false;
     return true;
@@ -1047,6 +1031,17 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
     int64_t nTimeEnd5 = GetTimeMicros();
 
     LogPrint("bench", "   - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
+
+    if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+    {
+        CVoteMap mapVoters;
+        view.GetAllVotes(mapVoters);
+
+        for (auto& it: mapVoters)
+        {
+            view.RemoveCachedVote(it.first);
+        }
+    }
 
     int64_t nTimeEnd = GetTimeMicros();
     LogPrint("bench", "  - CFund total CFundStep() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);

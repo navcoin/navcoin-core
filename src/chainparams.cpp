@@ -1,5 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2017-2018 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -198,6 +199,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of VOTING STATE CACHE for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -385,6 +391,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of VOTING STATE CACHE for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -564,6 +575,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of VOTING STATE CACHE for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -754,6 +770,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of VOTING STATE CACHE for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

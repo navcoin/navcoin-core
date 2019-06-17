@@ -55,7 +55,9 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     out.push_back(Pair("type", GetTxnOutputType(type)));
 
     if (type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
-                 || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE)
+            || type == TX_PAYMENTREQUESTREMOVEVOTE || type == TX_PAYMENTREQUESTABSVOTE
+            || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE
+            || type == TX_PROPOSALABSVOTE || type == TX_PROPOSALREMOVEVOTE)
     {
         vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;

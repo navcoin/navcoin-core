@@ -147,6 +147,7 @@ const char* GetOpName(opcodetype opcode)
     case OP_YES                    : return "OP_YES";
     case OP_NO                     : return "OP_NO";
     case OP_ABSTAIN                : return "OP_ABSTAIN";
+    case OP_REMOVE                 : return "OP_REMOVE";
 
     case OP_COINSTAKE              : return "OP_COINSTAKE";
 
@@ -260,7 +261,7 @@ bool CScript::IsCommunityFundContribution() const
 
 bool CScript::IsProposalVote() const
 {
-    return IsProposalVoteYes() || IsProposalVoteNo() || IsProposalVoteAbs();
+    return IsProposalVoteYes() || IsProposalVoteNo() || IsProposalVoteAbs() || IsProposalVoteRemove();
 }
 
 bool CScript::IsProposalVoteYes() const
@@ -293,9 +294,19 @@ bool CScript::IsProposalVoteAbs() const
       (*this)[4] == 0x20);
 }
 
+bool CScript::IsProposalVoteRemove() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_REMOVE &&
+      (*this)[4] == 0x20);
+}
+
 bool CScript::IsPaymentRequestVote() const
 {
-    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo() || IsPaymentRequestVoteAbs();
+    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo() || IsPaymentRequestVoteAbs() || IsPaymentRequestVoteRemove();
 }
 
 bool CScript::IsPaymentRequestVoteYes() const
@@ -328,6 +339,16 @@ bool CScript::IsPaymentRequestVoteAbs() const
       (*this)[4] == 0x20);
 }
 
+bool CScript::IsPaymentRequestVoteRemove() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_REMOVE &&
+      (*this)[4] == 0x20);
+}
+
 bool CScript::IsPool() const
 {
     return (this->size() == 2 &&
@@ -335,7 +356,7 @@ bool CScript::IsPool() const
       (*this)[1] == OP_POOL);
 }
 
-bool CScript::ExtractVote(uint256 &hash, int &vote) const
+bool CScript::ExtractVote(uint256 &hash, int64_t &vote) const
 {
     if(!IsPaymentRequestVote() && !IsProposalVote())
         return false;
@@ -346,6 +367,9 @@ bool CScript::ExtractVote(uint256 &hash, int &vote) const
 
     if ((*this)[3] == OP_ABSTAIN)
         vote = -1;
+
+    if ((*this)[3] == OP_REMOVE)
+        vote = -2;
 
     return true;
 }
