@@ -408,8 +408,6 @@ struct CNodeState {
     //! Whether this peer can give us witnesses
     bool fHaveWitness;
 
-    CNodeHeaders headers;
-
     CNodeState() {
         fCurrentlyConnected = false;
         nMisbehavior = 0;
@@ -434,6 +432,7 @@ struct CNodeState {
 
 /** Map maintaining per-node state. Requires cs_main. */
 map<NodeId, CNodeState> mapNodeState;
+map<CService, CNodeHeaders> mapServiceHeaders;
 
 // Requires cs_main.
 CNodeState *State(NodeId pnode) {
@@ -441,6 +440,26 @@ CNodeState *State(NodeId pnode) {
     if (it == mapNodeState.end())
         return NULL;
     return &it->second;
+}
+
+static CNodeHeaders &ServiceHeaders(const CService& address) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    unsigned short port =
+            GetBoolArg("-headerspamfilterignoreport", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT) ? 0 : address.GetPort();
+    CService addr(address, port);
+    return mapServiceHeaders[addr];
+}
+
+static void CleanAddressHeaders(const CAddress& addr) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    CSubNet subNet(addr);
+    for (std::map<CService, CNodeHeaders>::iterator it=mapServiceHeaders.begin(); it!=mapServiceHeaders.end();){
+        if(subNet.Match(it->first))
+        {
+            it = mapServiceHeaders.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
 }
 
 int GetHeight()
@@ -7209,9 +7228,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             LOCK(cs_main);
             CValidationState state;
             CNodeState *nodestate = State(pfrom->GetId());
-            nodestate->headers.addHeaders(nFirst, nLast);
+            CNodeHeaders& headers = ServiceHeaders(nodestate->address);
+            headers.addHeaders(nFirst, nLast);
             int nDoS;
-            ret = nodestate->headers.updateState(state, ret);
+            ret = headers.updateState(state, ret);
             if (state.IsInvalid(nDoS)) {
                 if (nDoS > 0)
                     Misbehaving(pfrom->GetId(), nDoS);
@@ -7790,6 +7810,8 @@ bool SendMessages(CNode* pto)
                 else
                 {
                     CNode::Ban(pto->addr, BanReasonNodeMisbehaving);
+                    // Remove all data from the header spam filter when the address is banned
+                    CleanAddressHeaders(pto->addr);
                 }
             }
             state.fShouldBan = false;

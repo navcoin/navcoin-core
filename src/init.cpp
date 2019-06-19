@@ -561,6 +561,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-headerspamfilter=<n>", strprintf(_("Use header spam filter (default: %u)"), DEFAULT_HEADER_SPAM_FILTER));
     strUsage += HelpMessageOpt("-headerspamfiltermaxsize=<n>", strprintf(_("Maximum size of the list of indexes in the header spam filter (default: %u)"), DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE));
     strUsage += HelpMessageOpt("-headerspamfiltermaxavg=<n>", strprintf(_("Maximum average size of an index occurrence in the header spam filter (default: %u)"), DEFAULT_HEADER_SPAM_FILTER_MAX_AVG));
+    strUsage += HelpMessageOpt("-headerspamfilterignoreport=<n>", strprintf("Ignore the port in the ip address when looking for header spam, determine whether or not multiple nodes can be on the same IP (default: %u)", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT));
 
     return strUsage;
 }
