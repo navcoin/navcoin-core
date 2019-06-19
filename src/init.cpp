@@ -415,7 +415,6 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-maxtimeoffset=<n>", strprintf(_("Max number of seconds allowed as clock offset for a peer (default: %u)"), MAXIMUM_TIME_OFFSET));
     strUsage += HelpMessageGroup(_("Connection options:"));
     strUsage += HelpMessageOpt("-addnode=<ip>", _("Add a node to connect to and attempt to keep the connection open"));
-    strUsage += HelpMessageOpt("-addanonserver=<ip>", _("Add a NavTech node to use for private transactions"));
     strUsage += HelpMessageOpt("-banscore=<n>", strprintf(_("Threshold for disconnecting misbehaving peers (default: %u)"), DEFAULT_BANSCORE_THRESHOLD));
     strUsage += HelpMessageOpt("-bantime=<n>", strprintf(_("Number of seconds to keep misbehaving peers from reconnecting (default: %u)"), DEFAULT_MISBEHAVING_BANTIME));
     strUsage += HelpMessageOpt("-banversion=<string>", strprintf(_("Version of wallet to be banned")));
@@ -1023,29 +1022,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (!SetupNetworking())
         return InitError("Initializing networking failed");
-
-    int keylen_pub, keylen_priv;
-
-    RSA *rsa = RSA_generate_key(2048, 3, 0, 0);
-
-    /* Create Private Key */
-    BIO *biopriv = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSAPrivateKey(biopriv, rsa, NULL, NULL, 0, NULL, NULL);
-
-    keylen_priv = BIO_pending(biopriv);
-    sPrivKey = static_cast<char*>(calloc(keylen_priv+1, 1)); /* Null-terminate */
-    BIO_read(biopriv, sPrivKey, keylen_priv);
-
-
-    /* Create Public Key */
-    BIO *bio_pub = BIO_new(BIO_s_mem());
-    PEM_write_bio_RSA_PUBKEY(bio_pub, rsa);
-
-    keylen_pub = BIO_pending(bio_pub);
-    sPubKey = static_cast<char*>(calloc(keylen_pub+1, 1)); /* Null-terminate */
-    BIO_read(bio_pub, sPubKey, keylen_pub);
-
-    LogPrintf("RSA keys pair generated.\n");
 
 #ifndef WIN32
     if (GetBoolArg("-sysperms", false)) {
