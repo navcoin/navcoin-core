@@ -741,36 +741,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="noNavtechLabel">
-         <property name="font">
-          <font>
-           <pointsize>11</pointsize>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="text">
-          <string>You don't have any NAVTech server added. </string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="anonsendCheckbox">
-         <property name="font">
-          <font>
-           <pointsize>11</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Private payment</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="horizontalSpacer_9">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -891,18 +861,6 @@
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item>
-           <widget class="QPushButton" name="noNavtechButton">
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Manage NAVTech servers</string>
-            </property>
-           </widget>
-          </item>
           <item>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
