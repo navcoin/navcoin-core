@@ -35,8 +35,6 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getnetworkhashps", 1 },
     { "sendtoaddress", 1 },
     { "sendtoaddress", 5 },
-    { "anonsend", 1 },
-    { "anonsend", 4 },
     { "settxfee", 0 },
     { "getreceivedbyaddress", 1 },
     { "getreceivedbyaccount", 1 },
@@ -126,7 +124,6 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "coinstakeinputs", 0 },
     { "forcetransactions", 0 },
     { "donatefund", 1 },
-
 };
 
 class CRPCConvertTable
