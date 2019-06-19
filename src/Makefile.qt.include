@@ -116,9 +116,6 @@ QT_FORMS_UI = \
 	qt/forms/communityfunddisplay.ui \
 	qt/forms/communityfunddisplaypaymentrequest.ui \
 	qt/forms/communityfunddisplaypaymentrequestdetailed.ui \
-	qt/navtechinit.ui \
-	qt/navtechitem.ui \
-	qt/navtechsetup.ui \
 	qt/getaddresstoreceive.ui
 
 QT_MOC_CPP = \
@@ -141,9 +138,6 @@ QT_MOC_CPP = \
 	qt/moc_modaloverlay.cpp \
 	qt/moc_macdockiconhandler.cpp \
 	qt/moc_macnotificationhandler.cpp \
-	qt/moc_navtechinit.cpp \
-	qt/moc_navtechsetup.cpp \
-	qt/moc_navtechitem.cpp \
 	qt/moc_getaddresstoreceive.cpp \
 	qt/moc_notificator.cpp \
 	qt/moc_openuridialog.cpp \
@@ -232,9 +226,6 @@ NAVCOIN_QT_H = \
 	qt/listview.h \
 	qt/macdockiconhandler.h \
 	qt/macnotificationhandler.h \
-	qt/navtechinit.h \
-	qt/navtechitem.h \
-	qt/navtechsetup.h \
 	qt/getaddresstoreceive.h \
 	qt/modaloverlay.h \
 	qt/networkstyle.h \
@@ -367,9 +358,6 @@ NAVCOIN_QT_CPP = \
 	qt/navcoinamountfield.cpp \
 	qt/navcoingui.cpp \
 	qt/navcoinunits.cpp \
-	qt/navtechinit.cpp \
-	qt/navtechitem.cpp \
-	qt/navtechsetup.cpp \
 	qt/getaddresstoreceive.cpp \
 	qt/clientmodel.cpp \
 	qt/csvmodelwriter.cpp \

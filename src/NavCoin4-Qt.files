@@ -572,9 +572,6 @@ qt/moc_navcoinaddressvalidator.cpp
 qt/moc_navcoinamountfield.cpp
 qt/moc_navcoingui.cpp
 qt/moc_navcoinunits.cpp
-qt/moc_navtechinit.cpp
-qt/moc_navtechitem.cpp
-qt/moc_navtechsetup.cpp
 qt/moc_notificator.cpp
 qt/moc_openuridialog.cpp
 qt/moc_optionsdialog.cpp
@@ -612,14 +609,6 @@ qt/navcoingui.h
 qt/navcoinstrings.cpp
 qt/navcoinunits.cpp
 qt/navcoinunits.h
-qt/navtechinit.cpp
-qt/navtechinit.h
-qt/navtechitem.cpp
-qt/navtechitem.h
-qt/navtechitem.ui
-qt/navtechsetup.cpp
-qt/navtechsetup.h
-qt/navtechsetup.ui
 qt/networkstyle.cpp
 qt/networkstyle.h
 qt/notificator.cpp
@@ -693,9 +682,6 @@ qt/transactiontablemodel.h
 qt/transactionview.cpp
 qt/transactionview.h
 qt/ui_getaddresstoreceive.h
-qt/ui_navtechinit.h
-qt/ui_navtechitem.h
-qt/ui_navtechsetup.h
 qt/utilitydialog.cpp
 qt/utilitydialog.h
 qt/walletframe.cpp
@@ -936,8 +922,6 @@ wallet/crypter.cpp
 wallet/crypter.h
 wallet/db.cpp
 wallet/db.h
-wallet/navtech.cpp
-wallet/navtech.h
 wallet/rpcdump.cpp
 wallet/rpcwallet.cpp
 wallet/rpcwallet.h
