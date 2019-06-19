@@ -10,7 +10,6 @@
 #include "core_io.h"
 #include "init.h"
 #include "main.h"
-#include "navtech.h"
 #include "net.h"
 #include "netbase.h"
 #include "policy/rbf.h"
@@ -36,7 +35,6 @@ using namespace std;
 int64_t nWalletUnlockTime;
 int64_t nWalletFirstStakeTime = -1;
 static CCriticalSection cs_nWalletUnlockTime;
-Navtech navtech;
 
 std::string HelpRequiringPassphrase()
 {
@@ -444,7 +442,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
             "                             to which you're sending the transaction. This is not part of the \n"
             "                             transaction, just kept in your wallet.\n"
-            "5. \"anon-destination\"  (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "5. \"anon-destination\"  (string, optional) Encrypted destination address if you're sending a NAVtech transaction (DEPRECATED) \n"
             "6. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
             "                             The recipient will receive less navcoins than you enter in the amount field.\n"
             "\nResult:\n"
@@ -778,185 +776,6 @@ UniValue donatefund(const UniValue& params, bool fHelp)
 
     return wtx.GetHash().GetHex();
 }
-
-UniValue anonsend(const UniValue& params, bool fHelp)
-{
-    if (!EnsureWalletIsAvailable(fHelp))
-        return NullUniValue;
-
-    if (fHelp || params.size() < 2 || params.size() > 5)
-        throw runtime_error(
-            "anonsend \"navcoinaddress\" amount ( \"comment\" \"comment-to\" )\n"
-            "\nSend an amount to a given address anonymously.\n"
-            + HelpRequiringPassphrase() +
-            "\nArguments:\n"
-            "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
-            "2. \"amount\"      (numeric or string, required) The amount in " + CURRENCY_UNIT + " to send. eg 0.1\n"
-            "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
-            "                             This is not part of the transaction, just kept in your wallet.\n"
-            "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
-            "                             to which you're sending the transaction. This is not part of the \n"
-            "                             transaction, just kept in your wallet.\n"
-            "\nResult:\n"
-            "\"transactionid\"  (string) The transaction id.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
-            + HelpExampleCli("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\"")
-            + HelpExampleRpc("anonsend", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
-        );
-
-    // Amount
-    CAmount nAmount = AmountFromValue(params[1]);
-    if (nAmount <= 0)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
-
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
-    int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
-
-    unsigned int nTransactions = (rand() % nEntropy) + 2;
-
-    string address_str = params[0].get_str();
-    utils::DNSResolver *DNS = nullptr;
-
-    if(DNS->check_address_syntax(params[0].get_str().c_str()))
-    {
-        bool dnssec_valid; bool dnssec_available;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
-
-        if(addresses.empty())
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
-        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
-        else
-        {
-
-          address_str = addresses.front();
-
-        }
-
-    }
-
-    CNavCoinAddress address(address_str);
-    if (!address.IsValid())
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
-
-    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str(), nAmount / (nTransactions * 2), nTransactions);
-    std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
-
-    if(serverNavAddresses.size() != nTransactions)
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "NAVTech server returned a different number of addresses.");
-
-    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-    {
-        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
-        if (!serverNavAddress.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
-    }
-
-    // Wallet comments
-    CWalletTx wtx;
-    if (params.size() > 2 && !params[2].isNull() && !params[2].get_str().empty())
-        wtx.mapValue["comment"] = params[2].get_str();
-    if (params.size() > 3 && !params[3].isNull() && !params[3].get_str().empty())
-        wtx.mapValue["to"]      = params[3].get_str();
-
-    std::string strDZeel;
-
-    if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
-        strDZeel = params[4].get_str();
-
-    bool fSubtractFeeFromAmount = true;
-
-    EnsureWalletIsUnlocked();
-
-    CAmount nAmountAlreadyProcessed = 0;
-    CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
-    UniValue pubKey = find_value(navtechData, "public_key");
-    double nId = rand() % pindexBestHeader->GetMedianTimePast();
-
-    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-    {
-        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
-        CAmount nAmountRound = 0;
-        CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
-        CAmount nAmountToSubstract = nAmountNotProcessed / ((rand() % nEntropy)+2);
-        if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
-        {
-            nAmountRound = nAmountNotProcessed;
-            i = serverNavAddresses.size();
-        }
-        else
-        {
-            nAmountRound = std::max(nAmountToSubstract,nMinAmount);
-        }
-
-        nAmountAlreadyProcessed += nAmountRound;
-
-        string encryptedAddress = navtech.EncryptAddress(params[0].get_str(), pubKey.get_str(), serverNavAddresses.size(), i+(i==serverNavAddresses.size()?0:1), nId);
-        wtx.strDZeel = encryptedAddress;
-        SendMoney(serverNavAddress.Get(), nAmountRound, fSubtractFeeFromAmount, wtx, encryptedAddress);
-    }
-
-    return wtx.GetHash().GetHex();
-}
-
-UniValue getanondestination(const UniValue& params, bool fHelp)
-{
-    if (!EnsureWalletIsAvailable(fHelp))
-        return NullUniValue;
-
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getanondestination \"navcoinaddress\"\n"
-            "\nGet the the encrypted anon destination and address to send to.\n"
-            + HelpRequiringPassphrase() +
-            "\nArguments:\n"
-            "1. \"navcoinaddress\"  (string, required) The navcoin address to send to.\n"
-            "\nResult:\n"
-            "\"anondestination\"  (string) The encrypted information to attach to the transaction.\n"
-            "\"anonaddress\"  (string) The nav coin address to send the anon transaction to.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getanondestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
-        );
-
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
-    string address_str = params[0].get_str();
-    utils::DNSResolver *DNS = nullptr;
-
-    if(DNS->check_address_syntax(params[0].get_str().c_str()))
-    {
-        bool dnssec_valid; bool dnssec_available;
-        std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
-
-        if(addresses.empty())
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
-        else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
-        else
-        {
-
-          address_str = addresses.front();
-
-        }
-
-    }
-
-    CNavCoinAddress address(address_str);
-    if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
-
-    UniValue navtechData = navtech.CreateAnonTransaction(params[0].get_str());
-
-    CNavCoinAddress serverNavAddress(find_value(navtechData, "anonaddress").get_str());
-    if (!serverNavAddress.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address provided by NAVTech server");
-
-    return navtechData;
-}
-
 
 UniValue listaddressgroupings(const UniValue& params, bool fHelp)
 {
@@ -3742,8 +3561,6 @@ static const CRPCCommand commands[] =
     { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
     { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
     { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
-    { "wallet",             "anonsend",                 &anonsend,                 false },
-    { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
     { "wallet",             "settxfee",                 &settxfee,                 true  },
     { "wallet",             "signmessage",              &signmessage,              true  },
