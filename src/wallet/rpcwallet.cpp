@@ -465,16 +465,17 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
         std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(params[0].get_str().c_str(), dnssec_available, dnssec_valid);
 
         if(addresses.empty())
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid OpenAlias address");
+        }
         else if (!dnssec_valid && GetBoolArg("-requirednssec",true))
-          throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "OpenAlias Address does not support DNS Sec");
+        }
         else
         {
-
           address_str = addresses.front();
-
         }
-
     }
 
     CNavCoinAddress address(address_str);
