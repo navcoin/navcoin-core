@@ -71,8 +71,6 @@
 #include "zmq/zmqnotificationinterface.h"
 #endif
 
-char *sPrivKey, *sPubKey;
-
 using namespace std;
 
 bool fFeeEstimatesInitialized = false;

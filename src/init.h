@@ -40,6 +40,4 @@ std::string LicenseInfo();
 
 void AlertNotify(const std::string& strMessage);
 
-extern char *sPrivKey, *sPubKey;
-
 #endif // NAVCOIN_INIT_H
