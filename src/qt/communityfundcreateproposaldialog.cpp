@@ -206,12 +206,12 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
                 CAmount nValue = Params().GetConsensus().nProposalMinimalFee;
-                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
                 vecSend.push_back(recipient);
 
                 bool created_proposal = true;
 
-                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_proposal = false;
                     }

@@ -270,12 +270,12 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
                 CAmount nValue = 1000;
-                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
                 vecSend.push_back(recipient);
 
                 bool created_prequest = true;
 
-                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_prequest = false;
                     }
