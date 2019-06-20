@@ -388,7 +388,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool donate = false, bool fDoNotSend = false)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, bool donate = false, bool fDoNotSend = false)
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
@@ -405,7 +405,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     CScript scriptPubKey = GetScriptForDestination(address);
 
     if(donate)
-      CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+        CFund::SetScriptForCommunityFundContribution(scriptPubKey);
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
@@ -413,9 +413,9 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -497,7 +497,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     std::string strDZeel;
 
     if (params.size() > 4 && !params[4].isNull() && !params[4].get_str().empty())
-        strDZeel = params[4].get_str();
+        wtx.strDZeel = params[4].get_str();
 
     bool fSubtractFeeFromAmount = false;
     if (params.size() > 5)
@@ -505,9 +505,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    wtx.strDZeel = strDZeel;
-
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, strDZeel);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx);
 
     return wtx.GetHash().GetHex();
 }
@@ -602,7 +600,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
@@ -612,8 +610,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
-    else
-        return EncodeHexTx(wtx);
+
+    return EncodeHexTx(wtx);
 }
 
 std::string random_string( size_t length )
@@ -721,7 +719,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
-    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
@@ -731,8 +729,8 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
         ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
-    else
-        return EncodeHexTx(wtx);
+
+    return EncodeHexTx(wtx);
 }
 
 UniValue donatefund(const UniValue& params, bool fHelp)
@@ -773,7 +771,7 @@ UniValue donatefund(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true);
 
     return wtx.GetHash().GetHex();
 }
@@ -1288,7 +1286,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
                 fSubtractFeeFromAmount = true;
         }
 
-        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, ""};
+        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount};
         vecSend.push_back(recipient);
     }
 
