@@ -13,7 +13,7 @@ class ColdStakingSpending(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
-        self.num_nodes = 2
+        self.num_nodes = 1
     # set up nodes
     def setup_network(self, split=False):
         self.nodes = self.setup_nodes()
@@ -52,7 +52,8 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         # send funds to the cold staking address (leave some nav for fees) -- we specifically require
         # a transaction fee of minimum 0.002884 navcoin due to the complexity of this transaction
-        self.nodes[0].sendtoaddress(coldstaking_address_spending, float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE)
+        tx = self.nodes[0].sendtoaddress(coldstaking_address_spending, float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE)
+        fee = self.nodes[0].gettransaction(tx)['fee']
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
         # create list for all coldstaking utxo recieved
@@ -72,7 +73,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         # difference between balance after sending and previous balance is the same when block reward is removed
         # values are converted to string and "00" is added to right of == operand because values must have equal num of
         # decimals
-        assert(str(balance_post_send_one - BLOCK_REWARD) <= (str(float(balance_before_send) - MIN_COLDSTAKING_SENDING_FEE) + "00"))
+        assert_equal(balance_post_send_one - BLOCK_REWARD, balance_before_send + fee) # FEE IS negative already so we ADD it
 
         """check staking weight now == 0 (we don't hold the staking key)"""
 
