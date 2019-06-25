@@ -587,6 +587,16 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         }
     }
 
+    CNavCoinAddress poolFeeAddress(GetArg("-pooladdress", ""));
+    double nPoolFee = GetArg("-poolfee", 0) / 100;
+
+    if (nPoolFee > 0 && poolFeeAddress.IsValid())
+    {
+        CAmount nRewardAsFee = nReward * nPoolFee;
+        txNew.vout[txNew.vout.size()-1].nValue -= nRewardAsFee;
+        txNew.vout.push_back(CTxOut(nRewardAsFee, GetScriptForDestination(poolFeeAddress.Get())));
+    }
+
     // Adds Community Fund output if enabled
     if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
     {
