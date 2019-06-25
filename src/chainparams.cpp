@@ -6,6 +6,7 @@
 
 #include "chainparams.h"
 #include "consensus/merkle.h"
+#include "consensus/dao.h"
 
 #include "tinyformat.h"
 #include "util.h"
@@ -121,8 +122,11 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 6;
         consensus.nCyclesPaymentRequestVoting = 8;
-        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
-        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
+        consensus.nCyclesConsultationVoting = 8;
+        consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
+        consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;
+        consensus.nConsultationAnswerMaxVersion = CConsultationAnswer::ALL_VERSION;
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 2722100;
@@ -203,6 +207,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of CONSULTATIONS for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -326,8 +335,11 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
-        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
-        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
+        consensus.nCyclesConsultationVoting = 4;
+        consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
+        consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;
+        consensus.nConsultationAnswerMaxVersion = CConsultationAnswer::ALL_VERSION;
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 100000;
@@ -395,6 +407,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of CONSULTATIONS for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -511,8 +528,11 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
-        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
-        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
+        consensus.nCyclesConsultationVoting = 4;
+        consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
+        consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;
+        consensus.nConsultationAnswerMaxVersion = CConsultationAnswer::ALL_VERSION;
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
@@ -580,6 +600,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of CONSULTATIONS for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -706,8 +731,11 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
-        consensus.nPaymentRequestMaxVersion = CFund::CPaymentRequest::ALL_VERSION;
-        consensus.nProposalMaxVersion = CFund::CProposal::ALL_VERSION;
+        consensus.nCyclesConsultationVoting = 4;
+        consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
+        consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
+        consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;
+        consensus.nConsultationAnswerMaxVersion = CConsultationAnswer::ALL_VERSION;
         consensus.nMaxFutureDrift = 60000;
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
@@ -775,6 +803,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of CONSULTATIONS for the Community Fund
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

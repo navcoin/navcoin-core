@@ -9,14 +9,14 @@
 #include <ctime>
 #include "wallet/wallet.h"
 #include "base58.h"
-#include "consensus/cfund.h"
+#include "consensus/dao.h"
 #include "chain.h"
 #include "guiutil.h"
 
 #include "communityfunddisplaydetailed.h"
 #include "communityfundpage.h"
 
-CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
+CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CProposal proposal) :
     QWidget(parent),
     ui(new Ui::CommunityFundDisplay),
     proposal(proposal)
@@ -82,7 +82,7 @@ void CommunityFundDisplay::refresh()
     }
 
     // If proposal is pending show voting cycles left
-    if (proposal.fState == CFund::NIL)
+    if (proposal.fState == NIL)
     {
         std::string duration_title = "Voting Cycle: ";
         std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesProposalVoting);
@@ -91,7 +91,7 @@ void CommunityFundDisplay::refresh()
     }
 
     // If proposal is rejected, show when it was rejected
-    if (proposal.fState == CFund::REJECTED)
+    if (proposal.fState == REJECTED)
     {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
@@ -104,9 +104,9 @@ void CommunityFundDisplay::refresh()
     }
 
     // If expired show when it expired
-    if (proposal.fState == CFund::EXPIRED || status.find("expired") != string::npos)
+    if (proposal.fState == EXPIRED || status.find("expired") != string::npos)
     {
-        if (proposal.fState == CFund::EXPIRED)
+        if (proposal.fState == EXPIRED)
         {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
@@ -128,10 +128,10 @@ void CommunityFundDisplay::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+    if (proposal.fState == NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
     {
         // Get proposal votes list
-        CFund::CProposal prop = this->proposal;
+        CProposal prop = this->proposal;
         auto it = mapAddedVotes.find(proposal.hash);
 
         if (it != mapAddedVotes.end())
@@ -207,7 +207,7 @@ void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
     // Cast the vote
     bool duplicate = false;
 
-    CFund::CProposal p;
+    CProposal p;
     if (!pcoinsTip->GetProposal(uint256S(proposal.hash.ToString()), p))
     {
         return;
@@ -215,22 +215,22 @@ void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
 
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        CFund::VoteProposal(p, 1, duplicate);
+        Vote(p.hash, 1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        CFund::VoteProposal(p, 0, duplicate);
+        Vote(p.hash, 0, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->standardButton(button) == QDialogButtonBox::Ignore)
     {
-        CFund::VoteProposal(p, -1, duplicate);
+        Vote(p.hash, -1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
-        CFund::RemoveVoteProposal(p.hash.ToString());
+        RemoveVote(p.hash);
         refresh();
     }
     else

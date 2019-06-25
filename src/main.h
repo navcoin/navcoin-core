@@ -50,6 +50,8 @@ class CBlockTreeDB;
 class CBloomFilter;
 class CChainParams;
 class CInv;
+class CPaymentRequest;
+class CProposal;
 class CScriptCheck;
 class CTxMemPool;
 class CValidationInterface;
@@ -361,7 +363,7 @@ unsigned int GetLegacySigOpCount(const CTransaction& tx);
  * @return maximum number of sigops required to validate this transaction's inputs
  * @see CTransaction::FetchInputs
  */
-unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& mapInputs);
+unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CStateViewCache& mapInputs);
 
 /**
  * Compute total signature operation cost of a transaction.
@@ -370,18 +372,18 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& ma
  * @param[out] flags Script verification flags
  * @return Total signature operation cost of tx
  */
-int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& inputs, int flags);
+int64_t GetTransactionSigOpCost(const CTransaction& tx, const CStateViewCache& inputs, int flags);
 
 /**
  * Check whether all inputs of this transaction are valid (no double spends, scripts & sigs, amounts)
  * This does not modify the UTXO set. If pvChecks is not NULL, script checks are pushed onto it
  * instead of being performed inline.
  */
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &view, bool fScriptChecks,
                  unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks = NULL);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
-void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);
+void UpdateCoins(const CTransaction& tx, CStateViewCache& inputs, int nHeight);
 
 /** Context-independent validity checks */
 bool CheckTransaction(const CTransaction& tx, CValidationState& state);
@@ -492,14 +494,14 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
-bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& coins,
+bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CStateViewCache& coins,
                   const CChainParams& chainparams, bool fJustCheck = false, bool fProofOfStake = false);
 
 /** Undo the effects of this block (with given index) on the UTXO set represented by coins.
  *  In case pfClean is provided, operation will try to be tolerant about errors, and *pfClean
  *  will be true if no problems were found. Otherwise, the return value will be false in case
  *  of problems. Note that in any case, coins may be modified. */
-bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockIndex* pindex, CCoinsViewCache& coins, bool* pfClean = NULL);
+bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockIndex* pindex, CStateViewCache& coins, bool* pfClean = NULL);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block, with cs_main held) */
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig = true);
@@ -516,6 +518,7 @@ bool IsCommunityFundAccumulationSpreadEnabled(const CBlockIndex* pindexPrev, con
 bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsAbstainVoteEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsConsultationsEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether the static reward has been activated **/
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
@@ -543,7 +546,7 @@ class CVerifyDB {
 public:
     CVerifyDB();
     ~CVerifyDB();
-    bool VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview, int nCheckLevel, int nCheckDepth);
+    bool VerifyDB(const CChainParams& chainparams, CStateView *coinsview, int nCheckLevel, int nCheckDepth);
 };
 
 /** Find the last common block between the parameter chain and a locator. */
@@ -567,8 +570,8 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 /** The currently-connected chain of blocks (protected by cs_main). */
 extern CChain chainActive;
 
-/** Global variable that points to the active CCoinsView (protected by cs_main) */
-extern CCoinsViewCache *pcoinsTip;
+/** Global variable that points to the active CStateView (protected by cs_main) */
+extern CStateViewCache *pcoinsTip;
 
 /** Global variable that points to the active block tree (protected by cs_main) */
 extern CBlockTreeDB *pblocktree;
@@ -579,7 +582,7 @@ extern uint256 hashBestChain;
  * While checking, GetBestBlock() refers to the parent block. (protected by cs_main)
  * This is also true for mempool checks.
  */
-int GetSpendHeight(const CCoinsViewCache& inputs);
+int GetSpendHeight(const CStateViewCache& inputs);
 
 extern VersionBitsCache versionbitscache;
 
@@ -643,7 +646,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
 
-bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal);
-bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
+bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CProposal& proposal);
+bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CPaymentRequest& prequest, CStateViewCache& view);
 
 #endif // NAVCOIN_MAIN_H

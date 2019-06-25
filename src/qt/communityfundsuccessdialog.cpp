@@ -2,7 +2,7 @@
 #include "ui_communityfundsuccessdialog.h"
 #include <QDialog>
 
-CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *parent, CFund::CProposal* proposal) :
+CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *parent, CProposal* proposal) :
     QDialog(parent),
     ui(new Ui::CommunityFundSuccessDialog),
     proposal(proposal),
@@ -18,7 +18,7 @@ CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *pa
     ui->label->setOpenExternalLinks(true);
 }
 
-CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *parent, CFund::CPaymentRequest* prequest) :
+CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *parent, CPaymentRequest* prequest) :
     QDialog(parent),
     ui(new Ui::CommunityFundSuccessDialog),
     proposal(0),

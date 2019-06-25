@@ -214,7 +214,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         std::map<uint256, bool> votes;
         for (auto& it: mapAddedVotes)
         {
-            CFund::CProposal proposal;
+            CProposal proposal;
             int64_t vote = it.second;
 
             if (!IsAbstainVoteEnabled(pindexPrev, chainparams.GetConsensus()) && vote == -1)
@@ -226,7 +226,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
-                    CFund::SetScriptForProposalVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,proposal.hash, vote);
+                    SetScriptForProposalVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,proposal.hash, vote);
 
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
                     votes[proposal.hash] = vote;
@@ -237,7 +237,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
         for (auto& it: mapAddedVotes)
         {
-            CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+            CPaymentRequest prequest; CProposal proposal;
             int64_t vote = it.second;
 
             if (!IsAbstainVoteEnabled(pindexPrev, chainparams.GetConsensus()) && vote == -1)
@@ -256,13 +256,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if(pblockindex == NULL)
                     continue;
 
-                if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
+                if((proposal.CanRequestPayments() || proposal.fState == PENDING_VOTING_PREQ)
                         && prequest.CanVote(*pcoinsTip) && votes.count(prequest.hash) == 0 &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
-                    CFund::SetScriptForPaymentRequestVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,prequest.hash, vote);
+                    SetScriptForPaymentRequestVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,prequest.hash, vote);
 
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
                     votes[prequest.hash] = vote;
@@ -277,7 +277,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
-                CFund::CPaymentRequest prequest;
+                CPaymentRequest prequest;
 
                 if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                     continue;
@@ -293,10 +293,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if(prequest.hash == uint256())
                     continue;
 
-                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
+                if(prequest.fState == ACCEPTED && prequest.paymenthash == uint256() &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
-                    CFund::CProposal proposal;
+                    CProposal proposal;
 
                     if(pcoinsTip->GetProposal(prequest.proposalhash, proposal))
                     {
@@ -896,7 +896,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
   if (pblock->IsProofOfStake())
       return true;
 
-  CCoinsViewCache view(pcoinsTip);
+  CStateViewCache view(pcoinsTip);
 
   static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
 
@@ -940,8 +940,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       std::vector<unsigned char> stakerScript = std::vector<unsigned char>(txCoinStake.vout[1].scriptPubKey.begin(),txCoinStake.vout[1].scriptPubKey.end());
 
                       CVoteList pVoteList;
-                      view.GetCachedVote(stakerScript, pVoteList);
-                      std::map<uint256, CFund::CVote> list = pVoteList.GetList();
+                      view.GetCachedVoter(stakerScript, pVoteList);
+                      std::map<uint256, CVote> list = pVoteList.GetList();
 
                       for (auto it = pblock->vtx[0].vout.begin(); it != pblock->vtx[0].vout.end();)
                       {
@@ -983,10 +983,10 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
 
                               if (view.HaveProposal(hash))
-                                  CFund::SetScriptForProposalVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
+                                  SetScriptForProposalVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
 
                               if (view.HavePaymentRequest(hash))
-                                  CFund::SetScriptForPaymentRequestVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
+                                  SetScriptForPaymentRequestVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
 
                               pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
                               votes[hash] = true;
@@ -994,8 +994,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       }
                   }
               }
-
-              std::cout << ">> coinbase >> " << pblock->vtx[0].ToString() << std::endl;
 
               for(unsigned int i = 0; i < vCoinStakeOutputs.size(); i++)
               {

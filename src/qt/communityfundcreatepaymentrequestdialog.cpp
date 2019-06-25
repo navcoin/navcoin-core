@@ -7,7 +7,7 @@
 #include <string>
 
 #include "base58.h"
-#include "consensus/cfund.h"
+#include "consensus/dao.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "main.cpp"
@@ -90,7 +90,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
         // Get Proposal
-        CFund::CProposal proposal;
+        CProposal proposal;
         if(!pcoinsTip->GetProposal(uint256S(ui->lineEditProposalHash->text().toStdString()), proposal)) {
             QMessageBox msgBox(this);
             std::string str = "Proposal could not be found with that hash\n";
@@ -101,7 +101,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.exec();
             return;
         }
-        if(proposal.fState != CFund::ACCEPTED) {
+        if(proposal.fState != ACCEPTED) {
             QMessageBox msgBox(this);
             std::string str = "Proposals need to have been accepted to create a Payment Request for them\n";
             msgBox.setText(tr(str.c_str()));
@@ -206,13 +206,13 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         bool fSubtractFeeFromAmount = false;
 
         UniValue strDZeel(UniValue::VOBJ);
-        uint64_t nVersion = CFund::CPaymentRequest::BASE_VERSION;
+        uint64_t nVersion = CPaymentRequest::BASE_VERSION;
 
         if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
-            nVersion |= CFund::CPaymentRequest::REDUCED_QUORUM_VERSION;
+            nVersion |= CPaymentRequest::REDUCED_QUORUM_VERSION;
 
         if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
-            nVersion |= CFund::CPaymentRequest::ABSTAIN_VOTE_VERSION;
+            nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
         strDZeel.push_back(Pair("h",ui->lineEditProposalHash->text().toStdString()));
         strDZeel.push_back(Pair("n",nReqAmount));
@@ -253,7 +253,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
             // Create confirmation dialog
-            CFund::CPaymentRequest* preq = new CFund::CPaymentRequest();
+            CPaymentRequest* preq = new CPaymentRequest();
             preq->nAmount = ui->lineEditRequestedAmount->value();
             preq->proposalhash = proposal.hash;
             preq->strDZeel = ui->plainTextEditDescription->toPlainText().toStdString();
@@ -268,7 +268,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                 // Parse NavCoin address
                 CScript CFContributionScript;
                 CScript scriptPubKey = GetScriptForDestination(address.Get());
-                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+                SetScriptForCommunityFundContribution(scriptPubKey);
 
                 // Create and send the transaction
                 CReserveKey reservekey(pwalletMain);
@@ -334,20 +334,20 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
 bool CommunityFundCreatePaymentRequestDialog::isActiveProposal(uint256 hash)
 {
-    std::vector<CFund::CProposal> vec;
+    std::vector<CProposal> vec;
     CProposalMap mapProposals;
 
     if(pcoinsTip->GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
-            CFund::CProposal proposal;
+            CProposal proposal;
             if (!pcoinsTip->GetProposal(it->first, proposal))
                 continue;
             vec.push_back(proposal);
         }
 
-        if(std::find_if(vec.begin(), vec.end(), [&hash](CFund::CProposal& obj) {return obj.hash == hash;}) == vec.end())
+        if(std::find_if(vec.begin(), vec.end(), [&hash](CProposal& obj) {return obj.hash == hash;}) == vec.end())
         {
             return false;
         }

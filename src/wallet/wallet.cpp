@@ -9,7 +9,7 @@
 #include "checkpoints.h"
 #include "chain.h"
 #include "coincontrol.h"
-#include "consensus/cfund.h"
+#include "consensus/dao.h"
 #include "consensus/consensus.h"
 #include "consensus/validation.h"
 #include "init.h"
@@ -596,7 +596,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             {
                 int fundIndex = txNew.vout.size() + 1;
                 txNew.vout.resize(fundIndex);
-                CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+                SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
 
                 if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
                     txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2 * Params().GetConsensus().nBlockSpreadCFundAccumulation;
@@ -609,7 +609,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         {
             int fundIndex = txNew.vout.size() + 1;
             txNew.vout.resize(fundIndex);
-            CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+            SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
 
              if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
                 txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2;

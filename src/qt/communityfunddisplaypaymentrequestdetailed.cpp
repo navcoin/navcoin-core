@@ -7,7 +7,7 @@
 #include "wallet/wallet.h"
 #include "base58.h"
 
-CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDetailed(QWidget *parent, CFund::CPaymentRequest prequest) :
+CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDetailed(QWidget *parent, CPaymentRequest prequest) :
     QDialog(parent),
     ui(new Ui::CommunityFundDisplayPaymentRequestDetailed),
     prequest(prequest)
@@ -26,7 +26,7 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos) {
+    if (prequest.fState == NIL && prequest.GetState().find("expired") == string::npos) {
         // Get prequest votes list
         auto it = mapAddedVotes.find(prequest.hash);
         if (it != mapAddedVotes.end())
@@ -127,7 +127,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is pending show voting cycles left
-    if (prequest.fState == CFund::NIL) {
+    if (prequest.fState == NIL) {
         std::string duration_title = "Voting period finishes in: ";
         std::string duration = std::to_string(Params().GetConsensus().nCyclesPaymentRequestVoting-prequest.nVotingCycle) +  " voting cycles";
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
@@ -135,7 +135,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is accepted, show when it was accepted
-    if (prequest.fState == CFund::ACCEPTED) {
+    if (prequest.fState == ACCEPTED) {
         std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -147,7 +147,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is rejected, show when it was rejected
-    if (prequest.fState == CFund::REJECTED) {
+    if (prequest.fState == REJECTED) {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -159,8 +159,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If expired show when it expired
-    if (prequest.fState == CFund::EXPIRED || status.find("expired") != string::npos) {
-        if (prequest.fState == CFund::EXPIRED) {
+    if (prequest.fState == EXPIRED || status.find("expired") != string::npos) {
+        if (prequest.fState == EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
@@ -185,13 +185,13 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestLink->setOpenExternalLinks(true);
 
     // If prequest is pending, hide the transaction hash
-    if (prequest.fState == CFund::NIL) {
+    if (prequest.fState == NIL) {
         ui->labelPrequestTransactionBlockHashTitle->setVisible(false);
         ui->labelPrequestTransactionBlockHash->setVisible(false);
     }
 
     // If the prequest is not accepted, hide the payment hash
-    if (prequest.fState != CFund::ACCEPTED) {
+    if (prequest.fState != ACCEPTED) {
         ui->labelPrequestPaymentHashTitle->setVisible(false);
         ui->labelPrequestPaymentHash->setVisible(false);
     }
@@ -207,7 +207,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
     // Cast the vote
     bool duplicate = false;
 
-    CFund::CPaymentRequest pr;
+    CPaymentRequest pr;
     if (!pcoinsTip->GetPaymentRequest(uint256S(prequest.hash.ToString()), pr))
     {
         return;
@@ -219,7 +219,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::VotePaymentRequest(pr, 1, duplicate);
+        Vote(pr.hash, 1, duplicate);
     }
     else if(ui->buttonBoxYesNoVote_2->buttonRole(button) == QDialogButtonBox::NoRole)
     {
@@ -227,7 +227,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::VotePaymentRequest(pr, 0, duplicate);
+        Vote(pr.hash, 0, duplicate);
     }
     else if(ui->buttonBoxYesNoVote_2->standardButton(button) == QDialogButtonBox::Ignore)
     {
@@ -235,7 +235,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_ABSTAIN);
-        CFund::VotePaymentRequest(pr, -1, duplicate);
+        Vote(pr.hash, -1, duplicate);
     }
     else if(ui->buttonBoxYesNoVote_2->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
@@ -243,7 +243,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::RemoveVotePaymentRequest(pr.hash.ToString());
+        RemoveVote(pr.hash);
     }
     else {
         return;

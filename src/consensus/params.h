@@ -31,6 +31,7 @@ enum DeploymentPos
     DEPLOYMENT_QUORUM_CFUND,
     DEPLOYMENT_ABSTAIN_VOTE,
     DEPLOYMENT_VOTE_STATE_CACHE,
+    DEPLOYMENT_CONSULTATIONS,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
@@ -91,8 +92,11 @@ struct Params {
     CAmount nCommunityFundAmountV2;
     unsigned int nCyclesProposalVoting;
     unsigned int nCyclesPaymentRequestVoting;
-    int nPaymentRequestMaxVersion;
-    int nProposalMaxVersion;
+    unsigned int nCyclesConsultationVoting;
+    int64_t nPaymentRequestMaxVersion;
+    int64_t nProposalMaxVersion;
+    int64_t nConsultationMaxVersion;
+    int64_t nConsultationAnswerMaxVersion;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;

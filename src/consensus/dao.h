@@ -1,53 +1,37 @@
-// Copyright (c) 2018 The NavCoin Core developers
+// Copyright (c) 2018-2019 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef NAVCOIN_CFUND_H
-#define NAVCOIN_CFUND_H
+#ifndef NAVCOIN_DAO_H
+#define NAVCOIN_DAO_H
 
 #include "amount.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "tinyformat.h"
 #include "univalue/include/univalue.h"
-#include "uint256.h"
+
+#include "dao/flags.h"
 
 using namespace std;
 
 class CTransaction;
-class CCoinsViewCache;
+class CStateViewCache;
 class CBlockIndex;
 class CChainParams;
 class CValidationState;
 
 extern std::map<uint256, int64_t> mapAddedVotes;
 
-namespace CFund {
-
-class CProposal;
-class CPaymentRequest;
-
-typedef unsigned int flags;
-
-static const flags NIL = 0x0;
-static const flags ACCEPTED = 0x1;
-static const flags REJECTED = 0x2;
-static const flags EXPIRED = 0x3;
-static const flags PENDING_FUNDS = 0x4;
-static const flags PENDING_VOTING_PREQ = 0x5;
-
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, int64_t vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, int64_t vote);
-bool VoteProposal(CProposal proposal, int64_t vote, bool &duplicate);
-bool RemoveVoteProposal(string strProp);
-bool RemoveVoteProposal(uint256 proposalHash);
-bool VotePaymentRequest(CPaymentRequest prequest, int64_t vote, bool &duplicate);
-bool RemoveVotePaymentRequest(string strProp);
-bool RemoveVotePaymentRequest(uint256 proposalHash);
-bool IsValidPaymentRequest(CTransaction tx, CCoinsViewCache& coins, uint64_t nMaxVersion);
-bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
-void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask);
+
+bool Vote(uint256 hash, int64_t vote, bool &duplicate);
+bool RemoveVote(string str);
+bool RemoveVote(uint256 hash);
+
+void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask, uint64_t& nConsultationMask, uint64_t& nConsultatioAnswernMask);
 
 class CVote
 {
@@ -120,7 +104,7 @@ public:
         return true;
     }
 
-    CFund::CVote* Get(const uint256& hash)
+    CVote* Get(const uint256& hash)
     {
         if (list.count(hash) == 0)
             return nullptr;
@@ -161,7 +145,7 @@ public:
         return true;
     }
 
-    std::map<uint256, CFund::CVote> GetList()
+    std::map<uint256, CVote> GetList()
     {
         return list;
     }
@@ -179,8 +163,17 @@ public:
     }
 
 private:
-    std::map<uint256, CFund::CVote> list;
+    std::map<uint256, CVote> list;
 };
+
+bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
+bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
+void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& coins);
+
+bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaxVersion);
+bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
+
+// CFUND
 
 class CPaymentRequest
 {
@@ -280,7 +273,7 @@ public:
 
     bool ExceededMaxVotingCycles() const;
 
-    bool CanVote(CCoinsViewCache& coins) const;
+    bool CanVote(CStateViewCache& coins) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -323,6 +316,9 @@ public:
 
         if(nVersion & ABSTAIN_VOTE_VERSION)
            READWRITE(nVotesAbs);
+
+        if (ser_action.ForRead())
+            fDirty = false;
     }
 
 };
@@ -396,10 +392,10 @@ public:
                 && nVotesYes == 0 && nVotesNo == 0 && nVotesAbs == 0 && nDeadline == 0 && strDZeel == "");
     }
 
-    std::string ToString(CCoinsViewCache& coins, uint32_t currentTime = 0) const;
+    std::string ToString(CStateViewCache& coins, uint32_t currentTime = 0) const;
     std::string GetState(uint32_t currentTime) const;
 
-    void ToJson(UniValue& ret, CCoinsViewCache& coins) const;
+    void ToJson(UniValue& ret, CStateViewCache& coins) const;
 
     bool IsAccepted() const;
 
@@ -417,9 +413,9 @@ public:
         return fState == ACCEPTED;
     }
 
-    bool HasPendingPaymentRequests(CCoinsViewCache& coins) const;
+    bool HasPendingPaymentRequests(CStateViewCache& coins) const;
 
-    CAmount GetAvailable(CCoinsViewCache& coins, bool fIncludeRequests = false) const;
+    CAmount GetAvailable(CStateViewCache& coins, bool fIncludeRequests = false) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -473,13 +469,167 @@ public:
            READWRITE(nVotesAbs);
         }
 
+        if (ser_action.ForRead())
+            fDirty = false;
+
     }
 };
 
-bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
-bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
-void CFundStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CCoinsViewCache& coins);
 
-}
+// CONSULTATIONS
 
-#endif // NAVCOIN_CFUND_H
+class CConsultationAnswer
+{
+public:
+    static const uint64_t BASE_VERSION=1;
+    static const uint64_t ALL_VERSION = 1;
+
+    int nVersion;
+    std::string sAnswer;
+    int nVotes;
+    int fState;
+    uint256 hash;
+    uint256 parent;
+    bool fDirty;
+
+    CConsultationAnswer() { SetNull(); }
+
+    void swap(CConsultationAnswer &to) {
+        std::swap(to.nVersion, nVersion);
+        std::swap(to.sAnswer, sAnswer);
+        std::swap(to.nVotes, nVotes);
+        std::swap(to.fState, fState);
+        std::swap(to.hash, hash);
+        std::swap(to.parent, parent);
+    }
+
+    bool IsNull() const
+    {
+        return (sAnswer == "" && nVotes == 0 && fState == 0 && nVersion == 0 && hash == uint256());
+    };
+
+    void SetNull()
+    {
+        sAnswer = "";
+        nVotes = 0;
+        fState = 0;
+        nVersion = 0;
+        hash = uint256();
+        fDirty = false;
+    };
+
+    void Vote();
+    void DecVote();
+    void ClearVotes();
+    int GetVotes() const;
+    void SetState(int fStateIn);
+    int GetState() const;
+    std::string GetText() const;
+    bool CanBeVoted(CStateViewCache* view) const;
+    std::string ToString() const;
+    void ToJson(UniValue& ret) const;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion_) {
+        READWRITE(nVersion);
+        READWRITE(sAnswer);
+        READWRITE(nVotes);
+        READWRITE(fState);
+        READWRITE(hash);
+        READWRITE(parent);
+        if (ser_action.ForRead())
+            fDirty = false;
+    }
+};
+
+class CConsultation
+{
+public:
+    static const uint64_t BASE_VERSION=1;
+    static const uint64_t ALL_VERSION = 1;
+
+    flags fState;
+    uint256 hash;
+    uint256 txblockhash;
+    uint256 blockhash;
+    std::vector<uint256> vAnswers;
+    uint64_t nVersion;
+    uint64_t nDuration;
+    unsigned int nVotingCycle;
+    bool fDirty;
+    std::string strDZeel;
+    int nSupport;
+    int nMin;
+    int nMax;
+
+    CConsultation() { SetNull(); }
+
+    void swap(CConsultation &to) {
+        std::swap(to.fState, fState);
+        std::swap(to.hash, hash);
+        std::swap(to.txblockhash, txblockhash);
+        std::swap(to.blockhash, blockhash);
+        std::swap(to.vAnswers, vAnswers);
+        std::swap(to.nVersion, nVersion);
+        std::swap(to.nVotingCycle, nVotingCycle);
+        std::swap(to.fDirty, fDirty);
+        std::swap(to.strDZeel, strDZeel);
+        std::swap(to.nSupport, nSupport);
+        std::swap(to.nMin, nMin);
+        std::swap(to.nMax, nMax);
+    };
+
+    bool IsNull() const {
+        return (hash == uint256() && fState == NIL && txblockhash == uint256() && blockhash == uint256() && vAnswers.size() == 0
+                && nVersion == 0 && nDuration == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0
+                && nMin == 0 && nMax == 0);
+    };
+
+    void SetNull() {
+        fState = NIL;
+        hash = uint256();
+        txblockhash = uint256();
+        blockhash = uint256();
+        vAnswers.clear();
+        nVersion = 0;
+        nDuration = 0;
+        nVotingCycle = 0;
+        fDirty = false;
+        strDZeel = "";
+        nSupport = 0;
+        nMin = 0;
+        nMax = 0;
+    };
+
+    std::string GetState() const;
+    std::string ToString() const;
+    void ToJson(UniValue& ret, CStateViewCache& view) const;
+    bool IsSupported() const;
+    bool IsAccepted() const;
+    bool IsExpired() const;
+    bool ExceededMaxVotingCycles() const;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(this->nVersion);
+        READWRITE(nDuration);
+        READWRITE(fState);
+        READWRITE(vAnswers);
+        READWRITE(nSupport);
+        READWRITE(nMin);
+        READWRITE(nMax);
+        READWRITE(nVotingCycle);
+        READWRITE(hash);
+        READWRITE(blockhash);
+        READWRITE(strDZeel);
+        READWRITE(txblockhash);
+        if (ser_action.ForRead())
+            fDirty = false;
+    }
+};
+
+#endif // NAVCOIN_DAO_H

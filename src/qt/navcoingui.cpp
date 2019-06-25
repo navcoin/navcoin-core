@@ -1780,12 +1780,12 @@ void NavCoinGUI::updateStakingStatus()
                 {
                     for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
                     {
-                        CFund::CProposal proposal;
+                        CProposal proposal;
 
                         if (!pcoinsTip->GetProposal(it_->first, proposal))
                             continue;
 
-                        if (proposal.fState != CFund::NIL)
+                        if (proposal.fState != NIL)
                             continue;
 
                         auto it = mapAddedVotes.find(proposal.hash);
@@ -1805,12 +1805,12 @@ void NavCoinGUI::updateStakingStatus()
                 {
                     for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
                     {
-                        CFund::CPaymentRequest prequest;
+                        CPaymentRequest prequest;
 
                         if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                             continue;
 
-                        if (prequest.fState != CFund::NIL)
+                        if (prequest.fState != NIL)
                             continue;
 
                         auto it = mapAddedVotes.find(prequest.hash);

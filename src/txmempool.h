@@ -523,7 +523,7 @@ public:
      * all inputs are in the mapNextTx array). If sanity-checking is turned off,
      * check does nothing.
      */
-    void check(const CCoinsViewCache *pcoins) const;
+    void check(const CStateViewCache *pcoins) const;
     void setSanityCheck(double dFrequency = 1.0) { nCheckFrequency = dFrequency * 4294967295.0; }
 
     // addUnchecked must updated state for all ancestors of a given transaction,
@@ -536,17 +536,17 @@ public:
     bool AddProposal(const CProposal& proposal);
     bool AddPaymentRequest(const CPaymentRequest& prequest);
 
-    void addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
+    void addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view);
     bool getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
                          std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > &results);
     bool removeAddressIndex(const uint256 txhash);
 
-    void addSpentIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
+    void addSpentIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view);
     bool getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
     bool removeSpentIndex(const uint256 txhash);
 
     void removeRecursive(const CTransaction &tx, std::list<CTransaction>& removed);
-    void removeForReorg(const CCoinsViewCache *pcoins, unsigned int nMemPoolHeight, int flags);
+    void removeForReorg(const CStateViewCache *pcoins, unsigned int nMemPoolHeight, int flags);
     void removeConflicts(const CTransaction &tx, std::list<CTransaction>& removed);
     void removeForBlock(const std::vector<CTransaction>& vtx, unsigned int nBlockHeight,
                         std::list<CTransaction>& conflicts, bool fCurrentEstimate = true);
@@ -709,16 +709,16 @@ private:
 };
 
 /** 
- * CCoinsView that brings transactions from a memorypool into view.
+ * CStateView that brings transactions from a memorypool into view.
  * It does not check for spendings by memory pool transactions.
  */
-class CCoinsViewMemPool : public CCoinsViewBacked
+class CStateViewMemPool : public CStateViewBacked
 {
 protected:
     const CTxMemPool& mempool;
 
 public:
-    CCoinsViewMemPool(CCoinsView* baseIn, const CTxMemPool& mempoolIn);
+    CStateViewMemPool(CStateView* baseIn, const CTxMemPool& mempoolIn);
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
     bool HaveProposal(const uint256 &pid) const;

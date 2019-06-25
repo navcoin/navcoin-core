@@ -46,3 +46,4 @@ utils
 crypto/external
 test/data
 dao
+consensus/dao

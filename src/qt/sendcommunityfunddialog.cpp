@@ -6,13 +6,13 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include "consensus/cfund.h"
+#include "consensus/dao.h"
 #include "main.h"
 #include "base58.h"
 #include "chain.h"
 
 
-SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CProposal* proposal, int secDelay) :
+SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* proposal, int secDelay) :
     QDialog(parent),
     ui(new Ui::SendCommunityFundDialog),
     proposal(proposal),
@@ -62,7 +62,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPropos
     ui->labelWarning->setText(QString::fromStdString(warning));
 }
 
-SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymentRequest* prequest, int secDelay) :
+SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CPaymentRequest* prequest, int secDelay) :
     QDialog(parent),
     ui(new Ui::SendCommunityFundDialog),
     proposal(0),

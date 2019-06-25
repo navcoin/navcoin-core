@@ -259,8 +259,8 @@ BOOST_AUTO_TEST_CASE(switchover)
 BOOST_AUTO_TEST_CASE(AreInputsStandard)
 {
     LOCK(cs_main);
-    CCoinsView coinsDummy;
-    CCoinsViewCache coins(&coinsDummy);
+    CStateView coinsDummy;
+    CStateViewCache coins(&coinsDummy);
     CBasicKeyStore keystore;
     CKey key[6];
     vector<CPubKey> keys;

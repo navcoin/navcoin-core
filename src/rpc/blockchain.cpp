@@ -822,9 +822,9 @@ struct CCoinsStats
 };
 
 //! Calculate statistics about the unspent transaction output set
-static bool GetUTXOStats(CCoinsView *view, CCoinsStats &stats)
+static bool GetUTXOStats(CStateView *view, CCoinsStats &stats)
 {
-    boost::scoped_ptr<CCoinsViewCursor> pcursor(view->Cursor());
+    boost::scoped_ptr<CStateViewCursor> pcursor(view->Cursor());
 
     CHashWriter ss(SER_GETHASH, PROTOCOL_VERSION);
     stats.hashBlock = pcursor->GetBestBlock();
@@ -948,17 +948,17 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
-            CFund::CProposal proposal;
+            CProposal proposal;
             if (!pcoinsTip->GetProposal(it->first, proposal))
                 continue;
 
             if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
-                            || proposal.fState == CFund::PENDING_VOTING_PREQ
-                            || proposal.fState == CFund::PENDING_FUNDS))
-                    || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
-                                         || proposal.fState == CFund::PENDING_FUNDS))
-                    || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
-                    || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
+                            || proposal.fState == PENDING_VOTING_PREQ
+                            || proposal.fState == PENDING_FUNDS))
+                    || (showPending  && (proposal.fState == NIL || proposal.fState == PENDING_VOTING_PREQ
+                                         || proposal.fState == PENDING_FUNDS))
+                    || (showAccepted && (proposal.fState == ACCEPTED || proposal.IsAccepted()))
+                    || (showRejected && (proposal.fState == REJECTED || proposal.IsRejected()))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o, *pcoinsTip);
@@ -982,7 +982,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CFund::CProposal proposal; CFund::CPaymentRequest prequest;
+    CProposal proposal; CPaymentRequest prequest;
 
     int nBlocks = (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
     CBlockIndex* pindexblock = chainActive.Tip();
@@ -1097,7 +1097,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
     for(auto& it: vCacheProposalsRPC)
     {
-        CFund::CProposal proposal;
+        CProposal proposal;
 
         if(!pcoinsTip->GetProposal(it.first, proposal))
             continue;
@@ -1115,7 +1115,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
     for(auto& it: vCachePaymentRequestRPC)
     {
-        CFund::CPaymentRequest prequest; CFund::CProposal proposal;
+        CPaymentRequest prequest; CProposal proposal;
 
         if(!pcoinsTip->GetPaymentRequest(it.first, prequest))
             continue;
@@ -1194,10 +1194,10 @@ UniValue gettxout(const UniValue& params, bool fHelp)
     CCoins coins;
     if (fMempool) {
         LOCK(mempool.cs);
-        CCoinsViewMemPool view(pcoinsTip, mempool);
+        CStateViewMemPool view(pcoinsTip, mempool);
         if (!view.GetCoins(hash, coins))
             return NullUniValue;
-        mempool.pruneSpent(hash, coins); // TODO: this should be done by the CCoinsViewMemPool
+        mempool.pruneSpent(hash, coins); // TODO: this should be done by the CStateViewMemPool
     } else {
         if (!pcoinsTip->GetCoins(hash, coins))
             return NullUniValue;
@@ -1566,7 +1566,7 @@ UniValue getproposal(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CFund::CProposal proposal;
+    CProposal proposal;
     if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not found");
 
@@ -1589,7 +1589,7 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CFund::CPaymentRequest prequest;
+    CPaymentRequest prequest;
     if(!pcoinsTip->GetPaymentRequest(uint256S(params[0].get_str()), prequest))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Payment request not found");
 

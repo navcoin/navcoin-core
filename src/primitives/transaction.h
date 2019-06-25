@@ -7,7 +7,6 @@
 #define NAVCOIN_PRIMITIVES_TRANSACTION_H
 
 #include "amount.h"
-#include "consensus/cfund.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "uint256.h"
@@ -445,7 +444,7 @@ public:
 
     // Return sum of txouts.
     CAmount GetValueOut() const;
-    // GetValueIn() is a method on CCoinsViewCache, because
+    // GetValueIn() is a method on CStateViewCache, because
     // inputs must be known to compute value in.
 
     CAmount GetValueOutCFund() const;

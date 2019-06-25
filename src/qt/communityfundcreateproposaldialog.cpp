@@ -135,13 +135,13 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         string sDesc = ui->plainTextEditDescription->toPlainText().toStdString();
 
         UniValue strDZeel(UniValue::VOBJ);
-        uint64_t nVersion = CFund::CProposal::BASE_VERSION;
+        uint64_t nVersion = CProposal::BASE_VERSION;
 
         if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
-            nVersion |= CFund::CProposal::REDUCED_QUORUM_VERSION;
+            nVersion |= CProposal::REDUCED_QUORUM_VERSION;
 
         if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
-            nVersion |= CFund::CProposal::ABSTAIN_VOTE_VERSION;
+            nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
         strDZeel.push_back(Pair("n",nReqAmount));
         strDZeel.push_back(Pair("a",Address));
@@ -187,7 +187,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
-            CFund::CProposal *proposal = new CFund::CProposal();
+            CProposal *proposal = new CProposal();
             proposal->Address = Address;
             proposal->nAmount = nReqAmount;
             proposal->strDZeel = sDesc;
@@ -204,7 +204,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 // Parse NavCoin address
                 CScript CFContributionScript;
                 CScript scriptPubKey = GetScriptForDestination(address.Get());
-                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+                SetScriptForCommunityFundContribution(scriptPubKey);
 
                 // Create and send the transaction
                 CReserveKey reservekey(pwalletMain);

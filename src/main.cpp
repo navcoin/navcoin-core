@@ -787,7 +787,7 @@ CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& loc
     return chain.Genesis();
 }
 
-CCoinsViewCache *pcoinsTip = NULL;
+CStateViewCache *pcoinsTip = NULL;
 CBlockTreeDB *pblocktree = NULL;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1066,7 +1066,7 @@ bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp, bool 
     }
     else {
         // pcoinsTip contains the UTXO set for chainActive.Tip()
-        CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+        CStateViewMemPool viewMemPool(pcoinsTip, mempool);
         std::vector<int> prevheights;
         prevheights.resize(tx.vin.size());
         for (size_t txinIndex = 0; txinIndex < tx.vin.size(); txinIndex++) {
@@ -1127,7 +1127,7 @@ unsigned int GetLegacySigOpCount(const CTransaction& tx)
     return nSigOps;
 }
 
-unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& inputs)
+unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CStateViewCache& inputs)
 {
     if (tx.IsCoinBase())
         return 0;
@@ -1142,7 +1142,7 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& in
     return nSigOps;
 }
 
-int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& inputs, int flags)
+int64_t GetTransactionSigOpCost(const CTransaction& tx, const CStateViewCache& inputs, int flags)
 {
     int64_t nSigOps = GetLegacySigOpCount(tx) * WITNESS_SCALE_FACTOR;
 
@@ -1321,28 +1321,30 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     }
 
     {
-        CCoinsView dummy;
-        CCoinsViewCache view(&dummy);
+        CStateView dummy;
+        CStateViewCache view(&dummy);
 
         CAmount nValueIn = 0;
         LockPoints lp;
         {
         LOCK(pool.cs);
-        CCoinsViewMemPool viewMemPool(pcoinsTip, pool);
+        CStateViewMemPool viewMemPool(pcoinsTip, pool);
         view.SetBackend(viewMemPool);
 
         if (IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus())) {
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
+            uint64_t nVersionMaskConsultation;
+            uint64_t nVersionMaskConsultationAnswer;
 
-            CFund::GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-                if(!CFund::IsValidProposal(tx, nVersionMaskProposal))
+                if(!IsValidProposal(tx, nVersionMaskProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-                if(!CFund::IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
+                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
         }
 
@@ -1389,8 +1391,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             CAmount nProposalFee = 0;
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
+            uint64_t nVersionMaskConsultation;
+            uint64_t nVersionMaskConsultationAnswer;
 
-            CFund::GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
             BOOST_FOREACH(const CTxOut& vout, tx.vout)
             {
@@ -1400,8 +1404,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
               }
             }
 
-            if(nProposalFee > 0 && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nVersionMaskProposal)){
-                CFund::CProposal proposal;
+            if(nProposalFee > 0 && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
+                CProposal proposal;
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
                     viewMemPool.AddProposal(proposal);
@@ -1413,8 +1417,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 }
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
-                CFund::CPaymentRequest prequest;
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
+                CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest, view))
                 {
                     viewMemPool.AddPaymentRequest(prequest);
@@ -1851,7 +1855,7 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, const Consensus::P
     if (fAllowSlow) { // use coin database to locate block that contains transaction, and scan it
         int nHeight = -1;
         {
-            const CCoinsViewCache& view = *pcoinsTip;
+            const CStateViewCache& view = *pcoinsTip;
             const CCoins* coins = view.AccessCoins(hash);
             if (coins)
                 nHeight = coins->nHeight;
@@ -2117,7 +2121,7 @@ void static InvalidBlockFound(CBlockIndex *pindex, const CValidationState &state
     }
 }
 
-void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txundo, int nHeight)
+void UpdateCoins(const CTransaction& tx, CStateViewCache& inputs, CTxUndo &txundo, int nHeight)
 {
     // mark inputs spent
     if (!tx.IsCoinBase()) {
@@ -2143,7 +2147,7 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txund
     inputs.ModifyNewCoins(tx.GetHash(), tx.IsCoinBase())->FromTx(tx, nHeight);
 }
 
-void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight)
+void UpdateCoins(const CTransaction& tx, CStateViewCache& inputs, int nHeight)
 {
     CTxUndo txundo;
     UpdateCoins(tx, inputs, txundo, nHeight);
@@ -2159,7 +2163,7 @@ bool CScriptCheck::operator()() {
     return true;
 }
 
-int GetSpendHeight(const CCoinsViewCache& inputs)
+int GetSpendHeight(const CStateViewCache& inputs)
 {
     LOCK(cs_main);
     CBlockIndex* pindexPrev = mapBlockIndex.find(inputs.GetBestBlock())->second;
@@ -2167,7 +2171,7 @@ int GetSpendHeight(const CCoinsViewCache& inputs)
 }
 
 namespace Consensus {
-bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight)
+bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CStateViewCache& inputs, int nSpendHeight)
 {
         // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
         // for an attacker to attempt to split the network.
@@ -2215,7 +2219,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
 {
     if (!tx.IsCoinBase())
     {
@@ -2376,7 +2380,7 @@ bool AbortNode(CValidationState& state, const std::string& strMessage, const std
  * @param out The out point that corresponds to the tx input.
  * @return True on success.
  */
-static bool ApplyTxInUndo(const CTxInUndo& undo, CCoinsViewCache& view, const COutPoint& out)
+static bool ApplyTxInUndo(const CTxInUndo& undo, CStateViewCache& view, const COutPoint& out)
 {
     bool fClean = true;
 
@@ -2402,7 +2406,7 @@ static bool ApplyTxInUndo(const CTxInUndo& undo, CCoinsViewCache& view, const CO
     return fClean;
 }
 
-bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockIndex* pindex, CCoinsViewCache& view, bool* pfClean)
+bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockIndex* pindex, CStateViewCache& view, bool* pfClean)
 {
     assert(pindex->GetBlockHash() == view.GetBestBlock());
 
@@ -2433,14 +2437,16 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
+            uint64_t nVersionMaskConsultation;
+            uint64_t nVersionMaskConsultationAnswer;
 
-            CFund::GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nVersionMaskProposal)) {
+            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)) {
                 view.RemoveProposal(hash);
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)) {
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)) {
                 view.RemovePaymentRequest(hash);
             }
         }
@@ -2607,7 +2613,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             continue;
 
         CPaymentRequestModifier prequest = view.ModifyPaymentRequest(pindex->vPaymentRequestVotes[i].first);
-        CFund::CProposal proposal;
+        CProposal proposal;
 
         if(!view.GetProposal(prequest->proposalhash, proposal))
             continue;
@@ -2861,7 +2867,7 @@ public:
     }
 };
 
-bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal)
+bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CProposal& proposal)
 {
     UniValue metadata(UniValue::VOBJ);
     try {
@@ -2897,7 +2903,7 @@ bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, 
     return true;
 }
 
-bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash,  CFund::CPaymentRequest& prequest, CCoinsViewCache& view)
+bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash,  CPaymentRequest& prequest, CStateViewCache& view)
 {
     UniValue metadata(UniValue::VOBJ);
     try {
@@ -2943,7 +2949,7 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
-                  CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck, bool fProofOfStake)
+                  CStateViewCache& view, const CChainParams& chainparams, bool fJustCheck, bool fProofOfStake)
 {
 
     AssertLockHeld(cs_main);
@@ -3214,7 +3220,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     if(pblockindex == NULL)
                                         continue;
 
-                                    if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
+                                    if((proposal.CanRequestPayments() || proposal.fState == PENDING_VOTING_PREQ)
                                             && prequest.CanVote(view)
                                             && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                     {
@@ -3230,15 +3236,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
+            uint64_t nVersionMaskConsultation;
+            uint64_t nVersionMaskConsultationAnswer;
 
-            CFund::GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-                if(!CFund::IsValidProposal(tx, nVersionMaskProposal))
+                if(!IsValidProposal(tx, nVersionMaskProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-                if(!CFund::IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
+                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
         }
 
@@ -3447,11 +3455,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
+            uint64_t nVersionMaskConsultation;
+            uint64_t nVersionMaskConsultationAnswer;
 
-            CFund::GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
-            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nVersionMaskProposal)){
-                CFund::CProposal proposal;
+            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
+                CProposal proposal;
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
                     view.AddProposal(proposal);
@@ -3463,8 +3473,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
-                CFund::CPaymentRequest prequest;
+            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
+                CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest, view))
                 {
                     view.AddPaymentRequest(prequest);
@@ -3490,11 +3500,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     if (fStake && fVoteCacheState)
     {
-        CFund::CVoteList pVoteList;
+        CVoteList pVoteList;
 
-        if (view.GetCachedVote(stakerScript, pVoteList))
+        if (view.GetCachedVoter(stakerScript, pVoteList))
         {
-            std::map<uint256, CFund::CVote> list = pVoteList.GetList();
+            std::map<uint256, CVote> list = pVoteList.GetList();
 
             for (auto& it: list)
             {
@@ -3558,7 +3568,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
 
                 CPaymentRequestModifier prequest = view.ModifyPaymentRequest(prid);
-                CFund::CProposal proposal;
+                CProposal proposal;
 
                 if(!view.GetProposal(prequest->proposalhash, proposal))
                     return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
@@ -3580,7 +3590,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
 
-                if(block.vtx[0].vout[i].nValue != prequest->nAmount || prequest->fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
+                if(block.vtx[0].vout[i].nValue != prequest->nAmount || prequest->fState != ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
 
                 if(prequest->paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
@@ -3914,10 +3924,10 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     // Apply the block atomically to the chain state.
     int64_t nStart = GetTimeMicros();
     {
-        CCoinsViewCache view(pcoinsTip);
+        CStateViewCache view(pcoinsTip);
         if (!DisconnectBlock(block, state, pindexDelete, view))
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
-        CFundStep(state, pindexDelete, true, view);
+        VoteStep(state, pindexDelete, true, view);
         assert(view.Flush());
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
@@ -3985,7 +3995,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     int64_t nTime4;
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
-        CCoinsViewCache view(pcoinsTip);
+        CStateViewCache view(pcoinsTip);
 
         bool rv = ConnectBlock(*pblock, state, pindexNew, view, chainparams);
 
@@ -3998,7 +4008,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         mapBlockSource.erase(pindexNew->GetBlockHash());
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
         LogPrint("bench", "  - Connect total: %.2fms [%.2fs]\n", (nTime3 - nTime2) * 0.001, nTimeConnectTotal * 0.000001);
-        CFundStep(state, pindexNew, false, view);
+        VoteStep(state, pindexNew, false, view);
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
         assert(view.Flush());
     }
@@ -4767,6 +4777,12 @@ bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Par
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_VOTE_STATE_CACHE, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsConsultationsEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_CONSULTATIONS, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
@@ -5163,7 +5179,7 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     if (fCheckpointsEnabled && !CheckIndexAgainstCheckpoint(pindexPrev, state, chainparams, block.GetHash()))
         return error("%s: CheckIndexAgainstCheckpoint(): %s", __func__, state.GetRejectReason().c_str());
 
-    CCoinsViewCache viewNew(pcoinsTip);
+    CStateViewCache viewNew(pcoinsTip);
     CBlockIndex indexDummy(block);
     indexDummy.pprev = pindexPrev;
     indexDummy.nHeight = pindexPrev->nHeight + 1;
@@ -5488,7 +5504,7 @@ CVerifyDB::~CVerifyDB()
     uiInterface.ShowProgress("", 100);
 }
 
-bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview, int nCheckLevel, int nCheckDepth)
+bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview, int nCheckLevel, int nCheckDepth)
 {
     LOCK(cs_main);
     if (chainActive.Tip() == NULL || chainActive.Tip()->pprev == NULL)
@@ -5501,7 +5517,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
         nCheckDepth = chainActive.Height();
     nCheckLevel = std::max(0, std::min(4, nCheckLevel));
     LogPrintf("Verifying last %i blocks at level %i\n", nCheckDepth, nCheckLevel);
-    CCoinsViewCache coins(coinsview);
+    CStateViewCache coins(coinsview);
     CBlockIndex* pindexState = chainActive.Tip();
     CBlockIndex* pindexFailure = NULL;
     int nGoodTransactions = 0;
@@ -8769,7 +8785,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     if (pvChecks)
         pvChecks->reserve(tx.vin.size());
 
-    CCoinsViewCache inputs(pcoinsTip);
+    CStateViewCache inputs(pcoinsTip);
 
     if(fCHeckSignature)
     {

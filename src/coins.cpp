@@ -9,8 +9,6 @@
 
 #include <assert.h>
 
-using namespace CFund;
-
 /**
  * calculate number of bytes for the bitmask, and its number of non-zero bytes
  * each bit in the bitmask represents the availability of one output, but the
@@ -43,57 +41,71 @@ bool CCoins::Spend(uint32_t nPos)
     return true;
 }
 
-bool CCoinsView::GetCoins(const uint256 &txid, CCoins &coins) const { return false; }
-bool CCoinsView::GetProposal(const uint256 &pid, CProposal &proposal) const { return false; }
-bool CCoinsView::GetAllProposals(CProposalMap& map) { return false; }
-bool CCoinsView::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return false; }
-bool CCoinsView::GetAllPaymentRequests(CPaymentRequestMap& map) { return false; }
-bool CCoinsView::GetAllVotes(CVoteMap& map) { return false; }
-bool CCoinsView::HaveCoins(const uint256 &txid) const { return false; }
-bool CCoinsView::HaveProposal(const uint256 &pid) const { return false; }
-bool CCoinsView::HavePaymentRequest(const uint256 &prid) const { return false; }
-bool CCoinsView::HaveCachedVote(const CVoteMapKey &voter) const { return false; }
-bool CCoinsView::GetCachedVote(const CVoteMapKey &voter, CVoteMapValue& vote) const { return false; }
-uint256 CCoinsView::GetBestBlock() const { return uint256(); }
-bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                            CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes, const uint256 &hashBlock) { return false; }
-CCoinsViewCursor *CCoinsView::Cursor() const { return 0; }
+bool CStateView::GetCoins(const uint256 &txid, CCoins &coins) const { return false; }
+bool CStateView::GetProposal(const uint256 &pid, CProposal &proposal) const { return false; }
+bool CStateView::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return false; }
+bool CStateView::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const { return false; }
+bool CStateView::GetConsultation(const uint256 &cid, CConsultation& consultation) const { return false; }
+bool CStateView::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const { return false; }
+bool CStateView::HaveCoins(const uint256 &txid) const { return false; }
+bool CStateView::HaveProposal(const uint256 &pid) const { return false; }
+bool CStateView::HavePaymentRequest(const uint256 &prid) const { return false; }
+bool CStateView::HaveCachedVoter(const CVoteMapKey &voter) const { return false; }
+bool CStateView::HaveConsultation(const uint256 &cid) const { return false; }
+bool CStateView::HaveConsultationAnswer(const uint256 &cid) const { return false; }
+bool CStateView::GetAllProposals(CProposalMap& map) { return false; }
+bool CStateView::GetAllPaymentRequests(CPaymentRequestMap& map) { return false; }
+bool CStateView::GetAllVotes(CVoteMap& map) { return false; }
+bool CStateView::GetAllConsultations(CConsultationMap& map) { return false; }
+uint256 CStateView::GetBestBlock() const { return uint256(); }
+bool CStateView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
+                            CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                            CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
+                            const uint256 &hashBlock) { return false; }
+CStateViewCursor *CStateView::Cursor() const { return 0; }
 
 
-CCoinsViewBacked::CCoinsViewBacked(CCoinsView *viewIn) : base(viewIn) { }
-bool CCoinsViewBacked::GetCoins(const uint256 &txid, CCoins &coins) const { return base->GetCoins(txid, coins); }
-bool CCoinsViewBacked::GetProposal(const uint256 &pid, CProposal &proposal) const { return base->GetProposal(pid, proposal); }
-bool CCoinsViewBacked::GetAllProposals(CProposalMap& map) { return base->GetAllProposals(map); }
-bool CCoinsViewBacked::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return base->GetPaymentRequest(prid, prequest); }
-bool CCoinsViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) { return base->GetAllPaymentRequests(map); }
-bool CCoinsViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
-bool CCoinsViewBacked::HaveProposal(const uint256 &pid) const { return base->HaveProposal(pid); }
-bool CCoinsViewBacked::HavePaymentRequest(const uint256 &prid) const { return base->HavePaymentRequest(prid); }
-bool CCoinsViewBacked::HaveCachedVote(const CVoteMapKey &voter) const { return base->HaveCachedVote(voter); }
-bool CCoinsViewBacked::GetCachedVote(const CVoteMapKey &voter, CVoteMapValue& vote) const { return base->GetCachedVote(voter, vote); }
-bool CCoinsViewBacked::GetAllVotes(CVoteMap& map) { return base->GetAllVotes(map); }
-uint256 CCoinsViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
-void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
-bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                                  CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes, const uint256 &hashBlock) {
-    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, hashBlock);
+CStateViewBacked::CStateViewBacked(CStateView *viewIn) : base(viewIn) { }
+bool CStateViewBacked::GetCoins(const uint256 &txid, CCoins &coins) const { return base->GetCoins(txid, coins); }
+bool CStateViewBacked::GetProposal(const uint256 &pid, CProposal &proposal) const { return base->GetProposal(pid, proposal); }
+bool CStateViewBacked::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return base->GetPaymentRequest(prid, prequest); }
+bool CStateViewBacked::GetConsultation(const uint256 &cid, CConsultation &consultation) const { return base->GetConsultation(cid, consultation); }
+bool CStateViewBacked::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const { return base->GetConsultationAnswer(cid, answer); }
+bool CStateViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
+bool CStateViewBacked::HaveProposal(const uint256 &pid) const { return base->HaveProposal(pid); }
+bool CStateViewBacked::HavePaymentRequest(const uint256 &prid) const { return base->HavePaymentRequest(prid); }
+bool CStateViewBacked::HaveCachedVoter(const CVoteMapKey &voter) const { return base->HaveCachedVoter(voter); }
+bool CStateViewBacked::HaveConsultation(const uint256 &cid) const { return base->HaveConsultation(cid); }
+bool CStateViewBacked::HaveConsultationAnswer(const uint256 &cid) const { return base->HaveConsultationAnswer(cid); }
+bool CStateViewBacked::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const { return base->GetCachedVoter(voter, vote); }
+bool CStateViewBacked::GetAllProposals(CProposalMap& map) { return base->GetAllProposals(map); }
+bool CStateViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) { return base->GetAllPaymentRequests(map); }
+bool CStateViewBacked::GetAllVotes(CVoteMap& map) { return base->GetAllVotes(map); }
+bool CStateViewBacked::GetAllConsultations(CConsultationMap& map) { return base->GetAllConsultations(map); }
+uint256 CStateViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
+void CStateViewBacked::SetBackend(CStateView &viewIn) { base = &viewIn; }
+bool CStateViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
+                                  CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                                  CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                                  const uint256 &hashBlock) {
+    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, hashBlock);
 }
-CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
+CStateViewCursor *CStateViewBacked::Cursor() const { return base->Cursor(); }
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
-CCoinsViewCache::CCoinsViewCache(CCoinsView *baseIn) : CCoinsViewBacked(baseIn), hasModifier(false), cachedCoinsUsage(0) { }
+CStateViewCache::CStateViewCache(CStateView *baseIn) : CStateViewBacked(baseIn), hasModifier(false), cachedCoinsUsage(0) { }
 
-CCoinsViewCache::~CCoinsViewCache()
+CStateViewCache::~CStateViewCache()
 {
     assert(!hasModifier);
 }
 
-size_t CCoinsViewCache::DynamicMemoryUsage() const {
+size_t CStateViewCache::DynamicMemoryUsage() const {
     return memusage::DynamicUsage(cacheCoins) + cachedCoinsUsage;
 }
 
-CCoinsMap::const_iterator CCoinsViewCache::FetchCoins(const uint256 &txid) const {
+CCoinsMap::const_iterator CStateViewCache::FetchCoins(const uint256 &txid) const {
     CCoinsMap::iterator it = cacheCoins.find(txid);
     if (it != cacheCoins.end())
         return it;
@@ -111,7 +123,7 @@ CCoinsMap::const_iterator CCoinsViewCache::FetchCoins(const uint256 &txid) const
     return ret;
 }
 
-CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) const {
+CProposalMap::const_iterator CStateViewCache::FetchProposal(const uint256 &pid) const {
     CProposalMap::iterator it = cacheProposals.find(pid);
 
     if (it != cacheProposals.end())
@@ -128,7 +140,7 @@ CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) 
     return ret;
 }
 
-CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const uint256 &prid) const {
+CPaymentRequestMap::const_iterator CStateViewCache::FetchPaymentRequest(const uint256 &prid) const {
     CPaymentRequestMap::iterator it = cachePaymentRequests.find(prid);
 
     if (it != cachePaymentRequests.end())
@@ -145,15 +157,15 @@ CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const ui
     return ret;
 }
 
-CVoteMap::const_iterator CCoinsViewCache::FetchVote(const CVoteMapKey &voter) const
+CVoteMap::const_iterator CStateViewCache::FetchVote(const CVoteMapKey &voter) const
 {
     CVoteMapValue vote;
 
-    base->GetCachedVote(voter, vote);
+    base->GetCachedVoter(voter, vote);
 
     CVoteMap::iterator ret = cacheVotes.insert(std::make_pair(voter, CVoteMapValue())).first;
 
-    std::map<uint256, CFund::CVote> list = vote.GetList();
+    std::map<uint256, CVote> list = vote.GetList();
     for (auto& it: list)
     {
         if (ret->second.GetList().count(it.first) == 0)
@@ -165,8 +177,42 @@ CVoteMap::const_iterator CCoinsViewCache::FetchVote(const CVoteMapKey &voter) co
     return ret;
 }
 
+CConsultationMap::const_iterator CStateViewCache::FetchConsultation(const uint256 &cid) const {
+    CConsultationMap::iterator it = cacheConsultations.find(cid);
 
-bool CCoinsViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
+    if (it != cacheConsultations.end())
+        return it;
+
+    CConsultation tmp;
+
+    if (!base->GetConsultation(cid, tmp))
+        return cacheConsultations.end();
+
+    CConsultationMap::iterator ret = cacheConsultations.insert(std::make_pair(cid, CConsultation())).first;
+    tmp.swap(ret->second);
+
+    return ret;
+}
+
+CConsultationAnswerMap::const_iterator CStateViewCache::FetchConsultationAnswer(const uint256 &cid) const {
+    CConsultationAnswerMap::iterator it = cacheAnswers.find(cid);
+
+    if (it != cacheAnswers.end())
+        return it;
+
+    CConsultationAnswer tmp;
+
+    if (!base->GetConsultationAnswer(cid, tmp))
+        return cacheAnswers.end();
+
+    CConsultationAnswerMap::iterator ret = cacheAnswers.insert(std::make_pair(cid, CConsultationAnswer())).first;
+    tmp.swap(ret->second);
+
+    return ret;
+}
+
+
+bool CStateViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     if (it != cacheCoins.end()) {
         coins = it->second.coins;
@@ -175,7 +221,7 @@ bool CCoinsViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
     return false;
 }
 
-bool CCoinsViewCache::GetCachedVote(const CVoteMapKey &voter, CVoteMapValue& vote) const {
+bool CStateViewCache::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const {
     CVoteMap::const_iterator it = FetchVote(voter);
     if (it != cacheVotes.end()) {
         vote = it->second;
@@ -184,7 +230,7 @@ bool CCoinsViewCache::GetCachedVote(const CVoteMapKey &voter, CVoteMapValue& vot
     return false;
 }
 
-bool CCoinsViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const {
+bool CStateViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const {
     CProposalMap::const_iterator it = FetchProposal(pid);
     if (it != cacheProposals.end()) {
         proposal = it->second;
@@ -193,7 +239,34 @@ bool CCoinsViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const
     return false;
 }
 
-bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) {
+bool CStateViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &prequest) const {
+    CPaymentRequestMap::const_iterator it = FetchPaymentRequest(pid);
+    if (it != cachePaymentRequests.end()) {
+        prequest = it->second;
+        return true;
+    }
+    return false;
+}
+
+bool CStateViewCache::GetConsultation(const uint256 &cid, CConsultation &consultation) const {
+    CConsultationMap::const_iterator it = FetchConsultation(cid);
+    if (it != cacheConsultations.end()) {
+        consultation = it->second;
+        return true;
+    }
+    return false;
+}
+
+bool CStateViewCache::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const {
+    CConsultationAnswerMap::const_iterator it = FetchConsultationAnswer(cid);
+    if (it != cacheAnswers.end()) {
+        answer = it->second;
+        return true;
+    }
+    return false;
+}
+
+bool CStateViewCache::GetAllProposals(CProposalMap& mapProposal) {
     mapProposal.clear();
     mapProposal.insert(cacheProposals.begin(), cacheProposals.end());
 
@@ -208,16 +281,7 @@ bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) {
     return true;
 }
 
-bool CCoinsViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &prequest) const {
-    CPaymentRequestMap::const_iterator it = FetchPaymentRequest(pid);
-    if (it != cachePaymentRequests.end()) {
-        prequest = it->second;
-        return true;
-    }
-    return false;
-}
-
-bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
+bool CStateViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
     mapPaymentRequests.clear();
     mapPaymentRequests.insert(cachePaymentRequests.begin(), cachePaymentRequests.end());
 
@@ -232,7 +296,7 @@ bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentReques
     return true;
 }
 
-bool CCoinsViewCache::GetAllVotes(CVoteMap& mapVotes) {
+bool CStateViewCache::GetAllVotes(CVoteMap& mapVotes) {
     mapVotes.clear();
     mapVotes.insert(cacheVotes.begin(), cacheVotes.end());
 
@@ -247,7 +311,22 @@ bool CCoinsViewCache::GetAllVotes(CVoteMap& mapVotes) {
     return true;
 }
 
-CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
+bool CStateViewCache::GetAllConsultations(CConsultationMap& mapConsultations) {
+    mapConsultations.clear();
+    mapConsultations.insert(cacheConsultations.begin(), cacheConsultations.end());
+
+    CConsultationMap baseMap;
+
+    if (!base->GetAllConsultations(baseMap))
+        return false;
+
+    for (CConsultationMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapConsultations.insert(make_pair(it->first, it->second));
+
+    return true;
+}
+
+CCoinsModifier CStateViewCache::ModifyCoins(const uint256 &txid) {
     assert(!hasModifier);
     std::pair<CCoinsMap::iterator, bool> ret = cacheCoins.insert(std::make_pair(txid, CCoinsCacheEntry()));
     size_t cachedCoinUsage = 0;
@@ -268,32 +347,46 @@ CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
     return CCoinsModifier(*this, ret.first, cachedCoinUsage);
 }
 
-CProposalModifier CCoinsViewCache::ModifyProposal(const uint256 &pid) {
+CProposalModifier CStateViewCache::ModifyProposal(const uint256 &pid) {
     assert(!hasModifier);
     std::pair<CProposalMap::iterator, bool> ret = cacheProposals.insert(std::make_pair(pid, CProposal()));
     ret.first->second.fDirty = true;
     return CProposalModifier(*this, ret.first);
 }
 
-CVoteModifier CCoinsViewCache::ModifyVote(const CVoteMapKey &voter) {
+CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter) {
     assert(!hasModifier);
     std::pair<CVoteMap::iterator, bool> ret = cacheVotes.insert(std::make_pair(voter, CVoteList()));
     ret.first->second.fDirty = true;
     return CVoteModifier(*this, ret.first);
 }
 
-CPaymentRequestModifier CCoinsViewCache::ModifyPaymentRequest(const uint256 &prid) {
+CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &prid) {
     assert(!hasModifier);
     std::pair<CPaymentRequestMap::iterator, bool> ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest()));
     ret.first->second.fDirty = true;
     return CPaymentRequestModifier(*this, ret.first);
 }
 
+CConsultationModifier CStateViewCache::ModifyConsultation(const uint256 &cid) {
+    assert(!hasModifier);
+    std::pair<CConsultationMap::iterator, bool> ret = cacheConsultations.insert(std::make_pair(cid, CConsultation()));
+    ret.first->second.fDirty = true;
+    return CConsultationModifier(*this, ret.first);
+}
+
+CConsultationAnswerModifier CStateViewCache::ModifyConsultationAnswer(const uint256 &cid) {
+    assert(!hasModifier);
+    std::pair<CConsultationAnswerMap::iterator, bool> ret = cacheAnswers.insert(std::make_pair(cid, CConsultationAnswer()));
+    ret.first->second.fDirty = true;
+    return CConsultationAnswerModifier(*this, ret.first);
+}
+
 // ModifyNewCoins has to know whether the new outputs its creating are for a
 // coinbase or not.  If they are for a coinbase, it can not mark them as fresh.
 // This is to ensure that the historical duplicate coinbases before BIP30 was
 // in effect will still be properly overwritten when spent.
-CCoinsModifier CCoinsViewCache::ModifyNewCoins(const uint256 &txid, bool coinbase) {
+CCoinsModifier CStateViewCache::ModifyNewCoins(const uint256 &txid, bool coinbase) {
     assert(!hasModifier);
     std::pair<CCoinsMap::iterator, bool> ret = cacheCoins.insert(std::make_pair(txid, CCoinsCacheEntry()));
     ret.first->second.coins.Clear();
@@ -304,7 +397,7 @@ CCoinsModifier CCoinsViewCache::ModifyNewCoins(const uint256 &txid, bool coinbas
     return CCoinsModifier(*this, ret.first, 0);
 }
 
-bool CCoinsViewCache::AddProposal(const CProposal& proposal) const {
+bool CStateViewCache::AddProposal(const CProposal& proposal) const {
     if (HaveProposal(proposal.hash))
         return false;
 
@@ -313,8 +406,8 @@ bool CCoinsViewCache::AddProposal(const CProposal& proposal) const {
     return true;
 }
 
-bool CCoinsViewCache::AddCachedVote(const CVoteMapKey &voter, CVoteMapValue& vote) const {
-    if (HaveCachedVote(voter))
+bool CStateViewCache::AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const {
+    if (HaveCachedVoter(voter))
         return false;
 
     cacheVotes.insert(std::make_pair(voter, vote));
@@ -322,14 +415,28 @@ bool CCoinsViewCache::AddCachedVote(const CVoteMapKey &voter, CVoteMapValue& vot
     return true;
 }
 
-bool CCoinsViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
+bool CStateViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
     if (HavePaymentRequest(prequest.hash))
         return false;
     cachePaymentRequests.insert(std::make_pair(prequest.hash, prequest));
     return true;
 }
 
-bool CCoinsViewCache::RemoveProposal(const uint256 &pid) const {
+bool CStateViewCache::AddConsultation(const CConsultation& consultation) const {
+    if (HaveConsultation(consultation.hash))
+        return false;
+    cacheConsultations.insert(std::make_pair(consultation.hash, consultation));
+    return true;
+}
+
+bool CStateViewCache::AddConsultationAnswer(const CConsultationAnswer& answer) const {
+    if (HaveConsultationAnswer(answer.hash))
+        return false;
+    cacheAnswers.insert(std::make_pair(answer.hash, answer));
+    return true;
+}
+
+bool CStateViewCache::RemoveProposal(const uint256 &pid) const {
     if (!HaveProposal(pid))
         return false;
 
@@ -341,7 +448,7 @@ bool CCoinsViewCache::RemoveProposal(const uint256 &pid) const {
     return true;
 }
 
-bool CCoinsViewCache::RemovePaymentRequest(const uint256 &prid) const {
+bool CStateViewCache::RemovePaymentRequest(const uint256 &prid) const {
     if (!HavePaymentRequest(prid))
         return false;
 
@@ -353,8 +460,8 @@ bool CCoinsViewCache::RemovePaymentRequest(const uint256 &prid) const {
     return true;
 }
 
-bool CCoinsViewCache::RemoveCachedVote(const CVoteMapKey &voter) const {
-    if (!HaveCachedVote(voter))
+bool CStateViewCache::RemoveCachedVoter(const CVoteMapKey &voter) const {
+    if (!HaveCachedVoter(voter))
         return false;
 
     cacheVotes[voter] = CVoteList();
@@ -365,7 +472,31 @@ bool CCoinsViewCache::RemoveCachedVote(const CVoteMapKey &voter) const {
     return true;
 }
 
-const CCoins* CCoinsViewCache::AccessCoins(const uint256 &txid) const {
+bool CStateViewCache::RemoveConsultation(const uint256 &cid) const {
+    if (!HaveConsultation(cid))
+        return false;
+
+    cacheConsultations[cid] = CConsultation();
+    cacheConsultations[cid].SetNull();
+
+    assert(cachePaymentRequests[cid].IsNull());
+
+    return true;
+}
+
+bool CStateViewCache::RemoveConsultationAnswer(const uint256 &cid) const {
+    if (!HaveConsultationAnswer(cid))
+        return false;
+
+    cacheAnswers[cid] = CConsultationAnswer();
+    cacheAnswers[cid].SetNull();
+
+    assert(cacheAnswers[cid].IsNull());
+
+    return true;
+}
+
+const CCoins* CStateViewCache::AccessCoins(const uint256 &txid) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     if (it == cacheCoins.end()) {
         return NULL;
@@ -374,7 +505,7 @@ const CCoins* CCoinsViewCache::AccessCoins(const uint256 &txid) const {
     }
 }
 
-bool CCoinsViewCache::HaveCoins(const uint256 &txid) const {
+bool CStateViewCache::HaveCoins(const uint256 &txid) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     // We're using vtx.empty() instead of IsPruned here for performance reasons,
     // as we only care about the case where a transaction was replaced entirely
@@ -383,17 +514,17 @@ bool CCoinsViewCache::HaveCoins(const uint256 &txid) const {
     return (it != cacheCoins.end() && !it->second.coins.vout.empty());
 }
 
-bool CCoinsViewCache::HaveProposal(const uint256 &id) const {
+bool CStateViewCache::HaveProposal(const uint256 &id) const {
     CProposalMap::const_iterator it = FetchProposal(id);
     return (it != cacheProposals.end() && !it->second.IsNull());
 }
 
-bool CCoinsViewCache::HavePaymentRequest(const uint256 &id) const {
+bool CStateViewCache::HavePaymentRequest(const uint256 &id) const {
     CPaymentRequestMap::const_iterator it = FetchPaymentRequest(id);
     return (it != cachePaymentRequests.end() && !it->second.IsNull());
 }
 
-bool CCoinsViewCache::HaveCachedVote(const CVoteMapKey &voter) const {
+bool CStateViewCache::HaveCachedVoter(const CVoteMapKey &voter) const {
     CVoteMap::const_iterator it = FetchVote(voter);
     // We're using vtx.empty() instead of IsPruned here for performance reasons,
     // as we only care about the case where a transaction was replaced entirely
@@ -402,22 +533,34 @@ bool CCoinsViewCache::HaveCachedVote(const CVoteMapKey &voter) const {
     return (it != cacheVotes.end() && !it->second.IsNull());
 }
 
-bool CCoinsViewCache::HaveCoinsInCache(const uint256 &txid) const {
+bool CStateViewCache::HaveConsultation(const uint256 &cid) const {
+    CConsultationMap::const_iterator it = FetchConsultation(cid);
+    return (it != cacheConsultations.end() && !it->second.IsNull());
+}
+
+bool CStateViewCache::HaveConsultationAnswer(const uint256 &cid) const {
+    CConsultationAnswerMap::const_iterator it = FetchConsultationAnswer(cid);
+    return (it != cacheAnswers.end() && !it->second.IsNull());
+}
+
+bool CStateViewCache::HaveCoinsInCache(const uint256 &txid) const {
     CCoinsMap::const_iterator it = cacheCoins.find(txid);
     return it != cacheCoins.end();
 }
 
-uint256 CCoinsViewCache::GetBestBlock() const {
+uint256 CStateViewCache::GetBestBlock() const {
     if (hashBlock.IsNull())
         hashBlock = base->GetBestBlock();
     return hashBlock;
 }
 
-void CCoinsViewCache::SetBestBlock(const uint256 &hashBlockIn) {
+void CStateViewCache::SetBestBlock(const uint256 &hashBlockIn) {
     hashBlock = hashBlockIn;
 }
 
-bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests, CVoteMap& mapVotes, const uint256 &hashBlockIn) {
+bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests,
+                                 CVoteMap& mapVotes, CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
+                                 const uint256 &hashBlockIn) {
     assert(!hasModifier);
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end();) {
         if (it->second.flags & CCoinsCacheEntry::DIRTY) { // Ignore non-dirty entries (optimization).
@@ -495,7 +638,7 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
             }
         } else {
             CVoteList& entry = cacheVotes[it->first];
-            std::map<uint256, CFund::CVote> list= it->second.GetList();
+            std::map<uint256, CVote> list= it->second.GetList();
             for (auto& it: list)
             {
                 if (it.second.IsNull())
@@ -514,18 +657,46 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         mapVotes.erase(itOld);
     }
 
+    for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end();) {
+        if (it->second.IsNull()) {
+            CConsultationMap::iterator itUs = cacheConsultations.find(it->first);
+            if (itUs != cacheConsultations.end()) {
+                cacheConsultations.erase(itUs);
+            }
+        } else {
+            CConsultation& entry = cacheConsultations[it->first];
+            entry.swap(it->second);
+        }
+        CConsultationMap::iterator itOld = it++;
+        mapConsultations.erase(itOld);
+    }
+
+    for (CConsultationAnswerMap::iterator it = mapAnswers.begin(); it != mapAnswers.end();) {
+        if (it->second.IsNull()) {
+            CConsultationAnswerMap::iterator itUs = cacheAnswers.find(it->first);
+            if (itUs != cacheAnswers.end()) {
+                cacheAnswers.erase(itUs);
+            }
+        } else {
+            CConsultationAnswer& entry = cacheAnswers[it->first];
+            entry.swap(it->second);
+        }
+        CConsultationAnswerMap::iterator itOld = it++;
+        mapAnswers.erase(itOld);
+    }
+
     hashBlock = hashBlockIn;
     return true;
 }
 
-bool CCoinsViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, hashBlock);
+bool CStateViewCache::Flush() {
+    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, hashBlock);
     cacheCoins.clear();
     cachedCoinsUsage = 0;
     return fOk;
 }
 
-void CCoinsViewCache::Uncache(const uint256& hash)
+void CStateViewCache::Uncache(const uint256& hash)
 {
     CCoinsMap::iterator it = cacheCoins.find(hash);
     if (it != cacheCoins.end() && it->second.flags == 0) {
@@ -534,18 +705,18 @@ void CCoinsViewCache::Uncache(const uint256& hash)
     }
 }
 
-unsigned int CCoinsViewCache::GetCacheSize() const {
+unsigned int CStateViewCache::GetCacheSize() const {
     return cacheCoins.size();
 }
 
-const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
+const CTxOut &CStateViewCache::GetOutputFor(const CTxIn& input) const
 {
     const CCoins* coins = AccessCoins(input.prevout.hash);
     assert(coins && coins->IsAvailable(input.prevout.n));
     return coins->vout[input.prevout.n];
 }
 
-CAmount CCoinsViewCache::GetValueIn(const CTransaction& tx) const
+CAmount CStateViewCache::GetValueIn(const CTransaction& tx) const
 {
     if (tx.IsCoinBase())
         return 0;
@@ -557,7 +728,7 @@ CAmount CCoinsViewCache::GetValueIn(const CTransaction& tx) const
     return nResult;
 }
 
-bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
+bool CStateViewCache::HaveInputs(const CTransaction& tx) const
 {
     if (!tx.IsCoinBase()) {
         for (unsigned int i = 0; i < tx.vin.size(); i++) {
@@ -571,7 +742,7 @@ bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
     return true;
 }
 
-double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount &inChainInputValue) const
+double CStateViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount &inChainInputValue) const
 {
     inChainInputValue = 0;
     if (tx.IsCoinBase())
@@ -590,7 +761,7 @@ double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount
     return tx.ComputePriority(dResult);
 }
 
-CCoinsModifier::CCoinsModifier(CCoinsViewCache& cache_, CCoinsMap::iterator it_, size_t usage) : cache(cache_), it(it_), cachedCoinUsage(usage) {
+CCoinsModifier::CCoinsModifier(CStateViewCache& cache_, CCoinsMap::iterator it_, size_t usage) : cache(cache_), it(it_), cachedCoinUsage(usage) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
 }
@@ -609,7 +780,7 @@ CCoinsModifier::~CCoinsModifier()
     }
 }
 
-CProposalModifier::CProposalModifier(CCoinsViewCache& cache_, CProposalMap::iterator it_) : cache(cache_), it(it_) {
+CProposalModifier::CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
 }
@@ -624,7 +795,7 @@ CProposalModifier::~CProposalModifier()
     }
 }
 
-CPaymentRequestModifier::CPaymentRequestModifier(CCoinsViewCache& cache_, CPaymentRequestMap::iterator it_) : cache(cache_), it(it_) {
+CPaymentRequestModifier::CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
 }
@@ -639,7 +810,7 @@ CPaymentRequestModifier::~CPaymentRequestModifier()
     }
 }
 
-CVoteModifier::CVoteModifier(CCoinsViewCache& cache_, CVoteMap::iterator it_) : cache(cache_), it(it_) {
+CVoteModifier::CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
 }
@@ -650,11 +821,40 @@ CVoteModifier::~CVoteModifier()
     cache.hasModifier = false;
 
     if (it->second.IsNull()) {
-        std::cout << "~CVoteModifier removing it from cacheVotes" << std::endl;
         cache.cacheVotes.erase(it);
     }
 }
 
-CCoinsViewCursor::~CCoinsViewCursor()
+CConsultationModifier::CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_) : cache(cache_), it(it_) {
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
+}
+
+CConsultationModifier::~CConsultationModifier()
+{
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
+
+    if (it->second.IsNull()) {
+        cache.cacheConsultations.erase(it);
+    }
+}
+
+CConsultationAnswerModifier::CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_) : cache(cache_), it(it_) {
+    assert(!cache.hasModifier);
+    cache.hasModifier = true;
+}
+
+CConsultationAnswerModifier::~CConsultationAnswerModifier()
+{
+    assert(cache.hasModifier);
+    cache.hasModifier = false;
+
+    if (it->second.IsNull()) {
+        cache.cacheAnswers.erase(it);
+    }
+}
+
+CStateViewCursor::~CStateViewCursor()
 {
 }
