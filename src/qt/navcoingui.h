@@ -17,6 +17,7 @@
 #include <QHoverEvent>
 #include <QMap>
 #include <QMenu>
+#include <QComboBox>
 #include <QPoint>
 #include <QPushButton>
 #include <QSystemTrayIcon>
@@ -31,7 +32,6 @@ class OptionsModel;
 class PlatformStyle;
 class RPCConsole;
 class SendCoinsRecipient;
-class UnitDisplayStatusBarControl;
 class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
@@ -89,7 +89,7 @@ private:
     ClientModel *clientModel;
     WalletFrame *walletFrame;
 
-    UnitDisplayStatusBarControl *unitDisplayControl;
+    QComboBox *unitDisplayControl;
     QLabel *labelEncryptionIcon;
     QLabel *labelConnectionsIcon;
     QLabel *labelBlocksIcon;
@@ -200,9 +200,6 @@ public Q_SLOTS:
        @param[in] ret       pointer to a bool that will be modified to whether Ok was clicked (modal only)
     */
     void message(const QString &title, const QString &message, unsigned int style, bool *ret = NULL);
-    void replyFinished(QNetworkReply *reply);
-    void replyVotingFinished(QNetworkReply *reply);
-    void startVotingCounter();
 
 #ifdef ENABLE_WALLET
     /** Set the encryption status as shown in the UI.
@@ -215,7 +212,6 @@ public Q_SLOTS:
 
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
-    void onCurrencySelection(QAction* action);
 #endif // ENABLE_WALLET
 
 private Q_SLOTS:
@@ -244,10 +240,11 @@ private Q_SLOTS:
     /** Fetch Price from CMC **/
     void updatePrice();
 
-    void getVotingInfo();
-
     /** Repairs wallet **/
     void repairWallet();
+
+    /** Used by curl request in updatePrice */
+    static size_t priceUdateWriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
@@ -265,6 +262,10 @@ private Q_SLOTS:
     void showDebugWindowActivateConsole();
     /** Show help message dialog */
     void showHelpMessageClicked();
+    /** Update the display currency **/
+    void comboBoxChanged(int index);
+    /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
+    void updateDisplayUnit(int unit);
     /** Toggle Staking **/
     void toggleStaking();
 #ifndef Q_OS_MAC
@@ -285,35 +286,6 @@ private Q_SLOTS:
 
     /** When hideTrayIcon setting is changed in OptionsModel hide or show the icon accordingly. */
     void setTrayIconVisible(bool);
-};
-
-class UnitDisplayStatusBarControl : public QLabel
-{
-    Q_OBJECT
-
-public:
-    explicit UnitDisplayStatusBarControl(const PlatformStyle *platformStyle);
-    /** Lets the control know about the Options Model (and its signals) */
-    void setOptionsModel(OptionsModel *optionsModel);
-
-protected:
-    /** So that it responds to left-button clicks */
-    void mousePressEvent(QMouseEvent *event);
-
-private:
-    OptionsModel *optionsModel;
-    QMenu* menu;
-
-    /** Shows context menu with Display Unit options by the mouse coordinates */
-    void onDisplayUnitsClicked(const QPoint& point);
-    /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
-    void createContextMenu();
-
-private Q_SLOTS:
-    /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
-    void updateDisplayUnit(int newUnits);
-    /** Tells underlying optionsModel to update its current display unit. */
-    void onMenuSelection(QAction* action);
 };
 
 #endif // NAVCOIN_QT_NAVCOINGUI_H
