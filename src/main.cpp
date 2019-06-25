@@ -4745,7 +4745,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     }
     
     // Check proof of stake
-    if (block.nBits != GetNextTargetRequired(pindexPrev, block.IsProofOfStake())){
+    if (nHeight > 0 && block.nBits != GetNextTargetRequired(pindexPrev, block.IsProofOfStake())){
         return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake", nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
     }
 
