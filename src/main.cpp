@@ -1182,8 +1182,6 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
-        if(txout.scriptPubKey.IsColdStaking() && !IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))
-            return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
     }
 
     // Check for duplicate inputs
@@ -1372,6 +1370,15 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         view.GetBestBlock();
 
         nValueIn = view.GetValueIn(tx);
+
+        if (!IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            for (const CTxOut& txout: tx.vout)
+            {
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+            }
+        }
 
         if(IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus())) {
             CAmount nProposalFee = 0;
@@ -4039,21 +4046,17 @@ static void NotifyHeaderTip() {
     bool fNotify = false;
     bool fInitialBlockDownload = false;
     static CBlockIndex* pindexHeaderOld = NULL;
-    CBlockIndex* pindexHeader = NULL;
     {
         LOCK(cs_main);
-        if (!setBlockIndexCandidates.empty()) {
-            pindexHeader = *setBlockIndexCandidates.rbegin();
-        }
-        if (pindexHeader != pindexHeaderOld) {
+        if (pindexBestHeader != pindexHeaderOld) {
             fNotify = true;
             fInitialBlockDownload = IsInitialBlockDownload();
-            pindexHeaderOld = pindexHeader;
+            pindexHeaderOld = pindexBestHeader;
         }
     }
     // Send block tip changed notifications without cs_main
     if (fNotify) {
-        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexHeader);
+        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexBestHeader);
     }
 }
 
@@ -4222,8 +4225,6 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
 
 CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
 {
-
-
     // Check for duplicate
     uint256 hash = block.GetHash();
     BlockMap::iterator it = mapBlockIndex.find(hash);
@@ -4467,11 +4468,22 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         return error("CheckBlock() : bad proof-of-stake block signature");
     }
 
+    bool fColdStakingEnabled = IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus());
+
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
+    {
         if (!CheckTransaction(tx, state))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s\n%s", tx.GetHash().ToString(), state.GetDebugMessage(), tx.ToString()));
+
+        if (!fColdStakingEnabled)
+        {
+            for (const CTxOut& txout: tx.vout)
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+        }
+    }
 
     unsigned int nSigOps = 0;
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
@@ -6010,7 +6022,7 @@ std::string GetWarnings(const std::string& strFor, bool fForStaking)
             strGUI = _(strRPC.c_str());
         }
 
-        if (!pwalletMain->GetStakeWeight()) 
+        if (!pwalletMain->GetStakeWeight())
         {
             strStatusBar = strRPC = "Warning: We don't appear to have mature coins.";
             strGUI = _(strRPC.c_str());
