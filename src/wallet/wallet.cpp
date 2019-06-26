@@ -594,6 +594,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         CAmount nRewardAsFee = nReward * nPoolFee;
         txNew.vout[txNew.vout.size()-1].nValue -= nRewardAsFee;
+        if (txNew.vout[txNew.vout.size()-1].nValue == 0)
+            txNew.vout.erase(txNew.vout.begin()+txNew.vout.size()-1);
         txNew.vout.push_back(CTxOut(nRewardAsFee, GetScriptForDestination(poolFeeAddress.Get())));
     }
 
