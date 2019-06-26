@@ -588,7 +588,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     CNavCoinAddress poolFeeAddress(GetArg("-pooladdress", ""));
-    double nPoolFee = GetArg("-poolfee", 0) / 100;
+    double nPoolFee = GetArg("-poolfee", 0) / 100.0;
 
     if (nPoolFee > 0 && poolFeeAddress.IsValid())
     {
