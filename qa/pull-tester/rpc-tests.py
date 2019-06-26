@@ -173,6 +173,7 @@ testScripts = [
     'getstakinginfo.py',
     'coldstaking_staking.py',
     'coldstaking_spending.py',
+    'coldstaking_fee.py',
     'staticr-staking-amount.py',
     'hardfork-451.py',
     'hardfork-452.py',
