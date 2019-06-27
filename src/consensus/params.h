@@ -85,6 +85,8 @@ struct Params {
     float nMinimumQuorum;
     float nMinimumQuorumFirstHalf;
     float nMinimumQuorumSecondHalf;
+    float nMinimumConsultationSupport;
+    float nMinimumConsultationAnswerSupport;
     int nCommunityFundMinAge;
     int64_t nProposalMinimalFee;
     int64_t nConsultationMinimalFee;
@@ -96,6 +98,8 @@ struct Params {
     unsigned int nCyclesProposalVoting;
     unsigned int nCyclesPaymentRequestVoting;
     unsigned int nCyclesConsultationVoting;
+    unsigned int nCyclesConsultationConfirmation;
+    unsigned int nCyclesConsultationReflection;
     int64_t nPaymentRequestMaxVersion;
     int64_t nProposalMaxVersion;
     int64_t nConsultationMaxVersion;

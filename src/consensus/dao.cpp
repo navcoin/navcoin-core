@@ -593,6 +593,9 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
     if(!coins.GetConsultation(uint256S(Hash), consultation))
         return error("%s: Could not find consultation %s for answer %s", __func__, Hash.c_str(), tx.GetHash().ToString());
 
+    if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
+        return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
+
     CAmount nContribution;
 
     for(unsigned int i=0;i<tx.vout.size();i++)
@@ -663,21 +666,34 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
 
 }
 
-std::string CConsultation::GetState() const {
+std::string CConsultation::GetState(uint32_t currentTime) const {
     std::string sFlags = "waiting for support";
     if(IsSupported()) {
         sFlags = "found support";
-        if(fState != DAOFlags::ACCEPTED)
-            sFlags += " waiting for end of voting period";
+        if(fState != DAOFlags::CONFIRMATION)
+            sFlags += ", now waiting for end of voting period";
+        else if(fState == DAOFlags::CONFIRMATION)
+            sFlags = "voting confirmation";
+        else if(fState == DAOFlags::REFLECTION)
+            sFlags = "reflection phase";
+        else if(fState == DAOFlags::ACCEPTED)
+            sFlags = "voting started";
     }
-    if(IsExpired())
-        sFlags = "expired";
+    if(IsExpired(currentTime))
+        sFlags = IsSupported() ? "finished" : "expired";
     return sFlags;
 }
 
-std::string CConsultation::ToString() const {
-    std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, vAnswers=[",
-                                 hash.ToString(), nVersion, strDZeel, fState);
+bool CConsultation::IsSupported() const
+{
+    float nMinimumSupport = Params().GetConsensus().nMinimumConsultationSupport;
+
+    return nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport;
+}
+
+std::string CConsultation::ToString(uint32_t currentTime) const {
+    std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, status=%s, vAnswers=[",
+                                 hash.ToString(), nVersion, strDZeel, fState, GetState(currentTime));
 
     CConsultationAnswerMap mapConsultationAnswers;
 
@@ -734,19 +750,18 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
     ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesConsultationVoting)));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     ret.push_back(Pair("duration", nDuration));
-    ret.push_back(Pair("status", GetState()));
+    ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
     ret.push_back(Pair("state", (uint64_t)fState));
     ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
 }
 
-bool CConsultation::IsAccepted() const
+bool CConsultation::IsExpired(uint32_t currentTime) const
 {
-    return false;
-};
-
-bool CConsultation::IsExpired() const
-{
-    return false;
+    if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+        CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
+        return (pBlockIndex->GetBlockTime() + nDuration < currentTime);
+    }
+    return (fState == DAOFlags::EXPIRED) || (ExceededMaxVotingCycles() && fState == DAOFlags::NIL);
 };
 
 bool CConsultation::CanBeSupported() const
@@ -785,17 +800,36 @@ int CConsultationAnswer::GetVotes() const {
     return nVotes;
 }
 
-void CConsultationAnswer::SetState(int fStateIn) {
-    fState = fStateIn;
-}
-
-int CConsultationAnswer::GetState() const {
-    return fState;
+std::string CConsultationAnswer::GetState() const {
+    std::string sFlags = "waiting for support";
+    if(IsSupported()) {
+        sFlags = "found support";
+        if(fState != DAOFlags::ACCEPTED)
+            sFlags += ", now waiting for end of voting period";
+        else
+            sFlags = "voting started";
+    }
+    return sFlags;
 }
 
 std::string CConsultationAnswer::GetText() const {
     return sAnswer;
 }
+
+bool CConsultationAnswer::CanBeSupported(CStateViewCache* view) const {
+    CConsultation consultation;
+
+    if (!view->HaveConsultation(parent))
+        return false;
+
+    view->GetConsultation(parent, consultation);
+
+    if (consultation.fState != DAOFlags::NIL)
+        return false;
+
+    return fState == DAOFlags::NIL;
+}
+
 
 bool CConsultationAnswer::CanBeVoted(CStateViewCache* view) const {
     CConsultation consultation;
@@ -811,6 +845,13 @@ bool CConsultationAnswer::CanBeVoted(CStateViewCache* view) const {
     return fState == DAOFlags::ACCEPTED;
 }
 
+bool CConsultationAnswer::IsSupported() const
+{
+    float nMinimumSupport = Params().GetConsensus().nMinimumConsultationAnswerSupport;
+
+    return nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport;
+}
+
 std::string CConsultationAnswer::ToString() const {
     return strprintf("CConsultationAnswer(fState=%u, sAnswer=\"%s\", nVotes=%u)", fState, sAnswer, nVotes);
 }
@@ -819,6 +860,7 @@ void CConsultationAnswer::ToJson(UniValue& ret) const {
     ret.push_back(Pair("version",(uint64_t)nVersion));
     ret.push_back(Pair("string", sAnswer));
     ret.push_back(Pair("votes", nVotes));
+    ret.push_back(Pair("status", GetState()));
     ret.push_back(Pair("state", fState));
     ret.push_back(Pair("parent", parent.ToString()));
     if (hash != uint256())

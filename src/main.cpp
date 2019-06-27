@@ -1420,7 +1420,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
                     viewMemPool.AddProposal(proposal);
-                    LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, GetTime()));
+                    LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, chainActive.Tip()->GetBlockTime()));
                 }
                 else
                 {
@@ -1449,7 +1449,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation))
                 {
                     viewMemPool.AddConsultation(consultation);
-                    LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString());
+                    LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()->GetBlockTime()));
                 }
                 else
                 {
@@ -3623,7 +3623,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation))
                 {
                     view.AddConsultation(consultation);
-                    LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString());
+                    LogPrint("cfund","New consultation %s\n", consultation.ToString(block. nTime));
                 }
                 else
                 {
@@ -3639,7 +3639,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (view.GetConsultation(answer.parent, consultation) && consultation.fState == DAOFlags::NIL)
                     {
                         view.AddConsultationAnswer(answer);
-                        LogPrint("cfund","New consultation answer (mempool) %s\n", answer.ToString());
+                        LogPrint("cfund","New consultation answer %s\n", answer.ToString());
                     }
                 }
                 else

@@ -621,7 +621,109 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         return ret;
     }
     else
-        return EncodeHexTx(wtx);
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+}
+
+UniValue createconsultation(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 4)
+        throw runtime_error(
+            "createconsultation \"question\" \"min\" \"max\" duration ( fee dump_raw )\n"
+            "\nCreates a consultation for the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationMinimalFee/COIN) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"question\"     (string, required) The question of the new consultation.\n"
+            "2. \"min\"          (numeric, required) The minimum amount of answers a block must vote for.\n"
+            "3. \"max\"          (numeric, required) The maximum amount of answers a block can vote for.\n"
+            "4. duration         (numeric, required) Number of seconds the consultation will exist after being accepted. (Minimum: " + std::to_string(Params().GetConsensus().nMinConsultationDuration) + ")\n"
+            "5. range            (bool, optional) The consultation answers are exclusively in the range min-max.\n"
+            "6. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "7. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createconsultation", "\"Who should be the CEO of NavCoin? /s\" 1 1 1209600")
+            + HelpExampleCli("createconsultation", "\"How much should NavCoin's CEO earn per month? /s\" 1000 5000 1209600 true")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    bool fRange = params.size() >= 5 ? params[4].getBool() : false;
+
+    // Amount
+    CAmount nAmount = params.size() >= 6 ? AmountFromValue(params[5]) : Params().GetConsensus().nConsultationMinimalFee;
+    if (nAmount <= 0 || nAmount < Params().GetConsensus().nConsultationMinimalFee)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() == 7 ? params[6].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    int64_t nMin = params[1].get_int64();
+    int64_t nMax = params[2].get_int64();
+    int64_t nDuration = params[3].get_int64();
+
+    if(nDuration < Params().GetConsensus().nMinConsultationDuration)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong duration");
+
+    if(nMin < 0 || nMin > 16)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong minimum");
+
+    if(nMin < 1 || nMin > 16)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
+
+    string sQuestion = params[0].get_str();
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultation::BASE_VERSION;
+
+    if (fRange)
+        nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;
+
+    strDZeel.push_back(Pair("q",sQuestion));
+    strDZeel.push_back(Pair("m",nMin));
+    strDZeel.push_back(Pair("n",nMax));
+    strDZeel.push_back(Pair("d",nDuration));
+    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
 }
 
 std::string random_string( size_t length )
@@ -747,8 +849,97 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
         return ret;
     }
     else
-        return EncodeHexTx(wtx);
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
 }
+
+UniValue proposeanswer(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 3)
+        throw runtime_error(
+            "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
+            "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationAnswerMinimalFee/COIN) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"hash\"         (string, required) The hash of the already existing consultation.\n"
+            "2. \"answer\"       (string, required) The proposed answer.\n"
+            "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "4. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"        (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Vitalik Buterin\"")
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Satoshi Nakamoto\"")
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Charlie Lee\"")
+            + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Riccardo Fluffypony\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    // Amount
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : Params().GetConsensus().nConsultationAnswerMinimalFee;
+    if (nAmount <= 0 || nAmount < Params().GetConsensus().nConsultationAnswerMinimalFee)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    CConsultation consultation;
+
+    if(!pcoinsTip->GetConsultation(uint256S(params[0].get_str()), consultation))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid consultation.");
+
+    if(consultation.fState != DAOFlags::NIL || (consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION))
+        throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
+
+    std::string sAnswer = params[1].get_str();
+
+    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
+
+    strDZeel.push_back(Pair("h",params[0].get_str()));
+    strDZeel.push_back(Pair("a",sAnswer));
+    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::ANSWER_VERSION;
+
+    if(wtx.strDZeel.length() > 255)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+}
+
 
 UniValue donatefund(const UniValue& params, bool fHelp)
 {
@@ -3755,6 +3946,8 @@ static const CRPCCommand commands[] =
     { "communityfund",      "donatefund",               &donatefund,               false },
     { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
     { "communityfund",      "createproposal",           &createproposal,           false },
+    { "communityfund",      "createconsultation",       &createconsultation,       false },
+    { "communityfund",      "proposeanswer",            &proposeanswer,            false },
     { "wallet",             "stakervote",               &stakervote,               false },
     { "communityfund",      "proposalvote",             &proposalvote,             false },
     { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },

@@ -969,6 +969,108 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue listconsultations(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw runtime_error(
+                "listconsultations \"filter\"\n"
+                "\nList the consultations and all the relating data including answers and status.\n"
+                "\nNote passing no argument returns all consultations regardless of state.\n"
+                "\nArguments:\n"
+                "\n1. \"filter\" (string, optional)   \"not_enough_answers\" | \"looking_for_support\" | \"confirmation\" | \"reflection\" | \"voting\" | \"finished\"\n"
+                "\nExamples:\n"
+                + HelpExampleCli("listconsultations", "finished confirmation")
+                );
+
+    LOCK(cs_main);
+
+    UniValue ret(UniValue::VARR);
+
+    bool showNotEnoughAnswers = true;
+    bool showLookingForSupport = true;
+    bool showConfirmation = true;
+    bool showReflection = true;
+    bool showVoting = true;
+    bool showFinished = true;
+
+    if(params.size() >= 1)
+    {
+        showNotEnoughAnswers = false;
+        showLookingForSupport = false;
+        showConfirmation = false;
+        showReflection = false;
+        showVoting = false;
+        showFinished = false;
+
+        for(unsigned int i = 0; i < params.size(); i++)
+        {
+            auto p = params[i];
+            if (p.get_str() == "not_enough_answers")
+            {
+                showNotEnoughAnswers = true;
+            }
+            else if (p.get_str() == "looking_for_support")
+            {
+                showLookingForSupport = true;
+            }
+            else if (p.get_str() == "confirmation")
+            {
+                showConfirmation = true;
+            }
+            else if (p.get_str() == "reflection")
+            {
+                showReflection = true;
+            }
+            else if (p.get_str() == "voting")
+            {
+                showVoting = true;
+            }
+            else if (p.get_str() == "finished")
+            {
+                showFinished = true;
+            }
+        }
+    }
+
+    CConsultationMap mapConsultations;
+
+    if(pcoinsTip->GetAllConsultations(mapConsultations))
+    {
+        for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
+        {
+            CConsultation consultation;
+            if (!pcoinsTip->GetConsultation(it->first, consultation))
+                continue;
+
+            CConsultationAnswerMap mapAnswers;
+            std::vector<CConsultationAnswer> vAnswers;
+
+            if(pcoinsTip->GetAllConsultationAnswers(mapAnswers))
+            {
+                for (CConsultationAnswerMap::iterator it = mapAnswers.begin(); it != mapAnswers.end(); it++)
+                {
+                    CConsultationAnswer answer;
+                    if (!pcoinsTip->GetConsultationAnswer(it->first, answer) || answer.parent != consultation.hash)
+                        continue;
+                    vAnswers.push_back(answer);
+                }
+            }
+
+            if((showNotEnoughAnswers && consultation.fState == DAOFlags::NIL && vAnswers.size() < 2) ||
+               (showLookingForSupport && consultation.fState == DAOFlags::NIL && vAnswers.size() >= 2) ||
+               (showConfirmation && consultation.fState == DAOFlags::CONFIRMATION) ||
+               (showReflection && consultation.fState == DAOFlags::REFLECTION) ||
+               (showReflection && consultation.fState == DAOFlags::ACCEPTED) ||
+               (showFinished && consultation.fState == DAOFlags::EXPIRED)) {
+                UniValue o(UniValue::VOBJ);
+                consultation.ToJson(o, *pcoinsTip);
+                ret.push_back(o);
+            }
+        }
+    }
+    return ret;
+}
+
 UniValue cfundstats(const UniValue& params, bool fHelp)
 {
 
@@ -1577,6 +1679,52 @@ UniValue getproposal(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue getconsultation(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getconsultation \"hash\"\n"
+            "\nShows information about the given consultation.\n"
+            "\nArguments:\n"
+            "1. hash   (string, required) the hash of the consultation\n"
+        );
+
+    LOCK(cs_main);
+
+    CConsultation consultation;
+    if(!pcoinsTip->GetConsultation(uint256S(params[0].get_str()), consultation))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation not found");
+
+    UniValue ret(UniValue::VOBJ);
+
+    consultation.ToJson(ret, *pcoinsTip);
+
+    return ret;
+}
+
+UniValue getconsultationanswer(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getconsultationanswer \"hash\"\n"
+            "\nShows information about the given consultation answer.\n"
+            "\nArguments:\n"
+            "1. hash   (string, required) the hash of the consultation answer\n"
+        );
+
+    LOCK(cs_main);
+
+    CConsultationAnswer answer;
+    if(!pcoinsTip->GetConsultationAnswer(uint256S(params[0].get_str()), answer))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation answer not found");
+
+    UniValue ret(UniValue::VOBJ);
+
+    answer.ToJson(ret);
+
+    return ret;
+}
+
 UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1701,6 +1849,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         "verifychain",            &verifychain,            true  },
     { "communityfund",      "listproposals",          &listproposals,          true  },
     { "dao",                "listconsultations",      &listconsultations,      true  },
+    { "dao",                "getconsultation",        &getconsultation,        true  },
+    { "dao",                "getconsultationanswer",  &getconsultationanswer,  true  },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        true  },

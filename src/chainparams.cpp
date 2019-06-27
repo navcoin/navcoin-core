@@ -110,6 +110,8 @@ public:
         consensus.nMinimumQuorum = 0.5;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
+        consensus.nMinimumConsultationSupport = 0.015;
+        consensus.nMinimumConsultationAnswerSupport = 0.0075;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -126,6 +128,8 @@ public:
         consensus.nCyclesProposalVoting = 6;
         consensus.nCyclesPaymentRequestVoting = 8;
         consensus.nCyclesConsultationVoting = 8;
+        consensus.nCyclesConsultationConfirmation = 1;
+        consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
         consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
         consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;
@@ -325,6 +329,8 @@ public:
         consensus.nMinimumQuorum = 0.5;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
+        consensus.nMinimumConsultationSupport = 0.015;
+        consensus.nMinimumConsultationAnswerSupport = 0.0075;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -342,6 +348,8 @@ public:
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nCyclesConsultationVoting = 4;
+        consensus.nCyclesConsultationConfirmation = 1;
+        consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
         consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
         consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;
@@ -521,6 +529,8 @@ public:
         consensus.nMinimumQuorum = 0.5;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
+        consensus.nMinimumConsultationSupport = 0.015;
+        consensus.nMinimumConsultationAnswerSupport = 0.0075;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -538,6 +548,8 @@ public:
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nCyclesConsultationVoting = 4;
+        consensus.nCyclesConsultationConfirmation = 1;
+        consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
         consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
         consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;
@@ -727,6 +739,8 @@ public:
         consensus.nMinimumQuorum = 0.5;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
+        consensus.nMinimumConsultationSupport = 0.015;
+        consensus.nMinimumConsultationAnswerSupport = 0.0075;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -744,6 +758,8 @@ public:
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nCyclesConsultationVoting = 4;
+        consensus.nCyclesConsultationConfirmation = 1;
+        consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
         consensus.nProposalMaxVersion = CProposal::ALL_VERSION;
         consensus.nConsultationMaxVersion = CConsultation::ALL_VERSION;

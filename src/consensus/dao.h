@@ -491,6 +491,7 @@ public:
     int nVersion;
     std::string sAnswer;
     int nVotes;
+    int nSupport;
     int fState;
     uint256 hash;
     uint256 parent;
@@ -503,6 +504,7 @@ public:
         std::swap(to.nVersion, nVersion);
         std::swap(to.sAnswer, sAnswer);
         std::swap(to.nVotes, nVotes);
+        std::swap(to.nSupport, nSupport);
         std::swap(to.fState, fState);
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
@@ -511,7 +513,7 @@ public:
 
     bool IsNull() const
     {
-        return (sAnswer == "" && nVotes == 0 && fState == 0 && nVersion == 0 && hash == uint256() && parent == uint256() && txblockhash == uint256());
+        return (sAnswer == "" && nVotes == 0 && nSupport == 0 && fState == 0 && nVersion == 0 && hash == uint256() && parent == uint256() && txblockhash == uint256());
     };
 
     void SetNull()
@@ -520,6 +522,7 @@ public:
         nVotes = 0;
         fState = 0;
         nVersion = 0;
+        nSupport = 0;
         hash = uint256();
         parent = uint256();
         txblockhash = uint256();
@@ -530,10 +533,11 @@ public:
     void DecVote();
     void ClearVotes();
     int GetVotes() const;
-    void SetState(int fStateIn);
-    int GetState() const;
+    std::string GetState() const;
     std::string GetText() const;
     bool CanBeVoted(CStateViewCache* view) const;
+    bool CanBeSupported(CStateViewCache* view) const;
+    bool IsSupported() const;
     std::string ToString() const;
     void ToJson(UniValue& ret) const;
 
@@ -544,6 +548,7 @@ public:
         READWRITE(nVersion);
         READWRITE(sAnswer);
         READWRITE(nVotes);
+        READWRITE(nSupport);
         READWRITE(fState);
         READWRITE(hash);
         READWRITE(parent);
@@ -610,14 +615,13 @@ public:
         nMax = 0;
     };
 
-    std::string GetState() const;
-    std::string ToString() const;
+    std::string GetState(uint32_t currentTime) const;
+    std::string ToString(uint32_t currentTime) const;
     void ToJson(UniValue& ret, CStateViewCache& view) const;
     bool CanBeSupported() const;
     bool CanBeVoted() const;
     bool IsSupported() const;
-    bool IsAccepted() const;
-    bool IsExpired() const;
+    bool IsExpired(uint32_t currentTime) const;
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;
 
