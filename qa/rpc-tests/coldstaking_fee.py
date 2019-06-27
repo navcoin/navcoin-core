@@ -38,23 +38,26 @@ class ColdStakingFeeTest(NavCoinTestFramework):
         self.nodes[1].generatetoaddress(100, "n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
         self.nodes[2].generatetoaddress(100, "n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
 
-        self.nodes[0].sendtoaddress(csaddress1, self.nodes[0].getbalance(), "", "", "", True)
-        self.nodes[1].sendtoaddress(csaddress2, self.nodes[1].getbalance(), "", "", "", True)
+        tx=self.nodes[0].sendtoaddress(csaddress1, self.nodes[0].getbalance(), "", "", "", True)
+        fees0=self.nodes[0].gettransaction(tx)["fee"]*100000000/2
+        tx2=self.nodes[1].sendtoaddress(csaddress2, self.nodes[1].getbalance(), "", "", "", True)
+        fees1=self.nodes[1].gettransaction(tx2)["fee"]*100000000
         self.nodes[2].sendtoaddress(csaddress3, self.nodes[2].getbalance(), "", "", "", True)
 
         while self.nodes[0].getblockcount() < 401:
             time.sleep(1)
 
+        node0balance = self.nodes[0].getaddressbalance('n1hcSEk4ReyLwbStTKodGCq4kEwhJVxXwC')["balance"]
+
         while self.nodes[1].getblockcount() < 401:
             time.sleep(1)
 
-        node0balance = self.nodes[0].getaddressbalance("n1hcSEk4ReyLwbStTKodGCq4kEwhJVxXwC")["balance"]
-        node1balance = self.nodes[1].getaddressbalance("n1hcSEk4ReyLwbStTKodGCq4kEwhJVxXwC")["balance"]
+        node1balance = self.nodes[1].getaddressbalance('n1hcSEk4ReyLwbStTKodGCq4kEwhJVxXwC')["balance"]
 
         assert(node0balance > 0)
         assert(node1balance > 0)
-        assert_equal(node0balance % 100000000, 0)
-        assert_equal(node1balance % 200000000, 0)
+        assert_equal((node0balance+fees0) % 100000000, 0)
+        assert_equal((node1balance+fees1) % 200000000, 0)
 
         assert("Coinstake tried to move cold staking coins to a non authorised script" in open(self.options.tmpdir + '/node2/devnet/debug.log').read())
 
