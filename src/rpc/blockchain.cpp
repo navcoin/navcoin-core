@@ -953,12 +953,12 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                 continue;
 
             if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
-                            || proposal.fState == PENDING_VOTING_PREQ
-                            || proposal.fState == PENDING_FUNDS))
-                    || (showPending  && (proposal.fState == NIL || proposal.fState == PENDING_VOTING_PREQ
-                                         || proposal.fState == PENDING_FUNDS))
-                    || (showAccepted && (proposal.fState == ACCEPTED || proposal.IsAccepted()))
-                    || (showRejected && (proposal.fState == REJECTED || proposal.IsRejected()))
+                            || proposal.fState == DAOFlags::PENDING_VOTING_PREQ
+                            || proposal.fState == DAOFlags::PENDING_FUNDS))
+                    || (showPending  && (proposal.fState == DAOFlags::NIL || proposal.fState == DAOFlags::PENDING_VOTING_PREQ
+                                         || proposal.fState == DAOFlags::PENDING_FUNDS))
+                    || (showAccepted && (proposal.fState == DAOFlags::ACCEPTED || proposal.IsAccepted()))
+                    || (showRejected && (proposal.fState == DAOFlags::REJECTED || proposal.IsRejected()))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o, *pcoinsTip);
@@ -1700,7 +1700,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
     { "communityfund",      "listproposals",          &listproposals,          true  },
-
+    { "dao",                "listconsultations",      &listconsultations,      true  },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        true  },

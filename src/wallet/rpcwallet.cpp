@@ -669,7 +669,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
-    if(proposal.fState != ACCEPTED)
+    if(proposal.fState != DAOFlags::ACCEPTED)
         throw JSONRPCError(RPC_TYPE_ERROR, "Proposal has not been accepted.");
 
     CNavCoinAddress address(proposal.Address);
@@ -3478,7 +3478,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
             if (!pcoinsTip->GetProposal(it_->first, proposal))
                 continue;
 
-            if (proposal.fState != NIL)
+            if (proposal.fState != DAOFlags::NIL)
                 continue;
 
             auto it = mapAddedVotes.find(proposal.hash);
@@ -3606,7 +3606,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
             if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                 continue;
 
-            if (prequest.fState != NIL)
+            if (prequest.fState != DAOFlags::NIL)
                 continue;
 
             auto it = mapAddedVotes.find(prequest.hash);

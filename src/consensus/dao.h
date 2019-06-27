@@ -26,6 +26,8 @@ extern std::map<uint256, int64_t> mapAddedVotes;
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, int64_t vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, int64_t vote);
+void SetScriptForConsultationSupport(CScript &script, uint256 hash);
+void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote);
 
 bool Vote(uint256 hash, int64_t vote, bool &duplicate);
 bool RemoveVote(string str);
@@ -172,6 +174,8 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
 bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaxVersion);
 bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
+bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion);
+bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion);
 
 // CFUND
 
@@ -202,7 +206,7 @@ public:
 
     void SetNull() {
         nAmount = 0;
-        fState = NIL;
+        fState = DAOFlags::NIL;
         nVotesYes = 0;
         nVotesNo = 0;
         nVotesAbs = 0;
@@ -235,19 +239,19 @@ public:
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && fState == NIL && nVotesYes == 0  && nVotesYes == 0 && nVotesAbs == 0 && strDZeel == "");
+        return (nAmount == 0 && fState == DAOFlags::NIL && nVotesYes == 0  && nVotesYes == 0 && nVotesAbs == 0 && strDZeel == "");
     }
 
     std::string GetState() const {
         std::string sFlags = "pending";
         if(IsAccepted()) {
             sFlags = "accepted";
-            if(fState != ACCEPTED)
+            if(fState != DAOFlags::ACCEPTED)
                 sFlags += " waiting for end of voting period";
         }
         if(IsRejected()) {
             sFlags = "rejected";
-            if(fState != REJECTED)
+            if(fState != DAOFlags::REJECTED)
                 sFlags += " waiting for end of voting period";
         }
         if(IsExpired())
@@ -323,7 +327,7 @@ public:
 
 };
 
-class CProposal
+class  CProposal
 {
 public:
     static const uint64_t BASE_VERSION=1<<1;
@@ -354,7 +358,7 @@ public:
         nAmount = 0;
         nFee = 0;
         Address = "";
-        fState = NIL;
+        fState = DAOFlags::NIL;
         nVotesYes = 0;
         nVotesNo = 0;
         nVotesAbs = 0;
@@ -388,7 +392,7 @@ public:
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && nFee == 0 && Address == "" && nVotesYes == 0 && fState == NIL
+        return (nAmount == 0 && nFee == 0 && Address == "" && nVotesYes == 0 && fState == DAOFlags::NIL
                 && nVotesYes == 0 && nVotesNo == 0 && nVotesAbs == 0 && nDeadline == 0 && strDZeel == "");
     }
 
@@ -410,7 +414,7 @@ public:
     bool CanVote() const;
 
     bool CanRequestPayments() const {
-        return fState == ACCEPTED;
+        return fState == DAOFlags::ACCEPTED;
     }
 
     bool HasPendingPaymentRequests(CStateViewCache& coins) const;
@@ -482,7 +486,7 @@ class CConsultationAnswer
 {
 public:
     static const uint64_t BASE_VERSION=1;
-    static const uint64_t ALL_VERSION = 1;
+    static const uint64_t ALL_VERSION =BASE_VERSION;
 
     int nVersion;
     std::string sAnswer;
@@ -490,6 +494,7 @@ public:
     int fState;
     uint256 hash;
     uint256 parent;
+    uint256 txblockhash;
     bool fDirty;
 
     CConsultationAnswer() { SetNull(); }
@@ -500,12 +505,13 @@ public:
         std::swap(to.nVotes, nVotes);
         std::swap(to.fState, fState);
         std::swap(to.hash, hash);
+        std::swap(to.txblockhash, txblockhash);
         std::swap(to.parent, parent);
     }
 
     bool IsNull() const
     {
-        return (sAnswer == "" && nVotes == 0 && fState == 0 && nVersion == 0 && hash == uint256());
+        return (sAnswer == "" && nVotes == 0 && fState == 0 && nVersion == 0 && hash == uint256() && parent == uint256() && txblockhash == uint256());
     };
 
     void SetNull()
@@ -515,6 +521,8 @@ public:
         fState = 0;
         nVersion = 0;
         hash = uint256();
+        parent = uint256();
+        txblockhash = uint256();
         fDirty = false;
     };
 
@@ -539,6 +547,7 @@ public:
         READWRITE(fState);
         READWRITE(hash);
         READWRITE(parent);
+        READWRITE(txblockhash);
         if (ser_action.ForRead())
             fDirty = false;
     }
@@ -547,14 +556,14 @@ public:
 class CConsultation
 {
 public:
-    static const uint64_t BASE_VERSION=1;
-    static const uint64_t ALL_VERSION = 1;
+    static const uint64_t BASE_VERSION = 1;
+    static const uint64_t ANSWER_IS_A_RANGE_VERSION = 1<<1;
+    static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION;
 
     flags fState;
     uint256 hash;
     uint256 txblockhash;
     uint256 blockhash;
-    std::vector<uint256> vAnswers;
     uint64_t nVersion;
     uint64_t nDuration;
     unsigned int nVotingCycle;
@@ -571,7 +580,6 @@ public:
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
         std::swap(to.blockhash, blockhash);
-        std::swap(to.vAnswers, vAnswers);
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
         std::swap(to.fDirty, fDirty);
@@ -582,17 +590,16 @@ public:
     };
 
     bool IsNull() const {
-        return (hash == uint256() && fState == NIL && txblockhash == uint256() && blockhash == uint256() && vAnswers.size() == 0
+        return (hash == uint256() && fState == DAOFlags::NIL && txblockhash == uint256() && blockhash == uint256()
                 && nVersion == 0 && nDuration == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0
                 && nMin == 0 && nMax == 0);
     };
 
     void SetNull() {
-        fState = NIL;
+        fState = DAOFlags::NIL;
         hash = uint256();
         txblockhash = uint256();
         blockhash = uint256();
-        vAnswers.clear();
         nVersion = 0;
         nDuration = 0;
         nVotingCycle = 0;
@@ -606,9 +613,12 @@ public:
     std::string GetState() const;
     std::string ToString() const;
     void ToJson(UniValue& ret, CStateViewCache& view) const;
+    bool CanBeSupported() const;
+    bool CanBeVoted() const;
     bool IsSupported() const;
     bool IsAccepted() const;
     bool IsExpired() const;
+    bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;
 
     ADD_SERIALIZE_METHODS;
@@ -618,7 +628,6 @@ public:
         READWRITE(this->nVersion);
         READWRITE(nDuration);
         READWRITE(fState);
-        READWRITE(vAnswers);
         READWRITE(nSupport);
         READWRITE(nMin);
         READWRITE(nMax);

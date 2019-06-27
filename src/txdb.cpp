@@ -200,6 +200,32 @@ bool CStateViewDB::GetAllConsultations(CConsultationMap &map) {
     return true;
 }
 
+bool CStateViewDB::GetAllConsultationAnswers(CConsultationAnswerMap &map) {
+    map.clear();
+
+    boost::scoped_ptr<CDBIterator> pcursor(db.NewIterator());
+
+    pcursor->Seek(make_pair(DB_ANSWERINDEX, uint256()));
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_ANSWERINDEX) {
+            CConsultationAnswer answer;
+            if (pcursor->GetValue(answer)) {
+                map.insert(make_pair(key.second, answer));
+                pcursor->Next();
+            } else {
+                return error("GetAllConsultationAnswers() : failed to read value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
 bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,

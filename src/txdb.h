@@ -122,6 +122,7 @@ public:
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap &map);
     bool GetAllConsultations(CConsultationMap &map);
+    bool GetAllConsultationAnswers(CConsultationAnswerMap &map);
     CStateViewCursor *Cursor() const;
 };
 

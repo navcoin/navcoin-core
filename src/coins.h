@@ -373,6 +373,7 @@ public:
     virtual bool GetAllConsultations(CConsultationMap& map);
     virtual bool HaveConsultation(const uint256 &cid) const;
     virtual bool HaveConsultationAnswer(const uint256 &cid) const;
+    virtual bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
 
     //! Retrieve the block hash whose state this CStateView currently represents
     virtual uint256 GetBestBlock() const;
@@ -416,6 +417,7 @@ public:
     bool GetAllConsultations(CConsultationMap& map);
     bool HaveConsultation(const uint256 &cid) const;
     bool HaveConsultationAnswer(const uint256 &cid) const;
+    bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     uint256 GetBestBlock() const;
     void SetBackend(CStateView &viewIn);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
@@ -562,6 +564,7 @@ public:
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap& map);
     bool GetAllConsultations(CConsultationMap& map);
+    bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     uint256 GetBestBlock() const;
     void SetBestBlock(const uint256 &hashBlock);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,

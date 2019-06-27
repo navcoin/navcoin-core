@@ -79,7 +79,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If prequest is accepted, show when it was accepted
-    if (prequest.fState == ACCEPTED)
+    if (prequest.fState == DAOFlags::ACCEPTED)
     {
         std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
@@ -92,7 +92,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If prequest is pending show voting cycles left
-    if (prequest.fState == NIL)
+    if (prequest.fState == DAOFlags::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
         std::string duration = std::to_string(prequest.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesPaymentRequestVoting);
@@ -101,7 +101,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If prequest is rejected, show when it was rejected
-    if (prequest.fState == REJECTED)
+    if (prequest.fState == DAOFlags::REJECTED)
     {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
@@ -114,9 +114,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If expired show when it expired
-    if (prequest.fState == EXPIRED || status.find("expired") != string::npos)
+    if (prequest.fState == DAOFlags::EXPIRED || status.find("expired") != string::npos)
     {
-        if (prequest.fState == EXPIRED)
+        if (prequest.fState == DAOFlags::EXPIRED)
         {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
@@ -138,7 +138,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (prequest.fState == NIL && prequest.GetState().find("expired") == string::npos)
+    if (prequest.fState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
     {
         // Get prequest votes list
         CPaymentRequest preq = prequest;

@@ -28,7 +28,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (proposal.fState == NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
+    if (proposal.fState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
         // Get proposal votes list
         auto it = mapAddedVotes.find(proposal.hash);
 
@@ -98,13 +98,13 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     }
 
     ui->labelDeadline->setText(QString::fromStdString(s_deadline));
-    if (proposal.fState == NIL) {
+    if (proposal.fState == DAOFlags::NIL) {
         std::string expiry_title = "Voting period finishes in: ";
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
         std::string expiry = std::to_string(Params().GetConsensus().nCyclesProposalVoting - proposal.nVotingCycle) +  " voting cycles";
         ui->labelExpiresIn->setText(QString::fromStdString(expiry));
     }
-    if (proposal.fState == ACCEPTED) {
+    if (proposal.fState == DAOFlags::ACCEPTED) {
         uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
 
         uint64_t deadline_d = std::floor(deadline/86400);
@@ -122,7 +122,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         }
         ui->labelExpiresIn->setText(QString::fromStdString(s_deadline));
     }
-    if (proposal.fState == REJECTED) {
+    if (proposal.fState == DAOFlags::REJECTED) {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -132,8 +132,8 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
         ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
-    if (proposal.fState == EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) {
-        if (proposal.fState == EXPIRED) {
+    if (proposal.fState == DAOFlags::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) {
+        if (proposal.fState == DAOFlags::EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
@@ -182,7 +182,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     }
 
     // If proposal is pending, hide the transaction hash
-    if (proposal.fState == NIL) {
+    if (proposal.fState == DAOFlags::NIL) {
         ui->labelTransactionBlockHashTitle->setVisible(false);
         ui->labelTransactionBlockHash->setVisible(false);
     }

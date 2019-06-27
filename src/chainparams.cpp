@@ -106,6 +106,7 @@ public:
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 20000;
         consensus.nBlocksPerVotingCycle = 2880 * 7; // 7 Days
+        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.nMinimumQuorum = 0.5;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
@@ -115,6 +116,8 @@ public:
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 50;
         consensus.nProposalMinimalFee = 5000000000;
+        consensus.nConsultationMinimalFee = 10000000000;
+        consensus.nConsultationAnswerMinimalFee = 5000000000;
         consensus.sigActivationTime = 1512990000;
         consensus.nCoinbaseTimeActivationHeight = 20000;
         consensus.nBlockSpreadCFundAccumulation = 500;
@@ -328,6 +331,9 @@ public:
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
+        consensus.nConsultationMinimalFee = 20000;
+        consensus.nConsultationAnswerMinimalFee = 10000;
+        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.sigActivationTime = 1512826692;
         consensus.nCoinbaseTimeActivationHeight = 30000;
         consensus.nBlockSpreadCFundAccumulation = 500;
@@ -521,6 +527,9 @@ public:
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
+        consensus.nConsultationMinimalFee = 20000;
+        consensus.nConsultationAnswerMinimalFee = 10000;
+        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.sigActivationTime = 1512826692;
         consensus.nCoinbaseTimeActivationHeight = 0;
         consensus.nBlockSpreadCFundAccumulation = 500;
@@ -724,6 +733,9 @@ public:
         consensus.nVotesRejectPaymentRequest = 0.7;
         consensus.nCommunityFundMinAge = 5;
         consensus.nProposalMinimalFee = 10000;
+        consensus.nConsultationMinimalFee = 20000;
+        consensus.nConsultationAnswerMinimalFee = 10000;
+        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.sigActivationTime = 0;
         consensus.nCoinbaseTimeActivationHeight = 0;
         consensus.nBlockSpreadCFundAccumulation = 10;

@@ -392,6 +392,8 @@ public:
     static const int32_t TXDZEEL_VERSION_V2=3;
     static const int32_t PROPOSAL_VERSION=4;
     static const int32_t PAYMENT_REQUEST_VERSION=5;
+    static const int32_t CONSULTATION_VERSION=6;
+    static const int32_t ANSWER_VERSION=7;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date

@@ -57,6 +57,7 @@ bool CStateView::GetAllProposals(CProposalMap& map) { return false; }
 bool CStateView::GetAllPaymentRequests(CPaymentRequestMap& map) { return false; }
 bool CStateView::GetAllVotes(CVoteMap& map) { return false; }
 bool CStateView::GetAllConsultations(CConsultationMap& map) { return false; }
+bool CStateView::GetAllConsultationAnswers(CConsultationAnswerMap& map) { return false; }
 uint256 CStateView::GetBestBlock() const { return uint256(); }
 bool CStateView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
@@ -82,6 +83,7 @@ bool CStateViewBacked::GetAllProposals(CProposalMap& map) { return base->GetAllP
 bool CStateViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) { return base->GetAllPaymentRequests(map); }
 bool CStateViewBacked::GetAllVotes(CVoteMap& map) { return base->GetAllVotes(map); }
 bool CStateViewBacked::GetAllConsultations(CConsultationMap& map) { return base->GetAllConsultations(map); }
+bool CStateViewBacked::GetAllConsultationAnswers(CConsultationAnswerMap& map) { return base->GetAllConsultationAnswers(map); }
 uint256 CStateViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
 void CStateViewBacked::SetBackend(CStateView &viewIn) { base = &viewIn; }
 bool CStateViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
@@ -325,6 +327,22 @@ bool CStateViewCache::GetAllConsultations(CConsultationMap& mapConsultations) {
 
     return true;
 }
+
+bool CStateViewCache::GetAllConsultationAnswers(CConsultationAnswerMap& mapAnswers) {
+    mapAnswers.clear();
+    mapAnswers.insert(cacheAnswers.begin(), cacheAnswers.end());
+
+    CConsultationAnswerMap baseMap;
+
+    if (!base->GetAllConsultationAnswers(baseMap))
+        return false;
+
+    for (CConsultationAnswerMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapAnswers.insert(make_pair(it->first, it->second));
+
+    return true;
+}
+
 
 CCoinsModifier CStateViewCache::ModifyCoins(const uint256 &txid) {
     assert(!hasModifier);

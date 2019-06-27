@@ -405,6 +405,18 @@ bool CTxMemPool::AddPaymentRequest(const CPaymentRequest& prequest)
     return true;
 }
 
+bool CTxMemPool::AddConsultation(const CConsultation& consultation)
+{
+    mapConsultation.insert(make_pair(consultation.hash, consultation));
+    return true;
+}
+
+bool CTxMemPool::AddConsultationAnswer(const CConsultationAnswer& answer)
+{
+    mapAnswer.insert(make_pair(answer.hash, answer));
+    return true;
+}
+
 bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry, setEntries &setAncestors, bool fCurrentEstimate)
 {
     // Add to memory pool without checking anything.
@@ -1153,6 +1165,27 @@ bool CStateViewMemPool::GetPaymentRequest(const uint256 &txid, CPaymentRequest &
     return (base->GetPaymentRequest(txid, prequest) && !prequest.IsNull());
 }
 
+
+bool CStateViewMemPool::GetConsultation(const uint256 &txid, CConsultation &consultation) const
+{
+    if (mempool.mapConsultation.count(txid))
+    {
+        consultation = mempool.mapConsultation.at(txid);
+        return true;
+    }
+    return (base->GetConsultation(txid, consultation) && !consultation.IsNull());
+}
+
+bool CStateViewMemPool::GetConsultationAnswer(const uint256 &txid, CConsultationAnswer &answer) const
+{
+    if (mempool.mapAnswer.count(txid))
+    {
+        answer = mempool.mapAnswer.at(txid);
+        return true;
+    }
+    return (base->GetConsultationAnswer(txid, answer) && !answer.IsNull());
+}
+
 bool CStateViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
     mapPaymentRequests.clear();
     mapPaymentRequests.insert(mempool.mapPaymentRequest.begin(), mempool.mapPaymentRequest.end());
@@ -1164,6 +1197,21 @@ bool CStateViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequ
 
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         mapPaymentRequests.insert(make_pair(it->first, it->second));
+
+    return true;
+}
+
+bool CStateViewMemPool::GetAllConsultationAnswers(CConsultationAnswerMap& mapAnswers) {
+    mapAnswers.clear();
+    mapAnswers.insert(mempool.mapAnswer.begin(), mempool.mapAnswer.end());
+
+    CConsultationAnswerMap baseMap;
+
+    if (!base->GetAllConsultationAnswers(baseMap))
+        return false;
+
+    for (CConsultationAnswerMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapAnswers.insert(make_pair(it->first, it->second));
 
     return true;
 }
@@ -1180,6 +1228,14 @@ bool CStateViewMemPool::HavePaymentRequest(const uint256 &txid) const {
     return mempool.mapPaymentRequest.count(txid) || base->HavePaymentRequest(txid);
 }
 
+bool CStateViewMemPool::HaveConsultation(const uint256 &txid) const {
+    return mempool.mapConsultation.count(txid) || base->HaveConsultation(txid);
+}
+
+bool CStateViewMemPool::HaveConsultationAnswer(const uint256 &txid) const {
+    return mempool.mapAnswer.count(txid) || base->HaveConsultationAnswer(txid);
+}
+
 bool CStateViewMemPool::AddProposal(const CProposal& proposal) const
 {
     return const_cast<CTxMemPool&>(mempool).AddProposal(proposal);
@@ -1189,6 +1245,16 @@ bool CStateViewMemPool::AddPaymentRequest(const CPaymentRequest& prequest) const
 {
     return const_cast<CTxMemPool&>(mempool).AddPaymentRequest(prequest);
 };
+
+bool CStateViewMemPool::AddConsultation(const CConsultation& consultation) const
+{
+    return const_cast<CTxMemPool&>(mempool).AddConsultation(consultation);
+}
+
+bool CStateViewMemPool::AddConsultationAnswer(const CConsultationAnswer& answer) const
+{
+    return const_cast<CTxMemPool&>(mempool).AddConsultationAnswer(answer);
+}
 
 size_t CTxMemPool::DynamicMemoryUsage() const {
     LOCK(cs);

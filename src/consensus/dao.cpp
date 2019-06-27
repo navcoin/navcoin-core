@@ -60,6 +60,25 @@ void SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash, int64
     memcpy(&script[5], prequesthash.begin(), 32);
 }
 
+void SetScriptForConsultationSupport(CScript &script, uint256 hash)
+{
+    script.resize(36);
+    script[0] = OP_RETURN;
+    script[1] = OP_DAO;
+    script[2] = OP_YES;
+    script[3] = 0x20;
+    memcpy(&script[4], hash.begin(), 32);
+}
+
+void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote)
+{
+    script.resize(3);
+    script[0] = OP_RETURN;
+    script[1] = OP_DAO;
+    script[2] = OP_ANSWER;
+    script << vote;
+}
+
 bool Vote(uint256 hash, int64_t vote, bool &duplicate)
 {
     AssertLockHeld(cs_main);
@@ -280,7 +299,7 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if(fUndo && prequest->blockhash == pindexDelete->GetBlockHash())
             {
                 prequest->blockhash = uint256();
-                prequest->fState = NIL;
+                prequest->fState = DAOFlags::NIL;
                 fUpdate = true;
             }
 
@@ -309,7 +328,7 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             auto oldState = prequest->fState;
             auto oldCycle = prequest->nVotingCycle;
 
-            if((prequest->fState == NIL || fUndo) && nVotingCycles != prequest->nVotingCycle)
+            if((prequest->fState == DAOFlags::NIL || fUndo) && nVotingCycles != prequest->nVotingCycle)
             {
                 prequest->nVotingCycle = nVotingCycles;
                 fUpdate = true;
@@ -317,47 +336,47 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
-                if((!prequest->IsExpired() && prequest->fState == EXPIRED) ||
-                        (!prequest->IsRejected() && prequest->fState == REJECTED))
+                if((!prequest->IsExpired() && prequest->fState == DAOFlags::EXPIRED) ||
+                        (!prequest->IsRejected() && prequest->fState == DAOFlags::REJECTED))
                 {
-                    prequest->fState = NIL;
+                    prequest->fState = DAOFlags::NIL;
                     prequest->blockhash = uint256();
                     fUpdate = true;
                 }
 
-                if(!prequest->IsAccepted() && prequest->fState == ACCEPTED)
+                if(!prequest->IsAccepted() && prequest->fState == DAOFlags::ACCEPTED)
                 {
-                    prequest->fState = NIL;
+                    prequest->fState = DAOFlags::NIL;
                     prequest->blockhash = uint256();
                     fUpdate = true;
                 }
 
                 if(prequest->IsExpired())
                 {
-                    if (prequest->fState != EXPIRED)
+                    if (prequest->fState != DAOFlags::EXPIRED)
                     {
-                        prequest->fState = EXPIRED;
+                        prequest->fState = DAOFlags::EXPIRED;
                         prequest->blockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
                 }
                 else if(prequest->IsRejected())
                 {
-                    if (prequest->fState != REJECTED)
+                    if (prequest->fState != DAOFlags::REJECTED)
                     {
-                        prequest->fState = REJECTED;
+                        prequest->fState = DAOFlags::REJECTED;
                         prequest->blockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
                 }
-                else if(prequest->fState == NIL)
+                else if(prequest->fState == DAOFlags::NIL)
                 {
-                    if((proposal.fState == ACCEPTED || proposal.fState == PENDING_VOTING_PREQ) && prequest->IsAccepted())
+                    if((proposal.fState == DAOFlags::ACCEPTED || proposal.fState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())
                     {
                         if(prequest->nAmount <= pindexNew->nCFLocked && prequest->nAmount <= proposal.GetAvailable(view))
                         {
                             pindexNew->nCFLocked -= prequest->nAmount;
-                            prequest->fState = ACCEPTED;
+                            prequest->fState = DAOFlags::ACCEPTED;
                             prequest->blockhash = pindexNew->GetBlockHash();
                             fUpdate = true;
                         }
@@ -365,14 +384,14 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if (fUndo && fUpdate && prequest->fState == oldState && prequest->fState != NIL
+            if (fUndo && fUpdate && prequest->fState == oldState && prequest->fState != DAOFlags::NIL
                     && prequest->nVotingCycle != oldCycle)
                 prequest->nVotingCycle = oldCycle;
 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
-                if (!vSeen.count(prequest->hash) && prequest->fState == NIL &&
-                    !((proposal.fState == ACCEPTED || proposal.fState == PENDING_VOTING_PREQ) && prequest->IsAccepted())){
+                if (!vSeen.count(prequest->hash) && prequest->fState == DAOFlags::NIL &&
+                    !((proposal.fState == DAOFlags::ACCEPTED || proposal.fState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())){
                     prequest->nVotesYes = 0;
                     prequest->nVotesNo = 0;
                 }
@@ -412,7 +431,7 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if(fUndo && proposal->blockhash == pindexDelete->GetBlockHash())
             {
                 proposal->blockhash = uint256();
-                proposal->fState = NIL;
+                proposal->fState = DAOFlags::NIL;
                 fUpdate = true;
             }
 
@@ -426,7 +445,7 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             auto oldState = proposal->fState;
             auto oldCycle = proposal->nVotingCycle;
 
-            if((proposal->fState == NIL || fUndo) && nVotingCycles != proposal->nVotingCycle)
+            if((proposal->fState == DAOFlags::NIL || fUndo) && nVotingCycles != proposal->nVotingCycle)
             {
                 proposal->nVotingCycle = nVotingCycles;
                 fUpdate = true;
@@ -434,38 +453,38 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
-                if((!proposal->IsExpired(pindexNew->GetBlockTime()) && (proposal->fState == EXPIRED || proposal->fState == PENDING_VOTING_PREQ)) ||
-                   (!proposal->IsRejected() && proposal->fState == REJECTED))
+                if((!proposal->IsExpired(pindexNew->GetBlockTime()) && (proposal->fState == DAOFlags::EXPIRED || proposal->fState == DAOFlags::PENDING_VOTING_PREQ)) ||
+                   (!proposal->IsRejected() && proposal->fState == DAOFlags::REJECTED))
                 {
-                    proposal->fState = NIL;
+                    proposal->fState = DAOFlags::NIL;
                     proposal->blockhash = uint256();
                     fUpdate = true;
                 }
 
-                if(!proposal->IsAccepted() && (proposal->fState == ACCEPTED || proposal->fState == PENDING_FUNDS))
+                if(!proposal->IsAccepted() && (proposal->fState == DAOFlags::ACCEPTED || proposal->fState == DAOFlags::PENDING_FUNDS))
                 {
-                    proposal->fState = NIL;
+                    proposal->fState = DAOFlags::NIL;
                     proposal->blockhash = uint256();
                     fUpdate = true;
                 }
 
                 if(proposal->IsExpired(pindexNew->GetBlockTime()))
                 {
-                    if (proposal->fState != EXPIRED)
+                    if (proposal->fState != DAOFlags::EXPIRED)
                     {
                         if (proposal->HasPendingPaymentRequests(view))
                         {
-                            proposal->fState = PENDING_VOTING_PREQ;
+                            proposal->fState = DAOFlags::PENDING_VOTING_PREQ;
                             fUpdate = true;
                         }
                         else
                         {
-                            if(proposal->fState == ACCEPTED || proposal->fState == PENDING_VOTING_PREQ)
+                            if(proposal->fState == DAOFlags::ACCEPTED || proposal->fState == DAOFlags::PENDING_VOTING_PREQ)
                             {
                                 pindexNew->nCFSupply += proposal->GetAvailable(view);
                                 pindexNew->nCFLocked -= proposal->GetAvailable(view);
                             }
-                            proposal->fState = EXPIRED;
+                            proposal->fState = DAOFlags::EXPIRED;
                             proposal->blockhash = pindexNew->GetBlockHash();
                             fUpdate = true;
                         }
@@ -473,27 +492,27 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
                 else if(proposal->IsRejected())
                 {
-                    if(proposal->fState != REJECTED)
+                    if(proposal->fState != DAOFlags::REJECTED)
                     {
-                        proposal->fState = REJECTED;
+                        proposal->fState = DAOFlags::REJECTED;
                         proposal->blockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
                 } else if(proposal->IsAccepted())
                 {
-                    if((proposal->fState == NIL || proposal->fState == PENDING_FUNDS))
+                    if((proposal->fState == DAOFlags::NIL || proposal->fState == DAOFlags::PENDING_FUNDS))
                     {
                         if(pindexNew->nCFSupply >= proposal->GetAvailable(view))
                         {
                             pindexNew->nCFSupply -= proposal->GetAvailable(view);
                             pindexNew->nCFLocked += proposal->GetAvailable(view);
-                            proposal->fState = ACCEPTED;
+                            proposal->fState = DAOFlags::ACCEPTED;
                             proposal->blockhash = pindexNew->GetBlockHash();
                             fUpdate = true;
                         }
-                        else if(proposal->fState != PENDING_FUNDS)
+                        else if(proposal->fState != DAOFlags::PENDING_FUNDS)
                         {
-                            proposal->fState = PENDING_FUNDS;
+                            proposal->fState = DAOFlags::PENDING_FUNDS;
                             proposal->blockhash = uint256();
                             fUpdate = true;
                         }
@@ -501,12 +520,12 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if (fUndo && fUpdate && proposal->fState == oldState && proposal->fState != NIL && proposal->nVotingCycle != oldCycle)
+            if (fUndo && fUpdate && proposal->fState == oldState && proposal->fState != DAOFlags::NIL && proposal->nVotingCycle != oldCycle)
                 proposal->nVotingCycle = oldCycle;
 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
-                if (!vSeen.count(proposal->hash) && proposal->fState == NIL)
+                if (!vSeen.count(proposal->hash) && proposal->fState == DAOFlags::NIL)
                 {
                     proposal->nVotesYes = 0;
                     proposal->nVotesAbs = 0;
@@ -538,11 +557,117 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
 // CONSULTATIONS
 
+bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion)
+{
+    if(tx.strDZeel.length() > 255)
+        return error("%s: Too long strdzeel for answer %s", __func__, tx.GetHash().ToString());
+
+    UniValue metadata(UniValue::VOBJ);
+    try {
+        UniValue valRequest;
+        if (!valRequest.read(tx.strDZeel))
+            return error("%s: Wrong strdzeel for answer %s", __func__, tx.GetHash().ToString());
+
+        if (valRequest.isObject())
+          metadata = valRequest.get_obj();
+        else
+            return error("%s: Wrong strdzeel for answer %s", __func__, tx.GetHash().ToString());
+
+    } catch (const UniValue& objError) {
+        return error("%s: Wrong strdzeel for answer %s", __func__, tx.GetHash().ToString());
+    } catch (const std::exception& e) {
+        return error("%s: Wrong strdzeel for answer %s: %s", __func__, tx.GetHash().ToString(), e.what());
+    }
+
+    if(!find_value(metadata, "a").isStr() || !find_value(metadata, "h").isStr())
+    {
+        return error("%s: Wrong strdzeel for answer %s ()", __func__, tx.GetHash().ToString(), tx.strDZeel);
+    }
+
+    std::string sAnswer = find_value(metadata, "a").get_str();
+    std::string Hash = find_value(metadata, "h").get_str();
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultationAnswer::BASE_VERSION;
+
+    CConsultation consultation;
+
+    if(!coins.GetConsultation(uint256S(Hash), consultation))
+        return error("%s: Could not find consultation %s for answer %s", __func__, Hash.c_str(), tx.GetHash().ToString());
+
+    CAmount nContribution;
+
+    for(unsigned int i=0;i<tx.vout.size();i++)
+        if(tx.vout[i].IsCommunityFundContribution())
+            nContribution +=tx.vout[i].nValue;
+
+    bool ret = (nContribution >= Params().GetConsensus().nConsultationAnswerMinimalFee);
+
+    if (!ret)
+        return error("%s: Not enough fee for answer %s", __func__, tx.GetHash().ToString());
+
+    return true;
+
+}
+
+bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
+{
+    if(tx.strDZeel.length() > 1024)
+        return error("%s: Too long strdzeel for consultation %s", __func__, tx.GetHash().ToString());
+
+    UniValue metadata(UniValue::VOBJ);
+    try {
+        UniValue valRequest;
+        if (!valRequest.read(tx.strDZeel))
+            return error("%s: Wrong strdzeel for consultation %s", __func__, tx.GetHash().ToString());
+
+        if (valRequest.isObject())
+          metadata = valRequest.get_obj();
+        else
+            return error("%s: Wrong strdzeel for consultation %s", __func__, tx.GetHash().ToString());
+
+    } catch (const UniValue& objError) {
+        return error("%s: Wrong strdzeel for consultation %s", __func__, tx.GetHash().ToString());
+    } catch (const std::exception& e) {
+        return error("%s: Wrong strdzeel for consultation %s: %s", __func__, tx.GetHash().ToString(), e.what());
+    }
+
+    if(!(find_value(metadata, "m").isNum() &&
+         find_value(metadata, "n").isNum() &&
+         find_value(metadata, "q").isStr() &&
+         find_value(metadata, "d").isNum()))
+    {
+        return error("%s: Wrong strdzeel for consultation %s (%s)", __func__, tx.GetHash().ToString(), tx.strDZeel);
+    }
+
+    CAmount nMin = find_value(metadata, "m").get_int64();
+    CAmount nMax = find_value(metadata, "n").get_int64();
+    CAmount nDuration = find_value(metadata, "d").get_int64();
+    std::string sQuestion = find_value(metadata, "q").get_str();
+
+    CAmount nContribution = 0;
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
+
+    for(unsigned int i=0;i<tx.vout.size();i++)
+        if(tx.vout[i].IsCommunityFundContribution())
+            nContribution +=tx.vout[i].nValue;
+
+    bool ret = (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+               ((nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION && nMin > 0 && nMax < pow(2,64)) ||
+                (!(nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION) && nMin > 2 && nMax < 16)) &&
+               nDuration > Params().GetConsensus().nMinConsultationDuration &&
+               (nVersion & ~nMaskVersion) == 0);
+
+    if (!ret)
+        return error("%s: Wrong strdzeel %s for proposal %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
+
+    return true;
+
+}
+
 std::string CConsultation::GetState() const {
     std::string sFlags = "waiting for support";
     if(IsSupported()) {
         sFlags = "found support";
-        if(fState != ACCEPTED)
+        if(fState != DAOFlags::ACCEPTED)
             sFlags += " waiting for end of voting period";
     }
     if(IsExpired())
@@ -554,9 +679,22 @@ std::string CConsultation::ToString() const {
     std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, vAnswers=[",
                                  hash.ToString(), nVersion, strDZeel, fState);
 
-    for (auto &it: vAnswers)
+    CConsultationAnswerMap mapConsultationAnswers;
+
+    if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
     {
-        sRet += it.ToString();
+        for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+        {
+            CConsultationAnswer answer;
+
+            if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
+                continue;
+
+            if (answer.parent != hash)
+                continue;
+
+            sRet += answer.ToString();
+        }
     }
 
     sRet += strprintf("], nVotingCycle=%u, nDeadline=%u, blockhash=%s)",
@@ -572,11 +710,19 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
     ret.push_back(Pair("question", strDZeel));
     ret.push_back(Pair("support", nSupport));
     UniValue answers(UniValue::VARR);
-    for (auto &it: vAnswers)
+    CConsultationAnswerMap mapConsultationAnswers;
+    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
     {
-        CConsultationAnswer answer;
-        if (view.GetConsultationAnswer(it, answer))
+        for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
         {
+            CConsultationAnswer answer;
+
+            if (!view.GetConsultationAnswer(it_->first, answer))
+                continue;
+
+            if (answer.parent != hash)
+                continue;
+
             UniValue ret;
             answer.ToJson(ret);
             answers.push_back(ret);
@@ -602,6 +748,21 @@ bool CConsultation::IsExpired() const
 {
     return false;
 };
+
+bool CConsultation::CanBeSupported() const
+{
+    return fState == DAOFlags::NIL;
+}
+
+bool CConsultation::CanBeVoted() const
+{
+    return fState == DAOFlags::ACCEPTED;
+}
+
+bool CConsultation::IsValidVote(int64_t vote) const
+{
+    return (vote >= nMin && vote <= nMax);
+}
 
 bool CConsultation::ExceededMaxVotingCycles() const
 {
@@ -644,10 +805,10 @@ bool CConsultationAnswer::CanBeVoted(CStateViewCache* view) const {
 
     view->GetConsultation(parent, consultation);
 
-    if (consultation.fState != ACCEPTED)
+    if (consultation.fState != DAOFlags::ACCEPTED)
         return false;
 
-    return fState == ACCEPTED;
+    return fState == DAOFlags::ACCEPTED;
 }
 
 std::string CConsultationAnswer::ToString() const {
@@ -695,7 +856,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
     std::string Signature = find_value(metadata, "s").get_str();
     std::string Hash = find_value(metadata, "h").get_str();
     std::string strDZeel = find_value(metadata, "i").get_str();
-    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : 1;
 
     if (nAmount < 0) {
          return error("%s: Payment Request cannot have amount less than 0: %s", __func__, tx.GetHash().ToString());
@@ -703,7 +864,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
 
     CProposal proposal;
 
-    if(!coins.GetProposal(uint256S(Hash), proposal) || proposal.fState != ACCEPTED)
+    if(!coins.GetProposal(uint256S(Hash), proposal))
         return error("%s: Could not find parent proposal %s for payment request %s", __func__, Hash.c_str(),tx.GetHash().ToString());
 
     std::string sRandom = "";
@@ -765,12 +926,12 @@ bool CPaymentRequest::CanVote(CStateViewCache& coins) const
     if(!coins.GetProposal(proposalhash, proposal))
         return false;
 
-    return nAmount <= proposal.GetAvailable(coins) && fState != ACCEPTED && fState != REJECTED && fState != EXPIRED && !ExceededMaxVotingCycles();
+    return nAmount <= proposal.GetAvailable(coins) && fState != DAOFlags::ACCEPTED && fState != DAOFlags::REJECTED && fState != DAOFlags::EXPIRED && !ExceededMaxVotingCycles();
 }
 
 bool CPaymentRequest::IsExpired() const {
     if(nVersion >= BASE_VERSION)
-        return (ExceededMaxVotingCycles() && fState != ACCEPTED && fState != REJECTED);
+        return (ExceededMaxVotingCycles() && fState != DAOFlags::ACCEPTED && fState != DAOFlags::REJECTED);
     return false;
 }
 
@@ -809,7 +970,7 @@ bool IsValidProposal(CTransaction tx, uint64_t nMaskVersion)
     std::string Address = find_value(metadata, "a").get_str();
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
-    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
+    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : 1;
 
     CNavCoinAddress address(Address);
     if (!address.IsValid())
@@ -907,7 +1068,7 @@ bool CProposal::CanVote() const {
     if(!chainActive.Contains(pindex))
         return false;
 
-    return (fState == NIL) && (!ExceededMaxVotingCycles());
+    return (fState == DAOFlags::NIL) && (!ExceededMaxVotingCycles());
 }
 
 uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
@@ -923,11 +1084,11 @@ uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
 
 bool CProposal::IsExpired(uint32_t currentTime) const {
     if(nVersion & BASE_VERSION) {
-        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+        if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
             CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
             return (pBlockIndex->GetBlockTime() + nDeadline < currentTime);
         }
-        return (fState == EXPIRED) || (fState == PENDING_VOTING_PREQ) || (ExceededMaxVotingCycles() && fState == NIL);
+        return (fState == DAOFlags::EXPIRED) || (fState == DAOFlags::PENDING_VOTING_PREQ) || (ExceededMaxVotingCycles() && fState == DAOFlags::NIL);
     } else {
         return (nDeadline < currentTime);
     }
@@ -965,7 +1126,7 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
                 if(!chainActive.Contains(pindex))
                     continue;
             }
-            if((fIncludeRequests && prequest.fState != REJECTED && prequest.fState != EXPIRED) || (!fIncludeRequests && prequest.fState == ACCEPTED))
+            if((fIncludeRequests && prequest.fState != DAOFlags::REJECTED && prequest.fState != DAOFlags::EXPIRED) || (!fIncludeRequests && prequest.fState == DAOFlags::ACCEPTED))
                 initial -= prequest.nAmount;
         }
     }
@@ -1026,23 +1187,23 @@ std::string CProposal::GetState(uint32_t currentTime) const {
     std::string sFlags = "pending";
     if(IsAccepted()) {
         sFlags = "accepted";
-        if(fState == PENDING_FUNDS)
+        if(fState == DAOFlags::PENDING_FUNDS)
             sFlags += " waiting for enough coins in fund";
-        else if(fState != ACCEPTED)
+        else if(fState != DAOFlags::ACCEPTED)
             sFlags += " waiting for end of voting period";
     }
     if(IsRejected()) {
         sFlags = "rejected";
-        if(fState != REJECTED)
+        if(fState != DAOFlags::REJECTED)
             sFlags += " waiting for end of voting period";
     }
     if(currentTime > 0 && IsExpired(currentTime)) {
         sFlags = "expired";
-        if(fState != EXPIRED && !ExceededMaxVotingCycles())
+        if(fState != DAOFlags::EXPIRED && !ExceededMaxVotingCycles())
             // This branch only occurs when a proposal expires due to exceeding its nDeadline during a voting cycle, not due to exceeding max voting cycles
             sFlags += " waiting for end of voting period";
     }
-    if(fState == PENDING_VOTING_PREQ) {
+    if(fState == DAOFlags::PENDING_VOTING_PREQ) {
         sFlags = "expired pending voting of payment requests";
     }
     return sFlags;
@@ -1061,7 +1222,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.push_back(Pair("paymentAddress", Address));
     if(nVersion & BASE_VERSION) {
         ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
-        if (fState == ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
+        if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
             CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
             ret.push_back(Pair("expiresOn", pBlockIndex->GetBlockTime() + (uint64_t)nDeadline));
         }
@@ -1075,7 +1236,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
     ret.push_back(Pair("state", (uint64_t)fState));
-    if(fState == ACCEPTED)
+    if(fState == DAOFlags::ACCEPTED)
         ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
     CPaymentRequestMap mapPaymentRequests;
 
@@ -1117,7 +1278,7 @@ void CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("status", GetState()));
     ret.push_back(Pair("state", (uint64_t)fState));
     ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
-    if(fState == ACCEPTED) {
+    if(fState == DAOFlags::ACCEPTED) {
         ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
     }
 }

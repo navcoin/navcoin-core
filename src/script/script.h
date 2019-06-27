@@ -187,6 +187,8 @@ enum opcodetype
     OP_NO = 0xc5,
     OP_ABSTAIN = 0xc7,
     OP_REMOVE = 0xc8,
+    OP_DAO = 0xc9,
+    OP_ANSWER = 0xca,
 
     OP_COINSTAKE = 0xc6,
 

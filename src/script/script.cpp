@@ -148,6 +148,8 @@ const char* GetOpName(opcodetype opcode)
     case OP_NO                     : return "OP_NO";
     case OP_ABSTAIN                : return "OP_ABSTAIN";
     case OP_REMOVE                 : return "OP_REMOVE";
+    case OP_DAO                    : return "OP_DAO";
+    case OP_ANSWER                 : return "OP_ANSWER";
 
     case OP_COINSTAKE              : return "OP_COINSTAKE";
 

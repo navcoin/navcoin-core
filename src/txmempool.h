@@ -464,6 +464,8 @@ public:
     indexed_transaction_set mapTx;
     CProposalMap mapProposal;
     CPaymentRequestMap mapPaymentRequest;
+    CConsultationMap mapConsultation;
+    CConsultationAnswerMap mapAnswer;
 
     typedef indexed_transaction_set::nth_index<0>::type::iterator txiter;
     std::vector<std::pair<uint256, txiter> > vTxHashes; //!< All tx hashes/entries in mapTx, in random order
@@ -535,6 +537,8 @@ public:
 
     bool AddProposal(const CProposal& proposal);
     bool AddPaymentRequest(const CPaymentRequest& prequest);
+    bool AddConsultation(const CConsultation& consultation);
+    bool AddConsultationAnswer(const CConsultationAnswer& answer);
 
     void addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view);
     bool getAddressIndex(std::vector<std::pair<uint160, int> > &addresses,
@@ -723,11 +727,18 @@ public:
     bool HaveCoins(const uint256 &txid) const;
     bool HaveProposal(const uint256 &pid) const;
     bool HavePaymentRequest(const uint256 &prid) const;
+    bool HaveConsultation(const uint256 &prid) const;
+    bool HaveConsultationAnswer(const uint256 &prid) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
+    bool GetConsultation(const uint256 &txid, CConsultation &consultation) const;
+    bool GetConsultationAnswer(const uint256 &txid, CConsultationAnswer &answer) const;
     bool GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests);
+    bool GetAllConsultationAnswers(CConsultationAnswerMap& mapPaymentRequests);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
+    bool AddConsultation(const CConsultation& consultation) const;
+    bool AddConsultationAnswer(const CConsultationAnswer& answer) const;
 };
 
 // We want to sort transactions by coin age priority

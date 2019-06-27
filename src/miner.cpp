@@ -215,14 +215,21 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         for (auto& it: mapAddedVotes)
         {
             CProposal proposal;
+            CPaymentRequest prequest;
+            CConsultation consultation;
+            CConsultationAnswer answer;
+
             int64_t vote = it.second;
 
             if (!IsAbstainVoteEnabled(pindexPrev, chainparams.GetConsensus()) && vote == -1)
                 continue;
 
+            if (votes.count(proposal.hash) != 0)
+                continue;
+
             if(pcoinsTip->GetProposal(it.first, proposal))
             {
-                if(proposal.CanVote() && votes.count(proposal.hash) == 0)
+                if(proposal.CanVote())
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
@@ -230,20 +237,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
                     votes[proposal.hash] = vote;
+                    continue;
                 }
             }
-        }
-
-
-        for (auto& it: mapAddedVotes)
-        {
-            CPaymentRequest prequest; CProposal proposal;
-            int64_t vote = it.second;
-
-            if (!IsAbstainVoteEnabled(pindexPrev, chainparams.GetConsensus()) && vote == -1)
-                continue;
-
-            if(pcoinsTip->GetPaymentRequest(it.first, prequest))
+            else if(pcoinsTip->GetPaymentRequest(it.first, prequest))
             {
                 if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
                     continue;
@@ -256,9 +253,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if(pblockindex == NULL)
                     continue;
 
-                if((proposal.CanRequestPayments() || proposal.fState == PENDING_VOTING_PREQ)
-                        && prequest.CanVote(*pcoinsTip) && votes.count(prequest.hash) == 0 &&
-                        pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
+                if((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ) && prequest.CanVote(*pcoinsTip) &&
+                   pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
@@ -266,6 +262,45 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
                     votes[prequest.hash] = vote;
+
+                    continue;
+                }
+            }
+            else if(pcoinsTip->GetConsultation(it.first, consultation))
+            {
+                if(consultation.CanBeSupported() && vote == -3)
+                {
+                    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+
+                    SetScriptForConsultationSupport(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash);
+
+                    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    votes[consultation.hash] = vote;
+                    continue;
+                }
+                else if(consultation.CanBeVoted() && consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION &&
+                        consultation.IsValidVote(vote))
+                {
+                    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+
+                    SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash, vote);
+
+                    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    votes[consultation.hash] = vote;
+                    continue;
+                }
+            }
+            else if(pcoinsTip->GetConsultationAnswer(it.first, answer))
+            {
+                if(answer.CanBeVoted(pcoinsTip))
+                {
+                    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+
+                    SetScriptForConsultationSupport(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,answer.hash);
+
+                    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    votes[answer.hash] = vote;
+                    continue;
                 }
             }
         }
@@ -293,7 +328,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if(prequest.hash == uint256())
                     continue;
 
-                if(prequest.fState == ACCEPTED && prequest.paymenthash == uint256() &&
+                if(prequest.fState == DAOFlags::ACCEPTED && prequest.paymenthash == uint256() &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     CProposal proposal;

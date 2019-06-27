@@ -26,7 +26,7 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (prequest.fState == NIL && prequest.GetState().find("expired") == string::npos) {
+    if (prequest.fState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos) {
         // Get prequest votes list
         auto it = mapAddedVotes.find(prequest.hash);
         if (it != mapAddedVotes.end())
@@ -127,7 +127,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is pending show voting cycles left
-    if (prequest.fState == NIL) {
+    if (prequest.fState == DAOFlags::NIL) {
         std::string duration_title = "Voting period finishes in: ";
         std::string duration = std::to_string(Params().GetConsensus().nCyclesPaymentRequestVoting-prequest.nVotingCycle) +  " voting cycles";
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
@@ -135,7 +135,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is accepted, show when it was accepted
-    if (prequest.fState == ACCEPTED) {
+    if (prequest.fState == DAOFlags::ACCEPTED) {
         std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -147,7 +147,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is rejected, show when it was rejected
-    if (prequest.fState == REJECTED) {
+    if (prequest.fState == DAOFlags::REJECTED) {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -159,8 +159,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If expired show when it expired
-    if (prequest.fState == EXPIRED || status.find("expired") != string::npos) {
-        if (prequest.fState == EXPIRED) {
+    if (prequest.fState == DAOFlags::EXPIRED || status.find("expired") != string::npos) {
+        if (prequest.fState == DAOFlags::EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
@@ -185,13 +185,13 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestLink->setOpenExternalLinks(true);
 
     // If prequest is pending, hide the transaction hash
-    if (prequest.fState == NIL) {
+    if (prequest.fState == DAOFlags::NIL) {
         ui->labelPrequestTransactionBlockHashTitle->setVisible(false);
         ui->labelPrequestTransactionBlockHash->setVisible(false);
     }
 
     // If the prequest is not accepted, hide the payment hash
-    if (prequest.fState != ACCEPTED) {
+    if (prequest.fState != DAOFlags::ACCEPTED) {
         ui->labelPrequestPaymentHashTitle->setVisible(false);
         ui->labelPrequestPaymentHash->setVisible(false);
     }

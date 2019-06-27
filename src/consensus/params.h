@@ -87,6 +87,9 @@ struct Params {
     float nMinimumQuorumSecondHalf;
     int nCommunityFundMinAge;
     int64_t nProposalMinimalFee;
+    int64_t nConsultationMinimalFee;
+    int64_t nConsultationAnswerMinimalFee;
+    int64_t nMinConsultationDuration;
     int nBlockSpreadCFundAccumulation;
     CAmount nCommunityFundAmount;
     CAmount nCommunityFundAmountV2;

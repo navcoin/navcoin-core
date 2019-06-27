@@ -82,7 +82,7 @@ void CommunityFundDisplay::refresh()
     }
 
     // If proposal is pending show voting cycles left
-    if (proposal.fState == NIL)
+    if (proposal.fState == DAOFlags::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
         std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesProposalVoting);
@@ -91,7 +91,7 @@ void CommunityFundDisplay::refresh()
     }
 
     // If proposal is rejected, show when it was rejected
-    if (proposal.fState == REJECTED)
+    if (proposal.fState == DAOFlags::REJECTED)
     {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
@@ -104,9 +104,9 @@ void CommunityFundDisplay::refresh()
     }
 
     // If expired show when it expired
-    if (proposal.fState == EXPIRED || status.find("expired") != string::npos)
+    if (proposal.fState == DAOFlags::EXPIRED || status.find("expired") != string::npos)
     {
-        if (proposal.fState == EXPIRED)
+        if (proposal.fState == DAOFlags::EXPIRED)
         {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
@@ -128,7 +128,7 @@ void CommunityFundDisplay::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (proposal.fState == NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+    if (proposal.fState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
     {
         // Get proposal votes list
         CProposal prop = this->proposal;
