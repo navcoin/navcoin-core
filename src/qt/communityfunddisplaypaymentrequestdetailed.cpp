@@ -63,8 +63,10 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
 
     {
         LOCK(cs_main);
+        CStateViewCache* coins(pcoinsTip);
+
         //hide ui voting elements on prequests which are not allowed vote states
-        if(!prequest.CanVote(*pcoinsTip))
+        if(!prequest.CanVote(coins))
         {
             ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
         }

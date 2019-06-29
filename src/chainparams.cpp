@@ -211,12 +211,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of VOTING STATE CACHE for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of CONSULTATIONS for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 23;
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
@@ -418,12 +418,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of VOTING STATE CACHE for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of CONSULTATIONS for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 23;
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
@@ -618,12 +618,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of VOTING STATE CACHE for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of CONSULTATIONS for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 23;
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
@@ -828,12 +828,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of VOTING STATE CACHE for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 20;
+        consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of CONSULTATIONS for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 21;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 23;
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 

@@ -61,14 +61,34 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.push_back(Pair("proofhash", blockindex->hashProof.GetHex()));
     result.push_back(Pair("entropybit", (int)blockindex->GetStakeEntropyBit()));
     result.push_back(Pair("modifier", strprintf("%016x", blockindex->nStakeModifier)));
+
     UniValue votes(UniValue::VARR);
     for (auto& it: blockindex->vProposalVotes)
     {
         UniValue entry(UniValue::VOBJ);
         entry.pushKV("hash", it.first.ToString());
         entry.pushKV("vote", it.second);
+        votes.push_back(entry);
     }
     result.push_back(Pair("cfund_votes", votes));
+
+    UniValue daosupport(UniValue::VARR);
+    for (auto& it: blockindex->mapSupport)
+    {
+        daosupport.push_back(it.first.ToString());
+    }
+    result.push_back(Pair("dao_support", daosupport));
+
+    UniValue daovotes(UniValue::VARR);
+    for (auto& it: blockindex->mapConsultationVotes)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("hash", it.first.ToString());
+        entry.pushKV("vote", it.second);
+        daovotes.push_back(entry);
+    }
+    result.push_back(Pair("dao_votes", daovotes));
+
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
     CBlockIndex *pnext = chainActive.Next(blockindex);
@@ -944,6 +964,8 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
     CProposalMap mapProposals;
 
+    CStateViewCache* view(pcoinsTip);
+
     if(pcoinsTip->GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
@@ -961,7 +983,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                     || (showRejected && (proposal.fState == DAOFlags::REJECTED || proposal.IsRejected()))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
-                proposal.ToJson(o, *pcoinsTip);
+                proposal.ToJson(o, view);
                 ret.push_back(o);
             }
         }
@@ -977,7 +999,7 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
                 "\nList the consultations and all the relating data including answers and status.\n"
                 "\nNote passing no argument returns all consultations regardless of state.\n"
                 "\nArguments:\n"
-                "\n1. \"filter\" (string, optional)   \"not_enough_answers\" | \"looking_for_support\" | \"confirmation\" | \"reflection\" | \"voting\" | \"finished\"\n"
+                "\n1. \"filter\" (string, optional)   \"not_enough_answers\" | \"waiting_for_support\" | \"confirmation\" | \"reflection\" | \"voting\" | \"finished\"\n"
                 "\nExamples:\n"
                 + HelpExampleCli("listconsultations", "finished confirmation")
                 );
@@ -1009,7 +1031,7 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
             {
                 showNotEnoughAnswers = true;
             }
-            else if (p.get_str() == "looking_for_support")
+            else if (p.get_str() == "waiting_for_support")
             {
                 showLookingForSupport = true;
             }
@@ -1033,6 +1055,7 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
     }
 
     CConsultationMap mapConsultations;
+    CStateViewCache* view(pcoinsTip);
 
     if(pcoinsTip->GetAllConsultations(mapConsultations))
     {
@@ -1040,6 +1063,14 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
         {
             CConsultation consultation;
             if (!pcoinsTip->GetConsultation(it->first, consultation))
+                continue;
+
+            if (!mapBlockIndex.count(consultation.txblockhash))
+                continue;
+
+            CBlockIndex* pindex = mapBlockIndex[consultation.txblockhash];
+
+            if (!chainActive.Contains(pindex))
                 continue;
 
             CConsultationAnswerMap mapAnswers;
@@ -1057,13 +1088,13 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
             }
 
             if((showNotEnoughAnswers && consultation.fState == DAOFlags::NIL && vAnswers.size() < 2) ||
-               (showLookingForSupport && consultation.fState == DAOFlags::NIL && vAnswers.size() >= 2) ||
+               (showLookingForSupport && consultation.fState == DAOFlags::NIL) ||
                (showConfirmation && consultation.fState == DAOFlags::CONFIRMATION) ||
                (showReflection && consultation.fState == DAOFlags::REFLECTION) ||
                (showReflection && consultation.fState == DAOFlags::ACCEPTED) ||
                (showFinished && consultation.fState == DAOFlags::EXPIRED)) {
                 UniValue o(UniValue::VOBJ);
-                consultation.ToJson(o, *pcoinsTip);
+                consultation.ToJson(o, view);
                 ret.push_back(o);
             }
         }
@@ -1487,6 +1518,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
     BIP9SoftForkDescPushBack(bip9_softforks, "abstain_vote", consensusParams, Consensus::DEPLOYMENT_ABSTAIN_VOTE);
+    BIP9SoftForkDescPushBack(bip9_softforks, "consultations", consensusParams, Consensus::DEPLOYMENT_CONSULTATIONS);
     obj.push_back(Pair("softforks",             softforks));
     obj.push_back(Pair("bip9_softforks", bip9_softforks));
 
@@ -1672,9 +1704,10 @@ UniValue getproposal(const UniValue& params, bool fHelp)
     if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not found");
 
+    CStateViewCache* view(pcoinsTip);
     UniValue ret(UniValue::VOBJ);
 
-    proposal.ToJson(ret, *pcoinsTip);
+    proposal.ToJson(ret, view);
 
     return ret;
 }
@@ -1696,8 +1729,9 @@ UniValue getconsultation(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation not found");
 
     UniValue ret(UniValue::VOBJ);
+    CStateViewCache* view(pcoinsTip);
 
-    consultation.ToJson(ret, *pcoinsTip);
+    consultation.ToJson(ret, view);
 
     return ret;
 }

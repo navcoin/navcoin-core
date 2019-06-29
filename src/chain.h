@@ -217,6 +217,8 @@ public:
 
     std::vector<std::pair<uint256, int>> vProposalVotes;
     std::vector<std::pair<uint256, int>> vPaymentRequestVotes;
+    std::map<uint256, bool> mapSupport;
+    std::map<uint256, uint64_t> mapConsultationVotes;
 
     std::string strDZeel;
 
@@ -262,6 +264,8 @@ public:
         nNonce         = 0;
         vProposalVotes.clear();
         vPaymentRequestVotes.clear();
+        mapSupport.clear();
+        mapConsultationVotes.clear();
     }
 
     CBlockIndex()
@@ -525,6 +529,13 @@ public:
         READWRITE(nCFLocked);
         READWRITE(vPaymentRequestVotes);
         READWRITE(vProposalVotes);
+
+        // UPDATE if nConsultationsVersionMask in versionbits.h is modified
+        if (nVersion & 0x00800000)
+        {
+            READWRITE(mapSupport);
+            READWRITE(mapConsultationVotes);
+        }
     }
 
     uint256 GetBlockHash() const

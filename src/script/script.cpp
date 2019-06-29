@@ -261,6 +261,30 @@ bool CScript::IsCommunityFundContribution() const
       (*this)[1] == OP_CFUND);
 }
 
+bool CScript::IsSupportVote() const
+{
+    return IsSupportVoteYes() || IsSupportVoteRemove();
+}
+
+
+bool CScript::IsSupportVoteYes() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_DAO &&
+      (*this)[2] == OP_YES &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsSupportVoteRemove() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_DAO &&
+      (*this)[2] == OP_REMOVE &&
+      (*this)[3] == 0x20);
+}
+
 bool CScript::IsProposalVote() const
 {
     return IsProposalVoteYes() || IsProposalVoteNo() || IsProposalVoteAbs() || IsProposalVoteRemove();
@@ -372,6 +396,25 @@ bool CScript::ExtractVote(uint256 &hash, int64_t &vote) const
 
     if ((*this)[3] == OP_REMOVE)
         vote = -2;
+
+    return true;
+}
+
+bool CScript::ExtractSupportVote(uint256 &hash, int64_t &vote) const
+{
+    if (!IsSupportVote())
+        return false;
+
+    vector<unsigned char> vHash(this->begin()+4, this->begin()+36);
+    hash = uint256(vHash);
+
+    vote = 0;
+
+    if ((*this)[2] == OP_REMOVE)
+        vote = -4;
+
+    if ((*this)[2] == OP_YES)
+        vote = -3;
 
     return true;
 }

@@ -729,6 +729,9 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
                 pindexNew->nStakeTime     = diskindex.nStakeTime;
                 pindexNew->hashProof      = diskindex.hashProof;
+                pindexNew->mapSupport     = diskindex.mapSupport;
+                pindexNew->mapConsultationVotes
+                                          = diskindex.mapConsultationVotes;
 
                 pcursor->Next();
             } else {

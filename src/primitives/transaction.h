@@ -184,6 +184,11 @@ public:
         return scriptPubKey.IsProposalVote();
     }
 
+    bool IsSupportVote() const
+    {
+        return scriptPubKey.IsSupportVote();
+    }
+
     bool IsPaymentRequestVote() const
     {
         return scriptPubKey.IsPaymentRequestVote();

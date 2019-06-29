@@ -1320,6 +1320,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     }
     }
 
+    bool fCFund = IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus());
+    bool fDAOConsultations = IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus());
+
     {
         CStateView dummy;
         CStateViewCache view(&dummy);
@@ -1331,7 +1334,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         CStateViewMemPool viewMemPool(pcoinsTip, pool);
         view.SetBackend(viewMemPool);
 
-        if (IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()))
+        if (fCFund || fDAOConsultations)
         {
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
@@ -1340,20 +1343,20 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION)
+            if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION)
                 if(!IsValidProposal(tx, nVersionMaskProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
-                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
+            if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
+                if(!IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");  
 
-            if(tx.nVersion == CTransaction::CONSULTATION_VERSION)
+            if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
                 if(!IsValidConsultation(tx, nVersionMaskConsultation))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
 
-            if(tx.nVersion == CTransaction::ANSWER_VERSION)
-                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+            if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
+                if(!IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
         }
 
@@ -1396,7 +1399,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             }
         }
 
-        if(IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()))
+        if (fCFund || fDAOConsultations)
         {
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
@@ -1415,27 +1418,27 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
+            if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
                 CProposal proposal;
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
-                    viewMemPool.AddProposal(proposal);
-                    LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, chainActive.Tip()->GetBlockTime()));
+                    if (viewMemPool.AddProposal(proposal))
+                        LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(&view, chainActive.Tip()->GetBlockTime()));
                 }
                 else
                 {
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid proposal");
                 }
             }
-            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest)){
                 CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest))
                 {
                     CProposal proposal;
                     if (viewMemPool.GetProposal(prequest.proposalhash, proposal) && proposal.fState != DAOFlags::ACCEPTED)
                     {
-                        viewMemPool.AddPaymentRequest(prequest);
-                        LogPrint("cfund","New payment request %s\n", prequest.ToString());
+                        if (viewMemPool.AddPaymentRequest(prequest))
+                            LogPrint("cfund","New payment request %s\n", prequest.ToString());
                     }
                 }
                 else
@@ -1443,20 +1446,20 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid payment request");
                 }
             }
-            else if(tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
             {
                 CConsultation consultation;
                 if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation))
                 {
-                    viewMemPool.AddConsultation(consultation);
-                    LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()->GetBlockTime()));
+                    if (viewMemPool.AddConsultation(consultation))
+                        LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()->GetBlockTime()));
                 }
                 else
                 {
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid dao consultation");
                 }
             }
-            else if(tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
             {
                 CConsultationAnswer answer;
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), uint256(), answer))
@@ -1464,8 +1467,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     CConsultation consultation;
                     if (viewMemPool.GetConsultation(answer.parent, consultation) && consultation.fState == DAOFlags::NIL)
                     {
-                        viewMemPool.AddConsultationAnswer(answer);
-                        LogPrint("cfund","New consultation answer (mempool) %s\n", answer.ToString());
+                        if (viewMemPool.AddConsultationAnswer(answer))
+                            LogPrint("cfund","New consultation answer (mempool) %s\n", answer.ToString());
                     }
                 }
                 else
@@ -2473,12 +2476,16 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
+    bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
+    bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
+
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
         const CTransaction &tx = block.vtx[i];
         uint256 hash = tx.GetHash();
 
-        if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {
+        if (fCFund || fDAOConsultations)
+        {
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
             uint64_t nVersionMaskConsultation;
@@ -2486,19 +2493,19 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal))
+            if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal))
             {
                 view.RemoveProposal(hash);
             }
-            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
             {
                 view.RemovePaymentRequest(hash);
             }
-            else if(tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
             {
                 view.RemoveConsultation(hash);
             }
-            else if(tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
             {
                 view.RemoveConsultationAnswer(hash);
             }
@@ -2692,9 +2699,30 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         }
     }
 
+    for (auto &it: pindex->mapSupport)
+    {
+        if (view.HaveConsultation(it.first))
+        {
+            if(vSeen.count(it.first) == 0)
+            {
+                CConsultationModifier consultation = view.ModifyConsultation(it.first);
+                consultation->nSupport = max(consultation->nSupport - 1, 0);
+                vSeen[it.first] = true;
+            }
+        }
+        else if (view.HaveConsultationAnswer(it.first))
+        {
+            if(vSeen.count(it.first) == 0)
+            {
+                CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
+                answer->nSupport = max(answer->nSupport - 1, 0);
+                vSeen[it.first] = true;
+            }
+        }
+    }
+
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, Params().GetConsensus());
-    bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
 
     std::vector<unsigned char> stakerScript;
 
@@ -2879,6 +2907,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
 
     if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         nVersion |= nV452ForkMask;
+
+    if(IsConsultationsEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nConsultationsVersionMask;
 
     return nVersion;
 }
@@ -3073,6 +3104,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     pindex->vProposalVotes.clear();
     pindex->vPaymentRequestVotes.clear();
+    pindex->mapConsultationVotes.clear();
+    pindex->mapSupport.clear();
 
     if (block.IsProofOfStake())
     {
@@ -3255,6 +3288,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, chainparams.GetConsensus());
+    bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
+    bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
 
     std::vector<unsigned char> stakerScript;
 
@@ -3270,7 +3305,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         nInputs += tx.vin.size();
 
-        if (IsCommunityFundEnabled(pindex->pprev, chainparams.GetConsensus()))
+        if (fCFund || fDAOConsultations)
         {
             // Add Community Fund Votes from the block coinbase
             if(tx.IsCoinBase())
@@ -3283,8 +3318,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(tx.vout[j].IsVote())
                         tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
+                    else if(tx.vout[j].IsSupportVote())
+                        tx.vout[j].scriptPubKey.ExtractSupportVote(hash, vote);
 
-                    if(tx.vout[j].IsProposalVote())
+                    if(fCFund && tx.vout[j].IsProposalVote())
                     {
                         if(votes.count(hash) == 0)
                         {
@@ -3313,7 +3350,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 }
                         }
                     }
-                    else if (tx.vout[j].IsPaymentRequestVote())
+                    else if (fCFund && tx.vout[j].IsPaymentRequestVote())
                     {
                         if(votes.count(hash) == 0)
                         {
@@ -3335,12 +3372,67 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         continue;
 
                                     if((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
-                                            && prequest.CanVote(view)
+                                            && prequest.CanVote(&view)
                                             && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                     {
                                         pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                                     }
 
+                                }
+                            }
+                        }
+                    }
+                    else if(fDAOConsultations && tx.vout[j].IsSupportVote())
+                    {
+                        if(votes.count(hash) == 0)
+                        {
+                            votes[hash] = vote;
+                            CConsultation consultation;
+                            CConsultationAnswer answer;
+                            if(view.GetConsultation(hash, consultation))
+                            {
+                                if(consultation.CanBeSupported())
+                                {
+                                    if (fStake && fVoteCacheState)
+                                    {
+                                        if (vote == -4)
+                                        {
+                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                                            pVoteList->Clear(hash);
+                                        }
+                                        else
+                                        {
+                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                                            pVoteList->Set(hash, vote);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        pindex->mapSupport.insert(make_pair(hash, true));
+                                    }
+                                }
+                            }
+                            else if(view.GetConsultationAnswer(hash, answer))
+                            {
+                                if(answer.CanBeSupported(&view))
+                                {
+                                    if (fStake && fVoteCacheState)
+                                    {
+                                        if (vote == -4)
+                                        {
+                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                                            pVoteList->Clear(hash);
+                                        }
+                                        else
+                                        {
+                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
+                                            pVoteList->Set(hash, vote);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        pindex->mapSupport.insert(make_pair(hash, true));
+                                    }
                                 }
                             }
                         }
@@ -3355,24 +3447,24 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION)
+            if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION)
             {
                 if(!IsValidProposal(tx, nVersionMaskProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
             }
-            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
             {
-                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
+                if(!IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
             }
-            else if(tx.nVersion == CTransaction::CONSULTATION_VERSION)
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
             {
                 if(!IsValidConsultation(tx, nVersionMaskConsultation))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
             }
-            else if(tx.nVersion == CTransaction::ANSWER_VERSION)
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
             {
-                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+                if(!IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
             }
         }
@@ -3579,7 +3671,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
           }
         }
 
-        if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus()))
+        if(fCFund || fDAOConsultations)
         {
             uint64_t nVersionMaskProposal;
             uint64_t nVersionMaskPaymentRequest;
@@ -3588,19 +3680,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
+            if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
                 CProposal proposal;
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
-                    view.AddProposal(proposal);
-                    LogPrint("cfund","New proposal %s\n", proposal.ToString(view, block.nTime));
+                    if (view.AddProposal(proposal))
+                        LogPrint("cfund","New proposal %s\n", proposal.ToString(&view, block.nTime));
                 }
                 else
                 {
                     return false;
                 }
             }
-            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
             {
                 CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest))
@@ -3608,8 +3700,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     CProposal proposal;
                     if (view.GetProposal(prequest.proposalhash, proposal) && proposal.fState != DAOFlags::ACCEPTED)
                     {
-                        view.AddPaymentRequest(prequest);
-                        LogPrint("cfund","New payment request %s\n", prequest.ToString());
+                        if (view.AddPaymentRequest(prequest))
+                            LogPrint("cfund","New payment request %s\n", prequest.ToString());
                     }
                 }
                 else
@@ -3617,29 +3709,29 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            else if(tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
             {
                 CConsultation consultation;
-                if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation))
+                if (TxToConsultation(tx.strDZeel, tx.GetHash(), block.GetHash(), consultation))
                 {
-                    view.AddConsultation(consultation);
-                    LogPrint("cfund","New consultation %s\n", consultation.ToString(block. nTime));
+                    if (view.AddConsultation(consultation))
+                        LogPrint("cfund","New consultation %s\n", consultation.ToString(block. nTime));
                 }
                 else
                 {
                     return false;
                 }
             }
-            else if(tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
             {
                 CConsultationAnswer answer;
-                if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), uint256(), answer))
+                if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), block.GetHash(), answer))
                 {
                     CConsultation consultation;
                     if (view.GetConsultation(answer.parent, consultation) && consultation.fState == DAOFlags::NIL)
                     {
-                        view.AddConsultationAnswer(answer);
-                        LogPrint("cfund","New consultation answer %s\n", answer.ToString());
+                        if (view.AddConsultationAnswer(answer))
+                            LogPrint("cfund","New consultation answer %s\n", answer.ToString());
                     }
                 }
                 else
@@ -3678,9 +3770,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     {
                         pindex->vProposalVotes.push_back(make_pair(it.first, val));
                     }
-                    if (view.HavePaymentRequest(it.first))
+                    else if (view.HavePaymentRequest(it.first))
                     {
                         pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
+                    }
+                    else if (val == -3)
+                    {
+                        if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
+                        {
+                            pindex->mapSupport.insert(make_pair(it.first, true));
+                        }
                     }
                 }
             }
@@ -4089,7 +4188,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         CStateViewCache view(pcoinsTip);
         if (!DisconnectBlock(block, state, pindexDelete, view))
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
-        VoteStep(state, pindexDelete, true, view);
+        VoteStep(state, pindexDelete, true, &view);
         assert(view.Flush());
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
@@ -4170,7 +4269,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         mapBlockSource.erase(pindexNew->GetBlockHash());
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
         LogPrint("bench", "  - Connect total: %.2fms [%.2fs]\n", (nTime3 - nTime2) * 0.001, nTimeConnectTotal * 0.000001);
-        VoteStep(state, pindexNew, false, view);
+        VoteStep(state, pindexNew, false, &view);
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
         assert(view.Flush());
     }
@@ -5077,6 +5176,11 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected, block version isn't v4.5.2");
+
+    if((block.nVersion & nConsultationsVersionMask) != nConsultationsVersionMask && IsConsultationsEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                         "rejected no consultations block");
+
     return true;
 }
 

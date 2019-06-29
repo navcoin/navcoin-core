@@ -109,6 +109,7 @@ std::vector<std::string> vAddedAnonServers;
 CCriticalSection cs_vAddedAnonServers;
 
 std::map<uint256, int64_t> mapAddedVotes;
+std::map<uint256, bool> mapSupported;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -667,6 +668,11 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         {
             mapAddedVotes[uint256S(strValue)]=-1;
             continue;
+        }
+
+        if(strKey == "-support")
+        {
+            mapSupported[uint256S(strValue)]=true;
         }
 
         if(strKey == "-stakervote")

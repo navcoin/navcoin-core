@@ -22,16 +22,21 @@ class CChainParams;
 class CValidationState;
 
 extern std::map<uint256, int64_t> mapAddedVotes;
+extern std::map<uint256, bool> mapSupported;
 
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, int64_t vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, int64_t vote);
 void SetScriptForConsultationSupport(CScript &script, uint256 hash);
+void SetScriptForConsultationSupportRemove(CScript &script, uint256 hash);
 void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote);
 
 bool Vote(uint256 hash, int64_t vote, bool &duplicate);
 bool RemoveVote(string str);
 bool RemoveVote(uint256 hash);
+
+bool Support(uint256 hash, bool &duplicate);
+bool RemoveSupport(string str);
 
 void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask, uint64_t& nConsultationMask, uint64_t& nConsultatioAnswernMask);
 
@@ -170,12 +175,12 @@ private:
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
 bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
-void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& coins);
+void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache* coins);
 
-bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaxVersion);
+bool IsValidPaymentRequest(CTransaction tx, CStateViewCache* coins, uint64_t nMaxVersion);
 bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
 bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion);
-bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion);
+bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache* coins, uint64_t nMaskVersion);
 
 // CFUND
 
@@ -277,7 +282,7 @@ public:
 
     bool ExceededMaxVotingCycles() const;
 
-    bool CanVote(CStateViewCache& coins) const;
+    bool CanVote(CStateViewCache* coins) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -396,10 +401,10 @@ public:
                 && nVotesYes == 0 && nVotesNo == 0 && nVotesAbs == 0 && nDeadline == 0 && strDZeel == "");
     }
 
-    std::string ToString(CStateViewCache& coins, uint32_t currentTime = 0) const;
+    std::string ToString(CStateViewCache* coins, uint32_t currentTime = 0) const;
     std::string GetState(uint32_t currentTime) const;
 
-    void ToJson(UniValue& ret, CStateViewCache& coins) const;
+    void ToJson(UniValue& ret, CStateViewCache* coins) const;
 
     bool IsAccepted() const;
 
@@ -417,9 +422,9 @@ public:
         return fState == DAOFlags::ACCEPTED;
     }
 
-    bool HasPendingPaymentRequests(CStateViewCache& coins) const;
+    bool HasPendingPaymentRequests(CStateViewCache* coins) const;
 
-    CAmount GetAvailable(CStateViewCache& coins, bool fIncludeRequests = false) const;
+    CAmount GetAvailable(CStateViewCache* coins, bool fIncludeRequests = false) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -496,6 +501,7 @@ public:
     uint256 hash;
     uint256 parent;
     uint256 txblockhash;
+    uint256 blockhash;
     bool fDirty;
 
     CConsultationAnswer() { SetNull(); }
@@ -508,12 +514,14 @@ public:
         std::swap(to.fState, fState);
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
+        std::swap(to.blockhash, blockhash);
         std::swap(to.parent, parent);
     }
 
     bool IsNull() const
     {
-        return (sAnswer == "" && nVotes == 0 && nSupport == 0 && fState == 0 && nVersion == 0 && hash == uint256() && parent == uint256() && txblockhash == uint256());
+        return (sAnswer == "" && nVotes == 0 && nSupport == 0 && fState == 0 && nVersion == 0 &&
+                hash == uint256() && blockhash == uint256() && parent == uint256() && txblockhash == uint256());
     };
 
     void SetNull()
@@ -526,6 +534,7 @@ public:
         hash = uint256();
         parent = uint256();
         txblockhash = uint256();
+        blockhash = uint256();
         fDirty = false;
     };
 
@@ -553,6 +562,7 @@ public:
         READWRITE(hash);
         READWRITE(parent);
         READWRITE(txblockhash);
+        READWRITE(blockhash);
         if (ser_action.ForRead())
             fDirty = false;
     }
@@ -617,10 +627,10 @@ public:
 
     std::string GetState(uint32_t currentTime) const;
     std::string ToString(uint32_t currentTime) const;
-    void ToJson(UniValue& ret, CStateViewCache& view) const;
+    void ToJson(UniValue& ret, CStateViewCache* view) const;
     bool CanBeSupported() const;
     bool CanBeVoted() const;
-    bool IsSupported() const;
+    bool IsSupported(CStateViewCache* view) const;
     bool IsExpired(uint32_t currentTime) const;
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;

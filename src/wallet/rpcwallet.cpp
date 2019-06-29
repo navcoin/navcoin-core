@@ -810,7 +810,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
-    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true))
+    CStateViewCache *coins(pcoinsTip);
+
+    if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(coins, true))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount.");
 
     CWalletTx wtx;
@@ -863,7 +865,7 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 3)
+    if (fHelp || params.size() < 2)
         throw runtime_error(
             "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
             "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationAnswerMinimalFee/COIN) + "NAV is required.\n"
@@ -3652,6 +3654,8 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
+    CStateViewCache *coins(pcoinsTip);
+
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
     UniValue novotes(UniValue::VARR);
@@ -3675,7 +3679,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
             auto it = mapAddedVotes.find(proposal.hash);
 
             UniValue p(UniValue::VOBJ);
-            proposal.ToJson(p, *pcoinsTip);
+            proposal.ToJson(p, coins);
 
             if (it != mapAddedVotes.end())
             {
@@ -3697,6 +3701,62 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     ret.push_back(Pair("null",nullvotes));
 
     return ret;
+}
+
+UniValue support(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1)
+        throw runtime_error(
+            "support \"hash\" ( remove )\n"
+            "\nShows support for the consultation or consultation answer identified by \"hash\".\n"
+            "\nArguments:\n"
+            "1. \"hash\"          (string, required) The hash\n"
+            "2. \"remove\"        (bool, optional) Set to true to remove support\n"
+        );
+
+    LOCK(cs_main);
+
+    bool fRemove = params.size() > 1 ? params[1].getBool() : false;
+
+    string strHash = params[0].get_str();
+    uint256 hash = uint256S(strHash);
+    bool duplicate = false;
+
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    if (!((pcoinsTip->GetConsultation(hash, consultation) && consultation.CanBeSupported()) || (pcoinsTip->GetConsultationAnswer(hash, answer) && answer.CanBeSupported(pcoinsTip))))
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find a valid entry with hash ")+strHash);
+    }
+
+    if (fRemove)
+    {
+        bool ret = RemoveSupport(strHash);
+        if (!ret)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is not on the list: ")+strHash);
+        }
+        else
+        {
+            return NullUniValue;
+        }
+    }
+    else
+    {
+        bool ret = Support(hash, duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is already on the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
+    }
+
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find ")+strHash);
+
 }
 
 UniValue proposalvote(const UniValue& params, bool fHelp)
@@ -3949,6 +4009,7 @@ static const CRPCCommand commands[] =
     { "communityfund",      "createconsultation",       &createconsultation,       false },
     { "communityfund",      "proposeanswer",            &proposeanswer,            false },
     { "wallet",             "stakervote",               &stakervote,               false },
+    { "dao",                "support",                  &support,                  false },
     { "communityfund",      "proposalvote",             &proposalvote,             false },
     { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
     { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
