@@ -328,16 +328,16 @@ void RPCConsole::errorLogInitPos()
     if (errorLogFile == NULL) {
         // Get a QFile instance
         errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
+
+        // Check if we have a log file
+        // We can't tail a missing file
+        if (!errorLogFile->exists())
+            return;
+
+        // Try to open file
+        if (!errorLogFile->open(QFile::ReadOnly | QFile::Text))
+            return;
     }
-
-    // Check if we have a log file
-    // We can't tail a missing file
-    if (!errorLogFile->exists())
-        return;
-
-    // Try to open file
-    if (!errorLogFile->open(QFile::ReadOnly | QFile::Text))
-        return;
 
     // Seek to the end of file
     errorLogFile->seek(errorLogFile->size() - 1);
@@ -358,11 +358,16 @@ void RPCConsole::errorLogInitPos()
             lineCount++; // Count it
     }
 
-    // Move pos forward by 2 spaces
-    errorLogFile->seek(errorLogFile->pos() + 2);
+    // Check if we are not at the start of the file
+    if (errorLogFile->pos() > 0)
+    {
+        // Move pos forward by 2 spaces
+        // This is so that we don't show the last lines last 2 chars
+        errorLogFile->seek(errorLogFile->pos() + 2);
+    }
 
     // Clear the textarea
-    ui->errorLogTextBrowser->setText("");
+    ui->errorLogTextBrowser->clear();
 
     // Mark init as done
     errorLogInitPosDone = true;
@@ -377,6 +382,13 @@ void RPCConsole::errorLogRefresh()
     // Set to refreshing
     errorLogRefreshing = true;
 
+    // Count the lines in the UI textarea
+    int uiLineCount = ui->errorLogTextBrowser->document()->lineCount();
+
+    // Check if lineCount is 2*ERROR_LOG_INITIAL_COUNT
+    if (uiLineCount >= ERROR_LOG_INITIAL_COUNT * 2)
+        errorLogInitPosDone = false;
+
     // Check if we have initialized debug log already
     if (!errorLogInitPosDone)
         errorLogInitPos();
@@ -390,46 +402,9 @@ void RPCConsole::errorLogRefresh()
     QTextStream in(errorLogFile);
 
     // Load up the lines
-    QString logLines = "";
     while (!in.atEnd()) {
         // Load the next line
-        logLines += in.readLine() + "\n";
-    }
-
-    // Check if we have lines
-    if (logLines != "") {
-        // Add the new lines, purpose of duplicate moveCursor calls is
-        // to auto scroll to the end of the log instead of sticking to the
-        // top of the text area
-        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
-        ui->errorLogTextBrowser->textCursor().insertText(logLines);
-        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
-    }
-
-    // Count the lines in the UI textarea
-    int uiLineCount = ui->errorLogTextBrowser->document()->lineCount();
-
-    // Check if lines are more than ERROR_LOG_INITIAL_COUNT
-    if (uiLineCount > ERROR_LOG_INITIAL_COUNT) {
-        // Count how many to remove
-        int lineCountDiff = uiLineCount - ERROR_LOG_INITIAL_COUNT;
-
-        // Get our cursor
-        QTextCursor cursor = ui->errorLogTextBrowser->textCursor();
-
-        // REMOVE THEM
-        for (int i = 0; i < lineCountDiff; i++) {
-            cursor.movePosition(QTextCursor::Start);
-            cursor.select(QTextCursor::LineUnderCursor);
-            cursor.deleteChar(); // Remove the selected text
-            cursor.deleteChar(); // This is by design, this removes the \n
-        }
-
-        // Replace the cursor
-        ui->errorLogTextBrowser->setTextCursor(cursor);
-
-        // Move cursor back to the end
-        ui->errorLogTextBrowser->moveCursor(QTextCursor::End);
+        ui->errorLogTextBrowser->append(in.readLine());
     }
 
     // Mark as done
