@@ -4752,26 +4752,33 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     return true;
 }
 
-bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIndex * const pindexPrev, bool fProofOfStake)
+bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIndex * const pindex, bool fProofOfStake)
 {
-    const int nHeight = pindexPrev == NULL ? 0 : pindexPrev->nHeight + 1;
+    const int nHeight = pindex->pprev == NULL ? 0 : pindex->pprev->nHeight + 1;
     const Consensus::Params& consensusParams = Params().GetConsensus();
 
     // Start enforcing BIP113 (Median Time Past) using versionbits logic.
     int nLockTimeFlags = 0;
-    if (VersionBitsState(pindexPrev, consensusParams, Consensus::DEPLOYMENT_CSV, versionbitscache) == THRESHOLD_ACTIVE) {
+    if (VersionBitsState(pindex->pprev, consensusParams, Consensus::DEPLOYMENT_CSV, versionbitscache) == THRESHOLD_ACTIVE) {
         nLockTimeFlags |= LOCKTIME_MEDIAN_TIME_PAST;
     }
     
+    if (block.IsProofOfStake())
+    {
+        pindex->SetProofOfStake();
+    }
+
+
     // Check proof of stake
-    if (nHeight > 0 && block.nBits != GetNextTargetRequired(pindexPrev, block.IsProofOfStake())){
-        return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake", nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
+    uint32_t nExpectedBits = GetNextTargetRequired(pindex->pprev, block.IsProofOfStake());
+    if (nHeight > 0 && block.nBits != nExpectedBits){
+        return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d vs %d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake", nHeight, block.nBits, nExpectedBits), REJECT_INVALID, "bad-diffbits");
     }
 
     if (block.IsProofOfWork() && nHeight > Params().GetConsensus().nLastPOWBlock)
         return state.DoS(10, false, REJECT_INVALID, "check-pow-height", "pow-mined blocks not allowed");
 
-    if (IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()) && block.GetBlockTime() < pindexPrev->GetPastTimeLimit())
+    if (IsNtpSyncEnabled(pindex->pprev,Params().GetConsensus()) && block.GetBlockTime() < pindex->pprev->GetPastTimeLimit())
         return state.Invalid(false, REJECT_INVALID, "too-old", "block goes too far in the past");
 
     // Check CheckCoinStakeTimestamp
@@ -4779,7 +4786,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         return state.Invalid(false, REJECT_INVALID, "check-coinstake-timestamp", "coinstake timestamp violation");
 
     int64_t nLockTimeCutoff = (nLockTimeFlags & LOCKTIME_MEDIAN_TIME_PAST)
-                              ? pindexPrev->GetMedianTimePast()
+                              ? pindex->pprev->GetMedianTimePast()
                               : block.GetBlockTime();
 
     // Check that all transactions are finalized
@@ -4791,7 +4798,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
     // Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
     // if 750 of the last 1,000 blocks are version 2 or greater (51/100 if testnet):
-    if (block.nVersion >= 2 && IsSuperMajority(2, pindexPrev, consensusParams.nMajorityEnforceBlockUpgrade, consensusParams))
+    if (block.nVersion >= 2 && IsSuperMajority(2, pindex->pprev, consensusParams.nMajorityEnforceBlockUpgrade, consensusParams))
     {
         CScript expect = CScript() << nHeight;
         if (block.vtx[0].vin[0].scriptSig.size() < expect.size() ||
@@ -4809,7 +4816,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     //   {0xaa, 0x21, 0xa9, 0xed}, and the following 32 bytes are SHA256^2(witness root, witness nonce). In case there are
     //   multiple, the last one is used.
     bool fHaveWitness = false;
-    if (IsWitnessEnabled(pindexPrev, consensusParams)) {
+    if (IsWitnessEnabled(pindex->pprev, consensusParams)) {
         int commitpos = GetWitnessCommitmentIndex(block);
         if (commitpos != -1) {
             bool malleated = false;
@@ -4933,7 +4940,7 @@ static bool AcceptBlock(const CBlock& block, CValidationState& state, const CCha
     }
     if (fNewBlock) *fNewBlock = true;
 
-    if ((!CheckBlock(block, state, chainparams.GetConsensus(), GetAdjustedTime())) || !ContextualCheckBlock(block, state, pindex->pprev)) {
+    if ((!CheckBlock(block, state, chainparams.GetConsensus(), GetAdjustedTime())) || !ContextualCheckBlock(block, state, pindex)) {
         if (state.IsInvalid() && !state.CorruptionPossible()) {
             pindex->nStatus |= BLOCK_FAILED_VALID;
             setDirtyBlockIndex.insert(pindex);
