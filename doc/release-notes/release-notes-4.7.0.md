@@ -1,51 +1,12 @@
-# NavCoin v4.6.0 Release Notes
+# NavCoin v4.7.0 Release Notes
 
-## Community Fund UI
+## Description of major feature
 
-<[Pull Request 428](https://github.com/NAVCoin/navcoin-core/pull/428)>
-<[Commit cbffaee](https://github.com/NAVCoin/navcoin-core/commit/cbffaeee68d649069e0964b4930d04c441a7b63c)>
+<[Pull Request XXX](https://github.com/NAVCoin/navcoin-core/pull/XXX)>
+<[Commit XXX](https://github.com/NAVCoin/navcoin-core/commit/XXX)>
 
-- Added a Community Fund tab to the core wallet
-- Ability to view and filter proposals and payment request
-- Proposals and payment requests can be voted on and created
-- Removed the old Community Fund UI
-
-## Accumulation of staking rewards in different address
-
-<[Pull Request 401](https://github.com/NAVCoin/navcoin-core/pull/401)>
-<[Commit 2fb7b47](https://github.com/NAVCoin/navcoin-core/commit/2fb7b47625dfe866f6079d8c7ac8c1dfb9f9de1d)>
-This features introduces support for the `-stakingaddress` launch argument which sets a NavCoin address where the staking rewards are accumulated. It also allows you to specify mappings from one address to another, such that the first address's staking rewards will be deposited in the second address.
-
-`stakingaddress` can take:
-- one argument (i.e. one NavCoin address), e.g. `-stakingaddress=NxxxxMyNavCoinAddressxxxxxxxxxxxxx`; or
-- a JSON argument, mapping several staking addresses to corresponding receiving addresses, e.g. `-stakingaddress={"NxxxxMyStakingAddress1xxxxxxxxxxxx":"NxxxxMyReceivingAddress1xxxxxxxxxx","NxxxxMyStakingAddress2xxxxxxxxxxxx":"NxxxxMyReceivingAddress2xxxxxxxxxx","NxxxxMyStakingAddress3xxxxxxxxxxxx":"NxxxxMyReceivingAddress3xxxxxxxxxx"}`. One staking address in the JSON argument can also be set to `all` and stakes from any staking address will be sent to the receiving address unless otherwise specified, e.g. `-stakingaddress={"all":"NxxxxMyReceivingAddressALLxxxxxxxx",...}`
-
-Not compatible with cold staking.
-
-## Mnemonic seed phrase support
-
-<[Pull Request 400](https://github.com/NAVCoin/navcoin-core/pull/400)>
-<[Commit 375c657](https://github.com/NAVCoin/navcoin-core/commit/375c657337c33c56a6b97350ba886bce9ba60c7c)>
-This PR adds a new RPC command to export the existing master private key encoded as a mnemonic:
-`dumpmnemonic` It admits an argument specifying the language.
-Support for two new wallet options (`-importmnemonic` and `-mnemoniclanguage`) have also been added to allow to create a new wallet from the specified mnemonic.
-
-## Fix wrong balance after orphan stakes
-<[Pull Request 438](https://github.com/NAVCoin/navcoin-core/pull/438)>
-<[Commit 4041e3e](https://github.com/NAVCoin/navcoin-core/commit/4041e3ef5de672c6d4e6a20ce5b7f22df090ed14)>
-This PR fixes an historical issue which made the wallet show a wrong balance after orphan stakes.
-
-## Index cold staking address unspent output by spending address
-<[Pull Request 434](https://github.com/NAVCoin/navcoin-core/pull/434)>
-<[Commit 404d85f](https://github.com/NAVCoin/navcoin-core/commit/404d85f8ea65bf764d3fa681a4d1483c3e72c507)>
-
-When running a node with -addressindex=1 executing the RPC command “getaddressutxos” with the spending pubkeyhash of a cold staking address will now return any utxo’s available to spend by that key including those where the pubkeyhash is the spending key of a coldstaking transaction. Previously only regular utxo’s sent directly to that pubkeyhash were returned.
-
-## Fix for Payment Request reorganizations
-<[Pull Request 456](https://github.com/NAVCoin/navcoin-core/pull/456)>
-<[Commit 688bf4d](https://github.com/NAVCoin/navcoin-core/commit/688bf4d808ca5b5d3d08fef00d085397bb5b47f0)>
-
-This PR prevents payment requests with invalid hashes (not set yet or out of the main chain) to count for the already requested balance of a proposal.
+- list of features
+- list of features
 
 ## Full List of merged pull requests
 
@@ -65,19 +26,19 @@ This PR prevents payment requests with invalid hashes (not set yet or out of the
 - Fix for importaddress returning incorrect amounts <[Pull Request 479](https://github.com/navcoin/navcoin-core/pull/479)> <[Commit b115c2d](https://github.com/navcoin/navcoin-core/commit/b115c2dd495dc28a87957b4104afe8cf78171b7a)>
 - Added editorconfig file <[Pull Request 497](https://github.com/navcoin/navcoin-core/pull/497)> <[Commit f501b18](https://github.com/navcoin/navcoin-core/commit/f501b184662ea4ab8e7d0365df01ae094dcd4ecb)>
 - Fix for Coin Control "sorting" bug <[Pull Request 461](https://github.com/navcoin/navcoin-core/pull/461)> <[Commit a4c8eb6](https://github.com/navcoin/navcoin-core/commit/a4c8eb6e670f701ba4401fce161ccae64f174486)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
+- Use of the CoinsDB for the Community Fund <[Pull Request 487](https://github.com/navcoin/navcoin-core/pull/487)> <[Commit a8f425b](https://github.com/navcoin/navcoin-core/commit/a8f425b9bd86147693c1e79427c39876425ac7cf)>
+- TX_POOL missing in switch condition in the IsMine function <[Pull Request 500](https://github.com/navcoin/navcoin-core/pull/500)> <[Commit 498e75f](https://github.com/navcoin/navcoin-core/commit/498e75f2b915bf5d8fccc10c1080ed68b478fceb)>
+- Fixed some file permissions <[Pull Request 502](https://github.com/navcoin/navcoin-core/pull/502)> <[Commit 7fac091](https://github.com/navcoin/navcoin-core/commit/7fac091ff95382c44544aa4c8d23109c370a9bd1)>
+- Added error log tab in debug window <[Pull Request 466](https://github.com/navcoin/navcoin-core/pull/466)> <[Commit bed76b9](https://github.com/navcoin/navcoin-core/commit/bed76b917b6590148a371d5a3d86d2a534ef1f3b)>
+- Fix RPC Tests <[Pull Request 480](https://github.com/navcoin/navcoin-core/pull/480)> <[Commit c2855a7](https://github.com/navcoin/navcoin-core/commit/c2855a73c8f4ea6395c440bc65d5fff2ab1cfeb3)>
+- Fixed a bug with the errorLogFile causing crashes <[Pull Request 507](https://github.com/navcoin/navcoin-core/pull/507)> <[Commit 9f40cbd](https://github.com/navcoin/navcoin-core/commit/9f40cbd071f4c68efc70182133ab2d094823226d)>
+- Prevent segfault on gui close <[Pull Request 505](https://github.com/navcoin/navcoin-core/pull/505)> <[Commit d4b23bf](https://github.com/navcoin/navcoin-core/commit/d4b23bf13033b7603b62ba6bb6d5e8ca387ba3d3)>
+- Remove Bootstrap option from GUI <[Pull Request 512](https://github.com/navcoin/navcoin-core/pull/512)> <[Commit 79624cf](https://github.com/navcoin/navcoin-core/commit/79624cfc0806a1cf46e0ab02b8b351f339c2c146)>
+- Use `-rescan` when `-importmnemonic` <[Pull Request 494](https://github.com/navcoin/navcoin-core/pull/494)> <[Commit e061768](https://github.com/navcoin/navcoin-core/commit/e0617681629779afa10224c92e9b45713b54b410)>
+- Creates default config file <[Pull Request 504](https://github.com/navcoin/navcoin-core/pull/504)> <[Commit 940c669](https://github.com/navcoin/navcoin-core/commit/940c669b9a717b9bb82fe5f2acbf9f9457a6e8f2)>
+- Changes required for GLIBC backward compatibility with gitian builds <[Pull Request 501](https://github.com/navcoin/navcoin-core/pull/501)> <[Commit d3b5687](https://github.com/navcoin/navcoin-core/commit/d3b56870eba55fbd2a0e323af6651f47d31e8b64)>
+- Fix potential deadlock <[Pull Request 506](https://github.com/navcoin/navcoin-core/pull/506)> <[Commit de6e167](https://github.com/navcoin/navcoin-core/commit/de6e167511381b5259d58518a69a48ea72417071)>
+- Moved the checkboxes into the empty QGroupBox <[Pull Request 484](https://github.com/navcoin/navcoin-core/pull/484)> <[Commit 4fb8043](https://github.com/navcoin/navcoin-core/commit/4fb8043f068fae1814ff76049a45f237b4df6f8e)>
 - title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
 - title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
 - title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
