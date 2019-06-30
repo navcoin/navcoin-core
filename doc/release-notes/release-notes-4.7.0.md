@@ -42,7 +42,7 @@ When the wallet starts and detects it is still catching up to the latest block a
 <[Pull Request 544](https://github.com/NAVCoin/navcoin-core/pull/544)>
 <[Commit XXX](https://github.com/NAVCoin/navcoin-core/commit/XXX)>
 
-This pull request reverts <[Pull Request 517](https://github.com/navcoin/navcoin-core/pull/517)> which introduced a problem preventing the wallet from syncing from scratch that was detected after 517 was already merged.
+This pull request reverts <[Pull Request 517](https://github.com/navcoin/navcoin-core/pull/517)> which introduced a problem preventing the wallet from syncing from scratch that was detected after #517 was already merged.
 
 ## Full List of merged pull requests
 
