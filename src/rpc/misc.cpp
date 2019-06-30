@@ -82,40 +82,40 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     GetProxy(NET_IPV4, proxy);
 
     UniValue obj(UniValue::VOBJ);
-    obj.push_back(Pair("version", CLIENT_VERSION));
-    obj.push_back(Pair("protocolversion", PROTOCOL_VERSION));
+    obj.pushKV("version", CLIENT_VERSION);
+    obj.pushKV("protocolversion", PROTOCOL_VERSION);
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
-        obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
-        obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
-        obj.push_back(Pair("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance())));
-        obj.push_back(Pair("newmint",       ValueFromAmount(pwalletMain->GetNewMint())));
-        obj.push_back(Pair("stake",         ValueFromAmount(pwalletMain->GetStake())));
+        obj.pushKV("walletversion", pwalletMain->GetVersion());
+        obj.pushKV("balance",       ValueFromAmount(pwalletMain->GetBalance()));
+        obj.pushKV("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance()));
+        obj.pushKV("newmint",       ValueFromAmount(pwalletMain->GetNewMint()));
+        obj.pushKV("stake",         ValueFromAmount(pwalletMain->GetStake()));
     }
 #endif
-    obj.push_back(Pair("blocks",        (int)chainActive.Height()));
+    obj.pushKV("blocks",        (int)chainActive.Height());
 
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("available",      ValueFromAmount(chainActive.Tip()->nCFSupply)));
-    cf.push_back(Pair("locked",         ValueFromAmount(chainActive.Tip()->nCFLocked)));
+    cf.pushKV("available",      ValueFromAmount(chainActive.Tip()->nCFSupply));
+    cf.pushKV("locked",         ValueFromAmount(chainActive.Tip()->nCFLocked));
 
-    obj.push_back(Pair("communityfund", cf));
-    obj.push_back(Pair("timeoffset",    GetTimeOffset()));
-    obj.push_back(Pair("ntptimeoffset", GetNtpTimeOffset()));
-    obj.push_back(Pair("connections",   (int)vNodes.size()));
-    obj.push_back(Pair("proxy",         (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : string())));
-    obj.push_back(Pair("testnet",       Params().TestnetToBeDeprecatedFieldRPC()));
+    obj.pushKV("communityfund", cf);
+    obj.pushKV("timeoffset",    GetTimeOffset());
+    obj.pushKV("ntptimeoffset", GetNtpTimeOffset());
+    obj.pushKV("connections",   (int)vNodes.size());
+    obj.pushKV("proxy",         (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : string()));
+    obj.pushKV("testnet",       Params().TestnetToBeDeprecatedFieldRPC());
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
-        obj.push_back(Pair("keypoololdest", pwalletMain->GetOldestKeyPoolTime()));
-        obj.push_back(Pair("keypoolsize",   (int)pwalletMain->GetKeyPoolSize()));
+        obj.pushKV("keypoololdest", pwalletMain->GetOldestKeyPoolTime());
+        obj.pushKV("keypoolsize",   (int)pwalletMain->GetKeyPoolSize());
     }
     if (pwalletMain && pwalletMain->IsCrypted())
-        obj.push_back(Pair("unlocked_until", nWalletUnlockTime));
-    obj.push_back(Pair("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK())));
+        obj.pushKV("unlocked_until", nWalletUnlockTime);
+    obj.pushKV("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK()));
 #endif
-    obj.push_back(Pair("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK())));
-    obj.push_back(Pair("errors",        GetWarnings("statusbar")));
+    obj.pushKV("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK()));
+    obj.pushKV("errors",        GetWarnings("statusbar"));
     return obj;
 }
 
@@ -128,11 +128,11 @@ public:
     UniValue operator()(const CKeyID &keyID) const {
         UniValue obj(UniValue::VOBJ);
         CPubKey vchPubKey;
-        obj.push_back(Pair("isscript", false));
-        obj.push_back(Pair("iscoldstaking", false));
+        obj.pushKV("isscript", false);
+        obj.pushKV("iscoldstaking", false);
         if (pwalletMain && pwalletMain->GetPubKey(keyID, vchPubKey)) {
-            obj.push_back(Pair("pubkey", HexStr(vchPubKey)));
-            obj.push_back(Pair("iscompressed", vchPubKey.IsCompressed()));
+            obj.pushKV("pubkey", HexStr(vchPubKey));
+            obj.pushKV("iscompressed", vchPubKey.IsCompressed());
         }
         return obj;
     }
@@ -140,13 +140,13 @@ public:
     UniValue operator()(const pair<CKeyID, CKeyID> &keyID) const {
         UniValue obj(UniValue::VOBJ);
         CPubKey vchPubKey;
-        obj.push_back(Pair("isscript", false));
-        obj.push_back(Pair("iscoldstaking", true));
+        obj.pushKV("isscript", false);
+        obj.pushKV("iscoldstaking", true);
         if (pwalletMain && pwalletMain->GetPubKey(keyID.first, vchPubKey)) {
-            obj.push_back(Pair("stakingpubkey", HexStr(vchPubKey)));
+            obj.pushKV("stakingpubkey", HexStr(vchPubKey));
         }
         if(pwalletMain->GetPubKey(keyID.second, vchPubKey)) {
-            obj.push_back(Pair("spendingpubkey", HexStr(vchPubKey)));
+            obj.pushKV("spendingpubkey", HexStr(vchPubKey));
         }
         return obj;
     }
@@ -154,21 +154,21 @@ public:
     UniValue operator()(const CScriptID &scriptID) const {
         UniValue obj(UniValue::VOBJ);
         CScript subscript;
-        obj.push_back(Pair("isscript", true));
-        obj.push_back(Pair("iscoldstaking", false));
+        obj.pushKV("isscript", true);
+        obj.pushKV("iscoldstaking", false);
         if (pwalletMain && pwalletMain->GetCScript(scriptID, subscript)) {
             std::vector<CTxDestination> addresses;
             txnouttype whichType;
             int nRequired;
             ExtractDestinations(subscript, whichType, addresses, nRequired);
-            obj.push_back(Pair("script", GetTxnOutputType(whichType)));
-            obj.push_back(Pair("hex", HexStr(subscript.begin(), subscript.end())));
+            obj.pushKV("script", GetTxnOutputType(whichType));
+            obj.pushKV("hex", HexStr(subscript.begin(), subscript.end()));
             UniValue a(UniValue::VARR);
             BOOST_FOREACH(const CTxDestination& addr, addresses)
                 a.push_back(CNavCoinAddress(addr).ToString());
-            obj.push_back(Pair("addresses", a));
+            obj.pushKV("addresses", a);
             if (whichType == TX_MULTISIG)
-                obj.push_back(Pair("sigsrequired", nRequired));
+                obj.pushKV("sigsrequired", nRequired);
         }
         return obj;
     }
@@ -236,17 +236,17 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
     bool isValid = address.IsValid();
 
     UniValue ret(UniValue::VOBJ);
-    ret.push_back(Pair("isvalid", isValid));
+    ret.pushKV("isvalid", isValid);
     if (isValid)
     {
         CTxDestination dest = address.Get();
         string currentAddress = address.ToString();
-        ret.push_back(Pair("address", currentAddress));
+        ret.pushKV("address", currentAddress);
         if(DNS->check_address_syntax(params[0].get_str().c_str()))
-            ret.push_back(Pair("dnssec", dnssec_valid));
+            ret.pushKV("dnssec", dnssec_valid);
 
         CScript scriptPubKey = GetScriptForDestination(dest);
-        ret.push_back(Pair("scriptPubKey", HexStr(scriptPubKey.begin(), scriptPubKey.end())));
+        ret.pushKV("scriptPubKey", HexStr(scriptPubKey.begin(), scriptPubKey.end()));
 
 #ifdef ENABLE_WALLET
         isminetype mine = pwalletMain ? IsMine(*pwalletMain, dest) : ISMINE_NO;
@@ -255,22 +255,22 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             address.GetStakingAddress(stakingAddress);
             CNavCoinAddress spendingAddress;
             address.GetSpendingAddress(spendingAddress);
-            ret.push_back(Pair("stakingaddress", stakingAddress.ToString()));
-            ret.push_back(Pair("spendingaddress", spendingAddress.ToString()));
+            ret.pushKV("stakingaddress", stakingAddress.ToString());
+            ret.pushKV("spendingaddress", spendingAddress.ToString());
         }
-        ret.push_back(Pair("ismine", (mine & ISMINE_SPENDABLE) ? true : false));
-        ret.push_back(Pair("isstakable", (mine & ISMINE_STAKABLE || (mine & ISMINE_SPENDABLE &&
-                     !address.IsColdStakingAddress(Params()))) ? true : false));
-        ret.push_back(Pair("iswatchonly", (mine & ISMINE_WATCH_ONLY) ? true: false));
+        ret.pushKV("ismine", (mine & ISMINE_SPENDABLE) ? true : false);
+        ret.pushKV("isstakable", (mine & ISMINE_STAKABLE || (mine & ISMINE_SPENDABLE &&
+                     !address.IsColdStakingAddress(Params()))) ? true : false);
+        ret.pushKV("iswatchonly", (mine & ISMINE_WATCH_ONLY) ? true: false);
         UniValue detail = boost::apply_visitor(DescribeAddressVisitor(), dest);
         ret.pushKVs(detail);
         if (pwalletMain && pwalletMain->mapAddressBook.count(dest))
-            ret.push_back(Pair("account", pwalletMain->mapAddressBook[dest].name));
+            ret.pushKV("account", pwalletMain->mapAddressBook[dest].name);
         CKeyID keyID;
         if (pwalletMain && address.GetKeyID(keyID) && pwalletMain->mapKeyMetadata.count(keyID) && !pwalletMain->mapKeyMetadata[keyID].hdKeypath.empty())
         {
-            ret.push_back(Pair("hdkeypath", pwalletMain->mapKeyMetadata[keyID].hdKeypath));
-            ret.push_back(Pair("hdmasterkeyid", pwalletMain->mapKeyMetadata[keyID].hdMasterKeyID.GetHex()));
+            ret.pushKV("hdkeypath", pwalletMain->mapKeyMetadata[keyID].hdKeypath);
+            ret.pushKV("hdmasterkeyid", pwalletMain->mapKeyMetadata[keyID].hdMasterKeyID.GetHex());
         }
 #endif
     }
@@ -378,8 +378,8 @@ UniValue createmultisig(const UniValue& params, bool fHelp)
     CNavCoinAddress address(innerID);
 
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("address", address.ToString()));
-    result.push_back(Pair("redeemScript", HexStr(inner.begin(), inner.end())));
+    result.pushKV("address", address.ToString());
+    result.pushKV("redeemScript", HexStr(inner.begin(), inner.end()));
 
     return result;
 }
@@ -415,8 +415,8 @@ UniValue createwitnessaddress(const UniValue& params, bool fHelp)
     CNavCoinAddress address(witscriptid);
 
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("address", address.ToString()));
-    result.push_back(Pair("witnessScript", HexStr(witscript.begin(), witscript.end())));
+    result.pushKV("address", address.ToString());
+    result.pushKV("witnessScript", HexStr(witscript.begin(), witscript.end()));
 
     return result;
 }
@@ -662,14 +662,14 @@ UniValue getaddressmempool(const UniValue& params, bool fHelp)
         }
 
         UniValue delta(UniValue::VOBJ);
-        delta.push_back(Pair("address", address));
-        delta.push_back(Pair("txid", it->first.txhash.GetHex()));
-        delta.push_back(Pair("index", (int)it->first.index));
-        delta.push_back(Pair("satoshis", it->second.amount));
-        delta.push_back(Pair("timestamp", it->second.time));
+        delta.pushKV("address", address);
+        delta.pushKV("txid", it->first.txhash.GetHex());
+        delta.pushKV("index", (int)it->first.index);
+        delta.pushKV("satoshis", it->second.amount);
+        delta.pushKV("timestamp", it->second.time);
         if (it->second.amount < 0) {
-            delta.push_back(Pair("prevtxid", it->second.prevhash.GetHex()));
-            delta.push_back(Pair("prevout", (int)it->second.prevout));
+            delta.pushKV("prevtxid", it->second.prevhash.GetHex());
+            delta.pushKV("prevout", (int)it->second.prevout);
         }
         result.push_back(delta);
     }
@@ -741,22 +741,22 @@ UniValue getaddressutxos(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown address type");
         }
 
-        output.push_back(Pair("address", address));
-        output.push_back(Pair("txid", it->first.txhash.GetHex()));
-        output.push_back(Pair("outputIndex", (int)it->first.index));
-        output.push_back(Pair("script", HexStr(it->second.script.begin(), it->second.script.end())));
-        output.push_back(Pair("satoshis", it->second.satoshis));
-        output.push_back(Pair("height", it->second.blockHeight));
+        output.pushKV("address", address);
+        output.pushKV("txid", it->first.txhash.GetHex());
+        output.pushKV("outputIndex", (int)it->first.index);
+        output.pushKV("script", HexStr(it->second.script.begin(), it->second.script.end()));
+        output.pushKV("satoshis", it->second.satoshis);
+        output.pushKV("height", it->second.blockHeight);
         utxos.push_back(output);
     }
 
     if (includeChainInfo) {
         UniValue result(UniValue::VOBJ);
-        result.push_back(Pair("utxos", utxos));
+        result.pushKV("utxos", utxos);
 
         LOCK(cs_main);
-        result.push_back(Pair("hash", chainActive.Tip()->GetBlockHash().GetHex()));
-        result.push_back(Pair("height", (int)chainActive.Height()));
+        result.pushKV("hash", chainActive.Tip()->GetBlockHash().GetHex());
+        result.pushKV("height", (int)chainActive.Height());
         return result;
     } else {
         return utxos;
@@ -848,12 +848,12 @@ UniValue getaddressdeltas(const UniValue& params, bool fHelp)
         }
 
         UniValue delta(UniValue::VOBJ);
-        delta.push_back(Pair("satoshis", it->second));
-        delta.push_back(Pair("txid", it->first.txhash.GetHex()));
-        delta.push_back(Pair("index", (int)it->first.index));
-        delta.push_back(Pair("blockindex", (int)it->first.txindex));
-        delta.push_back(Pair("height", it->first.blockHeight));
-        delta.push_back(Pair("address", address));
+        delta.pushKV("satoshis", it->second);
+        delta.pushKV("txid", it->first.txhash.GetHex());
+        delta.pushKV("index", (int)it->first.index);
+        delta.pushKV("blockindex", (int)it->first.txindex);
+        delta.pushKV("height", it->first.blockHeight);
+        delta.pushKV("address", address);
         deltas.push_back(delta);
     }
 
@@ -872,15 +872,15 @@ UniValue getaddressdeltas(const UniValue& params, bool fHelp)
         UniValue startInfo(UniValue::VOBJ);
         UniValue endInfo(UniValue::VOBJ);
 
-        startInfo.push_back(Pair("hash", startIndex->GetBlockHash().GetHex()));
-        startInfo.push_back(Pair("height", start));
+        startInfo.pushKV("hash", startIndex->GetBlockHash().GetHex());
+        startInfo.pushKV("height", start);
 
-        endInfo.push_back(Pair("hash", endIndex->GetBlockHash().GetHex()));
-        endInfo.push_back(Pair("height", end));
+        endInfo.pushKV("hash", endIndex->GetBlockHash().GetHex());
+        endInfo.pushKV("height", end);
 
-        result.push_back(Pair("deltas", deltas));
-        result.push_back(Pair("start", startInfo));
-        result.push_back(Pair("end", endInfo));
+        result.pushKV("deltas", deltas);
+        result.pushKV("start", startInfo);
+        result.pushKV("end", endInfo);
 
         return result;
     } else {
@@ -937,8 +937,8 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
     }
 
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("balance", balance));
-    result.push_back(Pair("received", received));
+    result.pushKV("balance", balance);
+    result.pushKV("received", received);
 
     return result;
 
@@ -1068,9 +1068,9 @@ UniValue getspentinfo(const UniValue& params, bool fHelp)
     }
 
     UniValue obj(UniValue::VOBJ);
-    obj.push_back(Pair("txid", value.txid.GetHex()));
-    obj.push_back(Pair("index", (int)value.inputIndex));
-    obj.push_back(Pair("height", value.blockHeight));
+    obj.pushKV("txid", value.txid.GetHex());
+    obj.pushKV("index", (int)value.inputIndex);
+    obj.pushKV("height", value.blockHeight);
 
     return obj;
 }

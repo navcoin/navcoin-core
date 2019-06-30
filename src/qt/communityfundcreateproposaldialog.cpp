@@ -136,11 +136,11 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         UniValue strDZeel(UniValue::VOBJ);
 
-        strDZeel.push_back(Pair("n",nReqAmount));
-        strDZeel.push_back(Pair("a",Address));
-        strDZeel.push_back(Pair("d",nDeadline));
-        strDZeel.push_back(Pair("s",sDesc));
-        strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2));
+        strDZeel.pushKV("n",nReqAmount);
+        strDZeel.pushKV("a",Address);
+        strDZeel.pushKV("d",nDeadline);
+        strDZeel.pushKV("s",sDesc);
+        strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2);
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -240,7 +240,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                     return;
                 }
             }
-        }      
+        }
     }
     else
     {
