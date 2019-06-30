@@ -78,4 +78,4 @@ When the wallet starts and detects it is still catching up to the latest block a
 - Move nBits check to ContextualCheckBlock <[Pull Request 517](https://github.com/navcoin/navcoin-core/pull/517)> <[Commit a16c48f](https://github.com/navcoin/navcoin-core/commit/a16c48f317b5dca9fce2394f70f840c59fd20228)>
 - Updated the error log tab logic <[Pull Request 532](https://github.com/navcoin/navcoin-core/pull/532)> <[Commit a4f23ac](https://github.com/navcoin/navcoin-core/commit/a4f23acbc291c789ab819d38bfdf56698c88dcef)>
 - Check node address in header spam protection <[Pull Request 536](https://github.com/navcoin/navcoin-core/pull/536)> <[Commit 45c98d5](https://github.com/navcoin/navcoin-core/commit/45c98d56f56a4fd706deca1594d774e49d7dadb1)>
-- Revert nBits patch <[Pull Request 544](https://github.com/navcoin/navcoin-core/pull/544)> <[Commit XXX](http)>
+- Revert nBits patch <[Pull Request 544](https://github.com/navcoin/navcoin-core/pull/544)> <[Commit ab51282](https://github.com/navcoin/navcoin-core/commit/ab51282efee7b66f1ee1520c3b965567d3e0f6a4)>
