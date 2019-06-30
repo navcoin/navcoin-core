@@ -35,7 +35,7 @@ Libunbound needs to be compiled from source. Download last version from http://w
 1.  Clone the navcoin source code and cd into `navcoin`
 
     ```bash
-    git clone https://github.com/NAVCoin/navcoin-core.git
+    git clone https://github.com/navcoin/navcoin-core.git
     cd navcoin-core
     ```
 

@@ -6,7 +6,7 @@ For more information please visit the website:
 
  https://navcoin.org/en/roadmap 
 
-[![Build Status](https://travis-ci.org/NAVCoin/navcoin-core.svg?branch=master)](https://travis-ci.org/NAVCoin/navcoin-core)
+[![Build Status](https://travis-ci.org/navcoin/navcoin-core.svg?branch=master)](https://travis-ci.org/navcoin/navcoin-core)
 
 ## Building
 
