@@ -1,12 +1,48 @@
 # NavCoin v4.7.0 Release Notes
 
-## Description of major feature
+## Added password prompt for CFund payment/proposal dialogs
 
-<[Pull Request XXX](https://github.com/NAVCoin/navcoin-core/pull/XXX)>
+<[Pull Request 474](https://github.com/NAVCoin/navcoin-core/pull/474)>
+<[Commit aa4bbaa](https://github.com/navcoin/navcoin-core/commit/aa4bbaaf7a82600775065f6bab894f78583b9784)>
+
+Peviously you would have to unlock the wallet via the console or debug window before it was possible to create a proposal or payment request through the graphical interface. Now there is a dialog to unlock the wallet while using the Community Fund GUI.
+
+
+## Use of the CoinsDB for the Community Fund
+
+<[Pull Request 487](https://github.com/NAVCoin/navcoin-core/pull/487)>
+<[Commit a8f425b](https://github.com/NAVCoin/navcoin-core/commit/a8f425b9bd86147693c1e79427c39876425ac7cf)>
+
+Previously the community fund data was stored in a seperate local database to the rest of the coin data. The data has now been migrated to be part of the CoinsDB which should increase performance and mitigate the data consistency issues that some users were experiencing.
+
+
+## Added error log tab in debug window
+
+<[Pull Request 466](https://github.com/NAVCoin/navcoin-core/pull/466)>
+<[Commit bed76b9](https://github.com/NAVCoin/navcoin-core/commit/bed76b917b6590148a371d5a3d86d2a534ef1f3b)>
+
+You can now see errors which are logged to the debug.log file in the debug window of navcoin-qt. Users no longer have to manually read or search the debug.log via command line to find error messages.
+
+## Added some new FIAT currencies and enabled auto price update
+
+<[Pull Request 469](https://github.com/NAVCoin/navcoin-core/pull/469)>
+<[Commit 5ee24af](https://github.com/NAVCoin/navcoin-core/commit/5ee24afd29937cd7c12d538313783671318d1c87)>
+
+30 Fiat can now be configured as the display units through of navcoin-qt. The issue causing the sockets polling for exchange rates not to close correctly has also been resolved which prevents the wallet from eventually crashing.
+
+## Added new progress ui for sync
+
+<[Pull Request 526](https://github.com/NAVCoin/navcoin-core/pull/526)>
+<[Commit 42769b2](https://github.com/NAVCoin/navcoin-core/commit/42769b2352f1a33e5b4f8c2971e787b22b00ecb4)>
+
+When the wallet starts and detects it is still catching up to the latest block a progress overlay will be presented to the user. The user can close the overlay but it is now clearer that the wallet is still syncing and the balances will be incorrect until syncing finishes.
+
+## Revert nBits patch
+
+<[Pull Request 544](https://github.com/NAVCoin/navcoin-core/pull/544)>
 <[Commit XXX](https://github.com/NAVCoin/navcoin-core/commit/XXX)>
 
-- list of features
-- list of features
+This pull request reverts <[Pull Request 517](https://github.com/navcoin/navcoin-core/pull/517)> which introduced a problem preventing the wallet from syncing from scratch that was detected after 517 was already merged.
 
 ## Full List of merged pull requests
 
@@ -39,15 +75,14 @@
 - Changes required for GLIBC backward compatibility with gitian builds <[Pull Request 501](https://github.com/navcoin/navcoin-core/pull/501)> <[Commit d3b5687](https://github.com/navcoin/navcoin-core/commit/d3b56870eba55fbd2a0e323af6651f47d31e8b64)>
 - Fix potential deadlock <[Pull Request 506](https://github.com/navcoin/navcoin-core/pull/506)> <[Commit de6e167](https://github.com/navcoin/navcoin-core/commit/de6e167511381b5259d58518a69a48ea72417071)>
 - Moved the checkboxes into the empty QGroupBox <[Pull Request 484](https://github.com/navcoin/navcoin-core/pull/484)> <[Commit 4fb8043](https://github.com/navcoin/navcoin-core/commit/4fb8043f068fae1814ff76049a45f237b4df6f8e)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
-- title <[Pull Request XXX](https://github.com/navcoin/navcoin-core/pull/XXX)> <[Commit XXX](http)>
+- Added new attributes to the `getstakinginfo` and `getstakereport` commands <[Pull Request 485](https://github.com/navcoin/navcoin-core/pull/485)> <[Commit 82a2ba8](https://github.com/navcoin/navcoin-core/commit/82a2ba8aaae4fa6a7007f8efcb1842609fad70f5)>
+- Added some new FIAT currencies and enabled auto price update <[Pull Request 469](https://github.com/navcoin/navcoin-core/pull/469)> <[Commit 5ee24af](https://github.com/navcoin/navcoin-core/commit/5ee24afd29937cd7c12d538313783671318d1c87)>
+- OSX DMG and Mac Deploy bug fixes <[Pull Request 514](https://github.com/navcoin/navcoin-core/pull/514)> <[Commit e393fe4](https://github.com/navcoin/navcoin-core/commit/e393fe494b7c44d1dc61fa6c5f046cec3e134009)>
+- Updated ./src/univalue from upstream <[Pull Request 524](https://github.com/navcoin/navcoin-core/pull/524)> <[Commit 4ff2780](https://github.com/navcoin/navcoin-core/commit/4ff2780dd838b9be6d1f4544a1d1e973ff68130e)>
+- Added new progress ui for sync <[Pull Request 526](https://github.com/navcoin/navcoin-core/pull/526)> <[Commit 42769b2](https://github.com/navcoin/navcoin-core/commit/42769b2352f1a33e5b4f8c2971e787b22b00ecb4)>
+- Make some tests more reliable  <[Pull Request 537](https://github.com/navcoin/navcoin-core/pull/537)> <[Commit 8c4b490](https://github.com/navcoin/navcoin-core/commit/8c4b490fddea29598cc23a90a32687c5e4afd260)>
+- Fixed some more file permissions <[Pull Request 533](https://github.com/navcoin/navcoin-core/pull/533)> <[Commit baa66eb](https://github.com/navcoin/navcoin-core/commit/baa66ebbf88a49c1a2099c9955a1a80b940c0969)>
+- Move nBits check to ContextualCheckBlock <[Pull Request 517](https://github.com/navcoin/navcoin-core/pull/517)> <[Commit a16c48f](https://github.com/navcoin/navcoin-core/commit/a16c48f317b5dca9fce2394f70f840c59fd20228)>
+- Updated the error log tab logic <[Pull Request 532](https://github.com/navcoin/navcoin-core/pull/532)> <[Commit a4f23ac](https://github.com/navcoin/navcoin-core/commit/a4f23acbc291c789ab819d38bfdf56698c88dcef)>
+- Check node address in header spam protection <[Pull Request 536](https://github.com/navcoin/navcoin-core/pull/536)> <[Commit 45c98d5](https://github.com/navcoin/navcoin-core/commit/45c98d56f56a4fd706deca1594d774e49d7dadb1)>
+- Revert nBits patch <[Pull Request 544](https://github.com/navcoin/navcoin-core/pull/544)> <[Commit XXX](http)>
