@@ -60,7 +60,7 @@ public:
             }
             cachedNodeStats.clear();
             cachedNodeStats.reserve(vNodes.size());
-            Q_FOREACH (CNode* pnode, vNodes)
+            for (CNode* pnode: vNodes)
             {
                 CNodeCombinedStats stats;
                 stats.nodeStateStats.nMisbehavior = 0;
@@ -89,7 +89,7 @@ public:
         // build index map
         mapNodeRows.clear();
         int row = 0;
-        Q_FOREACH (const CNodeCombinedStats& stats, cachedNodeStats)
+        for (const CNodeCombinedStats& stats: cachedNodeStats)
             mapNodeRows.insert(std::pair<NodeId, int>(stats.nodeStats.nodeid, row++));
     }
 
