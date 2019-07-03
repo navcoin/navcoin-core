@@ -516,6 +516,7 @@ std::string HelpMessage(HelpMessageMode mode)
                                                                  CURRENCY_UNIT));
     strUsage += HelpMessageOpt("-maxtxfee=<amt>", strprintf(_("Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions"),
                                                             CURRENCY_UNIT));
+    strUsage += HelpMessageOpt("-print", _("Send trace/debug info to console instead of debug.log file"));
     strUsage += HelpMessageOpt("-printtoconsole", _("Send trace/debug info to console instead of debug.log file"));
     if (showDebug)
     {
@@ -874,7 +875,7 @@ static std::string ResolveErrMsg(const char * const optname, const std::string& 
 
 void InitLogging()
 {
-    fPrintToConsole = GetBoolArg("-printtoconsole", false);
+    fPrintToConsole = GetBoolArg("-print", GetBoolArg("-printtoconsole", false));
     fLogTimestamps = GetBoolArg("-logtimestamps", DEFAULT_LOGTIMESTAMPS);
     fLogTimeMicros = GetBoolArg("-logtimemicros", DEFAULT_LOGTIMEMICROS);
     fLogIPs = GetBoolArg("-logips", DEFAULT_LOGIPS);
