@@ -6,7 +6,6 @@
 #include <config/navcoin-config.h>
 #endif
 
-#include <assert.h>
 #include <cstddef>
 #include <cstdint>
 #include <errno.h>
@@ -110,7 +109,8 @@ extern "C" int __wrap_glob64(const char * pattern, int flags, int (*errfunc) (co
 
 extern "C" int __poll_chk(struct pollfd *fds, nfds_t nfds, int timeout, size_t fdslen)
 {
-    assert((fdslen / sizeof(*fds)) < nfds);
+    if(fdslen / sizeof(*fds) < nfds)
+        __chk_fail();
     return poll(fds, nfds, timeout);
 }
 
