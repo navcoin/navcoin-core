@@ -616,6 +616,72 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     LogPrint("bench", "   - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
 
     int64_t nTimeStart6 = GetTimeMicros();
+    CConsultationAnswerMap mapConsultationAnswers;
+
+    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
+    {
+        for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
+        {
+            if (!view.HaveConsultationAnswer(it->first))
+                continue;
+
+            bool fUpdate = false;
+
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
+
+            if (answer->txblockhash == uint256())
+                continue;
+
+            if (mapBlockIndex.count(answer->txblockhash) == 0)
+            {
+                LogPrintf("%s: Can't find block %s of answer %s\n",
+                          __func__, answer->txblockhash.ToString(), answer->hash.ToString());
+                continue;
+            }
+
+            if(fUndo && answer->blockhash == pindexDelete->GetBlockHash())
+            {
+                answer->blockhash = uint256();
+                answer->fState = DAOFlags::NIL;
+                fUpdate = true;
+            }
+
+            if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            {
+
+                if(!answer->IsSupported() && answer->fState == DAOFlags::ACCEPTED)
+                {
+                    answer->fState = DAOFlags::NIL;
+                    answer->blockhash = uint256();
+                    fUpdate = true;
+                }
+
+                if(answer->IsSupported())
+                {
+                    if(answer->fState == DAOFlags::NIL)
+                    {
+                        answer->fState = DAOFlags::ACCEPTED;
+                        answer->blockhash = pindexNew->GetBlockHash();
+                        fUpdate = true;
+                    }
+                }
+            }
+
+            if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            {
+                if (!vSeen.count(answer->hash) && answer->fState == DAOFlags::NIL)
+                {
+                    answer->nSupport = 0;
+                }
+            }
+        }
+    }
+
+    int64_t nTimeEnd6 = GetTimeMicros();
+
+    LogPrint("bench", "   - CFund update consultation answer status: %.2fms\n", (nTimeEnd6 - nTimeStart6) * 0.001);
+
+    int64_t nTimeStart7 = GetTimeMicros();
     CConsultationMap mapConsultations;
 
     if(view.GetAllConsultations(mapConsultations))
@@ -731,75 +797,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         }
     }
 
-    int64_t nTimeEnd6 = GetTimeMicros();
-
-    LogPrint("bench", "   - CFund update consultation status: %.2fms\n", (nTimeEnd6 - nTimeStart6) * 0.001);
-
-    int64_t nTimeStart7 = GetTimeMicros();
-    CConsultationAnswerMap mapConsultationAnswers;
-
-    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
-    {
-        for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
-        {
-            if (!view.HaveConsultationAnswer(it->first))
-                continue;
-
-            bool fUpdate = false;
-
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
-
-            if (answer->txblockhash == uint256())
-                continue;
-
-            if (mapBlockIndex.count(answer->txblockhash) == 0)
-            {
-                LogPrintf("%s: Can't find block %s of answer %s\n",
-                          __func__, answer->txblockhash.ToString(), answer->hash.ToString());
-                continue;
-            }
-
-            if(fUndo && answer->blockhash == pindexDelete->GetBlockHash())
-            {
-                answer->blockhash = uint256();
-                answer->fState = DAOFlags::NIL;
-                fUpdate = true;
-            }
-
-            if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
-            {
-
-                if(!answer->IsSupported() && answer->fState == DAOFlags::ACCEPTED)
-                {
-                    answer->fState = DAOFlags::NIL;
-                    answer->blockhash = uint256();
-                    fUpdate = true;
-                }
-
-                if(answer->IsSupported())
-                {
-                    if(answer->fState == DAOFlags::NIL)
-                    {
-                        answer->fState = DAOFlags::ACCEPTED;
-                        answer->blockhash = pindexNew->GetBlockHash();
-                        fUpdate = true;
-                    }
-                }
-            }
-
-            if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
-            {
-                if (!vSeen.count(answer->hash) && answer->fState == DAOFlags::NIL)
-                {
-                    answer->nSupport = 0;
-                }
-            }
-        }
-    }
-
     int64_t nTimeEnd7 = GetTimeMicros();
 
-    LogPrint("bench", "   - CFund update consultation answer status: %.2fms\n", (nTimeEnd7 - nTimeStart7) * 0.001);
+    LogPrint("bench", "   - CFund update consultation status: %.2fms\n", (nTimeEnd7 - nTimeStart7) * 0.001);
 
     if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
     {
