@@ -289,6 +289,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if ((view.GetConsultation(it.first, consultation) || view.GetConsultationAnswer(it.first, answer)) && !vSeen.count(it.first))
             {
+                if(mapCacheSupportToUpdate.count(it.first) == 0)
+                    mapCacheSupportToUpdate[it.first] = 0;
+
                 mapCacheSupportToUpdate[it.first] += 1;
                 vSeen[it.first]=true;
             }
@@ -1001,8 +1004,8 @@ std::string CConsultation::ToString(uint32_t currentTime) const {
         }
     }
 
-    sRet += strprintf("], nVotingCycle=%u, nDeadline=%u, blockhash=%s)",
-                     nVotingCycle, nDuration, blockhash.ToString().substr(0,10));
+    sRet += strprintf("], nVotingCycle=%u, nSupport=%u, nDeadline=%u, blockhash=%s)",
+                     nVotingCycle, nSupport, nDuration, blockhash.ToString().substr(0,10));
     return sRet;
 }
 

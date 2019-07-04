@@ -531,7 +531,7 @@ public:
         READWRITE(vProposalVotes);
 
         // UPDATE if nConsultationsVersionMask in versionbits.h is modified
-        if (nVersion & 0x00800000)
+        if (this->nVersion & 0x00800000)
         {
             READWRITE(mapSupport);
             READWRITE(mapConsultationVotes);
