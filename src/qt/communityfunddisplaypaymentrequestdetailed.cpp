@@ -63,7 +63,7 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
 
     {
         LOCK(cs_main);
-        CStateViewCache* coins(pcoinsTip);
+        CStateViewCache coins(pcoinsTip);
 
         //hide ui voting elements on prequests which are not allowed vote states
         if(!prequest.CanVote(coins))

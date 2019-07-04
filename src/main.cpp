@@ -1348,7 +1348,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
             if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
-                if(!IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
+                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");  
 
             if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
@@ -1356,7 +1356,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
 
             if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
-                if(!IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
+                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
         }
 
@@ -1423,14 +1423,14 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
                     if (viewMemPool.AddProposal(proposal))
-                        LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(&view, chainActive.Tip()->GetBlockTime()));
+                        LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, chainActive.Tip()->GetBlockTime()));
                 }
                 else
                 {
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid proposal");
                 }
             }
-            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest)){
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
                 CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest))
                 {
@@ -1459,7 +1459,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid dao consultation");
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
             {
                 CConsultationAnswer answer;
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), uint256(), answer))
@@ -2497,7 +2497,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 view.RemoveProposal(hash);
             }
-            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
             {
                 view.RemovePaymentRequest(hash);
             }
@@ -2505,7 +2505,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 view.RemoveConsultation(hash);
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
             {
                 view.RemoveConsultationAnswer(hash);
             }
@@ -2745,6 +2745,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 tx.vout[j].scriptPubKey.ExtractVote(hash_, vote);
                 mapHashesToRestore.insert(make_pair(hash_, -2));
             }
+            else if(tx.vout[j].IsSupportVote())
+            {
+                tx.vout[j].scriptPubKey.ExtractSupportVote(hash_, vote);
+                mapHashesToRestore.insert(make_pair(hash_, -4));
+            }
         }
 
         CBlockIndex* pindexIterator = pindex->pprev;
@@ -2762,6 +2767,15 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     if(out.IsVote())
                     {
                         out.scriptPubKey.ExtractVote(hash_, vote);
+
+                        if (mapHashesToRestore.count(hash_) && !mapRestoredHashes.count(hash_))
+                        {
+                            mapRestoredHashes[hash_] = vote;
+                        }
+                    }
+                    else if(out.IsSupportVote())
+                    {
+                        out.scriptPubKey.ExtractSupportVote(hash_, vote);
 
                         if (mapHashesToRestore.count(hash_) && !mapRestoredHashes.count(hash_))
                         {
@@ -2794,15 +2808,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             uint256 hash_ = it.first;
             int64_t vote = it.second;
 
-            if (vote == -2)
+            if (vote == -2 || vote == -4)
             {
-                CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                pVoteList->Clear(hash_);
+                view.ModifyVote(stakerScript)->Clear(hash_);
             }
             else
             {
-                CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                pVoteList->Set(hash_, vote);
+                view.ModifyVote(stakerScript)->Set(hash_, vote);
             }
         }
     }
@@ -3310,9 +3322,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             // Add Community Fund Votes from the block coinbase
             if(tx.IsCoinBase())
             {
+                CProposal proposal;
+                CPaymentRequest prequest;
+                CConsultation consultation;
+                CConsultationAnswer answer;
+                std::map<uint256, int> votes;
+
                 for (size_t j = 0; j < tx.vout.size(); j++)
                 {
-                    std::map<uint256, int> votes;
                     uint256 hash;
                     int64_t vote;
 
@@ -3321,46 +3338,62 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     else if(tx.vout[j].IsSupportVote())
                         tx.vout[j].scriptPubKey.ExtractSupportVote(hash, vote);
 
-                    if(fCFund && tx.vout[j].IsProposalVote())
+                    bool fProposal = tx.vout[j].IsProposalVote();
+                    bool fPaymentRequest = tx.vout[j].IsPaymentRequestVote();
+                    bool fSupport = tx.vout[j].IsSupportVote();
+
+                    if(votes.count(hash) == 0)
                     {
-                        if(votes.count(hash) == 0)
+                        if (fStake && fVoteCacheState)
                         {
-                            votes[hash] = vote;
-                            CProposal proposal;
-                            if(view.GetProposal(hash, proposal))
-                                if(proposal.CanVote())
+                            if ((fCFund && ((fProposal && view.GetProposal(hash, proposal) && proposal.CanVote())
+                                        || (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))) ||
+                                (fDAOConsultations && fSupport && ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported())
+                                        || (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view)))))
+                            {
+                                if (fPaymentRequest)
                                 {
-                                    if (fStake && fVoteCacheState)
+                                    if (view.GetProposal(prequest.proposalhash, proposal))
                                     {
-                                        if (vote == -2)
-                                        {
-                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                                            pVoteList->Clear(hash);
-                                        }
-                                        else
-                                        {
-                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                                            pVoteList->Set(hash, vote);
-                                        }
+                                        if (mapBlockIndex.count(proposal.blockhash) == 0)
+                                            continue;
+
+                                        CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
+
+                                        if(pblockindex == NULL)
+                                            continue;
+
+                                        if(!((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
+                                                && prequest.CanVote(view)
+                                                && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
+                                            continue;
                                     }
                                     else
                                     {
-                                        pindex->vProposalVotes.push_back(make_pair(hash, vote));
+                                        continue;
                                     }
                                 }
+
+                                votes[hash] = vote;
+
+                                if (vote == -2 || vote == -4)
+                                {
+                                    view.ModifyVote(stakerScript)->Clear(hash);
+                                }
+                                else
+                                {
+                                    view.ModifyVote(stakerScript)->Set(hash, vote);
+                                }
+                            }
                         }
-                    }
-                    else if (fCFund && tx.vout[j].IsPaymentRequestVote())
-                    {
-                        if(votes.count(hash) == 0)
+                        else
                         {
-                            votes[hash] = vote;
-                            CPaymentRequest prequest;
-
-                            if (view.GetPaymentRequest(hash, prequest))
+                            if (fCFund && (fProposal && view.GetProposal(hash, proposal) && proposal.CanVote()))
                             {
-                                CProposal proposal;
-
+                                pindex->vProposalVotes.push_back(make_pair(hash, vote));
+                            }
+                            else if (fCFund && (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))
+                            {
                                 if (view.GetProposal(prequest.proposalhash, proposal))
                                 {
                                     if (mapBlockIndex.count(proposal.blockhash) == 0)
@@ -3371,69 +3404,24 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     if(pblockindex == NULL)
                                         continue;
 
-                                    if((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
-                                            && prequest.CanVote(&view)
-                                            && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
-                                    {
-                                        pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
-                                    }
+                                    if(!((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
+                                            && prequest.CanVote(view)
+                                            && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
+                                        continue;
 
                                 }
-                            }
-                        }
-                    }
-                    else if(fDAOConsultations && tx.vout[j].IsSupportVote())
-                    {
-                        if(votes.count(hash) == 0)
-                        {
-                            votes[hash] = vote;
-                            CConsultation consultation;
-                            CConsultationAnswer answer;
-                            if(view.GetConsultation(hash, consultation))
-                            {
-                                if(consultation.CanBeSupported())
+                                else
                                 {
-                                    if (fStake && fVoteCacheState)
-                                    {
-                                        if (vote == -4)
-                                        {
-                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                                            pVoteList->Clear(hash);
-                                        }
-                                        else
-                                        {
-                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                                            pVoteList->Set(hash, vote);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        pindex->mapSupport.insert(make_pair(hash, true));
-                                    }
+                                    continue;
                                 }
+
+                                pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                             }
-                            else if(view.GetConsultationAnswer(hash, answer))
+                            else if(fDAOConsultations && fSupport &&
+                                    ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported()) ||
+                                     (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view))))
                             {
-                                if(answer.CanBeSupported(&view))
-                                {
-                                    if (fStake && fVoteCacheState)
-                                    {
-                                        if (vote == -4)
-                                        {
-                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                                            pVoteList->Clear(hash);
-                                        }
-                                        else
-                                        {
-                                            CVoteModifier pVoteList = view.ModifyVote(stakerScript);
-                                            pVoteList->Set(hash, vote);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        pindex->mapSupport.insert(make_pair(hash, true));
-                                    }
-                                }
+                                pindex->mapSupport.insert(make_pair(hash, true));
                             }
                         }
                     }
@@ -3454,7 +3442,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
             else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
             {
-                if(!IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
+                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
@@ -3464,7 +3452,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
             {
-                if(!IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
+                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
             }
         }
@@ -3685,14 +3673,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
                     if (view.AddProposal(proposal))
-                        LogPrint("cfund","New proposal %s\n", proposal.ToString(&view, block.nTime));
+                        LogPrint("cfund","New proposal %s\n", proposal.ToString(view, block.nTime));
                 }
                 else
                 {
                     return false;
                 }
             }
-            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, &view, nVersionMaskPaymentRequest))
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
             {
                 CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest))
@@ -3722,7 +3710,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, &view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
             {
                 CConsultationAnswer answer;
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), block.GetHash(), answer))
@@ -4188,7 +4176,8 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         CStateViewCache view(pcoinsTip);
         if (!DisconnectBlock(block, state, pindexDelete, view))
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
-        VoteStep(state, pindexDelete, true, &view);
+        if (!VoteStep(state, pindexDelete, true, view))
+            return error("DisconnectTip(): VoteStep failed");
         assert(view.Flush());
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
@@ -4269,7 +4258,8 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         mapBlockSource.erase(pindexNew->GetBlockHash());
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
         LogPrint("bench", "  - Connect total: %.2fms [%.2fs]\n", (nTime3 - nTime2) * 0.001, nTimeConnectTotal * 0.000001);
-        VoteStep(state, pindexNew, false, &view);
+        if (!VoteStep(state, pindexNew, false, view))
+            return error("ConnectTip(): VoteStep failed");
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
         assert(view.Flush());
     }

@@ -964,7 +964,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
     CProposalMap mapProposals;
 
-    CStateViewCache* view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
 
     if(pcoinsTip->GetAllProposals(mapProposals))
     {
@@ -1055,7 +1055,7 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
     }
 
     CConsultationMap mapConsultations;
-    CStateViewCache* view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
 
     if(pcoinsTip->GetAllConsultations(mapConsultations))
     {
@@ -1704,7 +1704,7 @@ UniValue getproposal(const UniValue& params, bool fHelp)
     if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not found");
 
-    CStateViewCache* view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
     UniValue ret(UniValue::VOBJ);
 
     proposal.ToJson(ret, view);
@@ -1729,7 +1729,7 @@ UniValue getconsultation(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation not found");
 
     UniValue ret(UniValue::VOBJ);
-    CStateViewCache* view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
 
     consultation.ToJson(ret, view);
 

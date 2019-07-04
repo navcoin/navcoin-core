@@ -810,7 +810,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
-    CStateViewCache *coins(pcoinsTip);
+    CStateViewCache coins(pcoinsTip);
 
     if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(coins, true))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount.");
@@ -3654,7 +3654,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CStateViewCache *coins(pcoinsTip);
+    CStateViewCache coins(pcoinsTip);
 
     UniValue ret(UniValue::VOBJ);
     UniValue yesvotes(UniValue::VARR);
@@ -3664,13 +3664,13 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
 
     CProposalMap mapProposals;
 
-    if(pcoinsTip->GetAllProposals(mapProposals))
+    if(coins.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
         {
             CProposal proposal;
 
-            if (!pcoinsTip->GetProposal(it_->first, proposal))
+            if (!coins.GetProposal(it_->first, proposal))
                 continue;
 
             if (proposal.fState != DAOFlags::NIL)
@@ -3707,25 +3707,26 @@ UniValue support(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1)
         throw runtime_error(
-            "support \"hash\" ( remove )\n"
+            "support \"hash\" ( add )\n"
             "\nShows support for the consultation or consultation answer identified by \"hash\".\n"
             "\nArguments:\n"
             "1. \"hash\"          (string, required) The hash\n"
-            "2. \"remove\"        (bool, optional) Set to true to remove support\n"
+            "2. \"add\"           (bool, optional) Set to false to remove support (Default: true)\n"
         );
 
     LOCK(cs_main);
 
-    bool fRemove = params.size() > 1 ? params[1].getBool() : false;
+    bool fRemove = params.size() > 1 ? !params[1].getBool() : false;
 
     string strHash = params[0].get_str();
     uint256 hash = uint256S(strHash);
     bool duplicate = false;
 
+    CStateViewCache coins(pcoinsTip);
     CConsultation consultation;
     CConsultationAnswer answer;
 
-    if (!((pcoinsTip->GetConsultation(hash, consultation) && consultation.CanBeSupported()) || (pcoinsTip->GetConsultationAnswer(hash, answer) && answer.CanBeSupported(pcoinsTip))))
+    if (!((coins.GetConsultation(hash, consultation) && consultation.CanBeSupported()) || (coins.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(coins))))
     {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find a valid entry with hash ")+strHash);
     }
@@ -3781,8 +3782,10 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CStateViewCache coins(pcoinsTip);
     CProposal proposal;
-    if (!pcoinsTip->GetProposal(uint256S(strHash), proposal))
+
+    if (!coins.GetProposal(uint256S(strHash), proposal))
     {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
     }
@@ -3846,15 +3849,16 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue absvotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
+    CStateViewCache coins(pcoinsTip);
     CPaymentRequestMap mapPaymentRequests;
 
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
             CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.fState != DAOFlags::NIL)
@@ -3908,9 +3912,10 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CStateViewCache coins(pcoinsTip);
     CPaymentRequest prequest;
 
-    if (!pcoinsTip->GetPaymentRequest(uint256S(strHash), prequest))
+    if (!coins.GetPaymentRequest(uint256S(strHash), prequest))
     {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find payment request: ")+strHash);
     }

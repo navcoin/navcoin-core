@@ -192,7 +192,7 @@ std::map<uint256, std::pair<std::pair<int, int>, int>> mapCacheProposalsToUpdate
 std::map<uint256, std::pair<std::pair<int, int>, int>> mapCachePaymentRequestToUpdate;
 std::map<uint256, int> mapCacheSupportToUpdate;
 
-void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache* view)
+bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& view)
 {
     AssertLockHeld(cs_main);
 
@@ -231,7 +231,7 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
         {
-            if(!view->GetProposal(pindexblock->vProposalVotes[i].first, proposal))
+            if(!view.GetProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
 
             if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0)
@@ -252,10 +252,10 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++)
         {
-            if(!view->GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
+            if(!view.GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
 
-            if(!view->GetProposal(prequest.proposalhash, proposal))
+            if(!view.GetProposal(prequest.proposalhash, proposal))
                 continue;
 
             if (mapBlockIndex.count(proposal.blockhash) == 0)
@@ -287,7 +287,7 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!it.second)
                 continue;
 
-            if ((view->GetConsultation(it.first, consultation) || view->GetConsultationAnswer(it.first, answer)) && !vSeen.count(it.first))
+            if ((view.GetConsultation(it.first, consultation) || view.GetConsultationAnswer(it.first, answer)) && !vSeen.count(it.first))
             {
                 mapCacheSupportToUpdate[it.first] += 1;
                 vSeen[it.first]=true;
@@ -310,9 +310,9 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     for(auto& it: mapCacheProposalsToUpdate)
     {
-        if (view->HaveProposal(it.first))
+        if (view.HaveProposal(it.first))
         {
-            CProposalModifier proposal = view->ModifyProposal(it.first);
+            CProposalModifier proposal = view.ModifyProposal(it.first);
             proposal->nVotesYes = it.second.first.first;
             proposal->nVotesAbs = it.second.second;
             proposal->nVotesNo = it.second.first.second;
@@ -322,9 +322,9 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     for(auto& it: mapCachePaymentRequestToUpdate)
     {
-        if(view->HavePaymentRequest(it.first))
+        if(view.HavePaymentRequest(it.first))
         {
-            CPaymentRequestModifier prequest = view->ModifyPaymentRequest(it.first);
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it.first);
             prequest->nVotesYes = it.second.first.first;
             prequest->nVotesAbs = it.second.second;
             prequest->nVotesNo = it.second.first.second;
@@ -334,15 +334,15 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     for(auto& it: mapCacheSupportToUpdate)
     {
-        if (view->HaveConsultation(it.first))
+        if (view.HaveConsultation(it.first))
         {
-            CConsultationModifier consultation = view->ModifyConsultation(it.first);
+            CConsultationModifier consultation = view.ModifyConsultation(it.first);
             consultation->nSupport = it.second;
             vSeen[consultation->hash]=true;
         }
-        else if (view->HaveConsultationAnswer(it.first))
+        else if (view.HaveConsultationAnswer(it.first))
         {
-            CConsultationAnswerModifier answer = view->ModifyConsultationAnswer(it.first);
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
             answer->nSupport = it.second;
             vSeen[answer->hash]=true;
         }
@@ -354,16 +354,16 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     int64_t nTimeStart4 = GetTimeMicros();
     CPaymentRequestMap mapPaymentRequests;
 
-    if(view->GetAllPaymentRequests(mapPaymentRequests))
+    if(view.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
         {
-            if (!view->HavePaymentRequest(it->first))
+            if (!view.HavePaymentRequest(it->first))
                 continue;
 
             bool fUpdate = false;
 
-            CPaymentRequestModifier prequest = view->ModifyPaymentRequest(it->first);
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
 
             if(fUndo && prequest->paymenthash == pindexDelete->GetBlockHash())
             {
@@ -392,7 +392,7 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CProposal proposal;
 
-            if (!view->GetProposal(prequest->proposalhash, proposal))
+            if (!view.GetProposal(prequest->proposalhash, proposal))
                 continue;
 
             auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
@@ -480,16 +480,16 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     int64_t nTimeStart5 = GetTimeMicros();
     CProposalMap mapProposals;
 
-    if(view->GetAllProposals(mapProposals))
+    if(view.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
-            if (!view->HaveProposal(it->first))
+            if (!view.HaveProposal(it->first))
                 continue;
 
             bool fUpdate = false;
 
-            CProposalModifier proposal = view->ModifyProposal(it->first);
+            CProposalModifier proposal = view.ModifyProposal(it->first);
 
             if (proposal->txblockhash == uint256())
                 continue;
@@ -615,16 +615,16 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     int64_t nTimeStart6 = GetTimeMicros();
     CConsultationMap mapConsultations;
 
-    if(view->GetAllConsultations(mapConsultations))
+    if(view.GetAllConsultations(mapConsultations))
     {
         for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
         {
-            if (!view->HaveConsultation(it->first))
+            if (!view.HaveConsultation(it->first))
                 continue;
 
             bool fUpdate = false;
 
-            CConsultationModifier consultation = view->ModifyConsultation(it->first);
+            CConsultationModifier consultation = view.ModifyConsultation(it->first);
 
             if (consultation->txblockhash == uint256())
                 continue;
@@ -735,16 +735,16 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     int64_t nTimeStart7 = GetTimeMicros();
     CConsultationAnswerMap mapConsultationAnswers;
 
-    if(view->GetAllConsultationAnswers(mapConsultationAnswers))
+    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
     {
         for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
         {
-            if (!view->HaveConsultationAnswer(it->first))
+            if (!view.HaveConsultationAnswer(it->first))
                 continue;
 
             bool fUpdate = false;
 
-            CConsultationAnswerModifier answer = view->ModifyConsultationAnswer(it->first);
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
 
             if (answer->txblockhash == uint256())
                 continue;
@@ -801,22 +801,26 @@ void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
     {
         CVoteMap mapVoters;
-        view->GetAllVotes(mapVoters);
+        view.GetAllVotes(mapVoters);
 
         for (auto& it: mapVoters)
         {
-            view->RemoveCachedVoter(it.first);
+            if(!view.RemoveCachedVoter(it.first))
+                error("Could not remove cached votes for %s (%s)!", HexStr(it.first).substr(0,8), it.second.ToString());
         }
+
     }
 
     int64_t nTimeEnd = GetTimeMicros();
     LogPrint("bench", "  - CFund total VoteStep() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+
+    return true;
 }
 
 
 // CONSULTATIONS
 
-bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache* coins, uint64_t nMaskVersion)
+bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion)
 {
     if(tx.strDZeel.length() > 255)
         return error("%s: Too long strdzeel for answer %s", __func__, tx.GetHash().ToString());
@@ -849,7 +853,7 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache* coins, uint64_t
 
     CConsultation consultation;
 
-    if(!coins->GetConsultation(uint256S(Hash), consultation))
+    if(!coins.GetConsultation(uint256S(Hash), consultation))
         return error("%s: Could not find consultation %s for answer %s", __func__, Hash.c_str(), tx.GetHash().ToString());
 
     if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
@@ -926,7 +930,7 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
 }
 
 std::string CConsultation::GetState(uint32_t currentTime) const {
-    CStateViewCache* view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
     std::string sFlags = "waiting for support";
 
     if(IsSupported(view)) {
@@ -945,7 +949,7 @@ std::string CConsultation::GetState(uint32_t currentTime) const {
     return sFlags;
 }
 
-bool CConsultation::IsSupported(CStateViewCache* view) const
+bool CConsultation::IsSupported(CStateViewCache& view) const
 {
     float nMinimumSupport = Params().GetConsensus().nMinimumConsultationSupport;
 
@@ -1002,7 +1006,7 @@ std::string CConsultation::ToString(uint32_t currentTime) const {
     return sRet;
 }
 
-void CConsultation::ToJson(UniValue& ret, CStateViewCache* view) const
+void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
 {
     ret.push_back(Pair("version",(uint64_t)nVersion));
     ret.push_back(Pair("hash", hash.ToString()));
@@ -1011,13 +1015,13 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache* view) const
     ret.push_back(Pair("support", nSupport));
     UniValue answers(UniValue::VARR);
     CConsultationAnswerMap mapConsultationAnswers;
-    if(view->GetAllConsultationAnswers(mapConsultationAnswers))
+    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
     {
         for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
         {
             CConsultationAnswer answer;
 
-            if (!view->GetConsultationAnswer(it_->first, answer))
+            if (!view.GetConsultationAnswer(it_->first, answer))
                 continue;
 
             if (answer.parent != hash)
@@ -1100,10 +1104,10 @@ std::string CConsultationAnswer::GetText() const {
     return sAnswer;
 }
 
-bool CConsultationAnswer::CanBeSupported(CStateViewCache* view) const {
+bool CConsultationAnswer::CanBeSupported(CStateViewCache& view) const {
     CConsultation consultation;
 
-    if (!view->GetConsultation(parent, consultation))
+    if (!view.GetConsultation(parent, consultation))
         return false;
 
     if (consultation.fState != DAOFlags::NIL)
@@ -1113,10 +1117,10 @@ bool CConsultationAnswer::CanBeSupported(CStateViewCache* view) const {
 }
 
 
-bool CConsultationAnswer::CanBeVoted(CStateViewCache* view) const {
+bool CConsultationAnswer::CanBeVoted(CStateViewCache& view) const {
     CConsultation consultation;
 
-    if (!view->GetConsultation(parent, consultation))
+    if (!view.GetConsultation(parent, consultation))
             return false;
 
     return fState == DAOFlags::ACCEPTED && consultation.fState == DAOFlags::ACCEPTED;
@@ -1147,7 +1151,7 @@ void CConsultationAnswer::ToJson(UniValue& ret) const {
 
 // CFUND
 
-bool IsValidPaymentRequest(CTransaction tx, CStateViewCache* coins, uint64_t nMaskVersion)
+bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion)
 {
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for payment request %s", __func__, tx.GetHash().ToString());
@@ -1184,7 +1188,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache* coins, uint64_t nMa
 
     CProposal proposal;
 
-    if(!coins->GetProposal(uint256S(Hash), proposal))
+    if(!coins.GetProposal(uint256S(Hash), proposal))
         return error("%s: Could not find parent proposal %s for payment request %s", __func__, Hash.c_str(),tx.GetHash().ToString());
 
     std::string sRandom = "";
@@ -1230,7 +1234,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache* coins, uint64_t nMa
 
 }
 
-bool CPaymentRequest::CanVote(CStateViewCache* coins) const
+bool CPaymentRequest::CanVote(CStateViewCache& coins) const
 {
     AssertLockHeld(cs_main);
 
@@ -1243,7 +1247,7 @@ bool CPaymentRequest::CanVote(CStateViewCache* coins) const
         return false;
 
     CProposal proposal;
-    if(!coins->GetProposal(proposalhash, proposal))
+    if(!coins.GetProposal(proposalhash, proposal))
         return false;
 
     return nAmount <= proposal.GetAvailable(coins) && fState != DAOFlags::ACCEPTED && fState != DAOFlags::REJECTED && fState != DAOFlags::EXPIRED && !ExceededMaxVotingCycles();
@@ -1418,26 +1422,26 @@ bool CProposal::ExceededMaxVotingCycles() const {
     return nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
 }
 
-CAmount CProposal::GetAvailable(CStateViewCache* coins, bool fIncludeRequests) const
+CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) const
 {
     AssertLockHeld(cs_main);
 
     CAmount initial = nAmount;
     CPaymentRequestMap mapPaymentRequests;
 
-    if(coins->GetAllPaymentRequests(mapPaymentRequests))
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
             CPaymentRequest prequest;
 
-            if (!coins->GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)
                 continue;
 
-            if (!coins->HaveCoins(prequest.hash))
+            if (!coins.HaveCoins(prequest.hash))
             {
                 CBlockIndex* pindex;
                 if(prequest.txblockhash == uint256() || !mapBlockIndex.count(prequest.txblockhash))
@@ -1453,7 +1457,7 @@ CAmount CProposal::GetAvailable(CStateViewCache* coins, bool fIncludeRequests) c
     return initial;
 }
 
-std::string CProposal::ToString(CStateViewCache* coins, uint32_t currentTime) const {
+std::string CProposal::ToString(CStateViewCache& coins, uint32_t currentTime) const {
     std::string str;
     str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
                      "nVotesAbs=%u, nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
@@ -1461,7 +1465,7 @@ std::string CProposal::ToString(CStateViewCache* coins, uint32_t currentTime) co
                      nVotesYes, nVotesAbs, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
     CPaymentRequestMap mapPaymentRequests;
 
-    if(coins->GetAllPaymentRequests(mapPaymentRequests))
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
@@ -1479,7 +1483,7 @@ std::string CProposal::ToString(CStateViewCache* coins, uint32_t currentTime) co
     return str + "\n";
 }
 
-bool CProposal::HasPendingPaymentRequests(CStateViewCache* coins) const {
+bool CProposal::HasPendingPaymentRequests(CStateViewCache& coins) const {
     AssertLockHeld(cs_main);
 
     CPaymentRequestMap mapPaymentRequests;
@@ -1529,7 +1533,7 @@ std::string CProposal::GetState(uint32_t currentTime) const {
     return sFlags;
 }
 
-void CProposal::ToJson(UniValue& ret, CStateViewCache* coins) const {
+void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     AssertLockHeld(cs_main);
 
     ret.push_back(Pair("version", (uint64_t)nVersion));

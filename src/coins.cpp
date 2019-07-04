@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2015 The Bitcoin Core developers
+// Copyright (c) 2018-2019 The NavCoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,6 +7,7 @@
 
 #include "memusage.h"
 #include "random.h"
+#include "util.h"
 
 #include <assert.h>
 
@@ -161,20 +163,18 @@ CPaymentRequestMap::const_iterator CStateViewCache::FetchPaymentRequest(const ui
 
 CVoteMap::const_iterator CStateViewCache::FetchVote(const CVoteMapKey &voter) const
 {
-    CVoteMapValue vote;
+    CVoteMap::iterator it = cacheVotes.find(voter);
 
-    base->GetCachedVoter(voter, vote);
+    if (it != cacheVotes.end())
+        return it;
 
-    CVoteMap::iterator ret = cacheVotes.insert(std::make_pair(voter, CVoteMapValue())).first;
+    CVoteList tmp;
 
-    std::map<uint256, CVote> list = vote.GetList();
-    for (auto& it: list)
-    {
-        if (ret->second.GetList().count(it.first) == 0)
-        {
-            ret->second.Set(it.first, it.second);
-        }
-    }
+    if (!base->GetCachedVoter(voter, tmp))
+        return cacheVotes.end();
+
+    CVoteMap::iterator ret = cacheVotes.insert(std::make_pair(voter, CVoteList())).first;
+    tmp.swap(ret->second);
 
     return ret;
 }
@@ -629,6 +629,7 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         } else {
             CProposal& entry = cacheProposals[it->first];
             entry.swap(it->second);
+            entry.fDirty = true;
         }
         CProposalMap::iterator itOld = it++;
         mapProposals.erase(itOld);
@@ -643,31 +644,46 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         } else {
             CPaymentRequest& entry = cachePaymentRequests[it->first];
             entry.swap(it->second);
+            entry.fDirty = true;
         }
         CPaymentRequestMap::iterator itOld = it++;
         mapPaymentRequests.erase(itOld);
     }
 
-    for (CVoteMap::iterator it = mapVotes.begin(); it != mapVotes.end();) {
-        if (it->second.IsNull()) {
-            CVoteMap::iterator itUs = cacheVotes.find(it->first);
-            if (itUs != cacheVotes.end()) {
-                cacheVotes.erase(itUs);
-            }
-        } else {
-            CVoteList& entry = cacheVotes[it->first];
-            std::map<uint256, CVote> list= it->second.GetList();
-            for (auto& it: list)
-            {
-                if (it.second.IsNull())
-                {
-                    entry.Erase(it.first);
+    for (CVoteMap::iterator it = mapVotes.begin(); it != mapVotes.end();){
+        if (it->second.fDirty || it->second.IsNull()) { // Ignore non-dirty entries (optimization).
+            std::vector<unsigned char> voter = it->first;
+            CVoteMap::iterator itUs = cacheVotes.find(voter);
+            if (it->second.IsNull()) {  // VoteList is completely null, we must remove it
+                if (itUs != cacheVotes.end()) {
+                    cacheVotes[voter].SetNull();
                 }
-                else
+            } else { // VoteList is not null
+                if (itUs != cacheVotes.end()) { // Parent has it
+                    std::map<uint256, CVote> list= it->second.GetList();
+                    for (auto& it: list)
+                    {
+                        if (it.second.IsNull()) // We must remove from parent
+                        {
+                            if (!cacheVotes[voter].Clear(it.first))
+                                return error("Could not remove vote for %s", it.first.ToString());
+                        }
+                        else // We need to add to parent
+                        {
+                            int64_t val;
+                            if (it.second.GetValue(val))
+                            {
+                                if (!cacheVotes[voter].Set(it.first, val))
+                                    return error("Could not add vote for %s", it.first.ToString());
+                            }
+                        }
+                    }
+                }
+                else // It's unknown to parent, we must add it
                 {
-                    int64_t val;
-                    if (it.second.GetValue(val))
-                        entry.Set(it.first, val);
+                    CVoteList& entry = cacheVotes[voter];
+                    entry.swap(it->second);
+                    entry.fDirty = true;
                 }
             }
         }
@@ -710,6 +726,11 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
 bool CStateViewCache::Flush() {
     bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, hashBlock);
     cacheCoins.clear();
+    cacheProposals.clear();
+    cachePaymentRequests.clear();
+    cacheVotes.clear();
+    cacheConsultations.clear();
+    cacheAnswers.clear();
     cachedCoinsUsage = 0;
     return fOk;
 }
@@ -809,7 +830,7 @@ CProposalModifier::~CProposalModifier()
     cache.hasModifier = false;
 
     if (it->second.IsNull()) {
-        cache.cacheProposals.erase(it);
+        cache.cacheProposals[it->first].SetNull();
     }
 }
 
@@ -824,7 +845,7 @@ CPaymentRequestModifier::~CPaymentRequestModifier()
     cache.hasModifier = false;
 
     if (it->second.IsNull()) {
-        cache.cachePaymentRequests.erase(it);
+        cache.cacheProposals[it->first].SetNull();
     }
 }
 
@@ -839,7 +860,7 @@ CVoteModifier::~CVoteModifier()
     cache.hasModifier = false;
 
     if (it->second.IsNull()) {
-        cache.cacheVotes.erase(it);
+        cache.cacheVotes[it->first].SetNull();
     }
 }
 
@@ -854,7 +875,7 @@ CConsultationModifier::~CConsultationModifier()
     cache.hasModifier = false;
 
     if (it->second.IsNull()) {
-        cache.cacheConsultations.erase(it);
+        cache.cacheConsultations[it->first].SetNull();
     }
 }
 
@@ -869,7 +890,7 @@ CConsultationAnswerModifier::~CConsultationAnswerModifier()
     cache.hasModifier = false;
 
     if (it->second.IsNull()) {
-        cache.cacheAnswers.erase(it);
+        cache.cacheAnswers[it->first].SetNull();
     }
 }
 

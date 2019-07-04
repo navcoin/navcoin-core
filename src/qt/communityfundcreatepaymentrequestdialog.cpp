@@ -189,7 +189,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Create Signature
         std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
-        CStateViewCache* coins(pcoinsTip);
+        CStateViewCache coins(pcoinsTip);
 
         // Validate requested amount
         if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(coins, true)) {

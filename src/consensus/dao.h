@@ -74,6 +74,11 @@ public:
         std::swap(to.nValue, nValue);
     }
 
+    std::string ToString()
+    {
+        return strprintf("CVote(nValue=%d, fNull=%b)", nValue, fNull);
+    }
+
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
@@ -97,7 +102,7 @@ public:
     void SetNull()
     {
         list.clear();
-        fDirty = false;
+        fDirty = true;
     }
 
     bool IsNull() const
@@ -113,7 +118,7 @@ public:
 
     CVote* Get(const uint256& hash)
     {
-        if (list.count(hash) == 0)
+        if (list.count(hash) == 0 || (list.count(hash) && list[hash].IsNull()))
             return nullptr;
         return &list[hash];
     }
@@ -143,18 +148,25 @@ public:
         return true;
     }
 
-    bool Erase(const uint256& hash)
-    {
-        if (list.count(hash) == 0)
-            return false;
-        list.erase(hash);
-        fDirty = true;
-        return true;
-    }
-
     std::map<uint256, CVote> GetList()
     {
-        return list;
+        std::map<uint256, CVote> ret;
+        for (auto &it: list)
+        {
+            if (!it.second.IsNull())
+                ret[it.first] = it.second;
+        }
+        return ret;
+    }
+
+    std::string ToString()
+    {
+        std::string sList;
+        for (auto& it:list)
+        {
+            sList += strprintf("{%s => %s}, ", it.first.ToString(), it.second.ToString());
+        }
+        return strprintf("CVoteList([%s])", sList);
     }
 
     void swap(CVoteList &to) {
@@ -175,12 +187,12 @@ private:
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
 bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
-void VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache* coins);
+bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& coins);
 
-bool IsValidPaymentRequest(CTransaction tx, CStateViewCache* coins, uint64_t nMaxVersion);
+bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaxVersion);
 bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
 bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion);
-bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache* coins, uint64_t nMaskVersion);
+bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion);
 
 // CFUND
 
@@ -282,7 +294,7 @@ public:
 
     bool ExceededMaxVotingCycles() const;
 
-    bool CanVote(CStateViewCache* coins) const;
+    bool CanVote(CStateViewCache& coins) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -401,10 +413,10 @@ public:
                 && nVotesYes == 0 && nVotesNo == 0 && nVotesAbs == 0 && nDeadline == 0 && strDZeel == "");
     }
 
-    std::string ToString(CStateViewCache* coins, uint32_t currentTime = 0) const;
+    std::string ToString(CStateViewCache& coins, uint32_t currentTime = 0) const;
     std::string GetState(uint32_t currentTime) const;
 
-    void ToJson(UniValue& ret, CStateViewCache* coins) const;
+    void ToJson(UniValue& ret, CStateViewCache& coins) const;
 
     bool IsAccepted() const;
 
@@ -422,9 +434,9 @@ public:
         return fState == DAOFlags::ACCEPTED;
     }
 
-    bool HasPendingPaymentRequests(CStateViewCache* coins) const;
+    bool HasPendingPaymentRequests(CStateViewCache& coins) const;
 
-    CAmount GetAvailable(CStateViewCache* coins, bool fIncludeRequests = false) const;
+    CAmount GetAvailable(CStateViewCache& coins, bool fIncludeRequests = false) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -544,8 +556,8 @@ public:
     int GetVotes() const;
     std::string GetState() const;
     std::string GetText() const;
-    bool CanBeVoted(CStateViewCache* view) const;
-    bool CanBeSupported(CStateViewCache* view) const;
+    bool CanBeVoted(CStateViewCache& view) const;
+    bool CanBeSupported(CStateViewCache& view) const;
     bool IsSupported() const;
     std::string ToString() const;
     void ToJson(UniValue& ret) const;
@@ -600,6 +612,7 @@ public:
         std::swap(to.fDirty, fDirty);
         std::swap(to.strDZeel, strDZeel);
         std::swap(to.nSupport, nSupport);
+        std::swap(to.nDuration, nDuration);
         std::swap(to.nMin, nMin);
         std::swap(to.nMax, nMax);
     };
@@ -627,10 +640,10 @@ public:
 
     std::string GetState(uint32_t currentTime) const;
     std::string ToString(uint32_t currentTime) const;
-    void ToJson(UniValue& ret, CStateViewCache* view) const;
+    void ToJson(UniValue& ret, CStateViewCache& view) const;
     bool CanBeSupported() const;
     bool CanBeVoted() const;
-    bool IsSupported(CStateViewCache* view) const;
+    bool IsSupported(CStateViewCache& view) const;
     bool IsExpired(uint32_t currentTime) const;
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;

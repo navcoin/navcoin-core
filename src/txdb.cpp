@@ -230,6 +230,7 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
                               const uint256 &hashBlock) {
+
     CDBBatch batch(db);
     size_t count = 0;
     size_t changed = 0;

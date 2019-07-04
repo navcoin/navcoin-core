@@ -210,6 +210,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
 
     std::map<uint256, bool> votes;
+    CStateViewCache coins(pcoinsTip);
 
     bool fDAOConsultations = IsConsultationsEnabled(pindexPrev, chainparams.GetConsensus());
     bool fAbstain = IsAbstainVoteEnabled(pindexPrev, chainparams.GetConsensus());
@@ -225,7 +226,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             if (votes.count(it.first) != 0)
                 continue;
 
-            if (pcoinsTip->GetConsultation(it.first, consultation))
+            if (coins.GetConsultation(it.first, consultation))
             {
                 if (consultation.CanBeSupported())
                 {
@@ -238,10 +239,21 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     continue;
                 }
             }
+            else if (coins.GetConsultationAnswer(it.first, answer))
+            {
+                if (answer.CanBeSupported(coins))
+                {
+                    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+
+                    SetScriptForConsultationSupport(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,answer.hash);
+                    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    votes[answer.hash] = true;
+
+                    continue;
+                }
+            }
         }
     }
-
-    CStateViewCache* coins(pcoinsTip);
 
     if(fCFund)
     {
@@ -260,7 +272,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             if (votes.count(it.first) != 0)
                 continue;
 
-            if(pcoinsTip->GetProposal(it.first, proposal))
+            if(coins.GetProposal(it.first, proposal))
             {
                 if(proposal.CanVote())
                 {
@@ -273,9 +285,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     continue;
                 }
             }
-            else if(pcoinsTip->GetPaymentRequest(it.first, prequest))
+            else if(coins.GetPaymentRequest(it.first, prequest))
             {
-                if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+                if(!coins.GetProposal(prequest.proposalhash, proposal))
                     continue;
 
                 if (mapBlockIndex.count(proposal.blockhash) == 0)
@@ -299,7 +311,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     continue;
                 }
             }
-            else if(fDAOConsultations && pcoinsTip->GetConsultation(it.first, consultation))
+            else if(fDAOConsultations && coins.GetConsultation(it.first, consultation))
             {
                 if(consultation.CanBeVoted() && consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION &&
                         consultation.IsValidVote(vote))
@@ -313,9 +325,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     continue;
                 }
             }
-            else if(fDAOConsultations && pcoinsTip->GetConsultationAnswer(it.first, answer))
+            else if(fDAOConsultations && coins.GetConsultationAnswer(it.first, answer))
             {
-                if(answer.CanBeVoted(pcoinsTip))
+                if(answer.CanBeVoted(coins))
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
@@ -331,13 +343,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         UniValue strDZeel(UniValue::VARR);
         CPaymentRequestMap mapPaymentRequests;
 
-        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+        if(coins.GetAllPaymentRequests(mapPaymentRequests))
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
                 CPaymentRequest prequest;
 
-                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                if (!coins.GetPaymentRequest(it_->first, prequest))
                     continue;
 
                 if (mapBlockIndex.count(prequest.blockhash) == 0)
@@ -356,7 +368,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 {
                     CProposal proposal;
 
-                    if(pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+                    if(coins.GetProposal(prequest.proposalhash, proposal))
                     {
                         CNavCoinAddress addr(proposal.Address);
 
@@ -1029,7 +1041,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       {
                           uint256 hash;
                           int64_t vote;
-                          out.scriptPubKey.ExtractVote(hash, vote);
+                          out.scriptPubKey.ExtractSupportVote(hash, vote);
 
                           if (list.count(hash) > 0)
                           {
@@ -1057,27 +1069,29 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
                       it.second.GetValue(val);
 
-                      if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && !it.second.IsNull())
+                      bool fProposal = view.HaveProposal(hash);
+                      bool fPaymentRequest = view.HavePaymentRequest(hash);
+
+                      if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && !it.second.IsNull() && (fProposal || fPaymentRequest))
                       {
                           pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
 
-                          if (view.HaveProposal(hash))
+                          if (fProposal)
                               SetScriptForProposalVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
-
-                          if (view.HavePaymentRequest(hash))
+                          else if (fPaymentRequest)
                               SetScriptForPaymentRequestVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
 
                           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
                           votes[hash] = true;
                       }
 
-                      if (mapSupported.count(hash) == 0 && votes.count(hash) == 0 && !it.second.IsNull())
+                      bool fConsultation = view.HaveConsultation(hash);
+                      bool fAnswer = view.HaveConsultationAnswer(hash);
+
+                      if (mapSupported.count(hash) == 0 && votes.count(hash) == 0 && !it.second.IsNull() && (fConsultation || fAnswer))
                       {
                           pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
-
-                          if (view.HaveConsultation(hash) || view.HaveConsultationAnswer(hash))
-                              SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash);
-
+                          SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash);
                           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
                           votes[hash] = true;
                       }
