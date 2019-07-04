@@ -143,6 +143,24 @@ bool Vote(uint256 hash, int64_t vote, bool &duplicate)
     return true;
 }
 
+bool VoteValue(uint256 hash, int64_t vote, bool &duplicate)
+{
+    AssertLockHeld(cs_main);
+
+    std::string str = hash.ToString();
+
+    if (mapAddedVotes.count(hash) > 0 && mapAddedVotes[hash] == vote)
+        duplicate = true;
+
+    RemoveConfigFile("vote", str);
+
+    WriteConfigFile("vote", str + "~" + to_string(vote));
+
+    mapAddedVotes[hash] = vote;
+
+    return true;
+}
+
 bool RemoveSupport(string str)
 {
 
@@ -166,6 +184,17 @@ bool RemoveVote(string str)
     RemoveConfigFile("addpaymentrequestvoteyes", str);
     RemoveConfigFile("addpaymentrequestvoteabs", str);
     RemoveConfigFile("addpaymentrequestvoteno", str);
+    if (mapAddedVotes.count(uint256S(str)) > 0)
+        mapAddedVotes.erase(uint256S(str));
+    else
+        return false;
+    return true;
+}
+
+bool RemoveVoteValue(string str)
+{
+
+    RemoveConfigFilePair("vote", str);
     if (mapAddedVotes.count(uint256S(str)) > 0)
         mapAddedVotes.erase(uint256S(str));
     else
@@ -727,7 +756,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             auto oldState = consultation->fState;
             auto oldCycle = consultation->nVotingCycle;
 
-            if((consultation->fState == DAOFlags::NIL || fUndo) && nVotingCycles != consultation->nVotingCycle)
+            if((consultation->fState == DAOFlags::NIL || consultation->fState == DAOFlags::REFLECTION || consultation->fState == DAOFlags::CONFIRMATION || fUndo) && nVotingCycles != consultation->nVotingCycle)
             {
                 consultation->nVotingCycle = nVotingCycles;
                 fUpdate = true;
@@ -742,7 +771,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     fUpdate = true;
                 }
 
-                if(!consultation->IsSupported(view) && (consultation->fState == DAOFlags::ACCEPTED ||
+                if(fUndo && !consultation->IsSupported(view) && (consultation->fState == DAOFlags::ACCEPTED ||
                                                     consultation->fState == DAOFlags::CONFIRMATION ||
                                                     consultation->fState == DAOFlags::REFLECTION))
                 {
@@ -784,6 +813,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if (fUndo && fUpdate && consultation->fState == oldState
                 && consultation->fState != DAOFlags::NIL
+                && consultation->fState != DAOFlags::CONFIRMATION
+                && consultation->fState != DAOFlags::REFLECTION
                 && consultation->nVotingCycle != oldCycle)
                 consultation->nVotingCycle = oldCycle;
 
@@ -936,13 +967,44 @@ std::string CConsultation::GetState(uint32_t currentTime) const {
     CStateViewCache view(pcoinsTip);
     std::string sFlags = "waiting for support";
 
+    if(fState == DAOFlags::CONFIRMATION)
+        sFlags += " (confirmation phase)";
+
+    int nSupportedAnswersCount = 0;
+
+    CConsultationAnswerMap mapConsultationAnswers;
+
+    if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
+    {
+        for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+        {
+            CConsultationAnswer answer;
+
+            if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
+                continue;
+
+            if (answer.parent != hash)
+                continue;
+
+            if (!answer.IsSupported())
+                continue;
+
+            nSupportedAnswersCount++;
+        }
+    }
+
+    if (nSupportedAnswersCount < 2)
+        sFlags += ", waiting for having enough supported answers";
+
     if(IsSupported(view)) {
         sFlags = "found support";
+        if (nSupportedAnswersCount < 2)
+            sFlags += ", waiting for having enough supported answers";
         if(fState != DAOFlags::CONFIRMATION)
-            sFlags += ", now waiting for end of voting period";
+            sFlags += ", waiting for end of voting period";
         else if(fState == DAOFlags::CONFIRMATION)
-            sFlags = "voting confirmation";
-        else if(fState == DAOFlags::REFLECTION)
+            sFlags = "found support (confirmation phase)";
+        if(fState == DAOFlags::REFLECTION)
             sFlags = "reflection phase";
         else if(fState == DAOFlags::ACCEPTED)
             sFlags = "voting started";
@@ -1057,12 +1119,12 @@ bool CConsultation::IsExpired(uint32_t currentTime) const
 
 bool CConsultation::CanBeSupported() const
 {
-    return fState == DAOFlags::NIL;
+    return fState == DAOFlags::NIL || fState == DAOFlags::CONFIRMATION;
 }
 
 bool CConsultation::CanBeVoted() const
 {
-    return fState == DAOFlags::ACCEPTED;
+    return fState == DAOFlags::ACCEPTED && (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION);
 }
 
 bool CConsultation::IsValidVote(int64_t vote) const
@@ -1096,9 +1158,7 @@ std::string CConsultationAnswer::GetState() const {
     if(IsSupported()) {
         sFlags = "found support";
         if(fState != DAOFlags::ACCEPTED)
-            sFlags += ", now waiting for end of voting period";
-        else
-            sFlags = "voting started";
+            sFlags += ", waiting for end of voting period";
     }
     return sFlags;
 }
@@ -1126,7 +1186,8 @@ bool CConsultationAnswer::CanBeVoted(CStateViewCache& view) const {
     if (!view.GetConsultation(parent, consultation))
             return false;
 
-    return fState == DAOFlags::ACCEPTED && consultation.fState == DAOFlags::ACCEPTED;
+    return fState == DAOFlags::ACCEPTED && consultation.fState == DAOFlags::ACCEPTED &&
+            !(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION);
 }
 
 bool CConsultationAnswer::IsSupported() const

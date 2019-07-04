@@ -32,7 +32,9 @@ void SetScriptForConsultationSupportRemove(CScript &script, uint256 hash);
 void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote);
 
 bool Vote(uint256 hash, int64_t vote, bool &duplicate);
+bool VoteValue(uint256 hash, int64_t vote, bool &duplicate);
 bool RemoveVote(string str);
+bool RemoveVoteValue(string str);
 bool RemoveVote(uint256 hash);
 
 bool Support(uint256 hash, bool &duplicate);
@@ -524,6 +526,7 @@ public:
         std::swap(to.nVotes, nVotes);
         std::swap(to.nSupport, nSupport);
         std::swap(to.fState, fState);
+        std::swap(to.fDirty, fDirty);
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
         std::swap(to.blockhash, blockhash);

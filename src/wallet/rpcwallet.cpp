@@ -635,16 +635,16 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 4)
+    if (fHelp || params.size() < 2)
         throw runtime_error(
             "createconsultation \"question\" duration ( \"min\" ) \"max\" ( range fee dump_raw )\n"
             "\nCreates a consultation for the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationMinimalFee/COIN) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
-            "1. \"question\"     (string, required) The question of the new consultation.\n"
+            "1. \"question\"       (string, required) The question of the new consultation.\n"
             "4. duration         (numeric, required) Number of seconds the consultation will exist after being accepted. (Minimum: " + std::to_string(Params().GetConsensus().nMinConsultationDuration) + ")\n"
-            "3. \"min\"          (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
-            "4. \"max\"          (numeric, required) The maximum amount of answers a block can vote for.\n"
+            "3. \"min\"            (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
+            "4. \"max\"            (numeric, optional) The maximum amount of answers a block can vote for.\n"
             "5. range            (bool, optional) The consultation answers are exclusively in the range min-max.\n"
             "6. fee              (numeric, optional) Contribution to the fund used as fee.\n"
             "7. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
@@ -673,7 +673,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     bool fSubtractFeeFromAmount = false;
 
     int64_t nMin = fRange ? params[2].get_int64() : 0;
-    int64_t nMax = fRange ? params[3].get_int64() : params[2].get_int64();
+    int64_t nMax = params.size() >= 3 ? (fRange ? params[3].get_int64() : params[2].get_int64()) : 1;
     int64_t nDuration = params[1].get_int64();
 
     if(nDuration < Params().GetConsensus().nMinConsultationDuration)
@@ -3759,6 +3759,198 @@ UniValue support(const UniValue& params, bool fHelp)
 
 }
 
+UniValue consultationvote(const UniValue& params, bool fHelp)
+{
+    string strCommand;
+
+    if (params.size() >= 2)
+        strCommand = params[1].get_str();
+
+    if (fHelp || params.size() < 2 ||
+        (strCommand != "yes" && strCommand != "value"  && strCommand != "abs" && strCommand != "remove"))
+        throw runtime_error(
+            "consultationvote \"hash\" \"yes|value|abs|remove\" ( value )\n"
+            "\nArguments:\n"
+            "1. \"hash\"          (string, required) The consultation/answer hash\n"
+            "2. \"command\"       (string, required) 'yes' to vote yes, 'value' to vote for a range,\n"
+            "                      'abs' to abstain, 'remove' to remove a vote from the list\n"
+            "3. \"value\"         (integer, required) For consultations where the answer is a range,\n"
+            "                      this sets the value to vote for\n"
+        );
+
+    LOCK(cs_main);
+
+    string strHash = params[0].get_str();
+    uint256 hash = uint256S(strHash);
+    bool duplicate = false;
+
+    CStateViewCache coins(pcoinsTip);
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    int64_t nVote;
+
+    bool fConsultation = coins.HaveConsultation(hash);
+    bool fConsultationAnswer = coins.HaveConsultationAnswer(hash);
+
+    if (!fConsultation && !fConsultationAnswer)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find ")+hash.ToString());
+
+    if (fConsultation)
+    {
+        if (!coins.GetConsultation(hash, consultation))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not read consultation ")+hash.ToString());
+
+        if (!consultation.CanBeVoted())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The consultation can not be voted."));
+
+        if (strCommand == "yes")
+            throw JSONRPCError(RPC_INVALID_PARAMS, string("This consultation does not admit a yes vote."));
+        else if (strCommand != "remove" && strCommand != "abs")
+        {
+            nVote = params[2].get_int64();
+            if (!consultation.IsValidVote(nVote))
+                throw JSONRPCError(RPC_INVALID_PARAMS, string("The vote is out of range"));
+        }
+    }
+    else if (fConsultationAnswer)
+    {
+        if (!coins.GetConsultationAnswer(hash, answer))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not read answer ")+hash.ToString());
+
+        if (!coins.GetConsultation(answer.parent, consultation))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not read parent consultation ")+answer.parent.ToString());
+
+        if (!answer.CanBeVoted(coins))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The answer can not be voted."));
+
+        if (strCommand == "value")
+            throw JSONRPCError(RPC_INVALID_PARAMS, string("This consultation's answer is not a value range."));
+    }
+
+    if (strCommand == "yes" || strCommand == "abs")
+    {
+        if (strCommand == "yes")
+            nVote = 1;
+
+        if (strCommand == "abs")
+            nVote = -1;
+
+        bool ret = Vote(hash,nVote,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
+    }
+    else if (strCommand == "value")
+    {
+        bool ret = VoteValue(hash,nVote,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
+    }
+    else if(strCommand == "remove")
+    {
+        bool ret = fConsultation ? RemoveVoteValue(strHash) : RemoveVote(strHash);
+        if (ret)
+        {
+            return NullUniValue;
+        }
+        else
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The hash is not in the list: ")+strHash);
+        }
+    }
+    return NullUniValue;
+}
+
+UniValue supportlist(const UniValue& params, bool fHelp)
+{
+
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "supportlist\n"
+
+                "\nReturns a list containing the wallet's current support status for all active consultations.\n"
+
+        );
+
+    LOCK(cs_main);
+
+    CStateViewCache coins(pcoinsTip);
+    UniValue ret(UniValue::VARR);
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    for (auto& it: mapSupported)
+    {
+        bool fConsultation = coins.HaveConsultation(it.first) && coins.GetConsultation(it.first, consultation) && consultation.CanBeSupported();
+        bool fConsultationAnswer = coins.HaveConsultationAnswer(it.first) && coins.GetConsultationAnswer(it.first, answer) && answer.CanBeSupported(coins);
+
+        if (fConsultation || fConsultationAnswer)
+        {
+            ret.push_back(it.first.ToString());
+        }
+    }
+
+    return ret;
+}
+
+UniValue consultationvotelist(const UniValue& params, bool fHelp)
+{
+
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "consultationvotelist\n"
+
+                "\nReturns a list containing the wallet's current voting status for all active consultations.\n"
+
+        );
+
+    LOCK(cs_main);
+
+    CStateViewCache coins(pcoinsTip);
+    UniValue ret(UniValue::VARR);
+    CConsultation consultation;
+    CConsultationAnswer answer;
+
+    for (auto& it: mapAddedVotes)
+    {
+        bool fConsultation = coins.HaveConsultation(it.first) && coins.GetConsultation(it.first, consultation) && consultation.CanBeVoted();
+        bool fConsultationAnswer = coins.HaveConsultationAnswer(it.first) && coins.GetConsultationAnswer(it.first, answer) && answer.CanBeVoted(coins);
+
+        if (fConsultation)
+        {
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstention" : to_string(it.second));
+            ret.push_back(entry);
+        }
+        else if (fConsultationAnswer)
+        {
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstention" : (it.second == 1 ? "yes" : "unknown") );
+            ret.push_back(entry);
+        }
+    }
+
+    return ret;
+}
+
 UniValue proposalvote(const UniValue& params, bool fHelp)
 {
     string strCommand;
@@ -4014,6 +4206,9 @@ static const CRPCCommand commands[] =
     { "communityfund",      "proposeanswer",            &proposeanswer,            false },
     { "wallet",             "stakervote",               &stakervote,               false },
     { "dao",                "support",                  &support,                  false },
+    { "dao",                "supportlist",              &supportlist,              false },
+    { "dao",                "consultationvote",         &consultationvote,         false },
+    { "dao",                "consultationvotelist",     &consultationvotelist,     false },
     { "communityfund",      "proposalvote",             &proposalvote,             false },
     { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
     { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
