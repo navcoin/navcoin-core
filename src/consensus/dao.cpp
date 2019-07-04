@@ -921,7 +921,7 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
 
     bool ret = (nContribution >= Params().GetConsensus().nConsultationMinimalFee &&
                ((nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION && nMin > 0 && nMax < pow(2,64)) ||
-                (!(nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION) && nMin > 0 && nMax < 16)) &&
+                (!(nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION) && nMax < 16)) &&
                nDuration > Params().GetConsensus().nMinConsultationDuration &&
                (nVersion & ~nMaskVersion) == 0);
 
