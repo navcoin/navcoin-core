@@ -68,11 +68,11 @@
         <file alias="menu_community_fund_s">res/icons/community_fund_s.png</file>
         <file alias="menu_community_fund_ns">res/icons/community_fund_ns.png</file>
         <file alias="roboto">res/fonts/roboto.ttf</file>
-        <file alias="robotoreg">res/fonts/robotoregular.ttf</file>
+        <file alias="robotoreg">res/fonts/roboto-regular.ttf</file>
         <file alias="source">res/fonts/source.ttf</file>
-        <file alias="Roboto-Black">res/fonts/Roboto-Black.ttf</file>
-        <file alias="Roboto-Bold">res/fonts/Roboto-Bold.ttf</file>
-        <file alias="Roboto-Medium">res/fonts/Roboto-Medium.ttf</file>
+        <file alias="roboto-black">res/fonts/roboto-black.ttf</file>
+        <file alias="roboto-bold">res/fonts/roboto-bold.ttf</file>
+        <file alias="roboto-medium">res/fonts/roboto-medium.ttf</file>
         <file alias="ghost">res/icons/ghost.png</file>
         <file alias="background_top">res/icons/background_top.png</file>
     </qresource>

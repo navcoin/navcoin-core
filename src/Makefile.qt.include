@@ -346,11 +346,11 @@ RES_ICONS = \
 	qt/res/icons/community_fund_s.png \
 	qt/res/icons/community_fund_hover.png \
 	qt/res/fonts/roboto.ttf \
-	qt/res/fonts/robotoregular.ttf \
 	qt/res/fonts/source.ttf \
-	qt/res/fonts/Roboto-Black.ttf \
-	qt/res/fonts/Roboto-Bold.ttf \
-	qt/res/fonts/Roboto-Medium.ttf
+	qt/res/fonts/roboto-regular.ttf \
+	qt/res/fonts/roboto-black.ttf \
+	qt/res/fonts/roboto-bold.ttf \
+	qt/res/fonts/roboto-medium.ttf
 
 NAVCOIN_QT_CPP = \
 	qt/bantablemodel.cpp \
