@@ -61,10 +61,28 @@ class NavCoinGUI : public QMainWindow
 
 public:
     static const QString DEFAULT_WALLET;
+    static const std::string BTN_STYLE;
+    static const std::string BTN_COLOR;
+    static const std::string BTN_COLOR_ACTIVE;
+    static const std::string BTN_BACKGROUND;
+    static const std::string BTN_BACKGROUND_ACTIVE;
+    static const std::string BUBBLE_STYLE;
     static const std::string DEFAULT_UIPLATFORM;
 
     explicit NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent = 0);
     ~NavCoinGUI();
+
+    /** Get the screen scale, usefull for scaling UI elements */
+    float scale();
+
+    /** Set the active topMenuBtns */
+    void setActiveTopMenu(int index);
+
+    /** Updates the count of new Dao entries */
+    void updateDaoNewCount();
+
+    /** Set the bubble counter on topMenubtns */
+    void setTopMenuBubble(int index, int drak);
 
     /** Set the client model.
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
@@ -136,11 +154,8 @@ private:
     QAction *unlockWalletAction;
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
-    QPushButton *topMenu1; // Home
-    QPushButton *topMenu2; // Send
-    QPushButton *topMenu3; // Recieve
-    QPushButton *topMenu4; // Transaction History
-    QPushButton *topMenu5; // Community Fund
+    QPushButton *topMenuBtns[5];
+    QLabel *topMenuBubbles[5];
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -152,9 +167,6 @@ private:
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
     int spinnerFrame;
-
-    bool fDontShowAgain;
-    int64_t lastDialogShown;
 
     uint64_t nWeight;
 

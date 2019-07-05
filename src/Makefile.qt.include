@@ -275,7 +275,6 @@ NAVCOIN_QT_H = \
 	qt/winshutdownmonitor.h
 
 RES_ICONS = \
-	qt/res/icons/background_top.png \
 	qt/res/icons/navcoin.png \
 	qt/res/icons/navcoin.ico \
 	qt/res/icons/ghost.png \
@@ -330,21 +329,6 @@ RES_ICONS = \
 	qt/res/icons/chevron.png \
 	qt/res/icons/transaction_abandoned.png \
 	qt/res/icons/logo_ns.png \
-	qt/res/icons/home_ns.png \
-	qt/res/icons/receive_ns.png \
-	qt/res/icons/send_ns.png \
-	qt/res/icons/home_hover.png \
-	qt/res/icons/home_s.png \
-	qt/res/icons/receive_hover.png \
-	qt/res/icons/receive_s.png \
-	qt/res/icons/send_hover.png \
-	qt/res/icons/send_s.png \
-	qt/res/icons/transaction_ns.png \
-	qt/res/icons/transaction_s.png \
-	qt/res/icons/transaction_hover.png \
-	qt/res/icons/community_fund_ns.png \
-	qt/res/icons/community_fund_s.png \
-	qt/res/icons/community_fund_hover.png \
 	qt/res/fonts/roboto.ttf \
 	qt/res/fonts/source.ttf \
 	qt/res/fonts/roboto-regular.ttf \

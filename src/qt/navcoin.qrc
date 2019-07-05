@@ -52,21 +52,6 @@
         <file alias="prompticon">res/icons/chevron.png</file>
         <file alias="transaction_abandoned">res/icons/transaction_abandoned.png</file>
         <file alias="menu_logo">res/icons/logo_ns.png</file>
-        <file alias="menu_home_ns">res/icons/home_ns.png</file>
-        <file alias="menu_receive_ns">res/icons/receive_ns.png</file>
-        <file alias="menu_send_ns">res/icons/send_ns.png</file>
-        <file alias="menu_home_hover">res/icons/home_hover.png</file>
-        <file alias="menu_home_s">res/icons/home_s.png</file>
-        <file alias="menu_receive_hover">res/icons/receive_hover.png</file>
-        <file alias="menu_receive_s">res/icons/receive_s.png</file>
-        <file alias="menu_send_hover">res/icons/send_hover.png</file>
-        <file alias="menu_send_s">res/icons/send_s.png</file>
-        <file alias="menu_transaction_ns">res/icons/transaction_ns.png</file>
-        <file alias="menu_transaction_s">res/icons/transaction_s.png</file>
-        <file alias="menu_transaction_hover">res/icons/transaction_hover.png</file>
-        <file alias="menu_community_fund_hover">res/icons/community_fund_hover.png</file>
-        <file alias="menu_community_fund_s">res/icons/community_fund_s.png</file>
-        <file alias="menu_community_fund_ns">res/icons/community_fund_ns.png</file>
         <file alias="roboto">res/fonts/roboto.ttf</file>
         <file alias="robotoreg">res/fonts/roboto-regular.ttf</file>
         <file alias="source">res/fonts/source.ttf</file>
@@ -74,7 +59,11 @@
         <file alias="roboto-bold">res/fonts/roboto-bold.ttf</file>
         <file alias="roboto-medium">res/fonts/roboto-medium.ttf</file>
         <file alias="ghost">res/icons/ghost.png</file>
-        <file alias="background_top">res/icons/background_top.png</file>
+        <file alias="vec_dao">res/icons/vector/dao.svg</file>
+        <file alias="vec_home">res/icons/vector/home.svg</file>
+        <file alias="vec_receive">res/icons/vector/receive.svg</file>
+        <file alias="vec_send">res/icons/vector/send.svg</file>
+        <file alias="vec_transactions">res/icons/vector/transactions.svg</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

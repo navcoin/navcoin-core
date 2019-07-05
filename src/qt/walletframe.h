@@ -43,7 +43,7 @@ public:
     WalletView *currentWalletView();
 
     QWidget *topMenu;
-    QHBoxLayout *menuLayout;
+    QVBoxLayout *menuLayout;
 
 Q_SIGNALS:
     /** Notify that the user has requested more information about the out-of-sync warning */

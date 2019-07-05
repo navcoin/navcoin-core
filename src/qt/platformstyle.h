@@ -29,6 +29,7 @@ public:
 
     /** Colorize an icon (given filename) with the icon color */
     QIcon SingleColorIcon(const QString& filename) const;
+    QIcon SingleColorIcon(const QString& filename, const QString& colorbase) const;
 
     /** Colorize an icon (given object) with the icon color */
     QIcon SingleColorIcon(const QIcon& icon) const;

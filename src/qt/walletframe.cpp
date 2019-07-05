@@ -20,11 +20,10 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     platformStyle(platformStyle)
 {
     // Leave HBox hook for adding a list view later
-    QVBoxLayout *walletFrameLayout = new QVBoxLayout(this);
-    QHBoxLayout *topLayout = new QHBoxLayout();
-    QHBoxLayout *bottomLayout = new QHBoxLayout();
+    QHBoxLayout *walletFrameLayout = new QHBoxLayout(this);
+    QHBoxLayout *mainLayout = new QHBoxLayout();
 
-    menuLayout = new QHBoxLayout();
+    menuLayout = new QVBoxLayout();
     menuLayout->setContentsMargins(0,0,0,0);
     menuLayout->setSpacing(0);
 
@@ -33,22 +32,18 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
 
     setContentsMargins(0,0,0,0);
 
-    topLayout->setContentsMargins(0,0,0,0);
-    topLayout->setSpacing(0);
-
     walletStack = new QStackedWidget(this);
     walletStack->setStyleSheet(Skinize());
 
-    bottomLayout->setContentsMargins(0,0,0,0);
-    bottomLayout->addWidget(walletStack);
+    mainLayout->setContentsMargins(0,0,0,0);
+    mainLayout->addWidget(walletStack);
 
     QLabel *noWallet = new QLabel(tr("No wallet has been loaded."));
     noWallet->setAlignment(Qt::AlignCenter);
     walletStack->addWidget(noWallet);
 
     walletFrameLayout->addLayout(menuLayout);
-    walletFrameLayout->addLayout(bottomLayout);
-
+    walletFrameLayout->addLayout(mainLayout);
 }
 
 WalletFrame::~WalletFrame()
