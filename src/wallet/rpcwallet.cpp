@@ -3154,6 +3154,9 @@ typedef std::vector<StakePeriodRange_T> vStakePeriodRange_T;
 // Check if we have a Tx that can be counted in staking report
 bool IsTxCountedAsStaked(const CWalletTx* tx)
 {
+    // Make sure we have a lock
+    LOCK(cs_main);
+
     // orphan block or immature
     if ((!tx->GetDepthInMainChain()) || (tx->GetBlocksToMaturity() > 0))
         return false;
