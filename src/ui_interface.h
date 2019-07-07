@@ -73,6 +73,9 @@ public:
         MSG_ERROR = (ICON_ERROR | BTN_OK | MODAL)
     };
 
+    /** Update the dao new counter. */
+    boost::signals2::signal<void ()> UpdateDaoNewCount;
+
     /** Show message box. */
     boost::signals2::signal<bool (const std::string& message, const std::string& caption, unsigned int style), boost::signals2::last_value<bool> > ThreadSafeMessageBox;
 

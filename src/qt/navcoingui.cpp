@@ -673,6 +673,13 @@ void NavCoinGUI::updateDaoNewCount()
 {
     LOCK(cs_main);
 
+    // Make sure we have coins db loaded
+    if(!pcoinsTip || !pindexBestHeader)
+        return;
+
+    // Debug log
+    info("[DAO] started dao count");
+
     // We start with none
     int newDaoCount = 0;
 
@@ -724,6 +731,9 @@ void NavCoinGUI::updateDaoNewCount()
             newDaoCount++;
         }
     }
+
+    // Debug log
+    info("[DAO] dao count found :" + std::to_string(newDaoCount));
 
     // Update the bubble
     setTopMenuBubble(4, newDaoCount);
@@ -1575,11 +1585,18 @@ static bool ThreadSafeMessageBox(NavCoinGUI *gui, const std::string& message, co
     return ret;
 }
 
+static void UpdateDaoNewCount(NavCoinGUI *gui)
+{
+    // Call our instance method
+    gui->updateDaoNewCount();
+}
+
 void NavCoinGUI::subscribeToCoreSignals()
 {
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.UpdateDaoNewCount.connect(boost::bind(UpdateDaoNewCount, this));
 }
 
 void NavCoinGUI::unsubscribeFromCoreSignals()
@@ -1587,6 +1604,7 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.UpdateDaoNewCount.disconnect(boost::bind(UpdateDaoNewCount, this));
 }
 
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
@@ -1775,6 +1793,7 @@ size_t NavCoinGUI::priceUdateWriteCallback(void *contents, size_t size, size_t n
 void NavCoinGUI::updateStakingStatus()
 {
     updateWeight();
+    updateDaoNewCount();
 
     if(walletFrame){
         if (!GetStaking())
@@ -1828,8 +1847,6 @@ void NavCoinGUI::updateStakingStatus()
                     }
                 }
             }
-
-            updateDaoNewCount();
 
             uint64_t nWeight = this->nWeight;
             uint64_t nNetworkWeight = GetPoSKernelPS();

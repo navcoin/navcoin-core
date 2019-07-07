@@ -12,6 +12,7 @@
 #include "consensus/cfund.h"
 #include "chain.h"
 #include "guiutil.h"
+#include "ui_interface.h"
 
 #include "communityfunddisplaydetailed.h"
 #include "communityfundpage.h"
@@ -45,6 +46,9 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
 void CommunityFundDisplay::refresh()
 {
+    // Update the dao new counter
+    uiInterface.UpdateDaoNewCount();
+
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
