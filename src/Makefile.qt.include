@@ -329,6 +329,11 @@ RES_ICONS = \
 	qt/res/icons/chevron.png \
 	qt/res/icons/transaction_abandoned.png \
 	qt/res/icons/logo_ns.png \
+	qt/res/icons/vector/dao.svg \
+	qt/res/icons/vector/home.svg \
+	qt/res/icons/vector/send.svg \
+	qt/res/icons/vector/receive.svg \
+	qt/res/icons/vector/transactions.svg \
 	qt/res/fonts/roboto.ttf \
 	qt/res/fonts/source.ttf \
 	qt/res/fonts/roboto-regular.ttf \
