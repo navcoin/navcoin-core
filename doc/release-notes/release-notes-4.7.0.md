@@ -79,3 +79,5 @@ When the wallet starts and detects it is still catching up to the latest block a
 - Updated the error log tab logic <[Pull Request 532](https://github.com/navcoin/navcoin-core/pull/532)> <[Commit a4f23ac](https://github.com/navcoin/navcoin-core/commit/a4f23acbc291c789ab819d38bfdf56698c88dcef)>
 - Check node address in header spam protection <[Pull Request 536](https://github.com/navcoin/navcoin-core/pull/536)> <[Commit 45c98d5](https://github.com/navcoin/navcoin-core/commit/45c98d56f56a4fd706deca1594d774e49d7dadb1)>
 - Revert nBits patch <[Pull Request 544](https://github.com/navcoin/navcoin-core/pull/544)> <[Commit ab51282](https://github.com/navcoin/navcoin-core/commit/ab51282efee7b66f1ee1520c3b965567d3e0f6a4)>
+- Updated __poll_chk implementation to be not so strict <[Pull Request 549](https://github.com/navcoin/navcoin-core/pull/549)> <[Commit ee83269](https://github.com/navcoin/navcoin-core/commit/ee832697b981077a591a0c2d2a8df64f4fda9651)>
+- Added an additional LOCK for cs_main <[Pull Request 558](https://github.com/navcoin/navcoin-core/pull/558)> <[Commit ac5df35](https://github.com/navcoin/navcoin-core/commit/ac5df354f3b9c961a60b581284c1748a275bef5d)>
