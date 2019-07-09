@@ -1115,6 +1115,12 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
     }
     else
     {
+        if (mapVotes.count((uint64_t)-5) != 0)
+        {
+            UniValue a(UniValue::VOBJ);
+            a.push_back(make_pair("abstain", mapVotes.at((uint64_t)-5)));
+            answers.push_back(a);
+        }
         CConsultationAnswerMap mapConsultationAnswers;
         if(view.GetAllConsultationAnswers(mapConsultationAnswers))
         {

@@ -623,7 +623,7 @@ public:
 
     bool IsNull() const {
         return (hash == uint256() && fState == DAOFlags::NIL && txblockhash == uint256() && blockhash == uint256()
-                && nVersion == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0
+                && nVersion == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0 && mapVotes.size() == 0
                 && nMin == 0 && nMax == 0);
     };
 

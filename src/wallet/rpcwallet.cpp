@@ -635,7 +635,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 2)
+    if (fHelp || params.size() < 1)
         throw runtime_error(
             "createconsultation \"question\" ( min max range fee dump_raw )\n"
             "\nCreates a consultation for the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationMinimalFee/COIN) + "NAV is required.\n"
@@ -672,7 +672,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     bool fSubtractFeeFromAmount = false;
 
     int64_t nMin = fRange ? params[1].get_int64() : 0;
-    int64_t nMax = params.size() > 2 ? (fRange ? params[2].get_int64() : params[1].get_int64()) : 1;
+    int64_t nMax = params.size() > 1 ? (fRange ? params[2].get_int64() : params[1].get_int64()) : 1;
 
     if (!fRange && (nMax > 16))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
