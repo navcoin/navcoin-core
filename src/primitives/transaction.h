@@ -184,14 +184,19 @@ public:
         return scriptPubKey.IsProposalVote();
     }
 
+    bool IsPaymentRequestVote() const
+    {
+        return scriptPubKey.IsPaymentRequestVote();
+    }
+
     bool IsSupportVote() const
     {
         return scriptPubKey.IsSupportVote();
     }
 
-    bool IsPaymentRequestVote() const
+    bool IsConsultationVote() const
     {
-        return scriptPubKey.IsPaymentRequestVote();
+        return scriptPubKey.IsConsultationVote();
     }
 
     uint256 GetHash() const;

@@ -82,13 +82,24 @@ void SetScriptForConsultationSupportRemove(CScript &script, uint256 hash)
 
 void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote)
 {
-    script.resize(35);
+    script.resize(36);
     script[0] = OP_RETURN;
-    script[1] = OP_DAO;
-    script[2] = OP_ANSWER;
-    memcpy(&script[3], hash.begin(), 32);
-    if (vote != -1)
+    script[1] = OP_CONSULTATION;
+    script[2] = vote == -1 ? OP_ABSTAIN : OP_ANSWER;
+    script[3] = 0x20;
+    memcpy(&script[4], hash.begin(), 32);
+    if (vote > -1)
         script << vote;
+}
+
+void SetScriptForConsultationVoteRemove(CScript &script, uint256 hash)
+{
+    script.resize(36);
+    script[0] = OP_RETURN;
+    script[1] = OP_CONSULTATION;
+    script[2] = OP_REMOVE;
+    script[3] = 0x20;
+    memcpy(&script[4], hash.begin(), 32);
 }
 
 bool Support(uint256 hash, bool &duplicate)
@@ -699,9 +710,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
                 if (!vSeen.count(answer->hash) && answer->fState == DAOFlags::NIL)
-                {
                     answer->nSupport = 0;
-                }
+
+                if (answer->fState != DAOFlags::EXPIRED)
+                    answer->nVotes = 0;
             }
         }
     }
@@ -751,7 +763,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesConsultationVoting + 1);
+            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesConsultationSupport + 1);
 
             auto oldState = consultation->fState;
             auto oldCycle = consultation->nVotingCycle;
@@ -764,7 +776,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
-                if((!consultation->IsExpired(pindexNew->GetBlockTime()) && consultation->fState == DAOFlags::EXPIRED))
+                if((!consultation->IsExpired(pindexNew) && consultation->fState == DAOFlags::EXPIRED))
                 {
                     consultation->fState = DAOFlags::NIL;
                     consultation->blockhash = uint256();
@@ -780,12 +792,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     fUpdate = true;
                 }
 
-                if(consultation->IsExpired(pindexNew->GetBlockTime()))
+                if(consultation->IsExpired(pindexNew))
                 {
                     if (consultation->fState != DAOFlags::EXPIRED)
                     {
                         consultation->fState = DAOFlags::EXPIRED;
-                        consultation->blockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
                 } else if(consultation->IsSupported(view))
@@ -821,9 +832,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
                 if (!vSeen.count(consultation->hash) && (consultation->fState == DAOFlags::NIL || consultation->fState == DAOFlags::CONFIRMATION))
-                {
                     consultation->nSupport = 0;
-                }
+
+                if (consultation->fState != DAOFlags::EXPIRED)
+                    consultation->mapVotes.clear();
             }
         }
     }
@@ -930,17 +942,14 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
         return error("%s: Wrong strdzeel for consultation %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
-    if(!(find_value(metadata, "m").isNum() &&
-         find_value(metadata, "n").isNum() &&
-         find_value(metadata, "q").isStr() &&
-         find_value(metadata, "d").isNum()))
+    if(!(find_value(metadata, "n").isNum() &&
+         find_value(metadata, "q").isStr()))
     {
         return error("%s: Wrong strdzeel for consultation %s (%s)", __func__, tx.GetHash().ToString(), tx.strDZeel);
     }
 
-    CAmount nMin = find_value(metadata, "m").get_int64();
+    CAmount nMin = find_value(metadata, "m").isNum() ? find_value(metadata, "m").get_int64() : 0;
     CAmount nMax = find_value(metadata, "n").get_int64();
-    uint64_t nDuration = find_value(metadata, "d").get_int64();
     std::string sQuestion = find_value(metadata, "q").get_str();
 
     CAmount nContribution = 0;
@@ -951,9 +960,8 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
             nContribution +=tx.vout[i].nValue;
 
     bool ret = (nContribution >= Params().GetConsensus().nConsultationMinimalFee &&
-               ((nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION && nMin > 0 && nMax < pow(2,64)) ||
+               ((nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION && nMin > 0 && nMax < (uint64_t)-5) ||
                 (!(nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION) && nMax < 16)) &&
-               nDuration > Params().GetConsensus().nMinConsultationDuration &&
                (nVersion & ~nMaskVersion) == 0);
 
     if (!ret)
@@ -963,7 +971,7 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
 
 }
 
-std::string CConsultation::GetState(uint32_t currentTime) const {
+std::string CConsultation::GetState(CBlockIndex* pindex) const {
     CStateViewCache view(pcoinsTip);
     std::string sFlags = "waiting for support";
 
@@ -972,31 +980,39 @@ std::string CConsultation::GetState(uint32_t currentTime) const {
 
     int nSupportedAnswersCount = 0;
 
-    CConsultationAnswerMap mapConsultationAnswers;
-
-    if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
+    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
     {
-        for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+        nSupportedAnswersCount = 2;
+    }
+    else
+    {
+        CConsultationAnswerMap mapConsultationAnswers;
+
+        if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
         {
-            CConsultationAnswer answer;
+            for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+            {
+                CConsultationAnswer answer;
 
-            if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
-                continue;
+                if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
+                    continue;
 
-            if (answer.parent != hash)
-                continue;
+                if (answer.parent != hash)
+                    continue;
 
-            if (!answer.IsSupported())
-                continue;
+                if (!answer.IsSupported())
+                    continue;
 
-            nSupportedAnswersCount++;
+                nSupportedAnswersCount++;
+            }
         }
     }
 
     if (nSupportedAnswersCount < 2)
         sFlags += ", waiting for having enough supported answers";
 
-    if(IsSupported(view)) {
+    if(IsSupported(view))
+    {
         sFlags = "found support";
         if (nSupportedAnswersCount < 2)
             sFlags += ", waiting for having enough supported answers";
@@ -1009,8 +1025,10 @@ std::string CConsultation::GetState(uint32_t currentTime) const {
         else if(fState == DAOFlags::ACCEPTED)
             sFlags = "voting started";
     }
-    if(IsExpired(currentTime))
+
+    if(IsExpired(pindex))
         sFlags = IsSupported(view) ? "finished" : "expired";
+
     return sFlags;
 }
 
@@ -1020,33 +1038,40 @@ bool CConsultation::IsSupported(CStateViewCache& view) const
 
     int nSupportedAnswersCount = 0;
 
-    CConsultationAnswerMap mapConsultationAnswers;
-
-    if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
+    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
     {
-        for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+        nSupportedAnswersCount = 2;
+    }
+    else
+    {
+        CConsultationAnswerMap mapConsultationAnswers;
+
+        if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
         {
-            CConsultationAnswer answer;
+            for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+            {
+                CConsultationAnswer answer;
 
-            if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
-                continue;
+                if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
+                    continue;
 
-            if (answer.parent != hash)
-                continue;
+                if (answer.parent != hash)
+                    continue;
 
-            if (!answer.IsSupported())
-                continue;
+                if (!answer.IsSupported())
+                    continue;
 
-            nSupportedAnswersCount++;
+                nSupportedAnswersCount++;
+            }
         }
     }
 
     return nSupportedAnswersCount >= 2 && nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport;
 }
 
-std::string CConsultation::ToString(uint32_t currentTime) const {
-    std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, status=%s, vAnswers=[",
-                                 hash.ToString(), nVersion, strDZeel, fState, GetState(currentTime));
+std::string CConsultation::ToString(CBlockIndex* pindex) const {
+    std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, status=%s, answers=[",
+                                 hash.ToString(), nVersion, strDZeel, fState, GetState(pindex));
 
     CConsultationAnswerMap mapConsultationAnswers;
 
@@ -1066,8 +1091,8 @@ std::string CConsultation::ToString(uint32_t currentTime) const {
         }
     }
 
-    sRet += strprintf("], nVotingCycle=%u, nSupport=%u, nDeadline=%u, blockhash=%s)",
-                     nVotingCycle, nSupport, nDuration, blockhash.ToString().substr(0,10));
+    sRet += strprintf("], nVotingCycle=%u, nSupport=%u, blockhash=%s)",
+                     nVotingCycle, nSupport, blockhash.ToString().substr(0,10));
     return sRet;
 }
 
@@ -1079,40 +1104,52 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
     ret.push_back(Pair("question", strDZeel));
     ret.push_back(Pair("support", nSupport));
     UniValue answers(UniValue::VARR);
-    CConsultationAnswerMap mapConsultationAnswers;
-    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
+    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
     {
-        for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+        UniValue a(UniValue::VOBJ);
+        for (auto &it: mapVotes)
         {
-            CConsultationAnswer answer;
+            a.push_back(make_pair(it.first == (uint64_t)-5 ? "abstain" : to_string(it.first), it.second));
+        }
+        answers.push_back(a);
+    }
+    else
+    {
+        CConsultationAnswerMap mapConsultationAnswers;
+        if(view.GetAllConsultationAnswers(mapConsultationAnswers))
+        {
+            for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+            {
+                CConsultationAnswer answer;
 
-            if (!view.GetConsultationAnswer(it_->first, answer))
-                continue;
+                if (!view.GetConsultationAnswer(it_->first, answer))
+                    continue;
 
-            if (answer.parent != hash)
-                continue;
+                if (answer.parent != hash)
+                    continue;
 
-            UniValue a(UniValue::VOBJ);
-            answer.ToJson(a);
-            answers.push_back(a);
+                UniValue a(UniValue::VOBJ);
+                answer.ToJson(a);
+                answers.push_back(a);
+            }
         }
     }
     ret.push_back(Pair("answers", answers));
     ret.push_back(Pair("min", nMin));
     ret.push_back(Pair("max", nMax));
-    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesConsultationVoting)));
-    // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
-    ret.push_back(Pair("duration", nDuration));
-    ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
+    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesConsultationSupport)));
+    ret.push_back(Pair("status", GetState(chainActive.Tip())));
     ret.push_back(Pair("state", (uint64_t)fState));
     ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
 }
 
-bool CConsultation::IsExpired(uint32_t currentTime) const
+bool CConsultation::IsExpired(CBlockIndex* pindex) const
 {
     if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-        CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
-        return (pBlockIndex->GetBlockTime() + nDuration < currentTime);
+        auto nCreatedOnCycle = (unsigned int)(mapBlockIndex[blockhash]->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+        auto nCurrentCycle = (unsigned int)(pindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+        auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+        return (nElapsedCycles > Params().GetConsensus().nCyclesConsultationVoting);
     }
     return (fState == DAOFlags::EXPIRED) || (ExceededMaxVotingCycles() && fState == DAOFlags::NIL);
 };
@@ -1134,7 +1171,7 @@ bool CConsultation::IsValidVote(int64_t vote) const
 
 bool CConsultation::ExceededMaxVotingCycles() const
 {
-    return nVotingCycle > Params().GetConsensus().nCyclesConsultationVoting;
+    return nVotingCycle > Params().GetConsensus().nCyclesConsultationSupport;
 };
 
 void CConsultationAnswer::Vote() {

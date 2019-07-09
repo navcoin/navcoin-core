@@ -150,6 +150,7 @@ const char* GetOpName(opcodetype opcode)
     case OP_REMOVE                 : return "OP_REMOVE";
     case OP_DAO                    : return "OP_DAO";
     case OP_ANSWER                 : return "OP_ANSWER";
+    case OP_CONSULTATION           : return "OP_CONSULTATION";
 
     case OP_COINSTAKE              : return "OP_COINSTAKE";
 
@@ -266,6 +267,37 @@ bool CScript::IsSupportVote() const
     return IsSupportVoteYes() || IsSupportVoteRemove();
 }
 
+bool CScript::IsConsultationVote() const
+{
+    return IsConsultationVoteAnswer() || IsConsultationVoteAbstention() || IsConsultationVoteRemove();
+}
+
+bool CScript::IsConsultationVoteAnswer() const
+{
+    return (this->size() >= 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CONSULTATION &&
+      (*this)[2] == OP_ANSWER &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsConsultationVoteAbstention() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CONSULTATION &&
+      (*this)[2] == OP_ABSTAIN &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsConsultationVoteRemove() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CONSULTATION &&
+      (*this)[2] == OP_REMOVE &&
+      (*this)[3] == 0x20);
+}
 
 bool CScript::IsSupportVoteYes() const
 {
@@ -415,6 +447,35 @@ bool CScript::ExtractSupportVote(uint256 &hash, int64_t &vote) const
 
     if ((*this)[2] == OP_YES)
         vote = -3;
+
+    return true;
+}
+
+bool CScript::ExtractConsultationVote(uint256 &hash, int64_t &vote) const
+{
+    if (!IsConsultationVote())
+        return false;
+
+    vector<unsigned char> vHash(this->begin()+4, this->begin()+36);
+    hash = uint256(vHash);
+
+    vote = 0;
+
+    if ((*this)[2] == OP_REMOVE)
+        vote = -6;
+
+    else if ((*this)[2] == OP_ABSTAIN)
+        vote = -5;
+
+    else
+    {
+        vector<unsigned char> vVote(this->begin()+37, this->end());
+        std::cout << HexStr(vVote) << std::endl;
+        CScriptNum nVote(vVote, false);
+        vote = nVote.getint();
+        std::cout << vote << std::endl;
+
+    }
 
     return true;
 }

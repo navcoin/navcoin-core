@@ -30,6 +30,7 @@ void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, int64_t v
 void SetScriptForConsultationSupport(CScript &script, uint256 hash);
 void SetScriptForConsultationSupportRemove(CScript &script, uint256 hash);
 void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote);
+void SetScriptForConsultationVoteRemove(CScript &script, uint256 hash);
 
 bool Vote(uint256 hash, int64_t vote, bool &duplicate);
 bool VoteValue(uint256 hash, int64_t vote, bool &duplicate);
@@ -595,13 +596,13 @@ public:
     uint256 txblockhash;
     uint256 blockhash;
     uint64_t nVersion;
-    uint64_t nDuration;
     unsigned int nVotingCycle;
     bool fDirty;
     std::string strDZeel;
     int nSupport;
     int nMin;
     int nMax;
+    map<uint64_t, uint64_t> mapVotes;
 
     CConsultation() { SetNull(); }
 
@@ -615,14 +616,14 @@ public:
         std::swap(to.fDirty, fDirty);
         std::swap(to.strDZeel, strDZeel);
         std::swap(to.nSupport, nSupport);
-        std::swap(to.nDuration, nDuration);
         std::swap(to.nMin, nMin);
         std::swap(to.nMax, nMax);
+        std::swap(to.mapVotes, mapVotes);
     };
 
     bool IsNull() const {
         return (hash == uint256() && fState == DAOFlags::NIL && txblockhash == uint256() && blockhash == uint256()
-                && nVersion == 0 && nDuration == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0
+                && nVersion == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0
                 && nMin == 0 && nMax == 0);
     };
 
@@ -632,22 +633,22 @@ public:
         txblockhash = uint256();
         blockhash = uint256();
         nVersion = 0;
-        nDuration = 0;
         nVotingCycle = 0;
         fDirty = false;
         strDZeel = "";
         nSupport = 0;
         nMin = 0;
         nMax = 0;
+        mapVotes.clear();
     };
 
-    std::string GetState(uint32_t currentTime) const;
-    std::string ToString(uint32_t currentTime) const;
+    std::string GetState(CBlockIndex* pindex) const;
+    std::string ToString(CBlockIndex* pindex) const;
     void ToJson(UniValue& ret, CStateViewCache& view) const;
     bool CanBeSupported() const;
     bool CanBeVoted() const;
     bool IsSupported(CStateViewCache& view) const;
-    bool IsExpired(uint32_t currentTime) const;
+    bool IsExpired(CBlockIndex* pindex) const;
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;
 
@@ -656,7 +657,6 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(this->nVersion);
-        READWRITE(nDuration);
         READWRITE(fState);
         READWRITE(nSupport);
         READWRITE(nMin);
@@ -666,6 +666,7 @@ public:
         READWRITE(blockhash);
         READWRITE(strDZeel);
         READWRITE(txblockhash);
+        READWRITE(mapVotes);
         if (ser_action.ForRead())
             fDirty = false;
     }

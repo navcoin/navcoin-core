@@ -1452,7 +1452,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation))
                 {
                     if (viewMemPool.AddConsultation(consultation))
-                        LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()->GetBlockTime()));
+                        LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()));
                 }
                 else
                 {
@@ -2721,6 +2721,20 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         }
     }
 
+    for (auto &it: pindex->mapConsultationVotes)
+    {
+        if (view.HaveConsultation(it.first))
+        {
+            CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
+            mConsultation->mapVotes[it.second] = mConsultation->mapVotes[it.second] - 1;
+        }
+        else if (view.HaveConsultationAnswer(it.first))
+        {
+            CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
+            mConsultationAnswer->nVotes = mConsultationAnswer->nVotes - 1;
+        }
+    }
+
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, Params().GetConsensus());
 
@@ -2749,6 +2763,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 tx.vout[j].scriptPubKey.ExtractSupportVote(hash_, vote);
                 mapHashesToRestore.insert(make_pair(hash_, -4));
+            }
+            else if(tx.vout[j].IsConsultationVote())
+            {
+                tx.vout[j].scriptPubKey.ExtractConsultationVote(hash_, vote);
+                mapHashesToRestore.insert(make_pair(hash_, -6));
             }
         }
 
@@ -2782,6 +2801,15 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                             mapRestoredHashes[hash_] = vote;
                         }
                     }
+                    else if(out.IsConsultationVote())
+                    {
+                        out.scriptPubKey.ExtractConsultationVote(hash_, vote);
+
+                        if (mapHashesToRestore.count(hash_) && !mapRestoredHashes.count(hash_))
+                        {
+                            mapRestoredHashes[hash_] = vote;
+                        }
+                    }
                 }
             }
 
@@ -2808,7 +2836,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             uint256 hash_ = it.first;
             int64_t vote = it.second;
 
-            if (vote == -2 || vote == -4)
+            if (vote == -2 || vote == -4 || vote == -6)
             {
                 view.ModifyVote(stakerScript)->Clear(hash_);
             }
@@ -3056,7 +3084,6 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
     consultation.strDZeel = find_value(metadata, "q").get_str();
     consultation.nMin = find_value(metadata, "m").get_int64();
     consultation.nMax = find_value(metadata, "n").get_int64();
-    consultation.nDuration = find_value(metadata, "d").get_int64();
     consultation.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
     consultation.txblockhash = blockhash;
     consultation.fDirty = true;
@@ -3319,7 +3346,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (fCFund || fDAOConsultations)
         {
-            // Add Community Fund Votes from the block coinbase
+            // Add Votes from the block coinbase
             if(tx.IsCoinBase())
             {
                 CProposal proposal;
@@ -3327,6 +3354,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 CConsultation consultation;
                 CConsultationAnswer answer;
                 std::map<uint256, int> votes;
+                std::map<uint256, int> mapCountAnswers;
+                std::map<uint256, int> mapCacheMaxAnswers;
 
                 for (size_t j = 0; j < tx.vout.size(); j++)
                 {
@@ -3337,16 +3366,53 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
                     else if(tx.vout[j].IsSupportVote())
                         tx.vout[j].scriptPubKey.ExtractSupportVote(hash, vote);
+                    else if(tx.vout[j].IsConsultationVote())
+                        tx.vout[j].scriptPubKey.ExtractConsultationVote(hash, vote);
 
                     bool fProposal = tx.vout[j].IsProposalVote();
                     bool fPaymentRequest = tx.vout[j].IsPaymentRequestVote();
                     bool fSupport = tx.vout[j].IsSupportVote();
+                    bool fConsultation = tx.vout[j].IsConsultationVote();
 
                     if(votes.count(hash) == 0)
                     {
+                        votes[hash] = vote;
+
                         if (fStake && fVoteCacheState)
                         {
-                            if ((fCFund && ((fProposal && view.GetProposal(hash, proposal) && proposal.CanVote())
+                            if (fDAOConsultations && fConsultation)
+                            {
+                                bool fValidConsultation = view.GetConsultation(hash, consultation);
+                                bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
+
+                                if ((fValidConsultation && consultation.CanBeVoted() && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
+                                    (fValidConsultationAnswer && answer.CanBeVoted(view)))
+                                {
+                                    if (vote == -6)
+                                    {
+                                        view.ModifyVote(stakerScript)->Clear(hash);
+                                    }
+                                    else
+                                    {
+                                        if (fValidConsultationAnswer)
+                                        {
+                                            CConsultation parentConsultation;
+                                            if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                                mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
+                                            mapCountAnswers[answer.parent]++;
+                                            if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                                                continue;
+                                        }
+                                        view.ModifyVote(stakerScript)->Set(hash, vote);
+                                    }
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                            }
+                            else if ((fCFund && ((fProposal && view.GetProposal(hash, proposal) && proposal.CanVote())
                                         || (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))) ||
                                 (fDAOConsultations && fSupport && ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported())
                                         || (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view)))))
@@ -3422,6 +3488,55 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                      (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view))))
                             {
                                 pindex->mapSupport.insert(make_pair(hash, true));
+                            }
+                            else if (fDAOConsultations && fConsultation)
+                            {
+                                bool fValidConsultation = view.GetConsultation(hash, consultation);
+                                bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
+
+                                if ((fValidConsultation && consultation.CanBeVoted() && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
+                                    (fValidConsultationAnswer && answer.CanBeVoted(view)))
+                                {
+                                    if (vote != -6)
+                                    {
+                                        if (fValidConsultationAnswer)
+                                        {
+                                            CConsultation parentConsultation;
+                                            if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                                mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
+                                            mapCountAnswers[answer.parent]++;
+                                            if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                                                continue;
+                                        }
+
+                                        pindex->mapConsultationVotes.insert(make_pair(hash, vote));
+
+                                        if (fValidConsultation)
+                                        {
+                                            CConsultationModifier mConsultation = view.ModifyConsultation(hash);
+                                            mConsultation->mapVotes[vote] = mConsultation->mapVotes[vote] + 1;
+                                        }
+                                        else if (fValidConsultationAnswer)
+                                        {
+                                            if (vote == -5)
+                                            {
+                                                CConsultationModifier mParentConsultation = view.ModifyConsultation(answer.parent);
+                                                if (!mParentConsultation->IsNull())
+                                                    mParentConsultation->mapVotes[vote] = mParentConsultation->mapVotes[vote] + 1;
+                                            }
+                                            else
+                                            {
+                                                CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(hash);
+                                                mConsultationAnswer->nVotes = mConsultationAnswer->nVotes + 1;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
                             }
                         }
                     }
@@ -3703,7 +3818,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToConsultation(tx.strDZeel, tx.GetHash(), block.GetHash(), consultation))
                 {
                     if (view.AddConsultation(consultation))
-                        LogPrint("cfund","New consultation %s\n", consultation.ToString(block. nTime));
+                        LogPrint("cfund","New consultation %s\n", consultation.ToString(pindex));
                 }
                 else
                 {
@@ -3768,6 +3883,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         {
                             pindex->mapSupport.insert(make_pair(it.first, true));
                         }
+                    }
+                    else if (view.HaveConsultation(it.first))
+                    {
+                        pindex->mapConsultationVotes.insert(make_pair(it.first, val));
+                        CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
+                        mConsultation->mapVotes[val] = mConsultation->mapVotes[val] + 1;
+                    }
+                    else if (view.HaveConsultationAnswer(it.first))
+                    {
+                        pindex->mapConsultationVotes.insert(make_pair(it.first, true));
+                        CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
+                        mConsultationAnswer->nVotes = mConsultationAnswer->nVotes + 1;
                     }
                 }
             }

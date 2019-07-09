@@ -227,7 +227,7 @@ bool CStateViewCache::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vo
     CVoteMap::const_iterator it = FetchVote(voter);
     if (it != cacheVotes.end()) {
         vote = it->second;
-        return true;
+        return !vote.IsNull();
     }
     return false;
 }
@@ -236,7 +236,7 @@ bool CStateViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const
     CProposalMap::const_iterator it = FetchProposal(pid);
     if (it != cacheProposals.end()) {
         proposal = it->second;
-        return true;
+        return !proposal.IsNull();
     }
     return false;
 }
@@ -245,7 +245,7 @@ bool CStateViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &pre
     CPaymentRequestMap::const_iterator it = FetchPaymentRequest(pid);
     if (it != cachePaymentRequests.end()) {
         prequest = it->second;
-        return true;
+        return !prequest.IsNull();
     }
     return false;
 }
@@ -254,7 +254,7 @@ bool CStateViewCache::GetConsultation(const uint256 &cid, CConsultation &consult
     CConsultationMap::const_iterator it = FetchConsultation(cid);
     if (it != cacheConsultations.end()) {
         consultation = it->second;
-        return true;
+        return !consultation.IsNull();
     }
     return false;
 }
@@ -263,7 +263,7 @@ bool CStateViewCache::GetConsultationAnswer(const uint256 &cid, CConsultationAns
     CConsultationAnswerMap::const_iterator it = FetchConsultationAnswer(cid);
     if (it != cacheAnswers.end()) {
         answer = it->second;
-        return true;
+        return !answer.IsNull();
     }
     return false;
 }

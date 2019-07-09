@@ -637,17 +637,16 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 2)
         throw runtime_error(
-            "createconsultation \"question\" duration ( \"min\" ) \"max\" ( range fee dump_raw )\n"
+            "createconsultation \"question\" ( min max range fee dump_raw )\n"
             "\nCreates a consultation for the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationMinimalFee/COIN) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"question\"       (string, required) The question of the new consultation.\n"
-            "4. duration         (numeric, required) Number of seconds the consultation will exist after being accepted. (Minimum: " + std::to_string(Params().GetConsensus().nMinConsultationDuration) + ")\n"
-            "3. \"min\"            (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
-            "4. \"max\"            (numeric, optional) The maximum amount of answers a block can vote for.\n"
-            "5. range            (bool, optional) The consultation answers are exclusively in the range min-max.\n"
-            "6. fee              (numeric, optional) Contribution to the fund used as fee.\n"
-            "7. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "2. min              (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
+            "3. max              (numeric, optional) The maximum amount of answers a block can vote for.\n"
+            "4. range            (bool, optional) The consultation answers are exclusively in the range min-max.\n"
+            "5. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "6. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
             "\nResult:\n"
             "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
@@ -660,28 +659,24 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
 
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
-    bool fRange = params.size() >= 5 && params[4].isBool() ? params[4].getBool() : false;
+    bool fRange = params.size() >= 4 && params[3].isBool() ? params[3].getBool() : false;
 
     // Amount
-    CAmount nAmount = params.size() >= (fRange ? 6 : 5) ? AmountFromValue(params[(fRange ? 5 : 4)]) : Params().GetConsensus().nConsultationMinimalFee;
+    CAmount nAmount = params.size() >= (fRange ? 5 : 4) ? AmountFromValue(params[(fRange ? 4 : 3)]) : Params().GetConsensus().nConsultationMinimalFee;
     if (nAmount <= 0 || nAmount < Params().GetConsensus().nConsultationMinimalFee)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
-    bool fDump = params.size() == (fRange ? 7 : 6) ? params[(fRange ? 6 : 5)].getBool() : false;
+    bool fDump = params.size() == (fRange ? 6 : 5) ? params[(fRange ? 5 : 4)].getBool() : false;
 
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
 
-    int64_t nMin = fRange ? params[2].get_int64() : 0;
-    int64_t nMax = params.size() >= 3 ? (fRange ? params[3].get_int64() : params[2].get_int64()) : 1;
-    int64_t nDuration = params[1].get_int64();
+    int64_t nMin = fRange ? params[1].get_int64() : 0;
+    int64_t nMax = params.size() > 2 ? (fRange ? params[2].get_int64() : params[1].get_int64()) : 1;
 
-    if(nDuration < Params().GetConsensus().nMinConsultationDuration)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong duration");
-
-    if (!fRange && (nMin < 0 || nMin > 16))
+    if (!fRange && (nMax > 16))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
-    else if(fRange && (nMin < 1 || nMin > 16))
+    else if(fRange && !(nMin > 0 && nMax < (uint64_t)-5))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong range");
 
     string sQuestion = params[0].get_str();
@@ -695,7 +690,6 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     strDZeel.push_back(Pair("q",sQuestion));
     strDZeel.push_back(Pair("m",nMin));
     strDZeel.push_back(Pair("n",nMax));
-    strDZeel.push_back(Pair("d",nDuration));
     strDZeel.push_back(Pair("v",(uint64_t)nVersion));
 
     wtx.strDZeel = strDZeel.write();

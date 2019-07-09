@@ -106,7 +106,6 @@ public:
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 20000;
         consensus.nBlocksPerVotingCycle = 2880 * 7; // 7 Days
-        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.nMinimumQuorum = 0.5;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
@@ -127,7 +126,8 @@ public:
         consensus.nCommunityFundAmountV2 = 0.5 * COIN;
         consensus.nCyclesProposalVoting = 6;
         consensus.nCyclesPaymentRequestVoting = 8;
-        consensus.nCyclesConsultationVoting = 8;
+        consensus.nCyclesConsultationVoting = 6;
+        consensus.nCyclesConsultationSupport = 8;
         consensus.nCyclesConsultationConfirmation = 1;
         consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
@@ -339,7 +339,6 @@ public:
         consensus.nProposalMinimalFee = 10000;
         consensus.nConsultationMinimalFee = 20000;
         consensus.nConsultationAnswerMinimalFee = 10000;
-        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.sigActivationTime = 1512826692;
         consensus.nCoinbaseTimeActivationHeight = 30000;
         consensus.nBlockSpreadCFundAccumulation = 500;
@@ -348,6 +347,7 @@ public:
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nCyclesConsultationVoting = 4;
+        consensus.nCyclesConsultationSupport = 4;
         consensus.nCyclesConsultationConfirmation = 1;
         consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
@@ -539,7 +539,6 @@ public:
         consensus.nProposalMinimalFee = 10000;
         consensus.nConsultationMinimalFee = 20000;
         consensus.nConsultationAnswerMinimalFee = 10000;
-        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.sigActivationTime = 1512826692;
         consensus.nCoinbaseTimeActivationHeight = 0;
         consensus.nBlockSpreadCFundAccumulation = 500;
@@ -548,6 +547,7 @@ public:
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nCyclesConsultationVoting = 4;
+        consensus.nCyclesConsultationSupport = 4;
         consensus.nCyclesConsultationConfirmation = 1;
         consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
@@ -749,7 +749,6 @@ public:
         consensus.nProposalMinimalFee = 10000;
         consensus.nConsultationMinimalFee = 20000;
         consensus.nConsultationAnswerMinimalFee = 10000;
-        consensus.nMinConsultationDuration = consensus.nBlocksPerVotingCycle * consensus.nTargetSpacing * 2; // Two cycles
         consensus.sigActivationTime = 0;
         consensus.nCoinbaseTimeActivationHeight = 0;
         consensus.nBlockSpreadCFundAccumulation = 10;
@@ -758,6 +757,7 @@ public:
         consensus.nCyclesProposalVoting = 4;
         consensus.nCyclesPaymentRequestVoting = 4;
         consensus.nCyclesConsultationVoting = 4;
+        consensus.nCyclesConsultationSupport = 4;
         consensus.nCyclesConsultationConfirmation = 1;
         consensus.nCyclesConsultationReflection = 1;
         consensus.nPaymentRequestMaxVersion = CPaymentRequest::ALL_VERSION;
