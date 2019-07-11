@@ -21,7 +21,7 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     clientModel(0),
     walletModel(0),
     flag(DAOFlags::NIL),
-    viewing_proposals(true),
+    viewing_proposals(1),
     viewing_voted(false),
     viewing_unvoted(false)
 {
@@ -32,10 +32,12 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 
     connect(ui->pushButtonProposals, SIGNAL(clicked()), this, SLOT(click_pushButtonProposals()));
     connect(ui->pushButtonPaymentRequests, SIGNAL(clicked()), this, SLOT(click_pushButtonPaymentRequests()));
+    connect(ui->pushButtonConsultations, SIGNAL(clicked()), this, SLOT(click_pushButtonConsultations()));
 
     // Enable selection of pushButtonProposals by default
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     // Connect push buttons to functions
     connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(click_radioButtonAll()));
@@ -102,7 +104,7 @@ void CommunityFundPage::append(QWidget* widget)
     ui->gridLayout->addWidget(widget, row, column);
 }
 
-void CommunityFundPage::refresh(bool all, bool proposal)
+void CommunityFundPage::refresh(bool all, int proposal)
 {
     reset();
 
@@ -141,8 +143,8 @@ void CommunityFundPage::refresh(bool all, bool proposal)
         }
     }
 
-    // Propulate proposal grid
-    if (proposal) {
+    if (proposal == 1)
+    {
         CProposalMap mapProposals;
 
         if(pcoinsTip->GetAllProposals(mapProposals))
@@ -224,7 +226,7 @@ void CommunityFundPage::refresh(bool all, bool proposal)
             }
         }
     }
-    else
+    else if (proposal == 0)
     { //Payment request listings
         CPaymentRequestMap mapPaymentRequests;
 
@@ -317,12 +319,14 @@ void CommunityFundPage::click_pushButtonProposals()
 
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
+    ui->pushButtonConsultations->setFont(f);
 
-    viewing_proposals = true;
+    viewing_proposals = 1;
     refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
@@ -332,12 +336,32 @@ void CommunityFundPage::click_pushButtonPaymentRequests()
 
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
+    ui->pushButtonConsultations->setFont(f);
 
-    viewing_proposals = false;
+
+    viewing_proposals = 0;
+    refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
+}
+
+void CommunityFundPage::click_pushButtonConsultations()
+{
+    QFont font = ui->pushButtonConsultations->property("font").value<QFont>();
+
+    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
+
+    QFont f(font.family(), font.pointSize(), QFont::Bold);
+    ui->pushButtonProposals->setFont(f);
+    ui->pushButtonPaymentRequests->setFont(f);
+    ui->pushButtonConsultations->setFont(f);
+
+    viewing_proposals = 2;
     refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 

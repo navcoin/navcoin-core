@@ -148,7 +148,7 @@ QT_MOC_CPP = \
 	qt/moc_optionsdialog.cpp \
 	qt/moc_optionsmodel.cpp \
 	qt/moc_overviewpage.cpp \
-	qt/moc_communityfundpage.cpp \
+  qt/moc_communityfundpage.cpp \
 	qt/moc_communityfunddisplay.cpp \
 	qt/moc_communityfunddisplaypaymentrequest.cpp \
 	qt/moc_communityfunddisplaypaymentrequestdetailed.cpp \
@@ -177,10 +177,11 @@ QT_MOC_CPP = \
 	qt/moc_transactiontablemodel.cpp \
 	qt/moc_transactionview.cpp \
 	qt/moc_utilitydialog.cpp \
-	qt/moc_walletframe.cpp \
-	qt/moc_walletmodel.cpp \
+  qt/moc_walletframe.cpp \
+  qt/moc_walletmodel.cpp \
 	qt/moc_walletview.cpp \
-	qt/moc_communityfunddisplaydetailed.cpp
+  qt/moc_communityfunddisplaydetailed.cpp \
+  qt/moc_daopage.cpp
 
 NAVCOIN_MM = \
 	qt/macdockiconhandler.mm \
@@ -198,7 +199,7 @@ QT_MOC = \
 	qt/communityfunddisplaypaymentrequestdetailed.moc \
 	qt/communityfunddisplaydetailed.moc \
 	qt/communityfundcreateproposaldialog.moc \
-	qt/communityfundcreatepaymentrequestdialog.moc 
+  qt/communityfundcreatepaymentrequestdialog.moc
 
 QT_QRC_CPP = qt/qrc_navcoin.cpp
 QT_QRC = qt/navcoin.qrc
@@ -278,7 +279,8 @@ NAVCOIN_QT_H = \
 	qt/walletmodel.h \
 	qt/walletmodeltransaction.h \
 	qt/walletview.h \
-	qt/winshutdownmonitor.h
+  qt/winshutdownmonitor.h \
+  qt/daopage.h
 
 RES_ICONS = \
 	qt/res/icons/background_top.png \
@@ -404,8 +406,8 @@ NAVCOIN_QT_CPP += \
 	qt/openuridialog.cpp \
 	qt/overviewpage.cpp \
 	qt/communityfundpage.cpp \
-	qt/communityfunddisplay.cpp \
-	qt/communityfunddisplaypaymentrequest.cpp \
+  qt/communityfunddisplay.cpp \
+  qt/communityfunddisplaypaymentrequest.cpp \
 	qt/communityfunddisplaypaymentrequestdetailed.cpp \
 	qt/communityfunddisplaydetailed.cpp \
 	qt/communityfundcreateproposaldialog.cpp \
@@ -429,7 +431,8 @@ NAVCOIN_QT_CPP += \
 	qt/walletframe.cpp \
 	qt/walletmodel.cpp \
 	qt/walletmodeltransaction.cpp \
-	qt/walletview.cpp
+  qt/walletview.cpp \
+  qt/daopage.cpp
 endif # ENABLE_WALLET
 
 RES_IMAGES = 

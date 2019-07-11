@@ -13,10 +13,12 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     prequest(prequest)
 {
     ui->setupUi(this);
+    //ui->detailsWidget->setVisible(false);
 
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote_2, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose_2, SIGNAL(clicked()), this, SLOT(reject()));
+    //connect(ui->detailsBtn, SIGNAL(clicked()), this, SLOT(onDetails()));
 
     ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
     ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
@@ -71,6 +73,11 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
             ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
         }
     }
+}
+
+void CommunityFundDisplayPaymentRequestDetailed::onDetails()
+{
+    //ui->detailsWidget->setVisible(!ui->detailsWidget->isVisible());
 }
 
 void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const

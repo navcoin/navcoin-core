@@ -27,6 +27,7 @@ private:
 
 public Q_SLOTS:
     void click_buttonBoxYesNoVote(QAbstractButton *button);
+    void onDetails();
 };
 
 #endif // COMMUNITYFUNDDISPLAYPAYMENTREQUESTDETAILED_H

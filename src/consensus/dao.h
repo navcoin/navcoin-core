@@ -651,6 +651,7 @@ public:
     bool IsExpired(CBlockIndex* pindex) const;
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;
+    bool IsRange() const;
 
     ADD_SERIALIZE_METHODS;
 

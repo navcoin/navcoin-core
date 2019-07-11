@@ -14,11 +14,14 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
     proposal(proposal)
 {
     ui->setupUi(this);
+    ui->detailsWidget->setVisible(false);
+    ui->detailsWidget->adjustSize();
 
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->labelLinkToProposal, SIGNAL(linkActivated()), this, SLOT(go_to_explorer()));
+    connect(ui->detailsBtn, SIGNAL(clicked()), this, SLOT(onDetails()));
 
     ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
     ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
@@ -80,6 +83,12 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
     if (status.find("expired") != string::npos) {
         ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
+}
+
+void CommunityFundDisplayDetailed::onDetails()
+{
+    ui->detailsWidget->setVisible(!ui->detailsWidget->isVisible());
+    ui->detailsWidget->adjustSize();
 }
 
 void CommunityFundDisplayDetailed::setProposalLabels() const

@@ -1435,10 +1435,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest))
                 {
                     CProposal proposal;
-                    if (viewMemPool.GetProposal(prequest.proposalhash, proposal) && proposal.fState != DAOFlags::ACCEPTED)
+                    if (viewMemPool.GetProposal(prequest.proposalhash, proposal) && proposal.fState == DAOFlags::ACCEPTED)
                     {
                         if (viewMemPool.AddPaymentRequest(prequest))
-                            LogPrint("cfund","New payment request %s\n", prequest.ToString());
+                            LogPrint("cfund","New payment request (mempool) %s\n", prequest.ToString());
                     }
                 }
                 else
@@ -3801,7 +3801,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest))
                 {
                     CProposal proposal;
-                    if (view.GetProposal(prequest.proposalhash, proposal) && proposal.fState != DAOFlags::ACCEPTED)
+                    if (view.GetProposal(prequest.proposalhash, proposal) && proposal.fState == DAOFlags::ACCEPTED)
                     {
                         if (view.AddPaymentRequest(prequest))
                             LogPrint("cfund","New payment request %s\n", prequest.ToString());

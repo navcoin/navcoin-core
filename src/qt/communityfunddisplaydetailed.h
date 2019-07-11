@@ -1,6 +1,7 @@
 #ifndef COMMUNITYFUNDDISPLAYDETAILED_H
 #define COMMUNITYFUNDDISPLAYDETAILED_H
 
+#include <QWidget>
 #include "consensus/dao.h"
 #include "wallet/wallet.h"
 #include <QDialog>
@@ -26,6 +27,7 @@ private:
 
 public Q_SLOTS:
     void click_buttonBoxYesNoVote(QAbstractButton *button);
+    void onDetails();
 };
 
 #endif // COMMUNITYFUNDDISPLAYDETAILED_H

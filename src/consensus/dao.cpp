@@ -1167,7 +1167,12 @@ bool CConsultation::CanBeSupported() const
 
 bool CConsultation::CanBeVoted() const
 {
-    return fState == DAOFlags::ACCEPTED && (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION);
+    return fState == DAOFlags::ACCEPTED && IsRange();
+}
+
+bool CConsultation::IsRange() const
+{
+    return (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION);
 }
 
 bool CConsultation::IsValidVote(int64_t vote) const

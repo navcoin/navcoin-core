@@ -14,6 +14,7 @@ class NavCoinGUI;
 class ClientModel;
 class OverviewPage;
 class CommunityFundPage;
+class DaoPage;
 class PlatformStyle;
 class ReceiveCoinsDialog;
 class SendCoinsDialog;
@@ -66,6 +67,7 @@ private:
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
     CommunityFundPage *communityFundPage;
+    DaoPage *daoPage;
     getAddressToReceive *requestPaymentPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
