@@ -274,72 +274,80 @@ NAVCOIN_QT_H = \
 	qt/walletview.h \
 	qt/winshutdownmonitor.h
 
+# Icons
 RES_ICONS = \
-	qt/res/icons/navcoin.png \
+	qt/res/icons/menu_logo.png \
+	qt/res/icons/navcoin.icns \
 	qt/res/icons/navcoin.ico \
-	qt/res/icons/ghost.png \
-	qt/res/icons/address-book.png \
-	qt/res/icons/quit.png \
-	qt/res/icons/send.png \
-	qt/res/icons/connect0.png \
-	qt/res/icons/connect1.png \
-	qt/res/icons/connect2.png \
-	qt/res/icons/connect3.png \
-	qt/res/icons/connect4.png \
-	qt/res/icons/transaction0.png \
-	qt/res/icons/transaction2.png \
-	qt/res/icons/transaction_conflicted.png \
-	qt/res/icons/clock1.png \
-	qt/res/icons/clock2.png \
-	qt/res/icons/clock3.png \
-	qt/res/icons/clock4.png \
-	qt/res/icons/clock5.png \
-	qt/res/icons/eye.png \
-	qt/res/icons/eye_minus.png \
-	qt/res/icons/eye_plus.png \
-	qt/res/icons/configure.png \
-	qt/res/icons/receive.png \
-	qt/res/icons/editpaste.png \
-	qt/res/icons/editcopy.png \
-	qt/res/icons/add.png \
-	qt/res/icons/edit.png \
-	qt/res/icons/history.png \
-	qt/res/icons/overview.png \
-	qt/res/icons/export.png \
-	qt/res/icons/synced.png \
-	qt/res/icons/remove.png \
-	qt/res/icons/tx_mined.png \
-	qt/res/icons/tx_input.png \
-	qt/res/icons/tx_output.png \
-	qt/res/icons/tx_inout.png \
-	qt/res/icons/lock_closed.png \
-	qt/res/icons/lock_open.png \
-	qt/res/icons/key.png \
-	qt/res/icons/filesave.png \
-	qt/res/icons/splash.png \
-	qt/res/icons/debugwindow.png \
-	qt/res/icons/open.png \
-	qt/res/icons/info.png \
-	qt/res/icons/about.png \
-	qt/res/icons/about_qt.png \
-	qt/res/icons/verify.png \
-	qt/res/icons/warning.png \
-	qt/res/icons/fontbigger.png \
-	qt/res/icons/fontsmaller.png \
-	qt/res/icons/chevron.png \
-	qt/res/icons/transaction_abandoned.png \
-	qt/res/icons/logo_ns.png \
+	qt/res/icons/navcoin.png \
+	qt/res/icons/splash.png
+
+# Vector Icons
+RES_ICONS += \
+	qt/res/icons/vector/about.svg \
+	qt/res/icons/vector/about_qt.svg \
+	qt/res/icons/vector/add.svg \
+	qt/res/icons/vector/address-book.svg \
+	qt/res/icons/vector/chevron.svg \
+	qt/res/icons/vector/clock1.svg \
+	qt/res/icons/vector/clock2.svg \
+	qt/res/icons/vector/clock3.svg \
+	qt/res/icons/vector/clock4.svg \
+	qt/res/icons/vector/clock5.svg \
+	qt/res/icons/vector/configure.svg \
+	qt/res/icons/vector/connect0.svg \
+	qt/res/icons/vector/connect1.svg \
+	qt/res/icons/vector/connect2.svg \
+	qt/res/icons/vector/connect3.svg \
+	qt/res/icons/vector/connect4.svg \
+	qt/res/icons/vector/connect_disabled.svg \
 	qt/res/icons/vector/dao.svg \
+	qt/res/icons/vector/debugwindow.svg \
+	qt/res/icons/vector/edit.svg \
+	qt/res/icons/vector/editcopy.svg \
+	qt/res/icons/vector/editpaste.svg \
+	qt/res/icons/vector/export.svg \
+	qt/res/icons/vector/eye.svg \
+	qt/res/icons/vector/eye_minus.svg \
+	qt/res/icons/vector/eye_plus.svg \
+	qt/res/icons/vector/filesave.svg \
+	qt/res/icons/vector/fontbigger.svg \
+	qt/res/icons/vector/fontsmaller.svg \
+	qt/res/icons/vector/ghost.svg \
 	qt/res/icons/vector/home.svg \
-	qt/res/icons/vector/send.svg \
+	qt/res/icons/vector/info.svg \
+	qt/res/icons/vector/key.svg \
+	qt/res/icons/vector/lock_closed.svg \
+	qt/res/icons/vector/lock_open.svg \
+	qt/res/icons/vector/open.svg \
+	qt/res/icons/vector/quit.svg \
 	qt/res/icons/vector/receive.svg \
+	qt/res/icons/vector/remove.svg \
+	qt/res/icons/vector/send.svg \
+	qt/res/icons/vector/staking_off.svg \
+	qt/res/icons/vector/staking_on.svg \
+	qt/res/icons/vector/synced.svg \
+	qt/res/icons/vector/transaction0.svg \
+	qt/res/icons/vector/transaction2.svg \
+	qt/res/icons/vector/transaction_abandoned.svg \
+	qt/res/icons/vector/transaction_conflicted.svg \
 	qt/res/icons/vector/transactions.svg \
-	qt/res/fonts/roboto.ttf \
-	qt/res/fonts/source.ttf \
-	qt/res/fonts/roboto-regular.ttf \
+	qt/res/icons/vector/tx_inout.svg \
+	qt/res/icons/vector/tx_input.svg \
+	qt/res/icons/vector/tx_mined.svg \
+	qt/res/icons/vector/tx_output.svg \
+	qt/res/icons/vector/verify.svg \
+	qt/res/icons/vector/wallet.svg \
+	qt/res/icons/vector/warning.svg
+
+# Fonts
+RES_ICONS += \
 	qt/res/fonts/roboto-black.ttf \
 	qt/res/fonts/roboto-bold.ttf \
-	qt/res/fonts/roboto-medium.ttf
+	qt/res/fonts/roboto-medium.ttf \
+	qt/res/fonts/roboto-regular.ttf \
+	qt/res/fonts/roboto.ttf \
+	qt/res/fonts/source.ttf
 
 NAVCOIN_QT_CPP = \
 	qt/bantablemodel.cpp \

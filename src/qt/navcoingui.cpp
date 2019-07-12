@@ -420,7 +420,7 @@ void NavCoinGUI::createActions()
     toggleStakingAction = new QAction(tr("Toggle &Staking"), this);
     toggleStakingAction->setStatusTip(tr("Toggle Staking"));
 
-    historyAction = new QAction(platformStyle->SingleColorIcon(":/icons/history"), tr("&Transactions"), this);
+    historyAction = new QAction(platformStyle->SingleColorIcon(":/icons/transactions"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
     historyAction->setCheckable(true);
@@ -625,7 +625,7 @@ void NavCoinGUI::createToolBars()
         {
             QString btnText = tr(("  " + btnNames[i]).c_str()).toUpper();
 
-            QIcon icon = platformStyle->SingleColorIcon((":/icons/vec_" + btnNames[i]).c_str(), BTN_COLOR.c_str());
+            QIcon icon = platformStyle->SingleColorIcon((":/icons/" + btnNames[i]).c_str(), BTN_COLOR.c_str());
             topMenuBtns[i] = new QPushButton();
             topMenuBtns[i]->setText(btnText);
             topMenuBtns[i]->setIcon(icon);
