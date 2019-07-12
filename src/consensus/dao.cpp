@@ -894,6 +894,10 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
     }
 
     std::string sAnswer = find_value(metadata, "a").get_str();
+
+    if (sAnswer == "")
+        return error("%s: Empty text for answer %s", __func__, tx.GetHash().ToString());
+
     std::string Hash = find_value(metadata, "h").get_str();
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultationAnswer::BASE_VERSION;
 
@@ -959,9 +963,9 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
-    bool ret = (nContribution >= Params().GetConsensus().nConsultationMinimalFee &&
-               ((nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION && nMin > 0 && nMax < (uint64_t)-5) ||
-                (!(nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION) && nMax < 16)) &&
+    bool ret = (sQuestion != "" && nContribution >= Params().GetConsensus().nConsultationMinimalFee &&
+               ((nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION && nMin >= 0 && nMax < (uint64_t)-1  && nMax > nMin) ||
+                (!(nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION) && nMax > 0  && nMax < 16)) &&
                (nVersion & ~nMaskVersion) == 0);
 
     if (!ret)
@@ -1109,16 +1113,16 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
         UniValue a(UniValue::VOBJ);
         for (auto &it: mapVotes)
         {
-            a.push_back(make_pair(it.first == (uint64_t)-5 ? "abstain" : to_string(it.first), it.second));
+            a.push_back(make_pair(it.first == (uint64_t)-1 ? "abstain" : to_string(it.first), it.second));
         }
         answers.push_back(a);
     }
     else
     {
-        if (mapVotes.count((uint64_t)-5) != 0)
+        if (mapVotes.count((uint64_t)-1) != 0)
         {
             UniValue a(UniValue::VOBJ);
-            a.push_back(make_pair("abstain", mapVotes.at((uint64_t)-5)));
+            a.push_back(make_pair("abstain", mapVotes.at((uint64_t)-1)));
             answers.push_back(a);
         }
         CConsultationAnswerMap mapConsultationAnswers;

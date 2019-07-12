@@ -11,6 +11,8 @@
 #include "communityfunddisplaypaymentrequestdetailed.h"
 #include "consensus/dao.h"
 #include "clientmodel.h"
+#include "daoconsultationcreate.h"
+#include "daoconsultationvote.h"
 #include "main.h"
 #include "navcoinunits.h"
 #include "optionsmodel.h"
@@ -40,6 +42,68 @@ class ClientModel;
 class PlatformStyle;
 class WalletModel;
 
+struct ProposalEntry {
+    uint256 hash;
+    QString color;
+    QString title;
+    QString requests;
+    QString paid;
+    QString deadline;
+    int nVotesYes;
+    int nVotesNo;
+    int nVotesAbs;
+    unsigned int nCycle;
+    QString sState;
+    bool fCanVote;
+    uint64_t nMyVote;
+    uint64_t ts;
+};
+
+struct PaymentRequestEntry {
+    uint256 hash;
+    QString title;
+    QString parentTitle;
+    QString color;
+    QString amount;
+    int nVotesYes;
+    int nVotesNo;
+    int nVotesAbs;
+    unsigned int nCycle;
+    QString sState;
+    bool fCanVote;
+    uint64_t nMyVote;
+    uint64_t ts;
+};
+
+struct ConsultationAnswerEntry {
+    uint256 hash;
+    QString answer;
+    int nVotes;
+    QString sState;
+    bool fCanVote;
+};
+
+struct ConsultationEntry {
+    uint256 hash;
+    QString color;
+    QString question;
+    QVector<ConsultationAnswerEntry> answers;
+    QString sDesc;
+    unsigned int nCycle;
+    QString sState;
+    bool fCanVote;
+    QStringList myVotes;
+    uint64_t ts;
+    bool fRange;
+    uint64_t nMin;
+    uint64_t nMax;
+};
+
+struct DeploymentEntry {
+    uint256 hash;
+    QString answer;
+};
+
 class DaoPage : public QWidget
 {
     Q_OBJECT
@@ -52,53 +116,7 @@ public:
     void setActive(bool flag);
     void setView(int view);
 
-    struct ProposalEntry {
-        uint256 hash;
-        QString color;
-        QString title;
-        QString requests;
-        QString paid;
-        QString deadline;
-        int nVotesYes;
-        int nVotesNo;
-        int nVotesAbs;
-        unsigned int nCycle;
-        QString sState;
-        bool fCanVote;
-        uint64_t nMyVote;
-        uint64_t ts;
-    };
 
-    struct PaymentRequestEntry {
-        uint256 hash;
-        QString title;
-        QString parentTitle;
-        QString color;
-        QString amount;
-        int nVotesYes;
-        int nVotesNo;
-        int nVotesAbs;
-        unsigned int nCycle;
-        QString sState;
-        bool fCanVote;
-        uint64_t nMyVote;
-        uint64_t ts;
-    };
-
-    struct ConsultationEntry {
-        uint256 hash;
-        QString question;
-    };
-
-    struct ConsultationAnswerEntry {
-        uint256 hash;
-        QString answer;
-    };
-
-    struct DeploymentEntry {
-        uint256 hash;
-        QString answer;
-    };
 
     void setData(QVector<ProposalEntry>);
     void setData(QVector<PaymentRequestEntry>);
@@ -113,7 +131,6 @@ private:
     QVector<ProposalEntry> proposalModel;
     QVector<PaymentRequestEntry> paymentRequestModel;
     QVector<ConsultationEntry> consultationModel;
-    QVector<ConsultationAnswerEntry> consultationAnswerModel;
     QVector<DeploymentEntry> deploymentModel;
 
     QLabel* viewLbl;
@@ -164,20 +181,14 @@ private:
     enum {
         C_COLUMN_HASH,
         C_COLUMN_COLOR,
-        C_COLUMN_PADDING1,
         C_COLUMN_TITLE,
-        C_COLUMN_REQUESTS,
-        C_COLUMN_PAID,
-        C_COLUMN_DURATION,
-        C_COLUMN_VOTES,
-        C_COLUMN_YES,
-        C_COLUMN_NO,
-        C_COLUMN_ABS,
-        C_COLUMN_CYCLE,
-        C_COLUMN_STATE,
+        C_COLUMN_ANSWERS,
+        C_COLUMN_STATUS,
         C_COLUMN_URL,
+        C_COLUMN_PADDING2,
+        C_COLUMN_MY_VOTES,
         C_COLUMN_VOTE,
-        C_COLUMN_PADDING2
+        C_COLUMN_PADDING3
     };
 
     enum {

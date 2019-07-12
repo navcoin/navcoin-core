@@ -674,9 +674,9 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     int64_t nMin = fRange ? params[1].get_int64() : 0;
     int64_t nMax = params.size() > 1 ? (fRange ? params[2].get_int64() : params[1].get_int64()) : 1;
 
-    if (!fRange && (nMax > 16))
+    if (!fRange && (nMax < 1 ||nMax > 16))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
-    else if(fRange && !(nMin > 0 && nMax < (uint64_t)-5))
+    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)-1 && nMax > nMin))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong range");
 
     string sQuestion = params[0].get_str();

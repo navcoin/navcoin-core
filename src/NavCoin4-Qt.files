@@ -652,6 +652,10 @@ qt/csvmodelwriter.cpp
 qt/csvmodelwriter.cpp
 qt/csvmodelwriter.h
 qt/csvmodelwriter.h
+qt/daoconsultationcreate.cpp
+qt/daoconsultationcreate.h
+qt/daoconsultationvote.cpp
+qt/daoconsultationvote.h
 qt/editaddressdialog.cpp
 qt/editaddressdialog.cpp
 qt/editaddressdialog.h

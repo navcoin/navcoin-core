@@ -600,8 +600,8 @@ public:
     bool fDirty;
     std::string strDZeel;
     int nSupport;
-    int nMin;
-    int nMax;
+    uint64_t nMin;
+    uint64_t nMax;
     map<uint64_t, uint64_t> mapVotes;
 
     CConsultation() { SetNull(); }

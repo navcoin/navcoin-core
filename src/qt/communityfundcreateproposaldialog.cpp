@@ -201,8 +201,6 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             }
             else {
                 // User accepted making the proposal
-                // Parse NavCoin address
-                CScript CFContributionScript;
                 CScript scriptPubKey = GetScriptForDestination(address.Get());
                 SetScriptForCommunityFundContribution(scriptPubKey);
 
