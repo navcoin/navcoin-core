@@ -44,6 +44,7 @@ public:
 
     QWidget *topMenu;
     QVBoxLayout *menuLayout;
+    QVBoxLayout *headerLayout;
 
 Q_SIGNALS:
     /** Notify that the user has requested more information about the out-of-sync warning */
