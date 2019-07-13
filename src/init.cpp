@@ -1316,7 +1316,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
                 nWarningCounter++;
 
-                MilliSleep(30000);
+                if(!ShutdownRequested())
+                {
+                    MilliSleep(10000);
+                }
             }
             else
             {
