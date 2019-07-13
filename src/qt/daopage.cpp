@@ -134,7 +134,7 @@ void DaoPage::refresh(bool force)
     }
     }
 
-    if (!force && unit == nCurrentUnit && nFilter == nCurrentFilter &&
+    if (!force && nCurrentView == VIEW_DEPLOYMENTS && unit == nCurrentUnit && nFilter == nCurrentFilter &&
             ((nCurrentView == VIEW_PROPOSALS && proposalMap.size() == proposalModel.size()) ||
              (nCurrentView == VIEW_PAYMENT_REQUESTS &&  paymentRequestMap.size() == paymentRequestModel.size()) ||
              (nCurrentView == VIEW_CONSULTATIONS && consultationMap.size() == consultationModel.size())))
@@ -273,6 +273,26 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         else if (nCurrentView == VIEW_DEPLOYMENTS)
         {
             createBtn->setVisible(false);
+
+            filterCmb->insertItem(FILTER_ALL, "All");
+            filterCmb->insertItem(FILTER_NOT_VOTED, "Not voted");
+            filterCmb->insertItem(FILTER_VOTED, "Voted");
+            filterCmb->insertItem(FILTER_IN_PROGRESS, "Being voted");
+            filterCmb->insertItem(FILTER_FINISHED, "Voting finished");
+
+            table->setColumnCount(D_COLUMN_PADDING3 + 1);
+            table->setHorizontalHeaderLabels({"", tr("Name"), tr("Status"), "", tr("My Vote"), "", "" });
+            table->horizontalHeader()->setSectionResizeMode(D_COLUMN_TITLE, QHeaderView::Stretch);
+            table->horizontalHeaderItem(D_COLUMN_TITLE)->setTextAlignment(Qt::AlignLeft);
+            table->horizontalHeader()->setSectionResizeMode(D_COLUMN_STATUS, QHeaderView::ResizeToContents);
+            table->horizontalHeader()->setSectionResizeMode(D_COLUMN_MY_VOTES, QHeaderView::ResizeToContents);
+            table->horizontalHeader()->setSectionResizeMode(D_COLUMN_VOTE, QHeaderView::ResizeToContents);
+            table->horizontalHeader()->setSectionResizeMode(D_COLUMN_COLOR, QHeaderView::Fixed);
+            table->setColumnWidth(D_COLUMN_COLOR, 12);
+            table->horizontalHeader()->setSectionResizeMode(D_COLUMN_PADDING2, QHeaderView::Fixed);
+            table->setColumnWidth(D_COLUMN_PADDING2, 12);
+            table->horizontalHeader()->setSectionResizeMode(D_COLUMN_PADDING3, QHeaderView::Fixed);
+            table->setColumnWidth(D_COLUMN_PADDING3, 12);
         }
         table->resizeRowsToContents();
 
@@ -615,6 +635,106 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
     }
     else if (nCurrentView == VIEW_DEPLOYMENTS)
     {
+        deploymentModel.clear();
+
+        const Consensus::Params& consensusParams = Params().GetConsensus();
+
+        for (unsigned int i = 0; i < Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++)
+        {
+            QString status = "unknown";
+
+            Consensus::DeploymentPos id = (Consensus::DeploymentPos)i;
+
+            bool fFinished = false;
+            bool fInProgress = false;
+            bool nVoted = false;
+
+            if (!consensusParams.vDeployments[id].nStartTime)
+                continue;
+
+            std::vector<std::string>& versionBitVotesRejected = mapMultiArgs["-rejectversionbit"];
+            std::vector<std::string>& versionBitVotesAccepted = mapMultiArgs["-acceptversionbit"];
+
+            for (auto& it: versionBitVotesRejected)
+            {
+                if (stoi(it) == i)
+                {
+                    nVoted = true;
+                    break;
+                }
+            }
+
+            if (!nVoted)
+            {
+                for (auto& it: versionBitVotesAccepted)
+                {
+                    if (stoi(it) == i)
+                    {
+                        nVoted = true;
+                        break;
+                    }
+                }
+            }
+
+
+            const ThresholdState thresholdState = VersionBitsTipState(consensusParams, id);
+            switch (thresholdState) {
+            case THRESHOLD_DEFINED: status =  "defined"; fFinished = false; fInProgress = false; break;
+            case THRESHOLD_STARTED: status = "started"; fFinished = false; fInProgress = true; break;
+            case THRESHOLD_LOCKED_IN: status = "locked in"; fFinished = true; fInProgress = false; break;
+            case THRESHOLD_ACTIVE: status = "active"; fFinished = true; fInProgress = false; break;
+            case THRESHOLD_FAILED: status = "failed"; fFinished = true; fInProgress = false; break;
+            }
+
+            if (nFilter != FILTER_ALL)
+            {
+                if (nFilter == FILTER_VOTED && !nVoted)
+                    continue;
+                if (nFilter == FILTER_NOT_VOTED && nVoted)
+                    continue;
+                if (nFilter == FILTER_IN_PROGRESS && !fInProgress)
+                    continue;
+                if (nFilter == FILTER_FINISHED && !fFinished)
+                    continue;
+            }
+
+            bool nVote = !IsVersionBitRejected(consensusParams, id);
+
+            DeploymentEntry e = {
+                "blue",
+                QString::fromStdString(Consensus::sDeploymentsDesc[id]),
+                status,
+                status == "started",
+                nVote,
+                !nVoted,
+                consensusParams.vDeployments[id].nStartTime,
+                consensusParams.vDeployments[id].bit
+            };
+
+            if (status == "started")
+            {
+                e.color = "yellow";
+            }
+            else if (status == "locked_in")
+            {
+                e.color = "purple";
+            }
+            else if (status == "active")
+            {
+                e.color = "green";
+            }
+            else if (status == "failed")
+            {
+                e.color = "red";
+            }
+
+            deploymentModel << e;
+        }
+
+        std::sort(deploymentModel.begin(), deploymentModel.end(), [](const DeploymentEntry &a, const DeploymentEntry &b) {
+            return a.ts > b.ts;
+        });
+
         setData(deploymentModel);
     }
 }
@@ -1018,18 +1138,98 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
     table->setSortingEnabled(true);
 }
 
-void DaoPage::setData(QVector<DeploymentEntry>)
+void DaoPage::setData(QVector<DeploymentEntry> data)
 {
+    table->clearContents();
+    table->setRowCount(data.count());
+    table->setSortingEnabled(false);
 
+    for (int i = 0; i < data.count(); ++i) {
+        DeploymentEntry &entry = data[i];
+
+        // COLOR
+        auto *colorItem = new QTableWidgetItem;
+        auto *indicatorBox = new QFrame;
+        indicatorBox->setContentsMargins(QMargins());
+        indicatorBox->setStyleSheet(QString("background-color: %1;").arg(entry.color));
+        indicatorBox->setFixedWidth(3);
+        table->setCellWidget(i, D_COLUMN_COLOR, indicatorBox);
+        table->setItem(i, D_COLUMN_COLOR, colorItem);
+
+        // TITLE
+        auto *titleItem = new QTableWidgetItem;
+        titleItem->setData(Qt::DisplayRole, entry.title);
+        table->setItem(i, D_COLUMN_TITLE, titleItem);
+
+        // STATE
+        auto *statusItem = new QTableWidgetItem;
+        statusItem->setData(Qt::DisplayRole, entry.status);
+        statusItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
+        table->setItem(i, D_COLUMN_STATUS, statusItem);
+
+        // MY VOTES
+        auto *myvotesItem = new QTableWidgetItem;
+        myvotesItem->setData(Qt::DisplayRole, entry.fMyVote ? tr("Yes") : tr("No"));
+        myvotesItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
+        table->setItem(i, D_COLUMN_MY_VOTES, myvotesItem);
+
+        //VOTE
+        auto *votedItem = new QTableWidgetItem;
+        auto *widget = new QWidget();
+        widget->setContentsMargins(QMargins());
+        widget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        auto *boxLayout = new QHBoxLayout;
+        boxLayout->setContentsMargins(QMargins());
+        boxLayout->setSpacing(0);
+        widget->setLayout(boxLayout);
+
+        // Only show vote button if proposal voting is in progress
+        if (entry.fCanVote) {
+            auto *button = new QPushButton;
+            button->setText(!entry.fDefaultVote ? tr("Vote %1").arg(!entry.fMyVote ? tr("Yes") : tr("No")) : tr("Change to %1").arg(!entry.fMyVote ? tr("Yes") : tr("No")));
+            button->setFixedHeight(40);
+            button->setProperty("id", entry.bit);
+            button->setProperty("vote", !entry.fMyVote);
+            boxLayout->addWidget(button, 0, Qt::AlignCenter);
+            connect(button, SIGNAL(clicked()), this, SLOT(onVote()));
+        }
+
+        table->setCellWidget(i, D_COLUMN_VOTE, widget);
+        table->setItem(i, D_COLUMN_VOTE, votedItem);
+
+    }
+
+    uint64_t nWeight = 0;
+    if (pwalletMain)
+        nWeight = pwalletMain->GetStakeWeight();
+    bool fWeight = nWeight > 0;
+    if (!fWeight) {
+        table->setColumnWidth(D_COLUMN_VOTE, 0);
+        table->setColumnWidth(D_COLUMN_MY_VOTES, 0);
+    }
+    else
+    {
+        table->setColumnWidth(D_COLUMN_VOTE, 150);
+        table->setColumnWidth(D_COLUMN_MY_VOTES, 150);
+
+    }
+    table->setColumnHidden(D_COLUMN_VOTE, !fWeight);
+    table->setColumnHidden(D_COLUMN_MY_VOTES, !fWeight);
+    table->setSortingEnabled(true);
 }
 
 void DaoPage::onVote() {
     LOCK(cs_main);
 
     QVariant idV = sender()->property("id");
+    QVariant voteV = sender()->property("vote");
     CStateViewCache coins(pcoinsTip);
 
-    if (idV.isValid())
+    if (idV.isValid() && voteV.isValid())
+    {
+        VoteVersionBit(idV.toInt(), voteV.toBool());
+    }
+    else if (idV.isValid())
     {
         CProposal proposal;
         CPaymentRequest prequest;

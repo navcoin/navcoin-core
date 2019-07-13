@@ -10,9 +10,11 @@
 #include "communityfunddisplaydetailed.h"
 #include "communityfunddisplaypaymentrequestdetailed.h"
 #include "consensus/dao.h"
+#include "consensus/params.h"
 #include "clientmodel.h"
 #include "daoconsultationcreate.h"
 #include "daoconsultationvote.h"
+#include "daoversionbit.h"
 #include "main.h"
 #include "navcoinunits.h"
 #include "optionsmodel.h"
@@ -100,8 +102,14 @@ struct ConsultationEntry {
 };
 
 struct DeploymentEntry {
-    uint256 hash;
-    QString answer;
+    QString color;
+    QString title;
+    QString status;
+    bool fCanVote;
+    bool fMyVote;
+    bool fDefaultVote;
+    int64_t ts;
+    int bit;
 };
 
 class DaoPage : public QWidget
@@ -189,6 +197,16 @@ private:
         C_COLUMN_MY_VOTES,
         C_COLUMN_VOTE,
         C_COLUMN_PADDING3
+    };
+
+    enum {
+        D_COLUMN_COLOR,
+        D_COLUMN_TITLE,
+        D_COLUMN_STATUS,
+        D_COLUMN_PADDING2,
+        D_COLUMN_MY_VOTES,
+        D_COLUMN_VOTE,
+        D_COLUMN_PADDING3
     };
 
     enum {

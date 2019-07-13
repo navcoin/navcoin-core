@@ -94,6 +94,7 @@ NAVCOIN_CORE_H = \
   compat/sanity.h \
   compressor.h \
   consensus/dao.h \
+  daoversionbit.h \
   consensus/consensus.h \
   core_io.h \
   core_memusage.h \
@@ -181,6 +182,7 @@ libnavcoin_server_a_SOURCES = \
   blockencodings.cpp \
   chain.cpp \
   checkpoints.cpp \
+  daoversionbit.cpp \
   consensus/dao.cpp \
   httprpc.cpp \
   httpserver.cpp \
@@ -243,6 +245,7 @@ libnavcoin_wallet_a_SOURCES = \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   policy/rbf.cpp \
+  daoversionbit.cpp \
   $(NAVCOIN_CORE_H)
 
 # crypto primitives library

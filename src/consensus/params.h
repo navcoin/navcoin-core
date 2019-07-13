@@ -35,6 +35,25 @@ enum DeploymentPos
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
+static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
+    "Test",
+    "CSV",
+    "Segregated Witness",
+    "CSV Legacy",
+    "Segregated Witness Legacy",
+    "Community Fund",
+    "Starts the accumulation of coins on the Community Fund",
+    "Cold Staking",
+    "Spread the accumulation of coins on the Community Fund to save on block space",
+    "Increase the contributed amount to the Community Fund to 0.5NAV per block",
+    "NTP SYNC",
+    "Upgrade to POSv3. Every staked block will have a fixed reward of 2 NAV",
+    "Reduce the Quorum necessary for the last cycles of the Community Fund votings",
+    "Enable Abstain votes for the Community Fund",
+    "Upgrades the Community Fund with a state based cache which will save on block space as votes do not need to be broadcasted every block",
+    "Enable DAO Consultations"
+};
+
 /**
  * Struct for each individual consensus rule change using BIP9.
  */

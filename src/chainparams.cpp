@@ -69,6 +69,8 @@ static CBlock CreateGenesisBlockTestnet(uint32_t nTime, uint32_t nNonce, uint32_
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
 
+
+
 /**
  * Main network
  */

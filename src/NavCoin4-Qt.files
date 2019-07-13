@@ -190,6 +190,8 @@ cubehash.c
 cubehash.c
 dao/votestate.cpp
 dao/votestate.h
+daoversionbit.cpp
+daoversionbit.h
 dbwrapper.cpp
 dbwrapper.cpp
 dbwrapper.h
