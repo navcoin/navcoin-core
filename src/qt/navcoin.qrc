@@ -40,6 +40,8 @@
         <file alias="receiving_addresses">res/icons/vector/receive.svg</file>
         <file alias="remove">res/icons/vector/remove.svg</file>
         <file alias="send">res/icons/vector/send.svg</file>
+        <file alias="staking_off">res/icons/vector/staking_off.svg</file>
+        <file alias="staking_on">res/icons/vector/staking_on.svg</file>
         <file alias="synced">res/icons/vector/synced.svg</file>
         <file alias="transaction_0">res/icons/vector/transaction0.svg</file>
         <file alias="transaction_1">res/icons/vector/clock1.svg</file>

@@ -271,13 +271,13 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     if(enableWallet)
     {
         frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelStakingIcon);
-        frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelPrice);
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(unitDisplayControl);
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelEncryptionIcon);
+        frameBlocksLayout->addStretch();
+        frameBlocksLayout->addWidget(labelStakingIcon);
     }
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelConnectionsIcon);
@@ -1800,6 +1800,7 @@ void NavCoinGUI::updateStakingStatus()
         {
             walletFrame->setStakingStatus(tr("Staking is turned off."));
             walletFrame->showLockStaking(false);
+            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
         }
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
@@ -1874,13 +1875,13 @@ void NavCoinGUI::updateStakingStatus()
             nWeight /= COIN;
             nNetworkWeight /= COIN;
 
-    //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_on" : ":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
             walletFrame->setStakingStatus(text!=""&&GetBoolArg("showexpectedstaketime",false)?text:tr("You are staking"));
         }
         else
         {
 
-    //        labelStakingIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/staking_off" : ":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
             if (pwalletMain && pwalletMain->IsLocked())
                 walletFrame->setStakingStatus(tr("Not staking because wallet is locked"));
             else if (vNodes.empty())
