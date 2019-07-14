@@ -2,8 +2,8 @@
 #define COMMUNITYFUNDDISPLAYPAYMENTREQUESTDETAILED_H
 
 #include <QWidget>
-#include "consensus/cfund.h"
-#include "wallet/wallet.h"
+#include <consensus/cfund.h>
+#include <wallet/wallet.h>
 #include <QDialog>
 #include <QAbstractButton>
 

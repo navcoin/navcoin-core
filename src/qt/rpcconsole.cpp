@@ -3,23 +3,23 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "rpcconsole.h"
-#include "ui_debugwindow.h"
+#include <qt/rpcconsole.h>
+#include <ui_debugwindow.h>
 
-#include "bantablemodel.h"
-#include "clientmodel.h"
-#include "guiutil.h"
-#include "guiconstants.h"
-#include "platformstyle.h"
-#include "bantablemodel.h"
+#include <qt/bantablemodel.h>
+#include <qt/clientmodel.h>
+#include <qt/guiutil.h>
+#include <qt/guiconstants.h>
+#include <qt/platformstyle.h>
+#include <qt/bantablemodel.h>
 
-#include "chainparams.h"
-#include "rpc/server.h"
-#include "rpc/client.h"
-#include "util.h"
+#include <chainparams.h>
+#include <rpc/server.h>
+#include <rpc/client.h>
+#include <util.h>
 
 #include <openssl/crypto.h>
 
@@ -115,7 +115,7 @@ public:
 };
 
 
-#include "rpcconsole.moc"
+#include <qt/rpcconsole.moc>
 
 /**
  * Split shell command line into a list of arguments. Aims to emulate \c bash and friends.

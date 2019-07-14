@@ -2,14 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "recentrequeststablemodel.h"
+#include <qt/recentrequeststablemodel.h>
 
-#include "navcoinunits.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
+#include <qt/navcoinunits.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
 
-#include "clientversion.h"
-#include "streams.h"
+#include <clientversion.h>
+#include <streams.h>
 
 #include <boost/foreach.hpp>
 

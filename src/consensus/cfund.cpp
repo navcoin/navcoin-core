@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "consensus/cfund.h"
-#include "base58.h"
-#include "main.h"
-#include "rpc/server.h"
-#include "utilmoneystr.h"
+#include <consensus/cfund.h>
+#include <base58.h>
+#include <main.h>
+#include <rpc/server.h>
+#include <utilmoneystr.h>
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {

@@ -4,10 +4,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "chain.h"
-#include "main.h"
-#include "pos.h"
-#include "primitives/block.h"
+#include <chain.h>
+#include <main.h>
+#include <pos.h>
+#include <primitives/block.h>
 
 double GetDifficulty(const CBlockIndex* blockindex)
 {

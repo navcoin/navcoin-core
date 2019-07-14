@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_SCRIPT_SIGCACHE_H
 #define NAVCOIN_SCRIPT_SIGCACHE_H
 
-#include "script/interpreter.h"
+#include <script/interpreter.h>
 
 #include <vector>
 

@@ -2,16 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "crypto/aes.h"
-#include "crypto/ripemd160.h"
-#include "crypto/sha1.h"
-#include "crypto/sha256.h"
-#include "crypto/sha512.h"
-#include "crypto/hmac_sha256.h"
-#include "crypto/hmac_sha512.h"
-#include "random.h"
-#include "utilstrencodings.h"
-#include "test/test_navcoin.h"
+#include <crypto/aes.h>
+#include <crypto/ripemd160.h>
+#include <crypto/sha1.h>
+#include <crypto/sha256.h>
+#include <crypto/sha512.h>
+#include <crypto/hmac_sha256.h>
+#include <crypto/hmac_sha512.h>
+#include <random.h>
+#include <utilstrencodings.h>
+#include <test/test_navcoin.h>
 
 #include <vector>
 

@@ -3,46 +3,46 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "main.h"
-#include "navcoingui.h"
-#include "navcoinunits.h"
-#include "clientversion.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "modaloverlay.h"
-#include "networkstyle.h"
-#include "notificator.h"
-#include "openuridialog.h"
-#include "optionsdialog.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "rpcconsole.h"
-#include "utilitydialog.h"
-#include "walletmodel.h"
-#include "wallet/rpcwallet.h"
+#include <main.h>
+#include <qt/navcoingui.h>
+#include <qt/navcoinunits.h>
+#include <clientversion.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/modaloverlay.h>
+#include <qt/networkstyle.h>
+#include <qt/notificator.h>
+#include <qt/openuridialog.h>
+#include <qt/optionsdialog.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/rpcconsole.h>
+#include <qt/utilitydialog.h>
+#include <qt/walletmodel.h>
+#include <wallet/rpcwallet.h>
 
 #ifdef ENABLE_WALLET
-#include "walletframe.h"
-#include "walletmodel.h"
-#include "walletview.h"
-#include "wallet/wallet.h"
+#include <qt/walletframe.h>
+#include <qt/walletmodel.h>
+#include <qt/walletview.h>
+#include <wallet/wallet.h>
 #endif // ENABLE_WALLET
 
 #ifdef Q_OS_MAC
-#include "macdockiconhandler.h"
+#include <qt/macdockiconhandler.h>
 #endif
 
-#include "chainparams.h"
-#include "init.h"
-#include "miner.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "pos.h"
-#include "main.h"
+#include <chainparams.h>
+#include <init.h>
+#include <miner.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <pos.h>
+#include <main.h>
 
 #include <iostream>
 #include <thread>

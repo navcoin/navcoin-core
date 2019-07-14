@@ -4,17 +4,17 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifdef HAVE_CONFIG_H
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "netbase.h"
+#include <netbase.h>
 
-#include "hash.h"
-#include "sync.h"
-#include "uint256.h"
-#include "random.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <hash.h>
+#include <sync.h>
+#include <uint256.h>
+#include <random.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #ifdef HAVE_GETADDRINFO_A
 #include <netdb.h>

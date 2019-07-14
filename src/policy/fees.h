@@ -5,8 +5,8 @@
 #ifndef NAVCOIN_POLICYESTIMATOR_H
 #define NAVCOIN_POLICYESTIMATOR_H
 
-#include "amount.h"
-#include "uint256.h"
+#include <amount.h>
+#include <uint256.h>
 
 #include <map>
 #include <string>

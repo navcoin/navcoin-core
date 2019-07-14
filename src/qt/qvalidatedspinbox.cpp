@@ -1,6 +1,6 @@
-#include "qvalidatedspinbox.h"
-#include "guiconstants.h"
-#include "skinize.h"
+#include <qt/qvalidatedspinbox.h>
+#include <qt/guiconstants.h>
+#include <qt/skinize.h>
 
 #include <QDialog>
 

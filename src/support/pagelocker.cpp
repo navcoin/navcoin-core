@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "support/pagelocker.h"
+#include <support/pagelocker.h>
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
 #ifdef WIN32

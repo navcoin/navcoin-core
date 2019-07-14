@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_CHECKPOINTS_H
 #define NAVCOIN_CHECKPOINTS_H
 
-#include "uint256.h"
+#include <uint256.h>
 
 #include <map>
 

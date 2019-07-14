@@ -2,19 +2,19 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "paymentserver.h"
+#include <qt/paymentserver.h>
 
-#include "navcoinunits.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
+#include <qt/navcoinunits.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
 
-#include "base58.h"
-#include "chainparams.h"
-#include "main.h" // For minRelayTxFee
-#include "ui_interface.h"
-#include "util.h"
-#include "utils/dns_utils.h"
-#include "wallet/wallet.h"
+#include <base58.h>
+#include <chainparams.h>
+#include <main.h> // For minRelayTxFee
+#include <ui_interface.h>
+#include <util.h>
+#include <utils/dns_utils.h>
+#include <wallet/wallet.h>
 
 #include <cstdlib>
 

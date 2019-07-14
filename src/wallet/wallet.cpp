@@ -3,33 +3,33 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "wallet/wallet.h"
+#include <wallet/wallet.h>
 
-#include "base58.h"
-#include "checkpoints.h"
-#include "chain.h"
-#include "coincontrol.h"
-#include "consensus/cfund.h"
-#include "consensus/consensus.h"
-#include "consensus/validation.h"
-#include "init.h"
-#include "key.h"
-#include "keystore.h"
-#include "main.h"
-#include "net.h"
-#include "navtech.h"
-#include "policy/policy.h"
-#include "primitives/block.h"
-#include "primitives/transaction.h"
-#include "script/script.h"
-#include "script/sign.h"
-#include "timedata.h"
-#include "txmempool.h"
-#include "util.h"
-#include "ui_interface.h"
-#include "utilmoneystr.h"
-#include "kernel.h"
-#include "pos.h"
+#include <base58.h>
+#include <checkpoints.h>
+#include <chain.h>
+#include <coincontrol.h>
+#include <consensus/cfund.h>
+#include <consensus/consensus.h>
+#include <consensus/validation.h>
+#include <init.h>
+#include <key.h>
+#include <keystore.h>
+#include <main.h>
+#include <net.h>
+#include <wallet/navtech.h>
+#include <policy/policy.h>
+#include <primitives/block.h>
+#include <primitives/transaction.h>
+#include <script/script.h>
+#include <script/sign.h>
+#include <timedata.h>
+#include <txmempool.h>
+#include <util.h>
+#include <ui_interface.h>
+#include <utilmoneystr.h>
+#include <kernel.h>
+#include <pos.h>
 
 #include <assert.h>
 

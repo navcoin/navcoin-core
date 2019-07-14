@@ -6,16 +6,16 @@
 #ifndef NAVCOIN_NET_H
 #define NAVCOIN_NET_H
 
-#include "amount.h"
-#include "bloom.h"
-#include "compat.h"
-#include "limitedmap.h"
-#include "netbase.h"
-#include "protocol.h"
-#include "random.h"
-#include "streams.h"
-#include "sync.h"
-#include "uint256.h"
+#include <amount.h>
+#include <bloom.h>
+#include <compat.h>
+#include <limitedmap.h>
+#include <netbase.h>
+#include <protocol.h>
+#include <random.h>
+#include <streams.h>
+#include <sync.h>
+#include <uint256.h>
 
 #include <atomic>
 #include <deque>

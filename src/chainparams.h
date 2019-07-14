@@ -6,11 +6,11 @@
 #ifndef NAVCOIN_CHAINPARAMS_H
 #define NAVCOIN_CHAINPARAMS_H
 
-#include "chainparamsbase.h"
-#include "consensus/params.h"
-#include "primitives/block.h"
-#include "protocol.h"
-#include "arith_uint256.h"
+#include <chainparamsbase.h>
+#include <consensus/params.h>
+#include <primitives/block.h>
+#include <protocol.h>
+#include <arith_uint256.h>
 
 #include <vector>
 

@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_SUPPORT_PAGELOCKER_H
 #define NAVCOIN_SUPPORT_PAGELOCKER_H
 
-#include "support/cleanse.h"
+#include <support/cleanse.h>
 
 #include <map>
 

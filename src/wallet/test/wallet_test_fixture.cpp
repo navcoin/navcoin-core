@@ -1,8 +1,8 @@
-#include "wallet/test/wallet_test_fixture.h"
+#include <wallet/test/wallet_test_fixture.h>
 
-#include "rpc/server.h"
-#include "wallet/db.h"
-#include "wallet/wallet.h"
+#include <rpc/server.h>
+#include <wallet/db.h>
+#include <wallet/wallet.h>
 
 WalletTestingSetup::WalletTestingSetup(const std::string& chainName):
     TestingSetup(chainName)

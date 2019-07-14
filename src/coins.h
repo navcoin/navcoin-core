@@ -6,12 +6,12 @@
 #ifndef NAVCOIN_COINS_H
 #define NAVCOIN_COINS_H
 
-#include "compressor.h"
-#include "core_memusage.h"
-#include "hash.h"
-#include "memusage.h"
-#include "serialize.h"
-#include "uint256.h"
+#include <compressor.h>
+#include <core_memusage.h>
+#include <hash.h>
+#include <memusage.h>
+#include <serialize.h>
+#include <uint256.h>
 
 #include <assert.h>
 #include <stdint.h>

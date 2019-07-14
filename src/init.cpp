@@ -5,44 +5,44 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "init.h"
+#include <init.h>
 
-#include "addrman.h"
-#include "amount.h"
-#include "chain.h"
-#include "chainparams.h"
-#include "checkpoints.h"
-#include "compat/sanity.h"
-#include "consensus/validation.h"
-#include "httpserver.h"
-#include "httprpc.h"
-#include "kernel.h"
-#include "key.h"
-#include "main.h"
-#include "miner.h"
-#include "net.h"
-#include "ntpclient.h"
-#include "policy/policy.h"
-#include "rpc/server.h"
-#include "rpc/register.h"
-#include "script/standard.h"
-#include "script/sigcache.h"
-#include "scheduler.h"
-#include "timedata.h"
-#include "txdb.h"
-#include "txmempool.h"
-#include "torcontrol.h"
-#include "ui_interface.h"
-#include "untar.h"
-#include "util.h"
-#include "utiltime.h"
-#include "utilmoneystr.h"
-#include "validationinterface.h"
+#include <addrman.h>
+#include <amount.h>
+#include <chain.h>
+#include <chainparams.h>
+#include <checkpoints.h>
+#include <compat/sanity.h>
+#include <consensus/validation.h>
+#include <httpserver.h>
+#include <httprpc.h>
+#include <kernel.h>
+#include <key.h>
+#include <main.h>
+#include <miner.h>
+#include <net.h>
+#include <ntpclient.h>
+#include <policy/policy.h>
+#include <rpc/server.h>
+#include <rpc/register.h>
+#include <script/standard.h>
+#include <script/sigcache.h>
+#include <scheduler.h>
+#include <timedata.h>
+#include <txdb.h>
+#include <txmempool.h>
+#include <torcontrol.h>
+#include <ui_interface.h>
+#include <untar.h>
+#include <util.h>
+#include <utiltime.h>
+#include <utilmoneystr.h>
+#include <validationinterface.h>
 #ifdef ENABLE_WALLET
-#include "wallet/wallet.h"
+#include <wallet/wallet.h>
 #endif
 #include <stdint.h>
 #include <stdio.h>
@@ -68,7 +68,7 @@
 
 
 #if ENABLE_ZMQ
-#include "zmq/zmqnotificationinterface.h"
+#include <zmq/zmqnotificationinterface.h>
 #endif
 
 char *sPrivKey, *sPubKey;

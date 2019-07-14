@@ -5,12 +5,12 @@
 
 // NOTE: This file is intended to be customised by the end user, and includes only local node policy logic
 
-#include "policy/policy.h"
+#include <policy/policy.h>
 
-#include "main.h"
-#include "tinyformat.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <main.h>
+#include <tinyformat.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #include <boost/foreach.hpp>
 
