@@ -139,20 +139,13 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->unlockStakingButton, SIGNAL(clicked()), this, SLOT(unlockWalletStaking()));
 
     // start with displaying the "out of sync" warnings
-    showOutOfSyncWarning(true);
     updateStakeReportNow();
-    connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
 {
     if(filter)
         Q_EMIT transactionClicked(filter->mapToSource(index));
-}
-
-void OverviewPage::handleOutOfSyncWarningClicks()
-{
-    Q_EMIT outOfSyncWarningClicked();
 }
 
 void OverviewPage::showLockStaking(bool status)
@@ -333,11 +326,6 @@ void OverviewPage::unlockWalletStaking()
         dlg.setModel(walletModel);
         dlg.exec();
     }
-}
-
-void OverviewPage::showOutOfSyncWarning(bool fShow)
-{
-    ui->labelWalletStatus->setVisible(fShow);
 }
 
 using namespace boost;

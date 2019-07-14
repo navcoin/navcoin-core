@@ -37,7 +37,6 @@ public:
 
     void setClientModel(ClientModel *clientModel);
     void setWalletModel(WalletModel *walletModel);
-    void showOutOfSyncWarning(bool fShow);
 
 public Q_SLOTS:
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
@@ -92,7 +91,6 @@ private Q_SLOTS:
     void handleTransactionClicked(const QModelIndex &index);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void unlockWalletStaking();
-    void handleOutOfSyncWarningClicks();
 };
 
 #endif // NAVCOIN_QT_OVERVIEWPAGE_H

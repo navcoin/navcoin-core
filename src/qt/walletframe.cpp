@@ -75,7 +75,6 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
     walletView->setNavCoinGUI(gui);
     walletView->setClientModel(clientModel);
     walletView->setWalletModel(walletModel);
-    walletView->showOutOfSyncWarning(bOutOfSync);
 
      /* TODO we should goto the currently selected page once dynamically adding wallets is supported */
     walletView->gotoOverviewPage();
@@ -85,7 +84,6 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
     // Ensure a walletView is able to show the main window
     connect(walletView, SIGNAL(showNormalIfMinimized()), gui, SLOT(showNormalIfMinimized()));
     connect(walletView, SIGNAL(openAddressHistory()), this, SLOT(usedReceivingAddresses()));
-
 
     return true;
 }
@@ -126,14 +124,6 @@ bool WalletFrame::handlePaymentRequest(const SendCoinsRecipient &recipient)
         return false;
 
     return walletView->handlePaymentRequest(recipient);
-}
-
-void WalletFrame::showOutOfSyncWarning(bool fShow)
-{
-    bOutOfSync = fShow;
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->showOutOfSyncWarning(fShow);
 }
 
 void WalletFrame::gotoOverviewPage()

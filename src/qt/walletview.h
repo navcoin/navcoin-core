@@ -55,8 +55,6 @@ public:
 
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 
-    void showOutOfSyncWarning(bool fShow);
-
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;

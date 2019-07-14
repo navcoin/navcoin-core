@@ -99,8 +99,8 @@ static const struct {
     const int type;
     const char *text;
 } notifs[] = {
-    { ERROR, "Dao needs your attention, please don't forget to vote!" },
-    { WARNING, "This wallet is syncing. Your balance may not be accurate until it has completed!" },
+    { ERROR, "The DAO needs you! Please don't forget to vote!" },
+    { WARNING, "This wallet is currently syncing. Your balance may not be accurate until it has completed!" },
     { WARNING, "GENERIC WARNINGS USE THIS"}
 };
 
@@ -122,7 +122,7 @@ const QString NavCoinGUI::BTN_BACKGROUND = "#DBE0E8";
 const QString NavCoinGUI::BTN_BACKGROUND_ACTIVE = "#E8EBF0";
 const QString NavCoinGUI::BTN_STYLE = "QPushButton { text-align: left; font: normal normal 4em/4em; padding: 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; } QPushButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; color: " + BTN_COLOR + "; }";
 const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: #b30000; color: #f1f1f1; padding: 0.1em; margin: 0.4em 0 0 0; font: normal normal 1em/1em;";
-const QString NavCoinGUI::NOTIFICATION_STYLE = "border: 0.1em solid %1; border-radius: 0.25em; background: %2; color: %3; padding: 0.2em; font: normal normal 1em/1em;";
+const QString NavCoinGUI::NOTIFICATION_STYLE = "border: 0.15em solid %1; border-radius: 0.3em; background: %2; color: %3; padding: 0.3em 1em; font: normal normal 1.5em/1.5em;";
 const QString NavCoinGUI::NOTIFICATION_ERROR = "#F8D7DA";
 const QString NavCoinGUI::NOTIFICATION_ERROR_TEXT = "#721C24";
 const QString NavCoinGUI::NOTIFICATION_ERROR_BORDER = "#F5C6CB";
@@ -647,10 +647,12 @@ void NavCoinGUI::createToolBars()
         QVBoxLayout* notificationLayout = new QVBoxLayout();
         notificationLayout->setContentsMargins(50 * scale(), 5 * scale(), 50 * scale(), 5 * scale());
         notificationLayout->setSpacing(2 * scale());
+        notificationLayout->setAlignment(Qt::AlignVCenter);
 
         // Add a spacer to header to create a background
         QWidget* headerSpacer = new QWidget();
         headerSpacer->setStyleSheet("background: #EEEEEE;");
+        headerSpacer->setFixedHeight(logoHeight);
         headerSpacer->setLayout(notificationLayout);
 
         // Build each new notification
@@ -749,6 +751,11 @@ void NavCoinGUI::createToolBars()
         padding->setStyleSheet("background: " + BTN_BACKGROUND + ";");
         walletFrame->menuLayout->addWidget(padding);
     }
+}
+
+void NavCoinGUI::showOutOfSyncWarning(bool fShow)
+{
+    showHideNotification(fShow, 1);
 }
 
 void NavCoinGUI::showHideNotification(bool show, int index)
@@ -1263,7 +1270,7 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 #ifdef ENABLE_WALLET
         if(walletFrame)
         {
-            walletFrame->showOutOfSyncWarning(false);
+            showOutOfSyncWarning(false);
             modalOverlay->showHide(true, true);
         }
 #endif // ENABLE_WALLET
@@ -1323,7 +1330,7 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 #ifdef ENABLE_WALLET
         if(walletFrame)
         {
-            walletFrame->showOutOfSyncWarning(true);
+            showOutOfSyncWarning(true);
             modalOverlay->showHide();
         }
 #endif // ENABLE_WALLET

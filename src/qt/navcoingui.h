@@ -82,6 +82,9 @@ public:
     /** Get the screen scale, usefull for scaling UI elements */
     float scale();
 
+    /** Show/Hide the wallet sync warning notification */
+    void showOutOfSyncWarning(bool fShow);
+
     /** Show/Hide a notification */
     void showHideNotification(bool show, int index);
 

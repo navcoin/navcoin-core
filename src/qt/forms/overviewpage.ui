@@ -547,26 +547,6 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="labelWalletStatus">
-         <property name="font">
-          <font>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color:#cc2222</string>
-         </property>
-         <property name="text">
-          <string>This wallet is currently syncing. Your balance may not be accurate until it has completed</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
