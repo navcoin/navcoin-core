@@ -222,6 +222,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of DAO CONSENSUS
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].bit = 25;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nTimeout = 1622548800; // Jun 1st, 2021
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -429,6 +434,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of DAO CONSENSUS
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].bit = 25;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nTimeout = 1622548800; // Jun 1st, 2021
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -628,6 +638,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 23;
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of DAO CONSENSUS
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].bit = 25;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -838,6 +853,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].bit = 23;
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nStartTime = 1559390400; // Jun 1st, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CONSULTATIONS].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of DAO CONSENSUS
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].bit = 25;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nStartTime = 1559390400; // Jun 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_DAO_CONSENSUS].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

@@ -5173,6 +5173,12 @@ bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Param
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
+bool IsDaoConsensus(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_DAO_CONSENSUS, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
 // Compute at which vout of the block's coinbase transaction the witness
 // commitment occurs, or -1 if not found.
 static int GetWitnessCommitmentIndex(const CBlock& block)
