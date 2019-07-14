@@ -3215,6 +3215,9 @@ int64_t GetFirstStakeTime()
 // return int =  Number of Wallet's elements analyzed
 int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 {
+    // Lock cs_main before we try to call GetTxStakeAmount
+    LOCK(cs_main);
+
     int nElement = 0;
     int64_t nAmount = 0;
 
