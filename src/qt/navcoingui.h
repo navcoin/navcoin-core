@@ -60,20 +60,33 @@ class NavCoinGUI : public QMainWindow
     Q_OBJECT
 
 public:
-    static const QString DEFAULT_WALLET;
-    static const std::string BTN_STYLE;
-    static const std::string BTN_COLOR;
-    static const std::string BTN_COLOR_ACTIVE;
-    static const std::string BTN_BACKGROUND;
-    static const std::string BTN_BACKGROUND_ACTIVE;
-    static const std::string BUBBLE_STYLE;
     static const std::string DEFAULT_UIPLATFORM;
+
+    static const QString DEFAULT_WALLET;
+    static const QString BTN_COLOR;
+    static const QString BTN_BACKGROUND;
+    static const QString BTN_BACKGROUND_ACTIVE;
+    static const QString BTN_STYLE;
+    static const QString BUBBLE_STYLE;
+    static const QString NOTIFICATION_STYLE;
+    static const QString NOTIFICATION_ERROR;
+    static const QString NOTIFICATION_ERROR_TEXT;
+    static const QString NOTIFICATION_ERROR_BORDER;
+    static const QString NOTIFICATION_WARNING;
+    static const QString NOTIFICATION_WARNING_TEXT;
+    static const QString NOTIFICATION_WARNING_BORDER;
 
     explicit NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent = 0);
     ~NavCoinGUI();
 
     /** Get the screen scale, usefull for scaling UI elements */
     float scale();
+
+    /** Show a notification */
+    void showNotification(int index);
+
+    /** Hide a notification */
+    void hideNotification(int index);
 
     /** Set the active topMenuBtns */
     void setActiveTopMenu(int index);
@@ -156,6 +169,7 @@ private:
     QAction *toggleStakingAction;
     QPushButton *topMenuBtns[5];
     QLabel *topMenuBubbles[5];
+    QLabel *notifications[3];
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -264,6 +278,9 @@ private Q_SLOTS:
 
     /** Used by curl request in updatePrice */
     static size_t priceUdateWriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+
+    /** Update the alerts notification */
+    void updateAlerts(const QString &warnings);
 
 #endif // ENABLE_WALLET
     /** Show configuration dialog */

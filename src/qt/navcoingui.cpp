@@ -90,23 +90,45 @@
 #include <QWidget>
 #include <QScreen>
 
+enum {
+    ERROR,
+    WARNING
+};
+
+static const struct {
+    const int type;
+    const char *text;
+} notifs[] = {
+    { ERROR, "Dao needs your attention, please don't forget to vote!" },
+    { WARNING, "This wallet is syncing. Your balance may not be accurate until it has completed!" },
+    { WARNING, "GENERIC WARNINGS USE THIS"}
+};
+
+static const unsigned notifs_count = sizeof(notifs)/sizeof(*notifs);
+
 const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
 #if defined(Q_OS_MAC)
-        "macosx"
+"macosx"
 #elif defined(Q_OS_WIN)
-        "windows"
+"windows"
 #else
-        "other"
+"other"
 #endif
-        ;
+;
 
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
-
-const std::string NavCoinGUI::BTN_COLOR = "#6D76AB";
-const std::string NavCoinGUI::BTN_BACKGROUND = "#DBE0E8";
-const std::string NavCoinGUI::BTN_BACKGROUND_ACTIVE = "#E8EBF0";
-const std::string NavCoinGUI::BTN_STYLE = "QPushButton { text-align: left; font: normal normal 4em/4em; padding: 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; } QPushButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; color: " + BTN_COLOR + "; }";
-const std::string NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: #b30000; color: #f1f1f1; padding: 0.1em; margin: 0.4em 0 0 0; font: normal normal 1em/1em;";
+const QString NavCoinGUI::BTN_COLOR = "#6D76AB";
+const QString NavCoinGUI::BTN_BACKGROUND = "#DBE0E8";
+const QString NavCoinGUI::BTN_BACKGROUND_ACTIVE = "#E8EBF0";
+const QString NavCoinGUI::BTN_STYLE = "QPushButton { text-align: left; font: normal normal 4em/4em; padding: 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; } QPushButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; color: " + BTN_COLOR + "; }";
+const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: #b30000; color: #f1f1f1; padding: 0.1em; margin: 0.4em 0 0 0; font: normal normal 1em/1em;";
+const QString NavCoinGUI::NOTIFICATION_STYLE = "border: 0.1em solid %1; border-radius: 0.25em; background: %2; color: %3; padding: 0.2em; font: normal normal 1em/1em;";
+const QString NavCoinGUI::NOTIFICATION_ERROR = "#F8D7DA";
+const QString NavCoinGUI::NOTIFICATION_ERROR_TEXT = "#721C24";
+const QString NavCoinGUI::NOTIFICATION_ERROR_BORDER = "#F5C6CB";
+const QString NavCoinGUI::NOTIFICATION_WARNING = "#FFF3CD";
+const QString NavCoinGUI::NOTIFICATION_WARNING_TEXT = "#856404";
+const QString NavCoinGUI::NOTIFICATION_WARNING_BORDER = "#FFEEBA";
 
 NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
@@ -620,24 +642,53 @@ void NavCoinGUI::createToolBars()
         QPushButton* logo = new QPushButton();
         logo->setFixedSize(logoWidth, logoHeight);
         logo->setStyleSheet("border: 0; margin: 0; padding: 0; border-image: url(:/icons/menu_logo) 0 0 0 0 stretch stretch;");
-        headerLogoLayout->addWidget(logo);
+
+        // Notifications layout vertical
+        QVBoxLayout* notificationLayout = new QVBoxLayout();
+        notificationLayout->setContentsMargins(50 * scale(), 5 * scale(), 50 * scale(), 5 * scale());
+        notificationLayout->setSpacing(2 * scale());
 
         // Add a spacer to header to create a background
         QWidget* headerSpacer = new QWidget();
         headerSpacer->setStyleSheet("background: #EEEEEE;");
-        headerLogoLayout->addWidget(headerSpacer);
+        headerSpacer->setLayout(notificationLayout);
+
+        // Build each new notification
+        for (unsigned i = 0; i < notifs_count; ++i)
+        {
+            // Add notifications
+            notifications[i] = new QLabel();
+            notifications[i]->setWordWrap(true);
+            notifications[i]->setText(tr(notifs[i].text));
+            notifications[i]->hide();
+            if (notifs[i].type == ERROR)
+            {
+                notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_ERROR_BORDER, NOTIFICATION_ERROR, NOTIFICATION_ERROR_TEXT));
+            }
+            else
+            {
+                notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_WARNING_BORDER, NOTIFICATION_WARNING, NOTIFICATION_WARNING_TEXT));
+            }
+
+            // Add to notification layout
+            notificationLayout->addWidget(notifications[i]);
+        }
 
         // Create the header by with gradient
         QWidget* headerBar = new QWidget();
         headerBar->setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ABA8E1, stop:1 #9DC3E5)");
         headerBar->setMinimumSize(1, 9 * scale());
 
+        // Add the widgets to the header section
+        headerLogoLayout->addWidget(logo);
+        headerLogoLayout->addWidget(headerSpacer);
+
         // Add the new layout to the header layout
         walletFrame->headerLayout->addLayout(headerLogoLayout);
         walletFrame->headerLayout->addWidget(headerBar);
 
         // Buttons
-        std::string btnNames[5] = {
+        QString btnNames[5] = {
             "home",
             "send",
             "receive",
@@ -646,16 +697,16 @@ void NavCoinGUI::createToolBars()
         };
 
         // Build each new button
-        for (int i = 0; i < 5; ++i)
+        for (unsigned i = 0; i < 5; ++i)
         {
             // Add padding on left of button text
-            QString btnText = tr(("  " + btnNames[i]).c_str()).toUpper();
+            QString btnText = tr(qPrintable("  " + btnNames[i])).toUpper();
 
             // What size is our icon?
             QSize _iconSize = QSize(iconSize, iconSize);
 
             // Create the icon
-            QIcon icon = platformStyle->SingleColorIcon((":/icons/" + btnNames[i]).c_str(), BTN_COLOR.c_str());
+            QIcon icon = platformStyle->SingleColorIcon(":/icons/" + btnNames[i], BTN_COLOR);
 
             // Update the disabled icon pixmap to use the same as QIcon::Normal
             icon.addPixmap(icon.pixmap(_iconSize, QIcon::Normal, QIcon::On), QIcon::Disabled);
@@ -666,7 +717,7 @@ void NavCoinGUI::createToolBars()
             topMenuBtns[i]->setIcon(icon);
             topMenuBtns[i]->setIconSize(_iconSize);
             topMenuBtns[i]->setMinimumSize(logoWidth, 10);
-            topMenuBtns[i]->setStyleSheet(QString(BTN_STYLE.c_str()));
+            topMenuBtns[i]->setStyleSheet(BTN_STYLE);
 
             // Attach to the layout and assign click events
             walletFrame->menuLayout->addWidget(topMenuBtns[i]);
@@ -678,7 +729,7 @@ void NavCoinGUI::createToolBars()
             // Create the bubble and place in the bubble layout
             topMenuBubbles[i] = new QLabel();
             topMenuBubbles[i]->setText("1");
-            topMenuBubbles[i]->setStyleSheet(BUBBLE_STYLE.c_str());
+            topMenuBubbles[i]->setStyleSheet(BUBBLE_STYLE);
             topMenuBubbles[i]->hide();
             bubbleLayout->addWidget(topMenuBubbles[i]);
 
@@ -695,9 +746,19 @@ void NavCoinGUI::createToolBars()
 
         /* This is to make the sidebar background consistent */
         QWidget *padding = new QWidget();
-        padding->setStyleSheet(QString(("background: " + BTN_BACKGROUND + ";").c_str()));
+        padding->setStyleSheet("background: " + BTN_BACKGROUND + ";");
         walletFrame->menuLayout->addWidget(padding);
     }
+}
+
+void NavCoinGUI::showNotification(int index)
+{
+    notifications[index]->show();
+}
+
+void NavCoinGUI::hideNotification(int index)
+{
+    notifications[index]->hide();
 }
 
 void NavCoinGUI::setActiveTopMenu(int index)
@@ -793,6 +854,10 @@ void NavCoinGUI::setClientModel(ClientModel *clientModel)
     this->clientModel = clientModel;
     if(clientModel)
     {
+        // Show warnings
+        connect(clientModel, SIGNAL(alertsChanged(QString)), this, SLOT(updateAlerts(QString)));
+        updateAlerts(clientModel->getStatusBarWarnings());
+
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
         // while the client has not yet fully loaded
         createTrayIconMenu();
@@ -882,6 +947,15 @@ void NavCoinGUI::repairWallet()
     WriteConfigFile("repairwallet","1");
 
     QApplication::quit();
+}
+
+void NavCoinGUI::updateAlerts(const QString &warnings)
+{
+    // Show or hide the warning
+    notifications[2]->setVisible(!warnings.isEmpty());
+
+    // Set the message
+    notifications[2]->setText(tr(qPrintable(warnings)));
 }
 
 #endif // ENABLE_WALLET
@@ -1839,7 +1913,6 @@ void NavCoinGUI::updateStakingStatus()
         {
             walletFrame->setStakingStatus(tr("Staking is turned off."));
             walletFrame->showLockStaking(false);
-            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
         }
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
@@ -1932,7 +2005,14 @@ void NavCoinGUI::updateStakingStatus()
             else
                 walletFrame->setStakingStatus(tr("Not staking, please wait"));
         }
+
+//        vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
+//        int nItemCounted = GetsStakeSubTotal(aRange);
+//        if(ARRAYLEN(aRange) > 32){
+//            walletFrame->setStakingStats(FormatMoney(aRange[30].Total).c_str(),FormatMoney(aRange[31].Total).c_str(),FormatMoney(aRange[32].Total).c_str());
+//        }
     }
+
 }
 
 #endif
