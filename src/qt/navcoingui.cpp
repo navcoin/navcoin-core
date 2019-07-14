@@ -90,18 +90,13 @@
 #include <QWidget>
 #include <QScreen>
 
-enum {
-    ERROR,
-    WARNING
-};
-
 static const struct {
-    const int type;
+    bool error;
     const char *text;
 } notifs[] = {
-    { ERROR, "The DAO needs you! Please don't forget to vote!" },
-    { WARNING, "This wallet is currently syncing. Your balance may not be accurate until it has completed!" },
-    { WARNING, "GENERIC WARNINGS USE THIS"}
+    { true, "The DAO needs you! Please don't forget to vote!" },
+    { false, "This wallet is currently syncing. Your balance may not be accurate until it has completed!" },
+    { false, "GENERIC WARNINGS USE THIS" }
 };
 
 static const unsigned notifs_count = sizeof(notifs)/sizeof(*notifs);
@@ -663,7 +658,7 @@ void NavCoinGUI::createToolBars()
             notifications[i]->setWordWrap(true);
             notifications[i]->setText(tr(notifs[i].text));
             notifications[i]->hide();
-            if (notifs[i].type == ERROR)
+            if (notifs[i].error == true)
             {
                 notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_ERROR_BORDER, NOTIFICATION_ERROR, NOTIFICATION_ERROR_TEXT));
             }
