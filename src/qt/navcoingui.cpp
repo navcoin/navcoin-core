@@ -751,14 +751,9 @@ void NavCoinGUI::createToolBars()
     }
 }
 
-void NavCoinGUI::showNotification(int index)
+void NavCoinGUI::showHideNotification(bool show, int index)
 {
-    notifications[index]->show();
-}
-
-void NavCoinGUI::hideNotification(int index)
-{
-    notifications[index]->hide();
+    notifications[index]->setVisible(show);
 }
 
 void NavCoinGUI::setActiveTopMenu(int index)
@@ -837,6 +832,9 @@ void NavCoinGUI::updateDaoNewCount()
 
     // Update the bubble
     setTopMenuBubble(4, newDaoCount);
+
+    // New daos? SHOW notification
+    showHideNotification(newDaoCount > 0, 0);
 }
 
 void NavCoinGUI::setTopMenuBubble(int index, int drak)

@@ -82,11 +82,8 @@ public:
     /** Get the screen scale, usefull for scaling UI elements */
     float scale();
 
-    /** Show a notification */
-    void showNotification(int index);
-
-    /** Hide a notification */
-    void hideNotification(int index);
+    /** Show/Hide a notification */
+    void showHideNotification(bool show, int index);
 
     /** Set the active topMenuBtns */
     void setActiveTopMenu(int index);
