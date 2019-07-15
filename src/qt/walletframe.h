@@ -45,6 +45,10 @@ public:
     QWidget *topMenu;
     QHBoxLayout *menuLayout;
 
+Q_SIGNALS:
+    /** Notify that the user has requested more information about the out-of-sync warning */
+    void requestedSyncWarningInfo();
+
 private:
     QStackedWidget *walletStack;
     NavCoinGUI *gui;
@@ -112,7 +116,8 @@ public Q_SLOTS:
     void usedSendingAddresses();
     /** Show used receiving addresses */
     void usedReceivingAddresses();
-
+    /** Pass on signal over requested out-of-sync-warning information */
+    void outOfSyncWarningClicked();
 };
 
 #endif // NAVCOIN_QT_WALLETFRAME_H

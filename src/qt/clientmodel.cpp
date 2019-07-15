@@ -34,6 +34,8 @@ ClientModel::ClientModel(OptionsModel *optionsModel, QObject *parent) :
     banTableModel(0),
     pollTimer(0)
 {
+    cachedBestHeaderHeight = -1;
+    cachedBestHeaderTime = -1;
     peerTableModel = new PeerTableModel(this);
     banTableModel = new BanTableModel(this);
     pollTimer = new QTimer(this);
@@ -60,6 +62,45 @@ int ClientModel::getNumConnections(unsigned int flags) const
             nNum++;
 
     return nNum;
+}
+
+int ClientModel::getHeaderTipHeight() const
+{
+    if (cachedBestHeaderHeight == -1) {
+        // make sure we initially populate the cache via a cs_main lock
+        // otherwise we need to wait for a tip update
+        int height;
+        int64_t blockTime;
+        if (getHeaderTip(height, blockTime)) {
+            cachedBestHeaderHeight = height;
+            cachedBestHeaderTime = blockTime;
+        }
+    }
+    return cachedBestHeaderHeight;
+}
+
+int64_t ClientModel::getHeaderTipTime() const
+{
+    if (cachedBestHeaderTime == -1) {
+        int height;
+        int64_t blockTime;
+        if (getHeaderTip(height, blockTime)) {
+            cachedBestHeaderHeight = height;
+            cachedBestHeaderTime = blockTime;
+        }
+    }
+    return cachedBestHeaderTime;
+}
+
+bool ClientModel::getHeaderTip(int& height, int64_t& block_time) const
+{
+    LOCK(cs_main);
+    if (pindexBestHeader) {
+        height = pindexBestHeader->nHeight;
+        block_time = pindexBestHeader->GetBlockTime();
+        return true;
+    }
+    return false;
 }
 
 int ClientModel::getNumBlocks() const
@@ -240,6 +281,7 @@ static void BannedListChanged(ClientModel *clientmodel)
     QMetaObject::invokeMethod(clientmodel, "updateBanlist", Qt::QueuedConnection);
 }
 
+/* static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, int height, int64_t blockTime, double verificationProgress, bool fHeader) */
 static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CBlockIndex *pIndex, bool fHeader)
 {
     // lock free async UI updates in case we have a new block tip
@@ -251,12 +293,20 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CB
 
     int64_t& nLastUpdateNotification = fHeader ? nLastHeaderTipUpdateNotification : nLastBlockTipUpdateNotification;
 
-    // if we are in-sync, update the UI regardless of last update time
-    if (!initialSync || now - nLastUpdateNotification > MODEL_UPDATE_DELAY) {
-        //pass a async signal to the UI thread
+    int height = pIndex->nHeight;
+    int64_t blockTime = pIndex->GetBlockTime();
+
+    if (fHeader) {
+        // cache best headers time and height to reduce future cs_main locks
+        clientmodel->cachedBestHeaderHeight = height;
+        clientmodel->cachedBestHeaderTime = blockTime;
+    }
+    // if we are in-sync or if we notify a header update, update the UI regardless of last update time
+    if (fHeader || !initialSync || now - nLastUpdateNotification > MODEL_UPDATE_DELAY) {
+        //pass an async signal to the UI thread
         QMetaObject::invokeMethod(clientmodel, "numBlocksChanged", Qt::QueuedConnection,
-                                  Q_ARG(int, pIndex->nHeight),
-                                  Q_ARG(QDateTime, QDateTime::fromTime_t(pIndex->GetBlockTime())),
+                                  Q_ARG(int, height),
+                                  Q_ARG(QDateTime, QDateTime::fromTime_t(blockTime)),
                                   Q_ARG(double, clientmodel->getVerificationProgress(pIndex)),
                                   Q_ARG(bool, fHeader));
         nLastUpdateNotification = now;
