@@ -1913,6 +1913,7 @@ void NavCoinGUI::updateStakingStatus()
         {
             walletFrame->setStakingStatus(tr("Staking is turned off."));
             walletFrame->showLockStaking(false);
+            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
         }
         else if (nLastCoinStakeSearchInterval && nWeight)
         {
