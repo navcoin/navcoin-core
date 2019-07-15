@@ -29,7 +29,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     menuLayout->setSpacing(0);
 
     walletFrameLayout->setSpacing(0);
-    walletFrameLayout->setContentsMargins(0,0,0,0);    
+    walletFrameLayout->setContentsMargins(0,0,0,0);
 
     setContentsMargins(0,0,0,0);
 
@@ -336,4 +336,9 @@ void WalletFrame::usedReceivingAddresses()
 WalletView *WalletFrame::currentWalletView()
 {
     return qobject_cast<WalletView*>(walletStack->currentWidget());
+}
+
+void WalletFrame::outOfSyncWarningClicked()
+{
+    Q_EMIT requestedSyncWarningInfo();
 }

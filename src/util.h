@@ -127,6 +127,15 @@ static inline bool error(std::string s)
 {
     return error(s.c_str());
 }
+static inline bool info(const char* s)
+{
+    DebugLogPrintStr(std::string("INFO: ") + s + "\n");
+    return false;
+}
+static inline bool info(std::string s)
+{
+    return info(s.c_str());
+}
 void PrintExceptionContinue(const std::exception *pex, const char* pszThread);
 void ParseParameters(int argc, const char*const argv[]);
 void FileCommit(FILE *file);

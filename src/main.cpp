@@ -408,8 +408,6 @@ struct CNodeState {
     //! Whether this peer can give us witnesses
     bool fHaveWitness;
 
-    CNodeHeaders headers;
-
     CNodeState() {
         fCurrentlyConnected = false;
         nMisbehavior = 0;
@@ -434,6 +432,7 @@ struct CNodeState {
 
 /** Map maintaining per-node state. Requires cs_main. */
 map<NodeId, CNodeState> mapNodeState;
+map<CService, CNodeHeaders> mapServiceHeaders;
 
 // Requires cs_main.
 CNodeState *State(NodeId pnode) {
@@ -441,6 +440,26 @@ CNodeState *State(NodeId pnode) {
     if (it == mapNodeState.end())
         return NULL;
     return &it->second;
+}
+
+static CNodeHeaders &ServiceHeaders(const CService& address) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    unsigned short port =
+            GetBoolArg("-headerspamfilterignoreport", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT) ? 0 : address.GetPort();
+    CService addr(address, port);
+    return mapServiceHeaders[addr];
+}
+
+static void CleanAddressHeaders(const CAddress& addr) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    CSubNet subNet(addr);
+    for (std::map<CService, CNodeHeaders>::iterator it=mapServiceHeaders.begin(); it!=mapServiceHeaders.end();){
+        if(subNet.Match(it->first))
+        {
+            it = mapServiceHeaders.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
 }
 
 int GetHeight()
@@ -1186,8 +1205,6 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
-        if(txout.scriptPubKey.IsColdStaking() && !IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))
-            return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
     }
 
     // Check for duplicate inputs
@@ -1376,6 +1393,15 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         view.GetBestBlock();
 
         nValueIn = view.GetValueIn(tx);
+
+        if (!IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            for (const CTxOut& txout: tx.vout)
+            {
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+            }
+        }
 
         if(IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus())) {
             CAmount nProposalFee = 0;
@@ -2908,9 +2934,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     if (block.IsProofOfWork())
-    {
         hashProof = UintToArith256(block.GetPoWHash());
-    }
 
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
         return state.DoS(1,error("ContextualCheckBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
@@ -4026,21 +4050,17 @@ static void NotifyHeaderTip() {
     bool fNotify = false;
     bool fInitialBlockDownload = false;
     static CBlockIndex* pindexHeaderOld = NULL;
-    CBlockIndex* pindexHeader = NULL;
     {
         LOCK(cs_main);
-        if (!setBlockIndexCandidates.empty()) {
-            pindexHeader = *setBlockIndexCandidates.rbegin();
-        }
-        if (pindexHeader != pindexHeaderOld) {
+        if (pindexBestHeader != pindexHeaderOld) {
             fNotify = true;
             fInitialBlockDownload = IsInitialBlockDownload();
-            pindexHeaderOld = pindexHeader;
+            pindexHeaderOld = pindexBestHeader;
         }
     }
     // Send block tip changed notifications without cs_main
     if (fNotify) {
-        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexHeader);
+        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexBestHeader);
     }
 }
 
@@ -4209,8 +4229,6 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
 
 CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
 {
-
-
     // Check for duplicate
     uint256 hash = block.GetHash();
     BlockMap::iterator it = mapBlockIndex.find(hash);
@@ -4454,11 +4472,22 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         return error("CheckBlock() : bad proof-of-stake block signature");
     }
 
+    bool fColdStakingEnabled = IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus());
+
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
+    {
         if (!CheckTransaction(tx, state))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s\n%s", tx.GetHash().ToString(), state.GetDebugMessage(), tx.ToString()));
+
+        if (!fColdStakingEnabled)
+        {
+            for (const CTxOut& txout: tx.vout)
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+        }
+    }
 
     unsigned int nSigOps = 0;
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
@@ -5952,7 +5981,7 @@ std::string GetWarnings(const std::string& strFor, bool fForStaking)
             strGUI = _(strRPC.c_str());
         }
 
-        if (!pwalletMain->GetStakeWeight()) 
+        if (!pwalletMain->GetStakeWeight())
         {
             strStatusBar = strRPC = "Warning: We don't appear to have mature coins.";
             strGUI = _(strRPC.c_str());
@@ -7204,9 +7233,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             LOCK(cs_main);
             CValidationState state;
             CNodeState *nodestate = State(pfrom->GetId());
-            nodestate->headers.addHeaders(nFirst, nLast);
+            CNodeHeaders& headers = ServiceHeaders(nodestate->address);
+            headers.addHeaders(nFirst, nLast);
             int nDoS;
-            ret = nodestate->headers.updateState(state, ret);
+            ret = headers.updateState(state, ret);
             if (state.IsInvalid(nDoS)) {
                 if (nDoS > 0)
                     Misbehaving(pfrom->GetId(), nDoS);
@@ -7785,6 +7815,8 @@ bool SendMessages(CNode* pto)
                 else
                 {
                     CNode::Ban(pto->addr, BanReasonNodeMisbehaving);
+                    // Remove all data from the header spam filter when the address is banned
+                    CleanAddressHeaders(pto->addr);
                 }
             }
             state.fShouldBan = false;

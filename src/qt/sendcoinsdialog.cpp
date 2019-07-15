@@ -429,7 +429,6 @@ void SendCoinsDialog::on_sendButton_clicked()
         address.append("</span>");
 
         QString recipientElement;
-        int nLength = currentTransaction.recipients.length();
 
         if (!rcp.paymentRequest.IsInitialized()) // normal payment
         {

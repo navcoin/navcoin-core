@@ -207,12 +207,12 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
         UniValue strDZeel(UniValue::VOBJ);
 
-        strDZeel.push_back(Pair("h",ui->lineEditProposalHash->text().toStdString()));
-        strDZeel.push_back(Pair("n",nReqAmount));
-        strDZeel.push_back(Pair("s",Signature));
-        strDZeel.push_back(Pair("r",sRandom));
-        strDZeel.push_back(Pair("i",id));
-        strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
+        strDZeel.pushKV("h",ui->lineEditProposalHash->text().toStdString());
+        strDZeel.pushKV("n",nReqAmount);
+        strDZeel.pushKV("s",Signature);
+        strDZeel.pushKV("r",sRandom);
+        strDZeel.pushKV("i",id);
+        strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2);
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
