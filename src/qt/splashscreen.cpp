@@ -56,25 +56,29 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     // We are done
     pixPaint.end();
 
-    // Build the text
-    QString labelText = versionText;
-
     // Check if we have more text (IE testnet/devnet)
     if(!titleAddText.isEmpty())
-        labelText += " <span style='font-weight: bold;'>" + titleAddText + "</span>";
+        versionText += " <span style='font-weight: bold;'>" + titleAddText + "</span>";
 
-    // Make the version layout
-    QLayout* layout = new QHBoxLayout(this);
-    layout->setAlignment(Qt::AlignTop | Qt::AlignRight);
+    // Margin for the splashscreen
+    int margin = 10 * scale();
 
-    QWidget* spacer = new QWidget();
-    layout->addWidget(spacer);
+    // Make the layout
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->setContentsMargins(margin, margin, margin, margin);
+    layout->setSpacing(0);
 
-    // Build the new label
-    QLabel* label = new QLabel();
-    label->setText(labelText);
-    label->setStyleSheet("padding: 2pt; font-size: 8pt;");
-    layout->addWidget(label);
+    // Build the new versionLabel
+    QLabel* versionLabel = new QLabel();
+    versionLabel->setText(versionText);
+    versionLabel->setAlignment(Qt::AlignRight | Qt::AlignTop);
+    versionLabel->setStyleSheet("padding: 2pt; font-size: 8pt;");
+    layout->addWidget(versionLabel);
+
+    // Build the new statusLabel
+    statusLabel = new QLabel();
+    statusLabel->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
+    layout->addWidget(statusLabel);
 
     // Set window title
     setWindowTitle(titleText + " " + titleAddText);
@@ -157,28 +161,16 @@ void SplashScreen::unsubscribeFromCoreSignals()
 
 void SplashScreen::showMessage(const QString &message, const QColor &color)
 {
-    curMessage = message;
-    curColor = color;
+    // Update the text for the statusLabel
+    statusLabel->setText(message);
+    statusLabel->setStyleSheet("padding: 5pt; font-size: 13pt; color: " + color.name() + ";");
     update();
 }
 
 void SplashScreen::paintEvent(QPaintEvent *event)
 {
-    // What size to render the font in
-    int size = 10 * scale();
-
-    // Build a rect
-    QRect r = rect().adjusted(size, size, -size, -size);
-
-    // Make a bold font
-    QFont font = QFont(QApplication::font().toString(), size);
-
-    // Paint the window and text
     QPainter painter(this);
-    painter.setFont(font);
-    painter.setPen(curColor);
     painter.drawPixmap(0, 0, pixmap);
-    painter.drawText(r, Qt::AlignBottom | Qt::AlignCenter, curMessage);
 }
 
 void SplashScreen::closeEvent(QCloseEvent *event)

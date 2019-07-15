@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_QT_SPLASHSCREEN_H
 #define NAVCOIN_QT_SPLASHSCREEN_H
 
-#include <QSplashScreen>
+#include <QLabel>
 
 class NetworkStyle;
 
@@ -44,8 +44,7 @@ private:
     void unsubscribeFromCoreSignals();
 
     QPixmap pixmap;
-    QString curMessage;
-    QColor curColor;
+    QLabel* statusLabel;
 };
 
 #endif // NAVCOIN_QT_SPLASHSCREEN_H
