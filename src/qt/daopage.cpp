@@ -66,7 +66,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     layout->addSpacing(15);
     layout->addWidget(bottomBox);
 
-    int timerInterval = 500;
+    int timerInterval = 2000;
     QTimer* timer = new QTimer(this);
     timer->setInterval(timerInterval);
     connect(timer, &QTimer::timeout, this, [this]() {
