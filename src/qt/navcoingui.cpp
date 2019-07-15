@@ -116,7 +116,7 @@ const QString NavCoinGUI::BTN_COLOR = "#6D76AB";
 const QString NavCoinGUI::BTN_BACKGROUND = "#DBE0E8";
 const QString NavCoinGUI::BTN_BACKGROUND_ACTIVE = "#E8EBF0";
 const QString NavCoinGUI::BTN_STYLE = "QPushButton { text-align: left; font: normal normal 4em/4em; padding: 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; } QPushButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; color: " + BTN_COLOR + "; }";
-const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: #b30000; color: #f1f1f1; padding: 0.1em; margin: 0.4em 0 0 0; font: normal normal 1em/1em;";
+const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: #b30000; color: #f1f1f1; padding: 0.1em; margin: 0 0.5em 0 0; font: normal normal 1em/1em;";
 const QString NavCoinGUI::NOTIFICATION_STYLE = "border: 0.15em solid %1; border-radius: 0.3em; background: %2; color: %3; padding: 0.3em 1em; font: normal normal 1.5em/1.5em;";
 const QString NavCoinGUI::NOTIFICATION_ERROR = "#F8D7DA";
 const QString NavCoinGUI::NOTIFICATION_ERROR_TEXT = "#721C24";
@@ -721,7 +721,9 @@ void NavCoinGUI::createToolBars()
 
             // Create a bubble layout
             QVBoxLayout* bubbleLayout = new QVBoxLayout(topMenuBtns[i]);
-            bubbleLayout->setAlignment(Qt::AlignRight); // Move it to the right
+            bubbleLayout->setContentsMargins(0, 0, 0, 0);
+            bubbleLayout->setSpacing(0);
+            bubbleLayout->setAlignment(Qt::AlignRight | Qt::AlignVCenter); // Move it to the right middle
 
             // Create the bubble and place in the bubble layout
             topMenuBubbles[i] = new QLabel();
@@ -729,10 +731,6 @@ void NavCoinGUI::createToolBars()
             topMenuBubbles[i]->setStyleSheet(BUBBLE_STYLE);
             topMenuBubbles[i]->hide();
             bubbleLayout->addWidget(topMenuBubbles[i]);
-
-            // Add a space to the bottom
-            QWidget* spacer = new QWidget();
-            bubbleLayout->addWidget(spacer);
         }
 
         connect(topMenuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
