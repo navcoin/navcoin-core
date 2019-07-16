@@ -10,6 +10,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     walletModel(0),
     table(new QTableWidget),
     layout(new QVBoxLayout),
+    contextMenu(new QMenu),
     fActive(false),
     nView(VIEW_PROPOSALS),
     nCurrentView(-1),
@@ -45,6 +46,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(deploymentsBtn, SIGNAL(clicked()), this, SLOT(viewDeployments()));
     connect(createBtn, SIGNAL(clicked()), this, SLOT(onCreate()));
     connect(filterCmb, SIGNAL(currentIndexChanged(int)), this, SLOT(onFilter(int)));
+    connect(table, &QTableWidget::customContextMenuRequested, this, &DaoPage::showContextMenu);
 
     topBoxLayout->addSpacing(30);
     topBoxLayout->addWidget(viewLbl, 0, Qt::AlignLeft);
@@ -175,13 +177,27 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         table->setEditTriggers(QAbstractItemView::NoEditTriggers);
         table->setSelectionMode(QAbstractItemView::NoSelection);
         table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-        table->setContextMenuPolicy(Qt::CustomContextMenu);
         table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
         table->verticalHeader()->setDefaultSectionSize(78);
         table->verticalHeader()->setVisible(false);
         table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
         table->horizontalHeader()->setSortIndicatorShown(true);
         table->horizontalHeader()->setSectionsClickable(true);
+        table->setContextMenuPolicy(Qt::CustomContextMenu);
+
+        auto *copyHash = new QAction(tr("Copy Proposal Hash"), this);
+        contextMenu = new QMenu();
+        contextMenu->addAction(copyHash);
+
+        connect(copyHash, &QAction::triggered, this, [this]() {
+            if (contextItem == nullptr)
+                return;
+            auto *hashItem = table->item(contextItem->row(), P_COLUMN_HASH);
+            if (hashItem) {
+                auto propHash = hashItem->data(Qt::DisplayRole).toString();
+                QApplication::clipboard()->setText(propHash, QClipboard::Clipboard);
+            }
+        });
 
         if (nCurrentView == VIEW_PROPOSALS)
         {
@@ -244,6 +260,13 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         }
         else if (nCurrentView == VIEW_CONSULTATIONS)
         {
+            if (nFilter == FILTER_LOOKING_FOR_SUPPORT)
+            {
+                auto *proposeAnswer = new QAction(tr("Propose Answer"), this);
+                contextMenu->addAction(proposeAnswer);
+                connect(proposeAnswer, SIGNAL(triggered()), this, SLOT(onProposeAnswer()));
+                table->setSortingEnabled(false);
+            }
             createBtn->setVisible(true);
             createBtn->setText(tr("Create new Consultation"));
 
@@ -252,6 +275,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             filterCmb->insertItem(FILTER_VOTED, "Voted");
             filterCmb->insertItem(FILTER_IN_PROGRESS, "Being voted");
             filterCmb->insertItem(FILTER_FINISHED, "Voting finished");
+            filterCmb->insertItem(FILTER_LOOKING_FOR_SUPPORT, "Looking for support");
 
             table->setColumnCount(C_COLUMN_PADDING3 + 1);
             table->setColumnHidden(C_COLUMN_HASH, true);
@@ -301,361 +325,393 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
     CStateViewCache coins(pcoinsTip);
 
-    if (nCurrentView == VIEW_PROPOSALS)
+    nBadgeProposals = nBadgePaymentRequests = nBadgeConsultations = nBadgeDeployments = 0;
+
+    proposalModel.clear();
+
+    for (auto& it: proposalMap)
     {
-        proposalModel.clear();
+        CProposal proposal = it.second;
 
-        for (auto& it: proposalMap)
+        uint64_t nVote = -10000;
+        auto v = mapAddedVotes.find(proposal.hash);
+
+        if (v != mapAddedVotes.end())
         {
-            CProposal proposal = it.second;
-
-            uint64_t nVote = -10000;
-            auto v = mapAddedVotes.find(proposal.hash);
-
-            if (v != mapAddedVotes.end())
-            {
-                nVote = v->second;
-            }
-
-            if (nFilter != FILTER_ALL)
-            {
-                if (nFilter == FILTER_VOTED && nVote == -10000)
-                    continue;
-                if (nFilter == FILTER_NOT_VOTED && nVote != -10000)
-                    continue;
-                if (nFilter == FILTER_IN_PROGRESS && !proposal.CanVote())
-                    continue;
-                if (nFilter == FILTER_FINISHED && proposal.CanVote())
-                    continue;
-            }
-
-            if (mapBlockIndex.count(proposal.txblockhash) == 0)
-                continue;
-
-            uint64_t deadline = proposal.nDeadline;
-            uint64_t deadline_d = std::floor(deadline/86400);
-            uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
-            uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
-
-            // Show appropriate amount of figures
-            std::string s_deadline = "";
-            if(deadline_d >= 14)
-                s_deadline = std::to_string(deadline_d) + std::string(" Days");
-            else
-                s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
-
-            ProposalEntry p = {
-                it.first,
-                "blue",
-                QString::fromStdString(proposal.strDZeel),
-                NavCoinUnits::formatWithUnit(unit, proposal.nAmount, false, NavCoinUnits::separatorAlways),
-                NavCoinUnits::formatWithUnit(unit, proposal.nAmount - proposal.GetAvailable(coins), false, NavCoinUnits::separatorAlways),
-                QString::fromStdString(s_deadline),
-                proposal.nVotesYes ? proposal.nVotesYes : 0,
-                proposal.nVotesNo ? proposal.nVotesNo : 0,
-                proposal.nVotesAbs ? proposal.nVotesAbs : 0,
-                proposal.nVotingCycle,
-                QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime())),
-                proposal.CanVote(),
-                nVote,
-                (uint64_t)mapBlockIndex[proposal.txblockhash]->GetBlockTime()
-            };
-
-            switch (proposal.fState)
-            {
-            case DAOFlags::NIL:
-            {
-                p.color = "yellow";
-                break;
-            }
-            case DAOFlags::ACCEPTED:
-            {
-                p.color = "green";
-                break;
-            }
-            case DAOFlags::REJECTED:
-            {
-                p.color = "red";
-                break;
-            }
-            case DAOFlags::EXPIRED:
-            {
-                p.color = "orange";
-                break;
-            }
-            }
-
-            proposalModel << p;
+            nVote = v->second;
         }
 
-        std::sort(proposalModel.begin(), proposalModel.end(), [](const ProposalEntry &a, const ProposalEntry &b) {
-            return a.ts > b.ts;
-        });
+        if (proposal.CanVote() && nVote == -10000)
+            nBadgeProposals++;
 
-        setData(proposalModel);
-    }
-    else if (nCurrentView == VIEW_PAYMENT_REQUESTS)
-    {
-        paymentRequestModel.clear();
-
-        for (auto& it: paymentRequestMap)
+        if (nFilter != FILTER_ALL)
         {
-            CProposal proposal;
-            CPaymentRequest prequest = it.second;
-
-            uint64_t nVote = -10000;
-            auto v = mapAddedVotes.find(prequest.hash);
-
-            if (v != mapAddedVotes.end())
-            {
-                nVote = v->second;
-            }
-
-            if (nFilter != FILTER_ALL)
-            {
-                if (nFilter == FILTER_VOTED && nVote == -10000)
-                    continue;
-                if (nFilter == FILTER_NOT_VOTED && nVote != -10000)
-                    continue;
-                if (nFilter == FILTER_IN_PROGRESS && !prequest.CanVote(coins))
-                    continue;
-                if (nFilter == FILTER_FINISHED && prequest.CanVote(coins))
-                    continue;
-            }
-
-            if (mapBlockIndex.count(prequest.txblockhash) == 0)
+            if (nFilter == FILTER_VOTED && nVote == -10000)
                 continue;
-
-            if (!coins.GetProposal(prequest.proposalhash, proposal))
+            if (nFilter == FILTER_NOT_VOTED && nVote != -10000)
                 continue;
-
-            PaymentRequestEntry p = {
-                it.first,
-                QString::fromStdString(prequest.strDZeel),
-                QString::fromStdString(proposal.strDZeel),
-                "blue",
-                NavCoinUnits::formatWithUnit(unit, prequest.nAmount, false, NavCoinUnits::separatorAlways),
-                prequest.nVotesYes ? prequest.nVotesYes : 0,
-                prequest.nVotesNo ? prequest.nVotesNo : 0,
-                prequest.nVotesAbs ? prequest.nVotesAbs : 0,
-                proposal.nVotingCycle,
-                QString::fromStdString(prequest.GetState()),
-                prequest.CanVote(coins),
-                nVote,
-                (uint64_t)mapBlockIndex[prequest.txblockhash]->GetBlockTime()
-            };
-
-            switch (prequest.fState)
-            {
-            case DAOFlags::NIL:
-            {
-                p.color = "yellow";
-                break;
-            }
-            case DAOFlags::ACCEPTED:
-            {
-                p.color = "green";
-                break;
-            }
-            case DAOFlags::REJECTED:
-            {
-                p.color = "red";
-                break;
-            }
-            case DAOFlags::EXPIRED:
-            {
-                p.color = "orange";
-                break;
-            }
-            }
-
-            paymentRequestModel << p;
+            if (nFilter == FILTER_IN_PROGRESS && !proposal.CanVote())
+                continue;
+            if (nFilter == FILTER_FINISHED && proposal.CanVote())
+                continue;
         }
 
-        std::sort(paymentRequestModel.begin(), paymentRequestModel.end(), [](const PaymentRequestEntry &a, const PaymentRequestEntry &b) {
-            return a.ts > b.ts;
-        });
+        if (mapBlockIndex.count(proposal.txblockhash) == 0)
+            continue;
 
-        setData(paymentRequestModel);
-    }
-    else if (nCurrentView == VIEW_CONSULTATIONS)
-    {
-        consultationModel.clear();
+        uint64_t deadline = proposal.nDeadline;
+        uint64_t deadline_d = std::floor(deadline/86400);
+        uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
+        uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
 
-        for (auto& it: consultationMap)
+        // Show appropriate amount of figures
+        std::string s_deadline = "";
+        if(deadline_d >= 14)
+            s_deadline = std::to_string(deadline_d) + std::string(" Days");
+        else
+            s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
+
+        ProposalEntry p = {
+            it.first,
+            "blue",
+            QString::fromStdString(proposal.strDZeel),
+            NavCoinUnits::formatWithUnit(unit, proposal.nAmount, false, NavCoinUnits::separatorAlways),
+            NavCoinUnits::formatWithUnit(unit, proposal.nAmount - proposal.GetAvailable(coins), false, NavCoinUnits::separatorAlways),
+            QString::fromStdString(s_deadline),
+            proposal.nVotesYes ? proposal.nVotesYes : 0,
+            proposal.nVotesNo ? proposal.nVotesNo : 0,
+            proposal.nVotesAbs ? proposal.nVotesAbs : 0,
+            proposal.nVotingCycle,
+            QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime())),
+            proposal.CanVote(),
+            nVote,
+            (uint64_t)mapBlockIndex[proposal.txblockhash]->GetBlockTime()
+        };
+
+        switch (proposal.fState)
         {
-            CConsultation consultation = it.second;
+        case DAOFlags::NIL:
+        {
+            p.color = "yellow";
+            break;
+        }
+        case DAOFlags::ACCEPTED:
+        {
+            p.color = "green";
+            break;
+        }
+        case DAOFlags::REJECTED:
+        {
+            p.color = "red";
+            break;
+        }
+        case DAOFlags::EXPIRED:
+        {
+            p.color = "orange";
+            break;
+        }
+        }
 
-            if (!consultation.IsSupported(coins))
+        proposalModel << p;
+    }
+
+    std::sort(proposalModel.begin(), proposalModel.end(), [](const ProposalEntry &a, const ProposalEntry &b) {
+        if (a.ts == b.ts)
+            return a.hash > b.hash;
+        else
+            return a.ts > b.ts;
+    });
+
+    paymentRequestModel.clear();
+
+    for (auto& it: paymentRequestMap)
+    {
+        CProposal proposal;
+        CPaymentRequest prequest = it.second;
+
+        uint64_t nVote = -10000;
+        auto v = mapAddedVotes.find(prequest.hash);
+
+        if (v != mapAddedVotes.end())
+        {
+            nVote = v->second;
+        }
+
+        if (prequest.CanVote(coins) && nVote == -10000)
+            nBadgePaymentRequests++;
+
+        if (nFilter != FILTER_ALL)
+        {
+            if (nFilter == FILTER_VOTED && nVote == -10000)
                 continue;
-
-            uint64_t nVote = -10000;
-            auto v = mapAddedVotes.find(consultation.hash);
-
-            if (v != mapAddedVotes.end())
-            {
-                nVote = v->second;
-            }
-
-            if (nFilter != FILTER_ALL)
-            {
-                if (nFilter == FILTER_VOTED && nVote == -10000)
-                    continue;
-                if (nFilter == FILTER_NOT_VOTED && nVote != -10000)
-                    continue;
-                if (nFilter == FILTER_IN_PROGRESS && !consultation.CanBeVoted())
-                    continue;
-                if (nFilter == FILTER_FINISHED && consultation.CanBeVoted())
-                    continue;
-            }
-
-            if (mapBlockIndex.count(consultation.txblockhash) == 0)
+            if (nFilter == FILTER_NOT_VOTED && nVote != -10000)
                 continue;
+            if (nFilter == FILTER_IN_PROGRESS && !prequest.CanVote(coins))
+                continue;
+            if (nFilter == FILTER_FINISHED && prequest.CanVote(coins))
+                continue;
+        }
 
-            QVector<ConsultationAnswerEntry> answers;
-            QStringList myVotes;
+        if (mapBlockIndex.count(prequest.txblockhash) == 0)
+            continue;
 
-            if (consultation.IsRange() && nVote != -10000)
+        if (!coins.GetProposal(prequest.proposalhash, proposal))
+            continue;
+
+        PaymentRequestEntry p = {
+            it.first,
+            QString::fromStdString(prequest.strDZeel),
+            QString::fromStdString(proposal.strDZeel),
+            "blue",
+            NavCoinUnits::formatWithUnit(unit, prequest.nAmount, false, NavCoinUnits::separatorAlways),
+            prequest.nVotesYes ? prequest.nVotesYes : 0,
+            prequest.nVotesNo ? prequest.nVotesNo : 0,
+            prequest.nVotesAbs ? prequest.nVotesAbs : 0,
+            proposal.nVotingCycle,
+            QString::fromStdString(prequest.GetState()),
+            prequest.CanVote(coins),
+            nVote,
+            (uint64_t)mapBlockIndex[prequest.txblockhash]->GetBlockTime()
+        };
+
+        switch (prequest.fState)
+        {
+        case DAOFlags::NIL:
+        {
+            p.color = "yellow";
+            break;
+        }
+        case DAOFlags::ACCEPTED:
+        {
+            p.color = "green";
+            break;
+        }
+        case DAOFlags::REJECTED:
+        {
+            p.color = "red";
+            break;
+        }
+        case DAOFlags::EXPIRED:
+        {
+            p.color = "orange";
+            break;
+        }
+        }
+
+        paymentRequestModel << p;
+    }
+
+    std::sort(paymentRequestModel.begin(), paymentRequestModel.end(), [](const PaymentRequestEntry &a, const PaymentRequestEntry &b) {
+        if (a.ts == b.ts)
+            return a.hash > b.hash;
+        else
+            return a.ts > b.ts;
+    });
+
+    consultationModel.clear();
+
+    for (auto& it: consultationMap)
+    {
+        CConsultation consultation = it.second;
+
+        uint64_t nVote = -10000;
+        auto v = mapAddedVotes.find(consultation.hash);
+
+        if (v != mapAddedVotes.end())
+        {
+            nVote = v->second;
+        }
+
+        if (consultation.CanBeVoted() && nVote == -10000)
+            nBadgeConsultations++;
+
+        if (nFilter != FILTER_ALL)
+        {
+            if (nFilter == FILTER_VOTED && nVote == -10000)
+                continue;
+            if (nFilter == FILTER_NOT_VOTED && nVote != -10000)
+                continue;
+            if (nFilter == FILTER_IN_PROGRESS && !consultation.CanBeVoted())
+                continue;
+            if (nFilter == FILTER_FINISHED && consultation.CanBeVoted())
+                continue;
+            if ((!consultation.IsSupported(coins) && nFilter != FILTER_LOOKING_FOR_SUPPORT) ||
+                (consultation.IsSupported(coins) && nFilter == FILTER_LOOKING_FOR_SUPPORT))
+                continue;
+        }
+
+        if (mapBlockIndex.count(consultation.txblockhash) == 0)
+            continue;
+
+        QVector<ConsultationAnswerEntry> answers;
+        QStringList myVotes;
+
+        bool fSupported = mapSupported.count(consultation.hash);
+
+        if (consultation.CanBeSupported())
+        {
+            if (fSupported)
+                myVotes << tr("Supported");
+        }
+        else if (consultation.IsRange() && nVote != -10000)
+        {
+            myVotes << QString::number(nVote);
+        }
+
+        if (!consultation.IsRange())
+        {
+            for (auto& it2: consultationAnswerMap)
             {
-                myVotes << QString::number(nVote);
-            }
-            else
-            {
-                for (auto& it2: consultationAnswerMap)
+                CConsultationAnswer answer;
+
+                if (!pcoinsTip->GetConsultationAnswer(it2.first, answer))
+                    continue;
+
+                if (answer.parent != consultation.hash)
+                    continue;
+
+                if (!answer.IsSupported() && nFilter != FILTER_LOOKING_FOR_SUPPORT)
+                    continue;
+
+                if (consultation.CanBeVoted())
                 {
-                    CConsultationAnswer answer;
-
-                    if (!pcoinsTip->GetConsultationAnswer(it2.first, answer))
-                        continue;
-
-                    if (answer.parent != consultation.hash)
-                        continue;
-
-                    if (!answer.IsSupported())
-                        continue;
-
                     auto v = mapAddedVotes.find(answer.hash);
 
                     if (v != mapAddedVotes.end() && v->second == 1)
                     {
                         myVotes << QString::fromStdString(answer.sAnswer);
                     }
-
-                    ConsultationAnswerEntry a = {
-                        answer.hash,
-                        QString::fromStdString(answer.sAnswer),
-                        answer.nVotes,
-                        QString::fromStdString(answer.GetState()),
-                        answer.CanBeVoted(coins)
-                    };
-
-                    answers << a;
                 }
-            }
 
-            if (consultation.IsRange())
-            {
-                std::sort(answers.begin(), answers.end(), [](const ConsultationAnswerEntry &a, const ConsultationAnswerEntry &b) {
-                    return a.answer.toInt() < b.answer.toInt();
-                });
-            }
-            else
-            {
-                std::sort(answers.begin(), answers.end(), [](const ConsultationAnswerEntry &a, const ConsultationAnswerEntry &b) {
-                    return a.answer.toInt() < b.answer.toInt();
-                });
-            }
+                ConsultationAnswerEntry a = {
+                    answer.hash,
+                    QString::fromStdString(answer.sAnswer),
+                    answer.nVotes,
+                    QString::fromStdString(answer.GetState()),
+                    answer.CanBeVoted(coins),
+                    answer.CanBeSupported(coins),
+                    answer.CanBeSupported(coins) && mapSupported.count(answer.hash) ? tr("Supported") : tr("")
+                };
 
-            myVotes.sort();
-
-            bool fCanVote = consultation.CanBeVoted();
-
-            if (!consultation.IsRange())
-            {
-                fCanVote = true;
-
-                for (ConsultationAnswerEntry &a: answers)
-                {
-                    if (!a.fCanVote)
-                    {
-                        fCanVote = false;
-                        break;
-                    }
-                }
+                answers << a;
             }
-
-            ConsultationEntry p = {
-                it.first,
-                "blue",
-                QString::fromStdString(consultation.strDZeel),
-                answers,
-                "",
-                consultation.nVotingCycle,
-                QString::fromStdString(consultation.GetState(chainActive.Tip())),
-                fCanVote,
-                myVotes,
-                (uint64_t)mapBlockIndex[consultation.txblockhash]->GetBlockTime(),
-                consultation.IsRange(),
-                consultation.nMin,
-                consultation.nMax
-            };
-
-            switch (consultation.fState)
-            {
-            case DAOFlags::NIL:
-            {
-                p.color = "yellow";
-                break;
-            }
-            case DAOFlags::ACCEPTED:
-            {
-                p.color = "green";
-                break;
-            }
-            case DAOFlags::EXPIRED:
-            {
-                p.color = "red";
-                break;
-            }
-            case DAOFlags::CONFIRMATION:
-            {
-                p.color = "orange";
-                break;
-            }
-            }
-
-            consultationModel << p;
         }
 
-        std::sort(consultationModel.begin(), consultationModel.end(), [](const ConsultationEntry &a, const ConsultationEntry &b) {
-            return a.ts > b.ts;
-        });
-
-        setData(consultationModel);
-    }
-    else if (nCurrentView == VIEW_DEPLOYMENTS)
-    {
-        deploymentModel.clear();
-
-        const Consensus::Params& consensusParams = Params().GetConsensus();
-
-        for (unsigned int i = 0; i < Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++)
+        if (consultation.IsRange())
         {
-            QString status = "unknown";
+            std::sort(answers.begin(), answers.end(), [](const ConsultationAnswerEntry &a, const ConsultationAnswerEntry &b) {
+                return a.answer.toInt() < b.answer.toInt();
+            });
+        }
+        else
+        {
+            std::sort(answers.begin(), answers.end(), [](const ConsultationAnswerEntry &a, const ConsultationAnswerEntry &b) {
+                return a.answer.toInt() < b.answer.toInt();
+            });
+        }
 
-            Consensus::DeploymentPos id = (Consensus::DeploymentPos)i;
+        myVotes.sort();
 
-            bool fFinished = false;
-            bool fInProgress = false;
-            bool nVoted = false;
+        bool fCanVote = consultation.CanBeVoted();
 
-            if (!consensusParams.vDeployments[id].nStartTime)
-                continue;
+        if (!consultation.IsRange())
+        {
+            fCanVote = true;
 
-            std::vector<std::string>& versionBitVotesRejected = mapMultiArgs["-rejectversionbit"];
-            std::vector<std::string>& versionBitVotesAccepted = mapMultiArgs["-acceptversionbit"];
+            for (ConsultationAnswerEntry &a: answers)
+            {
+                if (!a.fCanVote)
+                {
+                    fCanVote = false;
+                    break;
+                }
+            }
+        }
 
-            for (auto& it: versionBitVotesRejected)
+        ConsultationEntry p = {
+            it.first,
+            "blue",
+            QString::fromStdString(consultation.strDZeel),
+            answers,
+            "",
+            consultation.nVotingCycle,
+            QString::fromStdString(consultation.GetState(chainActive.Tip())),
+            consultation.fState,
+            fCanVote,
+            myVotes,
+            (uint64_t)mapBlockIndex[consultation.txblockhash]->GetBlockTime(),
+            consultation.IsRange(),
+            consultation.nMin,
+            consultation.nMax,
+            consultation.CanBeSupported()
+        };
+
+        switch (consultation.fState)
+        {
+        case DAOFlags::NIL:
+        {
+            p.color = "yellow";
+            break;
+        }
+        case DAOFlags::ACCEPTED:
+        {
+            p.color = "green";
+            break;
+        }
+        case DAOFlags::EXPIRED:
+        {
+            p.color = "red";
+            break;
+        }
+        case DAOFlags::CONFIRMATION:
+        {
+            p.color = "orange";
+            break;
+        }
+        }
+
+        consultationModel << p;
+    }
+
+    std::sort(consultationModel.begin(), consultationModel.end(), [](const ConsultationEntry &a, const ConsultationEntry &b) {
+        if (a.ts == b.ts)
+            return a.hash > b.hash;
+        else
+            return a.ts > b.ts;
+    });
+
+    deploymentModel.clear();
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+
+    for (unsigned int i = 0; i < Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++)
+    {
+        QString status = "unknown";
+
+        Consensus::DeploymentPos id = (Consensus::DeploymentPos)i;
+
+        bool fFinished = false;
+        bool fInProgress = false;
+        bool nVoted = false;
+
+        if (!consensusParams.vDeployments[id].nStartTime)
+            continue;
+
+        std::vector<std::string>& versionBitVotesRejected = mapMultiArgs["-rejectversionbit"];
+        std::vector<std::string>& versionBitVotesAccepted = mapMultiArgs["-acceptversionbit"];
+
+        for (auto& it: versionBitVotesRejected)
+        {
+            if (stoi(it) == i)
+            {
+                nVoted = true;
+                break;
+            }
+        }
+
+        if (!nVoted)
+        {
+            for (auto& it: versionBitVotesAccepted)
             {
                 if (stoi(it) == i)
                 {
@@ -663,78 +719,86 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                     break;
                 }
             }
-
-            if (!nVoted)
-            {
-                for (auto& it: versionBitVotesAccepted)
-                {
-                    if (stoi(it) == i)
-                    {
-                        nVoted = true;
-                        break;
-                    }
-                }
-            }
-
-
-            const ThresholdState thresholdState = VersionBitsTipState(consensusParams, id);
-            switch (thresholdState) {
-            case THRESHOLD_DEFINED: status =  "defined"; fFinished = false; fInProgress = false; break;
-            case THRESHOLD_STARTED: status = "started"; fFinished = false; fInProgress = true; break;
-            case THRESHOLD_LOCKED_IN: status = "locked in"; fFinished = true; fInProgress = false; break;
-            case THRESHOLD_ACTIVE: status = "active"; fFinished = true; fInProgress = false; break;
-            case THRESHOLD_FAILED: status = "failed"; fFinished = true; fInProgress = false; break;
-            }
-
-            if (nFilter != FILTER_ALL)
-            {
-                if (nFilter == FILTER_VOTED && !nVoted)
-                    continue;
-                if (nFilter == FILTER_NOT_VOTED && nVoted)
-                    continue;
-                if (nFilter == FILTER_IN_PROGRESS && !fInProgress)
-                    continue;
-                if (nFilter == FILTER_FINISHED && !fFinished)
-                    continue;
-            }
-
-            bool nVote = !IsVersionBitRejected(consensusParams, id);
-
-            DeploymentEntry e = {
-                "blue",
-                QString::fromStdString(Consensus::sDeploymentsDesc[id]),
-                status,
-                status == "started",
-                nVote,
-                !nVoted,
-                consensusParams.vDeployments[id].nStartTime,
-                consensusParams.vDeployments[id].bit
-            };
-
-            if (status == "started")
-            {
-                e.color = "yellow";
-            }
-            else if (status == "locked_in")
-            {
-                e.color = "purple";
-            }
-            else if (status == "active")
-            {
-                e.color = "green";
-            }
-            else if (status == "failed")
-            {
-                e.color = "red";
-            }
-
-            deploymentModel << e;
         }
 
-        std::sort(deploymentModel.begin(), deploymentModel.end(), [](const DeploymentEntry &a, const DeploymentEntry &b) {
-            return a.ts > b.ts;
-        });
+        const ThresholdState thresholdState = VersionBitsTipState(consensusParams, id);
+        switch (thresholdState) {
+        case THRESHOLD_DEFINED: status =  "defined"; fFinished = false; fInProgress = false; break;
+        case THRESHOLD_STARTED: status = "started"; fFinished = false; fInProgress = true; break;
+        case THRESHOLD_LOCKED_IN: status = "locked in"; fFinished = true; fInProgress = false; break;
+        case THRESHOLD_ACTIVE: status = "active"; fFinished = true; fInProgress = false; break;
+        case THRESHOLD_FAILED: status = "failed"; fFinished = true; fInProgress = false; break;
+        }
 
+        if (fInProgress && !nVoted)
+            nBadgeDeployments++;
+
+        if (nFilter != FILTER_ALL)
+        {
+            if (nFilter == FILTER_VOTED && !nVoted)
+                continue;
+            if (nFilter == FILTER_NOT_VOTED && nVoted)
+                continue;
+            if (nFilter == FILTER_IN_PROGRESS && !fInProgress)
+                continue;
+            if (nFilter == FILTER_FINISHED && !fFinished)
+                continue;
+        }
+
+        bool nVote = !IsVersionBitRejected(consensusParams, id);
+
+        DeploymentEntry e = {
+            "blue",
+            QString::fromStdString(Consensus::sDeploymentsDesc[id]),
+            status,
+            status == "started",
+            nVote,
+            !nVoted,
+            consensusParams.vDeployments[id].nStartTime,
+            consensusParams.vDeployments[id].bit
+        };
+
+        if (status == "started")
+        {
+            e.color = "yellow";
+        }
+        else if (status == "locked_in")
+        {
+            e.color = "purple";
+        }
+        else if (status == "active")
+        {
+            e.color = "green";
+        }
+        else if (status == "failed")
+        {
+            e.color = "red";
+        }
+
+        deploymentModel << e;
+    }
+
+    std::sort(deploymentModel.begin(), deploymentModel.end(), [](const DeploymentEntry &a, const DeploymentEntry &b) {
+        if (a.ts == b.ts)
+            return a.title > b.title;
+        else
+            return a.ts > b.ts;
+    });
+
+    if (nCurrentView == VIEW_PROPOSALS)
+    {
+        setData(proposalModel);
+    }
+    else if (nCurrentView == VIEW_PAYMENT_REQUESTS)
+    {
+        setData(paymentRequestModel);
+    }
+    else if (nCurrentView == VIEW_CONSULTATIONS)
+    {
+        setData(consultationModel);
+    }
+    else if (nCurrentView == VIEW_DEPLOYMENTS)
+    {
         setData(deploymentModel);
     }
 }
@@ -1022,6 +1086,8 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
     table->setRowCount(data.count());
     table->setSortingEnabled(false);
 
+    int offset = 0;
+
     for (int i = 0; i < data.count(); ++i) {
         ConsultationEntry &entry = data[i];
 
@@ -1031,13 +1097,13 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         indicatorBox->setContentsMargins(QMargins());
         indicatorBox->setStyleSheet(QString("background-color: %1;").arg(entry.color));
         indicatorBox->setFixedWidth(3);
-        table->setCellWidget(i, C_COLUMN_COLOR, indicatorBox);
-        table->setItem(i, C_COLUMN_COLOR, colorItem);
+        table->setCellWidget(i+offset, C_COLUMN_COLOR, indicatorBox);
+        table->setItem(i+offset, C_COLUMN_COLOR, colorItem);
 
         // TITLE
         auto *titleItem = new QTableWidgetItem;
         titleItem->setData(Qt::DisplayRole, entry.question);
-        table->setItem(i, C_COLUMN_TITLE, titleItem);
+        table->setItem(i+offset, C_COLUMN_TITLE, titleItem);
 
         // ANSWERS
         QString answers;
@@ -1055,15 +1121,16 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
             s.sort();
             answers = s.join(", ");
         }
+
         auto *answersItem = new QTableWidgetItem;
         answersItem->setData(Qt::DisplayRole, answers);
         answersItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
-        table->setItem(i, C_COLUMN_ANSWERS, answersItem);
+        table->setItem(i+offset, C_COLUMN_ANSWERS, answersItem);
 
         // STATE
         auto *statusItem = new QTableWidgetItem;
         statusItem->setData(Qt::DisplayRole, entry.sState);
-        table->setItem(i, C_COLUMN_STATUS, statusItem);
+        table->setItem(i+offset, C_COLUMN_STATUS, statusItem);
 
         // DETAILS
         auto *detailsItem = new QTableWidgetItem;
@@ -1086,13 +1153,13 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         connect(detailsBtn, SIGNAL(clicked()), this, SLOT(onDetails()));
 
         table->setCellWidget(i, C_COLUMN_URL, detailsWidget);
-        table->setItem(i, C_COLUMN_URL, detailsItem);
+        table->setItem(i+offset, C_COLUMN_URL, detailsItem);
 
         // MY VOTES
         auto *myvotesItem = new QTableWidgetItem;
         myvotesItem->setData(Qt::DisplayRole, entry.myVotes.join(", "));
         myvotesItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
-        table->setItem(i, C_COLUMN_MY_VOTES, myvotesItem);
+        table->setItem(i+offset, C_COLUMN_MY_VOTES, myvotesItem);
 
         //VOTE
         auto *votedItem = new QTableWidgetItem;
@@ -1105,17 +1172,60 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         widget->setLayout(boxLayout);
 
         // Only show vote button if proposal voting is in progress
-        if (entry.fCanVote) {
+        if (entry.fCanVote || entry.fCanSupport) {
             auto *button = new QPushButton;
-            button->setText(entry.myVotes.size() == 0 ? tr("Vote") : tr("Change"));
+            if (entry.fState == DAOFlags::NIL)
+                button->setText(entry.myVotes.size() == 0 ? tr("Support") : tr("Unsupport"));
+            else
+                button->setText(entry.myVotes.size() == 0 ? tr("Vote") : tr("Change"));
             button->setFixedHeight(40);
             button->setProperty("id", QString::fromStdString(entry.hash.GetHex()));
             boxLayout->addWidget(button, 0, Qt::AlignCenter);
             connect(button, SIGNAL(clicked()), this, SLOT(onVote()));
         }
 
-        table->setCellWidget(i, C_COLUMN_VOTE, widget);
-        table->setItem(i, C_COLUMN_VOTE, votedItem);
+        table->setCellWidget(i+offset, C_COLUMN_VOTE, widget);
+        table->setItem(i+offset, C_COLUMN_VOTE, votedItem);
+
+        if(!entry.fRange && entry.fState == DAOFlags::NIL && nFilter == FILTER_LOOKING_FOR_SUPPORT && entry.fCanSupport)
+        {
+            for (ConsultationAnswerEntry& it: entry.answers)
+            {
+                offset++;
+                table->setRowCount(data.count()+offset);
+
+                auto *answerItem = new QTableWidgetItem;
+                answerItem->setData(Qt::DisplayRole, it.answer);
+                answerItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
+                table->setItem(i+offset, C_COLUMN_ANSWERS, answerItem);
+
+                auto *myvoteItem = new QTableWidgetItem;
+                myvoteItem->setData(Qt::DisplayRole, it.sMyVote);
+                myvoteItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
+                table->setItem(i+offset, C_COLUMN_MY_VOTES, myvoteItem);
+
+                if (it.fCanSupport) {
+                    auto *supportedItem = new QTableWidgetItem;
+                    auto *widgetsupportedItem = new QWidget();
+                    widgetsupportedItem->setContentsMargins(QMargins());
+                    widgetsupportedItem->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+                    auto *boxLayoutsupportedItem = new QHBoxLayout;
+                    boxLayoutsupportedItem->setContentsMargins(QMargins());
+                    boxLayoutsupportedItem->setSpacing(0);
+                    widgetsupportedItem->setLayout(boxLayoutsupportedItem);
+
+                    auto *buttonsupportedItem = new QPushButton;
+                    buttonsupportedItem->setText(it.sMyVote.isEmpty() ? tr("Support") : tr("Unsupport"));
+                    buttonsupportedItem->setFixedHeight(40);
+                    buttonsupportedItem->setProperty("id", QString::fromStdString(it.hash.GetHex()));
+                    boxLayoutsupportedItem->addWidget(buttonsupportedItem, 0, Qt::AlignCenter);
+                    connect(buttonsupportedItem, SIGNAL(clicked()), this, SLOT(onVote()));
+
+                    table->setCellWidget(i+offset, C_COLUMN_VOTE, widgetsupportedItem);
+                    table->setItem(i+offset, C_COLUMN_VOTE, supportedItem);
+                }
+            }
+        }
 
     }
 
@@ -1173,7 +1283,7 @@ void DaoPage::setData(QVector<DeploymentEntry> data)
         myvotesItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
         table->setItem(i, D_COLUMN_MY_VOTES, myvotesItem);
 
-        //VOTE
+        // VOTE
         auto *votedItem = new QTableWidgetItem;
         auto *widget = new QWidget();
         widget->setContentsMargins(QMargins());
@@ -1234,6 +1344,7 @@ void DaoPage::onVote() {
         CProposal proposal;
         CPaymentRequest prequest;
         CConsultation consultation;
+        CConsultationAnswer answer;
 
         uint256 hash = uint256S(idV.toString().toStdString());
 
@@ -1251,9 +1362,33 @@ void DaoPage::onVote() {
         }
         else if (coins.GetConsultation(hash, consultation))
         {
-            DaoConsultationVote dlg(this, consultation);
-            dlg.exec();
-            refresh(true);
+            if (consultation.fState == DAOFlags::NIL)
+            {
+                bool duplicate;
+                if (mapSupported.count(consultation.hash))
+                    RemoveSupport(consultation.hash.ToString());
+                else
+                    Support(consultation.hash, duplicate);
+                refresh(true);
+            }
+            else
+            {
+                DaoConsultationVote dlg(this, consultation);
+                dlg.exec();
+                refresh(true);
+            }
+        }
+        else if (coins.GetConsultationAnswer(hash, answer))
+        {
+            if (answer.fState == DAOFlags::NIL)
+            {
+                bool duplicate;
+                if (mapSupported.count(answer.hash))
+                    RemoveSupport(answer.hash.ToString());
+                else
+                    Support(answer.hash, duplicate);
+                refresh(true);
+            }
         }
     }
 }
@@ -1326,4 +1461,17 @@ void DaoPage::onCreate() {
         dlg.exec();
         refresh(true);
     }
+}
+
+void DaoPage::onProposeAnswer() {
+}
+
+void DaoPage::showContextMenu(QPoint pt) {
+    auto *item = table->itemAt(pt);
+    if (!item) {
+        contextItem = nullptr;
+        return;
+    }
+    contextItem = item;
+    contextMenu->exec(QCursor::pos());
 }

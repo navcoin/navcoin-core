@@ -1449,10 +1449,22 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
             {
                 CConsultation consultation;
-                if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation))
+                std::vector<CConsultationAnswer> vAnswers;
+                if (TxToConsultation(tx.strDZeel, tx.GetHash(), uint256(), consultation, vAnswers))
                 {
                     if (viewMemPool.AddConsultation(consultation))
+                    {
                         LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()));
+                        if (!consultation.IsRange())
+                        {
+                            for (CConsultationAnswer& ans: vAnswers)
+                            {
+                                if (viewMemPool.AddConsultationAnswer(ans))
+                                    LogPrint("cfund","New consultation answer (mempool) %s\n", ans.ToString());
+                            }
+                        }
+                    }
+
                 }
                 else
                 {
@@ -1465,7 +1477,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), uint256(), answer))
                 {
                     CConsultation consultation;
-                    if (viewMemPool.GetConsultation(answer.parent, consultation) && consultation.fState == DAOFlags::NIL)
+                    if (viewMemPool.GetConsultation(answer.parent, consultation) && consultation.CanHaveNewAnswers() && !viewMemPool.HaveConsultationAnswer(answer.hash))
                     {
                         if (viewMemPool.AddConsultationAnswer(answer))
                             LogPrint("cfund","New consultation answer (mempool) %s\n", answer.ToString());
@@ -3061,7 +3073,7 @@ bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& block
     return true;
 }
 
-bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultation& consultation)
+bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultation& consultation, std::vector<CConsultationAnswer>& vAnswers)
 {
     UniValue metadata(UniValue::VOBJ);
     try {
@@ -3088,6 +3100,47 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
     consultation.txblockhash = blockhash;
     consultation.fDirty = true;
 
+    vAnswers.clear();
+
+    if (!consultation.IsRange() && find_value(metadata, "a").isArray())
+    {
+        UniValue answers(UniValue::VARR);
+        answers = find_value(metadata, "a").get_array();
+        std::vector<std::string> vSeen;
+
+        for (unsigned int i = 0; i < answers.size(); i++)
+        {
+            UniValue a = answers[i];
+
+            if (!a.isStr())
+                continue;
+
+            std::string s = a.get_str();
+
+            auto it = find (vSeen.begin(), vSeen.end(), s);
+            if (it != vSeen.end())
+                continue;
+
+            vSeen.push_back(s);
+
+            CConsultationAnswer answer;
+
+            CHashWriter hashAnswer(0,0);
+
+            hashAnswer << hash;
+            hashAnswer << s;
+
+            answer.hash = hashAnswer.GetHash();
+            answer.parent = hash;
+            answer.sAnswer = s;
+            answer.nVersion = CConsultationAnswer::BASE_VERSION;
+            answer.txblockhash = blockhash;
+            answer.fDirty = true;
+
+            vAnswers.push_back(answer);
+        }
+    }
+
     return true;
 }
 
@@ -3111,10 +3164,17 @@ bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& b
         return error("%s: Could not read strDZeel of Answer (%s in %s): %s\n", __func__, e.what());
     }  // May not return ever false, as transactions were already checked.
 
-    answer.hash = hash;
+    std::string sAnswer = find_value(metadata, "a").get_str();
+
+    CHashWriter hashAnswer(0,0);
+
+    hashAnswer << hash;
+    hashAnswer << sAnswer;
+
+    answer.hash = hashAnswer.GetHash();
     answer.parent = uint256S(find_value(metadata, "h").get_str());
-    answer.sAnswer = find_value(metadata, "a").get_str();
-    answer.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
+    answer.sAnswer = sAnswer;
+    answer.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultationAnswer::BASE_VERSION;
     answer.txblockhash = blockhash;
     answer.fDirty = true;
 
@@ -3815,10 +3875,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
             {
                 CConsultation consultation;
-                if (TxToConsultation(tx.strDZeel, tx.GetHash(), block.GetHash(), consultation))
+                std::vector<CConsultationAnswer> vAnswers;
+                if (TxToConsultation(tx.strDZeel, tx.GetHash(), block.GetHash(), consultation, vAnswers))
                 {
                     if (view.AddConsultation(consultation))
+                    {
                         LogPrint("cfund","New consultation %s\n", consultation.ToString(pindex));
+                        if (!consultation.IsRange())
+                        {
+                            for (CConsultationAnswer& ans: vAnswers)
+                            {
+                                if (view.AddConsultationAnswer(ans))
+                                    LogPrint("cfund","New consultation answer %s\n", ans.ToString());
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -3831,7 +3902,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), block.GetHash(), answer))
                 {
                     CConsultation consultation;
-                    if (view.GetConsultation(answer.parent, consultation) && consultation.fState == DAOFlags::NIL)
+                    if (view.GetConsultation(answer.parent, consultation) && consultation.CanHaveNewAnswers() && !view.HaveConsultationAnswer(answer.hash))
                     {
                         if (view.AddConsultationAnswer(answer))
                             LogPrint("cfund","New consultation answer %s\n", answer.ToString());

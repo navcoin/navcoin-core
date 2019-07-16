@@ -108,6 +108,7 @@ struct Params {
     float nMinimumQuorumSecondHalf;
     float nMinimumConsultationSupport;
     float nMinimumConsultationAnswerSupport;
+    int nMinimumConsultationCycles;
     int nCommunityFundMinAge;
     int64_t nProposalMinimalFee;
     int64_t nConsultationMinimalFee;

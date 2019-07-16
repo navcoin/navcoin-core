@@ -7,6 +7,7 @@
 
 #include "consensus/dao.h"
 #include "main.h"
+#include "navcoinlistwidget.h"
 #include "skinize.h"
 #include "walletmodel.h"
 
@@ -16,6 +17,7 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QSpinBox>
 #include <QVBoxLayout>
 
@@ -32,18 +34,22 @@ private:
     WalletModel *model;
     QVBoxLayout* layout;
     QLineEdit* questionInput;
-    QCheckBox* rangeBox;
+    QRadioButton* answerIsNumbersBtn;
+    QRadioButton* answerIsFromListBtn;
     QSpinBox* minBox;
     QSpinBox* maxBox;
     QLabel* minLbl;
     QLabel* maxLbl;
     QLabel *warningLbl;
+    NavCoinListWidget* listWidget;
+    QCheckBox* moreAnswersBox;
 
     void showWarning(QString text);
 
 private Q_SLOTS:
     void onCreate();
     void onRange(bool fChecked);
+    void onList(bool fChecked);
 };
 
 #endif // DAOCONSULTATIONCREATE_H

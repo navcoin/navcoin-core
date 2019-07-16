@@ -5,10 +5,10 @@
 #ifndef FLAGS_H
 #define FLAGS_H
 
-typedef unsigned int flags;
 
 namespace DAOFlags
 {
+typedef unsigned int flags;
 static const flags NIL = 0x0;
 static const flags ACCEPTED = 0x1;
 static const flags REJECTED = 0x2;

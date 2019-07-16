@@ -17,7 +17,7 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
     this->setLayout(layout);
     this->setStyleSheet(Skinize());
 
-    QFont subtitleFnt("Sans Serif", 18, QFont::Normal);
+    QFont subtitleFnt("Sans Serif", 18, QFont::Bold);
 
     auto *topBox = new QFrame;
     auto *topBoxLayout = new QHBoxLayout;
@@ -27,9 +27,9 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
     questionLbl = new QLabel(QString::fromStdString(consultation.strDZeel));
     questionLbl->setFont(subtitleFnt);
 
-    topBoxLayout->addSpacing(30);
+    topBoxLayout->addSpacing(15);
     topBoxLayout->addWidget(questionLbl, 0, Qt::AlignCenter);
-    topBoxLayout->addSpacing(30);
+    topBoxLayout->addSpacing(15);
 
     auto *middleBox = new QFrame;
     auto *middleBoxLayout = new QHBoxLayout;
@@ -40,9 +40,9 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
     amountBox->setMinimum(consultation.nMin);
     amountBox->setMaximum(consultation.nMax);
 
-    middleBoxLayout->addSpacing(30);
+    middleBoxLayout->addSpacing(15);
     middleBoxLayout->addWidget(amountBox, 0, Qt::AlignCenter);
-    middleBoxLayout->addSpacing(30);
+    middleBoxLayout->addSpacing(15);
 
     if (consultation.IsRange())
     {

@@ -7,18 +7,21 @@
 DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     layout(new QVBoxLayout),
     questionInput(new QLineEdit),
-    rangeBox(new QCheckBox),
+    answerIsNumbersBtn(new QRadioButton),
+    answerIsFromListBtn(new QRadioButton),
     minBox(new QSpinBox),
     maxBox(new QSpinBox),
     minLbl(new QLabel),
     maxLbl(new QLabel),
-    warningLbl(new QLabel)
+    warningLbl(new QLabel),
+    listWidget(new NavCoinListWidget),
+    moreAnswersBox(new QCheckBox)
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
     this->setStyleSheet(Skinize());
 
-    QFont subtitleFnt("Sans Serif", 18, QFont::Normal);
+    QFont subtitleFnt("Sans Serif", 11, QFont::Normal);
 
     auto *topBox = new QFrame;
     auto *topBoxLayout = new QHBoxLayout;
@@ -41,6 +44,17 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     rangeFrameLayout->setContentsMargins(QMargins());
     rangeFrame->setLayout(rangeFrameLayout);
 
+    auto *moreAnswers = new QFrame;
+    auto *moreAnswersBoxLayout = new QHBoxLayout;
+    moreAnswersBoxLayout->setContentsMargins(QMargins());
+    moreAnswers->setLayout(moreAnswersBoxLayout);
+
+    moreAnswersBox = new QCheckBox(tr("Stakers can propose additional answers"));
+
+    moreAnswersBoxLayout->addStretch();
+    moreAnswersBoxLayout->addWidget(moreAnswersBox);
+    moreAnswersBoxLayout->addStretch();
+
     minLbl = new QLabel(tr("Answer must be between"));
     maxLbl = new QLabel(tr("Max number of answers"));
     rangeFrameLayout->addWidget(minLbl);
@@ -52,11 +66,18 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     minLbl->setVisible(false);
     minBox->setVisible(false);
 
+    minBox->setMinimum(0);
+    maxBox->setMinimum(1);
+
     QPushButton* createBtn = new QPushButton(tr("Submit"));
     connect(createBtn, SIGNAL(clicked()), this, SLOT(onCreate()));
 
-    rangeBox = new QCheckBox(tr("The possible answers are numbers"));
-    connect(rangeBox, SIGNAL(toggled(bool)), this, SLOT(onRange(bool)));
+    answerIsNumbersBtn = new QRadioButton(tr("The possible answers are numbers"), this);
+    answerIsFromListBtn = new QRadioButton(tr("The possible answers are from a list"), this);
+    connect(answerIsNumbersBtn, SIGNAL(toggled(bool)), this, SLOT(onRange(bool)));
+    connect(answerIsFromListBtn, SIGNAL(toggled(bool)), this, SLOT(onList(bool)));
+
+    answerIsFromListBtn->setChecked(true);
 
     bottomBoxLayout->addStretch(1);
     bottomBoxLayout->addWidget(createBtn);
@@ -66,14 +87,21 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     warningLbl->setFont(subtitleFnt);
     warningLbl->setVisible(false);
 
+    listWidget = new NavCoinListWidget(this, tr("Possible answers"));
+
     layout->addWidget(topBox);
-    layout->addSpacing(30);
+    layout->addSpacing(15);
     layout->addWidget(new QLabel(tr("Question")));
     layout->addWidget(questionInput);
-    layout->addWidget(rangeBox);
-    layout->addSpacing(30);
+    layout->addSpacing(15);
+    layout->addWidget(answerIsNumbersBtn);
+    layout->addSpacing(15);
+    layout->addWidget(answerIsFromListBtn);
+    layout->addWidget(listWidget);
+    layout->addWidget(moreAnswers);
+    layout->addSpacing(15);
     layout->addWidget(rangeFrame);
-    layout->addSpacing(30);
+    layout->addSpacing(15);
     layout->addWidget(warningLbl);
     layout->addWidget(bottomBox);
 
@@ -89,7 +117,7 @@ void DaoConsultationCreate::onCreate()
     if(!model)
         return;
 
-    bool fRange = rangeBox->isChecked();
+    bool fRange = answerIsNumbersBtn->isChecked();
     int64_t nMin = minBox->value();
     int64_t nMax = maxBox->value();
 
@@ -119,7 +147,7 @@ void DaoConsultationCreate::onCreate()
         return;
     }
 
-    showWarning("");
+    QStringList listAnswers = listWidget->getEntries();
 
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultation::BASE_VERSION;
@@ -127,9 +155,27 @@ void DaoConsultationCreate::onCreate()
     if (fRange)
         nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;
 
+    if (moreAnswersBox->isChecked())
+        nVersion |= CConsultation::MORE_ANSWERS_VERSION;
+    else if (listAnswers.size() < 2 && !fRange)
+    {
+        showWarning("You need to indicate at least two possible answers.");
+        return;
+    }
+
+    showWarning("");
+
+    UniValue answers(UniValue::VARR);
+
+    for(auto &a: listAnswers)
+    {
+        answers.push_back(a.toStdString());
+    }
+
     strDZeel.push_back(Pair("q",sQuestion));
     strDZeel.push_back(Pair("m",nMin));
     strDZeel.push_back(Pair("n",nMax));
+    strDZeel.push_back(Pair("a",answers));
     strDZeel.push_back(Pair("v",(uint64_t)nVersion));
 
     wtx.strDZeel = strDZeel.write();
@@ -216,12 +262,21 @@ void DaoConsultationCreate::onRange(bool fChecked)
     {
         minLbl->setVisible(true);
         minBox->setVisible(true);
+        listWidget->setVisible(false);
+        moreAnswersBox->setVisible(false);
         maxLbl->setText(tr("and"));
     }
     else
     {
         minLbl->setVisible(false);
         minBox->setVisible(false);
+        listWidget->setVisible(true);
+        moreAnswersBox->setVisible(true);
         maxLbl->setText(tr("Max number of answers"));
     }
+}
+
+void DaoConsultationCreate::onList(bool fChecked)
+{
+
 }

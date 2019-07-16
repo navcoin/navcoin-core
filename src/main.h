@@ -649,7 +649,7 @@ bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pinde
 
 bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CProposal& proposal);
 bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CPaymentRequest& prequest);
-bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultation& consultation);
+bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultation& consultation, std::vector<CConsultationAnswer>& answers);
 bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultationAnswer& answer);
 
 #endif // NAVCOIN_MAIN_H

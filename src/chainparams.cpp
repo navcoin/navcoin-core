@@ -113,6 +113,7 @@ public:
         consensus.nMinimumQuorumSecondHalf = 0.4;
         consensus.nMinimumConsultationSupport = 0.015;
         consensus.nMinimumConsultationAnswerSupport = 0.0075;
+        consensus.nMinimumConsultationCycles = 2;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -338,6 +339,7 @@ public:
         consensus.nMinimumQuorumSecondHalf = 0.4;
         consensus.nMinimumConsultationSupport = 0.015;
         consensus.nMinimumConsultationAnswerSupport = 0.0075;
+        consensus.nMinimumConsultationCycles = 2;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -543,6 +545,7 @@ public:
         consensus.nMinimumQuorumSecondHalf = 0.4;
         consensus.nMinimumConsultationSupport = 0.015;
         consensus.nMinimumConsultationAnswerSupport = 0.0075;
+        consensus.nMinimumConsultationCycles = 2;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;
@@ -758,6 +761,7 @@ public:
         consensus.nMinimumQuorumSecondHalf = 0.4;
         consensus.nMinimumConsultationSupport = 0.015;
         consensus.nMinimumConsultationAnswerSupport = 0.0075;
+        consensus.nMinimumConsultationCycles = 2;
         consensus.nVotesAcceptProposal = 0.7;
         consensus.nVotesRejectProposal = 0.7;
         consensus.nVotesAcceptPaymentRequest = 0.7;

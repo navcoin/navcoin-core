@@ -892,7 +892,7 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(!pcoinsTip->GetConsultation(uint256S(params[0].get_str()), consultation))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid consultation.");
 
-    if(consultation.fState != DAOFlags::NIL || (consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION))
+    if(!consultation.CanHaveNewAnswers())
         throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
 
     std::string sAnswer = params[1].get_str();
@@ -920,8 +920,11 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if (!fDump)
     {
         UniValue ret(UniValue::VOBJ);
+        CConsultationAnswer answer;
 
-        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+        TxToConsultationAnswer(wtx.strDZeel, wtx.GetHash(), uint256(), answer);
+
+        ret.push_back(Pair("hash", answer.hash.ToString()));
         ret.push_back(Pair("strDZeel",wtx.strDZeel));
         return ret;
     }

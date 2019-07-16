@@ -14,6 +14,7 @@
 #include "dao/flags.h"
 
 using namespace std;
+using namespace DAOFlags;
 
 class CTransaction;
 class CStateViewCache;
@@ -589,7 +590,8 @@ class CConsultation
 public:
     static const uint64_t BASE_VERSION = 1;
     static const uint64_t ANSWER_IS_A_RANGE_VERSION = 1<<1;
-    static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION;
+    static const uint64_t MORE_ANSWERS_VERSION  = 1<<2;
+    static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION | MORE_ANSWERS_VERSION;
 
     flags fState;
     uint256 hash;
@@ -652,6 +654,7 @@ public:
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;
     bool IsRange() const;
+    bool CanHaveNewAnswers() const;
 
     ADD_SERIALIZE_METHODS;
 

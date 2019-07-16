@@ -658,6 +658,8 @@ qt/daoconsultationcreate.cpp
 qt/daoconsultationcreate.h
 qt/daoconsultationvote.cpp
 qt/daoconsultationvote.h
+qt/daopage.cpp
+qt/daopage.h
 qt/editaddressdialog.cpp
 qt/editaddressdialog.cpp
 qt/editaddressdialog.h
@@ -1066,6 +1068,8 @@ qt/navcoingui.cpp
 qt/navcoingui.cpp
 qt/navcoingui.h
 qt/navcoingui.h
+qt/navcoinlistwidget.cpp
+qt/navcoinlistwidget.h
 qt/navcoinstrings.cpp
 qt/navcoinstrings.cpp
 qt/navcoinunits.cpp

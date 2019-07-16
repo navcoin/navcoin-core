@@ -963,9 +963,18 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
+    bool fRange = nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION;
+    bool fAcceptMoreAnswers = nVersion & CConsultation::MORE_ANSWERS_VERSION;
+
+    UniValue answers(UniValue::VARR);
+
+    if (find_value(metadata, "a").isArray())
+        answers = find_value(metadata, "a").get_array();
+
     bool ret = (sQuestion != "" && nContribution >= Params().GetConsensus().nConsultationMinimalFee &&
-               ((nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION && nMin >= 0 && nMax < (uint64_t)-1  && nMax > nMin) ||
-                (!(nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION) && nMax > 0  && nMax < 16)) &&
+               ((fRange && nMin >= 0 && nMax < (uint64_t)-1  && nMax > nMin) ||
+                (!fRange && nMax > 0  && nMax < 16)) &&
+               ((!fAcceptMoreAnswers && answers.size() > 1) || fAcceptMoreAnswers || fRange) &&
                (nVersion & ~nMaskVersion) == 0);
 
     if (!ret)
@@ -1070,7 +1079,8 @@ bool CConsultation::IsSupported(CStateViewCache& view) const
         }
     }
 
-    return nSupportedAnswersCount >= 2 && nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport;
+    return nSupportedAnswersCount >= 2 && nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport &&
+            nVotingCycle >= Params().GetConsensus().nMinimumConsultationCycles;
 }
 
 std::string CConsultation::ToString(CBlockIndex* pindex) const {
@@ -1177,6 +1187,11 @@ bool CConsultation::CanBeVoted() const
 bool CConsultation::IsRange() const
 {
     return (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION);
+}
+
+bool CConsultation::CanHaveNewAnswers() const
+{
+    return fState == DAOFlags::NIL && (nVersion & MORE_ANSWERS_VERSION) && !IsRange();
 }
 
 bool CConsultation::IsValidVote(int64_t vote) const

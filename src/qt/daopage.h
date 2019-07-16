@@ -22,12 +22,15 @@
 #include "wallet/wallet.h"
 #include "walletmodel.h"
 
+#include <QApplication>
+#include <QClipboard>
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMenu>
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QTableWidget>
@@ -83,6 +86,8 @@ struct ConsultationAnswerEntry {
     int nVotes;
     QString sState;
     bool fCanVote;
+    bool fCanSupport;
+    QString sMyVote;
 };
 
 struct ConsultationEntry {
@@ -93,12 +98,14 @@ struct ConsultationEntry {
     QString sDesc;
     unsigned int nCycle;
     QString sState;
+    DAOFlags::flags fState;
     bool fCanVote;
     QStringList myVotes;
     uint64_t ts;
     bool fRange;
     uint64_t nMin;
     uint64_t nMax;
+    bool fCanSupport;
 };
 
 struct DeploymentEntry {
@@ -149,6 +156,8 @@ private:
     QLabel* filterLbl;
     QComboBox* filterCmb;
     QPushButton* createBtn;
+    QMenu* contextMenu;
+    QTableWidgetItem *contextItem = nullptr;
 
     bool fActive;
     int nView;
@@ -156,6 +165,11 @@ private:
     int nCurrentUnit;
     int nFilter;
     int nCurrentFilter;
+
+    int nBadgeProposals;
+    int nBadgePaymentRequests;
+    int nBadgeConsultations;
+    int nBadgeDeployments;
 
     enum {
         P_COLUMN_HASH,
@@ -221,7 +235,8 @@ private:
         FILTER_NOT_VOTED,
         FILTER_VOTED,
         FILTER_IN_PROGRESS,
-        FILTER_FINISHED
+        FILTER_FINISHED,
+        FILTER_LOOKING_FOR_SUPPORT
     };
 
 private Q_SLOTS:
@@ -234,8 +249,11 @@ private Q_SLOTS:
     void onVote();
     void onDetails();
     void onFilter(int index);
+    void onProposeAnswer();
 
     void refresh(bool force = false);
+
+    void showContextMenu(QPoint pt);
 };
 
 #endif // DAOPAGE_H

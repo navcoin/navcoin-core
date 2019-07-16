@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -56,7 +56,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QValidatedLineEdit" name="lineEditProposalHash"/>
+      <widget class="QComboBox" name="comboBoxProposalHash"/>
      </item>
      <item>
       <widget class="QLabel" name="labelRequestedAmountTitle">
@@ -141,11 +141,6 @@
    <extends>QLineEdit</extends>
    <header>navcoinamountfield.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QValidatedLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>qvalidatedlineedit.h</header>
   </customwidget>
   <customwidget>
    <class>QValidatedPlainTextEdit</class>

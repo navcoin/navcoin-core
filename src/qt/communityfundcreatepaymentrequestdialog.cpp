@@ -4,6 +4,7 @@
 #include "ui_communityfundcreatepaymentrequestdialog.h"
 
 #include <QMessageBox>
+#include <QComboBox>
 #include <string>
 
 #include "base58.h"
@@ -42,6 +43,23 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
 
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonSubmitPaymentRequest, SIGNAL(clicked()), SLOT(click_pushButtonSubmitPaymentRequest()));
+
+    CProposalMap proposalMap;
+
+    {
+    LOCK(cs_main);
+
+    if (pcoinsTip == nullptr && pcoinsTip->GetAllProposals(proposalMap))
+    {
+        for (auto& it: proposalMap)
+        {
+            if (it.second.fState != DAOFlags::ACCEPTED)
+                continue;
+
+            ui->comboBoxProposalHash->insertItem(0, QString::fromStdString(it.second.strDZeel), QString::fromStdString(it.second.hash.ToString()));
+        }
+    }
+    }
 }
 
 void CommunityFundCreatePaymentRequestDialog::setModel(WalletModel *model)
@@ -54,10 +72,9 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
     bool isValid = true;
 
     // Proposal hash;
-    if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
+    if(!isActiveProposal(uint256S(ui->comboBoxProposalHash->currentData().toString().toStdString())))
     {
         isValid = false;
-        ui->lineEditProposalHash->setValid(false);
     }
 
     // Amount
@@ -91,7 +108,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
         // Get Proposal
         CProposal proposal;
-        if(!pcoinsTip->GetProposal(uint256S(ui->lineEditProposalHash->text().toStdString()), proposal)) {
+        if(!pcoinsTip->GetProposal(uint256S(ui->comboBoxProposalHash->currentData().toString().toStdString()), proposal)) {
             QMessageBox msgBox(this);
             std::string str = "Proposal could not be found with that hash\n";
             msgBox.setText(tr(str.c_str()));
@@ -216,7 +233,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
-        strDZeel.push_back(Pair("h",ui->lineEditProposalHash->text().toStdString()));
+        strDZeel.push_back(Pair("h",ui->comboBoxProposalHash->currentData().toString().toStdString()));
         strDZeel.push_back(Pair("n",nReqAmount));
         strDZeel.push_back(Pair("s",Signature));
         strDZeel.push_back(Pair("r",sRandom));
@@ -319,7 +336,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
     {
         QMessageBox msgBox(this);
         QString str = tr("Please enter a valid:\n");
-        if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
+        if(!isActiveProposal(uint256S(ui->comboBoxProposalHash->currentData().toString().toStdString())))
             str += QString(tr("- Proposal Hash\n"));
         if(!ui->lineEditRequestedAmount->validate())
             str += QString(tr("- Requested Amount\n"));
