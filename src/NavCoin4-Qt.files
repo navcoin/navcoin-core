@@ -1070,6 +1070,8 @@ qt/navcoingui.h
 qt/navcoingui.h
 qt/navcoinlistwidget.cpp
 qt/navcoinlistwidget.h
+qt/navcoinpushbutton.cpp
+qt/navcoinpushbutton.h
 qt/navcoinstrings.cpp
 qt/navcoinstrings.cpp
 qt/navcoinunits.cpp

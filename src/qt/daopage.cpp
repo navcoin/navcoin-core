@@ -32,10 +32,10 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     bottomBox->setLayout(bottomBoxLayout);
 
     viewLbl = new QLabel(tr("View:"));
-    proposalsBtn = new QPushButton(tr("Proposals"));
-    paymentRequestsBtn = new QPushButton(tr("Payment Requests"));
-    consultationsBtn = new QPushButton(tr("Consultations"));
-    deploymentsBtn = new QPushButton(tr("Deployments"));
+    proposalsBtn = new NavCoinPushButton(tr("Proposals"));
+    paymentRequestsBtn = new NavCoinPushButton(tr("Payment Requests"));
+    consultationsBtn = new NavCoinPushButton(tr("Consultations"));
+    deploymentsBtn = new NavCoinPushButton(tr("Deployments"));
     filterLbl = new QLabel(tr("Filter:"));
     filterCmb = new QComboBox();
     createBtn = new QPushButton(tr("Create New"));
@@ -373,7 +373,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         ProposalEntry p = {
             it.first,
-            "blue",
+            "#6666ff",
             QString::fromStdString(proposal.strDZeel),
             NavCoinUnits::formatWithUnit(unit, proposal.nAmount, false, NavCoinUnits::separatorAlways),
             NavCoinUnits::formatWithUnit(unit, proposal.nAmount - proposal.GetAvailable(coins), false, NavCoinUnits::separatorAlways),
@@ -392,22 +392,22 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         {
         case DAOFlags::NIL:
         {
-            p.color = "yellow";
+            p.color = "#ffdd66";
             break;
         }
         case DAOFlags::ACCEPTED:
         {
-            p.color = "green";
+            p.color = "#66ff66";
             break;
         }
         case DAOFlags::REJECTED:
         {
-            p.color = "red";
+            p.color = "#ff6666";
             break;
         }
         case DAOFlags::EXPIRED:
         {
-            p.color = "orange";
+            p.color = "#ff6600";
             break;
         }
         }
@@ -462,7 +462,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             it.first,
             QString::fromStdString(prequest.strDZeel),
             QString::fromStdString(proposal.strDZeel),
-            "blue",
+            "#6666ff",
             NavCoinUnits::formatWithUnit(unit, prequest.nAmount, false, NavCoinUnits::separatorAlways),
             prequest.nVotesYes ? prequest.nVotesYes : 0,
             prequest.nVotesNo ? prequest.nVotesNo : 0,
@@ -478,22 +478,22 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         {
         case DAOFlags::NIL:
         {
-            p.color = "yellow";
+            p.color = "#ffdd66";
             break;
         }
         case DAOFlags::ACCEPTED:
         {
-            p.color = "green";
+            p.color = "#66ff66";
             break;
         }
         case DAOFlags::REJECTED:
         {
-            p.color = "red";
+            p.color = "#ff6666";
             break;
         }
         case DAOFlags::EXPIRED:
         {
-            p.color = "orange";
+            p.color = "#ff6600";
             break;
         }
         }
@@ -514,6 +514,9 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
     {
         CConsultation consultation = it.second;
 
+        if (mapBlockIndex.count(consultation.txblockhash) == 0)
+            continue;
+
         uint64_t nVote = -10000;
         auto v = mapAddedVotes.find(consultation.hash);
 
@@ -522,7 +525,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             nVote = v->second;
         }
 
-        if (consultation.CanBeVoted() && nVote == -10000)
+        if (consultation.fState == DAOFlags::ACCEPTED && nVote == -10000)
             nBadgeConsultations++;
 
         if (nFilter != FILTER_ALL)
@@ -539,9 +542,6 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 (consultation.IsSupported(coins) && nFilter == FILTER_LOOKING_FOR_SUPPORT))
                 continue;
         }
-
-        if (mapBlockIndex.count(consultation.txblockhash) == 0)
-            continue;
 
         QVector<ConsultationAnswerEntry> answers;
         QStringList myVotes;
@@ -573,7 +573,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 if (!answer.IsSupported() && nFilter != FILTER_LOOKING_FOR_SUPPORT)
                     continue;
 
-                if (consultation.CanBeVoted())
+                if (!consultation.IsRange())
                 {
                     auto v = mapAddedVotes.find(answer.hash);
 
@@ -595,6 +595,11 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
                 answers << a;
             }
+        }
+
+        if (myVotes.size() > 0 && consultation.fState == DAOFlags::ACCEPTED && nVote == -10000 && !consultation.IsRange())
+        {
+            nBadgeConsultations--;
         }
 
         if (consultation.IsRange())
@@ -630,7 +635,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         ConsultationEntry p = {
             it.first,
-            "blue",
+            "#6666ff",
             QString::fromStdString(consultation.strDZeel),
             answers,
             "",
@@ -650,22 +655,22 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         {
         case DAOFlags::NIL:
         {
-            p.color = "yellow";
+            p.color = "#ffdd66";
             break;
         }
         case DAOFlags::ACCEPTED:
         {
-            p.color = "green";
+            p.color = "#66ff66";
             break;
         }
         case DAOFlags::EXPIRED:
         {
-            p.color = "red";
+            p.color = "#ff6666";
             break;
         }
         case DAOFlags::CONFIRMATION:
         {
-            p.color = "orange";
+            p.color = "#ff6600";
             break;
         }
         }
@@ -748,7 +753,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         bool nVote = !IsVersionBitRejected(consensusParams, id);
 
         DeploymentEntry e = {
-            "blue",
+            "#6666ff",
             QString::fromStdString(Consensus::sDeploymentsDesc[id]),
             status,
             status == "started",
@@ -760,19 +765,19 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         if (status == "started")
         {
-            e.color = "yellow";
+            e.color = "#ffdd66";
         }
         else if (status == "locked_in")
         {
-            e.color = "purple";
+            e.color = "#ff66ff";
         }
         else if (status == "active")
         {
-            e.color = "green";
+            e.color = "#66ff66";
         }
         else if (status == "failed")
         {
-            e.color = "red";
+            e.color = "#ff6666";
         }
 
         deploymentModel << e;
@@ -801,6 +806,11 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
     {
         setData(deploymentModel);
     }
+
+    proposalsBtn->setBadge(nBadgeProposals);
+    paymentRequestsBtn->setBadge(nBadgePaymentRequests);
+    consultationsBtn->setBadge(nBadgeConsultations);
+    deploymentsBtn->setBadge(nBadgeDeployments);
 }
 
 void DaoPage::setData(QVector<ProposalEntry> data)
@@ -1172,11 +1182,11 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         widget->setLayout(boxLayout);
 
         // Only show vote button if proposal voting is in progress
-        if (entry.fCanVote || entry.fCanSupport) {
+        if (entry.fCanVote || (entry.fState == DAOFlags::NIL && entry.fCanSupport)) {
             auto *button = new QPushButton;
-            if (entry.fState == DAOFlags::NIL)
+            if (entry.fState == DAOFlags::NIL && entry.fCanSupport)
                 button->setText(entry.myVotes.size() == 0 ? tr("Support") : tr("Unsupport"));
-            else
+            else if(entry.fCanVote)
                 button->setText(entry.myVotes.size() == 0 ? tr("Vote") : tr("Change"));
             button->setFixedHeight(40);
             button->setProperty("id", QString::fromStdString(entry.hash.GetHex()));

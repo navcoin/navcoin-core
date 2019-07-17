@@ -1040,7 +1040,11 @@ std::string CConsultation::GetState(CBlockIndex* pindex) const {
     }
 
     if(IsExpired(pindex))
+    {
         sFlags = IsSupported(view) ? "finished" : "expired";
+        if (fState != DAOFlags::EXPIRED && fState != DAOFlags::ACCEPTED)
+            sFlags += ", waiting for end of voting period";
+    }
 
     return sFlags;
 }

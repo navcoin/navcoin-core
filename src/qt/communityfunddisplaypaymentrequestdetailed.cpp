@@ -21,7 +21,6 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     //connect(ui->detailsBtn, SIGNAL(clicked()), this, SLOT(onDetails()));
 
     ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
-    ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
 
     //update labels
     setPrequestLabels();
@@ -73,6 +72,8 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
             ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
         }
     }
+
+    ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
 }
 
 void CommunityFundDisplayPaymentRequestDetailed::onDetails()
@@ -229,6 +230,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         Vote(pr.hash, 1, duplicate);
+        close();
     }
     else if(ui->buttonBoxYesNoVote_2->buttonRole(button) == QDialogButtonBox::NoRole)
     {
@@ -237,6 +239,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         Vote(pr.hash, 0, duplicate);
+        close();
     }
     else if(ui->buttonBoxYesNoVote_2->standardButton(button) == QDialogButtonBox::Ignore)
     {
@@ -245,6 +248,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_ABSTAIN);
         Vote(pr.hash, -1, duplicate);
+        close();
     }
     else if(ui->buttonBoxYesNoVote_2->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
@@ -253,6 +257,7 @@ void CommunityFundDisplayPaymentRequestDetailed::click_buttonBoxYesNoVote(QAbstr
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         RemoveVote(pr.hash);
+        close();
     }
     else {
         return;

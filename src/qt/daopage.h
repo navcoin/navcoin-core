@@ -16,6 +16,7 @@
 #include "daoconsultationvote.h"
 #include "daoversionbit.h"
 #include "main.h"
+#include "navcoinpushbutton.h"
 #include "navcoinunits.h"
 #include "optionsmodel.h"
 #include "txdb.h"
@@ -149,10 +150,10 @@ private:
     QVector<DeploymentEntry> deploymentModel;
 
     QLabel* viewLbl;
-    QPushButton* proposalsBtn;
-    QPushButton* paymentRequestsBtn;
-    QPushButton* consultationsBtn;
-    QPushButton* deploymentsBtn;
+    NavCoinPushButton* proposalsBtn;
+    NavCoinPushButton* paymentRequestsBtn;
+    NavCoinPushButton* consultationsBtn;
+    NavCoinPushButton* deploymentsBtn;
     QLabel* filterLbl;
     QComboBox* filterCmb;
     QPushButton* createBtn;

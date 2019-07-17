@@ -13,6 +13,7 @@ QString Skinize()
            "#SendCoinsEntry { background: #eff1f4; border-radius: 2px; border: 0px solid}"
            "#frameFee { background: #eff1f4; border-radius: 2px; }"
            "#frame { background: #eff1f4; border-radius: 2px; }"
+           "#badge { background: #ff0000; border-radius: 5px; padding: 2px; font-size: 10px}"
            "#frame2 { background: #eff1f4; border-radius: 2px; }"
            "#frameCoinControl { background: #eff1f4; border-radius: 2px; }"
            "#noNavtechLabel { background: #f4eb99; padding: 5px; border-radius: 5px}"

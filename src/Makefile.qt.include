@@ -184,7 +184,8 @@ QT_MOC_CPP = \
   qt/moc_daopage.cpp \
   qt/moc_daoconsultationvote.cpp \
   qt/moc_daoconsultationcreate.cpp \
-  qt/moc_navcoinlistwidget.cpp
+  qt/moc_navcoinlistwidget.cpp \
+  qt/moc_navcoinpushbutton.cpp
 
 NAVCOIN_MM = \
 	qt/macdockiconhandler.mm \
@@ -286,7 +287,8 @@ NAVCOIN_QT_H = \
   qt/daopage.h \
   qt/daoconsultationvote.h \
   qt/daoconsultationcreate.h \
-  qt/navcoinlistwidget.h
+  qt/navcoinlistwidget.h \
+  qt/navcoinpushbutton.h
 
 RES_ICONS = \
 	qt/res/icons/background_top.png \
@@ -394,7 +396,9 @@ NAVCOIN_QT_CPP = \
 	qt/skinize.cpp \
 	qt/splashscreen.cpp \
 	qt/trafficgraphwidget.cpp \
-	qt/utilitydialog.cpp
+  qt/utilitydialog.cpp \
+  qt/navcoinlistwidget.cpp \
+  qt/navcoinpushbutton.cpp
 
 if TARGET_WINDOWS
 NAVCOIN_QT_CPP += qt/winshutdownmonitor.cpp
@@ -440,8 +444,7 @@ NAVCOIN_QT_CPP += \
   qt/walletview.cpp \
   qt/daopage.cpp \
   qt/daoconsultationvote.cpp \
-  qt/daoconsultationcreate.cpp \
-  qt/navcoinlistwidget.cpp
+  qt/daoconsultationcreate.cpp
 endif # ENABLE_WALLET
 
 RES_IMAGES = 
