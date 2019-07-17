@@ -682,7 +682,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     string sQuestion = params[0].get_str();
 
     UniValue strDZeel(UniValue::VOBJ);
-    uint64_t nVersion = CConsultation::BASE_VERSION;
+    uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION;
 
     if (fRange)
         nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;

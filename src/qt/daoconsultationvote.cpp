@@ -156,10 +156,12 @@ void DaoConsultationVote::onAnswer(bool fChecked)
         {
             clickedBox->setChecked(false);
             warningLbl->setVisible(true);
+            adjustSize();
             return;
         }
 
         warningLbl->setVisible(false);
+        adjustSize();
 
         uint256 hash = uint256S(idV.toString().toStdString());
 

@@ -4,11 +4,13 @@
 
 #include "navcoinlistwidget.h"
 
-NavCoinListWidget::NavCoinListWidget(QWidget *parent, QString title) :
+NavCoinListWidget::NavCoinListWidget(QWidget *parent, QString title, ValidatorFunc validator) :
     QWidget(parent),
     listWidget(new QListWidget),
     addInput(new QLineEdit),
-    removeBtn( new QPushButton)
+    removeBtn( new QPushButton),
+    warningLbl(new QLabel),
+    validatorFunc(validator)
 {
     QVBoxLayout* layout = new QVBoxLayout();
     QHBoxLayout* addLayout = new QHBoxLayout();
@@ -30,9 +32,13 @@ NavCoinListWidget::NavCoinListWidget(QWidget *parent, QString title) :
 
     QLabel* titleLbl = new QLabel(title);
 
+    warningLbl->setObjectName("warning");
+    warningLbl->setVisible(false);
+
     layout->addWidget(titleLbl);
     layout->addWidget(listWidget);
     layout->addWidget(add);
+    layout->addWidget(warningLbl);
 
     connect(addBtn, SIGNAL(clicked()), this, SLOT(onInsert()));
     connect(removeBtn, SIGNAL(clicked()), this, SLOT(onRemove()));
@@ -55,8 +61,27 @@ void NavCoinListWidget::onInsert()
 {
     QString itemText = addInput->text();
 
-    if (itemText.isNull())
+    for(int row = 0; row < listWidget->count(); row++)
+    {
+             QListWidgetItem *item = listWidget->item(row);
+             if (item->text() == itemText)
+             {
+                 warningLbl->setText(tr("Duplicated entry"));
+                 warningLbl->setVisible(true);
+                 return;
+             }
+    }
+
+    if (!(*validatorFunc)(itemText))
+    {
+        warningLbl->setText(tr("Entry not valid"));
+        warningLbl->setVisible(true);
         return;
+    }
+
+    warningLbl->setVisible(false);
+
+    addInput->setText("");
 
     QListWidgetItem *newItem = new QListWidgetItem;
     newItem->setText(itemText);

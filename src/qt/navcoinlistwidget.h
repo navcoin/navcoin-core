@@ -15,11 +15,13 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+typedef bool (*ValidatorFunc)(QString);
+
 class NavCoinListWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit NavCoinListWidget(QWidget *parent = nullptr, QString title = "");
+    explicit NavCoinListWidget(QWidget *parent, QString title, ValidatorFunc validator);
 
     QStringList getEntries();
 
@@ -27,6 +29,9 @@ private:
     QListWidget* listWidget;
     QLineEdit* addInput;
     QPushButton* removeBtn;
+    QLabel* warningLbl;
+
+    ValidatorFunc validatorFunc;
 
 private Q_SLOTS:
     void onInsert();

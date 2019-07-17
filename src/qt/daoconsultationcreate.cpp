@@ -14,7 +14,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     minLbl(new QLabel),
     maxLbl(new QLabel),
     warningLbl(new QLabel),
-    listWidget(new NavCoinListWidget),
+    listWidget(new NavCoinListWidget(nullptr, "", [](QString)->bool{return true;})),
     moreAnswersBox(new QCheckBox)
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -87,7 +87,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     warningLbl->setFont(subtitleFnt);
     warningLbl->setVisible(false);
 
-    listWidget = new NavCoinListWidget(this, tr("Possible answers"));
+    listWidget = new NavCoinListWidget(this, tr("Possible answers"), [](QString s)->bool{return !s.isEmpty();});
 
     layout->addWidget(topBox);
     layout->addSpacing(15);
@@ -104,7 +104,6 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     layout->addSpacing(15);
     layout->addWidget(warningLbl);
     layout->addWidget(bottomBox);
-
 }
 
 void DaoConsultationCreate::setModel(WalletModel *model)
@@ -254,6 +253,7 @@ void DaoConsultationCreate::showWarning(QString text)
 {
     warningLbl->setText(text);
     warningLbl->setVisible(text == "" ? false : true);
+    adjustSize();
 }
 
 void DaoConsultationCreate::onRange(bool fChecked)
@@ -274,6 +274,7 @@ void DaoConsultationCreate::onRange(bool fChecked)
         moreAnswersBox->setVisible(true);
         maxLbl->setText(tr("Max number of answers"));
     }
+    adjustSize();
 }
 
 void DaoConsultationCreate::onList(bool fChecked)

@@ -15,7 +15,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
 {
     ui->setupUi(this);
     ui->detailsWidget->setVisible(false);
-    ui->detailsWidget->adjustSize();
+    adjustSize();
 
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
@@ -89,10 +89,10 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
 void CommunityFundDisplayDetailed::onDetails()
 {
     ui->detailsWidget->setVisible(!ui->detailsWidget->isVisible());
-    ui->detailsWidget->adjustSize();
+    adjustSize();
 }
 
-void CommunityFundDisplayDetailed::setProposalLabels() const
+void CommunityFundDisplayDetailed::setProposalLabels()
 {
     ui->labelProposalTitle->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelAddress->setText(QString::fromStdString(proposal.Address));
@@ -204,6 +204,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         ui->labelExpiresIn->setVisible(false);
         ui->labelExpiresInTitle->setVisible(false);
     }
+    adjustSize();
 }
 
 void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)

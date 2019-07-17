@@ -46,7 +46,6 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(deploymentsBtn, SIGNAL(clicked()), this, SLOT(viewDeployments()));
     connect(createBtn, SIGNAL(clicked()), this, SLOT(onCreate()));
     connect(filterCmb, SIGNAL(currentIndexChanged(int)), this, SLOT(onFilter(int)));
-    connect(table, &QTableWidget::customContextMenuRequested, this, &DaoPage::showContextMenu);
 
     topBoxLayout->addSpacing(30);
     topBoxLayout->addWidget(viewLbl, 0, Qt::AlignLeft);
@@ -66,7 +65,37 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
 
     layout->addWidget(topBox);
     layout->addSpacing(15);
+    layout->addWidget(table);
     layout->addWidget(bottomBox);
+
+    table->setContentsMargins(QMargins());
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setSelectionMode(QAbstractItemView::SingleSelection);
+    table->setFocusPolicy(Qt::NoFocus);
+    table->setAlternatingRowColors(true);
+    table->setShowGrid(false);
+    table->setFocusPolicy(Qt::NoFocus);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setSelectionMode(QAbstractItemView::NoSelection);
+    table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    table->verticalHeader()->setDefaultSectionSize(78);
+    table->verticalHeader()->setVisible(false);
+    table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    table->horizontalHeader()->setSortIndicatorShown(true);
+    table->horizontalHeader()->setSectionsClickable(true);
+    table->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(table, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
+
+    copyHash = new QAction(tr("Copy Hash"), this);
+    proposeAnswer = new QAction(tr("Propose Answer"), this);
+
+    contextMenu->addAction(copyHash);
+
+    connect(proposeAnswer, SIGNAL(triggered()), this, SLOT(onProposeAnswer()));
+    connect(copyHash, SIGNAL(triggered()), this, SLOT(onCopyHash()));
 
     int timerInterval = 2000;
     QTimer* timer = new QTimer(this);
@@ -91,7 +120,7 @@ void DaoPage::setClientModel(ClientModel *clientModel)
     this->clientModel = clientModel;
 
     if (clientModel) {
-        //connect(clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(refresh()));
+        connect(clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(refresh()));
     }
 }
 
@@ -136,7 +165,7 @@ void DaoPage::refresh(bool force)
     }
     }
 
-    if (!force && nCurrentView == VIEW_DEPLOYMENTS && unit == nCurrentUnit && nFilter == nCurrentFilter &&
+    if (!force && unit == nCurrentUnit && nFilter == nCurrentFilter &&
             ((nCurrentView == VIEW_PROPOSALS && proposalMap.size() == proposalModel.size()) ||
              (nCurrentView == VIEW_PAYMENT_REQUESTS &&  paymentRequestMap.size() == paymentRequestModel.size()) ||
              (nCurrentView == VIEW_CONSULTATIONS && consultationMap.size() == consultationModel.size())))
@@ -154,50 +183,12 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
     if (nView != nCurrentView)
     {
-        if (table)
-        {
-            layout->removeWidget(table);
-            delete table;
-        }
-
         while (filterCmb->count() > 0)
             filterCmb->removeItem(0);
 
         nCurrentView = nView;
 
-        table = new QTableWidget;
-        table->setContentsMargins(QMargins());
-        table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        table->setSelectionBehavior(QAbstractItemView::SelectRows);
-        table->setSelectionMode(QAbstractItemView::SingleSelection);
-        table->setFocusPolicy(Qt::NoFocus);
-        table->setAlternatingRowColors(true);
-        table->setShowGrid(false);
-        table->setFocusPolicy(Qt::NoFocus);
-        table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        table->setSelectionMode(QAbstractItemView::NoSelection);
-        table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-        table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-        table->verticalHeader()->setDefaultSectionSize(78);
-        table->verticalHeader()->setVisible(false);
-        table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
-        table->horizontalHeader()->setSortIndicatorShown(true);
-        table->horizontalHeader()->setSectionsClickable(true);
-        table->setContextMenuPolicy(Qt::CustomContextMenu);
-
-        auto *copyHash = new QAction(tr("Copy Proposal Hash"), this);
-        contextMenu = new QMenu();
-        contextMenu->addAction(copyHash);
-
-        connect(copyHash, &QAction::triggered, this, [this]() {
-            if (contextItem == nullptr)
-                return;
-            auto *hashItem = table->item(contextItem->row(), P_COLUMN_HASH);
-            if (hashItem) {
-                auto propHash = hashItem->data(Qt::DisplayRole).toString();
-                QApplication::clipboard()->setText(propHash, QClipboard::Clipboard);
-            }
-        });
+        table->setRowCount(0);
 
         if (nCurrentView == VIEW_PROPOSALS)
         {
@@ -221,7 +212,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             table->horizontalHeader()->setSectionResizeMode(P_COLUMN_DURATION, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(P_COLUMN_VOTES, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(P_COLUMN_STATE, QHeaderView::ResizeToContents);
-            table->horizontalHeader()->setSectionResizeMode(P_COLUMN_URL, QHeaderView::Fixed);
+            table->horizontalHeader()->setSectionResizeMode(P_COLUMN_URL, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(P_COLUMN_COLOR, QHeaderView::Fixed);
             table->setColumnWidth(P_COLUMN_COLOR, 12);
             table->horizontalHeader()->setSectionResizeMode(P_COLUMN_PADDING2, QHeaderView::Fixed);
@@ -249,7 +240,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             table->horizontalHeader()->setSectionResizeMode(PR_COLUMN_REQUESTS, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(PR_COLUMN_VOTES, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(PR_COLUMN_STATE, QHeaderView::ResizeToContents);
-            table->horizontalHeader()->setSectionResizeMode(PR_COLUMN_URL, QHeaderView::Fixed);
+            table->horizontalHeader()->setSectionResizeMode(PR_COLUMN_URL, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(PR_COLUMN_COLOR, QHeaderView::Fixed);
             table->horizontalHeader()->setSectionResizeMode(PR_COLUMN_VOTE, QHeaderView::ResizeToContents);
             table->setColumnWidth(PR_COLUMN_COLOR, 12);
@@ -260,13 +251,6 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         }
         else if (nCurrentView == VIEW_CONSULTATIONS)
         {
-            if (nFilter == FILTER_LOOKING_FOR_SUPPORT)
-            {
-                auto *proposeAnswer = new QAction(tr("Propose Answer"), this);
-                contextMenu->addAction(proposeAnswer);
-                connect(proposeAnswer, SIGNAL(triggered()), this, SLOT(onProposeAnswer()));
-                table->setSortingEnabled(false);
-            }
             createBtn->setVisible(true);
             createBtn->setText(tr("Create new Consultation"));
 
@@ -285,7 +269,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             table->horizontalHeaderItem(C_COLUMN_TITLE)->setTextAlignment(Qt::AlignLeft);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_STATUS, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_MY_VOTES, QHeaderView::ResizeToContents);
-            table->horizontalHeader()->setSectionResizeMode(C_COLUMN_URL, QHeaderView::Fixed);
+            table->horizontalHeader()->setSectionResizeMode(C_COLUMN_URL, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_COLOR, QHeaderView::Fixed);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_VOTE, QHeaderView::ResizeToContents);
             table->setColumnWidth(C_COLUMN_COLOR, 12);
@@ -305,6 +289,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             filterCmb->insertItem(FILTER_FINISHED, "Voting finished");
 
             table->setColumnCount(D_COLUMN_PADDING3 + 1);
+            table->setColumnHidden(D_COLUMN_COLOR, false);
             table->setHorizontalHeaderLabels({"", tr("Name"), tr("Status"), "", tr("My Vote"), "", "" });
             table->horizontalHeader()->setSectionResizeMode(D_COLUMN_TITLE, QHeaderView::Stretch);
             table->horizontalHeaderItem(D_COLUMN_TITLE)->setTextAlignment(Qt::AlignLeft);
@@ -318,9 +303,6 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             table->horizontalHeader()->setSectionResizeMode(D_COLUMN_PADDING3, QHeaderView::Fixed);
             table->setColumnWidth(D_COLUMN_PADDING3, 12);
         }
-        table->resizeRowsToContents();
-
-        layout->insertWidget(2, table);
     }
 
     CStateViewCache coins(pcoinsTip);
@@ -792,18 +774,22 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
     if (nCurrentView == VIEW_PROPOSALS)
     {
+        contextMenu->removeAction(proposeAnswer);
         setData(proposalModel);
     }
     else if (nCurrentView == VIEW_PAYMENT_REQUESTS)
     {
+        contextMenu->removeAction(proposeAnswer);
         setData(paymentRequestModel);
     }
     else if (nCurrentView == VIEW_CONSULTATIONS)
     {
+        contextMenu->addAction(proposeAnswer);
         setData(consultationModel);
     }
     else if (nCurrentView == VIEW_DEPLOYMENTS)
     {
+        contextMenu->removeAction(proposeAnswer);
         setData(deploymentModel);
     }
 
@@ -821,6 +807,11 @@ void DaoPage::setData(QVector<ProposalEntry> data)
 
     for (int i = 0; i < data.count(); ++i) {
         auto &entry = data[i];
+
+        // HASH
+        auto *hashItem = new QTableWidgetItem;
+        hashItem->setData(Qt::DisplayRole, QString::fromStdString(entry.hash.GetHex()));
+        table->setItem(i, P_COLUMN_HASH, hashItem);
 
         // COLOR
         auto *colorItem = new QTableWidgetItem;
@@ -964,6 +955,11 @@ void DaoPage::setData(QVector<PaymentRequestEntry> data)
     for (int i = 0; i < data.count(); ++i) {
         auto &entry = data[i];
 
+        // HASH
+        auto *hashItem = new QTableWidgetItem;
+        hashItem->setData(Qt::DisplayRole, QString::fromStdString(entry.hash.GetHex()));
+        table->setItem(i, PR_COLUMN_HASH, hashItem);
+
         // COLOR
         auto *colorItem = new QTableWidgetItem;
         auto *indicatorBox = new QFrame;
@@ -1100,6 +1096,11 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
 
     for (int i = 0; i < data.count(); ++i) {
         ConsultationEntry &entry = data[i];
+
+        // HASH
+        auto *hashItem = new QTableWidgetItem;
+        hashItem->setData(Qt::DisplayRole, QString::fromStdString(entry.hash.GetHex()));
+        table->setItem(i+offset, C_COLUMN_HASH, hashItem);
 
         // COLOR
         auto *colorItem = new QTableWidgetItem;
@@ -1255,7 +1256,8 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
     }
     table->setColumnHidden(C_COLUMN_VOTE, !fWeight);
     table->setColumnHidden(C_COLUMN_MY_VOTES, !fWeight);
-    table->setSortingEnabled(true);
+    if (nFilter != FILTER_LOOKING_FOR_SUPPORT)
+        table->setSortingEnabled(true);
 }
 
 void DaoPage::setData(QVector<DeploymentEntry> data)
@@ -1476,12 +1478,23 @@ void DaoPage::onCreate() {
 void DaoPage::onProposeAnswer() {
 }
 
-void DaoPage::showContextMenu(QPoint pt) {
+void DaoPage::showContextMenu(const QPoint& pt) {
     auto *item = table->itemAt(pt);
+    contextHash = "";
     if (!item) {
         contextItem = nullptr;
         return;
     }
     contextItem = item;
+    auto *hashItem = table->item(contextItem->row(), P_COLUMN_HASH);
+    if (hashItem) {
+        contextHash = hashItem->data(Qt::DisplayRole).toString();
+    }
     contextMenu->exec(QCursor::pos());
+}
+
+void DaoPage::onCopyHash() {
+    if (contextHash.isEmpty())
+        return;
+    QApplication::clipboard()->setText(contextHash, QClipboard::Clipboard);
 }

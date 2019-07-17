@@ -26,6 +26,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QComboBox>
+#include <QDebug>
 #include <QDesktopServices>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -159,6 +160,10 @@ private:
     QPushButton* createBtn;
     QMenu* contextMenu;
     QTableWidgetItem *contextItem = nullptr;
+    QString contextHash;
+
+    QAction* copyHash;
+    QAction* proposeAnswer;
 
     bool fActive;
     int nView;
@@ -251,10 +256,11 @@ private Q_SLOTS:
     void onDetails();
     void onFilter(int index);
     void onProposeAnswer();
+    void onCopyHash();
 
     void refresh(bool force = false);
 
-    void showContextMenu(QPoint pt);
+    void showContextMenu(const QPoint& pt);
 };
 
 #endif // DAOPAGE_H

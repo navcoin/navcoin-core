@@ -23,7 +23,7 @@ private:
     Ui::CommunityFundDisplayDetailed *ui;
     CProposal proposal;
     CWallet *wallet;
-    void setProposalLabels() const;
+    void setProposalLabels();
 
 public Q_SLOTS:
     void click_buttonBoxYesNoVote(QAbstractButton *button);
