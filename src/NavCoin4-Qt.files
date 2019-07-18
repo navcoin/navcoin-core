@@ -660,6 +660,10 @@ qt/daoconsultationvote.cpp
 qt/daoconsultationvote.h
 qt/daopage.cpp
 qt/daopage.h
+qt/daoproposeanswer.cpp
+qt/daoproposeanswer.h
+qt/daosupport.cpp
+qt/daosupport.h
 qt/editaddressdialog.cpp
 qt/editaddressdialog.cpp
 qt/editaddressdialog.h

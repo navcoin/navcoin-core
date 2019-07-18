@@ -49,7 +49,7 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
     {
     LOCK(cs_main);
 
-    if (pcoinsTip == nullptr && pcoinsTip->GetAllProposals(proposalMap))
+    if (pcoinsTip != nullptr && pcoinsTip->GetAllProposals(proposalMap))
     {
         for (auto& it: proposalMap)
         {
@@ -259,7 +259,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         CAmount curBalance = pwalletMain->GetBalance();
         if (curBalance <= 10000) {
             QMessageBox msgBox(this);
-            string fee = std::to_string(10000 / COIN);
+            string fee = FormatMoney(Params().GetConsensus().nProposalMinimalFee);
             std::string str = "You require at least " + fee + " NAV mature and available to create a payment request\n";
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);

@@ -655,6 +655,7 @@ public:
     bool ExceededMaxVotingCycles() const;
     bool IsRange() const;
     bool CanHaveNewAnswers() const;
+    bool CanHaveAnswers() const;
 
     ADD_SERIALIZE_METHODS;
 

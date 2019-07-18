@@ -12,7 +12,7 @@ NavCoinPushButton::NavCoinPushButton(QString label) :
 
 void NavCoinPushButton::setBadge(int nValue)
 {
-    this->setIcon(nValue == 0 ? QIcon() : getBadgeIcon(nValue));
+    this->setIcon(nValue <= 0 ? QIcon() : getBadgeIcon(nValue));
 }
 
 void NavCoinPushButton::paintEvent(QPaintEvent *e)
@@ -35,7 +35,7 @@ QIcon NavCoinPushButton::getBadgeIcon(int nValue)
     p->setPen(Qt::white);
     p->drawEllipse(img.rect());
     p->setFont(f);
-    p->drawText(img.rect(), Qt::AlignCenter, nValue > 9 ? "+" : QString::number(nValue));
+    p->drawText(img.rect(), Qt::AlignCenter, nValue > 9 ? "9+" : QString::number(nValue));
     delete p;
     return QIcon(QPixmap::fromImage(img));
 }

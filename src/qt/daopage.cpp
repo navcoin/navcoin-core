@@ -12,6 +12,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     layout(new QVBoxLayout),
     contextMenu(new QMenu),
     fActive(false),
+    fExclude(false),
     nView(VIEW_PROPOSALS),
     nCurrentView(-1),
     nCurrentUnit(DEFAULT_UNIT),
@@ -32,20 +33,25 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     bottomBox->setLayout(bottomBoxLayout);
 
     viewLbl = new QLabel(tr("View:"));
-    proposalsBtn = new NavCoinPushButton(tr("Proposals"));
+    proposalsBtn = new NavCoinPushButton(tr("Fund Proposals"));
     paymentRequestsBtn = new NavCoinPushButton(tr("Payment Requests"));
     consultationsBtn = new NavCoinPushButton(tr("Consultations"));
     deploymentsBtn = new NavCoinPushButton(tr("Deployments"));
+    consensusBtn = new NavCoinPushButton(tr("Consensus Parameters"));
     filterLbl = new QLabel(tr("Filter:"));
     filterCmb = new QComboBox();
     createBtn = new QPushButton(tr("Create New"));
+    excludeBox = new QCheckBox(tr("Exclude finished and expired"));
 
     connect(proposalsBtn, SIGNAL(clicked()), this, SLOT(viewProposals()));
     connect(paymentRequestsBtn, SIGNAL(clicked()), this, SLOT(viewPaymentRequests()));
     connect(consultationsBtn, SIGNAL(clicked()), this, SLOT(viewConsultations()));
     connect(deploymentsBtn, SIGNAL(clicked()), this, SLOT(viewDeployments()));
     connect(createBtn, SIGNAL(clicked()), this, SLOT(onCreate()));
-    connect(filterCmb, SIGNAL(currentIndexChanged(int)), this, SLOT(onFilter(int)));
+    connect(filterCmb, SIGNAL(activated(int)), this, SLOT(onFilter(int)));
+    connect(excludeBox, SIGNAL(toggled(bool)), this, SLOT(onExclude(bool)));
+
+    excludeBox->setChecked(true);
 
     topBoxLayout->addSpacing(30);
     topBoxLayout->addWidget(viewLbl, 0, Qt::AlignLeft);
@@ -54,13 +60,16 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     topBoxLayout->addWidget(paymentRequestsBtn);
     topBoxLayout->addWidget(consultationsBtn);
     topBoxLayout->addWidget(deploymentsBtn);
-    topBoxLayout->addStretch(1);
-    topBoxLayout->addWidget(filterLbl, 0, Qt::AlignRight);
-    topBoxLayout->addSpacing(30);
-    topBoxLayout->addWidget(filterCmb, 0, Qt::AlignRight);
-    topBoxLayout->addSpacing(30);
+    topBoxLayout->addWidget(consensusBtn);
+    topBoxLayout->addStretch();
 
-    bottomBoxLayout->addStretch(1);
+    bottomBoxLayout->addSpacing(30);
+    bottomBoxLayout->addWidget(filterLbl, 0, Qt::AlignLeft);
+    bottomBoxLayout->addSpacing(38);
+    bottomBoxLayout->addWidget(filterCmb, 0, Qt::AlignLeft);
+    bottomBoxLayout->addSpacing(30);
+    bottomBoxLayout->addWidget(excludeBox);
+    bottomBoxLayout->addStretch();
     bottomBoxLayout->addWidget(createBtn);
 
     layout->addWidget(topBox);
@@ -91,20 +100,14 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
 
     copyHash = new QAction(tr("Copy Hash"), this);
     proposeAnswer = new QAction(tr("Propose Answer"), this);
+    supportAnswer = new QAction(tr("Support Answers"), this);
 
     contextMenu->addAction(copyHash);
+    contextMenu->addSeparator();
 
     connect(proposeAnswer, SIGNAL(triggered()), this, SLOT(onProposeAnswer()));
+    connect(supportAnswer, SIGNAL(triggered()), this, SLOT(onSupportAnswer()));
     connect(copyHash, SIGNAL(triggered()), this, SLOT(onCopyHash()));
-
-    int timerInterval = 2000;
-    QTimer* timer = new QTimer(this);
-    timer->setInterval(timerInterval);
-    connect(timer, &QTimer::timeout, this, [this]() {
-        if (fActive)
-            refresh(false);
-    });
-    timer->start(timerInterval);
 
     viewProposals();
 }
@@ -120,7 +123,7 @@ void DaoPage::setClientModel(ClientModel *clientModel)
     this->clientModel = clientModel;
 
     if (clientModel) {
-        connect(clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(refresh()));
+        connect(clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(refreshForce()));
     }
 }
 
@@ -136,7 +139,12 @@ void DaoPage::setView(int view)
     refresh(true);
 }
 
-void DaoPage::refresh(bool force)
+void DaoPage::refreshForce()
+{
+    refresh(true);
+}
+
+void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
 {
     CProposalMap proposalMap;
     CPaymentRequestMap paymentRequestMap;
@@ -171,10 +179,10 @@ void DaoPage::refresh(bool force)
              (nCurrentView == VIEW_CONSULTATIONS && consultationMap.size() == consultationModel.size())))
         return;
 
-    initialize(proposalMap, paymentRequestMap, consultationMap, consultationAnswerMap, unit);
+    initialize(proposalMap, paymentRequestMap, consultationMap, consultationAnswerMap, unit, updateFilterIfEmpty);
 }
 
-void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentRequestMap, CConsultationMap consultationMap, CConsultationAnswerMap consultationAnswerMap, int unit)
+void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentRequestMap, CConsultationMap consultationMap, CConsultationAnswerMap consultationAnswerMap, int unit, bool updateFilterIfEmpty)
 {
 
     LOCK(cs_main);
@@ -303,6 +311,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             table->horizontalHeader()->setSectionResizeMode(D_COLUMN_PADDING3, QHeaderView::Fixed);
             table->setColumnWidth(D_COLUMN_PADDING3, 12);
         }
+
+        onFilter(FILTER_ALL);
     }
 
     CStateViewCache coins(pcoinsTip);
@@ -335,6 +345,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             if (nFilter == FILTER_IN_PROGRESS && !proposal.CanVote())
                 continue;
             if (nFilter == FILTER_FINISHED && proposal.CanVote())
+                continue;
+            if (fExclude && proposal.IsExpired(chainActive.Tip()->GetBlockTime()))
                 continue;
         }
 
@@ -432,6 +444,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 continue;
             if (nFilter == FILTER_FINISHED && prequest.CanVote(coins))
                 continue;
+            if (fExclude && prequest.IsExpired())
+                continue;
         }
 
         if (mapBlockIndex.count(prequest.txblockhash) == 0)
@@ -507,38 +521,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             nVote = v->second;
         }
 
-        if (consultation.fState == DAOFlags::ACCEPTED && nVote == -10000)
-            nBadgeConsultations++;
-
-        if (nFilter != FILTER_ALL)
-        {
-            if (nFilter == FILTER_VOTED && nVote == -10000)
-                continue;
-            if (nFilter == FILTER_NOT_VOTED && nVote != -10000)
-                continue;
-            if (nFilter == FILTER_IN_PROGRESS && !consultation.CanBeVoted())
-                continue;
-            if (nFilter == FILTER_FINISHED && consultation.CanBeVoted())
-                continue;
-            if ((!consultation.IsSupported(coins) && nFilter != FILTER_LOOKING_FOR_SUPPORT) ||
-                (consultation.IsSupported(coins) && nFilter == FILTER_LOOKING_FOR_SUPPORT))
-                continue;
-        }
-
         QVector<ConsultationAnswerEntry> answers;
         QStringList myVotes;
-
-        bool fSupported = mapSupported.count(consultation.hash);
-
-        if (consultation.CanBeSupported())
-        {
-            if (fSupported)
-                myVotes << tr("Supported");
-        }
-        else if (consultation.IsRange() && nVote != -10000)
-        {
-            myVotes << QString::number(nVote);
-        }
 
         if (!consultation.IsRange())
         {
@@ -552,7 +536,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 if (answer.parent != consultation.hash)
                     continue;
 
-                if (!answer.IsSupported() && nFilter != FILTER_LOOKING_FOR_SUPPORT)
+                if (!answer.IsSupported() && consultation.fState != DAOFlags::NIL)
                     continue;
 
                 if (!consultation.IsRange())
@@ -579,9 +563,37 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
         }
 
-        if (myVotes.size() > 0 && consultation.fState == DAOFlags::ACCEPTED && nVote == -10000 && !consultation.IsRange())
+        if (consultation.fState == DAOFlags::ACCEPTED &&
+          ((nVote == -10000 && consultation.IsRange()) || (!consultation.IsRange() && myVotes.size() == 0)))
+            nBadgeConsultations++;
+
+        if (nFilter != FILTER_ALL)
         {
-            nBadgeConsultations--;
+            if (nFilter == FILTER_VOTED && nVote == -10000 && myVotes.size() == 0)
+                continue;
+            if (nFilter == FILTER_NOT_VOTED && (nVote != -10000 || myVotes.size() > 0))
+                continue;
+            if (nFilter == FILTER_IN_PROGRESS && consultation.fState != DAOFlags::ACCEPTED)
+                continue;
+            if (nFilter == FILTER_FINISHED && consultation.fState != DAOFlags::EXPIRED)
+                continue;
+            if ((consultation.CanBeSupported() && nFilter != FILTER_LOOKING_FOR_SUPPORT) ||
+                (!consultation.CanBeSupported() && nFilter == FILTER_LOOKING_FOR_SUPPORT))
+                continue;
+            if (fExclude && consultation.IsExpired(chainActive.Tip()))
+                continue;
+        }
+
+        bool fSupported = mapSupported.count(consultation.hash);
+
+        if (consultation.CanBeSupported())
+        {
+            if (fSupported)
+                myVotes << tr("Supported");
+        }
+        else if (consultation.IsRange() && nVote != -10000)
+        {
+            myVotes << QString::number(nVote);
         }
 
         if (consultation.IsRange())
@@ -774,22 +786,26 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
     if (nCurrentView == VIEW_PROPOSALS)
     {
-        contextMenu->removeAction(proposeAnswer);
+        if (updateFilterIfEmpty && proposalModel.size() == 0)
+            onFilter(FILTER_VOTED);
         setData(proposalModel);
     }
     else if (nCurrentView == VIEW_PAYMENT_REQUESTS)
     {
-        contextMenu->removeAction(proposeAnswer);
+        if (updateFilterIfEmpty && paymentRequestModel.size() == 0)
+            onFilter(FILTER_VOTED);
         setData(paymentRequestModel);
     }
     else if (nCurrentView == VIEW_CONSULTATIONS)
     {
-        contextMenu->addAction(proposeAnswer);
+        if (updateFilterIfEmpty && consultationModel.size() == 0)
+            onFilter(FILTER_VOTED);
         setData(consultationModel);
     }
     else if (nCurrentView == VIEW_DEPLOYMENTS)
     {
-        contextMenu->removeAction(proposeAnswer);
+        if (updateFilterIfEmpty && deploymentModel.size() == 0)
+            onFilter(FILTER_VOTED);
         setData(deploymentModel);
     }
 
@@ -1092,15 +1108,13 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
     table->setRowCount(data.count());
     table->setSortingEnabled(false);
 
-    int offset = 0;
-
     for (int i = 0; i < data.count(); ++i) {
         ConsultationEntry &entry = data[i];
 
         // HASH
         auto *hashItem = new QTableWidgetItem;
         hashItem->setData(Qt::DisplayRole, QString::fromStdString(entry.hash.GetHex()));
-        table->setItem(i+offset, C_COLUMN_HASH, hashItem);
+        table->setItem(i, C_COLUMN_HASH, hashItem);
 
         // COLOR
         auto *colorItem = new QTableWidgetItem;
@@ -1108,13 +1122,13 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         indicatorBox->setContentsMargins(QMargins());
         indicatorBox->setStyleSheet(QString("background-color: %1;").arg(entry.color));
         indicatorBox->setFixedWidth(3);
-        table->setCellWidget(i+offset, C_COLUMN_COLOR, indicatorBox);
-        table->setItem(i+offset, C_COLUMN_COLOR, colorItem);
+        table->setCellWidget(i, C_COLUMN_COLOR, indicatorBox);
+        table->setItem(i, C_COLUMN_COLOR, colorItem);
 
         // TITLE
         auto *titleItem = new QTableWidgetItem;
         titleItem->setData(Qt::DisplayRole, entry.question);
-        table->setItem(i+offset, C_COLUMN_TITLE, titleItem);
+        table->setItem(i, C_COLUMN_TITLE, titleItem);
 
         // ANSWERS
         QString answers;
@@ -1136,12 +1150,12 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         auto *answersItem = new QTableWidgetItem;
         answersItem->setData(Qt::DisplayRole, answers);
         answersItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
-        table->setItem(i+offset, C_COLUMN_ANSWERS, answersItem);
+        table->setItem(i, C_COLUMN_ANSWERS, answersItem);
 
         // STATE
         auto *statusItem = new QTableWidgetItem;
         statusItem->setData(Qt::DisplayRole, entry.sState);
-        table->setItem(i+offset, C_COLUMN_STATUS, statusItem);
+        table->setItem(i, C_COLUMN_STATUS, statusItem);
 
         // DETAILS
         auto *detailsItem = new QTableWidgetItem;
@@ -1164,13 +1178,13 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         connect(detailsBtn, SIGNAL(clicked()), this, SLOT(onDetails()));
 
         table->setCellWidget(i, C_COLUMN_URL, detailsWidget);
-        table->setItem(i+offset, C_COLUMN_URL, detailsItem);
+        table->setItem(i, C_COLUMN_URL, detailsItem);
 
         // MY VOTES
         auto *myvotesItem = new QTableWidgetItem;
         myvotesItem->setData(Qt::DisplayRole, entry.myVotes.join(", "));
         myvotesItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
-        table->setItem(i+offset, C_COLUMN_MY_VOTES, myvotesItem);
+        table->setItem(i, C_COLUMN_MY_VOTES, myvotesItem);
 
         //VOTE
         auto *votedItem = new QTableWidgetItem;
@@ -1195,48 +1209,8 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
             connect(button, SIGNAL(clicked()), this, SLOT(onVote()));
         }
 
-        table->setCellWidget(i+offset, C_COLUMN_VOTE, widget);
-        table->setItem(i+offset, C_COLUMN_VOTE, votedItem);
-
-        if(!entry.fRange && entry.fState == DAOFlags::NIL && nFilter == FILTER_LOOKING_FOR_SUPPORT && entry.fCanSupport)
-        {
-            for (ConsultationAnswerEntry& it: entry.answers)
-            {
-                offset++;
-                table->setRowCount(data.count()+offset);
-
-                auto *answerItem = new QTableWidgetItem;
-                answerItem->setData(Qt::DisplayRole, it.answer);
-                answerItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
-                table->setItem(i+offset, C_COLUMN_ANSWERS, answerItem);
-
-                auto *myvoteItem = new QTableWidgetItem;
-                myvoteItem->setData(Qt::DisplayRole, it.sMyVote);
-                myvoteItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
-                table->setItem(i+offset, C_COLUMN_MY_VOTES, myvoteItem);
-
-                if (it.fCanSupport) {
-                    auto *supportedItem = new QTableWidgetItem;
-                    auto *widgetsupportedItem = new QWidget();
-                    widgetsupportedItem->setContentsMargins(QMargins());
-                    widgetsupportedItem->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-                    auto *boxLayoutsupportedItem = new QHBoxLayout;
-                    boxLayoutsupportedItem->setContentsMargins(QMargins());
-                    boxLayoutsupportedItem->setSpacing(0);
-                    widgetsupportedItem->setLayout(boxLayoutsupportedItem);
-
-                    auto *buttonsupportedItem = new QPushButton;
-                    buttonsupportedItem->setText(it.sMyVote.isEmpty() ? tr("Support") : tr("Unsupport"));
-                    buttonsupportedItem->setFixedHeight(40);
-                    buttonsupportedItem->setProperty("id", QString::fromStdString(it.hash.GetHex()));
-                    boxLayoutsupportedItem->addWidget(buttonsupportedItem, 0, Qt::AlignCenter);
-                    connect(buttonsupportedItem, SIGNAL(clicked()), this, SLOT(onVote()));
-
-                    table->setCellWidget(i+offset, C_COLUMN_VOTE, widgetsupportedItem);
-                    table->setItem(i+offset, C_COLUMN_VOTE, supportedItem);
-                }
-            }
-        }
+        table->setCellWidget(i, C_COLUMN_VOTE, widget);
+        table->setItem(i, C_COLUMN_VOTE, votedItem);
 
     }
 
@@ -1256,8 +1230,7 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
     }
     table->setColumnHidden(C_COLUMN_VOTE, !fWeight);
     table->setColumnHidden(C_COLUMN_MY_VOTES, !fWeight);
-    if (nFilter != FILTER_LOOKING_FOR_SUPPORT)
-        table->setSortingEnabled(true);
+    table->setSortingEnabled(true);
 }
 
 void DaoPage::setData(QVector<DeploymentEntry> data)
@@ -1364,13 +1337,13 @@ void DaoPage::onVote() {
         {
             CommunityFundDisplayDetailed dlg(this, proposal);
             dlg.exec();
-            refresh(true);
+            refresh(true, true);
         }
         else if (coins.GetPaymentRequest(hash, prequest))
         {
             CommunityFundDisplayPaymentRequestDetailed dlg(this, prequest);
             dlg.exec();
-            refresh(true);
+            refresh(true, true);
         }
         else if (coins.GetConsultation(hash, consultation))
         {
@@ -1381,13 +1354,13 @@ void DaoPage::onVote() {
                     RemoveSupport(consultation.hash.ToString());
                 else
                     Support(consultation.hash, duplicate);
-                refresh(true);
+                refresh(true, true);
             }
             else
             {
                 DaoConsultationVote dlg(this, consultation);
                 dlg.exec();
-                refresh(true);
+                refresh(true, true);
             }
         }
         else if (coins.GetConsultationAnswer(hash, answer))
@@ -1399,7 +1372,7 @@ void DaoPage::onVote() {
                     RemoveSupport(answer.hash.ToString());
                 else
                     Support(answer.hash, duplicate);
-                refresh(true);
+                refresh(true, true);
             }
         }
     }
@@ -1417,6 +1390,8 @@ void DaoPage::onDetails() {
 
 void DaoPage::viewProposals() {
     setView(VIEW_PROPOSALS);
+    if (nBadgeProposals > 0)
+        onFilter(FILTER_NOT_VOTED);
     proposalsBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     consultationsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
@@ -1425,6 +1400,8 @@ void DaoPage::viewProposals() {
 
 void DaoPage::viewPaymentRequests() {
     setView(VIEW_PAYMENT_REQUESTS);
+    if (nBadgePaymentRequests > 0)
+        onFilter(FILTER_NOT_VOTED);
     proposalsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     consultationsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
@@ -1433,6 +1410,8 @@ void DaoPage::viewPaymentRequests() {
 
 void DaoPage::viewConsultations() {
     setView(VIEW_CONSULTATIONS);
+    if (nBadgeConsultations > 0)
+        onFilter(FILTER_NOT_VOTED);
     proposalsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     consultationsBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
@@ -1441,6 +1420,8 @@ void DaoPage::viewConsultations() {
 
 void DaoPage::viewDeployments() {
     setView(VIEW_DEPLOYMENTS);
+    if (nBadgeDeployments > 0)
+        onFilter(FILTER_NOT_VOTED);
     proposalsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     consultationsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
@@ -1449,6 +1430,13 @@ void DaoPage::viewDeployments() {
 
 void DaoPage::onFilter(int index) {
     nFilter = index;
+    filterCmb->setCurrentIndex(index);
+    refresh(true);
+}
+
+void DaoPage::onExclude(bool fChecked) {
+    fExclude = fChecked;
+    refresh(true);
 }
 
 void DaoPage::onCreate() {
@@ -1476,6 +1464,39 @@ void DaoPage::onCreate() {
 }
 
 void DaoPage::onProposeAnswer() {
+    LOCK(cs_main);
+
+    CStateViewCache coins(pcoinsTip);
+    CConsultation consultation;
+
+    if (coins.GetConsultation(uint256S(contextHash.toStdString()), consultation))
+    {
+        if (consultation.CanHaveNewAnswers())
+        {
+            DaoProposeAnswer dlg(this, consultation, [](QString s)->bool{return !s.isEmpty();});
+            dlg.setModel(walletModel);
+            dlg.exec();
+            refresh(true);
+        }
+    }
+}
+
+void DaoPage::onSupportAnswer() {
+    LOCK(cs_main);
+
+    CStateViewCache coins(pcoinsTip);
+    CConsultation consultation;
+
+    if (coins.GetConsultation(uint256S(contextHash.toStdString()), consultation))
+    {
+        if (!consultation.IsRange())
+        {
+            DaoSupport dlg(this, consultation);
+            dlg.setModel(walletModel);
+            dlg.exec();
+            refresh(true);
+        }
+    }
 }
 
 void DaoPage::showContextMenu(const QPoint& pt) {
@@ -1488,7 +1509,21 @@ void DaoPage::showContextMenu(const QPoint& pt) {
     contextItem = item;
     auto *hashItem = table->item(contextItem->row(), P_COLUMN_HASH);
     if (hashItem) {
+        LOCK(cs_main);
         contextHash = hashItem->data(Qt::DisplayRole).toString();
+        CConsultation consultation;
+        if (pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation))
+        {
+            if (consultation.CanHaveNewAnswers())
+                contextMenu->addAction(proposeAnswer);
+            else
+                contextMenu->removeAction(proposeAnswer);
+
+            if (consultation.CanHaveAnswers())
+                contextMenu->addAction(supportAnswer);
+            else
+                contextMenu->removeAction(supportAnswer);
+        }
     }
     contextMenu->exec(QCursor::pos());
 }

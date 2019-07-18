@@ -14,6 +14,8 @@
 #include "clientmodel.h"
 #include "daoconsultationcreate.h"
 #include "daoconsultationvote.h"
+#include "daoproposeanswer.h"
+#include "daosupport.h"
 #include "daoversionbit.h"
 #include "main.h"
 #include "navcoinpushbutton.h"
@@ -129,7 +131,7 @@ public:
     explicit DaoPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
     void setWalletModel(WalletModel *walletModel);
     void setClientModel(ClientModel *clientModel);
-    void initialize(CProposalMap proposalMap, CPaymentRequestMap paymentRequestMap, CConsultationMap consultationMap, CConsultationAnswerMap consultationAnswerMap, int unit);
+    void initialize(CProposalMap proposalMap, CPaymentRequestMap paymentRequestMap, CConsultationMap consultationMap, CConsultationAnswerMap consultationAnswerMap, int unit, bool updateFilterIfEmpty);
     void setActive(bool flag);
     void setView(int view);
 
@@ -155,8 +157,10 @@ private:
     NavCoinPushButton* paymentRequestsBtn;
     NavCoinPushButton* consultationsBtn;
     NavCoinPushButton* deploymentsBtn;
+    NavCoinPushButton* consensusBtn;
     QLabel* filterLbl;
     QComboBox* filterCmb;
+    QCheckBox* excludeBox;
     QPushButton* createBtn;
     QMenu* contextMenu;
     QTableWidgetItem *contextItem = nullptr;
@@ -164,8 +168,10 @@ private:
 
     QAction* copyHash;
     QAction* proposeAnswer;
+    QAction* supportAnswer;
 
     bool fActive;
+    bool fExclude;
     int nView;
     int nCurrentView;
     int nCurrentUnit;
@@ -233,7 +239,8 @@ private:
         VIEW_PROPOSALS,
         VIEW_PAYMENT_REQUESTS,
         VIEW_CONSULTATIONS,
-        VIEW_DEPLOYMENTS
+        VIEW_DEPLOYMENTS,
+        VIEW_CONSENSUS
     };
 
     enum {
@@ -255,10 +262,13 @@ private Q_SLOTS:
     void onVote();
     void onDetails();
     void onFilter(int index);
+    void onExclude(bool fChecked);
     void onProposeAnswer();
+    void onSupportAnswer();
     void onCopyHash();
 
-    void refresh(bool force = false);
+    void refresh(bool force = false, bool updateFilterIfEmpty = false);
+    void refreshForce();
 
     void showContextMenu(const QPoint& pt);
 };

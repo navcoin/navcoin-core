@@ -57,7 +57,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* pro
     ui->labelDescription->setText(QString::fromStdString(finalDescription));
     ui->labelDuration->setText(GUIUtil::formatDurationStr(int(proposal->nDeadline)));
 
-    string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
+    string fee = FormatMoney(Params().GetConsensus().nProposalMinimalFee);
     string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
     ui->labelWarning->setText(QString::fromStdString(warning));
 }

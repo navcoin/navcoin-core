@@ -54,7 +54,7 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
                 }
     });
 
-    string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
+    string fee = FormatMoney(Params().GetConsensus().nProposalMinimalFee);
     string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
     ui->labelWarning->setText(QString::fromStdString(warning));
 }
@@ -175,7 +175,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         CAmount curBalance = pwalletMain->GetBalance();
         if (curBalance <= Params().GetConsensus().nProposalMinimalFee) {
             QMessageBox msgBox(this);
-            string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
+            string fee = FormatMoney(Params().GetConsensus().nProposalMinimalFee);
             std::string str = "You require at least " + fee + " NAV mature and available to create a proposal\n";
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);

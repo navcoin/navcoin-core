@@ -14,7 +14,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     minLbl(new QLabel),
     maxLbl(new QLabel),
     warningLbl(new QLabel),
-    listWidget(new NavCoinListWidget(nullptr, "", [](QString)->bool{return true;})),
+    listWidget(new NavCoinListWidget(nullptr, "", [](QString s)->bool{return !s.isEmpty();})),
     moreAnswersBox(new QCheckBox)
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -192,7 +192,7 @@ void DaoConsultationCreate::onCreate()
     CAmount curBalance = pwalletMain->GetBalance();
     if (curBalance <= Params().GetConsensus().nConsultationMinimalFee) {
         QMessageBox msgBox(this);
-        string fee = std::to_string(Params().GetConsensus().nConsultationMinimalFee / COIN);
+        string fee = FormatMoney(Params().GetConsensus().nConsultationMinimalFee);
         std::string str = "You require at least " + fee + " NAV mature and available to create a consultation.\n";
         msgBox.setText(tr(str.c_str()));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
