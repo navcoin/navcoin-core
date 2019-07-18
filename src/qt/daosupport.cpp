@@ -75,6 +75,7 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
     layout->addWidget(new QLabel(tr("Consultation:<br>%1").arg(QString::fromStdString(consultation.strDZeel))));
     layout->addSpacing(15);
     layout->addWidget(new QLabel(tr("Proposed answers (check the box to support):")));
+    layout->addWidget(answerBox);
     layout->addSpacing(15);
     layout->addWidget(warningLbl);
     layout->addWidget(bottomBox);

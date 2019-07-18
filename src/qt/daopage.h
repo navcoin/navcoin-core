@@ -135,8 +135,6 @@ public:
     void setActive(bool flag);
     void setView(int view);
 
-
-
     void setData(QVector<ProposalEntry>);
     void setData(QVector<PaymentRequestEntry>);
     void setData(QVector<ConsultationEntry>);
@@ -159,16 +157,23 @@ private:
     NavCoinPushButton* deploymentsBtn;
     NavCoinPushButton* consensusBtn;
     QLabel* filterLbl;
+    QLabel* childFilterLbl;
     QComboBox* filterCmb;
+    QComboBox* filter2Cmb;
     QCheckBox* excludeBox;
     QPushButton* createBtn;
+    QPushButton* backToFilterBtn;
     QMenu* contextMenu;
     QTableWidgetItem *contextItem = nullptr;
     QString contextHash;
+    QString filterHash;
 
     QAction* copyHash;
+    QAction* openExplorerAction;
     QAction* proposeAnswer;
     QAction* supportAnswer;
+    QAction* seePaymentRequestsAction;
+    QAction* seeProposalAction;
 
     bool fActive;
     bool fExclude;
@@ -176,7 +181,9 @@ private:
     int nCurrentView;
     int nCurrentUnit;
     int nFilter;
+    int nFilter2;
     int nCurrentFilter;
+    int nCurrentFilter2;
 
     int nBadgeProposals;
     int nBadgePaymentRequests;
@@ -192,7 +199,6 @@ private:
         P_COLUMN_DURATION,
         P_COLUMN_VOTES,
         P_COLUMN_STATE,
-        P_COLUMN_URL,
         P_COLUMN_PADDING2,
         P_COLUMN_VOTE,
         P_COLUMN_PADDING3
@@ -206,7 +212,6 @@ private:
         PR_COLUMN_REQUESTS,
         PR_COLUMN_VOTES,
         PR_COLUMN_STATE,
-        PR_COLUMN_URL,
         PR_COLUMN_PADDING2,
         PR_COLUMN_VOTE,
         PR_COLUMN_PADDING3
@@ -218,7 +223,6 @@ private:
         C_COLUMN_TITLE,
         C_COLUMN_ANSWERS,
         C_COLUMN_STATUS,
-        C_COLUMN_URL,
         C_COLUMN_PADDING2,
         C_COLUMN_MY_VOTES,
         C_COLUMN_VOTE,
@@ -247,9 +251,13 @@ private:
         FILTER_ALL,
         FILTER_NOT_VOTED,
         FILTER_VOTED,
-        FILTER_IN_PROGRESS,
-        FILTER_FINISHED,
-        FILTER_LOOKING_FOR_SUPPORT
+    };
+
+    enum {
+        FILTER2_ALL,
+        FILTER2_IN_PROGRESS,
+        FILTER2_FINISHED,
+        FILTER2_LOOKING_FOR_SUPPORT
     };
 
 private Q_SLOTS:
@@ -262,13 +270,18 @@ private Q_SLOTS:
     void onVote();
     void onDetails();
     void onFilter(int index);
+    void onFilter2(int index);
     void onExclude(bool fChecked);
     void onProposeAnswer();
     void onSupportAnswer();
     void onCopyHash();
+    void onSeeProposal();
+    void onSeePaymentRequests();
 
     void refresh(bool force = false, bool updateFilterIfEmpty = false);
     void refreshForce();
+
+    void backToFilter();
 
     void showContextMenu(const QPoint& pt);
 };

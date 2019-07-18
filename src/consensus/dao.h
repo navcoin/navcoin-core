@@ -656,6 +656,7 @@ public:
     bool IsRange() const;
     bool CanHaveNewAnswers() const;
     bool CanHaveAnswers() const;
+    bool HaveEnoughAnswers() const;
 
     ADD_SERIALIZE_METHODS;
 

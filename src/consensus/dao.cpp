@@ -984,18 +984,12 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
 
 }
 
-std::string CConsultation::GetState(CBlockIndex* pindex) const {
-    CStateViewCache view(pcoinsTip);
-    std::string sFlags = "waiting for support";
-
-    if(fState == DAOFlags::CONFIRMATION)
-        sFlags += " (confirmation phase)";
-
+bool CConsultation::HaveEnoughAnswers() const {
     int nSupportedAnswersCount = 0;
 
-    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
+    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION || !(nVersion & CConsultation::MORE_ANSWERS_VERSION))
     {
-        nSupportedAnswersCount = 2;
+        return true;
     }
     else
     {
@@ -1021,13 +1015,23 @@ std::string CConsultation::GetState(CBlockIndex* pindex) const {
         }
     }
 
-    if (nSupportedAnswersCount < 2)
+    return nSupportedAnswersCount >= 2;
+}
+
+std::string CConsultation::GetState(CBlockIndex* pindex) const {
+    CStateViewCache view(pcoinsTip);
+    std::string sFlags = "waiting for support";
+
+    if(fState == DAOFlags::CONFIRMATION)
+        sFlags += " (confirmation phase)";
+
+    if (!HaveEnoughAnswers())
         sFlags += ", waiting for having enough supported answers";
 
     if(IsSupported(view))
     {
         sFlags = "found support";
-        if (nSupportedAnswersCount < 2)
+        if (!HaveEnoughAnswers())
             sFlags += ", waiting for having enough supported answers";
         if(fState != DAOFlags::CONFIRMATION)
             sFlags += ", waiting for end of voting period";
@@ -1053,37 +1057,7 @@ bool CConsultation::IsSupported(CStateViewCache& view) const
 {
     float nMinimumSupport = Params().GetConsensus().nMinimumConsultationSupport;
 
-    int nSupportedAnswersCount = 0;
-
-    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
-    {
-        nSupportedAnswersCount = 2;
-    }
-    else
-    {
-        CConsultationAnswerMap mapConsultationAnswers;
-
-        if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
-        {
-            for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
-            {
-                CConsultationAnswer answer;
-
-                if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
-                    continue;
-
-                if (answer.parent != hash)
-                    continue;
-
-                if (!answer.IsSupported())
-                    continue;
-
-                nSupportedAnswersCount++;
-            }
-        }
-    }
-
-    return nSupportedAnswersCount >= 2 && nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport &&
+    return HaveEnoughAnswers() && nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport &&
             nVotingCycle >= Params().GetConsensus().nMinimumConsultationCycles;
 }
 
