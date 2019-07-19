@@ -13,6 +13,7 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QVBoxLayout>
 
 WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     QFrame(_gui),
@@ -22,8 +23,8 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     setContentsMargins(0,0,0,0);
 
     // Leave HBox hook for adding a list view later
-    QVBoxLayout *frameLayout = new QVBoxLayout(this);
-    QHBoxLayout *mainLayout = new QHBoxLayout();
+    QHBoxLayout *frameLayout = new QHBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout();
     QHBoxLayout *contentLayout = new QHBoxLayout();
 
     mainLayout->setContentsMargins(0,0,0,0);
@@ -50,10 +51,10 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     noWallet->setAlignment(Qt::AlignCenter);
     walletStack->addWidget(noWallet);
 
-    mainLayout->addLayout(menuLayout);
+    mainLayout->addLayout(headerLayout);
     mainLayout->addLayout(contentLayout);
 
-    frameLayout->addLayout(headerLayout);
+    frameLayout->addLayout(menuLayout);
     frameLayout->addLayout(mainLayout);
 }
 

@@ -276,7 +276,6 @@ NAVCOIN_QT_H = \
 
 # Icons
 RES_ICONS = \
-	qt/res/icons/menu_logo.png \
 	qt/res/icons/navcoin.icns \
 	qt/res/icons/navcoin.ico \
 	qt/res/icons/navcoin.png \
@@ -319,6 +318,7 @@ RES_ICONS += \
 	qt/res/icons/vector/key.svg \
 	qt/res/icons/vector/lock_closed.svg \
 	qt/res/icons/vector/lock_open.svg \
+	qt/res/icons/vector/logo_n.svg \
 	qt/res/icons/vector/open.svg \
 	qt/res/icons/vector/quit.svg \
 	qt/res/icons/vector/receive.svg \

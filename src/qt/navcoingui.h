@@ -11,19 +11,19 @@
 
 #include "amount.h"
 
-#include <QLabel>
-#include <QMainWindow>
+#include <QAbstractButton>
+#include <QComboBox>
 #include <QEvent>
 #include <QHoverEvent>
+#include <QLabel>
+#include <QMainWindow>
 #include <QMap>
 #include <QMenu>
-#include <QComboBox>
+#include <QPainter>
 #include <QPoint>
-#include <QPushButton>
+#include <QToolButton>
 #include <QSystemTrayIcon>
 #include <QtNetwork>
-#include <QAbstractButton>
-#include <QPainter>
 
 class ClientModel;
 class NetworkStyle;
@@ -88,14 +88,14 @@ public:
     /** Show/Hide a notification */
     void showHideNotification(bool show, int index);
 
-    /** Set the active topMenuBtns */
-    void setActiveTopMenu(int index);
+    /** Set the active menuBtns */
+    void setActiveMenu(int index);
 
     /** Updates the count of new Dao entries */
     void updateDaoNewCount();
 
-    /** Set the bubble counter on topMenubtns */
-    void setTopMenuBubble(int index, int drak);
+    /** Set the bubble counter on menubtns */
+    void setMenuBubble(int index, int drak);
 
     /** Set the client model.
         The client model represents the part of the core that communicates with the P2P network, and is wallet-agnostic.
@@ -167,8 +167,8 @@ private:
     QAction *unlockWalletAction;
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
-    QPushButton *topMenuBtns[5];
-    QLabel *topMenuBubbles[5];
+    QToolButton *menuBtns[5];
+    QLabel *menuBubbles[5];
     QLabel *notifications[3];
 
     QSystemTrayIcon *trayIcon;

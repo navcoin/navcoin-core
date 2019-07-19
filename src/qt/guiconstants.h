@@ -5,6 +5,8 @@
 #ifndef NAVCOIN_QT_GUICONSTANTS_H
 #define NAVCOIN_QT_GUICONSTANTS_H
 
+#include <QString>
+
 /* Milliseconds between price updates */
 static const int PRICE_UPDATE_DELAY = 300000;
 
@@ -24,6 +26,17 @@ static const int MAX_PASSPHRASE_SIZE = 1024;
 static const int STATUSBAR_ICONSIZE = 16;
 
 static const bool DEFAULT_SPLASHSCREEN = true;
+
+/**
+ * Wallet colors
+ */
+static const QString COLOR_WHITE = "#FAFAFA";
+static const QString COLOR_PURPLE = "#7D5AB5";
+static const QString COLOR_PURPLE_DARK = "#3E1E6E";
+static const QString COLOR_PURPLE_DARKER = "#351565";
+static const QString COLOR_BLUE = "#42B6EB";
+static const QString COLOR_BLUE_LIGHT = "#46B1E8";
+static const QString COLOR_MAGENTA = "#C42BB7";
 
 /* Invalid field background style */
 #define STYLE_INVALID "background:#FF8080"

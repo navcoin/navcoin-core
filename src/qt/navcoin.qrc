@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/icons">
-        <file alias="menu_logo">res/icons/menu_logo.png</file>
         <file alias="navcoin">res/icons/navcoin.png</file>
         <file alias="splash">res/icons/splash.png</file>
 
@@ -32,6 +31,7 @@
         <file alias="key">res/icons/vector/key.svg</file>
         <file alias="lock_closed">res/icons/vector/lock_closed.svg</file>
         <file alias="lock_open">res/icons/vector/lock_open.svg</file>
+        <file alias="logo_n">res/icons/vector/logo_n.svg</file>
         <file alias="open">res/icons/vector/open.svg</file>
         <file alias="options">res/icons/vector/configure.svg</file>
         <file alias="prompticon">res/icons/vector/chevron.svg</file>

@@ -60,6 +60,7 @@
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
+#include <QHBoxLayout>
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -74,21 +75,22 @@
 #include <QNetworkRequest>
 #include <QProgressBar>
 #include <QProgressDialog>
-#include <QPushButton>
+#include <QScreen>
 #include <QSettings>
 #include <QShortcut>
+#include <QSizePolicy>
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QStyle>
 #include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QVBoxLayout>
 #include <QVariant>
 #include <QVariantMap>
 #include <QWidget>
-#include <QScreen>
 
 static const struct {
     bool error;
@@ -112,11 +114,11 @@ const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
 ;
 
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
-const QString NavCoinGUI::BTN_COLOR = "#6D76AB";
-const QString NavCoinGUI::BTN_BACKGROUND = "#DBE0E8";
-const QString NavCoinGUI::BTN_BACKGROUND_ACTIVE = "#E8EBF0";
-const QString NavCoinGUI::BTN_STYLE = "QPushButton { text-align: left; font: normal normal 4em/4em; padding: 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; } QPushButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; color: " + BTN_COLOR + "; }";
-const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: #b30000; color: #f1f1f1; padding: 0.1em; margin: 0 0.5em 0 0; font: normal normal 1em/1em;";
+const QString NavCoinGUI::BTN_COLOR = COLOR_PURPLE;
+const QString NavCoinGUI::BTN_BACKGROUND = COLOR_PURPLE_DARK;
+const QString NavCoinGUI::BTN_BACKGROUND_ACTIVE = COLOR_PURPLE_DARKER;
+const QString NavCoinGUI::BTN_STYLE = "QToolButton { padding: 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; } QToolButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; }";
+const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: " + COLOR_MAGENTA + "; color: " + COLOR_WHITE + "; padding: 0.1em; font: normal normal 1em/1em;";
 const QString NavCoinGUI::NOTIFICATION_STYLE = "border: 0.15em solid %1; border-radius: 0.3em; background: %2; color: %3; padding: 0.3em 1em; font: normal normal 1.5em/1.5em;";
 const QString NavCoinGUI::NOTIFICATION_ERROR = "#F8D7DA";
 const QString NavCoinGUI::NOTIFICATION_ERROR_TEXT = "#721C24";
@@ -624,19 +626,22 @@ void NavCoinGUI::createToolBars()
     if(walletFrame)
     {
         // Sizes
-        int logoWidth = 180 * scale();
         int logoHeight = 79 * scale();
-        int iconSize = 35 * scale();
+        QSize iconSize = QSize(35 * scale(), 35 * scale());
+        QSize logoIconSize = QSize(60 * scale(), 60 * scale());
 
-        // Create a layout to contain logo and space for header
-        QHBoxLayout* headerLogoLayout = new QHBoxLayout();
-        headerLogoLayout->setContentsMargins(0,0,0,0);
-        headerLogoLayout->setSpacing(0);
+        // Create the logo icon
+        QIcon logoIcon = platformStyle->SingleColorIcon(":/icons/logo_n", COLOR_WHITE);
 
-        // Add our logo
-        QPushButton* logo = new QPushButton();
-        logo->setFixedSize(logoWidth, logoHeight);
-        logo->setStyleSheet("border: 0; margin: 0; padding: 0; border-image: url(:/icons/menu_logo) 0 0 0 0 stretch stretch;");
+        // Create the logo button
+        QToolButton* logoBtn = new QToolButton();
+        logoBtn->setIcon(logoIcon);
+        logoBtn->setIconSize(logoIconSize);
+        logoBtn->setStyleSheet(BTN_STYLE);
+        logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+        // Attach the logo button to the layout
+        walletFrame->menuLayout->addWidget(logoBtn);
 
         // Notifications layout vertical
         QVBoxLayout* notificationLayout = new QVBoxLayout();
@@ -676,16 +681,12 @@ void NavCoinGUI::createToolBars()
         headerBar->setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ABA8E1, stop:1 #9DC3E5)");
         headerBar->setMinimumSize(1, 9 * scale());
 
-        // Add the widgets to the header section
-        headerLogoLayout->addWidget(logo);
-        headerLogoLayout->addWidget(headerSpacer);
-
-        // Add the new layout to the header layout
-        walletFrame->headerLayout->addLayout(headerLogoLayout);
+        // Add the header spacer and header bar
+        walletFrame->headerLayout->addWidget(headerSpacer);
         walletFrame->headerLayout->addWidget(headerBar);
 
-        // Buttons
-        QString btnNames[5] = {
+        // Buttons icon
+        QString btnNamesIcon[5] = {
             "home",
             "send",
             "receive",
@@ -693,51 +694,55 @@ void NavCoinGUI::createToolBars()
             "dao"
         };
 
+        // Buttons text
+        std::string btnNamesText[5] = {
+            "HOME",
+            "SEND",
+            "RECEIVE",
+            "HISTORY",
+            "DAO"
+        };
+
         // Build each new button
         for (unsigned i = 0; i < 5; ++i)
         {
-            // Add padding on left of button text
-            QString btnText = tr(qPrintable("  " + btnNames[i])).toUpper();
-
-            // What size is our icon?
-            QSize _iconSize = QSize(iconSize, iconSize);
-
             // Create the icon
-            QIcon icon = platformStyle->SingleColorIcon(":/icons/" + btnNames[i], BTN_COLOR);
+            QIcon icon = platformStyle->SingleColorIcon(":/icons/" + btnNamesIcon[i], BTN_COLOR);
 
             // Update the disabled icon pixmap to use the same as QIcon::Normal
-            icon.addPixmap(icon.pixmap(_iconSize, QIcon::Normal, QIcon::On), QIcon::Disabled);
+            icon.addPixmap(icon.pixmap(iconSize, QIcon::Normal, QIcon::On), QIcon::Disabled);
 
-            // Create the menu
-            topMenuBtns[i] = new QPushButton();
-            topMenuBtns[i]->setText(btnText);
-            topMenuBtns[i]->setIcon(icon);
-            topMenuBtns[i]->setIconSize(_iconSize);
-            topMenuBtns[i]->setMinimumSize(logoWidth, 10);
-            topMenuBtns[i]->setStyleSheet(BTN_STYLE);
+            // Create the menu button
+            menuBtns[i] = new QToolButton();
+            menuBtns[i]->setText(tr(btnNamesText[i].c_str()));
+            menuBtns[i]->setIcon(icon);
+            menuBtns[i]->setIconSize(iconSize);
+            menuBtns[i]->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+            menuBtns[i]->setStyleSheet(BTN_STYLE);
+            menuBtns[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
             // Attach to the layout and assign click events
-            walletFrame->menuLayout->addWidget(topMenuBtns[i]);
+            walletFrame->menuLayout->addWidget(menuBtns[i]);
 
             // Create a bubble layout
-            QVBoxLayout* bubbleLayout = new QVBoxLayout(topMenuBtns[i]);
-            bubbleLayout->setContentsMargins(0, 0, 0, 0);
+            QVBoxLayout* bubbleLayout = new QVBoxLayout(menuBtns[i]);
+            bubbleLayout->setContentsMargins(0, 10 * scale(), 10 * scale(), 0);
             bubbleLayout->setSpacing(0);
-            bubbleLayout->setAlignment(Qt::AlignRight | Qt::AlignVCenter); // Move it to the right middle
+            bubbleLayout->setAlignment(Qt::AlignRight | Qt::AlignTop); // Move it to the top right
 
             // Create the bubble and place in the bubble layout
-            topMenuBubbles[i] = new QLabel();
-            topMenuBubbles[i]->setText("1");
-            topMenuBubbles[i]->setStyleSheet(BUBBLE_STYLE);
-            topMenuBubbles[i]->hide();
-            bubbleLayout->addWidget(topMenuBubbles[i]);
+            menuBubbles[i] = new QLabel();
+            menuBubbles[i]->setText("1");
+            menuBubbles[i]->setStyleSheet(BUBBLE_STYLE);
+            menuBubbles[i]->hide();
+            bubbleLayout->addWidget(menuBubbles[i]);
         }
 
-        connect(topMenuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
-        connect(topMenuBtns[1], SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
-        connect(topMenuBtns[2], SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
-        connect(topMenuBtns[3], SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
-        connect(topMenuBtns[4], SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
+        connect(menuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
+        connect(menuBtns[1], SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
+        connect(menuBtns[2], SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
+        connect(menuBtns[3], SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
+        connect(menuBtns[4], SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
 
         /* This is to make the sidebar background consistent */
         QWidget *padding = new QWidget();
@@ -756,11 +761,11 @@ void NavCoinGUI::showHideNotification(bool show, int index)
     notifications[index]->setVisible(show);
 }
 
-void NavCoinGUI::setActiveTopMenu(int index)
+void NavCoinGUI::setActiveMenu(int index)
 {
     for (int i = 0; i < 5; ++i)
     {
-        topMenuBtns[i]->setDisabled(i == index);
+        menuBtns[i]->setDisabled(i == index);
     }
 }
 
@@ -831,20 +836,20 @@ void NavCoinGUI::updateDaoNewCount()
     info("[DAO] dao count found :" + std::to_string(newDaoCount));
 
     // Update the bubble
-    setTopMenuBubble(4, newDaoCount);
+    setMenuBubble(4, newDaoCount);
 
     // New daos? SHOW notification
     showHideNotification(newDaoCount > 0, 0);
 }
 
-void NavCoinGUI::setTopMenuBubble(int index, int drak)
+void NavCoinGUI::setMenuBubble(int index, int drak)
 {
-    topMenuBubbles[index]->setText(QString::number(drak));
+    menuBubbles[index]->setText(QString::number(drak));
 
     if (drak > 0)
-        topMenuBubbles[index]->show();
+        menuBubbles[index]->show();
     else
-        topMenuBubbles[index]->hide();
+        menuBubbles[index]->hide();
 }
 
 void NavCoinGUI::setClientModel(ClientModel *clientModel)
@@ -1115,42 +1120,42 @@ void NavCoinGUI::openClicked()
 
 void NavCoinGUI::gotoOverviewPage()
 {
-    setActiveTopMenu(0);
+    setActiveMenu(0);
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
 void NavCoinGUI::gotoHistoryPage()
 {
-    setActiveTopMenu(3);
+    setActiveMenu(3);
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
 void NavCoinGUI::gotoCommunityFundPage()
 {
-    setActiveTopMenu(4);
+    setActiveMenu(4);
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoCommunityFundPage();
 }
 
 void NavCoinGUI::gotoReceiveCoinsPage()
 {
-    setActiveTopMenu(2);
+    setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
 void NavCoinGUI::gotoRequestPaymentPage()
 {
-    setActiveTopMenu(2);
+    setActiveMenu(2);
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoRequestPaymentPage();
 }
 
 void NavCoinGUI::gotoSendCoinsPage(QString addr)
 {
-    setActiveTopMenu(1);
+    setActiveMenu(1);
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
