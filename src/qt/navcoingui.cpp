@@ -631,7 +631,7 @@ void NavCoinGUI::createToolBars()
         QSize logoIconSize = QSize(60 * scale(), 60 * scale());
 
         // Create the logo icon
-        QIcon logoIcon = platformStyle->SingleColorIcon(":/icons/logo_n", COLOR_WHITE);
+        QIcon logoIcon = QIcon(":/icons/logo_n");
 
         // Create the logo button
         QToolButton* logoBtn = new QToolButton();

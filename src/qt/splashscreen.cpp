@@ -35,23 +35,23 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     QString versionText     = QString::fromStdString(FormatFullVersion());
     QString titleAddText    = networkStyle->getTitleAddText();
 
-    // create a bitmap according to device pixelratio
+    // Size of the splash screen
     QSize splashSize(480 * scale(), 320 * scale());
+
+    // Size of the logo
+    QSize logoSize(400 * scale(), 95 * scale());
+
+    // create a bitmap according to device pixelratio
     pixmap = QPixmap(splashSize);
 
     // Seupt the painter
     QPainter pixPaint(&pixmap);
 
+    // Size and position of the splash screen
     QRect rect(QPoint(0,0), splashSize);
 
     // Fill with white
     pixPaint.fillRect(rect, Qt::white);
-
-    // Load the icon
-    QPixmap icon(":icons/splash");
-
-    // Now draw the icon
-    pixPaint.drawPixmap(rect, icon);
 
     // We are done
     pixPaint.end();
@@ -74,6 +74,15 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     versionLabel->setAlignment(Qt::AlignRight | Qt::AlignTop);
     versionLabel->setStyleSheet("padding: 2pt; font-size: 8pt;");
     layout->addWidget(versionLabel);
+
+    // Load the icon
+    QPixmap icon = QPixmap(":icons/navcoin_full").scaled(logoSize,  Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    // Build the new logo
+    QLabel* logo = new QLabel();
+    logo->setPixmap(icon);
+    logo->setAlignment(Qt::AlignCenter);
+    layout->addWidget(logo);
 
     // Build the new statusLabel
     statusLabel = new QLabel();

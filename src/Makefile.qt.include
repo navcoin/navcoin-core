@@ -276,69 +276,69 @@ NAVCOIN_QT_H = \
 
 # Icons
 RES_ICONS = \
+	qt/res/icons/logo_n.png \
 	qt/res/icons/navcoin.icns \
 	qt/res/icons/navcoin.ico \
 	qt/res/icons/navcoin.png \
-	qt/res/icons/splash.png
+	qt/res/icons/navcoin_full.png
 
 # Vector Icons
 RES_ICONS += \
-	qt/res/icons/vector/about.svg \
-	qt/res/icons/vector/about_qt.svg \
-	qt/res/icons/vector/add.svg \
-	qt/res/icons/vector/address-book.svg \
-	qt/res/icons/vector/chevron.svg \
-	qt/res/icons/vector/clock1.svg \
-	qt/res/icons/vector/clock2.svg \
-	qt/res/icons/vector/clock3.svg \
-	qt/res/icons/vector/clock4.svg \
-	qt/res/icons/vector/clock5.svg \
-	qt/res/icons/vector/configure.svg \
-	qt/res/icons/vector/connect0.svg \
-	qt/res/icons/vector/connect1.svg \
-	qt/res/icons/vector/connect2.svg \
-	qt/res/icons/vector/connect3.svg \
-	qt/res/icons/vector/connect4.svg \
-	qt/res/icons/vector/connect_disabled.svg \
-	qt/res/icons/vector/dao.svg \
-	qt/res/icons/vector/debugwindow.svg \
-	qt/res/icons/vector/edit.svg \
-	qt/res/icons/vector/editcopy.svg \
-	qt/res/icons/vector/editpaste.svg \
-	qt/res/icons/vector/export.svg \
-	qt/res/icons/vector/eye.svg \
-	qt/res/icons/vector/eye_minus.svg \
-	qt/res/icons/vector/eye_plus.svg \
-	qt/res/icons/vector/filesave.svg \
-	qt/res/icons/vector/fontbigger.svg \
-	qt/res/icons/vector/fontsmaller.svg \
-	qt/res/icons/vector/ghost.svg \
-	qt/res/icons/vector/home.svg \
-	qt/res/icons/vector/info.svg \
-	qt/res/icons/vector/key.svg \
-	qt/res/icons/vector/lock_closed.svg \
-	qt/res/icons/vector/lock_open.svg \
-	qt/res/icons/vector/logo_n.svg \
-	qt/res/icons/vector/open.svg \
-	qt/res/icons/vector/quit.svg \
-	qt/res/icons/vector/receive.svg \
-	qt/res/icons/vector/remove.svg \
-	qt/res/icons/vector/send.svg \
-	qt/res/icons/vector/staking_off.svg \
-	qt/res/icons/vector/staking_on.svg \
-	qt/res/icons/vector/synced.svg \
-	qt/res/icons/vector/transaction0.svg \
-	qt/res/icons/vector/transaction2.svg \
-	qt/res/icons/vector/transaction_abandoned.svg \
-	qt/res/icons/vector/transaction_conflicted.svg \
-	qt/res/icons/vector/transactions.svg \
-	qt/res/icons/vector/tx_inout.svg \
-	qt/res/icons/vector/tx_input.svg \
-	qt/res/icons/vector/tx_mined.svg \
-	qt/res/icons/vector/tx_output.svg \
-	qt/res/icons/vector/verify.svg \
-	qt/res/icons/vector/wallet.svg \
-	qt/res/icons/vector/warning.svg
+	qt/res/icons/about.svg \
+	qt/res/icons/about_qt.svg \
+	qt/res/icons/add.svg \
+	qt/res/icons/address-book.svg \
+	qt/res/icons/chevron.svg \
+	qt/res/icons/clock1.svg \
+	qt/res/icons/clock2.svg \
+	qt/res/icons/clock3.svg \
+	qt/res/icons/clock4.svg \
+	qt/res/icons/clock5.svg \
+	qt/res/icons/configure.svg \
+	qt/res/icons/connect0.svg \
+	qt/res/icons/connect1.svg \
+	qt/res/icons/connect2.svg \
+	qt/res/icons/connect3.svg \
+	qt/res/icons/connect4.svg \
+	qt/res/icons/connect_disabled.svg \
+	qt/res/icons/dao.svg \
+	qt/res/icons/debugwindow.svg \
+	qt/res/icons/edit.svg \
+	qt/res/icons/editcopy.svg \
+	qt/res/icons/editpaste.svg \
+	qt/res/icons/export.svg \
+	qt/res/icons/eye.svg \
+	qt/res/icons/eye_minus.svg \
+	qt/res/icons/eye_plus.svg \
+	qt/res/icons/filesave.svg \
+	qt/res/icons/fontbigger.svg \
+	qt/res/icons/fontsmaller.svg \
+	qt/res/icons/ghost.svg \
+	qt/res/icons/home.svg \
+	qt/res/icons/info.svg \
+	qt/res/icons/key.svg \
+	qt/res/icons/lock_closed.svg \
+	qt/res/icons/lock_open.svg \
+	qt/res/icons/open.svg \
+	qt/res/icons/quit.svg \
+	qt/res/icons/receive.svg \
+	qt/res/icons/remove.svg \
+	qt/res/icons/send.svg \
+	qt/res/icons/staking_off.svg \
+	qt/res/icons/staking_on.svg \
+	qt/res/icons/synced.svg \
+	qt/res/icons/transaction0.svg \
+	qt/res/icons/transaction2.svg \
+	qt/res/icons/transaction_abandoned.svg \
+	qt/res/icons/transaction_conflicted.svg \
+	qt/res/icons/transactions.svg \
+	qt/res/icons/tx_inout.svg \
+	qt/res/icons/tx_input.svg \
+	qt/res/icons/tx_mined.svg \
+	qt/res/icons/tx_output.svg \
+	qt/res/icons/verify.svg \
+	qt/res/icons/wallet.svg \
+	qt/res/icons/warning.svg
 
 # Fonts
 RES_ICONS += \
