@@ -623,132 +623,132 @@ void NavCoinGUI::createMenuBar()
 
 void NavCoinGUI::createToolBars()
 {
-    if(walletFrame)
+    if(walletFrame == nullptr)
+        return;
+
+    // Sizes
+    int logoHeight = 79 * scale();
+    QSize iconSize = QSize(35 * scale(), 35 * scale());
+    QSize logoIconSize = QSize(60 * scale(), 60 * scale());
+
+    // Create the logo icon
+    QIcon logoIcon = QIcon(":/icons/logo_n");
+
+    // Create the logo button
+    QToolButton* logoBtn = new QToolButton();
+    logoBtn->setIcon(logoIcon);
+    logoBtn->setIconSize(logoIconSize);
+    logoBtn->setStyleSheet(BTN_STYLE);
+    logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+    // Attach the logo button to the layout
+    walletFrame->menuLayout->addWidget(logoBtn);
+
+    // Notifications layout vertical
+    QVBoxLayout* notificationLayout = new QVBoxLayout();
+    notificationLayout->setContentsMargins(50 * scale(), 5 * scale(), 50 * scale(), 5 * scale());
+    notificationLayout->setSpacing(2 * scale());
+    notificationLayout->setAlignment(Qt::AlignVCenter);
+
+    // Add a spacer to header to create a background
+    QWidget* headerSpacer = new QWidget();
+    headerSpacer->setStyleSheet("background: #EEEEEE;");
+    headerSpacer->setFixedHeight(logoHeight);
+    headerSpacer->setLayout(notificationLayout);
+
+    // Build each new notification
+    for (unsigned i = 0; i < notifs_count; ++i)
     {
-        // Sizes
-        int logoHeight = 79 * scale();
-        QSize iconSize = QSize(35 * scale(), 35 * scale());
-        QSize logoIconSize = QSize(60 * scale(), 60 * scale());
-
-        // Create the logo icon
-        QIcon logoIcon = QIcon(":/icons/logo_n");
-
-        // Create the logo button
-        QToolButton* logoBtn = new QToolButton();
-        logoBtn->setIcon(logoIcon);
-        logoBtn->setIconSize(logoIconSize);
-        logoBtn->setStyleSheet(BTN_STYLE);
-        logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-        // Attach the logo button to the layout
-        walletFrame->menuLayout->addWidget(logoBtn);
-
-        // Notifications layout vertical
-        QVBoxLayout* notificationLayout = new QVBoxLayout();
-        notificationLayout->setContentsMargins(50 * scale(), 5 * scale(), 50 * scale(), 5 * scale());
-        notificationLayout->setSpacing(2 * scale());
-        notificationLayout->setAlignment(Qt::AlignVCenter);
-
-        // Add a spacer to header to create a background
-        QWidget* headerSpacer = new QWidget();
-        headerSpacer->setStyleSheet("background: #EEEEEE;");
-        headerSpacer->setFixedHeight(logoHeight);
-        headerSpacer->setLayout(notificationLayout);
-
-        // Build each new notification
-        for (unsigned i = 0; i < notifs_count; ++i)
+        // Add notifications
+        notifications[i] = new QLabel();
+        notifications[i]->setWordWrap(true);
+        notifications[i]->setText(tr(notifs[i].text));
+        notifications[i]->hide();
+        if (notifs[i].error == true)
         {
-            // Add notifications
-            notifications[i] = new QLabel();
-            notifications[i]->setWordWrap(true);
-            notifications[i]->setText(tr(notifs[i].text));
-            notifications[i]->hide();
-            if (notifs[i].error == true)
-            {
-                notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_ERROR_BORDER, NOTIFICATION_ERROR, NOTIFICATION_ERROR_TEXT));
-            }
-            else
-            {
-                notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_WARNING_BORDER, NOTIFICATION_WARNING, NOTIFICATION_WARNING_TEXT));
-            }
-
-            // Add to notification layout
-            notificationLayout->addWidget(notifications[i]);
+            notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_ERROR_BORDER, NOTIFICATION_ERROR, NOTIFICATION_ERROR_TEXT));
+        }
+        else
+        {
+            notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_WARNING_BORDER, NOTIFICATION_WARNING, NOTIFICATION_WARNING_TEXT));
         }
 
-        // Create the header by with gradient
-        QWidget* headerBar = new QWidget();
-        headerBar->setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ABA8E1, stop:1 #9DC3E5)");
-        headerBar->setMinimumSize(1, 9 * scale());
-
-        // Add the header spacer and header bar
-        walletFrame->headerLayout->addWidget(headerSpacer);
-        walletFrame->headerLayout->addWidget(headerBar);
-
-        // Buttons icon
-        QString btnNamesIcon[5] = {
-            "home",
-            "send",
-            "receive",
-            "transactions",
-            "dao"
-        };
-
-        // Buttons text
-        std::string btnNamesText[5] = {
-            "HOME",
-            "SEND",
-            "RECEIVE",
-            "HISTORY",
-            "DAO"
-        };
-
-        // Build each new button
-        for (unsigned i = 0; i < 5; ++i)
-        {
-            // Create the icon
-            QIcon icon = platformStyle->SingleColorIcon(":/icons/" + btnNamesIcon[i], BTN_COLOR);
-
-            // Update the disabled icon pixmap to use the same as QIcon::Normal
-            icon.addPixmap(icon.pixmap(iconSize, QIcon::Normal, QIcon::On), QIcon::Disabled);
-
-            // Create the menu button
-            menuBtns[i] = new QToolButton();
-            menuBtns[i]->setText(tr(btnNamesText[i].c_str()));
-            menuBtns[i]->setIcon(icon);
-            menuBtns[i]->setIconSize(iconSize);
-            menuBtns[i]->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-            menuBtns[i]->setStyleSheet(BTN_STYLE);
-            menuBtns[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-            // Attach to the layout and assign click events
-            walletFrame->menuLayout->addWidget(menuBtns[i]);
-
-            // Create a bubble layout
-            QVBoxLayout* bubbleLayout = new QVBoxLayout(menuBtns[i]);
-            bubbleLayout->setContentsMargins(0, 10 * scale(), 10 * scale(), 0);
-            bubbleLayout->setSpacing(0);
-            bubbleLayout->setAlignment(Qt::AlignRight | Qt::AlignTop); // Move it to the top right
-
-            // Create the bubble and place in the bubble layout
-            menuBubbles[i] = new QLabel();
-            menuBubbles[i]->setText("1");
-            menuBubbles[i]->setStyleSheet(BUBBLE_STYLE);
-            menuBubbles[i]->hide();
-            bubbleLayout->addWidget(menuBubbles[i]);
-        }
-
-        connect(menuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
-        connect(menuBtns[1], SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
-        connect(menuBtns[2], SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
-        connect(menuBtns[3], SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
-        connect(menuBtns[4], SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
-
-        /* This is to make the sidebar background consistent */
-        QWidget *padding = new QWidget();
-        padding->setStyleSheet("background: " + BTN_BACKGROUND + ";");
-        walletFrame->menuLayout->addWidget(padding);
+        // Add to notification layout
+        notificationLayout->addWidget(notifications[i]);
     }
+
+    // Create the header by with gradient
+    QWidget* headerBar = new QWidget();
+    headerBar->setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ABA8E1, stop:1 #9DC3E5)");
+    headerBar->setMinimumSize(1, 9 * scale());
+
+    // Add the header spacer and header bar
+    walletFrame->headerLayout->addWidget(headerSpacer);
+    walletFrame->headerLayout->addWidget(headerBar);
+
+    // Buttons icon
+    QString btnNamesIcon[5] = {
+        "home",
+        "send",
+        "receive",
+        "transactions",
+        "dao"
+    };
+
+    // Buttons text
+    std::string btnNamesText[5] = {
+        "HOME",
+        "SEND",
+        "RECEIVE",
+        "HISTORY",
+        "DAO"
+    };
+
+    // Build each new button
+    for (unsigned i = 0; i < 5; ++i)
+    {
+        // Create the icon
+        QIcon icon = platformStyle->SingleColorIcon(":/icons/" + btnNamesIcon[i], BTN_COLOR);
+
+        // Update the disabled icon pixmap to use the same as QIcon::Normal
+        icon.addPixmap(icon.pixmap(iconSize, QIcon::Normal, QIcon::On), QIcon::Disabled);
+
+        // Create the menu button
+        menuBtns[i] = new QToolButton();
+        menuBtns[i]->setText(tr(btnNamesText[i].c_str()));
+        menuBtns[i]->setIcon(icon);
+        menuBtns[i]->setIconSize(iconSize);
+        menuBtns[i]->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+        menuBtns[i]->setStyleSheet(BTN_STYLE);
+        menuBtns[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+        // Attach to the layout and assign click events
+        walletFrame->menuLayout->addWidget(menuBtns[i]);
+
+        // Create a bubble layout
+        QVBoxLayout* bubbleLayout = new QVBoxLayout(menuBtns[i]);
+        bubbleLayout->setContentsMargins(0, 10 * scale(), 10 * scale(), 0);
+        bubbleLayout->setSpacing(0);
+        bubbleLayout->setAlignment(Qt::AlignRight | Qt::AlignTop); // Move it to the top right
+
+        // Create the bubble and place in the bubble layout
+        menuBubbles[i] = new QLabel();
+        menuBubbles[i]->setText("1");
+        menuBubbles[i]->setStyleSheet(BUBBLE_STYLE);
+        menuBubbles[i]->hide();
+        bubbleLayout->addWidget(menuBubbles[i]);
+    }
+
+    connect(menuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
+    connect(menuBtns[1], SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
+    connect(menuBtns[2], SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
+    connect(menuBtns[3], SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
+    connect(menuBtns[4], SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
+
+    /* This is to make the sidebar background consistent */
+    QWidget *padding = new QWidget();
+    padding->setStyleSheet("background: " + BTN_BACKGROUND + ";");
+    walletFrame->menuLayout->addWidget(padding);
 }
 
 void NavCoinGUI::showOutOfSyncWarning(bool fShow)
