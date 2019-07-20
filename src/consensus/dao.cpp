@@ -220,12 +220,12 @@ bool RemoveVote(uint256 hash)
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params)
 {
-    return pindex->nHeight % params.GetConsensus().nBlocksPerVotingCycle == 0;
+    return pindex->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0;
 }
 
 bool IsEndCycle(const CBlockIndex* pindex, CChainParams params)
 {
-    return (pindex->nHeight+1) % params.GetConsensus().nBlocksPerVotingCycle == 0;
+    return (pindex->nHeight+1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0;
 }
 
 std::map<uint256, std::pair<std::pair<int, int>, int>> mapCacheProposalsToUpdate;
@@ -245,7 +245,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     }
 
     int64_t nTimeStart = GetTimeMicros();
-    int nBlocks = (pindexNew->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
+    int nBlocks = (pindexNew->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)) + 1;
     const CBlockIndex* pindexblock = pindexNew;
 
     std::map<uint256, bool> vSeen;
@@ -438,10 +438,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!view.GetProposal(prequest->proposalhash, proposal))
                 continue;
 
-            auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned )(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            auto nCurrentCycle = (unsigned )(pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
+            auto nVotingCycles = std::min((uint64_t)nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) + 1);
 
             auto oldState = prequest->fState;
             auto oldCycle = prequest->nVotingCycle;
@@ -452,7 +452,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 fUpdate = true;
             }
 
-            if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
                 if((!prequest->IsExpired() && prequest->fState == DAOFlags::EXPIRED) ||
                         (!prequest->IsRejected() && prequest->fState == DAOFlags::REJECTED))
@@ -506,7 +506,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     && prequest->nVotingCycle != oldCycle)
                 prequest->nVotingCycle = oldCycle;
 
-            if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
                 if (!vSeen.count(prequest->hash) && prequest->fState == DAOFlags::NIL &&
                     !((proposal.fState == DAOFlags::ACCEPTED || proposal.fState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())){
@@ -553,10 +553,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CBlockIndex* pblockindex = mapBlockIndex[proposal->txblockhash];
 
-            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesProposalVoting + 1);
+            auto nVotingCycles = std::min((uint64_t)nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) + 1);
 
             auto oldState = proposal->fState;
             auto oldCycle = proposal->nVotingCycle;
@@ -567,7 +567,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 fUpdate = true;
             }
 
-            if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
                 if((!proposal->IsExpired(pindexNew->GetBlockTime()) && (proposal->fState == DAOFlags::EXPIRED || proposal->fState == DAOFlags::PENDING_VOTING_PREQ)) ||
                    (!proposal->IsRejected() && proposal->fState == DAOFlags::REJECTED))
@@ -639,7 +639,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (fUndo && fUpdate && proposal->fState == oldState && proposal->fState != DAOFlags::NIL && proposal->nVotingCycle != oldCycle)
                 proposal->nVotingCycle = oldCycle;
 
-            if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
                 if (!vSeen.count(proposal->hash) && proposal->fState == DAOFlags::NIL)
                 {
@@ -666,6 +666,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 continue;
 
             bool fUpdate = false;
+            bool fParentExpired = false;
 
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
 
@@ -686,7 +687,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 fUpdate = true;
             }
 
-            if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
 
                 if(!answer->IsSupported() && answer->fState == DAOFlags::ACCEPTED)
@@ -705,14 +706,27 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         fUpdate = true;
                     }
                 }
+
+                if (answer->IsConsensusAccepted())
+                {
+                    CConsultation parent;
+                    if (view.GetConsultation(answer->parent, parent))
+                    {
+                        fParentExpired = parent.IsExpired(pindexNew);
+                        pindexNew->mapConsensusParameters[(Consensus::ConsensusParamsPos)parent.nMin] = stoll(answer->sAnswer);
+                        answer->fState = DAOFlags::PASSED;
+                        answer->blockhash = pindexNew->GetBlockHash();
+                        fUpdate = true;
+                    }
+                }
             }
 
-            if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
                 if (!vSeen.count(answer->hash) && answer->fState == DAOFlags::NIL)
                     answer->nSupport = 0;
 
-                if (answer->fState != DAOFlags::EXPIRED)
+                if (answer->fState != DAOFlags::PASSED && !fParentExpired)
                     answer->nVotes = 0;
             }
         }
@@ -748,11 +762,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if(fUndo && consultation->blockhash == pindexDelete->GetBlockHash())
             {
-                consultation->blockhash = uint256();
-                if (consultation->fState == DAOFlags::ACCEPTED)
+                consultation->blockhash = pindexNew->GetBlockHash();
+                if (consultation->fState == DAOFlags::PASSED)
+                    consultation->fState = DAOFlags::ACCEPTED;
+                else if (consultation->fState == DAOFlags::ACCEPTED)
                     consultation->fState = DAOFlags::REFLECTION;
-                else if (consultation->fState == DAOFlags::REFLECTION)
-                    consultation->fState = DAOFlags::CONFIRMATION;
                 else
                     consultation->fState = DAOFlags::NIL;
                 fUpdate = true;
@@ -760,21 +774,21 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CBlockIndex* pblockindex = mapBlockIndex[consultation->txblockhash];
 
-            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
             auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesConsultationSupport + 1);
+            auto nVotingCycles = std::min((uint64_t)nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES) + 1);
 
             auto oldState = consultation->fState;
             auto oldCycle = consultation->nVotingCycle;
 
-            if((consultation->fState == DAOFlags::NIL || consultation->fState == DAOFlags::REFLECTION || consultation->fState == DAOFlags::CONFIRMATION || fUndo) && nVotingCycles != consultation->nVotingCycle)
+            if((consultation->fState == DAOFlags::NIL || consultation->fState == DAOFlags::REFLECTION || fUndo) && nVotingCycles != consultation->nVotingCycle)
             {
                 consultation->nVotingCycle = nVotingCycles;
                 fUpdate = true;
             }
 
-            if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
                 if((!consultation->IsExpired(pindexNew) && consultation->fState == DAOFlags::EXPIRED))
                 {
@@ -784,7 +798,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
 
                 if(fUndo && !consultation->IsSupported(view) && (consultation->fState == DAOFlags::ACCEPTED ||
-                                                    consultation->fState == DAOFlags::CONFIRMATION ||
                                                     consultation->fState == DAOFlags::REFLECTION))
                 {
                     consultation->fState = DAOFlags::NIL;
@@ -803,12 +816,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 {
                     if(consultation->fState == DAOFlags::NIL)
                     {
-                        consultation->fState = DAOFlags::CONFIRMATION;
-                        consultation->blockhash = pindexNew->GetBlockHash();
-                        fUpdate = true;
-                    }
-                    else if(consultation->fState == DAOFlags::CONFIRMATION)
-                    {
                         consultation->fState = DAOFlags::REFLECTION;
                         consultation->blockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
@@ -820,18 +827,23 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         fUpdate = true;
                     }
                 }
+                if (consultation->IsAboutConsensusParameter() && pindexNew->mapConsensusParameters.count((Consensus::ConsensusParamsPos)consultation->nMin))
+                {
+                    consultation->fState = DAOFlags::PASSED;
+                    consultation->blockhash = pindexNew->GetBlockHash();
+                    fUpdate = true;
+                }
             }
 
             if (fUndo && fUpdate && consultation->fState == oldState
                 && consultation->fState != DAOFlags::NIL
-                && consultation->fState != DAOFlags::CONFIRMATION
                 && consultation->fState != DAOFlags::REFLECTION
                 && consultation->nVotingCycle != oldCycle)
                 consultation->nVotingCycle = oldCycle;
 
-            if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
-                if (!vSeen.count(consultation->hash) && (consultation->fState == DAOFlags::NIL || consultation->fState == DAOFlags::CONFIRMATION))
+                if (!vSeen.count(consultation->hash) && consultation->fState == DAOFlags::NIL)
                     consultation->nSupport = 0;
 
                 if (consultation->fState != DAOFlags::EXPIRED)
@@ -844,7 +856,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     LogPrint("bench", "   - CFund update consultation status: %.2fms\n", (nTimeEnd7 - nTimeStart7) * 0.001);
 
-    if((pindexNew->nHeight + 1) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
+    if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
     {
         CVoteMap mapVoters;
         view.GetAllVotes(mapVoters);
@@ -909,13 +921,16 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
     if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
         return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
 
+    if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && strspn(sAnswer.c_str(), "0123456789" ) != sAnswer.size())
+        error("%s: Invalid consultation %s. Consensus consultations only allow numbers as answers", __func__, Hash);
+
     CAmount nContribution;
 
     for(unsigned int i=0;i<tx.vout.size();i++)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
-    bool ret = (nContribution >= Params().GetConsensus().nConsultationAnswerMinimalFee);
+    bool ret = (nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE));
 
     if (!ret)
         return error("%s: Not enough fee for answer %s", __func__, tx.GetHash().ToString());
@@ -924,7 +939,7 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
 
 }
 
-bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
+bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion)
 {
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for consultation %s", __func__, tx.GetHash().ToString());
@@ -965,16 +980,62 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
 
     bool fRange = nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION;
     bool fAcceptMoreAnswers = nVersion & CConsultation::MORE_ANSWERS_VERSION;
+    bool fIsAboutConsensusParameter = nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION;
+
+    if (fIsAboutConsensusParameter)
+    {
+        if (fRange || !fAcceptMoreAnswers)
+            return error("%s: Invalid consultation %s. A consultation about consensus parameters must allow proposals for answers and can't be a range", __func__, tx.GetHash().ToString());
+
+        if (nMax != 1)
+            return error("%s: Invalid consultation %s. n must be 1", __func__, tx.GetHash().ToString());
+
+        if (nMin < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || nMin >= Consensus::MAX_CONSENSUS_PARAMS)
+            return error("%s: Invalid consultation %s. Invalid m", __func__, tx.GetHash().ToString());
+
+        CConsultationMap consultationMap;
+
+        if (coins.GetAllConsultations(consultationMap))
+        {
+            for (auto& it: consultationMap)
+            {
+                CConsultation consultation = it.second;
+
+                if (mapBlockIndex.count(consultation.txblockhash) == 0)
+                    continue;
+
+                if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
+                    continue;
+
+                if (consultation.IsAboutConsensusParameter() && consultation.fState != DAOFlags::EXPIRED && consultation.nMin == nMin)
+                    return error("%s: Invalid consultation %s. There already exists an active consultation about that consensus parameter.", __func__, tx.GetHash().ToString());;
+            }
+        }
+    }
 
     UniValue answers(UniValue::VARR);
 
     if (find_value(metadata, "a").isArray())
         answers = find_value(metadata, "a").get_array();
 
-    bool ret = (sQuestion != "" && nContribution >= Params().GetConsensus().nConsultationMinimalFee &&
+    std::map<std::string, bool> mapSeen;
+    UniValue answersArray = answers.get_array();
+
+    for (unsigned int i = 0; i < answersArray.size(); i++)
+    {
+        if (!answersArray[i].isStr())
+            continue;
+        std::string it = answersArray[i].get_str();
+        if (mapSeen.count(it) == 0)
+            mapSeen[it] = true;
+        if (fIsAboutConsensusParameter && strspn(it.c_str(), "0123456789" ) != it.size())
+            error("%s: Invalid consultation %s. Consensus consultations only allow numbers as answers", __func__, tx.GetHash().ToString());
+    }
+
+    bool ret = (sQuestion != "" && nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) &&
                ((fRange && nMin >= 0 && nMax < (uint64_t)-1  && nMax > nMin) ||
                 (!fRange && nMax > 0  && nMax < 16)) &&
-               ((!fAcceptMoreAnswers && answers.size() > 1) || fAcceptMoreAnswers || fRange) &&
+               ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&
                (nVersion & ~nMaskVersion) == 0);
 
     if (!ret)
@@ -984,10 +1045,15 @@ bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion)
 
 }
 
+bool CConsultation::IsAboutConsensusParameter() const
+{
+    return (nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION);
+}
+
 bool CConsultation::HaveEnoughAnswers() const {
     int nSupportedAnswersCount = 0;
 
-    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION || !(nVersion & CConsultation::MORE_ANSWERS_VERSION))
+    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
     {
         return true;
     }
@@ -1011,19 +1077,17 @@ bool CConsultation::HaveEnoughAnswers() const {
                     continue;
 
                 nSupportedAnswersCount++;
+
             }
         }
     }
 
-    return nSupportedAnswersCount >= 2;
+    return nSupportedAnswersCount >= (IsAboutConsensusParameter() ? 1 : 2);
 }
 
 std::string CConsultation::GetState(CBlockIndex* pindex) const {
     CStateViewCache view(pcoinsTip);
     std::string sFlags = "waiting for support";
-
-    if(fState == DAOFlags::CONFIRMATION)
-        sFlags += " (confirmation phase)";
 
     if (!HaveEnoughAnswers())
         sFlags += ", waiting for having enough supported answers";
@@ -1033,10 +1097,8 @@ std::string CConsultation::GetState(CBlockIndex* pindex) const {
         sFlags = "found support";
         if (!HaveEnoughAnswers())
             sFlags += ", waiting for having enough supported answers";
-        if(fState != DAOFlags::CONFIRMATION)
+        if(fState != DAOFlags::REFLECTION)
             sFlags += ", waiting for end of voting period";
-        else if(fState == DAOFlags::CONFIRMATION)
-            sFlags = "found support (confirmation phase)";
         if(fState == DAOFlags::REFLECTION)
             sFlags = "reflection phase";
         else if(fState == DAOFlags::ACCEPTED)
@@ -1050,15 +1112,16 @@ std::string CConsultation::GetState(CBlockIndex* pindex) const {
             sFlags += ", waiting for end of voting period";
     }
 
+    if (fState == DAOFlags::PASSED)
+        sFlags = "passed";
+
     return sFlags;
 }
 
 bool CConsultation::IsSupported(CStateViewCache& view) const
 {
-    float nMinimumSupport = Params().GetConsensus().nMinimumConsultationSupport;
 
-    return HaveEnoughAnswers() && nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport &&
-            nVotingCycle >= Params().GetConsensus().nMinimumConsultationCycles;
+    return HaveEnoughAnswers() && nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES);
 }
 
 std::string CConsultation::ToString(CBlockIndex* pindex) const {
@@ -1135,7 +1198,7 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
     ret.push_back(Pair("answers", answers));
     ret.push_back(Pair("min", nMin));
     ret.push_back(Pair("max", nMax));
-    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesConsultationSupport)));
+    ret.push_back(Pair("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES))));
     ret.push_back(Pair("status", GetState(chainActive.Tip())));
     ret.push_back(Pair("state", (uint64_t)fState));
     ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
@@ -1144,17 +1207,17 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
 bool CConsultation::IsExpired(CBlockIndex* pindex) const
 {
     if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-        auto nCreatedOnCycle = (unsigned int)(mapBlockIndex[blockhash]->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-        auto nCurrentCycle = (unsigned int)(pindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+        auto nCreatedOnCycle = (unsigned int)(mapBlockIndex[blockhash]->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+        auto nCurrentCycle = (unsigned int)(pindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
         auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-        return (nElapsedCycles > Params().GetConsensus().nCyclesConsultationVoting);
+        return (nElapsedCycles > GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES));
     }
     return (fState == DAOFlags::EXPIRED) || (ExceededMaxVotingCycles() && fState == DAOFlags::NIL);
 };
 
 bool CConsultation::CanBeSupported() const
 {
-    return fState == DAOFlags::NIL || fState == DAOFlags::CONFIRMATION;
+    return fState == DAOFlags::NIL;
 }
 
 bool CConsultation::CanBeVoted() const
@@ -1184,7 +1247,7 @@ bool CConsultation::IsValidVote(int64_t vote) const
 
 bool CConsultation::ExceededMaxVotingCycles() const
 {
-    return nVotingCycle > Params().GetConsensus().nCyclesConsultationSupport;
+    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES);
 };
 
 void CConsultationAnswer::Vote() {
@@ -1210,6 +1273,8 @@ std::string CConsultationAnswer::GetState() const {
         if(fState != DAOFlags::ACCEPTED)
             sFlags += ", waiting for end of voting period";
     }
+    if (fState == DAOFlags::PASSED)
+        sFlags = "passed";
     return sFlags;
 }
 
@@ -1242,9 +1307,17 @@ bool CConsultationAnswer::CanBeVoted(CStateViewCache& view) const {
 
 bool CConsultationAnswer::IsSupported() const
 {
-    float nMinimumSupport = Params().GetConsensus().nMinimumConsultationAnswerSupport;
+    float nMinimumSupport = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_SUPPORT) / 10000.0;
 
-    return nSupport > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumSupport;
+    return nSupport > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumSupport;
+}
+
+bool CConsultationAnswer::IsConsensusAccepted() const
+{
+    float nMinimumQuorum = Params().GetConsensus().nConsensusChangeMinAccept/10000.0;
+
+    return nVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum;
+
 }
 
 std::string CConsultationAnswer::ToString() const {
@@ -1418,7 +1491,7 @@ bool IsValidProposal(CTransaction tx, uint64_t nMaskVersion)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
-    bool ret = (nContribution >= Params().GetConsensus().nProposalMinimalFee &&
+    bool ret = (nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE) &&
             Address != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
@@ -1435,64 +1508,64 @@ bool IsValidProposal(CTransaction tx, uint64_t nMaskVersion)
 bool CPaymentRequest::IsAccepted() const
 {
     int nTotalVotes = nVotesYes + nVotesNo;
-    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_QUORUM)/10000.0;
 
     if (nVersion & REDUCED_QUORUM_VERSION)
-        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+        nMinimumQuorum = nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
 
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
-           && ((float)nVotesYes > ((float)(nTotalVotes) * Params().GetConsensus().nVotesAcceptPaymentRequest));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT) / 10000.0));
 }
 
 bool CPaymentRequest::IsRejected() const {
     int nTotalVotes = nVotesYes + nVotesNo;
-    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_QUORUM)/10000.0;
 
     if (nVersion & REDUCED_QUORUM_VERSION)
-        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+        nMinimumQuorum = nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
 
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
-           && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectPaymentRequest));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT) / 10000.0));
 }
 
 bool CPaymentRequest::ExceededMaxVotingCycles() const {
-    return nVotingCycle > Params().GetConsensus().nCyclesPaymentRequestVoting;
+    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
 }
 
 bool CProposal::IsAccepted() const
 {
     int nTotalVotes = nVotesYes + nVotesNo;
-    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM)/10000.0;
 
     if (nVersion & REDUCED_QUORUM_VERSION)
-        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesProposalVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+        nMinimumQuorum = nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
 
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
-           && ((float)nVotesYes > ((float)(nTotalVotes) * Params().GetConsensus().nVotesAcceptProposal));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT) / 10000.0));
 }
 
 bool CProposal::IsRejected() const
 {
     int nTotalVotes = nVotesYes + nVotesNo;
-    float nMinimumQuorum = Params().GetConsensus().nMinimumQuorum;
+    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM)/10000.0;
 
     if (nVersion & REDUCED_QUORUM_VERSION)
-        nMinimumQuorum = nVotingCycle > Params().GetConsensus().nCyclesProposalVoting / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
+        nMinimumQuorum = nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) / 2 ? Params().GetConsensus().nMinimumQuorumSecondHalf : Params().GetConsensus().nMinimumQuorumFirstHalf;
 
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > Params().GetConsensus().nBlocksPerVotingCycle * nMinimumQuorum
-           && ((float)nVotesNo > ((float)(nTotalVotes) * Params().GetConsensus().nVotesRejectProposal));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/ 10000.0));
 }
 
 bool CProposal::CanVote() const {
@@ -1533,7 +1606,7 @@ bool CProposal::IsExpired(uint32_t currentTime) const {
 }
 
 bool CProposal::ExceededMaxVotingCycles() const {
-    return nVotingCycle > Params().GetConsensus().nCyclesProposalVoting;
+    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
 }
 
 CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) const
@@ -1670,7 +1743,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesAbs", nVotesAbs));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesProposalVoting)));
+    ret.push_back(Pair("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES))));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
     ret.push_back(Pair("state", (uint64_t)fState));
@@ -1711,7 +1784,7 @@ void CPaymentRequest::ToJson(UniValue& ret) const {
     ret.push_back(Pair("votesYes", nVotesYes));
     ret.push_back(Pair("votesAbs", nVotesAbs));
     ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesPaymentRequestVoting)));
+    ret.push_back(Pair("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES))));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     ret.push_back(Pair("status", GetState()));
     ret.push_back(Pair("state", (uint64_t)fState));

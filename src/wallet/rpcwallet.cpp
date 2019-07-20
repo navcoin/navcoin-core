@@ -543,7 +543,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (fHelp || params.size() < 4)
         throw runtime_error(
             "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
-            "\nCreates a proposal for the community fund. Min fee of " + std::to_string((float)Params().GetConsensus().nProposalMinimalFee/COIN) + "NAV is required.\n"
+            "\nCreates a proposal for the community fund. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
@@ -565,8 +565,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
-    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : Params().GetConsensus().nProposalMinimalFee;
-    if (nAmount <= 0 || nAmount < Params().GetConsensus().nProposalMinimalFee)
+    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == 6 ? params[5].getBool() : false;
@@ -638,7 +638,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     if (fHelp || params.size() < 1)
         throw runtime_error(
             "createconsultation \"question\" ( min max range fee dump_raw )\n"
-            "\nCreates a consultation for the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationMinimalFee/COIN) + "NAV is required.\n"
+            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"question\"       (string, required) The question of the new consultation.\n"
@@ -662,8 +662,8 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     bool fRange = params.size() >= 4 && params[3].isBool() ? params[3].getBool() : false;
 
     // Amount
-    CAmount nAmount = params.size() >= (fRange ? 5 : 4) ? AmountFromValue(params[(fRange ? 4 : 3)]) : Params().GetConsensus().nConsultationMinimalFee;
-    if (nAmount <= 0 || nAmount < Params().GetConsensus().nConsultationMinimalFee)
+    CAmount nAmount = params.size() >= (fRange ? 5 : 4) ? AmountFromValue(params[(fRange ? 4 : 3)]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == (fRange ? 6 : 5) ? params[(fRange ? 5 : 4)].getBool() : false;
@@ -861,7 +861,7 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if (fHelp || params.size() < 2)
         throw runtime_error(
             "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
-            "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + std::to_string((float)Params().GetConsensus().nConsultationAnswerMinimalFee/COIN) + "NAV is required.\n"
+            "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"hash\"         (string, required) The hash of the already existing consultation.\n"
@@ -883,8 +883,8 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
-    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : Params().GetConsensus().nConsultationAnswerMinimalFee;
-    if (nAmount <= 0 || nAmount < Params().GetConsensus().nConsultationAnswerMinimalFee)
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     CConsultation consultation;

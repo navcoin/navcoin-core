@@ -519,7 +519,7 @@ bool IsCommunityFundAmountV2Enabled(const CBlockIndex* pindexPrev, const Consens
 bool IsAbstainVoteEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 bool IsConsultationsEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
-bool IsDaoConsensus(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsDaoConsensusEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether the static reward has been activated **/
 bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
@@ -651,5 +651,7 @@ bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, 
 bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CPaymentRequest& prequest);
 bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultation& consultation, std::vector<CConsultationAnswer>& answers);
 bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultationAnswer& answer);
+
+uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, CBlockIndex* pindex = nullptr);
 
 #endif // NAVCOIN_MAIN_H

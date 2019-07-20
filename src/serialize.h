@@ -20,6 +20,8 @@
 #include <utility>
 #include <vector>
 
+#include "consensus/daoconsensusparams.h"
+
 #include "prevector.h"
 
 static const unsigned int MAX_SIZE = 0x02000000;
@@ -518,6 +520,22 @@ CVarInt<I> WrapVarInt(I& n) { return CVarInt<I>(n); }
 /**
  * Forward declarations
  */
+
+inline unsigned int GetSerializeSize(Consensus::ConsensusParamsPos a, int, int = 0) { return sizeof(Consensus::ConsensusParamsPos); }
+template <typename Stream>
+inline void Serialize(Stream& s, Consensus::ConsensusParamsPos a, int nType, int nVersion = 0)
+{
+    int f = a;
+    Serialize(s, f, nType, nVersion);
+}
+
+template <typename Stream>
+inline void Unserialize(Stream& s, Consensus::ConsensusParamsPos& a, int nType, int nVersion= 0)
+{
+    int f=0;
+    Unserialize(s, f, nType, nVersion);
+    a = static_cast<Consensus::ConsensusParamsPos>(f);
+}
 
 /**
  *  string

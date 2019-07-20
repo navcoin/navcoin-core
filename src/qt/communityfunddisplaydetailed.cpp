@@ -111,7 +111,7 @@ void CommunityFundDisplayDetailed::setProposalLabels()
     if (proposal.fState == DAOFlags::NIL) {
         std::string expiry_title = "Voting period finishes in: ";
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-        std::string expiry = std::to_string(Params().GetConsensus().nCyclesProposalVoting - proposal.nVotingCycle) +  " voting cycles";
+        std::string expiry = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) - proposal.nVotingCycle) +  " voting cycles";
         ui->labelExpiresIn->setText(QString::fromStdString(expiry));
     }
     if (proposal.fState == DAOFlags::ACCEPTED) {

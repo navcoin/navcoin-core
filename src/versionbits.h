@@ -52,6 +52,7 @@ static const int32_t VERSIONBITS_NUM_BITS = 29;
 * Bit 20 -> V451 FORK
 * Bit 21 -> V452 FORK
 * Bit 24 -> C FUND CONSULTATIONS
+* Bit 26 -> DAO CONSENSUS
 *
 ***/
 
@@ -67,6 +68,7 @@ static const int32_t nStaticRewardVersionMask = 0x00008000;
 static const int32_t nV451ForkMask = 0x00100000;
 static const int32_t nV452ForkMask = 0x00200000;
 static const int32_t nConsultationsVersionMask = 0x00800000;
+static const int32_t nDaoConsensusVersionMask = 0x02000000;
 
 static const std::vector<int> rejectedVersionBitsByDefault = {17};
 

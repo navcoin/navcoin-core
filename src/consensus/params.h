@@ -69,6 +69,10 @@ struct BIP9Deployment {
     double nYesCount;
 };
 
+struct ConsensusParameter {
+    uint64_t value;
+};
+
 /**
  * Parameters that influence chain consensus.
  */
@@ -90,6 +94,7 @@ struct Params {
     uint32_t nRuleChangeActivationThreshold;
     uint32_t nMinerConfirmationWindow;
     BIP9Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
+    ConsensusParameter vParameters[MAX_CONSENSUS_PARAMS];
     /** Proof of work parameters */
     uint256 powLimit;
     bool fPowAllowMinDifficultyBlocks;
@@ -98,34 +103,16 @@ struct Params {
     int64_t nPowTargetTimespan;
     int nLastPOWBlock;
 
-    int nBlocksPerVotingCycle;
-    float nVotesAcceptProposal;
-    float nVotesRejectProposal;
-    float nVotesAcceptPaymentRequest;
-    float nVotesRejectPaymentRequest;
-    float nMinimumQuorum;
     float nMinimumQuorumFirstHalf;
     float nMinimumQuorumSecondHalf;
-    float nMinimumConsultationSupport;
-    float nMinimumConsultationAnswerSupport;
-    int nMinimumConsultationCycles;
     int nCommunityFundMinAge;
-    int64_t nProposalMinimalFee;
-    int64_t nConsultationMinimalFee;
-    int64_t nConsultationAnswerMinimalFee;
-    int nBlockSpreadCFundAccumulation;
-    CAmount nCommunityFundAmount;
-    CAmount nCommunityFundAmountV2;
-    unsigned int nCyclesProposalVoting;
-    unsigned int nCyclesPaymentRequestVoting;
-    unsigned int nCyclesConsultationVoting;
-    unsigned int nCyclesConsultationSupport;
-    unsigned int nCyclesConsultationConfirmation;
-    unsigned int nCyclesConsultationReflection;
+    uint64_t nCommunityFundAmount;
     int64_t nPaymentRequestMaxVersion;
     int64_t nProposalMaxVersion;
     int64_t nConsultationMaxVersion;
     int64_t nConsultationAnswerMaxVersion;
+
+    int64_t nConsensusChangeMinAccept;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;
@@ -138,7 +125,6 @@ struct Params {
     int64_t sigActivationTime;
     int64_t nCoinbaseTimeActivationHeight;
     int64_t nMaxFutureDrift;
-    CAmount nStaticReward;
     int nHeightv451Fork;
     int nHeightv452Fork;
 

@@ -139,7 +139,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     // If prequest is pending show voting cycles left
     if (prequest.fState == DAOFlags::NIL) {
         std::string duration_title = "Voting period finishes in: ";
-        std::string duration = std::to_string(Params().GetConsensus().nCyclesPaymentRequestVoting-prequest.nVotingCycle) +  " voting cycles";
+        std::string duration = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)-prequest.nVotingCycle) +  " voting cycles";
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
         ui->labelPrequestExpiry->setText(QString::fromStdString(duration));
     }

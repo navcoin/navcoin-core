@@ -124,6 +124,7 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
     layout->addSpacing(15);
     layout->addWidget(topBox);
     layout->addSpacing(15);
+    layout->addWidget(new QLabel(consultation.nMax == 1 || consultation.IsRange() ? tr("Your vote:") : tr("Your votes (you can select up to %1):").arg(consultation.nMax)));
     if (consultation.IsRange())
     {
         layout->addWidget(middleBox);

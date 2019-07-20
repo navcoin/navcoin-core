@@ -15,7 +15,7 @@ static const flags REJECTED = 0x2;
 static const flags EXPIRED = 0x3;
 static const flags PENDING_FUNDS = 0x4;
 static const flags PENDING_VOTING_PREQ = 0x5;
-static const flags CONFIRMATION = 0x6;
+static const flags PASSED = 0x6;
 static const flags REFLECTION = 0x7;
 }
 

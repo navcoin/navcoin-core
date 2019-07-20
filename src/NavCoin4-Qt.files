@@ -112,6 +112,7 @@ consensus/consensus.h
 consensus/dao.cpp
 consensus/dao.h
 consensus/dao/flags.h
+consensus/daoconsensusparams.h
 consensus/merkle.cpp
 consensus/merkle.cpp
 consensus/merkle.cpp

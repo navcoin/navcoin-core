@@ -644,7 +644,7 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     uint64_t nNetworkWeight = GetPoSKernelPS();
     bool staking = nLastCoinStakeSearchInterval && nWeight;
     uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
-    CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * Params().GetConsensus().nStaticReward : 0.0;
+    CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_STAKING_STATIC_REWARD) : 0.0;
 
     UniValue obj(UniValue::VOBJ);
 

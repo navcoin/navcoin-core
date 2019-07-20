@@ -1352,7 +1352,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");  
 
             if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
-                if(!IsValidConsultation(tx, nVersionMaskConsultation))
+                if(!IsValidConsultation(tx, view, nVersionMaskConsultation))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
 
             if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
@@ -1446,7 +1446,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid payment request");
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation))
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
@@ -2513,7 +2513,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 view.RemovePaymentRequest(hash);
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation))
             {
                 view.RemoveConsultation(hash);
             }
@@ -2825,7 +2825,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 }
             }
 
-            if (pindexIterator->nHeight % Params().GetConsensus().nBlocksPerVotingCycle == 0
+            if (pindexIterator->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0
                     || mapRestoredHashes.size() == mapHashesToRestore.size())
             {
                 break;
@@ -2962,6 +2962,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
 
     if(IsConsultationsEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nConsultationsVersionMask;
+
+    if(IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nDaoConsensusVersionMask;
 
     return nVersion;
 }
@@ -3144,6 +3147,26 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
     return true;
 }
 
+uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, CBlockIndex* pindex)
+{
+    uint64_t ret = Params().GetConsensus().vParameters[pos].value;
+
+    CBlockIndex* pindexIter = (pindex == nullptr) ? chainActive.Tip() : pindex;
+
+    while (pindexIter)
+    {
+        if (!(pindexIter->nVersion & nDaoConsensusVersionMask))
+            break;
+        if (pindexIter->mapConsensusParameters.count(pos))
+        {
+            ret = pindexIter->mapConsensusParameters[pos];
+            break;
+        }
+        pindexIter = pindexIter->pprev;
+    }
+
+    return ret;
+}
 
 bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& blockhash,  CConsultationAnswer& answer)
 {
@@ -3622,7 +3645,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
             {
-                if(!IsValidConsultation(tx, nVersionMaskConsultation))
+                if(!IsValidConsultation(tx, view, nVersionMaskConsultation))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
@@ -3734,7 +3757,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     int nMultiplier = 1;
 
                     if(IsCommunityFundAccumulationSpreadEnabled(pindex->pprev, Params().GetConsensus()))
-                        nMultiplier = (pindex->nHeight % Params().GetConsensus().nBlockSpreadCFundAccumulation) == 0 ? Params().GetConsensus().nBlockSpreadCFundAccumulation : 0;
+                        nMultiplier = (pindex->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION)) == 0 ? GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION) : 0;
 
                     if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution() && nMultiplier > 0)
                         return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
@@ -3742,9 +3765,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 
                     if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus())) {
-                        if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier && nMultiplier > 0)
+                        if(tx.vout[tx.vout.size() - 1].nValue != GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK) * nMultiplier && nMultiplier > 0)
                             return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
-                                                        tx.vout[tx.vout.size() - 1].nValue, Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier),
+                                                        tx.vout[tx.vout.size() - 1].nValue, GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK) * nMultiplier),
                                     REJECT_INVALID, "bad-cf-amount");
                     } else {
                         if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmount * nMultiplier && nMultiplier > 0)
@@ -3756,7 +3779,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus()))
                     {
-                        nStakeReward -= Params().GetConsensus().nCommunityFundAmountV2 * nMultiplier;
+                        nStakeReward -= GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK) * nMultiplier;
                     } else {
                         nStakeReward -= Params().GetConsensus().nCommunityFundAmount * nMultiplier;
                     }
@@ -3872,7 +3895,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation))
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
@@ -5244,7 +5267,7 @@ bool IsStaticRewardEnabled(const CBlockIndex* pindexPrev, const Consensus::Param
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_STATIC_REWARD, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsDaoConsensus(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+bool IsDaoConsensusEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_DAO_CONSENSUS, versionbitscache) == THRESHOLD_ACTIVE);
@@ -5374,6 +5397,10 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nConsultationsVersionMask) != nConsultationsVersionMask && IsConsultationsEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no consultations block");
+
+    if((block.nVersion & nDaoConsensusVersionMask) != nDaoConsensusVersionMask && IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
+        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                         "rejected no dao consensus block");
 
     return true;
 }
@@ -9323,7 +9350,7 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
   int64_t nSubsidy;
 
   if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
-      nSubsidy = Params().GetConsensus().nStaticReward;
+      nSubsidy = GetConsensusParameter(Consensus::CONSENSUS_PARAM_STAKING_STATIC_REWARD);
   } else {
       int64_t nRewardCoinYear;
       nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;

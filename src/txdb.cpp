@@ -733,6 +733,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->mapSupport     = diskindex.mapSupport;
                 pindexNew->mapConsultationVotes
                                           = diskindex.mapConsultationVotes;
+                pindexNew->mapConsensusParameters
+                                          = diskindex.mapConsensusParameters;
 
                 pcursor->Next();
             } else {

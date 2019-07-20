@@ -85,7 +85,7 @@ void CommunityFundDisplay::refresh()
     if (proposal.fState == DAOFlags::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
-        std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesProposalVoting);
+        std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES));
         ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
         ui->labelDuration->setText(QString::fromStdString(duration));
     }

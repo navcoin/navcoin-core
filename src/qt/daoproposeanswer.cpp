@@ -33,13 +33,16 @@ DaoProposeAnswer::DaoProposeAnswer(QWidget *parent, CConsultation consultation, 
     warningLbl->setObjectName("warning");
     warningLbl->setVisible(false);
 
+    QString fee = QString::fromStdString(FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE)));
+
+
     layout->addSpacing(15);
     layout->addWidget(new QLabel(tr("Submit an answer proposal for:<br>%1").arg(QString::fromStdString(consultation.strDZeel))));
     layout->addSpacing(15);
     layout->addWidget(answerInput);
     layout->addWidget(warningLbl);
     layout->addSpacing(15);
-    layout->addWidget(new QLabel(tr("By submitting the proposal a %1 NAV deduction will occur from your wallet").arg(QString::fromStdString(FormatMoney(Params().GetConsensus().nProposalMinimalFee)))));
+    layout->addWidget(new QLabel(tr("By submitting the proposal a %1 NAV deduction will occur from your wallet").arg(fee)));
     layout->addWidget(bottomBox);
     layout->addSpacing(15);
 
@@ -99,10 +102,10 @@ void DaoProposeAnswer::onPropose()
 
     // Check balance
     CAmount curBalance = pwalletMain->GetBalance();
-    if (curBalance <= Params().GetConsensus().nConsultationAnswerMinimalFee) {
+    if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE)) {
         QMessageBox msgBox(this);
-        string fee = FormatMoney(Params().GetConsensus().nConsultationAnswerMinimalFee);
-        std::string str = "You require at least " + fee + " NAV mature and available to propose an answer.\n";
+        string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE));
+        std::string str = tr("You require at least %1 NAV mature and available to propose an answer.\n").arg(QString::fromStdString(fee)).toStdString();
         msgBox.setText(tr(str.c_str()));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
@@ -120,7 +123,7 @@ void DaoProposeAnswer::onPropose()
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CAmount nValue = Params().GetConsensus().nConsultationAnswerMinimalFee;
+    CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE);
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
     vecSend.push_back(recipient);
 

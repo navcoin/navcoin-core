@@ -10,6 +10,7 @@
 #include "checkpoints.h"
 #include "coins.h"
 #include "consensus/validation.h"
+#include "consensus/daoconsensusparams.h"
 #include "main.h"
 #include "policy/policy.h"
 #include "primitives/transaction.h"
@@ -88,6 +89,17 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
         daovotes.push_back(entry);
     }
     result.push_back(Pair("dao_votes", daovotes));
+
+    UniValue consensusvotes(UniValue::VARR);
+    for (auto& it: blockindex->mapConsensusParameters)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("id", it.first);
+        entry.pushKV("name",  Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)it.first]);
+        entry.pushKV("value", it.second);
+        consensusvotes.push_back(entry);
+    }
+    result.push_back(Pair("consensus_changes", consensusvotes));
 
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
@@ -999,9 +1011,9 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
                 "\nList the consultations and all the relating data including answers and status.\n"
                 "\nNote passing no argument returns all consultations regardless of state.\n"
                 "\nArguments:\n"
-                "\n1. \"filter\" (string, optional)   \"not_enough_answers\" | \"waiting_for_support\" | \"confirmation\" | \"reflection\" | \"voting\" | \"finished\"\n"
+                "\n1. \"filter\" (string, optional)   \"not_enough_answers\" | \"waiting_for_support\" | \"reflection\" | \"voting\" | \"finished\"\n"
                 "\nExamples:\n"
-                + HelpExampleCli("listconsultations", "finished confirmation")
+                + HelpExampleCli("listconsultations", "finished voting")
                 );
 
     LOCK(cs_main);
@@ -1010,7 +1022,6 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
 
     bool showNotEnoughAnswers = true;
     bool showLookingForSupport = true;
-    bool showConfirmation = true;
     bool showReflection = true;
     bool showVoting = true;
     bool showFinished = true;
@@ -1019,7 +1030,6 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
     {
         showNotEnoughAnswers = false;
         showLookingForSupport = false;
-        showConfirmation = false;
         showReflection = false;
         showVoting = false;
         showFinished = false;
@@ -1034,10 +1044,6 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
             else if (p.get_str() == "waiting_for_support")
             {
                 showLookingForSupport = true;
-            }
-            else if (p.get_str() == "confirmation")
-            {
-                showConfirmation = true;
             }
             else if (p.get_str() == "reflection")
             {
@@ -1089,7 +1095,6 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
 
             if((showNotEnoughAnswers && consultation.fState == DAOFlags::NIL && vAnswers.size() < 2) ||
                (showLookingForSupport && consultation.fState == DAOFlags::NIL) ||
-               (showConfirmation && consultation.fState == DAOFlags::CONFIRMATION) ||
                (showReflection && consultation.fState == DAOFlags::REFLECTION) ||
                (showReflection && consultation.fState == DAOFlags::ACCEPTED) ||
                (showFinished && consultation.fState == DAOFlags::EXPIRED)) {
@@ -1117,7 +1122,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
     CProposal proposal; CPaymentRequest prequest;
 
-    int nBlocks = (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
+    int nBlocks = (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)) + 1;
     CBlockIndex* pindexblock = chainActive.Tip();
 
     std::map<uint256, bool> vSeen;
@@ -1196,31 +1201,31 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     ret.push_back(Pair("funds", cf));
 
     UniValue vp(UniValue::VOBJ);
-    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
+    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
 
     vp.push_back(Pair("starting",       starting));
-    vp.push_back(Pair("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle-1));
+    vp.push_back(Pair("ending",         starting+GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)-1));
     vp.push_back(Pair("current",        chainActive.Tip()->nHeight));
 
     UniValue consensus(UniValue::VOBJ);
 
-    consensus.push_back(Pair("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle));
+    consensus.push_back(Pair("blocksPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)));
 
     if (!IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
-        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorum));
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM)/10000.0));
     else
     {
-        consensus.push_back(Pair("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumFirstHalf));
-        consensus.push_back(Pair("minSumVotesPerVotingCycleSecondHalf",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumSecondHalf));
+        consensus.push_back(Pair("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * Params().GetConsensus().nMinimumQuorumFirstHalf));
+        consensus.push_back(Pair("minSumVotesPerVotingCycleSecondHalf",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * Params().GetConsensus().nMinimumQuorumSecondHalf));
     }
 
-    consensus.push_back(Pair("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting));
-    consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting));
-    consensus.push_back(Pair("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100));
-    consensus.push_back(Pair("votesRejectProposalPercentage",Params().GetConsensus().nVotesRejectProposal*100));
-    consensus.push_back(Pair("votesAcceptPaymentRequestPercentage",Params().GetConsensus().nVotesAcceptPaymentRequest*100));
-    consensus.push_back(Pair("votesRejectPaymentRequestPercentage",Params().GetConsensus().nVotesRejectPaymentRequest*100));
-    consensus.push_back(Pair("proposalMinimalFee",ValueFromAmount(Params().GetConsensus().nProposalMinimalFee)));
+    consensus.push_back(Pair("maxCountVotingCycleProposals",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES)));
+    consensus.push_back(Pair("maxCountVotingCyclePaymentRequests",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
+    consensus.push_back(Pair("votesAcceptProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT)/100));
+    consensus.push_back(Pair("votesRejectProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/100));
+    consensus.push_back(Pair("votesAcceptPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT)/100));
+    consensus.push_back(Pair("votesRejectPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT)/100));
+    consensus.push_back(Pair("proposalMinimalFee",ValueFromAmount(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE))));
     ret.push_back(Pair("consensus", consensus));
 
     UniValue votesProposals(UniValue::VARR);

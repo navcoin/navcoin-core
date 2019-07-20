@@ -195,7 +195,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
 bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaxVersion);
 bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
-bool IsValidConsultation(CTransaction tx, uint64_t nMaskVersion);
+bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion);
 bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion);
 
 // CFUND
@@ -564,6 +564,7 @@ public:
     bool CanBeVoted(CStateViewCache& view) const;
     bool CanBeSupported(CStateViewCache& view) const;
     bool IsSupported() const;
+    bool IsConsensusAccepted() const;
     std::string ToString() const;
     void ToJson(UniValue& ret) const;
 
@@ -591,7 +592,8 @@ public:
     static const uint64_t BASE_VERSION = 1;
     static const uint64_t ANSWER_IS_A_RANGE_VERSION = 1<<1;
     static const uint64_t MORE_ANSWERS_VERSION  = 1<<2;
-    static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION | MORE_ANSWERS_VERSION;
+    static const uint64_t CONSENSUS_PARAMETER_VERSION  = 1<<3;
+    static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION | MORE_ANSWERS_VERSION | CONSENSUS_PARAMETER_VERSION;
 
     flags fState;
     uint256 hash;
@@ -657,6 +659,7 @@ public:
     bool CanHaveNewAnswers() const;
     bool CanHaveAnswers() const;
     bool HaveEnoughAnswers() const;
+    bool IsAboutConsensusParameter() const;
 
     ADD_SERIALIZE_METHODS;
 

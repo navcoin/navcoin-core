@@ -27,6 +27,7 @@ class DaoConsultationCreate : public QDialog
 
 public:
     DaoConsultationCreate(QWidget *parent);
+    DaoConsultationCreate(QWidget *parent, QString title, int consensuspos);
 
     void setModel(WalletModel *model);
 
@@ -44,10 +45,14 @@ private:
     NavCoinListWidget* listWidget;
     QCheckBox* moreAnswersBox;
 
+    int cpos;
+    QString title;
+
     void showWarning(QString text);
 
 private Q_SLOTS:
     void onCreate();
+    void onCreateConsensus();
     void onRange(bool fChecked);
     void onList(bool fChecked);
 };

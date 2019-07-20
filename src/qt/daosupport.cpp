@@ -42,9 +42,6 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
         {
             CConsultationAnswer c = it.second;
 
-            if (!c.CanBeSupported(coins))
-                continue;
-
             if (c.parent != consultation.hash)
                 continue;
 
