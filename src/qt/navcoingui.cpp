@@ -114,10 +114,10 @@ const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
 ;
 
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
-const QString NavCoinGUI::BTN_COLOR = COLOR_PURPLE;
+const QString NavCoinGUI::BTN_COLOR = COLOR_WHITE;
 const QString NavCoinGUI::BTN_BACKGROUND = COLOR_PURPLE_DARK;
 const QString NavCoinGUI::BTN_BACKGROUND_ACTIVE = COLOR_PURPLE_DARKER;
-const QString NavCoinGUI::BTN_STYLE = "QToolButton { padding: 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; } QToolButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; }";
+const QString NavCoinGUI::BTN_STYLE = "QToolButton { padding: 0.5em 0.2em 0.5em 0.5em; border: 0; color: " + BTN_COLOR + "; background: " + BTN_BACKGROUND + "; border-right: 0.3em solid " + BTN_BACKGROUND + "; } QToolButton:disabled { background: " + BTN_BACKGROUND_ACTIVE + "; border-color: " + COLOR_MAGENTA + "; }";
 const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: " + COLOR_MAGENTA + "; color: " + COLOR_WHITE + "; padding: 0.1em; font: normal normal 1em/1em;";
 const QString NavCoinGUI::NOTIFICATION_STYLE = "border: 0.15em solid %1; border-radius: 0.3em; background: %2; color: %3; padding: 0.3em 1em; font: normal normal 1.5em/1.5em;";
 const QString NavCoinGUI::NOTIFICATION_ERROR = "#F8D7DA";
