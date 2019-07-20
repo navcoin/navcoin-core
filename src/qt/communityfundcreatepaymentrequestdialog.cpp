@@ -12,7 +12,6 @@
 #include "guiutil.h"
 #include "main.cpp"
 #include "main.h"
-#include "skinize.h"
 #include "sync.h"
 #include "wallet/wallet.h"
 #include "walletmodel.h"
