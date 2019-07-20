@@ -62,40 +62,38 @@
  </defs>
  <title>oldlogo copy</title>
  <g class="cls-1" transform="matrix(1.2499 0 0 1.2499 -64.256 -17.623)" style="isolation:isolate">
-  <g data-name="Layer 1">
-   <polygon class="cls-2" points="195.67 126.62 195.78 126.88 195.56 126.88" fill="url(#naval)"/>
-   <polygon class="cls-3" points="150.66 126.62 150.77 126.88 150.55 126.88" fill="url(#navak)"/>
-   <polygon class="cls-4" points="481.1 126.62 481.21 126.88 480.99 126.88" fill="url(#navo)"/>
-   <polygon class="cls-5" points="436.09 126.62 436.2 126.88 435.98 126.88" fill="url(#navj)"/>
-   <polygon class="cls-6" points="482.15 126.62 482.26 126.88 482.04 126.88" fill="url(#navi)"/>
-   <polygon class="cls-7" points="437.14 126.62 437.25 126.88 437.03 126.88" fill="url(#navh)"/>
-   <polygon class="cls-8" points="194.77 14.1 239.78 14.1 192.09 126.46 191.98 126.72 147.19 126.72 147.08 126.46 121.87 67.06 96.55 126.72 51.54 126.72 99.35 14.1 144.4 14.1 169.59 73.44" fill="url(#navaj)"/>
-   <polygon class="cls-9" points="312.76 67.35 287.49 126.88 242.48 126.88 290.25 14.33 290.28 14.26 335.23 14.26 335.26 14.33 383.03 126.88 338.03 126.88" fill="url(#navg)"/>
-   <polygon class="cls-10" points="429.28 14.1 454.67 73.9 480.05 14.1 525.06 14.1 477.26 126.72 432.08 126.72 384.28 14.1" fill="url(#navf)"/>
-   <polygon class="cls-11" points="51.41 126.88 96.42 126.88 144.27 14.26" fill="url(#navai)"/>
-   <polygon class="cls-12" points="239.63 14.26 192.1 126.64 194.72 14.26" fill="url(#navah)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-13" points="147.19 126.64 194.72 14.26 192.1 126.64" fill="url(#navaf)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-14" points="99.67 14.38 147.19 126.76 144.27 14.26" fill="url(#navag)" style="mix-blend-mode:soft-light"/>
-   <polygon class="cls-15" points="192.1 126.76 144.27 14.26 147.19 126.76" fill="url(#navae)" style="mix-blend-mode:soft-light"/>
-   <polygon class="cls-16" points="144.27 14.32 99.22 14.32 191.79 126.7" fill="url(#navad)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-17" points="51.41 126.88 99.67 14.38 144.27 14.26" fill="url(#navac)"/>
-   <polygon class="cls-18" points="99.22 14.32 192.1 126.82 147.19 126.82" fill="url(#navab)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-19" points="239.52 14.2 194.61 14.2 146.9 126.59" fill="url(#navaa)" opacity=".89" style="mix-blend-mode:hard-light"/>
-   <polygon class="cls-20" points="191.81 126.62 146.9 126.62 239.52 14.23" fill="url(#navz)" opacity=".89" style="mix-blend-mode:hard-light"/>
-   <polygon class="cls-21" points="525.06 14.26 477.53 126.64 480.14 14.26" fill="url(#navy)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-22" points="432.62 126.64 480.14 14.26 477.53 126.64" fill="url(#navx)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-23" points="385.1 14.38 432.62 126.76 429.69 14.26" fill="url(#navw)" style="mix-blend-mode:soft-light"/>
-   <polygon class="cls-24" points="477.53 126.76 429.69 14.26 432.62 126.76" fill="url(#navv)" style="mix-blend-mode:soft-light"/>
-   <polygon class="cls-25" points="429.69 14.32 384.65 14.32 477.22 126.7" fill="url(#navu)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-26" points="384.64 14.32 477.53 126.82 432.62 126.82" fill="url(#navt)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-27" points="524.95 14.2 480.04 14.2 432.33 126.59" fill="url(#navs)" opacity=".89" style="mix-blend-mode:hard-light"/>
-   <polygon class="cls-28" points="477.24 126.62 432.33 126.62 524.95 14.23" fill="url(#navr)" opacity=".89" style="mix-blend-mode:hard-light"/>
-   <polygon class="cls-29" points="242.41 126.88 287.42 126.88 335.26 14.26" fill="url(#navq)" style="mix-blend-mode:darken"/>
-   <polygon class="cls-30" points="290.67 14.38 338.19 126.76 335.26 14.26" fill="url(#navp)" style="mix-blend-mode:soft-light"/>
-   <polygon class="cls-31" points="383.1 126.76 335.26 14.26 338.19 126.76" fill="url(#navn)" style="mix-blend-mode:soft-light"/>
-   <polygon class="cls-32" points="335.26 14.32 290.22 14.32 382.79 126.7" fill="url(#navm)" style="mix-blend-mode:overlay"/>
-   <polygon class="cls-33" points="242.41 126.88 290.67 14.38 335.26 14.26" fill="url(#navl)" style="mix-blend-mode:darken"/>
-   <polygon class="cls-34" points="290.21 14.32 383.1 126.82 338.19 126.82" fill="url(#navk)" style="mix-blend-mode:overlay"/>
-  </g>
+  <polygon class="cls-2" points="195.67 126.62 195.78 126.88 195.56 126.88" fill="url(#naval)"/>
+  <polygon class="cls-3" points="150.66 126.62 150.77 126.88 150.55 126.88" fill="url(#navak)"/>
+  <polygon class="cls-4" points="481.1 126.62 481.21 126.88 480.99 126.88" fill="url(#navo)"/>
+  <polygon class="cls-5" points="436.09 126.62 436.2 126.88 435.98 126.88" fill="url(#navj)"/>
+  <polygon class="cls-6" points="482.15 126.62 482.26 126.88 482.04 126.88" fill="url(#navi)"/>
+  <polygon class="cls-7" points="437.14 126.62 437.25 126.88 437.03 126.88" fill="url(#navh)"/>
+  <polygon class="cls-8" points="194.77 14.1 239.78 14.1 192.09 126.46 191.98 126.72 147.19 126.72 147.08 126.46 121.87 67.06 96.55 126.72 51.54 126.72 99.35 14.1 144.4 14.1 169.59 73.44" fill="url(#navaj)"/>
+  <polygon class="cls-9" points="312.76 67.35 287.49 126.88 242.48 126.88 290.25 14.33 290.28 14.26 335.23 14.26 335.26 14.33 383.03 126.88 338.03 126.88" fill="url(#navg)"/>
+  <polygon class="cls-10" points="429.28 14.1 454.67 73.9 480.05 14.1 525.06 14.1 477.26 126.72 432.08 126.72 384.28 14.1" fill="url(#navf)"/>
+  <polygon class="cls-11" points="51.41 126.88 96.42 126.88 144.27 14.26" fill="url(#navai)"/>
+  <polygon class="cls-12" points="239.63 14.26 192.1 126.64 194.72 14.26" fill="url(#navah)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-13" points="147.19 126.64 194.72 14.26 192.1 126.64" fill="url(#navaf)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-14" points="99.67 14.38 147.19 126.76 144.27 14.26" fill="url(#navag)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-15" points="192.1 126.76 144.27 14.26 147.19 126.76" fill="url(#navae)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-16" points="144.27 14.32 99.22 14.32 191.79 126.7" fill="url(#navad)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-17" points="51.41 126.88 99.67 14.38 144.27 14.26" fill="url(#navac)"/>
+  <polygon class="cls-18" points="99.22 14.32 192.1 126.82 147.19 126.82" fill="url(#navab)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-19" points="239.52 14.2 194.61 14.2 146.9 126.59" fill="url(#navaa)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-20" points="191.81 126.62 146.9 126.62 239.52 14.23" fill="url(#navz)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-21" points="525.06 14.26 477.53 126.64 480.14 14.26" fill="url(#navy)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-22" points="432.62 126.64 480.14 14.26 477.53 126.64" fill="url(#navx)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-23" points="385.1 14.38 432.62 126.76 429.69 14.26" fill="url(#navw)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-24" points="477.53 126.76 429.69 14.26 432.62 126.76" fill="url(#navv)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-25" points="429.69 14.32 384.65 14.32 477.22 126.7" fill="url(#navu)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-26" points="384.64 14.32 477.53 126.82 432.62 126.82" fill="url(#navt)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-27" points="524.95 14.2 480.04 14.2 432.33 126.59" fill="url(#navs)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-28" points="477.24 126.62 432.33 126.62 524.95 14.23" fill="url(#navr)" opacity=".89" style="mix-blend-mode:hard-light"/>
+  <polygon class="cls-29" points="242.41 126.88 287.42 126.88 335.26 14.26" fill="url(#navq)" style="mix-blend-mode:darken"/>
+  <polygon class="cls-30" points="290.67 14.38 338.19 126.76 335.26 14.26" fill="url(#navp)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-31" points="383.1 126.76 335.26 14.26 338.19 126.76" fill="url(#navn)" style="mix-blend-mode:soft-light"/>
+  <polygon class="cls-32" points="335.26 14.32 290.22 14.32 382.79 126.7" fill="url(#navm)" style="mix-blend-mode:overlay"/>
+  <polygon class="cls-33" points="242.41 126.88 290.67 14.38 335.26 14.26" fill="url(#navl)" style="mix-blend-mode:darken"/>
+  <polygon class="cls-34" points="290.21 14.32 383.1 126.82 338.19 126.82" fill="url(#navk)" style="mix-blend-mode:overlay"/>
  </g>
 </svg>
