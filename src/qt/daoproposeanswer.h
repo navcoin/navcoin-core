@@ -21,7 +21,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-typedef bool (*ValidatorFunc)(QString);
+typedef std::function<bool(QString)> ValidatorFunc;
 
 class DaoProposeAnswer : public QDialog
 {

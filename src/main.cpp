@@ -1352,11 +1352,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");  
 
             if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
-                if(!IsValidConsultation(tx, view, nVersionMaskConsultation))
+                if(!IsValidConsultation(tx, view, nVersionMaskConsultation, chainActive.Tip()))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
 
             if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
-                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, chainActive.Tip()))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
         }
 
@@ -1446,7 +1446,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid payment request");
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, chainActive.Tip()))
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
@@ -1471,7 +1471,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(0, false, REJECT_NONSTANDARD, "invalid dao consultation");
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, chainActive.Tip()))
             {
                 CConsultationAnswer answer;
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), uint256(), answer))
@@ -2513,11 +2513,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 view.RemovePaymentRequest(hash);
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, pindex->pprev))
             {
                 view.RemoveConsultation(hash);
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
             {
                 view.RemoveConsultationAnswer(hash);
             }
@@ -2825,7 +2825,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 }
             }
 
-            if (pindexIterator->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0
+            if (pindexIterator->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, pindex->pprev) == 0
                     || mapRestoredHashes.size() == mapHashesToRestore.size())
             {
                 break;
@@ -3468,7 +3468,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && consultation.CanBeVoted() && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
+                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == -6 || vote == -5))) && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
                                     if (vote == -6)
@@ -3577,7 +3577,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && consultation.CanBeVoted() && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
+                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == -6 || vote == -5))) && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
                                     if (vote != -6)
@@ -3645,12 +3645,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
             {
-                if(!IsValidConsultation(tx, view, nVersionMaskConsultation))
+                if(!IsValidConsultation(tx, view, nVersionMaskConsultation, pindex->pprev))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation");
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
             {
-                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+                if(!IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
             }
         }
@@ -3757,7 +3757,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     int nMultiplier = 1;
 
                     if(IsCommunityFundAccumulationSpreadEnabled(pindex->pprev, Params().GetConsensus()))
-                        nMultiplier = (pindex->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION)) == 0 ? GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION) : 0;
+                        nMultiplier = (pindex->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, pindex->pprev)) == 0 ? GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, pindex->pprev) : 0;
 
                     if(!tx.vout[tx.vout.size() - 1].IsCommunityFundContribution() && nMultiplier > 0)
                         return state.DoS(100, error("ConnectBlock(): block does not contribute to the community fund"),
@@ -3765,9 +3765,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 
                     if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus())) {
-                        if(tx.vout[tx.vout.size() - 1].nValue != GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK) * nMultiplier && nMultiplier > 0)
+                        if(tx.vout[tx.vout.size() - 1].nValue != GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindex->pprev) * nMultiplier && nMultiplier > 0)
                             return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
-                                                        tx.vout[tx.vout.size() - 1].nValue, GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK) * nMultiplier),
+                                                        tx.vout[tx.vout.size() - 1].nValue, GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindex->pprev) * nMultiplier),
                                     REJECT_INVALID, "bad-cf-amount");
                     } else {
                         if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmount * nMultiplier && nMultiplier > 0)
@@ -3779,7 +3779,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus()))
                     {
-                        nStakeReward -= GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK) * nMultiplier;
+                        nStakeReward -= GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindex->pprev) * nMultiplier;
                     } else {
                         nStakeReward -= Params().GetConsensus().nCommunityFundAmount * nMultiplier;
                     }
@@ -3895,7 +3895,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, pindex->pprev))
             {
                 CConsultation consultation;
                 std::vector<CConsultationAnswer> vAnswers;
@@ -3919,7 +3919,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
             {
                 CConsultationAnswer answer;
                 if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), block.GetHash(), answer))
@@ -9350,7 +9350,7 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
   int64_t nSubsidy;
 
   if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
-      nSubsidy = GetConsensusParameter(Consensus::CONSENSUS_PARAM_STAKING_STATIC_REWARD);
+      nSubsidy = GetConsensusParameter(Consensus::CONSENSUS_PARAM_STAKING_STATIC_REWARD, pindexPrev);
   } else {
       int64_t nRewardCoinYear;
       nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;

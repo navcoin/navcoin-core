@@ -199,7 +199,6 @@ private:
 
     QAction* copyHash;
     QAction* openExplorerAction;
-    QAction* proposeAnswer;
     QAction* seePaymentRequestsAction;
     QAction* seeProposalAction;
     QAction* openChart;
@@ -325,7 +324,6 @@ private Q_SLOTS:
     void onFilter(int index);
     void onFilter2(int index);
     void onExclude(bool fChecked);
-    void onProposeAnswer();
     void onSupportAnswer();
     void onCopyHash();
     void onSeeProposal();

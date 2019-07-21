@@ -139,6 +139,20 @@ bool Vote(uint256 hash, int64_t vote, bool &duplicate)
     RemoveConfigFile("addproposalvoteabs", str);
     RemoveConfigFile("addproposalvoteno", str);
 
+    CConsultationAnswer answer;
+
+    if (pcoinsTip->GetConsultationAnswer(hash, answer))
+    {
+        std::string strParent = answer.parent.ToString();
+        mapAddedVotes.erase(answer.parent);
+        RemoveConfigFile("voteyes", strParent);
+        RemoveConfigFile("voteabs", strParent);
+        RemoveConfigFile("voteno", strParent);
+        RemoveConfigFile("addproposalvoteyes", strParent);
+        RemoveConfigFile("addproposalvoteabs", strParent);
+        RemoveConfigFile("addproposalvoteno", strParent);
+    }
+
     std::string strCmd = "voteno";
 
     if (vote == -1)
@@ -226,6 +240,33 @@ bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params)
 bool IsEndCycle(const CBlockIndex* pindex, CChainParams params)
 {
     return (pindex->nHeight+1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0;
+}
+
+std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string)
+{
+    std::string ret = string;
+
+    if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
+        ret = FormatMoney(stoll(string)) + " NAV";
+    else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
+        ret =  std::to_string(((float)stoll(string) / 100.0)) + "%";
+
+    return ret;
+}
+
+std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string)
+{
+    string.erase(std::remove_if(string.begin(), string.end(),
+    [](const char& c ) -> bool { return !std::isdigit(c) && c != '.' && c != ','; } ), string.end());
+
+    std::string ret = string;
+
+    if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
+        ret = std::to_string((uint64_t)(stof(string) * COIN));
+    else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
+        ret = std::to_string((uint64_t)(stof(string) * 100));
+
+    return ret;
 }
 
 std::map<uint256, std::pair<std::pair<int, int>, int>> mapCacheProposalsToUpdate;
@@ -878,7 +919,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
 // CONSULTATIONS
 
-bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion)
+bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex)
 {
     if(tx.strDZeel.length() > 255)
         return error("%s: Too long strdzeel for answer %s", __func__, tx.GetHash().ToString());
@@ -921,8 +962,8 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
     if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
         return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
 
-    if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && strspn(sAnswer.c_str(), "0123456789" ) != sAnswer.size())
-        error("%s: Invalid consultation %s. Consensus consultations only allow numbers as answers", __func__, Hash);
+    if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer, pindex))
+        return error("%s: Invalid consultation %s. The proposed parameter %s is not valid", __func__, Hash, sAnswer);
 
     CAmount nContribution;
 
@@ -939,7 +980,7 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
 
 }
 
-bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion)
+bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex)
 {
     if(tx.strDZeel.length() > 1024)
         return error("%s: Too long strdzeel for consultation %s", __func__, tx.GetHash().ToString());
@@ -1028,12 +1069,12 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         std::string it = answersArray[i].get_str();
         if (mapSeen.count(it) == 0)
             mapSeen[it] = true;
-        if (fIsAboutConsensusParameter && strspn(it.c_str(), "0123456789" ) != it.size())
-            error("%s: Invalid consultation %s. Consensus consultations only allow numbers as answers", __func__, tx.GetHash().ToString());
+        if(fIsAboutConsensusParameter && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)nMin, it, pindex))
+            return error("%s: Invalid consultation %s. The proposed value %s is not valid", __func__, tx.GetHash().ToString(), it);
     }
 
     bool ret = (sQuestion != "" && nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) &&
-               ((fRange && nMin >= 0 && nMax < (uint64_t)-1  && nMax > nMin) ||
+               ((fRange && nMin >= 0 && nMax < (uint64_t)-5  && nMax > nMin) ||
                 (!fRange && nMax > 0  && nMax < 16)) &&
                ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&
                (nVersion & ~nMaskVersion) == 0);
@@ -1043,6 +1084,34 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
 
     return true;
 
+}
+
+bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex)
+{
+    if (proposal.empty() || proposal.find_first_not_of("0123456789") != string::npos)
+        return error("%s: Proposed parameter is empty or not integer", __func__);
+
+    uint64_t val = stoll(proposal);
+
+    if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
+    {
+        if (val < 0 || val > 10000)
+            return error("%s: Proposed parameter out of range for percentages", __func__);
+    }
+
+    if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
+    {
+        if (val < 0 || val > MAX_MONEY)
+            return error("%s: Proposed parameter out of range for coin amounts", __func__);
+    }
+
+    if (pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES && val > GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, pindex))
+        return error("%s: Proposed cycles number out of range", __func__);
+
+    if (val == GetConsensusParameter(pos, pindex))
+        return error("%s: The proposed value is the current one", __func__);
+
+    return true;
 }
 
 bool CConsultation::IsAboutConsensusParameter() const
@@ -1164,16 +1233,16 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
         UniValue a(UniValue::VOBJ);
         for (auto &it: mapVotes)
         {
-            a.push_back(make_pair(it.first == (uint64_t)-1 ? "abstain" : to_string(it.first), it.second));
+            a.push_back(make_pair(it.first == (uint64_t)-5 ? "abstain" : to_string(it.first), it.second));
         }
         answers.push_back(a);
     }
     else
     {
-        if (mapVotes.count((uint64_t)-1) != 0)
+        if (mapVotes.count((uint64_t)-5) != 0)
         {
             UniValue a(UniValue::VOBJ);
-            a.push_back(make_pair("abstain", mapVotes.at((uint64_t)-1)));
+            a.push_back(make_pair("abstain", mapVotes.at((uint64_t)-5)));
             answers.push_back(a);
         }
         CConsultationAnswerMap mapConsultationAnswers;

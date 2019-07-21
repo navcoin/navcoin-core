@@ -269,8 +269,14 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
             if (coins.GetConsultation(it.first, consultation))
             {
-                if (consultation.CanBeVoted() && (consultation.IsValidVote(vote) || vote == -1))
+                if ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == -1)
                 {
+                    if (mapCacheMaxAnswers.count(consultation.hash) == 0)
+                        mapCacheMaxAnswers[consultation.hash] = consultation.nMax;
+                    mapCountAnswers[consultation.hash]++;
+                    if (mapCountAnswers[consultation.hash] > mapCacheMaxAnswers[consultation.hash])
+                        continue;
+
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
                     SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash,vote);

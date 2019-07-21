@@ -195,8 +195,13 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
 bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaxVersion);
 bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
-bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion);
-bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion);
+bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
+bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
+bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex);
+
+
+std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string);
+std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string);
 
 // CFUND
 

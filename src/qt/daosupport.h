@@ -6,6 +6,7 @@
 #define DAOSUPPORT_H
 
 #include "consensus/dao.h"
+#include "daoproposeanswer.h"
 #include "main.h"
 #include "skinize.h"
 #include "walletmodel.h"
@@ -42,6 +43,7 @@ private:
 
 private Q_SLOTS:
     void onSupport(bool fChecked);
+    void onPropose();
     void onClose();
 };
 

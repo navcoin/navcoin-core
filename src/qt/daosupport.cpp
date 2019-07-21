@@ -21,9 +21,6 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
     QPushButton* closeBtn = new QPushButton(tr("Close"));
     connect(closeBtn, SIGNAL(clicked()), this, SLOT(onClose()));
 
-    bottomBoxLayout->addStretch(1);
-    bottomBoxLayout->addWidget(closeBtn);
-
     warningLbl = new QLabel("");
     warningLbl->setObjectName("warning");
     warningLbl->setVisible(false);
@@ -45,7 +42,9 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
             if (c.parent != consultation.hash)
                 continue;
 
-            QCheckBox* answer = new QCheckBox(QString::fromStdString(c.sAnswer));
+            QString s = QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin,  c.sAnswer) : c.sAnswer);
+
+            QCheckBox* answer = new QCheckBox(s);
 
             answers << answer;
             answer->setProperty("id", QString::fromStdString(c.hash.GetHex()));
@@ -63,16 +62,30 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
     }
 
     if (answers.size() == 0)
-        vbox->addWidget(new QLabel(tr("This consultation has no proposed answers")));
+        vbox->addWidget(new QLabel(tr("There are no proposed answers")));
+
+    QPushButton* proposeBtn = new QPushButton(answers.size() == 0 ? tr("Propose an answer") : tr("Propose a different answer"));
+    connect(proposeBtn, SIGNAL(clicked()), this, SLOT(onPropose()));
+
+    bottomBoxLayout->addStretch(1);
+    if (consultation.CanHaveNewAnswers())
+        bottomBoxLayout->addWidget(proposeBtn);
+    bottomBoxLayout->addWidget(closeBtn);
 
     vbox->addStretch(1);
     answerBox->setLayout(vbox);
 
     layout->addSpacing(15);
-    layout->addWidget(new QLabel(tr("Consultation:<br>%1").arg(QString::fromStdString(consultation.strDZeel))));
+    layout->addWidget(new QLabel(tr("Consultation:<br><br>%1").arg(QString::fromStdString(consultation.strDZeel))));
     layout->addSpacing(15);
-    layout->addWidget(new QLabel(tr("Proposed answers (check the box to support):")));
+    layout->addWidget(new QLabel(tr("Possible answers:")));
     layout->addWidget(answerBox);
+    if (answers.size() > 0)
+    {
+        layout->addWidget(new QLabel(tr("Check the box from the answers you consider valid for the aforementioned question in order to support them.")));
+        layout->addWidget(new QLabel(tr("Consultations need to gather a minimal support from the network before being allowed to start with the voting.")));
+        layout->addWidget(new QLabel(tr("Supporting an answer does not mean voting for it, but just agreeing with the answer being part of the final set of possible answers.")));
+    }
     layout->addSpacing(15);
     layout->addWidget(warningLbl);
     layout->addWidget(bottomBox);
@@ -123,5 +136,15 @@ void DaoSupport::onSupport(bool fChecked)
 
 void DaoSupport::onClose()
 {
+    close();
+}
+
+void DaoSupport::onPropose()
+{
+    DaoProposeAnswer dlg(this, consultation, [this](QString s)->bool{
+        return consultation.IsAboutConsensusParameter() ? IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, s.toStdString()), chainActive.Tip()) : !s.isEmpty();
+    });
+    dlg.setModel(model);
+    dlg.exec();
     close();
 }

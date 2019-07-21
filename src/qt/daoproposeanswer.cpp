@@ -35,7 +35,6 @@ DaoProposeAnswer::DaoProposeAnswer(QWidget *parent, CConsultation consultation, 
 
     QString fee = QString::fromStdString(FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE)));
 
-
     layout->addSpacing(15);
     layout->addWidget(new QLabel(tr("Submit an answer proposal for:<br>%1").arg(QString::fromStdString(consultation.strDZeel))));
     layout->addSpacing(15);
@@ -74,7 +73,7 @@ void DaoProposeAnswer::onPropose()
 
     std::string sAnswer = answerInput->text().toStdString();
 
-    if (!(*validatorFunc)(QString::fromStdString(sAnswer)))
+    if (!(validatorFunc)(QString::fromStdString(sAnswer)))
     {
         showWarning(tr("Entry not valid"));
         return;
@@ -84,6 +83,8 @@ void DaoProposeAnswer::onPropose()
     uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
 
     showWarning("");
+
+    sAnswer = consultation.IsAboutConsensusParameter() ? RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer) : sAnswer;
 
     strDZeel.push_back(Pair("h",consultation.hash.ToString()));
     strDZeel.push_back(Pair("a",sAnswer));

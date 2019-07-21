@@ -630,6 +630,115 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     }
 }
 
+UniValue getconsensusparameters(const UniValue& params, bool fHelp)
+{
+    UniValue ret(UniValue::VARR);
+    for (unsigned int i = 0; i < Consensus::MAX_CONSENSUS_PARAMS; i++)
+    {
+        Consensus::ConsensusParamsPos id = (Consensus::ConsensusParamsPos)i;
+        int type = (int)Consensus::vConsensusParamsType[id];
+        std::string sDesc = Consensus::sConsensusParamsDesc[id];
+        UniValue entry(UniValue::VOBJ);
+        entry.push_back(Pair("id", (uint64_t)i));
+        entry.push_back(Pair("desc", sDesc));
+        entry.push_back(Pair("type", type));
+        entry.push_back(Pair("value", GetConsensusParameter(id)));
+        ret.push_back(entry);
+    }
+    return ret;
+}
+
+UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 2 || !params[0].isNum() || !params[1].isNum())
+        throw runtime_error(
+            "proposeconsensuschange parameter value ( fee dump_raw )\n"
+            "\nCreates a proposal to the DAO for changing a consensus paremeter. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. parameter        (numeric, required) The parameter id as specified in the output of the getconsensusparameters rpc command.\n"
+            "2. value            (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
+            "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
+            "4. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("proposeconsensuschange", "1 10")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+
+    // Amount
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    int64_t nMin = params[0].get_int64();
+    int64_t nMax = 1;
+
+    std::string sAnswer = std::to_string(params[1].get_int64());
+
+    if (nMin < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || nMin >= Consensus::MAX_CONSENSUS_PARAMS)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong parameter id");
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION | CConsultation::CONSENSUS_PARAMETER_VERSION;
+
+    UniValue answers(UniValue::VARR);
+    answers.push_back(sAnswer);
+
+    std::string sQuestion = "Consensus change for: " + Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)nMin];
+
+    strDZeel.push_back(Pair("q",sQuestion));
+    strDZeel.push_back(Pair("a",answers));
+    strDZeel.push_back(Pair("m",nMin));
+    strDZeel.push_back(Pair("n",nMax));
+    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
+        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        return ret;
+    }
+}
+
 UniValue createconsultation(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -676,7 +785,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
 
     if (!fRange && (nMax < 1 ||nMax > 16))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
-    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)-1 && nMax > nMin))
+    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)-5 && nMax > nMin))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong range");
 
     string sQuestion = params[0].get_str();
@@ -4199,8 +4308,10 @@ static const CRPCCommand commands[] =
     { "communityfund",      "donatefund",               &donatefund,               false },
     { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
     { "communityfund",      "createproposal",           &createproposal,           false },
-    { "communityfund",      "createconsultation",       &createconsultation,       false },
-    { "communityfund",      "proposeanswer",            &proposeanswer,            false },
+    { "dao",                "createconsultation",       &createconsultation,       false },
+    { "dao",                "proposeanswer",            &proposeanswer,            false },
+    { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
+    { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
     { "wallet",             "stakervote",               &stakervote,               false },
     { "dao",                "support",                  &support,                  false },
     { "dao",                "supportlist",              &supportlist,              false },

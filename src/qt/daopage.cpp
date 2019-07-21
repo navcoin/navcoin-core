@@ -115,7 +115,6 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
 
     copyHash = new QAction(tr("Copy hash"), this);
     openExplorerAction = new QAction(tr("Open in explorer"), this);
-    proposeAnswer = new QAction(tr("Propose Answer"), this);
     proposeChange = new QAction(tr("Propose Change"), this);
     seeProposalAction = new QAction(tr("Go to parent proposal"), this);
     seePaymentRequestsAction = new QAction(tr("Show payment requests from this proposal"), this);
@@ -127,7 +126,6 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     contextMenu->addAction(openChart);
     contextMenu->addSeparator();
 
-    connect(proposeAnswer, SIGNAL(triggered()), this, SLOT(onProposeAnswer()));
     connect(seeProposalAction, SIGNAL(triggered()), this, SLOT(onSeeProposal()));
     connect(proposeChange, SIGNAL(triggered()), this, SLOT(onCreate()));
     connect(seePaymentRequestsAction, SIGNAL(triggered()), this, SLOT(onSeePaymentRequests()));
@@ -1539,11 +1537,7 @@ void DaoPage::setData(QVector<ConsensusEntry> data)
         // VALUE
         auto *valueItem = new QTableWidgetItem;
         QString sValue = QString::number(entry.value);
-        if (entry.type == Consensus::TYPE_NAV)
-            sValue = QString::fromStdString(FormatMoney(entry.value)) + " NAV";
-        else if (entry.type == Consensus::TYPE_PERCENT)
-            sValue = QString::number((float)entry.value / 100.0) + "%";
-        valueItem->setData(Qt::DisplayRole, sValue);
+        valueItem->setData(Qt::DisplayRole, QString::fromStdString(FormatConsensusParameter((Consensus::ConsensusParamsPos)entry.id, sValue.toStdString())));
         valueItem->setData(Qt::TextAlignmentRole,Qt::AlignCenter);
         table->setItem(i, CP_COLUMN_CURRENT, valueItem);
 
@@ -1843,24 +1837,6 @@ void DaoPage::onCreate() {
     }
 }
 
-void DaoPage::onProposeAnswer() {
-    LOCK(cs_main);
-
-    CStateViewCache coins(pcoinsTip);
-    CConsultation consultation;
-
-    if (coins.GetConsultation(uint256S(contextHash.toStdString()), consultation))
-    {
-        if (consultation.CanHaveNewAnswers())
-        {
-            DaoProposeAnswer dlg(this, consultation, [](QString s)->bool{return !s.isEmpty();});
-            dlg.setModel(walletModel);
-            dlg.exec();
-            refresh(true);
-        }
-    }
-}
-
 void DaoPage::onSupportAnswer() {
     LOCK(cs_main);
 
@@ -1909,7 +1885,6 @@ void DaoPage::showContextMenu(const QPoint& pt) {
         openChart->setDisabled(contextHash == "");
         contextMenu->removeAction(seeProposalAction);
         contextMenu->removeAction(seePaymentRequestsAction);
-        contextMenu->removeAction(proposeAnswer);
 
         proposeChange->setDisabled(false);
 
@@ -1918,12 +1893,10 @@ void DaoPage::showContextMenu(const QPoint& pt) {
             if (consultation.CanHaveNewAnswers())
             {
                 proposeChange->setDisabled(true);
-                contextMenu->addAction(proposeAnswer);
             }
             else
             {
                 proposeChange->setDisabled(false);
-                contextMenu->removeAction(proposeAnswer);
             }
         }
         else if (pcoinsTip->GetProposal(uint256S(contextHash.toStdString()), proposal))
@@ -2000,10 +1973,15 @@ void DaoPage::onViewChart() {
             if (consultation.CanBeSupported())
                 title += " - Showing Support";
 
+            if (consultation.mapVotes.count((uint64_t)-5))
+                mapVotes.insert(make_pair(QString(tr("Abstention") + " (" + QString::number(consultation.mapVotes.at((uint64_t)-5)) + ")"), consultation.mapVotes.at((uint64_t)-5)));
+
             if (consultation.IsRange())
             {
                 for (auto&it: consultation.mapVotes)
                 {
+                    if (it.first == -1)
+                        continue;
                     mapVotes.insert(make_pair(QString::number(it.first) + " (" + QString::number(it.second) + ")", it.second));
                 }
             }
@@ -2056,6 +2034,8 @@ DaoChart::DaoChart(QWidget *parent, QString title, std::map<QString, uint64_t> m
     int i = 0;
     for (auto& it: mapVotes)
     {
+        if (it.second == 0)
+            continue;
         series->append(it.first, it.second);
         QtCharts::QPieSlice *slice = series->slices().at(i);
         slice->setLabelVisible();

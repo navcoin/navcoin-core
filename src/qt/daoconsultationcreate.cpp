@@ -139,7 +139,9 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent, QString title, int
     warningLbl->setObjectName("warning");
     warningLbl->setVisible(false);
 
-    listWidget = new NavCoinListWidget(this, tr("Possible answers"), [](QString s)->bool{bool ok; s.toInt(&ok, 10);return ok;});
+    listWidget = new NavCoinListWidget(this, tr("Possible answers"), [this](QString s)->bool{
+            return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)cpos, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)cpos, s.toStdString()), chainActive.Tip());
+    });
 
     layout->addWidget(new QLabel(tr("Propose a new value for:")));
     layout->addSpacing(15);
@@ -165,7 +167,7 @@ void DaoConsultationCreate::onCreate()
         showWarning(tr("Choose a smaller number of answers."));
         return;
     }
-    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)-1 && nMax > nMin))
+    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)-5 && nMax > nMin))
     {
         showWarning(tr("Wrong range!"));
         return;
@@ -325,6 +327,12 @@ void DaoConsultationCreate::onCreateConsensus()
     }
 
     QStringList listAnswers = listWidget->getEntries();
+
+    QMutableStringListIterator it(listAnswers);
+    while (it.hasNext()) {
+        QString& current = it.next();
+        it.setValue(QString::fromStdString(RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)nMin, current.toStdString())));
+    }
 
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION | CConsultation::CONSENSUS_PARAMETER_VERSION;

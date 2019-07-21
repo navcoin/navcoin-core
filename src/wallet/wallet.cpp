@@ -592,16 +592,16 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev, Params().GetConsensus()))
         {
-            if((pindexPrev->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION) == 0)
+            if((pindexPrev->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, pindexPrev) == 0)
             {
                 int fundIndex = txNew.vout.size() + 1;
                 txNew.vout.resize(fundIndex);
                 SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
 
                 if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
-                    txNew.vout[fundIndex-1].nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION);
+                    txNew.vout[fundIndex-1].nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindexPrev) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, pindexPrev);
                 } else {
-                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION);
+                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, pindexPrev);
                 }
             }
         }
@@ -612,7 +612,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
 
              if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
-                txNew.vout[fundIndex-1].nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK);
+                txNew.vout[fundIndex-1].nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindexPrev);
              } else {
                 txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount;
              }

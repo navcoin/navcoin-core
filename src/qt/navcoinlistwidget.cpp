@@ -72,7 +72,7 @@ void NavCoinListWidget::onInsert()
              }
     }
 
-    if (!(*validatorFunc)(itemText))
+    if (!(validatorFunc)(itemText))
     {
         warningLbl->setText(tr("Entry not valid"));
         warningLbl->setVisible(true);
