@@ -4,10 +4,11 @@
 #include "ui_communityfundcreatepaymentrequestdialog.h"
 
 #include <QMessageBox>
+#include <QComboBox>
 #include <string>
 
 #include "base58.h"
-#include "consensus/cfund.h"
+#include "consensus/dao.h"
 #include "guiconstants.h"
 #include "guiutil.h"
 #include "main.cpp"
@@ -42,6 +43,23 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
 
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
     connect(ui->pushButtonSubmitPaymentRequest, SIGNAL(clicked()), SLOT(click_pushButtonSubmitPaymentRequest()));
+
+    CProposalMap proposalMap;
+
+    {
+    LOCK(cs_main);
+
+    if (pcoinsTip != nullptr && pcoinsTip->GetAllProposals(proposalMap))
+    {
+        for (auto& it: proposalMap)
+        {
+            if (it.second.fState != DAOFlags::ACCEPTED)
+                continue;
+
+            ui->comboBoxProposalHash->insertItem(0, QString::fromStdString(it.second.strDZeel), QString::fromStdString(it.second.hash.ToString()));
+        }
+    }
+    }
 }
 
 void CommunityFundCreatePaymentRequestDialog::setModel(WalletModel *model)
@@ -54,10 +72,9 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
     bool isValid = true;
 
     // Proposal hash;
-    if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
+    if(!isActiveProposal(uint256S(ui->comboBoxProposalHash->currentData().toString().toStdString())))
     {
         isValid = false;
-        ui->lineEditProposalHash->setValid(false);
     }
 
     // Amount
@@ -90,8 +107,8 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
         // Get Proposal
-        CFund::CProposal proposal;
-        if(!pcoinsTip->GetProposal(uint256S(ui->lineEditProposalHash->text().toStdString()), proposal)) {
+        CProposal proposal;
+        if(!pcoinsTip->GetProposal(uint256S(ui->comboBoxProposalHash->currentData().toString().toStdString()), proposal)) {
             QMessageBox msgBox(this);
             std::string str = "Proposal could not be found with that hash\n";
             msgBox.setText(tr(str.c_str()));
@@ -101,7 +118,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.exec();
             return;
         }
-        if(proposal.fState != CFund::ACCEPTED) {
+        if(proposal.fState != DAOFlags::ACCEPTED) {
             QMessageBox msgBox(this);
             std::string str = "Proposals need to have been accepted to create a Payment Request for them\n";
             msgBox.setText(tr(str.c_str()));
@@ -189,8 +206,10 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Create Signature
         std::string Signature = EncodeBase64(&vchSig[0], vchSig.size());
 
+        CStateViewCache coins(pcoinsTip);
+
         // Validate requested amount
-        if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
+        if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(coins, true)) {
             QMessageBox msgBox(this);
             std::string str = "Cannot create a Payment Request for the requested amount\n";
             msgBox.setText(tr(str.c_str()));
@@ -206,13 +225,20 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         bool fSubtractFeeFromAmount = false;
 
         UniValue strDZeel(UniValue::VOBJ);
+        uint64_t nVersion = CPaymentRequest::BASE_VERSION;
 
-        strDZeel.pushKV("h",ui->lineEditProposalHash->text().toStdString());
+        if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CPaymentRequest::REDUCED_QUORUM_VERSION;
+
+        if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
+
+        strDZeel.pushKV("h",ui->comboBoxProposalHash->currentData().toString().toStdString()));
         strDZeel.pushKV("n",nReqAmount);
         strDZeel.pushKV("s",Signature);
         strDZeel.pushKV("r",sRandom);
         strDZeel.pushKV("i",id);
-        strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2);
+        strDZeel.pushKV("v",nVersion);
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
@@ -233,8 +259,8 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         CAmount curBalance = pwalletMain->GetBalance();
         if (curBalance <= 10000) {
             QMessageBox msgBox(this);
-            string fee = std::to_string(10000 / COIN);
-            std::string str = "You require at least " + fee + " NAV mature and available to create a payment request\n";
+            string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE));
+            std::string str = tr("You require at least %1 NAV mature and available to create a payment request\n").arg(QString::fromStdString(fee)).toStdString();
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
@@ -246,7 +272,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
             // Create confirmation dialog
-            CFund::CPaymentRequest* preq = new CFund::CPaymentRequest();
+            CPaymentRequest* preq = new CPaymentRequest();
             preq->nAmount = ui->lineEditRequestedAmount->value();
             preq->proposalhash = proposal.hash;
             preq->strDZeel = ui->plainTextEditDescription->toPlainText().toStdString();
@@ -261,7 +287,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                 // Parse NavCoin address
                 CScript CFContributionScript;
                 CScript scriptPubKey = GetScriptForDestination(address.Get());
-                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+                SetScriptForCommunityFundContribution(scriptPubKey);
 
                 // Create and send the transaction
                 CReserveKey reservekey(pwalletMain);
@@ -310,7 +336,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
     {
         QMessageBox msgBox(this);
         QString str = tr("Please enter a valid:\n");
-        if(!isActiveProposal(uint256S(ui->lineEditProposalHash->text().toStdString())))
+        if(!isActiveProposal(uint256S(ui->comboBoxProposalHash->currentData().toString().toStdString())))
             str += QString(tr("- Proposal Hash\n"));
         if(!ui->lineEditRequestedAmount->validate())
             str += QString(tr("- Requested Amount\n"));
@@ -327,20 +353,20 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
 bool CommunityFundCreatePaymentRequestDialog::isActiveProposal(uint256 hash)
 {
-    std::vector<CFund::CProposal> vec;
+    std::vector<CProposal> vec;
     CProposalMap mapProposals;
 
     if(pcoinsTip->GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
-            CFund::CProposal proposal;
+            CProposal proposal;
             if (!pcoinsTip->GetProposal(it->first, proposal))
                 continue;
             vec.push_back(proposal);
         }
 
-        if(std::find_if(vec.begin(), vec.end(), [&hash](CFund::CProposal& obj) {return obj.hash == hash;}) == vec.end())
+        if(std::find_if(vec.begin(), vec.end(), [&hash](CProposal& obj) {return obj.hash == hash;}) == vec.end())
         {
             return false;
         }

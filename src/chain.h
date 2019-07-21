@@ -215,8 +215,11 @@ public:
     int64_t nCFSupply;
     int64_t nCFLocked;
 
-    std::vector<std::pair<uint256, bool>> vProposalVotes;
-    std::vector<std::pair<uint256, bool>> vPaymentRequestVotes;
+    std::vector<std::pair<uint256, int>> vProposalVotes;
+    std::vector<std::pair<uint256, int>> vPaymentRequestVotes;
+    std::map<uint256, bool> mapSupport;
+    std::map<uint256, uint64_t> mapConsultationVotes;
+    std::map<Consensus::ConsensusParamsPos, uint64_t> mapConsensusParameters;
 
     std::string strDZeel;
 
@@ -262,6 +265,9 @@ public:
         nNonce         = 0;
         vProposalVotes.clear();
         vPaymentRequestVotes.clear();
+        mapSupport.clear();
+        mapConsultationVotes.clear();
+        mapConsultationVotes.clear();
     }
 
     CBlockIndex()
@@ -525,6 +531,17 @@ public:
         READWRITE(nCFLocked);
         READWRITE(vPaymentRequestVotes);
         READWRITE(vProposalVotes);
+
+        // UPDATE if nConsultationsVersionMask in versionbits.h is modified
+        if (this->nVersion & 0x00800000)
+        {
+            READWRITE(mapSupport);
+            READWRITE(mapConsultationVotes);
+        }
+        if (this->nVersion & 0x02000000)
+        {
+            READWRITE(mapConsensusParameters);
+        }
     }
 
     uint256 GetBlockHash() const

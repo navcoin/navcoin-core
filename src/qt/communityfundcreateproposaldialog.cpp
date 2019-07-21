@@ -54,7 +54,7 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
                 }
     });
 
-    string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
+    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE));
     string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
     ui->labelWarning->setText(QString::fromStdString(warning));
 }
@@ -135,12 +135,19 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         string sDesc = ui->plainTextEditDescription->toPlainText().toStdString();
 
         UniValue strDZeel(UniValue::VOBJ);
+        uint64_t nVersion = CProposal::BASE_VERSION;
+
+        if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CProposal::REDUCED_QUORUM_VERSION;
+
+        if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
         strDZeel.pushKV("n",nReqAmount);
         strDZeel.pushKV("a",Address);
         strDZeel.pushKV("d",nDeadline);
         strDZeel.pushKV("s",sDesc);
-        strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2);
+        strDZeel.pushKV("v",nVersion);
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -166,10 +173,10 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         // Check balance
         CAmount curBalance = pwalletMain->GetBalance();
-        if (curBalance <= Params().GetConsensus().nProposalMinimalFee) {
+        if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE)) {
             QMessageBox msgBox(this);
-            string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
-            std::string str = "You require at least " + fee + " NAV mature and available to create a proposal\n";
+            string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE));
+            std::string str = tr("You require at least %1 NAV mature and available to create a proposal\n").arg(QString::fromStdString(fee)).toStdString();
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
@@ -180,7 +187,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
-            CFund::CProposal *proposal = new CFund::CProposal();
+            CProposal *proposal = new CProposal();
             proposal->Address = Address;
             proposal->nAmount = nReqAmount;
             proposal->strDZeel = sDesc;
@@ -194,10 +201,8 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             }
             else {
                 // User accepted making the proposal
-                // Parse NavCoin address
-                CScript CFContributionScript;
                 CScript scriptPubKey = GetScriptForDestination(address.Get());
-                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+                SetScriptForCommunityFundContribution(scriptPubKey);
 
                 // Create and send the transaction
                 CReserveKey reservekey(pwalletMain);
@@ -205,7 +210,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 std::string strError;
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
-                CAmount nValue = Params().GetConsensus().nProposalMinimalFee;
+                CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE);
                 CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
                 vecSend.push_back(recipient);
 

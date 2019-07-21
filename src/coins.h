@@ -13,13 +13,18 @@
 #include "serialize.h"
 #include "uint256.h"
 
+#include "consensus/dao.h"
+
 #include <assert.h>
 #include <stdint.h>
 
 #include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
 
-using namespace CFund;
+class CConsultation;
+class CPaymentRequest;
+class CProposal;
+class CVoteList;
 
 /** 
  * Pruned version of CTransaction: only retains metadata and unspent transaction outputs
@@ -311,14 +316,19 @@ struct CCacheEntry
 typedef CCacheEntry<CCoins> CCoinsCacheEntry;
 typedef boost::unordered_map<uint256, CCoinsCacheEntry, SaltedTxidHasher> CCoinsMap;
 typedef std::map<uint256, CProposal> CProposalMap;
+typedef std::vector<unsigned char> CVoteMapKey;
+typedef CVoteList CVoteMapValue;
+typedef std::map<CVoteMapKey, CVoteMapValue> CVoteMap;
 typedef boost::unordered_map<uint256, CPaymentRequest, SaltedTxidHasher> CPaymentRequestMap;
+typedef boost::unordered_map<uint256, CConsultation, SaltedTxidHasher> CConsultationMap;
+typedef boost::unordered_map<uint256, CConsultationAnswer, SaltedTxidHasher> CConsultationAnswerMap;
 
 /** Cursor for iterating over CoinsView state */
-class CCoinsViewCursor
+class CStateViewCursor
 {
 public:
-    CCoinsViewCursor(const uint256 &hashBlockIn): hashBlock(hashBlockIn) {}
-    virtual ~CCoinsViewCursor();
+    CStateViewCursor(const uint256 &hashBlockIn): hashBlock(hashBlockIn) {}
+    virtual ~CStateViewCursor();
 
     virtual bool GetKey(uint256 &key) const = 0;
     virtual bool GetValue(CCoins &coins) const = 0;
@@ -335,7 +345,7 @@ private:
 };
 
 /** Abstract view on the open txout dataset. */
-class CCoinsView
+class CStateView
 {
 public:
     //! Retrieve the CCoins (unspent transaction outputs) for a given txid
@@ -353,30 +363,44 @@ public:
     virtual bool HaveProposal(const uint256 &pid) const;
     virtual bool HavePaymentRequest(const uint256 &prid) const;
 
-    //! Retrieve the block hash whose state this CCoinsView currently represents
+    //! Dao
+    virtual bool GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
+    virtual bool HaveCachedVoter(const CVoteMapKey &voter) const;
+    virtual bool GetAllVotes(CVoteMap& map);
+
+    virtual bool GetConsultation(const uint256 &cid, CConsultation &consultation) const;
+    virtual bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const;
+    virtual bool GetAllConsultations(CConsultationMap& map);
+    virtual bool HaveConsultation(const uint256 &cid) const;
+    virtual bool HaveConsultationAnswer(const uint256 &cid) const;
+    virtual bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
+
+    //! Retrieve the block hash whose state this CStateView currently represents
     virtual uint256 GetBestBlock() const;
 
     //! Do a bulk modification (multiple CCoins changes + BestBlock change).
     //! The passed mapCoins can be modified.
     virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                            CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock);
+                            CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                            CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                            const uint256 &hashBlock);
 
     //! Get a cursor to iterate over the whole state
-    virtual CCoinsViewCursor *Cursor() const;
+    virtual CStateViewCursor *Cursor() const;
 
-    //! As we use CCoinsViews polymorphically, have a virtual destructor
-    virtual ~CCoinsView() {}
+    //! As we use CStateViews polymorphically, have a virtual destructor
+    virtual ~CStateView() {}
 };
 
 
-/** CCoinsView backed by another CCoinsView */
-class CCoinsViewBacked : public CCoinsView
+/** CStateView backed by another CStateView */
+class CStateViewBacked : public CStateView
 {
 protected:
-    CCoinsView *base;
+    CStateView *base;
 
 public:
-    CCoinsViewBacked(CCoinsView *viewIn);
+    CStateViewBacked(CStateView *viewIn);
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
@@ -385,14 +409,26 @@ public:
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool HaveProposal(const uint256 &pid) const;
     bool HavePaymentRequest(const uint256 &prid) const;
+    bool HaveCachedVoter(const CVoteMapKey &voter) const;
+    bool GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
+    bool GetAllVotes(CVoteMap& map);
+    bool GetConsultation(const uint256 &cid, CConsultation &consultation) const;
+    bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const;
+    bool GetAllConsultations(CConsultationMap& map);
+    bool HaveConsultation(const uint256 &cid) const;
+    bool HaveConsultationAnswer(const uint256 &cid) const;
+    bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     uint256 GetBestBlock() const;
-    void SetBackend(CCoinsView &viewIn);
-    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock);
-    CCoinsViewCursor *Cursor() const;
+    void SetBackend(CStateView &viewIn);
+    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
+                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                    const uint256 &hashBlock);
+    CStateViewCursor *Cursor() const;
 };
 
 
-class CCoinsViewCache;
+class CStateViewCache;
 
 /**
  * A reference to a mutable cache entry. Encapsulating it allows us to run
@@ -402,49 +438,91 @@ class CCoinsViewCache;
 class CCoinsModifier
 {
 private:
-    CCoinsViewCache& cache;
+    CStateViewCache& cache;
     CCoinsMap::iterator it;
     size_t cachedCoinUsage; // Cached memory usage of the CCoins object before modification
-    CCoinsModifier(CCoinsViewCache& cache_, CCoinsMap::iterator it_, size_t usage);
+    CCoinsModifier(CStateViewCache& cache_, CCoinsMap::iterator it_, size_t usage);
 
 public:
     CCoins* operator->() { return &it->second.coins; }
     CCoins& operator*() { return it->second.coins; }
     ~CCoinsModifier();
-    friend class CCoinsViewCache;
+    friend class CStateViewCache;
 };
 
 class CProposalModifier
 {
 private:
-    CCoinsViewCache& cache;
+    CStateViewCache& cache;
     CProposalMap::iterator it;
-    CProposalModifier(CCoinsViewCache& cache_, CProposalMap::iterator it_);
+    CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_);
 
 public:
     CProposal* operator->() { return &it->second; }
     CProposal& operator*() { return it->second; }
     ~CProposalModifier();
-    friend class CCoinsViewCache;
+    friend class CStateViewCache;
 };
 
 
 class CPaymentRequestModifier
 {
 private:
-    CCoinsViewCache& cache;
+    CStateViewCache& cache;
     CPaymentRequestMap::iterator it;
-    CPaymentRequestModifier(CCoinsViewCache& cache_, CPaymentRequestMap::iterator it_);
+    CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_);
 
 public:
     CPaymentRequest* operator->() { return &it->second; }
     CPaymentRequest& operator*() { return it->second; }
     ~CPaymentRequestModifier();
-    friend class CCoinsViewCache;
+    friend class CStateViewCache;
 };
 
-/** CCoinsView that adds a memory cache for transactions to another CCoinsView */
-class CCoinsViewCache : public CCoinsViewBacked
+class CVoteModifier
+{
+private:
+    CStateViewCache& cache;
+    CVoteMap::iterator it;
+    CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_);
+
+public:
+    CVoteMapValue* operator->() { return &it->second; }
+    CVoteMapValue& operator*() { return it->second; }
+    ~CVoteModifier();
+    friend class CStateViewCache;
+};
+
+class CConsultationModifier
+{
+private:
+    CStateViewCache& cache;
+    CConsultationMap::iterator it;
+    CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_);
+
+public:
+    CConsultation* operator->() { return &it->second; }
+    CConsultation& operator*() { return it->second; }
+    ~CConsultationModifier();
+    friend class CStateViewCache;
+};
+
+class CConsultationAnswerModifier
+{
+private:
+    CStateViewCache& cache;
+    CConsultationAnswerMap::iterator it;
+    CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_);
+
+public:
+    CConsultationAnswer* operator->() { return &it->second; }
+    CConsultationAnswer& operator*() { return it->second; }
+    ~CConsultationAnswerModifier();
+    friend class CStateViewCache;
+};
+
+/** CStateView that adds a memory cache for transactions to another CStateView */
+class CStateViewCache : public CStateViewBacked
 {
 protected:
     /* Whether this cache has an active modifier. */
@@ -458,36 +536,57 @@ protected:
     mutable CCoinsMap cacheCoins;
     mutable CProposalMap cacheProposals;
     mutable CPaymentRequestMap cachePaymentRequests;
+    mutable CVoteMap cacheVotes;
+    mutable CConsultationMap cacheConsultations;
+    mutable CConsultationAnswerMap cacheAnswers;
 
     /* Cached dynamic memory usage for the inner CCoins objects. */
     mutable size_t cachedCoinsUsage;
 
 public:
-    CCoinsViewCache(CCoinsView *baseIn);
-    ~CCoinsViewCache();
+    CStateViewCache(CStateView *baseIn);
+    ~CStateViewCache();
 
-    // Standard CCoinsView methods
+    // Standard CStateView methods
     bool GetCoins(const uint256 &txid, CCoins &coins) const;
     bool HaveCoins(const uint256 &txid) const;
     bool HaveProposal(const uint256 &pid) const;
     bool HavePaymentRequest(const uint256 &prid) const;
+    bool HaveCachedVoter(const CVoteMapKey &voter) const;
+    bool HaveConsultation(const uint256 &cid) const;
+    bool HaveConsultationAnswer(const uint256 &cid) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
-    bool GetAllProposals(CProposalMap& map);
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
+    bool GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
+    bool GetConsultation(const uint256 &cid, CConsultation& consultation) const;
+    bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
+    bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
+    bool GetAllVotes(CVoteMap& map);
+    bool GetAllConsultations(CConsultationMap& map);
+    bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
     uint256 GetBestBlock() const;
     void SetBestBlock(const uint256 &hashBlock);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlockIn);
+                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                    const uint256 &hashBlockIn);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
+    bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
+    bool AddConsultation(const CConsultation& consultation) const;
+    bool AddConsultationAnswer(const CConsultationAnswer& answer) const;
     bool RemoveProposal(const uint256 &pid) const;
     bool RemovePaymentRequest(const uint256 &prid) const;
+    bool RemoveCachedVoter(const CVoteMapKey &voter) const;
+    bool RemoveConsultation(const uint256 &cid) const;
+    bool RemoveConsultationAnswer(const uint256 &cid) const;
+
 
     /**
      * Check if we have the given tx already loaded in this cache.
      * The semantics are the same as HaveCoins(), but no calls to
-     * the backing CCoinsView are made.
+     * the backing CStateView are made.
      */
     bool HaveCoinsInCache(const uint256 &txid) const;
 
@@ -507,6 +606,11 @@ public:
 
     CProposalModifier ModifyProposal(const uint256 &pid);
     CPaymentRequestModifier ModifyPaymentRequest(const uint256 &prid);
+    CVoteModifier ModifyVote(const CVoteMapKey &voter);
+    CConsultationModifier ModifyConsultation(const uint256 &cid);
+    CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid);
+
+    bool ClearCacheVotes();
 
     /**
      * Return a modifiable reference to a CCoins. Assumes that no entry with the given
@@ -563,17 +667,23 @@ public:
     friend class CCoinsModifier;
     friend class CProposalModifier;
     friend class CPaymentRequestModifier;
+    friend class CVoteModifier;
+    friend class CConsultationModifier;
+    friend class CConsultationAnswerModifier;
 
 private:
     CCoinsMap::iterator FetchCoins(const uint256 &txid);
     CCoinsMap::const_iterator FetchCoins(const uint256 &txid) const;
     CProposalMap::const_iterator FetchProposal(const uint256 &pid) const;
     CPaymentRequestMap::const_iterator FetchPaymentRequest(const uint256 &prid) const;
+    CVoteMap::const_iterator FetchVote(const CVoteMapKey &voter) const;
+    CConsultationMap::const_iterator FetchConsultation(const uint256 &cid) const;
+    CConsultationAnswerMap::const_iterator FetchConsultationAnswer(const uint256 &cid) const;
 
     /**
      * By making the copy constructor private, we prevent accidentally using it when one intends to create a cache on top of a base cache.
      */
-    CCoinsViewCache(const CCoinsViewCache &);
+    CStateViewCache(const CStateViewCache &);
 };
 
 #endif // NAVCOIN_COINS_H

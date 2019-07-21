@@ -12,6 +12,7 @@
 #include "optionsmodel.h"
 #include "overviewpage.h"
 #include "communityfundpage.h"
+#include "daopage.h"
 #include "platformstyle.h"
 #include "getaddresstoreceive.h"
 #include "receivecoinsdialog.h"
@@ -56,6 +57,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     transactionsPage->setLayout(vbox);
 
     communityFundPage = new CommunityFundPage(platformStyle);
+    daoPage = new DaoPage(platformStyle);
 
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
     sendCoinsPage = new SendCoinsDialog(platformStyle);
@@ -69,7 +71,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
     addWidget(requestPaymentPage);
-    addWidget(communityFundPage);
+    addWidget(daoPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -119,6 +121,7 @@ void WalletView::setClientModel(ClientModel *clientModel)
 
     overviewPage->setClientModel(clientModel);
     sendCoinsPage->setClientModel(clientModel);
+    daoPage->setClientModel(clientModel);
 }
 
 void WalletView::requestAddressHistory()
@@ -134,6 +137,7 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     transactionView->setModel(walletModel);
     overviewPage->setWalletModel(walletModel);
     communityFundPage->setWalletModel(walletModel);
+    daoPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     requestPaymentPage->setModel(walletModel);
     requestPaymentPage->showQR();
@@ -186,27 +190,31 @@ void WalletView::gotoOverviewPage()
 {
     setCurrentWidget(overviewPage);
     overviewPage->updateStakeReportNow();
+    daoPage->setActive(false);
 }
 
 void WalletView::gotoHistoryPage()
 {
     setCurrentWidget(transactionsPage);
+    daoPage->setActive(false);
 }
 
 void WalletView::gotoCommunityFundPage()
 {
     // Change to CommunityFund UI
-    setCurrentWidget(communityFundPage);
-    communityFundPage->refreshTab();
+    setCurrentWidget(daoPage);
+    daoPage->setActive(true);
 }
 
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(receiveCoinsPage);
+    daoPage->setActive(false);
 }
 
 void WalletView::gotoRequestPaymentPage(){
     setCurrentWidget(requestPaymentPage);
+    daoPage->setActive(false);
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)
@@ -215,6 +223,8 @@ void WalletView::gotoSendCoinsPage(QString addr)
 
     if (!addr.isEmpty())
         sendCoinsPage->setAddress(addr);
+
+    daoPage->setActive(false);
 }
 
 void WalletView::setStatusTitleBlocks(QString text)
@@ -268,6 +278,8 @@ void WalletView::gotoSignMessageTab(QString addr)
 
     if (!addr.isEmpty())
         signVerifyMessageDialog->setAddress_SM(addr);
+
+    daoPage->setActive(false);
 }
 
 void WalletView::gotoVerifyMessageTab(QString addr)

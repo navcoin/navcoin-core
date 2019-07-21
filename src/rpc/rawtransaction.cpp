@@ -55,7 +55,9 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     out.pushKV("type", GetTxnOutputType(type));
 
     if (type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
-                 || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE)
+            || type == TX_PAYMENTREQUESTREMOVEVOTE || type == TX_PAYMENTREQUESTABSVOTE
+            || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE
+            || type == TX_PROPOSALABSVOTE || type == TX_PROPOSALREMOVEVOTE)
     {
         vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;
@@ -834,12 +836,12 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
     CMutableTransaction mergedTx(txVariants[0]);
 
     // Fetch previous transactions (inputs):
-    CCoinsView viewDummy;
-    CCoinsViewCache view(&viewDummy);
+    CStateView viewDummy;
+    CStateViewCache view(&viewDummy);
     {
         LOCK(mempool.cs);
-        CCoinsViewCache &viewChain = *pcoinsTip;
-        CCoinsViewMemPool viewMempool(&viewChain, mempool);
+        CStateViewCache &viewChain = *pcoinsTip;
+        CStateViewMemPool viewMempool(&viewChain, mempool);
         view.SetBackend(viewMempool); // temporarily switch cache backend to db+mempool view
 
         BOOST_FOREACH(const CTxIn& txin, mergedTx.vin) {
@@ -1044,7 +1046,7 @@ UniValue sendrawtransaction(const UniValue& params, bool fHelp)
     if (params.size() > 1 && params[1].get_bool())
         nMaxRawTxFee = 0;
 
-    CCoinsViewCache &view = *pcoinsTip;
+    CStateViewCache &view = *pcoinsTip;
     const CCoins* existingCoins = view.AccessCoins(hashTx);
     bool fHaveMempool = mempool.exists(hashTx);
     bool fHaveChain = existingCoins && existingCoins->nHeight < 1000000000;

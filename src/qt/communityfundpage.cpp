@@ -20,8 +20,8 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     ui(new Ui::CommunityFundPage),
     clientModel(0),
     walletModel(0),
-    flag(CFund::NIL),
-    viewing_proposals(true),
+    flag(DAOFlags::NIL),
+    viewing_proposals(1),
     viewing_voted(false),
     viewing_unvoted(false)
 {
@@ -32,10 +32,12 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 
     connect(ui->pushButtonProposals, SIGNAL(clicked()), this, SLOT(click_pushButtonProposals()));
     connect(ui->pushButtonPaymentRequests, SIGNAL(clicked()), this, SLOT(click_pushButtonPaymentRequests()));
+    connect(ui->pushButtonConsultations, SIGNAL(clicked()), this, SLOT(click_pushButtonConsultations()));
 
     // Enable selection of pushButtonProposals by default
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     // Connect push buttons to functions
     connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(click_radioButtonAll()));
@@ -55,7 +57,7 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
 void CommunityFundPage::setWalletModel(WalletModel *model)
 {
     this->walletModel = model;
-    flag = CFund::NIL;
+    flag = DAOFlags::NIL;
     viewing_voted = false;
     viewing_unvoted = true;
     refresh(false, true);
@@ -102,7 +104,7 @@ void CommunityFundPage::append(QWidget* widget)
     ui->gridLayout->addWidget(widget, row, column);
 }
 
-void CommunityFundPage::refresh(bool all, bool proposal)
+void CommunityFundPage::refresh(bool all, int proposal)
 {
     reset();
 
@@ -124,12 +126,12 @@ void CommunityFundPage::refresh(bool all, bool proposal)
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
-                CFund::CPaymentRequest prequest;
+                CPaymentRequest prequest;
 
                 if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                     continue;
 
-                if(prequest.fState == CFund::ACCEPTED)
+                if(prequest.fState == DAOFlags::ACCEPTED)
                 {
                     spent_nav = spent_nav + prequest.nAmount;
                 }
@@ -141,15 +143,15 @@ void CommunityFundPage::refresh(bool all, bool proposal)
         }
     }
 
-    // Propulate proposal grid
-    if (proposal) {
+    if (proposal == 1)
+    {
         CProposalMap mapProposals;
 
         if(pcoinsTip->GetAllProposals(mapProposals))
         {
             for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
             {
-                CFund::CProposal proposal;
+                CProposal proposal;
                 if (!pcoinsTip->GetProposal(it->first, proposal))
                     continue;
 
@@ -161,11 +163,11 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                     // If the filter is set to my vote, filter to only pending proposals which have been voted for
                     if (viewing_voted)
                     {
-                        if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+                        if (proposal.fState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
                         {
-                            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-                            if (it != vAddedProposalVotes.end())
+                            auto it = mapAddedVotes.find(proposal.hash);
+
+                            if (it != mapAddedVotes.end())
                             {
                                 append(new CommunityFundDisplay(0, proposal));
                             } else
@@ -181,11 +183,11 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                     // If the filter is set to no vote, filter to only pending proposals which have been not been voted for yet
                     else if (viewing_unvoted)
                     {
-                        if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+                        if (proposal.fState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
                         {
-                            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-                            if (it != vAddedProposalVotes.end())
+                            auto it = mapAddedVotes.find(proposal.hash);
+
+                            if (it != mapAddedVotes.end())
                             {
                                 continue;
                             } else
@@ -201,22 +203,22 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                     else
                     {
                         // If the flag is expired, be sure to display proposals without the expired state if they have expired before the end of the voting cycle
-                        if (proposal.fState != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == CFund::EXPIRED)
+                        if (proposal.fState != DAOFlags::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == DAOFlags::EXPIRED)
                         {
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // If the proposal is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
-                        if (flag == CFund::ACCEPTED && proposal.fState != CFund::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) {
+                        if (flag == DAOFlags::ACCEPTED && proposal.fState != DAOFlags::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) {
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // If the proposal is rejected and waiting for funds or the end of the voting cycle, show in the rejected filter
-                        if (flag == CFund::REJECTED && proposal.fState != CFund::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos) {
+                        if (flag == DAOFlags::REJECTED && proposal.fState != DAOFlags::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos) {
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // Display proposals with the appropriate flag and have not expired before the voting cycle has ended
-                        if (proposal.fState != flag || ((flag != CFund::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) ||
-                                                        (flag != CFund::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) ||
-                                                         (flag != CFund::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos)))
+                        if (proposal.fState != flag || ((flag != DAOFlags::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) ||
+                                                        (flag != DAOFlags::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) ||
+                                                         (flag != DAOFlags::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos)))
                             continue;
                         append(new CommunityFundDisplay(0, proposal));
                     }
@@ -224,7 +226,7 @@ void CommunityFundPage::refresh(bool all, bool proposal)
             }
         }
     }
-    else
+    else if (proposal == 0)
     { //Payment request listings
         CPaymentRequestMap mapPaymentRequests;
 
@@ -232,7 +234,7 @@ void CommunityFundPage::refresh(bool all, bool proposal)
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
-                CFund::CPaymentRequest prequest;
+                CPaymentRequest prequest;
 
                 if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                     continue;
@@ -247,14 +249,14 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                     // If the filter is set to my vote, filter to only pending prequests which have been voted for
                     if (viewing_voted)
                     {
-                        if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos)
+                        if (prequest.fState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
                         {
-                            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
-                            if (it != vAddedPaymentRequestVotes.end())
+                            auto it = mapAddedVotes.find(prequest.hash);
+                            if (it != mapAddedVotes.end())
                             {
                                 append(new CommunityFundDisplayPaymentRequest(0, prequest));
-                            } else
+                            }
+                            else
                             {
                                 continue;
                             }
@@ -267,11 +269,10 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                     // If the filter is set to no vote, filter to only pending prequests which have not been voted for yet
                     else if (viewing_unvoted)
                     {
-                        if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos)
+                        if (prequest.fState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
                         {
-                            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
-                            if (it != vAddedPaymentRequestVotes.end())
+                            auto it = mapAddedVotes.find(prequest.hash);
+                            if (it != mapAddedVotes.end())
                             {
                                 continue;
                             } else
@@ -287,22 +288,22 @@ void CommunityFundPage::refresh(bool all, bool proposal)
                     else
                     {
                         // If the flag is expired, be sure to display prequests without the expired state if they have expired before the end of the voting cycle
-                        if (prequest.fState != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos && flag == CFund::EXPIRED)
+                        if (prequest.fState != DAOFlags::EXPIRED && prequest.GetState().find("expired") != string::npos && flag == DAOFlags::EXPIRED)
                         {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // If the prequest is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
-                        if (flag == CFund::ACCEPTED && prequest.fState != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos) {
+                        if (flag == DAOFlags::ACCEPTED && prequest.fState != DAOFlags::ACCEPTED && prequest.GetState().find("accepted") != string::npos) {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // If the prequest is rejected and waiting for funds or the end of the voting cycle, show in the rejected filter
-                        if (flag == CFund::REJECTED && prequest.fState != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos) {
+                        if (flag == DAOFlags::REJECTED && prequest.fState != DAOFlags::REJECTED && prequest.GetState().find("rejected") != string::npos) {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // Display prequests with the appropriate flag and have not expired before the voting cycle has ended
-                        if (prequest.fState != flag || ((flag != CFund::EXPIRED && prequest.GetState().find("expired") != string::npos) ||
-                                                        (flag != CFund::ACCEPTED && prequest.GetState().find("accepted") != string::npos) ||
-                                                        (flag != CFund::REJECTED && prequest.GetState().find("rejected") != string::npos)))
+                        if (prequest.fState != flag || ((flag != DAOFlags::EXPIRED && prequest.GetState().find("expired") != string::npos) ||
+                                                        (flag != DAOFlags::ACCEPTED && prequest.GetState().find("accepted") != string::npos) ||
+                                                        (flag != DAOFlags::REJECTED && prequest.GetState().find("rejected") != string::npos)))
                             continue;
                         append(new CommunityFundDisplayPaymentRequest(0, prequest));
                     }
@@ -318,12 +319,14 @@ void CommunityFundPage::click_pushButtonProposals()
 
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
+    ui->pushButtonConsultations->setFont(f);
 
-    viewing_proposals = true;
+    viewing_proposals = 1;
     refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
@@ -333,18 +336,38 @@ void CommunityFundPage::click_pushButtonPaymentRequests()
 
     ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
     ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
 
     QFont f(font.family(), font.pointSize(), QFont::Bold);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
+    ui->pushButtonConsultations->setFont(f);
 
-    viewing_proposals = false;
+
+    viewing_proposals = 0;
+    refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
+}
+
+void CommunityFundPage::click_pushButtonConsultations()
+{
+    QFont font = ui->pushButtonConsultations->property("font").value<QFont>();
+
+    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonConsultations->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
+
+    QFont f(font.family(), font.pointSize(), QFont::Bold);
+    ui->pushButtonProposals->setFont(f);
+    ui->pushButtonPaymentRequests->setFont(f);
+    ui->pushButtonConsultations->setFont(f);
+
+    viewing_proposals = 2;
     refresh(ui->radioButtonAll->isChecked(), viewing_proposals);
 }
 
 void CommunityFundPage::click_radioButtonAll()
 {
-    flag = CFund::NIL;
+    flag = DAOFlags::NIL;
     viewing_voted = false;
     viewing_unvoted = false;
     refresh(true, viewing_proposals);
@@ -352,7 +375,7 @@ void CommunityFundPage::click_radioButtonAll()
 
 void CommunityFundPage::click_radioButtonYourVote()
 {
-    flag = CFund::NIL;
+    flag = DAOFlags::NIL;
     viewing_voted = true;
     viewing_unvoted = false;
     refresh(false, viewing_proposals);
@@ -360,7 +383,7 @@ void CommunityFundPage::click_radioButtonYourVote()
 
 void CommunityFundPage::click_radioButtonPending()
 {
-    flag = CFund::NIL;
+    flag = DAOFlags::NIL;
     viewing_voted = false;
     viewing_unvoted = false;
     refresh(false, viewing_proposals);
@@ -368,7 +391,7 @@ void CommunityFundPage::click_radioButtonPending()
 
 void CommunityFundPage::click_radioButtonAccepted()
 {
-    flag = CFund::ACCEPTED;
+    flag = DAOFlags::ACCEPTED;
     viewing_voted = false;
     viewing_unvoted = false;
     refresh(false, viewing_proposals);
@@ -376,7 +399,7 @@ void CommunityFundPage::click_radioButtonAccepted()
 
 void CommunityFundPage::click_radioButtonRejected()
 {
-    flag = CFund::REJECTED;
+    flag = DAOFlags::REJECTED;
     viewing_voted = false;
     viewing_unvoted = false;
     refresh(false, viewing_proposals);
@@ -384,7 +407,7 @@ void CommunityFundPage::click_radioButtonRejected()
 
 void CommunityFundPage::click_radioButtonExpired()
 {
-    flag = CFund::EXPIRED;
+    flag = DAOFlags::EXPIRED;
     viewing_voted = false;
     viewing_unvoted = false;
     refresh(false, viewing_proposals);
@@ -408,7 +431,7 @@ void CommunityFundPage::click_pushButtonCreatePaymentRequest()
 
 void CommunityFundPage::click_radioButtonNoVote()
 {
-    flag = CFund::NIL;
+    flag = DAOFlags::NIL;
     viewing_voted = false;
     viewing_unvoted = true;
     refresh(false, viewing_proposals);

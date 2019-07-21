@@ -26,7 +26,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].donatefund(100)
 
         # Create a proposal and accept by voting
-        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 3600, "test")["hash"]        
+        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 3600, "test")["hash"]
         locked_before = self.nodes[0].cfundstats()["funds"]["locked"]
         end_cycle(self.nodes[0])
 
@@ -64,7 +64,9 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid0, "yes")
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].paymentrequestvote(paymentrequestid0, "no")
-        slow_gen(self.nodes[0], total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 2)
+        self.nodes[0].paymentrequestvote(paymentrequestid0, "abs")
+        slow_gen(self.nodes[0], 2)
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
         # Should still be in pending
@@ -90,7 +92,9 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid0, "yes")
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].paymentrequestvote(paymentrequestid0, "no")
-        slow_gen(self.nodes[0], total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 4)
+        self.nodes[0].paymentrequestvote(paymentrequestid0, "abs")
+        slow_gen(self.nodes[0], 4)
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
@@ -114,7 +118,9 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid0, "yes")
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].paymentrequestvote(paymentrequestid0, "no")
-        blocks = slow_gen(self.nodes[0], total_votes - yes_votes)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 4)
+        self.nodes[0].paymentrequestvote(paymentrequestid0, "abs")
+        blocks = slow_gen(self.nodes[0], 4)
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
@@ -177,7 +183,10 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].paymentrequestvote(paymentrequestid1, "no")
         self.nodes[0].paymentrequestvote(paymentrequestid2, "no")
-        blocks = slow_gen(self.nodes[0], total_votes - yes_votes)
+        blocks = slow_gen(self.nodes[0], total_votes - yes_votes - 5)
+        self.nodes[0].paymentrequestvote(paymentrequestid1, "abs")
+        self.nodes[0].paymentrequestvote(paymentrequestid2, "abs")
+        blocks = slow_gen(self.nodes[0], 5)
         self.nodes[0].paymentrequestvote(paymentrequestid1, "remove")
         self.nodes[0].paymentrequestvote(paymentrequestid2, "remove")
 

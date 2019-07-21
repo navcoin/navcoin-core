@@ -146,6 +146,11 @@ const char* GetOpName(opcodetype opcode)
     case OP_PREQ                   : return "OP_PREQ";
     case OP_YES                    : return "OP_YES";
     case OP_NO                     : return "OP_NO";
+    case OP_ABSTAIN                : return "OP_ABSTAIN";
+    case OP_REMOVE                 : return "OP_REMOVE";
+    case OP_DAO                    : return "OP_DAO";
+    case OP_ANSWER                 : return "OP_ANSWER";
+    case OP_CONSULTATION           : return "OP_CONSULTATION";
 
     case OP_COINSTAKE              : return "OP_COINSTAKE";
 
@@ -257,9 +262,64 @@ bool CScript::IsCommunityFundContribution() const
       (*this)[1] == OP_CFUND);
 }
 
+bool CScript::IsSupportVote() const
+{
+    return IsSupportVoteYes() || IsSupportVoteRemove();
+}
+
+bool CScript::IsConsultationVote() const
+{
+    return IsConsultationVoteAnswer() || IsConsultationVoteAbstention() || IsConsultationVoteRemove();
+}
+
+bool CScript::IsConsultationVoteAnswer() const
+{
+    return (this->size() >= 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CONSULTATION &&
+      (*this)[2] == OP_ANSWER &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsConsultationVoteAbstention() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CONSULTATION &&
+      (*this)[2] == OP_ABSTAIN &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsConsultationVoteRemove() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CONSULTATION &&
+      (*this)[2] == OP_REMOVE &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsSupportVoteYes() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_DAO &&
+      (*this)[2] == OP_YES &&
+      (*this)[3] == 0x20);
+}
+
+bool CScript::IsSupportVoteRemove() const
+{
+    return (this->size() == 36 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_DAO &&
+      (*this)[2] == OP_REMOVE &&
+      (*this)[3] == 0x20);
+}
+
 bool CScript::IsProposalVote() const
 {
-    return IsProposalVoteYes() || IsProposalVoteNo();
+    return IsProposalVoteYes() || IsProposalVoteNo() || IsProposalVoteAbs() || IsProposalVoteRemove();
 }
 
 bool CScript::IsProposalVoteYes() const
@@ -282,9 +342,29 @@ bool CScript::IsProposalVoteNo() const
       (*this)[4] == 0x20);
 }
 
+bool CScript::IsProposalVoteAbs() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_ABSTAIN &&
+      (*this)[4] == 0x20);
+}
+
+bool CScript::IsProposalVoteRemove() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PROP &&
+      (*this)[3] == OP_REMOVE &&
+      (*this)[4] == 0x20);
+}
+
 bool CScript::IsPaymentRequestVote() const
 {
-    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo();
+    return IsPaymentRequestVoteYes() || IsPaymentRequestVoteNo() || IsPaymentRequestVoteAbs() || IsPaymentRequestVoteRemove();
 }
 
 bool CScript::IsPaymentRequestVoteYes() const
@@ -307,6 +387,26 @@ bool CScript::IsPaymentRequestVoteNo() const
       (*this)[4] == 0x20);
 }
 
+bool CScript::IsPaymentRequestVoteAbs() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_ABSTAIN &&
+      (*this)[4] == 0x20);
+}
+
+bool CScript::IsPaymentRequestVoteRemove() const
+{
+    return (this->size() == 37 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND &&
+      (*this)[2] == OP_PREQ &&
+      (*this)[3] == OP_REMOVE &&
+      (*this)[4] == 0x20);
+}
+
 bool CScript::IsPool() const
 {
     return (this->size() == 2 &&
@@ -314,15 +414,65 @@ bool CScript::IsPool() const
       (*this)[1] == OP_POOL);
 }
 
-bool CScript::ExtractVote(uint256 &hash, bool &vote) const
+bool CScript::ExtractVote(uint256 &hash, int64_t &vote) const
 {
-    if(!IsPaymentRequestVoteNo() && !IsPaymentRequestVoteYes() && !IsProposalVoteYes()
-            && !IsProposalVoteNo())
+    if(!IsPaymentRequestVote() && !IsProposalVote())
         return false;
 
     vector<unsigned char> vHash(this->begin()+5, this->begin()+37);
     hash = uint256(vHash);
-    vote = (*this)[3] == OP_YES ? true : false;
+    vote = (*this)[3] == OP_YES ? 1 : 0;
+
+    if ((*this)[3] == OP_ABSTAIN)
+        vote = -1;
+
+    if ((*this)[3] == OP_REMOVE)
+        vote = -2;
+
+    return true;
+}
+
+bool CScript::ExtractSupportVote(uint256 &hash, int64_t &vote) const
+{
+    if (!IsSupportVote())
+        return false;
+
+    vector<unsigned char> vHash(this->begin()+4, this->begin()+36);
+    hash = uint256(vHash);
+
+    vote = 0;
+
+    if ((*this)[2] == OP_REMOVE)
+        vote = -4;
+
+    if ((*this)[2] == OP_YES)
+        vote = -3;
+
+    return true;
+}
+
+bool CScript::ExtractConsultationVote(uint256 &hash, int64_t &vote) const
+{
+    if (!IsConsultationVote())
+        return false;
+
+    vector<unsigned char> vHash(this->begin()+4, this->begin()+36);
+    hash = uint256(vHash);
+
+    vote = 0;
+
+    if ((*this)[2] == OP_REMOVE)
+        vote = -6;
+
+    else if ((*this)[2] == OP_ABSTAIN)
+        vote = -5;
+
+    else if (this->size() > 36)
+    {
+        vector<unsigned char> vVote(this->begin()+37, this->end());
+        CScriptNum nVote(vVote, false);
+        vote = nVote.getint();
+    }
 
     return true;
 }

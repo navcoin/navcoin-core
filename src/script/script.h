@@ -185,6 +185,11 @@ enum opcodetype
     OP_PREQ = 0xc3,
     OP_YES = 0xc4,
     OP_NO = 0xc5,
+    OP_ABSTAIN = 0xc7,
+    OP_REMOVE = 0xc8,
+    OP_DAO = 0xc9,
+    OP_ANSWER = 0xca,
+    OP_CONSULTATION = 0xcb,
 
     OP_COINSTAKE = 0xc6,
 
@@ -687,12 +692,26 @@ public:
     bool IsCommunityFundContribution() const;
     bool IsProposalVote() const;
     bool IsProposalVoteYes() const;
+    bool IsProposalVoteAbs() const;
+    bool IsProposalVoteRemove() const;
     bool IsProposalVoteNo() const;
     bool IsPaymentRequestVote() const;
     bool IsPaymentRequestVoteYes() const;
+    bool IsPaymentRequestVoteAbs() const;
+    bool IsPaymentRequestVoteRemove() const;
     bool IsPaymentRequestVoteNo() const;
+    bool IsSupportVote() const;
+    bool IsSupportVoteYes() const;
+    bool IsSupportVoteRemove() const;
+    bool IsConsultationVote() const;
+    bool IsConsultationVoteAnswer() const;
+    bool IsConsultationVoteAbstention() const;
+    bool IsConsultationVoteRemove() const;
+
     bool IsPool() const;
-    bool ExtractVote(uint256 &hash, bool &vote) const;
+    bool ExtractVote(uint256 &hash, int64_t &vote) const;
+    bool ExtractSupportVote(uint256 &hash, int64_t &vote) const;
+    bool ExtractConsultationVote(uint256 &hash, int64_t &vote) const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;

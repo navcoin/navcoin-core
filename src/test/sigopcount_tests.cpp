@@ -84,7 +84,7 @@ ScriptError VerifyWithFlag(const CTransaction& output, const CMutableTransaction
  * and witness such that spendingTx spends output zero of creationTx.
  * Also inserts creationTx's output into the coins view.
  */
-void BuildTxs(CMutableTransaction& spendingTx, CCoinsViewCache& coins, CMutableTransaction& creationTx, const CScript& scriptPubKey, const CScript& scriptSig, const CTxInWitness& witness)
+void BuildTxs(CMutableTransaction& spendingTx, CStateViewCache& coins, CMutableTransaction& creationTx, const CScript& scriptPubKey, const CScript& scriptSig, const CTxInWitness& witness)
 {
     creationTx.nVersion = 1;
     creationTx.vin.resize(1);
@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE(GetTxSigOpCost)
     CMutableTransaction spendingTx;
 
     // Create utxo set
-    CCoinsView coinsDummy;
-    CCoinsViewCache coins(&coinsDummy);
+    CStateView coinsDummy;
+    CStateViewCache coins(&coinsDummy);
     // Create key
     CKey key;
     key.MakeNewKey(true);

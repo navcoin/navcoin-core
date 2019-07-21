@@ -6,13 +6,13 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include "consensus/cfund.h"
+#include "consensus/dao.h"
 #include "main.h"
 #include "base58.h"
 #include "chain.h"
 
 
-SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CProposal* proposal, int secDelay) :
+SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* proposal, int secDelay) :
     QDialog(parent),
     ui(new Ui::SendCommunityFundDialog),
     proposal(proposal),
@@ -57,12 +57,12 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPropos
     ui->labelDescription->setText(QString::fromStdString(finalDescription));
     ui->labelDuration->setText(GUIUtil::formatDurationStr(int(proposal->nDeadline)));
 
-    string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
-    string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
+    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE));
+    string warning = tr("By submitting the proposal a %1 NAV deduction will occur from your wallet ").arg(QString::fromStdString(fee)).toStdString();
     ui->labelWarning->setText(QString::fromStdString(warning));
 }
 
-SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymentRequest* prequest, int secDelay) :
+SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CPaymentRequest* prequest, int secDelay) :
     QDialog(parent),
     ui(new Ui::SendCommunityFundDialog),
     proposal(0),
@@ -71,7 +71,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
 {
     ui->setupUi(this);
 
-    QDialog::setWindowTitle("Confirm Payment Request Details");
+    QDialog::setWindowTitle(tr("Confirm Payment Request Details"));
 
     ui->pushButtonCancel->setDefault(true);
     updateYesButton();
@@ -81,7 +81,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CFund::CPaymen
     connect(ui->pushButtonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 
     // Set UI elements to payment request view
-    ui->labelQuestionTitle->setText(QString("Are you sure you would like to create the following payment request?"));
+    ui->labelQuestionTitle->setText(QString(tr("Are you sure you would like to create the following payment request?")));
     ui->labelAddressTitle->setVisible(false);
     ui->labelAddress->setVisible(false);
     ui->labelDurationTitle->setVisible(false);

@@ -12,7 +12,7 @@
 
 #include <string>
 
-class CCoinsViewCache;
+class CStateViewCache;
 
 /** Default for -blockmaxsize, which controls the maximum size of block the mining code will create **/
 static const unsigned int DEFAULT_BLOCK_MAX_SIZE = 750000;
@@ -66,7 +66,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnes
      * @param[in] mapInputs    Map of previous transactions that have outputs we're spending
      * @return True if all inputs (scriptSigs) use only standard transaction forms
      */
-bool AreInputsStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs);
+bool AreInputsStandard(const CTransaction& tx, const CStateViewCache& mapInputs);
 
 extern unsigned int nBytesPerSigOp;
 

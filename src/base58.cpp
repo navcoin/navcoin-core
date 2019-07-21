@@ -227,7 +227,7 @@ public:
     CNavCoinAddressVisitor(CNavCoinAddress* addrIn) : addr(addrIn) {}
 
     bool operator()(const CKeyID& id) const { return addr->Set(id); }
-    bool operator()(const pair<CKeyID, CKeyID>& id) const { return addr->Set(id.first, id.second); }
+    bool operator()(const std::pair<CKeyID, CKeyID>& id) const { return addr->Set(id.first, id.second); }
     bool operator()(const CScriptID& id) const { return addr->Set(id); }
     bool operator()(const CNoDestination& no) const { return false; }
 };
@@ -306,7 +306,7 @@ CTxDestination CNavCoinAddress::Get() const
     if (vchVersion == Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS)) {
         uint160 id2;
         memcpy(&id2, &vchData[20], 20);
-        return make_pair(CKeyID(id), CKeyID(id2));
+        return std::make_pair(CKeyID(id), CKeyID(id2));
     } if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return CKeyID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))

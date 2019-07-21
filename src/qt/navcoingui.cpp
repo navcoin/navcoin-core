@@ -1810,14 +1810,18 @@ void NavCoinGUI::updateStakingStatus()
                 {
                     for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
                     {
-                        CFund::CProposal proposal;
+                        CProposal proposal;
+
                         if (!pcoinsTip->GetProposal(it_->first, proposal))
                             continue;
-                        if (proposal.fState != CFund::NIL)
+
+                        if (proposal.fState != DAOFlags::NIL)
                             continue;
-                        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                                [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-                        if (it == vAddedProposalVotes.end()) {
+
+                        auto it = mapAddedVotes.find(proposal.hash);
+
+                        if (it != mapAddedVotes.end())
+                        {
                             fFoundProposal = true;
                             break;
                         }
@@ -1831,16 +1835,18 @@ void NavCoinGUI::updateStakingStatus()
                 {
                     for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
                     {
-                        CFund::CPaymentRequest prequest;
+                        CPaymentRequest prequest;
 
                         if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                             continue;
 
-                        if (prequest.fState != CFund::NIL)
+                        if (prequest.fState != DAOFlags::NIL)
                             continue;
-                        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                                [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-                        if (it == vAddedPaymentRequestVotes.end()) {
+
+                        auto it = mapAddedVotes.find(prequest.hash);
+
+                        if (it != mapAddedVotes.end())
+                        {
                             fFoundPaymentRequest = true;
                             break;
                         }

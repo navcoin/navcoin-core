@@ -1,7 +1,7 @@
 #ifndef COMMUNITYFUNDDISPLAY_H
 #define COMMUNITYFUNDDISPLAY_H
 
-#include "consensus/cfund.h"
+#include "consensus/dao.h"
 #include "wallet/wallet.h"
 #include <QWidget>
 #include <QAbstractButton>
@@ -15,12 +15,12 @@ class CommunityFundDisplay : public QWidget
     Q_OBJECT
 
 public:
-    CommunityFundDisplay(QWidget *parent = 0, CFund::CProposal proposal = CFund::CProposal());
+    CommunityFundDisplay(QWidget *parent = 0, CProposal proposal = CProposal());
     ~CommunityFundDisplay();
 
 private:
     Ui::CommunityFundDisplay *ui;
-    CFund::CProposal proposal;
+    CProposal proposal;
     CWallet *wallet;
     void refresh();
 
