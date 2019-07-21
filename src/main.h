@@ -163,6 +163,9 @@ static const bool DEFAULT_HEADER_SPAM_FILTER = true;
 static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = 50;
 /** Default for -headerspamfiltermaxavg, maximum average size of an index occurrence in the header spam filter */
 static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
+/** Default for -headerspamfilterignoreport, ignore the port in the ip address when looking for header spam,
+ multiple nodes on the same ip will be treated as the one when computing the filter*/
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT = true;
 
 /** Maximum number of headers to announce when relaying blocks with headers message.*/
 static const unsigned int MAX_BLOCKS_TO_ANNOUNCE = 8;

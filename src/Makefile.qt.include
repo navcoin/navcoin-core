@@ -96,6 +96,7 @@ QT_FORMS_UI = \
 	qt/forms/editaddressdialog.ui \
 	qt/forms/helpmessagedialog.ui \
 	qt/forms/intro.ui \
+	qt/forms/modaloverlay.ui \
 	qt/forms/openuridialog.ui \
 	qt/forms/optionsdialog.ui \
 	qt/forms/overviewpage.ui \
@@ -137,6 +138,7 @@ QT_MOC_CPP = \
 	qt/moc_editaddressdialog.cpp \
 	qt/moc_guiutil.cpp \
 	qt/moc_intro.cpp \
+	qt/moc_modaloverlay.cpp \
 	qt/moc_macdockiconhandler.cpp \
 	qt/moc_macnotificationhandler.cpp \
 	qt/moc_navtechinit.cpp \
@@ -205,7 +207,7 @@ QT_MOC = \
 	qt/communityfunddisplaypaymentrequestdetailed.moc \
 	qt/communityfunddisplaydetailed.moc \
 	qt/communityfundcreateproposaldialog.moc \
-  qt/communityfundcreatepaymentrequestdialog.moc
+        qt/communityfundcreatepaymentrequestdialog.moc
 
 QT_QRC_CPP = qt/qrc_navcoin.cpp
 QT_QRC = qt/navcoin.qrc
@@ -241,6 +243,7 @@ NAVCOIN_QT_H = \
 	qt/navtechitem.h \
 	qt/navtechsetup.h \
 	qt/getaddresstoreceive.h \
+	qt/modaloverlay.h \
 	qt/networkstyle.h \
 	qt/notificator.h \
 	qt/openuridialog.h \
@@ -417,6 +420,7 @@ NAVCOIN_QT_CPP += \
 	qt/coincontroltreewidget.cpp \
 	qt/coldstakingwizard.cpp \
 	qt/editaddressdialog.cpp \
+	qt/modaloverlay.cpp \
 	qt/openuridialog.cpp \
 	qt/overviewpage.cpp \
 	qt/communityfundpage.cpp \
@@ -453,7 +457,7 @@ NAVCOIN_QT_CPP += \
   qt/daosupport.cpp
 endif # ENABLE_WALLET
 
-RES_IMAGES = 
+RES_IMAGES =
 
 RES_MOVIES = $(wildcard qt/res/movies/spinner-*.png)
 

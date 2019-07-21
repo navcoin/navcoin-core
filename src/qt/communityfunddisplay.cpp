@@ -47,7 +47,7 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CProposal proposal) 
 }
 
 void CommunityFundDisplay::refresh()
-{    
+{
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
@@ -202,6 +202,7 @@ void CommunityFundDisplay::refresh()
 
 void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
 {
+    // Make sure we have a lock when voting
     LOCK(cs_main);
 
     // Cast the vote

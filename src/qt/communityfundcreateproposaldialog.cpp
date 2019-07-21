@@ -143,11 +143,11 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
-        strDZeel.push_back(Pair("n",nReqAmount));
-        strDZeel.push_back(Pair("a",Address));
-        strDZeel.push_back(Pair("d",nDeadline));
-        strDZeel.push_back(Pair("s",sDesc));
-        strDZeel.push_back(Pair("v",nVersion));
+        strDZeel.pushKV("n",nReqAmount);
+        strDZeel.pushKV("a",Address);
+        strDZeel.pushKV("d",nDeadline);
+        strDZeel.pushKV("s",sDesc);
+        strDZeel.pushKV("v",nVersion);
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -245,7 +245,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                     return;
                 }
             }
-        }      
+        }
     }
     else
     {

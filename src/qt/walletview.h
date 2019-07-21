@@ -124,6 +124,9 @@ public Q_SLOTS:
     /** Show progress dialog e.g. for rescan */
     void showProgress(const QString &title, int nProgress);
 
+    /** User has requested more information about the out of sync state */
+    void requestedSyncWarningInfo();
+
     void setStatusTitleBlocks(QString text);
 
     void setStatusTitleConnections(QString text);
@@ -151,6 +154,8 @@ Q_SIGNALS:
     void encryptionStatusChanged(int status);
     /** Notify that a new transaction appeared */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
+    /** Notify that the out of sync warning icon has been pressed */
+    void outOfSyncWarningClicked();
 
     void openAddressHistory();
 

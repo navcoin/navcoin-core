@@ -290,14 +290,20 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     qint64 coin = factor(unit);
     int num_decimals = decimals(unit);
     qint64 n_abs = (n > 0 ? n : -n);
-    double quotient;
+    double quotient = 0;
+    double quotientD = 0;
     qint64 remainder;
 
-    quotient = n_abs / coin;
+    // Check if we have a coin
+    if (coin > 0)
+    {
+        quotient = n_abs / coin;
+        quotientD = (double) n_abs / (double) coin;
+    }
 
     std::ostringstream out;
     out << std::setprecision(num_decimals) << std::fixed
-        << std::showpoint << (double)n_abs / (double)coin;
+        << std::showpoint << quotientD;
     std::istringstream in(out.str());
     std::string wholePart;
     std::getline(in, wholePart, '.');

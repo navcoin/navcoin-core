@@ -222,7 +222,8 @@ static int DebugLogWriteStr(const std::string &str)
 static int ErrorLogWriteStr(const std::string &str)
 {
     // Return the int from the write size
-    return FileWriteStr(str, fileoutErrorLog); // write to error log
+    return FileWriteStr(str, fileoutDebugLog) + // write to debug log
+        FileWriteStr(str, fileoutErrorLog); // write to error log
 }
 
 static void DebugPrintInit()

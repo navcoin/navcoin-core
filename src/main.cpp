@@ -408,8 +408,6 @@ struct CNodeState {
     //! Whether this peer can give us witnesses
     bool fHaveWitness;
 
-    CNodeHeaders headers;
-
     CNodeState() {
         fCurrentlyConnected = false;
         nMisbehavior = 0;
@@ -434,6 +432,7 @@ struct CNodeState {
 
 /** Map maintaining per-node state. Requires cs_main. */
 map<NodeId, CNodeState> mapNodeState;
+map<CService, CNodeHeaders> mapServiceHeaders;
 
 // Requires cs_main.
 CNodeState *State(NodeId pnode) {
@@ -441,6 +440,26 @@ CNodeState *State(NodeId pnode) {
     if (it == mapNodeState.end())
         return NULL;
     return &it->second;
+}
+
+static CNodeHeaders &ServiceHeaders(const CService& address) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    unsigned short port =
+            GetBoolArg("-headerspamfilterignoreport", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT) ? 0 : address.GetPort();
+    CService addr(address, port);
+    return mapServiceHeaders[addr];
+}
+
+static void CleanAddressHeaders(const CAddress& addr) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    CSubNet subNet(addr);
+    for (std::map<CService, CNodeHeaders>::iterator it=mapServiceHeaders.begin(); it!=mapServiceHeaders.end();){
+        if(subNet.Match(it->first))
+        {
+            it = mapServiceHeaders.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
 }
 
 int GetHeight()
@@ -3265,6 +3284,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (pindex->IsProofOfStake())
         setStakeSeen.insert(make_pair(pindex->prevoutStake, pindex->nStakeTime));
 
+
     // Check proof of stake
     if (block.nBits != GetNextTargetRequired(pindex->pprev, block.IsProofOfStake())){
         return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake",pindex->pprev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
@@ -3279,17 +3299,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
         if (!CheckProofOfStake(pindex->pprev, block.vtx[1], block.nBits, hashProof, targetProofOfStake, NULL, false))
         {
-              return error("ContextualCheckBlock() : check proof-of-stake signature failed for block %s", block.GetHash().GetHex());
+              return error("ConnectBlock() : check proof-of-stake signature failed for block %s", block.GetHash().GetHex());
         }
     }
 
     if (block.IsProofOfWork())
-    {
         hashProof = UintToArith256(block.GetPoWHash());
-    }
 
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
-        return state.DoS(1,error("ContextualCheckBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
+        return state.DoS(1,error("ConnectBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
 
     // Record proof hash value
     pindex->hashProof = hashProof;
@@ -3297,7 +3315,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
     if (!ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier))
-        return state.DoS(1, error("ContextualCheckBlock() : ComputeNextStakeModifier() failed"), REJECT_INVALID, "bad-stake-modifier");
+        return state.DoS(1, error("ConnectBlock() : ComputeNextStakeModifier() failed"), REJECT_INVALID, "bad-stake-modifier");
 
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
 
@@ -4662,21 +4680,17 @@ static void NotifyHeaderTip() {
     bool fNotify = false;
     bool fInitialBlockDownload = false;
     static CBlockIndex* pindexHeaderOld = NULL;
-    CBlockIndex* pindexHeader = NULL;
     {
         LOCK(cs_main);
-        if (!setBlockIndexCandidates.empty()) {
-            pindexHeader = *setBlockIndexCandidates.rbegin();
-        }
-        if (pindexHeader != pindexHeaderOld) {
+        if (pindexBestHeader != pindexHeaderOld) {
             fNotify = true;
             fInitialBlockDownload = IsInitialBlockDownload();
-            pindexHeaderOld = pindexHeader;
+            pindexHeaderOld = pindexBestHeader;
         }
     }
     // Send block tip changed notifications without cs_main
     if (fNotify) {
-        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexHeader);
+        uiInterface.NotifyHeaderTip(fInitialBlockDownload, pindexBestHeader);
     }
 }
 
@@ -4845,8 +4859,6 @@ bool ResetBlockFailureFlags(CBlockIndex *pindex) {
 
 CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
 {
-
-
     // Check for duplicate
     uint256 hash = block.GetHash();
     BlockMap::iterator it = mapBlockIndex.find(hash);
@@ -6625,7 +6637,7 @@ std::string GetWarnings(const std::string& strFor, bool fForStaking)
             strGUI = _(strRPC.c_str());
         }
 
-        if (!pwalletMain->GetStakeWeight()) 
+        if (!pwalletMain->GetStakeWeight())
         {
             strStatusBar = strRPC = "Warning: We don't appear to have mature coins.";
             strGUI = _(strRPC.c_str());
@@ -7877,9 +7889,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             LOCK(cs_main);
             CValidationState state;
             CNodeState *nodestate = State(pfrom->GetId());
-            nodestate->headers.addHeaders(nFirst, nLast);
+            CNodeHeaders& headers = ServiceHeaders(nodestate->address);
+            headers.addHeaders(nFirst, nLast);
             int nDoS;
-            ret = nodestate->headers.updateState(state, ret);
+            ret = headers.updateState(state, ret);
             if (state.IsInvalid(nDoS)) {
                 if (nDoS > 0)
                     Misbehaving(pfrom->GetId(), nDoS);
@@ -8458,6 +8471,8 @@ bool SendMessages(CNode* pto)
                 else
                 {
                     CNode::Ban(pto->addr, BanReasonNodeMisbehaving);
+                    // Remove all data from the header spam filter when the address is banned
+                    CleanAddressHeaders(pto->addr);
                 }
             }
             state.fShouldBan = false;

@@ -233,12 +233,12 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
-        strDZeel.push_back(Pair("h",ui->comboBoxProposalHash->currentData().toString().toStdString()));
-        strDZeel.push_back(Pair("n",nReqAmount));
-        strDZeel.push_back(Pair("s",Signature));
-        strDZeel.push_back(Pair("r",sRandom));
-        strDZeel.push_back(Pair("i",id));
-        strDZeel.push_back(Pair("v",nVersion));
+        strDZeel.pushKV("h",ui->comboBoxProposalHash->currentData().toString().toStdString()));
+        strDZeel.pushKV("n",nReqAmount);
+        strDZeel.pushKV("s",Signature);
+        strDZeel.pushKV("r",sRandom);
+        strDZeel.pushKV("i",id);
+        strDZeel.pushKV("v",nVersion);
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
