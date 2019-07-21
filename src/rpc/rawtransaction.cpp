@@ -57,7 +57,9 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     if (type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
             || type == TX_PAYMENTREQUESTREMOVEVOTE || type == TX_PAYMENTREQUESTABSVOTE
             || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE
-            || type == TX_PROPOSALABSVOTE || type == TX_PROPOSALREMOVEVOTE)
+            || type == TX_PROPOSALABSVOTE || type == TX_PROPOSALREMOVEVOTE
+            || type == TX_DAOSUPPORT || type == TX_DAOSUPPORTREMOVE || type == TX_CONSULTATIONVOTE
+            || type == TX_CONSULTATIONVOTEABSTENTION || type == TX_CONSULTATIONVOTEREMOVE)
     {
         vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;
@@ -65,6 +67,13 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
         if (Solver(scriptPubKey, whichType, vSolutions))
         {
             out.pushKV("hash", uint256(vSolutions[0]).ToString());
+        }
+
+        if (vSolutions.size() > 1)
+        {
+            CScriptNum nVote(vSolutions[1], false);
+            int vote = nVote.getint();
+            out.pushKV("value",vote);
         }
     }
     else

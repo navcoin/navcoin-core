@@ -1222,18 +1222,18 @@ std::string CConsultation::ToString(CBlockIndex* pindex) const {
 
 void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
 {
-    ret.push_back(Pair("version",(uint64_t)nVersion));
-    ret.push_back(Pair("hash", hash.ToString()));
-    ret.push_back(Pair("blockhash", txblockhash.ToString()));
-    ret.push_back(Pair("question", strDZeel));
-    ret.push_back(Pair("support", nSupport));
+    ret.pushKV("version",(uint64_t)nVersion);
+    ret.pushKV("hash", hash.ToString());
+    ret.pushKV("blockhash", txblockhash.ToString());
+    ret.pushKV("question", strDZeel);
+    ret.pushKV("support", nSupport);
     UniValue answers(UniValue::VARR);
     if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
     {
         UniValue a(UniValue::VOBJ);
         for (auto &it: mapVotes)
         {
-            a.push_back(make_pair(it.first == (uint64_t)-5 ? "abstain" : to_string(it.first), it.second));
+            a.pushKV(it.first == (uint64_t)-5 ? "abstain" : to_string(it.first), it.second);
         }
         answers.push_back(a);
     }
@@ -1242,7 +1242,7 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
         if (mapVotes.count((uint64_t)-5) != 0)
         {
             UniValue a(UniValue::VOBJ);
-            a.push_back(make_pair("abstain", mapVotes.at((uint64_t)-5)));
+            a.pushKV("abstain", mapVotes.at((uint64_t)-5));
             answers.push_back(a);
         }
         CConsultationAnswerMap mapConsultationAnswers;
@@ -1264,13 +1264,13 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
             }
         }
     }
-    ret.push_back(Pair("answers", answers));
-    ret.push_back(Pair("min", nMin));
-    ret.push_back(Pair("max", nMax));
-    ret.push_back(Pair("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES))));
-    ret.push_back(Pair("status", GetState(chainActive.Tip())));
-    ret.push_back(Pair("state", (uint64_t)fState));
-    ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
+    ret.pushKV("answers", answers);
+    ret.pushKV("min", nMin);
+    ret.pushKV("max", nMax);
+    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES)));
+    ret.pushKV("status", GetState(chainActive.Tip()));
+    ret.pushKV("state", (uint64_t)fState);
+    ret.pushKV("stateChangedOnBlock", blockhash.ToString());
 }
 
 bool CConsultation::IsExpired(CBlockIndex* pindex) const
@@ -1394,15 +1394,15 @@ std::string CConsultationAnswer::ToString() const {
 }
 
 void CConsultationAnswer::ToJson(UniValue& ret) const {
-    ret.push_back(Pair("version",(uint64_t)nVersion));
-    ret.push_back(Pair("string", sAnswer));
-    ret.push_back(Pair("support", nSupport));
-    ret.push_back(Pair("votes", nVotes));
-    ret.push_back(Pair("status", GetState()));
-    ret.push_back(Pair("state", fState));
-    ret.push_back(Pair("parent", parent.ToString()));
+    ret.pushKV("version",(uint64_t)nVersion);
+    ret.pushKV("string", sAnswer);
+    ret.pushKV("support", nSupport);
+    ret.pushKV("votes", nVotes);
+    ret.pushKV("status", GetState());
+    ret.pushKV("state", fState);
+    ret.pushKV("parent", parent.ToString());
     if (hash != uint256())
-        ret.push_back(Pair("hash", hash.ToString()));
+        ret.pushKV("hash", hash.ToString());
 }
 
 // CFUND
@@ -1792,32 +1792,32 @@ std::string CProposal::GetState(uint32_t currentTime) const {
 void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     AssertLockHeld(cs_main);
 
-    ret.push_back(Pair("version", (uint64_t)nVersion));
-    ret.push_back(Pair("hash", hash.ToString()));
-    ret.push_back(Pair("blockHash", txblockhash.ToString()));
-    ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
-    ret.push_back(Pair("notPaidYet", FormatMoney(GetAvailable(coins))));
-    ret.push_back(Pair("userPaidFee", FormatMoney(nFee)));
-    ret.push_back(Pair("paymentAddress", Address));
+    ret.pushKV("version", (uint64_t)nVersion);
+    ret.pushKV("hash", hash.ToString());
+    ret.pushKV("blockHash", txblockhash.ToString());
+    ret.pushKV("description", strDZeel);
+    ret.pushKV("requestedAmount", FormatMoney(nAmount));
+    ret.pushKV("notPaidYet", FormatMoney(GetAvailable(coins)));
+    ret.pushKV("userPaidFee", FormatMoney(nFee));
+    ret.pushKV("paymentAddress", Address);
     if(nVersion & BASE_VERSION) {
-        ret.push_back(Pair("proposalDuration", (uint64_t)nDeadline));
+        ret.pushKV("proposalDuration", (uint64_t)nDeadline);
         if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
             CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
-            ret.push_back(Pair("expiresOn", pBlockIndex->GetBlockTime() + (uint64_t)nDeadline));
+            ret.pushKV("expiresOn", pBlockIndex->GetBlockTime() + (uint64_t)nDeadline);
         }
     } else {
-        ret.push_back(Pair("expiresOn", (uint64_t)nDeadline));
+        ret.pushKV("expiresOn", (uint64_t)nDeadline);
     }
-    ret.push_back(Pair("votesYes", nVotesYes));
-    ret.push_back(Pair("votesAbs", nVotesAbs));
-    ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES))));
+    ret.pushKV("votesYes", nVotesYes);
+    ret.pushKV("votesAbs", nVotesAbs);
+    ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES)));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
-    ret.push_back(Pair("status", GetState(chainActive.Tip()->GetBlockTime())));
-    ret.push_back(Pair("state", (uint64_t)fState));
+    ret.pushKV("status", GetState(chainActive.Tip()->GetBlockTime()));
+    ret.pushKV("state", (uint64_t)fState);
     if(fState == DAOFlags::ACCEPTED)
-        ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
+        ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     CPaymentRequestMap mapPaymentRequests;
 
     if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
@@ -1840,25 +1840,25 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
             arr.push_back(preq);
         }
 
-        ret.push_back(Pair("paymentRequests", arr));
+        ret.pushKV("paymentRequests", arr);
     }
 }
 
 void CPaymentRequest::ToJson(UniValue& ret) const {
-    ret.push_back(Pair("version",(uint64_t)nVersion));
-    ret.push_back(Pair("hash", hash.ToString()));
-    ret.push_back(Pair("blockHash", txblockhash.ToString()));
-    ret.push_back(Pair("description", strDZeel));
-    ret.push_back(Pair("requestedAmount", FormatMoney(nAmount)));
-    ret.push_back(Pair("votesYes", nVotesYes));
-    ret.push_back(Pair("votesAbs", nVotesAbs));
-    ret.push_back(Pair("votesNo", nVotesNo));
-    ret.push_back(Pair("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES))));
+    ret.pushKV("version",(uint64_t)nVersion);
+    ret.pushKV("hash", hash.ToString());
+    ret.pushKV("blockHash", txblockhash.ToString());
+    ret.pushKV("description", strDZeel);
+    ret.pushKV("requestedAmount", FormatMoney(nAmount));
+    ret.pushKV("votesYes", nVotesYes);
+    ret.pushKV("votesAbs", nVotesAbs);
+    ret.pushKV("votesNo", nVotesNo);
+    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
-    ret.push_back(Pair("status", GetState()));
-    ret.push_back(Pair("state", (uint64_t)fState));
-    ret.push_back(Pair("stateChangedOnBlock", blockhash.ToString()));
+    ret.pushKV("status", GetState());
+    ret.pushKV("state", (uint64_t)fState);
+    ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     if(fState == DAOFlags::ACCEPTED) {
-        ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
+        ret.pushKV("paidOnBlock", paymenthash.ToString());
     }
 }

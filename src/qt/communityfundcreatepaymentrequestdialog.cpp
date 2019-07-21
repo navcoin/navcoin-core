@@ -233,7 +233,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
-        strDZeel.pushKV("h",ui->comboBoxProposalHash->currentData().toString().toStdString()));
+        strDZeel.pushKV("h",ui->comboBoxProposalHash->currentData().toString().toStdString());
         strDZeel.pushKV("n",nReqAmount);
         strDZeel.pushKV("s",Signature);
         strDZeel.pushKV("r",sRandom);

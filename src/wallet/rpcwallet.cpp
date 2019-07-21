@@ -624,8 +624,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
 }
@@ -639,10 +639,10 @@ UniValue getconsensusparameters(const UniValue& params, bool fHelp)
         int type = (int)Consensus::vConsensusParamsType[id];
         std::string sDesc = Consensus::sConsensusParamsDesc[id];
         UniValue entry(UniValue::VOBJ);
-        entry.push_back(Pair("id", (uint64_t)i));
-        entry.push_back(Pair("desc", sDesc));
-        entry.push_back(Pair("type", type));
-        entry.push_back(Pair("value", GetConsensusParameter(id)));
+        entry.pushKV("id", (uint64_t)i);
+        entry.pushKV("desc", sDesc);
+        entry.pushKV("type", type);
+        entry.pushKV("value", GetConsensusParameter(id));
         ret.push_back(entry);
     }
     return ret;
@@ -701,11 +701,11 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
 
     std::string sQuestion = "Consensus change for: " + Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)nMin];
 
-    strDZeel.push_back(Pair("q",sQuestion));
-    strDZeel.push_back(Pair("a",answers));
-    strDZeel.push_back(Pair("m",nMin));
-    strDZeel.push_back(Pair("n",nMax));
-    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("a",answers);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
@@ -725,16 +725,16 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
     else
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
 }
@@ -796,10 +796,10 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     if (fRange)
         nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;
 
-    strDZeel.push_back(Pair("q",sQuestion));
-    strDZeel.push_back(Pair("m",nMin));
-    strDZeel.push_back(Pair("n",nMax));
-    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
@@ -814,16 +814,16 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
     else
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
 }
@@ -956,8 +956,8 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
 }
@@ -1014,9 +1014,9 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     UniValue strDZeel(UniValue::VOBJ);
     uint64_t nVersion = CConsultationAnswer::BASE_VERSION;
 
-    strDZeel.push_back(Pair("h",params[0].get_str()));
-    strDZeel.push_back(Pair("a",sAnswer));
-    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+    strDZeel.pushKV("h",params[0].get_str());
+    strDZeel.pushKV("a",sAnswer);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::ANSWER_VERSION;
@@ -1033,16 +1033,16 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
 
         TxToConsultationAnswer(wtx.strDZeel, wtx.GetHash(), uint256(), answer);
 
-        ret.push_back(Pair("hash", answer.hash.ToString()));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("hash", answer.hash.ToString());
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
     else
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("raw",EncodeHexTx(wtx)));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
 }

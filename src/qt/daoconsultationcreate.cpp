@@ -213,11 +213,11 @@ void DaoConsultationCreate::onCreate()
         answers.push_back(a.toStdString());
     }
 
-    strDZeel.push_back(Pair("q",sQuestion));
-    strDZeel.push_back(Pair("m",nMin));
-    strDZeel.push_back(Pair("n",nMax));
-    strDZeel.push_back(Pair("a",answers));
-    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("a",answers);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
@@ -352,11 +352,11 @@ void DaoConsultationCreate::onCreateConsensus()
         answers.push_back(a.toStdString());
     }
 
-    strDZeel.push_back(Pair("q",sQuestion));
-    strDZeel.push_back(Pair("m",nMin));
-    strDZeel.push_back(Pair("n",nMax));
-    strDZeel.push_back(Pair("a",answers));
-    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("a",answers);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;

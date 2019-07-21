@@ -41,6 +41,11 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_PROPOSALREMOVEVOTE: return "proposal_remove_vote";
     case TX_PAYMENTREQUESTABSVOTE: return "payment_request_abstain_vote";
     case TX_PAYMENTREQUESTREMOVEVOTE: return "payment_request_remove_vote";
+    case TX_CONSULTATIONVOTE: return "consultation_vote";
+    case TX_CONSULTATIONVOTEREMOVE: return "consultation_vote_remove";
+    case TX_CONSULTATIONVOTEABSTENTION: return "consultation_vote_abstention";
+    case TX_DAOSUPPORT: return "dao_support";
+    case TX_DAOSUPPORTREMOVE: return "dao_support_remove";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     case TX_COLDSTAKING: return "cold_staking";
@@ -117,6 +122,35 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             typeRet = TX_PAYMENTREQUESTREMOVEVOTE;
         vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsSupportVote())
+    {
+        if(scriptPubKey.IsSupportVoteYes())
+            typeRet = TX_DAOSUPPORT;
+        else if(scriptPubKey.IsSupportVoteRemove())
+            typeRet = TX_DAOSUPPORTREMOVE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        return true;
+    }
+
+    if(scriptPubKey.IsConsultationVote())
+    {
+        if(scriptPubKey.IsConsultationVoteAnswer())
+            typeRet = TX_CONSULTATIONVOTE;
+        else if(scriptPubKey.IsConsultationVoteAbstention())
+            typeRet = TX_CONSULTATIONVOTEABSTENTION;
+        else if(scriptPubKey.IsConsultationVoteRemove())
+            typeRet = TX_CONSULTATIONVOTEREMOVE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
+        vSolutionsRet.push_back(hashBytes);
+        if (scriptPubKey.size() > 36)
+        {
+            vector<unsigned char> vVote(scriptPubKey.begin()+37, scriptPubKey.end());
+            vSolutionsRet.push_back(vVote);
+        }
         return true;
     }
 

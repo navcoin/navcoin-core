@@ -62,6 +62,11 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     case TX_PROPOSALREMOVEVOTE:
     case TX_PAYMENTREQUESTABSVOTE:
     case TX_PAYMENTREQUESTREMOVEVOTE:
+    case TX_CONSULTATIONVOTE:
+    case TX_DAOSUPPORTREMOVE:
+    case TX_CONSULTATIONVOTEREMOVE:
+    case TX_CONSULTATIONVOTEABSTENTION:
+    case TX_DAOSUPPORT:
         break;
     case TX_PUBKEY:
         keyID = CPubKey(vSolutions[0]).GetID();

@@ -86,9 +86,9 @@ void DaoProposeAnswer::onPropose()
 
     sAnswer = consultation.IsAboutConsensusParameter() ? RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer) : sAnswer;
 
-    strDZeel.push_back(Pair("h",consultation.hash.ToString()));
-    strDZeel.push_back(Pair("a",sAnswer));
-    strDZeel.push_back(Pair("v",(uint64_t)nVersion));
+    strDZeel.pushKV("h",consultation.hash.ToString());
+    strDZeel.pushKV("a",sAnswer);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::ANSWER_VERSION;
