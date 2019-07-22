@@ -114,15 +114,6 @@ const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
 ;
 
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
-const QString NavCoinGUI::BTN_COLOR = COLOR_WHITE;
-const QString NavCoinGUI::BUBBLE_STYLE = "border-radius: 0.2em; background: " + COLOR_MAGENTA + "; color: " + COLOR_WHITE + "; padding: 0.1em; font: normal normal 1em/1em;";
-const QString NavCoinGUI::NOTIFICATION_STYLE = "border: 0.15em solid %1; border-radius: 0.3em; background: %2; color: %3; padding: 0.3em 1em; font: normal normal 1.5em/1.5em;";
-const QString NavCoinGUI::NOTIFICATION_ERROR = "#F8D7DA";
-const QString NavCoinGUI::NOTIFICATION_ERROR_TEXT = "#721C24";
-const QString NavCoinGUI::NOTIFICATION_ERROR_BORDER = "#F5C6CB";
-const QString NavCoinGUI::NOTIFICATION_WARNING = "#FFF3CD";
-const QString NavCoinGUI::NOTIFICATION_WARNING_TEXT = "#856404";
-const QString NavCoinGUI::NOTIFICATION_WARNING_BORDER = "#FFEEBA";
 
 NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
@@ -657,6 +648,7 @@ void NavCoinGUI::createToolBars()
     QToolButton* logoBtn = new QToolButton();
     logoBtn->setIcon(logoIcon);
     logoBtn->setIconSize(logoIconSize);
+    logoBtn->setObjectName("MainMenu");
     logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     // Attach the logo button to the layout
@@ -670,7 +662,7 @@ void NavCoinGUI::createToolBars()
 
     // Add a spacer to header to create a background
     QWidget* headerSpacer = new QWidget();
-    headerSpacer->setStyleSheet("background: #EEEEEE;");
+    headerSpacer->setObjectName("HeaderSpacer");
     headerSpacer->setFixedHeight(logoHeight);
     headerSpacer->setLayout(notificationLayout);
 
@@ -679,17 +671,13 @@ void NavCoinGUI::createToolBars()
     {
         // Add notifications
         notifications[i] = new QLabel();
+        notifications[i]->hide();
         notifications[i]->setWordWrap(true);
         notifications[i]->setText(tr(notifs[i].text));
-        notifications[i]->hide();
         if (notifs[i].error == true)
-        {
-            notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_ERROR_BORDER, NOTIFICATION_ERROR, NOTIFICATION_ERROR_TEXT));
-        }
+            notifications[i]->setObjectName("NotificationError");
         else
-        {
-            notifications[i]->setStyleSheet(NOTIFICATION_STYLE.arg(NOTIFICATION_WARNING_BORDER, NOTIFICATION_WARNING, NOTIFICATION_WARNING_TEXT));
-        }
+            notifications[i]->setObjectName("NotificationWarning");
 
         // Add to notification layout
         notificationLayout->addWidget(notifications[i]);
@@ -697,7 +685,7 @@ void NavCoinGUI::createToolBars()
 
     // Create the header by with gradient
     QWidget* headerBar = new QWidget();
-    headerBar->setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ABA8E1, stop:1 #9DC3E5)");
+    headerBar->setObjectName("HeaderBar");
     headerBar->setMinimumSize(1, 9 * scale());
 
     // Add the header spacer and header bar
@@ -726,7 +714,7 @@ void NavCoinGUI::createToolBars()
     for (unsigned i = 0; i < 5; ++i)
     {
         // Create the icon
-        QIcon icon = platformStyle->SingleColorIcon(":/icons/" + btnNamesIcon[i], BTN_COLOR);
+        QIcon icon = platformStyle->SingleColorIcon(":/icons/" + btnNamesIcon[i], COLOR_WHITE);
 
         // Update the disabled icon pixmap to use the same as QIcon::Normal
         icon.addPixmap(icon.pixmap(iconSize, QIcon::Normal, QIcon::On), QIcon::Disabled);
@@ -738,6 +726,7 @@ void NavCoinGUI::createToolBars()
         menuBtns[i]->setIconSize(iconSize);
         menuBtns[i]->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
         menuBtns[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        menuBtns[i]->setObjectName("MainMenu");
 
         // Attach to the layout and assign click events
         walletFrame->menuLayout->addWidget(menuBtns[i]);
@@ -750,9 +739,9 @@ void NavCoinGUI::createToolBars()
 
         // Create the bubble and place in the bubble layout
         menuBubbles[i] = new QLabel();
-        menuBubbles[i]->setText("1");
-        menuBubbles[i]->setStyleSheet(BUBBLE_STYLE);
         menuBubbles[i]->hide();
+        menuBubbles[i]->setText("1");
+        menuBubbles[i]->setObjectName("MainMenuBubble");
         bubbleLayout->addWidget(menuBubbles[i]);
     }
 
@@ -764,6 +753,7 @@ void NavCoinGUI::createToolBars()
 
     /* This is to make the sidebar background consistent */
     QWidget *padding = new QWidget();
+    padding->setObjectName("MainMenu");
     walletFrame->menuLayout->addWidget(padding);
 }
 

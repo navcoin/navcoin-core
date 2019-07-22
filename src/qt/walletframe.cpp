@@ -36,7 +36,6 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     menuLayout = new QVBoxLayout();
     menuLayout->setContentsMargins(0,0,0,0);
     menuLayout->setSpacing(0);
-    menuLayout->setObjectName("MainMenu");
 
     frameLayout->setSpacing(0);
     frameLayout->setContentsMargins(0,0,0,0);

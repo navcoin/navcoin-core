@@ -63,15 +63,6 @@ public:
     static const std::string DEFAULT_UIPLATFORM;
 
     static const QString DEFAULT_WALLET;
-    static const QString BTN_COLOR;
-    static const QString BUBBLE_STYLE;
-    static const QString NOTIFICATION_STYLE;
-    static const QString NOTIFICATION_ERROR;
-    static const QString NOTIFICATION_ERROR_TEXT;
-    static const QString NOTIFICATION_ERROR_BORDER;
-    static const QString NOTIFICATION_WARNING;
-    static const QString NOTIFICATION_WARNING_TEXT;
-    static const QString NOTIFICATION_WARNING_BORDER;
 
     explicit NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent = 0);
     ~NavCoinGUI();

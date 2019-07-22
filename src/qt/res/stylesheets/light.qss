@@ -1,72 +1,66 @@
 QDialog {
-	background: #e8ebf0;
+	/* background: #e8ebf0; */
 	border: 0;
 }
 
 QStackedWidget {
-	background: #e8ebf0;
+	/* background: #e8ebf0; */
 	border: 0;
 }
 
 QScrollArea {
-	background: #e8ebf0;
+	/* background: #e8ebf0; */
 	border: 0;
 }
 
 #scrollAreaWidgetContents {
-	background: #e8ebf0;
+	/* background: #e8ebf0; */
 }
 
 #BG1_1 {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 }
 
 #BG1_2 {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 }
 
 #BG1_3 {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 	border: 0px solid;
 }
 
 #SendCoinsEntry {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 	border: 0px solid;
 }
 
 #frameFee {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 }
 
 #frame {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 }
 
 #frame2 {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 }
 
 #frameCoinControl {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 }
 
-#noNavtechLabel {
-	background: #f4eb99;
-	padding: 5px;
-	border-radius: 5px;
-}
-
 #frameReceivingAddress {
-	background: #eff1f4;
+	/* background: #eff1f4; */
 	border-radius: 2px;
 }
 
@@ -118,18 +112,27 @@ QLineEdit {
 	border: 0px;
 }
 
-QLabel {
-	color: #616998;
+#HeaderBar {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ABA8E1, stop:1 #9DC3E5);
 }
 
-QCheckBox {
-	color: #616998;
+#NotificationError,
+#NotificationWarning {
+    border: 0.15em solid #F5C6CB;
+    background: #F8D7DA;
+    color: #721C24;
+    border-radius: 0.3em;
+    padding: 0.3em 1em;
+    font: normal normal 1.5em/1.5em;
 }
 
-/**
- * Main menu styles: START
- */
-#MainMenu QToolButton {
+#NotificationWarning {
+    border: 0.15em solid #FFEEBA;
+    background: #FFF3CD;
+    color: #856404;
+}
+
+#MainMenu {
     padding: 0.5em 0.2em 0.5em 0.5em;
     border: 0;
     color: #FAFAFA;
@@ -137,10 +140,15 @@ QCheckBox {
     border-right: 0.3em solid #3E1E6E;
 }
 
-#MainMenu QToolButton:disabled {
+#MainMenu:disabled {
     background: #351565;
     border-color: #C42BB7;
 }
-/**
- * Main menu styles: END
- */
+
+#MainMenuBubble {
+    border-radius: 0.2em;
+    background: #C42BB7;
+    color: #FAFAFA;
+    padding: 0.1em;
+    font: normal normal 1em/1em;
+}
