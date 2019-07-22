@@ -1794,7 +1794,6 @@ void NavCoinGUI::updatePrice()
     std::thread pThread{[this]{
         try {
             CURL *curl;
-            CURLcode curlCode;
             std::string response;
             std::string url(
                     "https://min-api.cryptocompare.com/data/price?fsym=NAV&tsyms="
@@ -1845,7 +1844,7 @@ void NavCoinGUI::updatePrice()
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, priceUdateWriteCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-            curlCode = curl_easy_perform(curl);
+            curl_easy_perform(curl);
             curl_easy_cleanup(curl);
 
             // Parse json
