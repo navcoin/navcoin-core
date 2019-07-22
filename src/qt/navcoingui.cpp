@@ -754,6 +754,9 @@ void NavCoinGUI::createToolBars()
     versionLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     walletFrame->menuLayout->addWidget(versionLabel);
 
+    // Link OverviewPage to main menu logo
+    connect(logoBtn, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
+
     // Menu Button actions
     connect(menuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
     connect(menuBtns[1], SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
