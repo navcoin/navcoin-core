@@ -258,7 +258,6 @@ NAVCOIN_QT_H = \
 	qt/sendcommunityfunddialog.h \
 	qt/communityfundsuccessdialog.h \
 	qt/signverifymessagedialog.h \
-	qt/skinize.h \
 	qt/splashscreen.h \
 	qt/trafficgraphwidget.h \
 	qt/transactiondesc.h \
@@ -374,7 +373,6 @@ NAVCOIN_QT_CPP = \
 	qt/qvalidatedspinbox.cpp \
 	qt/qvaluecombobox.cpp \
 	qt/rpcconsole.cpp \
-	qt/skinize.cpp \
 	qt/splashscreen.cpp \
 	qt/trafficgraphwidget.cpp \
 	qt/utilitydialog.cpp

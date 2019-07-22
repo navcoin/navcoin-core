@@ -125,3 +125,22 @@ QLabel {
 QCheckBox {
 	color: #616998;
 }
+
+/**
+ * Main menu styles: START
+ */
+#MainMenu QToolButton {
+    padding: 0.5em 0.2em 0.5em 0.5em;
+    border: 0;
+    color: #FAFAFA;
+    background: #3E1E6E;
+    border-right: 0.3em solid #3E1E6E;
+}
+
+#MainMenu QToolButton:disabled {
+    background: #351565;
+    border-color: #C42BB7;
+}
+/**
+ * Main menu styles: END
+ */

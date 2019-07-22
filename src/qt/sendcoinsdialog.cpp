@@ -15,7 +15,6 @@
 #include "sendcoinsentry.h"
 #include "walletmodel.h"
 #include "net.h"
-#include "skinize.h"
 #include "util.h"
 #include "utilstrencodings.h"
 

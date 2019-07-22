@@ -64,9 +64,6 @@ public:
 
     static const QString DEFAULT_WALLET;
     static const QString BTN_COLOR;
-    static const QString BTN_BACKGROUND;
-    static const QString BTN_BACKGROUND_ACTIVE;
-    static const QString BTN_STYLE;
     static const QString BUBBLE_STYLE;
     static const QString NOTIFICATION_STYLE;
     static const QString NOTIFICATION_ERROR;
@@ -81,6 +78,9 @@ public:
 
     /** Get the screen scale, usefull for scaling UI elements */
     float scale();
+
+    /** Setup the stylesheet for the app */
+    void setUpStyles(QString style);
 
     /** Show/Hide the wallet sync warning notification */
     void showOutOfSyncWarning(bool fShow);

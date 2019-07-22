@@ -8,7 +8,6 @@
 
 #include "intro.h"
 #include "ui_intro.h"
-#include "skinize.h"
 
 #include "guiutil.h"
 
@@ -183,7 +182,6 @@ void Intro::pickDataDirectory()
         Intro intro;
         intro.setDataDirectory(dataDir + QDir::separator() + "wallet.dat");
         intro.setWindowIcon(QIcon(":icons/navcoin"));
-        intro.setStyleSheet(Skinize());
 
         while(true)
         {

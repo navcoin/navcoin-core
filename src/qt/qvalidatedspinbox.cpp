@@ -1,6 +1,5 @@
 #include "qvalidatedspinbox.h"
 #include "guiconstants.h"
-#include "skinize.h"
 
 #include <QDialog>
 
@@ -20,7 +19,7 @@ void QValidatedSpinBox::setValid(bool valid)
 
     if(valid)
     {
-        setStyleSheet(Skinize());
+        setStyleSheet("");
     }
     else
     {
