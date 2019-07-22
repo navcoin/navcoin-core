@@ -339,9 +339,6 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     {
         progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 0px solid grey; border-radius: 10px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 10px; margin: 0px; }");
     }
-    QLabel *versionLabel = new QLabel();
-    versionLabel->setText(QString::fromStdString("v" + FormatVersion(CLIENT_VERSION)));
-    statusBar()->addWidget(versionLabel);
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
     statusBar()->addPermanentWidget(frameBlocks);
@@ -745,16 +742,27 @@ void NavCoinGUI::createToolBars()
         bubbleLayout->addWidget(menuBubbles[i]);
     }
 
+    /* This is to make the sidebar background consistent */
+    QWidget *padding = new QWidget();
+    padding->setObjectName("MainMenu");
+    walletFrame->menuLayout->addWidget(padding);
+
+    // Add the versionLabel
+    QToolButton* versionLabel = new QToolButton();
+    versionLabel->setText(QString::fromStdString(FormatVersion(CLIENT_VERSION)));
+    versionLabel->setObjectName("MainMenu");
+    versionLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    walletFrame->menuLayout->addWidget(versionLabel);
+
+    // Menu Button actions
     connect(menuBtns[0], SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
     connect(menuBtns[1], SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
     connect(menuBtns[2], SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
     connect(menuBtns[3], SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
     connect(menuBtns[4], SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
 
-    /* This is to make the sidebar background consistent */
-    QWidget *padding = new QWidget();
-    padding->setObjectName("MainMenu");
-    walletFrame->menuLayout->addWidget(padding);
+    // Open about when versionLabel is clicked
+    connect(versionLabel, SIGNAL(clicked()), this, SLOT(aboutClicked()));
 }
 
 void NavCoinGUI::showOutOfSyncWarning(bool fShow)
