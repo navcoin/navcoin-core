@@ -120,6 +120,7 @@ class NavCoinTestFramework(object):
                           help="The seed to use for assigning port numbers (default: current process id)")
         parser.add_option("--coveragedir", dest="coveragedir",
                           help="Write tested RPC commands into this directory")
+
         self.add_options(parser)
         (self.options, self.args) = parser.parse_args()
 

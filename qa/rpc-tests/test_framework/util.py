@@ -51,7 +51,7 @@ MOCKTIME = 0
 
 def enable_mocktime():
     #For backwared compatibility of the python scripts
-    #with previous versions of the cache, set MOCKTIME 
+    #with previous versions of the cache, set MOCKTIME
     #to Jan 1, 2014 + (201 * 10 * 60)
     global MOCKTIME
     MOCKTIME = 1388534400 + (201 * 10 * 60)
@@ -67,7 +67,6 @@ def enable_coverage(dirname):
     """Maintain a log of which RPC calls are made during testing."""
     global COVERAGE_DIR
     COVERAGE_DIR = dirname
-
 
 def get_rpc_proxy(url, node_number, timeout=None):
     """
