@@ -49,7 +49,9 @@ public:
     uint256 GetBestBlock() const { return hashBestBlock_; }
 
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock)
+                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                    const uint256 &hashBlock)
     {
         for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end(); ) {
             if (it->second.flags & CCoinsCacheEntry::DIRTY) {
