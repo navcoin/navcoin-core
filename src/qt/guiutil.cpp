@@ -74,6 +74,22 @@ extern double NSAppKitVersionNumber;
 
 namespace GUIUtil {
 
+float scale()
+{
+    // Static storage of scale
+    static float scale = 0.0f;
+
+    // Check if we already have it
+    if (scale != 0.0f)
+        return scale;
+
+    // Calculate the scale
+    scale = (float) (new QWidget())->logicalDpiX() / 96;
+
+    // Give back the scale value
+    return scale;
+}
+
 QString dateTimeStr(const QDateTime &date)
 {
     return date.date().toString(Qt::SystemLocaleShortDate) + QString(" ") + date.toString("hh:mm");

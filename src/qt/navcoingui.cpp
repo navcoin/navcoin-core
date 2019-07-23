@@ -75,7 +75,6 @@
 #include <QNetworkRequest>
 #include <QProgressBar>
 #include <QProgressDialog>
-#include <QScreen>
 #include <QSettings>
 #include <QShortcut>
 #include <QSizePolicy>
@@ -382,12 +381,7 @@ NavCoinGUI::~NavCoinGUI()
 
 float NavCoinGUI::scale()
 {
-    static float scale = 0.0f;
-
-    if (scale == 0.0f)
-        scale = (float) QWidget::logicalDpiX() / 96;
-
-    return scale;
+    return GUIUtil::scale();
 }
 
 void NavCoinGUI::setUpStyles(QString style)

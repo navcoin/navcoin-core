@@ -11,6 +11,7 @@
 #include "networkstyle.h"
 
 #include "clientversion.h"
+#include "guiutil.h"
 #include "init.h"
 #include "util.h"
 #include "ui_interface.h"
@@ -141,12 +142,7 @@ SplashScreen::~SplashScreen()
 
 float SplashScreen::scale()
 {
-    static float scale = 0.0f;
-
-    if (scale == 0.0f)
-        scale = (float) QWidget::logicalDpiX() / 96;
-
-    return scale;
+    return GUIUtil::scale();
 }
 
 void SplashScreen::slotFinish(QWidget *mainWin)
