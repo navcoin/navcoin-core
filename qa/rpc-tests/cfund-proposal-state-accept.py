@@ -26,7 +26,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
 
         proposal_duration = 30
 
-        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, proposal_duration, "test")["hash"]
+        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 100, proposal_duration, "test")["hash"]
         slow_gen(self.nodes[0], 1)
 
         start_new_cycle(self.nodes[0])
@@ -135,11 +135,11 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == 0)
 
         # Donate to the fund
-        self.nodes[0].donatefund(1)
+        self.nodes[0].donatefund(100)
         slow_gen(self.nodes[0], 1)
 
         # Check the available and locked funds
-        assert (self.nodes[0].cfundstats()["funds"]["available"] == 1+self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
+        assert (self.nodes[0].cfundstats()["funds"]["available"] == 100+self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
         assert (self.nodes[0].cfundstats()["funds"]["locked"] == 0)
 
         # Move to the end of the cycle
@@ -151,7 +151,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
 
         # Check the available and locked funds
         assert (self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
-        assert (self.nodes[0].cfundstats()["funds"]["locked"] == 1)
+        assert (self.nodes[0].cfundstats()["funds"]["locked"] == 100)
 
         # Check the voting cycle does not increment in later cycle after reorg
         votingCycle_after_state_change = self.nodes[0].getproposal(proposalid0)["votingCycle"]
