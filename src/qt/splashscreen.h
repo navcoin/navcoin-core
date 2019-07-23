@@ -6,6 +6,7 @@
 #define NAVCOIN_QT_SPLASHSCREEN_H
 
 #include <QLabel>
+#include <QHBoxLayout>
 
 class NetworkStyle;
 
@@ -37,6 +38,9 @@ public Q_SLOTS:
     /** Show message and progress */
     void showMessage(const QString &message, const QColor &color);
 
+    /** Update the progress */
+    void updateProgress();
+
 private:
     /** Connect core signals to splash screen */
     void subscribeToCoreSignals();
@@ -45,6 +49,10 @@ private:
 
     QPixmap pixmap;
     QLabel* statusLabel;
+    QWidget* splashBarInner;
+    QHBoxLayout* splashBarLayout;
+    QSize splashSize;
+    QTimer* timerProgress;
 };
 
 #endif // NAVCOIN_QT_SPLASHSCREEN_H

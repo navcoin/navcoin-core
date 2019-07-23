@@ -26,6 +26,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
+#include <QTimer>
 
 SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) :
     QWidget(0, f)
@@ -36,7 +37,7 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     QString titleAddText    = networkStyle->getTitleAddText();
 
     // Size of the splash screen
-    QSize splashSize(480 * scale(), 320 * scale());
+    splashSize = QSize(480 * scale(), 320 * scale());
 
     // Size of the logo
     QSize logoSize(400 * scale(), 95 * scale());
@@ -63,10 +64,16 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     // Margin for the splashscreen
     int margin = 10 * scale();
 
-    // Make the layout
-    QVBoxLayout* layout = new QVBoxLayout(this);
+    // Make the splashLayout
+    QVBoxLayout* splashLayout = new QVBoxLayout(this);
+    splashLayout->setContentsMargins(0, 0, 0, 0);
+    splashLayout->setSpacing(0);
+
+    // Make the layout for widgets
+    QVBoxLayout* layout = new QVBoxLayout();
     layout->setContentsMargins(margin, margin, margin, margin);
     layout->setSpacing(0);
+    splashLayout->addLayout(layout);
 
     // Build the new versionLabel
     QLabel* versionLabel = new QLabel();
@@ -89,6 +96,29 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     statusLabel->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
     layout->addWidget(statusLabel);
 
+    // Build the splashBar
+    QWidget* splashBar = new QWidget();
+    splashBar->setMaximumHeight(7 * scale());
+    splashBar->setObjectName("SplashBar");
+
+    // Make the splashBarLayout
+    splashBarLayout = new QHBoxLayout(splashBar);
+    splashBarLayout->setContentsMargins(0, 0, 0, 0);
+    splashBarLayout->setSpacing(0);
+
+    // Build the splashBarInner section
+    splashBarInner = new QWidget();
+    splashBarInner->setObjectName("SplashBarInner");
+    splashBarInner->setFixedWidth(0);
+    splashBarLayout->addWidget(splashBarInner);
+
+    // Add the splashbar to the splashLayout
+    splashLayout->addWidget(splashBar);
+
+    timerProgress = new QTimer();
+    connect(timerProgress, SIGNAL(timeout()), this, SLOT(updateProgress()));
+    timerProgress->start(50); // Update every 50ms
+
     // Set window title
     setWindowTitle(titleText + " " + titleAddText);
 
@@ -104,6 +134,9 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
 SplashScreen::~SplashScreen()
 {
     unsubscribeFromCoreSignals();
+
+    // Delete the timer
+    delete timerProgress;
 }
 
 float SplashScreen::scale()
@@ -125,6 +158,9 @@ void SplashScreen::slotFinish(QWidget *mainWin)
     if (isMinimized())
         showNormal();
     hide();
+
+    // Stop the tick tocking
+    timerProgress->stop();
 }
 
 static void InitMessage(SplashScreen *splash, const std::string &message)
@@ -174,6 +210,36 @@ void SplashScreen::showMessage(const QString &message, const QColor &color)
     statusLabel->setText(message);
     statusLabel->setStyleSheet("padding: 5pt; font-size: 13pt; color: " + color.name() + ";");
     update();
+}
+
+void SplashScreen::updateProgress()
+{
+    // What is the progressWidth ?
+    static int progressWidth = splashSize.width() * 0.01f;
+
+    // Are we shrinking?
+    static bool shrinking = false;
+
+    // Get the current width
+    int barWidth = splashBarInner->width();
+
+    // Are we shrinking?
+    if (shrinking)
+        barWidth -= progressWidth;
+    else
+        barWidth += progressWidth;
+
+    // Check if progress is full
+    if (barWidth >= splashSize.width())
+        shrinking = true; // Start shrinking
+
+    // Check if progress is empty
+    if (barWidth <= 0)
+        shrinking = false; // Start growing
+
+    // Set the new width
+    splashBarInner->setFixedWidth(barWidth);
+    splashBarLayout->setAlignment((shrinking ? Qt::AlignRight : Qt::AlignLeft));
 }
 
 void SplashScreen::paintEvent(QPaintEvent *event)
