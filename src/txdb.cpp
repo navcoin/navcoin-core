@@ -730,18 +730,11 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
                 pindexNew->nStakeTime     = diskindex.nStakeTime;
                 pindexNew->hashProof      = diskindex.hashProof;
-                // UPDATE if necessary when versionbits.h is modified
-                if (pindexNew->nVersion & 0x00800000)
-                {
-                    pindexNew->mapSupport     = diskindex.mapSupport;
-                    pindexNew->mapConsultationVotes
-                            = diskindex.mapConsultationVotes;
-                }
-                if (pindexNew->nVersion & 0x02000000)
-                {
-                    pindexNew->mapConsensusParameters
-                            = diskindex.mapConsensusParameters;
-                }
+                pindexNew->mapSupport     = diskindex.mapSupport;
+                pindexNew->mapConsultationVotes
+                                          = diskindex.mapConsultationVotes;
+                pindexNew->mapConsensusParameters
+                                          = diskindex.mapConsensusParameters;
 
                 pcursor->Next();
             } else {

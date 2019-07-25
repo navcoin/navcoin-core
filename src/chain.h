@@ -529,10 +529,44 @@ public:
         READWRITE(blockHash);
         READWRITE(nCFSupply);
         READWRITE(nCFLocked);
-        READWRITE(vPaymentRequestVotes);
-        READWRITE(vProposalVotes);
+        // UPDATE if versionbits.h is modified
+        if (this->nVersion & 0x80000)
+        {
+            READWRITE(vPaymentRequestVotes);
+            READWRITE(vProposalVotes);
+        }
+        else
+        {
+            std::vector<std::pair<uint256, bool>> vProposalVotesProxy;
+            std::vector<std::pair<uint256, bool>> vPaymentRequestVotesProxy;
+            if (ser_action.ForRead())
+            {
+                READWRITE(vProposalVotesProxy);
+                READWRITE(vPaymentRequestVotesProxy);
+                for (auto& it: vProposalVotesProxy)
+                {
+                    vProposalVotes.push_back(std::make_pair(it.first, (uint64_t)it.second));
+                }
+                for (auto& it: vPaymentRequestVotesProxy)
+                {
+                    vPaymentRequestVotes.push_back(std::make_pair(it.first, (uint64_t)it.second));
+                }
+            }
+            else
+            {
+                for (auto& it: vProposalVotes)
+                {
+                    vProposalVotesProxy.push_back(std::make_pair(it.first, it.second == 1 ? true : false));
+                }
+                for (auto& it: vPaymentRequestVotes)
+                {
+                    vPaymentRequestVotesProxy.push_back(std::make_pair(it.first, it.second == 1 ? true : false));
+                }
+                READWRITE(vProposalVotesProxy);
+                READWRITE(vPaymentRequestVotesProxy);
+            }
+        }
 
-        // UPDATE if necessary when versionbits.h is modified
         if (this->nVersion & 0x00800000)
         {
             READWRITE(mapSupport);
