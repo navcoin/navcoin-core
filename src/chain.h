@@ -532,7 +532,7 @@ public:
         READWRITE(vPaymentRequestVotes);
         READWRITE(vProposalVotes);
 
-        // UPDATE if nConsultationsVersionMask in versionbits.h is modified
+        // UPDATE if necessary when versionbits.h is modified
         if (this->nVersion & 0x00800000)
         {
             READWRITE(mapSupport);
