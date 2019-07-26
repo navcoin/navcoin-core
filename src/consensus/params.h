@@ -33,6 +33,7 @@ enum DeploymentPos
     DEPLOYMENT_VOTE_STATE_CACHE,
     DEPLOYMENT_CONSULTATIONS,
     DEPLOYMENT_DAO_CONSENSUS,
+    DEPLOYMENT_COLDSTAKING_V2,
     MAX_VERSION_BITS_DEPLOYMENTS
 };
 
@@ -53,7 +54,8 @@ static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
     "Enable Abstain votes for the Community Fund",
     "Upgrades the Community Fund with a state based cache which will save on block space as votes do not need to be broadcasted every block",
     "Enable DAO Consultations",
-    "Enables the decision over consensus parameters using distributed voting"
+    "Enables the decision over consensus parameters using distributed voting",
+    "Enables remote DAO voting from light wallets"
 };
 
 /**

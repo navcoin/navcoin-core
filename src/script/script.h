@@ -683,6 +683,7 @@ public:
     bool IsPayToPublicKey() const;
 
     bool IsColdStaking() const;
+    bool IsColdStakingv2() const;
 
     bool IsColdStake() const;
 
@@ -716,6 +717,8 @@ public:
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;
     bool IsPushOnly() const;
+
+    bool GetStakerScript(std::vector<unsigned char>& script) const;
 
     /**
      * Returns whether the script is guaranteed to fail at execution,

@@ -1031,11 +1031,10 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
               bool fCFund = IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus());
               bool fDAOConsultations = IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus());
+              std::vector<unsigned char> stakerScript;
 
-              if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus()))
+              if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus()) && txCoinStake.vout[1].scriptPubKey.GetStakerScript(stakerScript))
               {
-                  std::vector<unsigned char> stakerScript = std::vector<unsigned char>(txCoinStake.vout[1].scriptPubKey.begin(),txCoinStake.vout[1].scriptPubKey.end());
-
                   CVoteList pVoteList;
                   view.GetCachedVoter(stakerScript, pVoteList);
                   std::map<uint256, CVote> list = pVoteList.GetList();

@@ -894,21 +894,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     }
 
     int64_t nTimeEnd7 = GetTimeMicros();
-
     LogPrint("bench", "   - CFund update consultation status: %.2fms\n", (nTimeEnd7 - nTimeStart7) * 0.001);
-
-    if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
-    {
-        CVoteMap mapVoters;
-        view.GetAllVotes(mapVoters);
-
-        for (auto& it: mapVoters)
-        {
-            if(!view.RemoveCachedVoter(it.first))
-                error("Could not remove cached votes for %s (%s)!", HexStr(it.first).substr(0,8), it.second.ToString());
-        }
-
-    }
 
     int64_t nTimeEnd = GetTimeMicros();
     LogPrint("bench", "  - CFund total VoteStep() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
@@ -916,6 +902,22 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     return true;
 }
 
+
+bool IsValidDaoTxVote(const CTransaction& tx, CBlockIndex* pindex)
+{
+    CAmount nAmountContributed = 0;
+    bool fHasVote = false;
+
+    for (const CTxOut& out: tx.vout)
+    {
+        if (out.IsCommunityFundContribution())
+            nAmountContributed += out.nValue;
+        if (out.IsVote() || out.IsSupportVote() || out.IsConsultationVote())
+            fHasVote = true;
+    }
+
+    return tx.nVersion == CTransaction::VOTE_VERSION && fHasVote && nAmountContributed > GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE, pindex);
+}
 
 // CONSULTATIONS
 
@@ -1486,7 +1488,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
     if(!ret)
         return error("%s: Invalid version for payment request %s", __func__, tx.GetHash().ToString());
 
-    return nVersion <= Params().GetConsensus().nPaymentRequestMaxVersion;
+    return true;
 
 }
 

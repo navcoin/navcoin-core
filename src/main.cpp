@@ -1265,6 +1265,15 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
       return state.DoS(100, false, REJECT_INVALID, "old-version");
 
+    if (!IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion == CTransaction::PROPOSAL_VERSION || tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION))
+        return state.DoS(100, false, REJECT_INVALID, "too-early-cfund");
+
+    if (!IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion == CTransaction::CONSULTATION_VERSION || tx.nVersion == CTransaction::ANSWER_VERSION))
+        return state.DoS(100, false, REJECT_INVALID, "too-early-consultation");
+
+    if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && tx.nVersion == CTransaction::VOTE_VERSION)
+        return state.DoS(100, false, REJECT_INVALID, "too-early-dao-vote-tx");
+
     // Coinbase is only valid in a block, not as a loose transaction
     if (tx.IsCoinBase())
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
@@ -1379,6 +1388,19 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     return state.DoS(10, false, REJECT_INVALID, "bad-dao-consultation-answer");
         }
 
+        bool fColdStakingv2 = IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus());
+
+        if (fColdStakingv2)
+        {
+            if (tx.nVersion == CTransaction::VOTE_VERSION)
+            {
+                if (!IsValidDaoTxVote(tx, chainActive.Tip()))
+                {
+                    return state.DoS(10, false, REJECT_INVALID, "bad-dao-tx-vote");
+                }
+            }
+        }
+
         // do we already have it?
         bool fHadTxInCache = pcoinsTip->HaveCoinsInCache(hash);
         if (view.HaveCoins(hash)) {
@@ -1415,6 +1437,15 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             {
                 if(txout.scriptPubKey.IsColdStaking())
                     return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+            }
+        }
+
+        if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()))
+        {
+            for (const CTxOut& txout: tx.vout)
+            {
+                if(txout.scriptPubKey.IsColdStakingv2())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-v2-not-enabled");
             }
         }
 
@@ -1458,6 +1489,10 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     {
                         if (viewMemPool.AddPaymentRequest(prequest))
                             LogPrint("cfund","New payment request (mempool) %s\n", prequest.ToString());
+                    }
+                    else
+                    {
+                        return state.DoS(0, false, REJECT_NONSTANDARD, "invalid payment request (parent not accepted)");
                     }
                 }
                 else
@@ -2557,13 +2592,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), hash, k), CAddressUnspentValue()));
 
 
-                }  else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking()) {
+                }  else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2()) {
                     uint160 hashBytes;
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-                    if (out.scriptPubKey.IsColdStaking())
+                    if (out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2())
                         address.GetSpendingAddress(address);
                     address.GetIndexKey(hashBytes, type);
 
@@ -2641,13 +2676,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                         addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
 
-                    } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking()) {
+                    } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2()) {
                         uint160 hashBytes;
                         int type = 0;
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
-                        if (prevout.scriptPubKey.IsColdStaking())
+                        if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
                             address.GetSpendingAddress(address);
                         address.GetIndexKey(hashBytes, type);
 
@@ -2773,109 +2808,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
     if (fStake && fVoteCacheState && fCFund)
     {
-        stakerScript = std::vector<unsigned char>(block.vtx[1].vout[1].scriptPubKey.begin(),block.vtx[1].vout[1].scriptPubKey.end());
+        CVoteMap baseMap;
 
-        std::map<uint256, int64_t> mapHashesToRestore;
-        std::map<uint256, int64_t> mapRestoredHashes;
+        if (!view.GetAllVotes(baseMap))
+            return AbortNode(state, "Failed to get voters list");
 
-        const CTransaction &tx = block.vtx[0];
-
-        for (size_t j = 0; j < tx.vout.size(); j++)
-        {
-            uint256 hash_;
-            int64_t vote;
-
-            if(tx.vout[j].IsVote())
-            {
-                tx.vout[j].scriptPubKey.ExtractVote(hash_, vote);
-                mapHashesToRestore.insert(make_pair(hash_, -2));
-            }
-            else if(tx.vout[j].IsSupportVote())
-            {
-                tx.vout[j].scriptPubKey.ExtractSupportVote(hash_, vote);
-                mapHashesToRestore.insert(make_pair(hash_, -4));
-            }
-            else if(tx.vout[j].IsConsultationVote())
-            {
-                tx.vout[j].scriptPubKey.ExtractConsultationVote(hash_, vote);
-                mapHashesToRestore.insert(make_pair(hash_, -6));
-            }
-        }
-
-        CBlockIndex* pindexIterator = pindex->pprev;
-
-        while (pindexIterator)
-        {
-            CBlock block;
-
-            if (ReadBlockFromDisk(block, pindexIterator, Params().GetConsensus())) {
-                for (const CTxOut& out: block.vtx[0].vout)
-                {
-                    uint256 hash_;
-                    int64_t vote;
-
-                    if(out.IsVote())
-                    {
-                        out.scriptPubKey.ExtractVote(hash_, vote);
-
-                        if (mapHashesToRestore.count(hash_) && !mapRestoredHashes.count(hash_))
-                        {
-                            mapRestoredHashes[hash_] = vote;
-                        }
-                    }
-                    else if(out.IsSupportVote())
-                    {
-                        out.scriptPubKey.ExtractSupportVote(hash_, vote);
-
-                        if (mapHashesToRestore.count(hash_) && !mapRestoredHashes.count(hash_))
-                        {
-                            mapRestoredHashes[hash_] = vote;
-                        }
-                    }
-                    else if(out.IsConsultationVote())
-                    {
-                        out.scriptPubKey.ExtractConsultationVote(hash_, vote);
-
-                        if (mapHashesToRestore.count(hash_) && !mapRestoredHashes.count(hash_))
-                        {
-                            mapRestoredHashes[hash_] = vote;
-                        }
-                    }
-                }
-            }
-
-            if (pindexIterator->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, pindex->pprev) == 0
-                    || mapRestoredHashes.size() == mapHashesToRestore.size())
-            {
-                break;
-            }
-
-            pindexIterator = pindexIterator->pprev;
-        }
-
-        for (auto& it: mapHashesToRestore)
-        {
-            uint256 hash_ = it.first;
-            int64_t vote = it.second;
-
-            if (mapRestoredHashes.count(hash_) == 0)
-                mapRestoredHashes[hash_] = mapHashesToRestore[hash_];
-        }
-
-        for (auto& it: mapRestoredHashes)
-        {
-            uint256 hash_ = it.first;
-            int64_t vote = it.second;
-
-            if (vote == -2 || vote == -4 || vote == -6)
-            {
-                view.ModifyVote(stakerScript)->Clear(hash_);
-            }
-            else
-            {
-                view.ModifyVote(stakerScript)->Set(hash_, vote);
-            }
-        }
+        for (auto&it: baseMap)
+            view.ModifyVote(it.first)->Clear(pindex->nHeight);
     }
 
     // move best block pointer to prevout block
@@ -3428,14 +3367,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, chainparams.GetConsensus());
+    bool fStakerScript = fVoteCacheState;
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
     bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
+    bool fColdStakingv2 = IsColdStakingv2Enabled(pindex->pprev, Params().GetConsensus());
 
     std::vector<unsigned char> stakerScript;
 
     if (fStake)
     {
-        stakerScript = std::vector<unsigned char>(block.vtx[1].vout[1].scriptPubKey.begin(),block.vtx[1].vout[1].scriptPubKey.end());
+        if (!block.vtx[1].vout[1].scriptPubKey.GetStakerScript(stakerScript))
+            fStakerScript = false;
     }
 
     for (unsigned int i = 0; i < block.vtx.size(); i++)
@@ -3443,12 +3385,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         const CTransaction &tx = block.vtx[i];
         const uint256 txhash = tx.GetHash();
 
+        bool fDaoTx = (IsValidDaoTxVote(tx, pindex->pprev) && fVoteCacheState && fColdStakingv2);
+
         nInputs += tx.vin.size();
 
         if (fCFund || fDAOConsultations)
         {
-            // Add Votes from the block coinbase
-            if(tx.IsCoinBase())
+            // Add Votes from the block coinbase or dao vote txs if enabled
+            if(tx.IsCoinBase() || fDaoTx)
             {
                 CProposal proposal;
                 CPaymentRequest prequest;
@@ -3457,6 +3401,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 std::map<uint256, int> votes;
                 std::map<uint256, int> mapCountAnswers;
                 std::map<uint256, int> mapCacheMaxAnswers;
+
+                if (fDaoTx)
+                {
+                    CTransaction txPrev;
+                    uint256 hashBlock = uint256();
+
+                    if (!GetTransaction(tx.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                        continue;  // previous transaction not in main chain
+
+                    if(!txPrev.vout[tx.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+                        continue;
+                }
 
                 for (size_t j = 0; j < tx.vout.size(); j++)
                 {
@@ -3479,7 +3435,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     {
                         votes[hash] = vote;
 
-                        if (fStake && fVoteCacheState)
+                        if (fStake && fVoteCacheState && fStakerScript)
                         {
                             if (fDAOConsultations && fConsultation)
                             {
@@ -3489,23 +3445,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == -6 || vote == -5))) && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    if (vote == -6)
+                                    if (fValidConsultationAnswer)
                                     {
-                                        view.ModifyVote(stakerScript)->Clear(hash);
+                                        CConsultation parentConsultation;
+                                        if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                            mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
+                                        mapCountAnswers[answer.parent]++;
+                                        if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                                            continue;
                                     }
-                                    else
-                                    {
-                                        if (fValidConsultationAnswer)
-                                        {
-                                            CConsultation parentConsultation;
-                                            if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
-                                                mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
-                                            mapCountAnswers[answer.parent]++;
-                                            if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
-                                                continue;
-                                        }
-                                        view.ModifyVote(stakerScript)->Set(hash, vote);
-                                    }
+                                    view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
                                 }
                                 else
                                 {
@@ -3542,15 +3491,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 }
 
                                 votes[hash] = vote;
-
-                                if (vote == -2 || vote == -4)
-                                {
-                                    view.ModifyVote(stakerScript)->Clear(hash);
-                                }
-                                else
-                                {
-                                    view.ModifyVote(stakerScript)->Set(hash, vote);
-                                }
+                                view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
                             }
                         }
                         else
@@ -3718,11 +3659,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
                         hashBytes = uint160(vector <unsigned char>(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23));
                         addressType = 1;
-                    } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking()) {
+                    } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2()) {
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
                         CNavCoinAddress address(destination);
-                        if (prevout.scriptPubKey.IsColdStaking())
+                        if (prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2())
                             address.GetSpendingAddress(address);
                         address.GetIndexKey(hashBytes, addressType);
                     } else {
@@ -3830,13 +3771,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     // record unspent output
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(2, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
-                } else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking()) {
+                } else if (out.scriptPubKey.IsPayToPublicKey() || out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2()) {
                     uint160 hashBytes;
                     int type = 0;
                     CTxDestination destination;
                     ExtractDestination(out.scriptPubKey, destination);
                     CNavCoinAddress address(destination);
-                    if (out.scriptPubKey.IsColdStaking())
+                    if (out.scriptPubKey.IsColdStaking() || out.scriptPubKey.IsColdStakingv2())
                         address.GetSpendingAddress(address);
                     address.GetIndexKey(hashBytes, type);
 
@@ -3967,7 +3908,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
     }
 
-    if (fStake && fVoteCacheState)
+    if (fStake && fVoteCacheState && fStakerScript)
     {
         CVoteList pVoteList;
 
@@ -3981,6 +3922,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 {
                     int64_t val;
                     it.second.GetValue(val);
+
+                    if (val == -6 || val == -4 || val == -2)
+                        continue;
+
                     if (view.HaveProposal(it.first))
                     {
                         pindex->vProposalVotes.push_back(make_pair(it.first, val));
@@ -5103,6 +5048,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     }
 
     bool fColdStakingEnabled = IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus());
+    bool fColdStakingv2Enabled = IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus());
 
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
@@ -5114,8 +5060,12 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (!fColdStakingEnabled)
         {
             for (const CTxOut& txout: tx.vout)
+            {
                 if(txout.scriptPubKey.IsColdStaking())
                     return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
+                if(txout.scriptPubKey.IsColdStakingv2())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-v2-not-enabled");
+            }
         }
     }
 
@@ -5161,7 +5111,7 @@ bool CheckBlockSignature(const CBlock& block)
         return CPubKey(vchPubKey).Verify(block.GetHash(), block.vchBlockSig);
     }
 
-    if(whichType == TX_COLDSTAKING) // We need to get the public key from the input's scriptSig
+    if(whichType == TX_COLDSTAKING || whichType == TX_COLDSTAKING_V2) // We need to get the public key from the input's scriptSig
     {
         if(block.vtx[1].vin[0].scriptSig.size() <= 0x21)
             return false;
@@ -5247,6 +5197,12 @@ bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsColdStakingv2Enabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING_V2, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 bool IsAbstainVoteEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
@@ -9278,7 +9234,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
         return error("CheckProofOfStake() : INFO: read txPrev failed %s",txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
 
-    if (txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking())
+    if (txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking() || txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStakingv2())
         for(unsigned int i = 1; i < tx.vout.size() - 1; i++) // First output is empty, last is CFund contribution
             if(tx.vout[i].scriptPubKey != txPrev.vout[txin.prevout.n].scriptPubKey)
                 return error(strprintf("CheckProofOfStake(): Coinstake output %d tried to move cold staking coins to a non authorised script. (%s vs. %s)",

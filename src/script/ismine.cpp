@@ -79,6 +79,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
         if (keystore.HaveKey(keyID))
             return ISMINE_SPENDABLE;
         break;
+    case TX_COLDSTAKING_V2:
     case TX_COLDSTAKING: {
         keyID = CKeyID(uint160(vSolutions[1]));
         keyID2 = CKeyID(uint160(vSolutions[0]));

@@ -49,6 +49,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     case TX_COLDSTAKING: return "cold_staking";
+    case TX_COLDSTAKING_V2: return "cold_staking_v2";
     case TX_POOL: return "pool_staking";
     }
     return NULL;
@@ -93,6 +94,18 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         vSolutionsRet.push_back(stakingPubKey);
         vector<unsigned char> spendingPubKey(scriptPubKey.begin()+31, scriptPubKey.begin()+51);
         vSolutionsRet.push_back(spendingPubKey);
+        return true;
+    }
+
+    if (scriptPubKey.IsColdStakingv2())
+    {
+        typeRet = TX_COLDSTAKING_V2;
+        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+27, scriptPubKey.begin()+47);
+        vSolutionsRet.push_back(stakingPubKey);
+        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+53, scriptPubKey.begin()+73);
+        vSolutionsRet.push_back(spendingPubKey);
+        vector<unsigned char> votingPubKey(scriptPubKey.begin()+1, scriptPubKey.begin()+21);
+        vSolutionsRet.push_back(votingPubKey);
         return true;
     }
 
@@ -303,6 +316,11 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         addressRet = make_pair(CKeyID(uint160(vSolutions[0])), CKeyID(uint160(vSolutions[1])));
         return true;
     }
+    else if (whichType == TX_COLDSTAKING_V2)
+    {
+        addressRet = make_pair(CKeyID(uint160(vSolutions[0])), make_pair(CKeyID(uint160(vSolutions[1])), CKeyID(uint160(vSolutions[2]))));
+        return true;
+    }
     // Multisig txns have more than one address...
     return false;
 }
@@ -336,7 +354,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
         if (addressRet.empty())
             return false;
     }
-    else if (typeRet == TX_COLDSTAKING)
+    else if (typeRet == TX_COLDSTAKING || typeRet == TX_COLDSTAKING_V2)
     {
         nRequiredRet = 1;
         for (unsigned int i = 0; i < vSolutions.size(); i++)
@@ -389,6 +407,12 @@ public:
     bool operator()(const pair<CKeyID, CKeyID>&keyPairID) const {
         script->clear();
         *script << OP_COINSTAKE << OP_IF << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ELSE << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.second) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ENDIF;
+        return true;
+    }
+
+    bool operator()(const pair<CKeyID, pair<CKeyID, CKeyID>>&keyPairID) const {
+        script->clear();
+        *script << ToByteVector(keyPairID.second.second) << OP_DROP << OP_COINSTAKE << OP_IF << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ELSE << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.second.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ENDIF;
         return true;
     }
 

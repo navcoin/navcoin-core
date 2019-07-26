@@ -266,7 +266,8 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue){
                     vCoins.push_back(COutput(pcoin, i, nDepth, true,
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO &&
-                                           !pcoin->vout[i].scriptPubKey.IsColdStaking()) ||
+                                           !pcoin->vout[i].scriptPubKey.IsColdStaking() &&
+                                           !pcoin->vout[i].scriptPubKey.IsColdStakingv2()) ||
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_STAKABLE)) != ISMINE_NO &&
                                            IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))));
                 }
@@ -373,12 +374,12 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     break;
                 }
                 LogPrint("coinstake", "CreateCoinStake : parsed kernel type=%d\n", whichType);
-                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_COLDSTAKING)
+                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_COLDSTAKING && whichType != TX_COLDSTAKING_V2)
                 {
                     LogPrint("coinstake", "CreateCoinStake : no support for kernel type=%d\n", whichType);
                     break;  // only support pay to public key and pay to address
                 }
-                if (whichType == TX_COLDSTAKING) // cold staking
+                if (whichType == TX_COLDSTAKING || whichType == TX_COLDSTAKING_V2) // cold staking
                 {
                     // try to find staking key
                     if (!keystore.GetKey(uint160(vSolutions[0]), key))
@@ -546,7 +547,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         txNew.vout[1].nValue = blockValue;
     }
 
-    if (GetArg("-stakingaddress", "") != "" && !txNew.vout[txNew.vout.size()-1].scriptPubKey.IsColdStaking()) {
+    if (GetArg("-stakingaddress", "") != "" && !txNew.vout[txNew.vout.size()-1].scriptPubKey.IsColdStaking() && !txNew.vout[txNew.vout.size()-1].scriptPubKey.IsColdStakingv2()) {
         CNavCoinAddress address;
         UniValue stakingAddress;
         UniValue addressMap(UniValue::VOBJ);
@@ -2885,7 +2886,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
                 {
                     CAmount nCredit = pcoin.first->vout[pcoin.second].nValue;
-                    if(pcoin.first->vout[pcoin.second].scriptPubKey.IsColdStaking())
+                    if(pcoin.first->vout[pcoin.second].scriptPubKey.IsColdStaking() || pcoin.first->vout[pcoin.second].scriptPubKey.IsColdStakingv2())
                         wtxNew.fSpendsColdStaking = true;
                     //The coin age after the next block (depth+1) is used instead of the current,
                     //reflecting an assumption the user would accept a bit more delay for
@@ -3767,6 +3768,15 @@ public:
             vKeys.push_back(keyId.first);
         if (keystore.HaveKey(keyId.second))
             vKeys.push_back(keyId.second);
+    }
+
+    void operator()(const pair<CKeyID, pair<CKeyID, CKeyID>> &keyId) {
+        if (keystore.HaveKey(keyId.first))
+            vKeys.push_back(keyId.first);
+        if (keystore.HaveKey(keyId.second.first))
+            vKeys.push_back(keyId.second.first);
+        if (keystore.HaveKey(keyId.second.second))
+            vKeys.push_back(keyId.second.second);
     }
 
     void operator()(const CScriptID &scriptId) {

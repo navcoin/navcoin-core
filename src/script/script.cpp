@@ -235,6 +235,27 @@ bool CScript::IsColdStaking() const
             (*this)[53] == OP_ENDIF);
 }
 
+bool CScript::IsColdStakingv2() const
+{
+    return (this->size() == 1+1+25+1+25+1+22 &&
+            (*this)[0] == 0x14 &&
+            (*this)[21] == OP_DROP &&
+            (*this)[22] == OP_COINSTAKE &&
+            (*this)[23] == OP_IF &&
+            (*this)[24] == OP_DUP &&
+            (*this)[25] == OP_HASH160 &&
+            (*this)[26] == 0x14 &&
+            (*this)[47] == OP_EQUALVERIFY &&
+            (*this)[48] == OP_CHECKSIG &&
+            (*this)[49] == OP_ELSE &&
+            (*this)[50] == OP_DUP &&
+            (*this)[51] == OP_HASH160 &&
+            (*this)[52] == 0x14 &&
+            (*this)[73] == OP_EQUALVERIFY &&
+            (*this)[74] == OP_CHECKSIG &&
+            (*this)[75] == OP_ENDIF);
+}
+
 bool CScript::IsPayToPublicKeyHash() const
 {
     // Extra-fast test for pay-to-pubkey CScripts:
@@ -532,6 +553,26 @@ bool CScript::IsPushOnly(const_iterator pc) const
 bool CScript::IsPushOnly() const
 {
     return this->IsPushOnly(begin());
+}
+
+bool CScript::GetStakerScript(std::vector<unsigned char>& script) const
+{
+    if (IsColdStakingv2())
+    {
+        script = std::vector<unsigned char>(this->begin()+1, this->begin()+21);
+        return true;
+    }
+    else if (IsPayToPublicKeyHash())
+    {
+        script = std::vector<unsigned char>(this->begin()+2, this->begin()+22);
+        return true;
+    }
+    else if (IsColdStaking() || IsPayToPublicKey())
+    {
+        script = std::vector<unsigned char>(this->begin(),this->end());
+        return true;
+    }
+    return false;
 }
 
 std::string CScriptWitness::ToString() const

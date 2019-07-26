@@ -404,6 +404,7 @@ public:
     static const int32_t PAYMENT_REQUEST_VERSION=5;
     static const int32_t CONSULTATION_VERSION=6;
     static const int32_t ANSWER_VERSION=7;
+    static const int32_t VOTE_VERSION=8;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date

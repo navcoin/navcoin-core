@@ -47,6 +47,8 @@ enum ConsensusParamsPos
 
     CONSENSUS_PARAM_NAVNS_FEE,
 
+    CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE,
+
     MAX_CONSENSUS_PARAMS
 };
 
@@ -80,7 +82,8 @@ static std::string sConsensusParamsDesc[Consensus::MAX_CONSENSUS_PARAMS] = {
 
     "Staking reward per block",
 
-    "Yearly fee for registering a name in NavNS"
+    "Yearly fee for registering a name in NavNS",
+    "Minimum fee as a fund contribution to submit a DAO vote using a light wallet"
 };
 
 static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
@@ -112,6 +115,7 @@ static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
     TYPE_NUMBER,
     TYPE_NAV,
 
+    TYPE_NAV,
     TYPE_NAV,
     TYPE_NAV
 };

@@ -122,39 +122,78 @@ public:
 
     CVote* Get(const uint256& hash)
     {
-        if (list.count(hash) == 0 || (list.count(hash) && list[hash].IsNull()))
-            return nullptr;
-        return &list[hash];
+        CVote* ret = nullptr;
+        int nHeight = 0;
+        for (auto& it: list)
+        {
+            if (it.first.first > nHeight && it.first.second == hash && !it.second.IsNull())
+            {
+                ret = &it.second;
+                nHeight = it.first.first;
+            }
+        }
+        return ret;
     }
 
-    bool Set(const uint256& hash, int64_t vote)
+    bool Set(const int& height, const uint256& hash, int64_t vote)
     {
-        if (list.count(hash) == 0)
-            list[hash] = CVote();
-        list[hash].SetValue(vote);
+        if (list.count(std::make_pair(height, hash)) == 0)
+            list[std::make_pair(height, hash)] = CVote();
+        list[std::make_pair(height, hash)].SetValue(vote);
         fDirty = true;
         return true;
     }
 
-    bool Set(const uint256& hash, CVote vote)
+    bool Set(const int& height, const uint256& hash, CVote vote)
     {
-        list[hash] = vote;
+        list[std::make_pair(height, hash)] = vote;
         fDirty = true;
         return true;
     }
 
-    bool Clear(const uint256& hash)
+    bool Clear(const int& height, const uint256& hash)
     {
-        if (list.count(hash) == 0)
-            list[hash] = CVote();
-        list[hash].SetNull();
+        if (list.count(std::make_pair(height, hash)) == 0)
+            list[std::make_pair(height, hash)] = CVote();
+        list[std::make_pair(height, hash)].SetNull();
         fDirty = true;
+        return true;
+    }
+
+    bool Clear(const int& height)
+    {
+        for (auto &it: list)
+        {
+            if (it.first.first == height)
+                it.second.SetNull();
+        }
         return true;
     }
 
     std::map<uint256, CVote> GetList()
     {
         std::map<uint256, CVote> ret;
+        std::map<uint256, int> mapCacheHeight;
+        for (auto &it: list)
+        {
+            if (!it.second.IsNull())
+            {
+                if (mapCacheHeight.count(it.first.second) == 0)
+                    mapCacheHeight[it.first.second] = 0;
+                if (it.first.first > mapCacheHeight[it.first.second])
+                {
+                    ret[it.first.second] = it.second;
+                    mapCacheHeight[it.first.second] = it.first.first;
+                }
+            }
+        }
+        return ret;
+    }
+
+
+    std::map<std::pair<int, uint256>, CVote> GetFullList()
+    {
+        std::map<std::pair<int, uint256>, CVote> ret;
         for (auto &it: list)
         {
             if (!it.second.IsNull())
@@ -168,7 +207,7 @@ public:
         std::string sList;
         for (auto& it:list)
         {
-            sList += strprintf("{%s => %s}, ", it.first.ToString(), it.second.ToString());
+            sList += strprintf("{%s at height %d => %s}, ", it.first.second.ToString(), it.first.first, it.second.ToString());
         }
         return strprintf("CVoteList([%s])", sList);
     }
@@ -186,7 +225,7 @@ public:
     }
 
 private:
-    std::map<uint256, CVote> list;
+    std::map<std::pair<int, uint256>, CVote> list;
 };
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
@@ -198,7 +237,7 @@ bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
 bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
 bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
 bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex);
-
+bool IsValidDaoTxVote(const CTransaction& tx, CBlockIndex* pindex);
 
 std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string);
 std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string);

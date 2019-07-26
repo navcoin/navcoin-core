@@ -161,11 +161,12 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 2)
         throw runtime_error(
-            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\"\n"
-            "Returns a coldstaking address based on two address inputs\n"
+            "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
+            "Returns a coldstaking address based on the address inputs\n"
             "Arguments:\n"
             "1. \"stakingaddress\"  (string, required) The navcoin staking address.\n"
             "2. \"spendingaddress\" (string, required) The navcoin spending address.\n\n"
+            "3. \"voting\"          (string, optional) The navcoin voting address.\n\n"
             "\nExamples:\n"
             + HelpExampleCli("getcoldstakingaddress", "\"mqyGZvLYfEH27Zk3z6JkwJgB1zpjaEHfiW\" \"mrfjgazyerYxDQHJAPDdUcC3jpmi8WZ2uv\"") +
             "\nAs a json rpc call\n"
@@ -175,6 +176,10 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
     if (!IsColdStakingEnabled(chainActive.Tip(),Params().GetConsensus()))
         throw runtime_error(
             "Cold Staking is not active yet.");
+
+    if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && params.size() == 3)
+        throw runtime_error(
+            "Cold Staking v2 is not active yet.");
 
     if (params[0].get_str() == params[1].get_str())
         throw runtime_error(
@@ -193,6 +198,18 @@ UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Spending address is not a valid NavCoin address");
 
     spendingAddress.GetKeyID(spendingKeyID);
+
+    if (params.size() == 3)
+    {
+        CNavCoinAddress votingAddress(params[2].get_str());
+        CKeyID votingKeyID;
+        if (!votingAddress.IsValid() || !votingAddress.GetKeyID(votingKeyID))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Voting address is not a valid NavCoin address");
+
+        votingAddress.GetKeyID(votingKeyID);
+
+        return CNavCoinAddress(stakingKeyID, spendingKeyID, votingKeyID).ToString();
+    }
 
     return CNavCoinAddress(stakingKeyID, spendingKeyID).ToString();
 }
@@ -1865,6 +1882,8 @@ public:
 
     bool operator()(const pair<CKeyID, CKeyID> &dest) const { return false; }
 
+    bool operator()(const pair<CKeyID, pair<CKeyID, CKeyID>> &dest) const { return false; }
+
     bool operator()(const CKeyID &keyID) {
         CPubKey pubkey;
         if (pwalletMain && pwalletMain->GetPubKey(keyID, pubkey)) {
@@ -2187,7 +2206,8 @@ void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strA
         }
         entry.pushKV("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
                                           (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
-                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false);
+                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()) &&
+                                           !CNavCoinAddress(r.destination).IsColdStakingv2Address(Params()))) ? true : false);
         entry.pushKV("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false);
         if (pwalletMain->mapAddressBook.count(r.destination))
             entry.pushKV("label", account);
@@ -3488,7 +3508,7 @@ CAmount GetTxStakeAmount(const CWalletTx* tx)
     if ((tx->fCreditCached || tx->fColdStakingCreditCached) && (tx->fDebitCached || tx->fColdStakingDebitCached))
         return tx->nCreditCached + tx->nColdStakingCreditCached - tx->nDebitCached - tx->nColdStakingDebitCached;
     // Check for cold staking
-    else if (tx->vout[1].scriptPubKey.IsColdStaking())
+    else if (tx->vout[1].scriptPubKey.IsColdStaking() || tx->vout[1].scriptPubKey.IsColdStakingv2())
         return tx->GetCredit(pwalletMain->IsMine(tx->vout[1])) - tx->GetDebit(pwalletMain->IsMine(tx->vout[1]));
 
     return tx->GetCredit(ISMINE_SPENDABLE) + tx->GetCredit(ISMINE_STAKABLE) - tx->GetDebit(ISMINE_SPENDABLE) - tx->GetDebit(ISMINE_STAKABLE);
