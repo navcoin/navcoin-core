@@ -3368,6 +3368,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, chainparams.GetConsensus());
     bool fStakerScript = fVoteCacheState;
+    bool fStakerIsColdStakingv2 = false;
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
     bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
     bool fColdStakingv2 = IsColdStakingv2Enabled(pindex->pprev, Params().GetConsensus());
@@ -3378,6 +3379,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     {
         if (!block.vtx[1].vout[1].scriptPubKey.GetStakerScript(stakerScript))
             fStakerScript = false;
+        if (block.vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
+            fStakerIsColdStakingv2 = true;
     }
 
     for (unsigned int i = 0; i < block.vtx.size(); i++)
@@ -3392,7 +3395,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (fCFund || fDAOConsultations)
         {
             // Add Votes from the block coinbase or dao vote txs if enabled
-            if(tx.IsCoinBase() || fDaoTx)
+            if((tx.IsCoinBase() && !fStakerIsColdStakingv2) || (fDaoTx && i > 1))
             {
                 CProposal proposal;
                 CPaymentRequest prequest;

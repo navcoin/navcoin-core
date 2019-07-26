@@ -11,7 +11,8 @@ enum ConsensusParamType
 {
     TYPE_NUMBER,
     TYPE_PERCENT,
-    TYPE_NAV
+    TYPE_NAV,
+    TYPE_BOOL
 };
 
 enum ConsensusParamsPos

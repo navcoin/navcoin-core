@@ -1113,6 +1113,9 @@ bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::s
     if (val == GetConsensusParameter(pos, pindex))
         return error("%s: The proposed value is the current one", __func__);
 
+    if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_BOOL && val != 0 && val != 1)
+        return error("%s: Boolean values can only be 0 or 1", __func__);
+
     return true;
 }
 
