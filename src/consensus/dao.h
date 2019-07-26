@@ -224,7 +224,7 @@ public:
     int nVotesNo;
     int nVotesAbs;
     string strDZeel;
-    uint64_t nVersion;
+    int nVersion;
     unsigned int nVotingCycle;
     bool fDirty;
 
@@ -374,7 +374,7 @@ public:
     uint256 hash;
     uint256 blockhash;
     uint256 txblockhash;
-    uint64_t nVersion;
+    int nVersion;
     unsigned int nVotingCycle;
     bool fDirty;
 
