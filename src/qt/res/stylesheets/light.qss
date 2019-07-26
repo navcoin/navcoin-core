@@ -158,3 +158,10 @@ QLineEdit {
     padding: 0.1em;
     font: normal normal 1em/1em;
 }
+
+[flat=true],
+[flat=true]:hover,
+[flat=true]:active {
+    border: 0;
+    background: none;
+}
