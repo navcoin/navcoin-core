@@ -1031,6 +1031,10 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
               bool fCFund = IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus());
               bool fDAOConsultations = IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus());
+              bool fColdStakingv2 = IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus());
+              bool fStakerIsColdStakingv2 = false;
+              if (pblock->vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
+                  fStakerIsColdStakingv2 = true;
               std::vector<unsigned char> stakerScript;
 
               if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus()) && txCoinStake.vout[1].scriptPubKey.GetStakerScript(stakerScript))
@@ -1041,10 +1045,17 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
                   for (auto it = pblock->vtx[0].vout.begin(); it != pblock->vtx[0].vout.end();)
                   {
+
                       CTxOut out = *it;
 
                       if (fCFund && out.IsVote())
                       {
+                          if (fColdStakingv2 && fStakerIsColdStakingv2)
+                          {
+                              it = pblock->vtx[0].vout.erase(it);
+                              continue;
+                          }
+
                           uint256 hash;
                           int64_t vote;
                           out.scriptPubKey.ExtractVote(hash, vote);
@@ -1065,6 +1076,12 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
                       if (fDAOConsultations && out.IsSupportVote())
                       {
+                          if (fColdStakingv2 && fStakerIsColdStakingv2)
+                          {
+                              it = pblock->vtx[0].vout.erase(it);
+                              continue;
+                          }
+
                           uint256 hash;
                           int64_t vote;
                           out.scriptPubKey.ExtractSupportVote(hash, vote);
@@ -1085,6 +1102,12 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
                       if (fDAOConsultations && out.IsConsultationVote())
                       {
+                          if (fColdStakingv2 && fStakerIsColdStakingv2)
+                          {
+                              it = pblock->vtx[0].vout.erase(it);
+                              continue;
+                          }
+
                           uint256 hash;
                           int64_t vote;
                           out.scriptPubKey.ExtractConsultationVote(hash, vote);
