@@ -93,30 +93,30 @@ QT_FORMS_UI = \
 	qt/forms/addressbookpage.ui \
 	qt/forms/askpassphrasedialog.ui \
 	qt/forms/coincontroldialog.ui \
+	qt/forms/communityfundcreatepaymentrequestdialog.ui \
+	qt/forms/communityfundcreateproposaldialog.ui \
+	qt/forms/communityfunddisplay.ui \
+	qt/forms/communityfunddisplaydetailed.ui \
+	qt/forms/communityfunddisplaypaymentrequest.ui \
+	qt/forms/communityfunddisplaypaymentrequestdetailed.ui \
+	qt/forms/communityfundpage.ui \
+	qt/forms/communityfundsuccessdialog.ui \
+	qt/forms/debugwindow.ui \
 	qt/forms/editaddressdialog.ui \
+	qt/forms/getaddresstoreceive.ui \
 	qt/forms/helpmessagedialog.ui \
 	qt/forms/intro.ui \
 	qt/forms/modaloverlay.ui \
 	qt/forms/openuridialog.ui \
 	qt/forms/optionsdialog.ui \
 	qt/forms/overviewpage.ui \
-	qt/forms/communityfunddisplaydetailed.ui \
-	qt/forms/communityfundcreateproposaldialog.ui \
-	qt/forms/communityfundcreatepaymentrequestdialog.ui \
 	qt/forms/receivecoinsdialog.ui \
 	qt/forms/receiverequestdialog.ui \
-	qt/forms/debugwindow.ui \
 	qt/forms/sendcoinsdialog.ui \
 	qt/forms/sendcoinsentry.ui \
 	qt/forms/sendcommunityfunddialog.ui \
-	qt/forms/communityfundsuccessdialog.ui \
 	qt/forms/signverifymessagedialog.ui \
-	qt/forms/transactiondescdialog.ui \
-	qt/forms/communityfundpage.ui \
-	qt/forms/communityfunddisplay.ui \
-	qt/forms/communityfunddisplaypaymentrequest.ui \
-	qt/forms/communityfunddisplaypaymentrequestdetailed.ui \
-	qt/getaddresstoreceive.ui
+	qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
 	qt/moc_addressbookpage.cpp \

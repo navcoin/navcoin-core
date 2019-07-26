@@ -16,23 +16,8 @@
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QRImageWidget" name="lblQRCode">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>300</width>
-       <height>320</height>
-      </size>
-     </property>
      <property name="toolTip">
       <string>QR Code</string>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -42,6 +27,13 @@
      </property>
      <property name="wordWrap">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblAddress">
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
