@@ -30,13 +30,15 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 /**
  * Wallet colors
  */
-static const QString COLOR_WHITE = "#FAFAFA";
-static const QString COLOR_PURPLE = "#7D5AB5";
-static const QString COLOR_PURPLE_DARK = "#3E1E6E";
+static const QString COLOR_WHITE = "#fafafa";
+static const QString COLOR_PURPLE = "#7d5ab5";
+static const QString COLOR_PURPLE_DARK = "#3e1e6e";
 static const QString COLOR_PURPLE_DARKER = "#351565";
-static const QString COLOR_BLUE = "#42B6EB";
-static const QString COLOR_BLUE_LIGHT = "#46B1E8";
-static const QString COLOR_MAGENTA = "#C42BB7";
+static const QString COLOR_BLUE = "#42b6eb";
+static const QString COLOR_BLUE_LIGHT = "#46b1e8";
+static const QString COLOR_MAGENTA = "#c42bb7";
+static const QString COLOR_GREY = "#c1c1c1";
+static const QString COLOR_GRAY = "#c1c1c1";
 
 /* Invalid field background style */
 #define STYLE_INVALID "background:#FF8080"

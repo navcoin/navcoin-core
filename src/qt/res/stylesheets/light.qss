@@ -1,20 +1,20 @@
 QDialog {
-    background: #FAFAFA;
+    background: #fafafa;
     border: 0;
 }
 
 QStackedWidget {
-    background: #FAFAFA;
+    background: #fafafa;
     border: 0;
 }
 
 QScrollArea {
-    background: #FAFAFA;
+    background: #fafafa;
     border: 0;
 }
 
 #scrollAreaWidgetContents {
-    background: #FAFAFA;
+    background: #fafafa;
 }
 
 #BG1_1 {
@@ -67,9 +67,9 @@ QScrollArea {
 QPushButton,
 QPushButton:hover,
 QPushButton:pressed {
-    background: #FAFAFA;
-    border: 0.05em solid #3E1E6E;
-    color: #3E1E6E;
+    background: #fafafa;
+    border: 0.05em solid #3e1e6e;
+    color: #3e1e6e;
     border-radius: 0.2em;
     padding: 0.25em 1em;
     margin: 0.1em;
@@ -79,13 +79,13 @@ QPushButton:pressed {
 
 QPushButton:hover,
 QPushButton:pressed {
-    background: #3E1E6E;
-    color: #FAFAFA;
+    background: #3e1e6e;
+    color: #fafafa;
 }
 
 QLineEdit {
-    border: 0.05em solid #C1C1C1;
-    background: #FAFAFA;
+    border: 0.05em solid #c1c1c1;
+    background: #fafafa;
     border-radius: 0.2em;
     font-size: 1em/1em;
     padding: 0.25em;
@@ -98,7 +98,7 @@ QLineEdit {
 
 #lblAddress {
     font: normal normal 1em/1em;
-    background: #C1C1C1;
+    background: #c1c1c1;
     color: #111111;
     border: 0;
     border-radius: 0.2em;
@@ -111,52 +111,61 @@ QLineEdit {
 }
 
 #HeaderBar {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ABA8E1, stop:1 #9DC3E5);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #aba8e1, stop:1 #9dc3e5);
 }
 
 #SplashBar {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.00 #7D5AB5, stop:0.75 #42B6EB, stop:1.00 #46B1E8);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.00 #7d5ab5, stop:0.75 #42b6eb, stop:1.00 #46b1e8);
 }
 
 #SplashBarInner {
-    background: #C42BB7;
+    background: #c42bb7;
 }
 
 #NotificationError,
 #NotificationWarning {
-    border: 0.15em solid #F5C6CB;
-    background: #F8D7DA;
-    color: #721C24;
+    border: 0.15em solid #f5c6cb;
+    background: #f8d7da;
+    color: #721c24;
     border-radius: 0.3em;
     padding: 0.3em 1em;
     font: normal normal 1.5em/1.5em;
 }
 
 #NotificationWarning {
-    border: 0.15em solid #FFEEBA;
-    background: #FFF3CD;
+    border: 0.15em solid #ffeeba;
+    background: #fff3cd;
     color: #856404;
 }
 
 #MainMenu {
     padding: 0.5em 0.2em 0.5em 0.5em;
     border: 0;
-    color: #FAFAFA;
-    background: #3E1E6E;
-    border-right: 0.3em solid #3E1E6E;
+    color: #fafafa;
+    background: #3e1e6e;
+    border-right: 0.3em solid #3e1e6e;
 }
 
 #MainMenu:disabled {
     background: #351565;
-    border-color: #C42BB7;
+    border-color: #c42bb7;
 }
 
 #MainMenuBubble {
     border-radius: 0.2em;
-    background: #C42BB7;
-    color: #FAFAFA;
+    background: #c42bb7;
+    color: #fafafa;
     padding: 0.1em;
     font: normal normal 1em/1em;
+}
+
+QToolTip {
+    font: normal normal 1em/1em;
+    color: #c1c1c1;
+    background: #351565;
+    border: 0.05em solid #c1c1c1;
+    border-radius: 0.3em;
+    padding: 0.2em;
 }
 
 [flat=true],
