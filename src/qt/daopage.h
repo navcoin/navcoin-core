@@ -191,11 +191,14 @@ private:
     QCheckBox* excludeBox;
     QPushButton* createBtn;
     QPushButton* backToFilterBtn;
+    QLabel* warningLbl;
     QMenu* contextMenu;
     QTableWidgetItem *contextItem = nullptr;
     QString contextHash;
     QString filterHash;
     int contextId;
+
+    int64_t nLastUpdate;
 
     QAction* copyHash;
     QAction* openExplorerAction;
@@ -334,6 +337,8 @@ private Q_SLOTS:
     void refreshForce();
 
     void backToFilter();
+
+    void setWarning(QString text);
 
     void showContextMenu(const QPoint& pt);
 };

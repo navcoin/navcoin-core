@@ -4,6 +4,8 @@
 
 #include "daopage.h"
 
+#include "timedata.h"
+
 DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     clientModel(0),
@@ -47,9 +49,13 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     excludeBox = new QCheckBox(tr("Exclude finished and expired"));
     childFilterLbl = new QLabel();
     backToFilterBtn = new QPushButton(tr("Back"));
+    warningLbl = new QLabel();
+
+    warningLbl->setObjectName("warning");
 
     childFilterLbl->setVisible(false);
     backToFilterBtn->setVisible(false);
+    warningLbl->setVisible(false);
 
     connect(proposalsBtn, SIGNAL(clicked()), this, SLOT(viewProposals()));
     connect(paymentRequestsBtn, SIGNAL(clicked()), this, SLOT(viewPaymentRequests()));
@@ -84,6 +90,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     bottomBoxLayout->addWidget(filter2Cmb, 0, Qt::AlignLeft);
     bottomBoxLayout->addSpacing(30);
     bottomBoxLayout->addWidget(excludeBox);
+    bottomBoxLayout->addWidget(warningLbl);
     bottomBoxLayout->addStretch();
     bottomBoxLayout->addWidget(createBtn);
 
@@ -142,6 +149,12 @@ void DaoPage::setWalletModel(WalletModel *model)
     refresh(true);
 }
 
+void DaoPage::setWarning(QString text)
+{
+    warningLbl->setText(text);
+    warningLbl->setVisible(!text.isEmpty());
+}
+
 void DaoPage::setClientModel(ClientModel *clientModel)
 {
     this->clientModel = clientModel;
@@ -165,7 +178,12 @@ void DaoPage::setView(int view)
 
 void DaoPage::refreshForce()
 {
-    refresh(true);
+    if (GetAdjustedTime() - nLastUpdate > 15)
+    {
+        nLastUpdate = GetAdjustedTime();
+        setWarning("");
+        refresh(true);
+    }
 }
 
 void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
