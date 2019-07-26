@@ -1033,7 +1033,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               bool fDAOConsultations = IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus());
               bool fColdStakingv2 = IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus());
               bool fStakerIsColdStakingv2 = false;
-              if (pblock->vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
+              if (txCoinStake.vout[1].scriptPubKey.IsColdStakingv2())
                   fStakerIsColdStakingv2 = true;
               std::vector<unsigned char> stakerScript;
 

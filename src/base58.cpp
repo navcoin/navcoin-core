@@ -348,7 +348,7 @@ CTxDestination CNavCoinAddress::Get() const
         uint160 id2;
         memcpy(&id2, &vchData[20], 20);
         uint160 id3;
-        memcpy(&id2, &vchData[40], 20);
+        memcpy(&id3, &vchData[40], 20);
         return std::make_pair(CKeyID(id), std::make_pair(CKeyID(id2), CKeyID(id3)));
     }
     if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
