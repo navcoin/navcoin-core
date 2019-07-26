@@ -1,3 +1,37 @@
+[flat=true],
+[flat=true]:hover,
+[flat=true]:active {
+    border: 0;
+    background: none;
+}
+
+QPushButton,
+QPushButton:hover,
+QPushButton:pressed {
+    background: #fafafa;
+    border: 0.05em solid #3e1e6e;
+    color: #3e1e6e;
+    border-radius: 0.2em;
+    padding: 0.25em 1em;
+    margin: 0.1em;
+    font-size: 1em/1em;
+    font-weight: bold;
+}
+
+QPushButton:hover,
+QPushButton:pressed {
+    background: #3e1e6e;
+    color: #fafafa;
+}
+
+QLineEdit {
+    border: 0.05em solid #c1c1c1;
+    background: #fafafa;
+    border-radius: 0.2em;
+    font-size: 1em/1em;
+    padding: 0.25em;
+}
+
 QDialog {
     background: #fafafa;
     border: 0;
@@ -11,6 +45,15 @@ QStackedWidget {
 QScrollArea {
     background: #fafafa;
     border: 0;
+}
+
+QToolTip {
+    font: normal normal 1em/1em;
+    color: #c1c1c1;
+    background: #351565;
+    border: 0.05em solid #c1c1c1;
+    border-radius: 0.3em;
+    padding: 0.2em;
 }
 
 #scrollAreaWidgetContents {
@@ -62,33 +105,6 @@ QScrollArea {
 #frameReceivingAddress {
     background: #eff1f4;
     border-radius: 2px;
-}
-
-QPushButton,
-QPushButton:hover,
-QPushButton:pressed {
-    background: #fafafa;
-    border: 0.05em solid #3e1e6e;
-    color: #3e1e6e;
-    border-radius: 0.2em;
-    padding: 0.25em 1em;
-    margin: 0.1em;
-    font-size: 1em/1em;
-    font-weight: bold;
-}
-
-QPushButton:hover,
-QPushButton:pressed {
-    background: #3e1e6e;
-    color: #fafafa;
-}
-
-QLineEdit {
-    border: 0.05em solid #c1c1c1;
-    background: #fafafa;
-    border-radius: 0.2em;
-    font-size: 1em/1em;
-    padding: 0.25em;
 }
 
 #lblQRCode {
@@ -157,20 +173,4 @@ QLineEdit {
     color: #fafafa;
     padding: 0.1em;
     font: normal normal 1em/1em;
-}
-
-QToolTip {
-    font: normal normal 1em/1em;
-    color: #c1c1c1;
-    background: #351565;
-    border: 0.05em solid #c1c1c1;
-    border-radius: 0.3em;
-    padding: 0.2em;
-}
-
-[flat=true],
-[flat=true]:hover,
-[flat=true]:active {
-    border: 0;
-    background: none;
 }
