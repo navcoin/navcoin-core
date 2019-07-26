@@ -172,7 +172,7 @@ void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const 
 void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const void* pdata, size_t nSize, const void* pdata2, size_t nSize2, const void* pdata3, size_t nSize3)
 {
     vchVersion = vchVersionIn;
-    vchData.resize(nSize+nSize2);
+    vchData.resize(nSize+nSize2+nSize3);
     if (!vchData.empty()) {
         memcpy(&vchData[0], pdata, nSize);
         memcpy(&vchData[nSize], pdata2, nSize2);
@@ -363,7 +363,7 @@ bool CNavCoinAddress::GetIndexKey(uint160& hashBytes, int& type) const
 {
     if (!IsValid()) {
         return false;
-    } else if (vchVersion == Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS)) {
+    } else if (vchVersion == Params().Base58Prekifix(CChainParams::COLDSTAKING_ADDRESS)) {
         hashBytes = uint160(Hash160(vchData.begin(), vchData.end()));
         type = 3;
         return true;
