@@ -159,7 +159,7 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
 UniValue getcoldstakingaddress(const UniValue& params, bool fHelp)
 {
 
-    if (fHelp || params.size() != 2)
+    if (fHelp || params.size() < 2)
         throw runtime_error(
             "getcoldstakingaddress \"stakingaddress\" \"spendingaddress\" ( \"votingaddress\" )\n"
             "Returns a coldstaking address based on the address inputs\n"
