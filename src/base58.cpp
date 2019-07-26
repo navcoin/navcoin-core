@@ -363,7 +363,7 @@ bool CNavCoinAddress::GetIndexKey(uint160& hashBytes, int& type) const
 {
     if (!IsValid()) {
         return false;
-    } else if (vchVersion == Params().Base58Prekifix(CChainParams::COLDSTAKING_ADDRESS)) {
+    } else if (vchVersion == Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS)) {
         hashBytes = uint160(Hash160(vchData.begin(), vchData.end()));
         type = 3;
         return true;
