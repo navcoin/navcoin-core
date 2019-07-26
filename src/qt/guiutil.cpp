@@ -84,10 +84,8 @@ float scale()
         return scale;
 
     // Calculate the scale
-    scale = (float) (new QWidget())->logicalDpiX() / 96;
-
     // Give back the scale value
-    return scale;
+    return scale = (float) (new QWidget())->logicalDpiX() / 96;
 }
 
 QString dateTimeStr(const QDateTime &date)
