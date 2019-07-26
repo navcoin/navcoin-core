@@ -84,7 +84,7 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     layout->addWidget(versionLabel);
 
     // Load the icon
-    QPixmap icon = QPixmap(":icons/navcoin_full").scaled(logoSize,  Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap icon = QPixmap(":icons/navcoin_full").scaled(logoSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     // Build the new logo
     QLabel* logo = new QLabel();
