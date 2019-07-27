@@ -57,7 +57,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fHideTrayIcon", false);
     fHideTrayIcon = settings.value("fHideTrayIcon").toBool();
     Q_EMIT hideTrayIconChanged(fHideTrayIcon);
-    
+
     if (!settings.contains("fMinimizeToTray"))
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;
@@ -136,6 +136,14 @@ void OptionsModel::Init(bool resetSettings)
         addOverriddenOption("-onion");
     else if(!settings.value("fUseSeparateProxyTor").toBool() && !GetArg("-onion", "").empty())
         addOverriddenOption("-onion");
+
+    // Theme
+    if (!settings.contains("theme"))
+        settings.setValue("theme", "light");
+    if (!SoftSetArg("-theme", settings.value("theme").toString().toStdString()))
+        addOverriddenOption("-theme");
+
+    theme = settings.value("theme").toString();
 
     // Display
     if (!settings.contains("language"))
@@ -222,6 +230,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return nDisplayUnit;
         case ThirdPartyTxUrls:
             return strThirdPartyTxUrls;
+        case Theme:
+            return theme;
         case Language:
             return settings.value("language");
         case CoinControlFeatures:
@@ -348,6 +358,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             if (strThirdPartyTxUrls != value.toString()) {
                 strThirdPartyTxUrls = value.toString();
                 settings.setValue("strThirdPartyTxUrls", strThirdPartyTxUrls);
+                setRestartRequired(true);
+            }
+            break;
+        case Theme:
+            if (theme != value.toString()) {
+                theme = value.toString();
+                settings.setValue("theme", value);
                 setRestartRequired(true);
             }
             break;

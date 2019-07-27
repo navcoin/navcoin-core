@@ -25,7 +25,6 @@ public:
     ~SplashScreen();
 
 protected:
-    void paintEvent(QPaintEvent *event);
     void closeEvent(QCloseEvent *event);
 
 public Q_SLOTS:

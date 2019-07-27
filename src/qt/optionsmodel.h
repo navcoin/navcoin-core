@@ -40,6 +40,7 @@ public:
         ProxyPortTor,           // int
         DisplayUnit,            // NavCoinUnits::Unit
         ThirdPartyTxUrls,       // QString
+        Theme,                  // QString
         Language,               // QString
         CoinControlFeatures,    // bool
         ThreadsScriptVerif,     // int
@@ -77,6 +78,7 @@ private:
     bool fHideTrayIcon;
     bool fMinimizeToTray;
     bool fMinimizeOnClose;
+    QString theme;
     QString language;
     int nDisplayUnit;
     QString strThirdPartyTxUrls;

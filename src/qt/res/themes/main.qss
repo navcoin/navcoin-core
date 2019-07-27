@@ -1,0 +1,80 @@
+.alert {
+    border: 0.15em solid palette(highlight);
+    border-radius: 0.3em;
+    padding: 0.3em 1em;
+    font: normal normal 1.5em/1.5em;
+}
+
+.alert-error {
+    border: 0.15em solid #f5c6cb;
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.alert-warning {
+    border: 0.15em solid #ffeeba;
+    background: #fff3cd;
+    color: #856404;
+}
+
+.main-menu-btn {
+    padding: 0.5em 0.2em 0.5em 0.5em;
+    border: 0;
+    color: #fafafa;
+    background: #3e1e6e;
+    border-right: 0.3em solid #3e1e6e;
+}
+
+.main-menu-btn:disabled {
+    background: #351565;
+    border-color: #c42bb7;
+}
+
+.main-menu-bubble {
+    border-radius: 0.2em;
+    background: #c42bb7;
+    color: #fafafa;
+    padding: 0.1em;
+    font: normal normal 1em/1em;
+}
+
+#lblQRCode {
+    border: 0;
+    padding: 0.2em;
+}
+
+#lblAddress {
+    font: normal normal 1em/1em;
+    background: #c1c1c1;
+    color: #111111;
+    border: 0;
+    border-radius: 0.2em;
+    padding: 0.2em 0.5em;
+}
+
+#unlockStakingButton {
+    border-image: url(:/icons/lock_closed) 0 0 0 0 stretch stretch;
+    border: 0px;
+}
+
+#HeaderBar {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #aba8e1, stop:1 #9dc3e5);
+}
+
+#SplashVersionLabel {
+    padding: 2pt;
+    font-size: 8pt;
+}
+
+#SplashStatusLabel {
+    padding: 5pt;
+    font-size: 13pt;
+}
+
+#SplashBar {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.00 #7d5ab5, stop:0.75 #42b6eb, stop:1.00 #46b1e8);
+}
+
+#SplashBarInner {
+    background: #c42bb7;
+}

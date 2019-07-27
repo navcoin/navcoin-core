@@ -43,21 +43,6 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     // Size of the logo
     QSize logoSize(400 * scale(), 95 * scale());
 
-    // create a bitmap according to device pixelratio
-    pixmap = QPixmap(splashSize);
-
-    // Seupt the painter
-    QPainter pixPaint(&pixmap);
-
-    // Size and position of the splash screen
-    QRect rect(QPoint(0,0), splashSize);
-
-    // Fill with white
-    pixPaint.fillRect(rect, Qt::white);
-
-    // We are done
-    pixPaint.end();
-
     // Check if we have more text (IE testnet/devnet)
     if(!titleAddText.isEmpty())
         versionText += " <span style='font-weight: bold;'>" + titleAddText + "</span>";
@@ -80,7 +65,7 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     QLabel* versionLabel = new QLabel();
     versionLabel->setText(versionText);
     versionLabel->setAlignment(Qt::AlignRight | Qt::AlignTop);
-    versionLabel->setStyleSheet("padding: 2pt; font-size: 8pt;");
+    versionLabel->setObjectName("SplashVersionLabel");
     layout->addWidget(versionLabel);
 
     // Load the icon
@@ -95,6 +80,7 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     // Build the new statusLabel
     statusLabel = new QLabel();
     statusLabel->setAlignment(Qt::AlignCenter | Qt::AlignBottom);
+    statusLabel->setObjectName("SplashStatusLabel");
     layout->addWidget(statusLabel);
 
     // Build the splashBar
@@ -204,7 +190,6 @@ void SplashScreen::showMessage(const QString &message, const QColor &color)
 {
     // Update the text for the statusLabel
     statusLabel->setText(message);
-    statusLabel->setStyleSheet("padding: 5pt; font-size: 13pt; color: " + color.name() + ";");
     update();
 }
 
@@ -236,12 +221,6 @@ void SplashScreen::updateProgress()
     // Set the new width
     splashBarInner->setFixedWidth(barWidth);
     splashBarLayout->setAlignment((shrinking ? Qt::AlignRight : Qt::AlignLeft));
-}
-
-void SplashScreen::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    painter.drawPixmap(0, 0, pixmap);
 }
 
 void SplashScreen::closeEvent(QCloseEvent *event)

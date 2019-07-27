@@ -25,6 +25,9 @@
 #include "walletmodel.h"
 #include "wallet/rpcwallet.h"
 
+#include <styles/dark.h>
+#include <styles/light.h>
+
 #ifdef ENABLE_WALLET
 #include "walletframe.h"
 #include "walletmodel.h"
@@ -80,7 +83,6 @@
 #include <QSizePolicy>
 #include <QStackedWidget>
 #include <QStatusBar>
-#include <QStyle>
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
@@ -235,7 +237,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     setAcceptDrops(true);
 
     // Load the application styles
-    setUpStyles("light");
+    loadTheme();
 
     // Create actions for the toolbar, menu bar and tray/dock icon
     // Needs walletFrame to be initialized
@@ -333,11 +335,6 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     // Override style sheet for progress bar for styles that have a segmented progress bar,
     // as they make the text unreadable (workaround for issue #1071)
     // See https://qt-project.org/doc/qt-4.8/gallery.html
-    QString curStyle = QApplication::style()->metaObject()->className();
-    if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
-    {
-        progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 0px solid grey; border-radius: 10px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 10px; margin: 0px; }");
-    }
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
     statusBar()->addPermanentWidget(frameBlocks);
@@ -382,25 +379,6 @@ NavCoinGUI::~NavCoinGUI()
 float NavCoinGUI::scale()
 {
     return GUIUtil::scale();
-}
-
-void NavCoinGUI::setUpStyles(QString style)
-{
-    // Load the style sheet
-    QFile qss(":/stylesheets/" + style);
-
-    // Check if we can access it
-    if (qss.open(QIODevice::ReadOnly))
-    {
-        // Create a text stream
-        QTextStream qssStream(&qss);
-
-        // Load the whole stylesheet into the app
-        qApp->setStyleSheet(qssStream.readAll());
-
-        // Close the stream
-        qss.close();
-    }
 }
 
 void NavCoinGUI::createActions()
@@ -639,7 +617,7 @@ void NavCoinGUI::createToolBars()
     QToolButton* logoBtn = new QToolButton();
     logoBtn->setIcon(logoIcon);
     logoBtn->setIconSize(logoIconSize);
-    logoBtn->setObjectName("MainMenu");
+    logoBtn->setProperty("class", "main-menu-btn");
     logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     // Attach the logo button to the layout
@@ -666,9 +644,9 @@ void NavCoinGUI::createToolBars()
         notifications[i]->setWordWrap(true);
         notifications[i]->setText(tr(notifs[i].text));
         if (notifs[i].error == true)
-            notifications[i]->setObjectName("NotificationError");
+            notifications[i]->setProperty("class", "alert alert-danger");
         else
-            notifications[i]->setObjectName("NotificationWarning");
+            notifications[i]->setProperty("class", "alert alert-warning");
 
         // Add to notification layout
         notificationLayout->addWidget(notifications[i]);
@@ -717,7 +695,7 @@ void NavCoinGUI::createToolBars()
         menuBtns[i]->setIconSize(iconSize);
         menuBtns[i]->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
         menuBtns[i]->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        menuBtns[i]->setObjectName("MainMenu");
+        menuBtns[i]->setProperty("class", "main-menu-btn");
 
         // Attach to the layout and assign click events
         walletFrame->menuLayout->addWidget(menuBtns[i]);
@@ -732,19 +710,19 @@ void NavCoinGUI::createToolBars()
         menuBubbles[i] = new QLabel();
         menuBubbles[i]->hide();
         menuBubbles[i]->setText("1");
-        menuBubbles[i]->setObjectName("MainMenuBubble");
+        menuBubbles[i]->setProperty("class", "main-menu-bubble");
         bubbleLayout->addWidget(menuBubbles[i]);
     }
 
     /* This is to make the sidebar background consistent */
     QWidget *padding = new QWidget();
-    padding->setObjectName("MainMenu");
+    padding->setProperty("class", "main-menu-btn");
     walletFrame->menuLayout->addWidget(padding);
 
     // Add the versionLabel
     QToolButton* versionLabel = new QToolButton();
     versionLabel->setText(QString::fromStdString(FormatVersion(CLIENT_VERSION)));
-    versionLabel->setObjectName("MainMenu");
+    versionLabel->setProperty("class", "main-menu-btn");
     versionLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     walletFrame->menuLayout->addWidget(versionLabel);
 
@@ -1761,6 +1739,43 @@ void NavCoinGUI::toggleStaking()
 
     Q_EMIT message(tr("Staking"), GetStaking() ? tr("Staking has been enabled") : tr("Staking has been disabled"),
                    CClientUIInterface::MSG_INFORMATION);
+}
+
+void NavCoinGUI::loadTheme()
+{
+    // Get an instance of settings
+    QSettings settings;
+
+    // What theme are we using?
+    QString theme = settings.value("theme", "light").toString();
+
+    // Load the style sheet
+    QFile mainQss(":/themes/main");
+    QFile themeQss(":/themes/" + theme);
+
+    // Check if we can access it
+    if (mainQss.open(QIODevice::ReadOnly) && themeQss.open(QIODevice::ReadOnly))
+    {
+        // Create a text stream
+        QTextStream mainQssStream(&mainQss);
+        QTextStream themeQssStream(&themeQss);
+
+        // Load the whole stylesheet into the app
+        qApp->setStyleSheet(mainQssStream.readAll() + themeQssStream.readAll());
+
+        // Check if we which theme we want
+        if (theme == "dark") {
+            // Load the style
+            qApp->setStyle(new StyleDark);
+        } else {
+            // Load the style
+            qApp->setStyle(new StyleLight);
+        }
+
+        // Close the stream
+        mainQss.close();
+        themeQss.close();
+    }
 }
 
 #ifdef ENABLE_WALLET

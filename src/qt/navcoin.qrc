@@ -105,7 +105,59 @@
         <file alias="spinner-034">res/movies/spinner-034.png</file>
         <file alias="spinner-035">res/movies/spinner-035.png</file>
     </qresource>
-    <qresource prefix="/stylesheets">
-        <file alias="light">res/stylesheets/light.qss</file>
+    <qresource prefix="/themes">
+        <file alias="main">res/themes/main.qss</file>
+        <file alias="dark">res/themes/dark/styles.qss</file>
+        <file alias="light">res/themes/light/styles.qss</file>
+    </qresource>
+    <qresource prefix="/dark">
+        <file alias="icon_close">res/themes/dark/icons/icon_close.png</file>
+        <file alias="icon_restore">res/themes/dark/icons/icon_restore.png</file>
+        <file alias="icon_undock">res/themes/dark/icons/icon_undock.png</file>
+        <file alias="icon_branch_closed">res/themes/dark/icons/icon_branch_closed.png</file>
+        <file alias="icon_branch_end">res/themes/dark/icons/icon_branch_end.png</file>
+        <file alias="icon_branch_more">res/themes/dark/icons/icon_branch_more.png</file>
+        <file alias="icon_branch_open">res/themes/dark/icons/icon_branch_open.png</file>
+        <file alias="icon_vline">res/themes/dark/icons/icon_vline.png</file>
+        <file alias="icon_checkbox_checked">res/themes/dark/icons/icon_checkbox_checked.png</file>
+        <file alias="icon_checkbox_indeterminate">res/themes/dark/icons/icon_checkbox_indeterminate.png</file>
+        <file alias="icon_checkbox_unchecked">res/themes/dark/icons/icon_checkbox_unchecked.png</file>
+        <file alias="icon_checkbox_checked_pressed">res/themes/dark/icons/icon_checkbox_checked_pressed.png</file>
+        <file alias="icon_checkbox_indeterminate_pressed">res/themes/dark/icons/icon_checkbox_indeterminate_pressed.png</file>
+        <file alias="icon_checkbox_unchecked_pressed">res/themes/dark/icons/icon_checkbox_unchecked_pressed.png</file>
+        <file alias="icon_checkbox_checked_disabled">res/themes/dark/icons/icon_checkbox_checked_disabled.png</file>
+        <file alias="icon_checkbox_indeterminate_disabled">res/themes/dark/icons/icon_checkbox_indeterminate_disabled.png</file>
+        <file alias="icon_checkbox_unchecked_disabled">res/themes/dark/icons/icon_checkbox_unchecked_disabled.png</file>
+        <file alias="icon_radiobutton_checked">res/themes/dark/icons/icon_radiobutton_checked.png</file>
+        <file alias="icon_radiobutton_unchecked">res/themes/dark/icons/icon_radiobutton_unchecked.png</file>
+        <file alias="icon_radiobutton_checked_pressed">res/themes/dark/icons/icon_radiobutton_checked_pressed.png</file>
+        <file alias="icon_radiobutton_unchecked_pressed">res/themes/dark/icons/icon_radiobutton_unchecked_pressed.png</file>
+        <file alias="icon_radiobutton_checked_disabled">res/themes/dark/icons/icon_radiobutton_checked_disabled.png</file>
+        <file alias="icon_radiobutton_unchecked_disabled">res/themes/dark/icons/icon_radiobutton_unchecked_disabled.png</file>
+    </qresource>
+    <qresource prefix="/light">
+        <file alias="icon_close">res/themes/light/icons/icon_close.png</file>
+        <file alias="icon_restore">res/themes/light/icons/icon_restore.png</file>
+        <file alias="icon_undock">res/themes/light/icons/icon_undock.png</file>
+        <file alias="icon_branch_closed">res/themes/light/icons/icon_branch_closed.png</file>
+        <file alias="icon_branch_end">res/themes/light/icons/icon_branch_end.png</file>
+        <file alias="icon_branch_more">res/themes/light/icons/icon_branch_more.png</file>
+        <file alias="icon_branch_open">res/themes/light/icons/icon_branch_open.png</file>
+        <file alias="icon_vline">res/themes/light/icons/icon_vline.png</file>
+        <file alias="icon_checkbox_checked">res/themes/light/icons/icon_checkbox_checked.png</file>
+        <file alias="icon_checkbox_indeterminate">res/themes/light/icons/icon_checkbox_indeterminate.png</file>
+        <file alias="icon_checkbox_unchecked">res/themes/light/icons/icon_checkbox_unchecked.png</file>
+        <file alias="icon_checkbox_checked_pressed">res/themes/light/icons/icon_checkbox_checked_pressed.png</file>
+        <file alias="icon_checkbox_indeterminate_pressed">res/themes/light/icons/icon_checkbox_indeterminate_pressed.png</file>
+        <file alias="icon_checkbox_unchecked_pressed">res/themes/light/icons/icon_checkbox_unchecked_pressed.png</file>
+        <file alias="icon_checkbox_checked_disabled">res/themes/light/icons/icon_checkbox_checked_disabled.png</file>
+        <file alias="icon_checkbox_indeterminate_disabled">res/themes/light/icons/icon_checkbox_indeterminate_disabled.png</file>
+        <file alias="icon_checkbox_unchecked_disabled">res/themes/light/icons/icon_checkbox_unchecked_disabled.png</file>
+        <file alias="icon_radiobutton_checked">res/themes/light/icons/icon_radiobutton_checked.png</file>
+        <file alias="icon_radiobutton_unchecked">res/themes/light/icons/icon_radiobutton_unchecked.png</file>
+        <file alias="icon_radiobutton_checked_pressed">res/themes/light/icons/icon_radiobutton_checked_pressed.png</file>
+        <file alias="icon_radiobutton_unchecked_pressed">res/themes/light/icons/icon_radiobutton_unchecked_pressed.png</file>
+        <file alias="icon_radiobutton_checked_disabled">res/themes/light/icons/icon_radiobutton_checked_disabled.png</file>
+        <file alias="icon_radiobutton_unchecked_disabled">res/themes/light/icons/icon_radiobutton_unchecked_disabled.png</file>
     </qresource>
 </RCC>

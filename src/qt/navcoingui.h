@@ -70,9 +70,6 @@ public:
     /** Get the screen scale, usefull for scaling UI elements */
     float scale();
 
-    /** Setup the stylesheet for the app */
-    void setUpStyles(QString style);
-
     /** Show/Hide the wallet sync warning notification */
     void showOutOfSyncWarning(bool fShow);
 
@@ -199,6 +196,8 @@ private:
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
 
+    /** Load the stylesheet and base style for the app */
+    void loadTheme();
 
     void updateWeight();
 
