@@ -326,7 +326,7 @@ void NavCoinApplication::loadTheme()
     // What theme are we using? DEFAULT: light
     QString theme = settings.value("theme", "light").toString();
 
-    qDebug() << "THEME LOADED:" << settings.value("theme").toString();
+    info("THEME LOADED: "  + settings.value("theme").toString().toStdString());
 
     // Load the style sheet
     QFile appQss(":/themes/app");
