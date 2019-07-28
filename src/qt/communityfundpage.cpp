@@ -34,8 +34,8 @@ CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget
     connect(ui->pushButtonPaymentRequests, SIGNAL(clicked()), this, SLOT(click_pushButtonPaymentRequests()));
 
     // Enable selection of pushButtonProposals by default
-    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
-    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonProposals->setStyleSheet(BTN_ACTIVE);
+    ui->pushButtonPaymentRequests->setStyleSheet(BTN_NORMAL);
 
     // Connect push buttons to functions
     connect(ui->radioButtonAll, SIGNAL(clicked()), this, SLOT(click_radioButtonAll()));
@@ -316,10 +316,10 @@ void CommunityFundPage::click_pushButtonProposals()
 {
     QFont font = ui->pushButtonProposals->property("font").value<QFont>();
 
-    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
-    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+    ui->pushButtonProposals->setStyleSheet(BTN_ACTIVE);
+    ui->pushButtonPaymentRequests->setStyleSheet(BTN_NORMAL);
 
-    QFont f(font.family(), font.pointSize(), QFont::Bold);
+    QFont f(font.family(), font.pointSize(), QFont::Normal);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
 
@@ -329,12 +329,12 @@ void CommunityFundPage::click_pushButtonProposals()
 
 void CommunityFundPage::click_pushButtonPaymentRequests()
 {
-    QFont font = ui->pushButtonPaymentRequests->property("font").value<QFont>();
+    QFont font = ui->pushButtonProposals->property("font").value<QFont>();
 
-    ui->pushButtonProposals->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    ui->pushButtonPaymentRequests->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
+    ui->pushButtonProposals->setStyleSheet(BTN_NORMAL);
+    ui->pushButtonPaymentRequests->setStyleSheet(BTN_ACTIVE);
 
-    QFont f(font.family(), font.pointSize(), QFont::Bold);
+    QFont f(font.family(), font.pointSize(), QFont::Normal);
     ui->pushButtonProposals->setFont(f);
     ui->pushButtonPaymentRequests->setFont(f);
 

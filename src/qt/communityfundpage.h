@@ -12,9 +12,12 @@
 #include <QLayoutItem>
 
 // Color constants
-#define COLOR_VOTE_YES "background-color: #90ee90;"
-#define COLOR_VOTE_NO "background-color: #f08080;"
-#define COLOR_VOTE_NEUTRAL "background-color: #f3f4f6;"
+#define COLOR_VOTE_YES "background-color: #90ee90; color: palette(dark);"
+#define COLOR_VOTE_NO "background-color: #f08080; color: palette(dark);"
+#define COLOR_VOTE_NEUTRAL "background-color: palette(button); palette(butten-text);"
+
+#define BTN_ACTIVE "background-color: palette(highlight);"
+#define BTN_NORMAL "background-color: palette(button);"
 
 class ClientModel;
 class TransactionFilterProxy;
