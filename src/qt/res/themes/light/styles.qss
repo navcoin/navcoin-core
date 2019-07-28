@@ -113,15 +113,18 @@ QRadioButton::indicator:unchecked:disabled {
 }
 
 QTreeView::branch:has-siblings:!adjoins-item {
-    border-image: url(:/light/icon_vline) 0;
+    border-image: none;
+    image: url(:/light/icon_vline);
 }
 
 QTreeView::branch:has-siblings:adjoins-item {
-    border-image: url(:/light/icon_branch_more) 0;
+    border-image: none;
+    image: url(:/light/icon_branch_more);
 }
 
 QTreeView::branch:!has-children:!has-siblings:adjoins-item {
-    border-image: url(:/light/icon_branch_end) 0;
+    border-image: none;
+    image: url(:/light/icon_branch_end);
 }
 
 QTreeView::branch:has-children:!has-siblings:closed,
