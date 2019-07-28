@@ -26,9 +26,9 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
 {
     ui->setupUi(this);
 
-    ui->addressBookButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->deleteButton_is->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-    ui->deleteButton_s->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
+    ui->addressBookButton->setIcon(platformStyle->Icon(":/icons/address-book"));
+    ui->deleteButton_is->setIcon(platformStyle->Icon(":/icons/remove"));
+    ui->deleteButton_s->setIcon(platformStyle->Icon(":/icons/remove"));
 
     setCurrentWidget(ui->SendCoins);
 

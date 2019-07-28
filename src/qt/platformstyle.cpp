@@ -16,7 +16,7 @@
 namespace {
 /* Local functions for colorizing single-color images */
 
-void MakeSingleColorImage(QImage& img, const QColor& colorbase)
+void MakeImage(QImage& img, const QColor& colorbase)
 {
     img = img.convertToFormat(QImage::Format_ARGB32);
     for (int x = img.width(); x--; )
@@ -36,7 +36,7 @@ QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
     Q_FOREACH(sz, ico.availableSizes())
     {
         QImage img(ico.pixmap(sz).toImage());
-        MakeSingleColorImage(img, colorbase);
+        MakeImage(img, colorbase);
         new_ico.addPixmap(QPixmap::fromImage(img));
     }
     return new_ico;
@@ -45,7 +45,7 @@ QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
 QImage ColorizeImage(const QString& filename, const QColor& colorbase)
 {
     QImage img(filename);
-    MakeSingleColorImage(img, colorbase);
+    MakeImage(img, colorbase);
     return img;
 }
 
@@ -68,32 +68,32 @@ PlatformStyle::PlatformStyle():
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
 }
 
-QImage PlatformStyle::SingleColorImage(const QString& filename) const
+QImage PlatformStyle::Image(const QString& filename) const
 {
     return ColorizeImage(filename, SingleColor());
 }
 
-QIcon PlatformStyle::SingleColorIcon(const QString& filename) const
+QIcon PlatformStyle::Icon(const QString& filename) const
 {
     return ColorizeIcon(filename, SingleColor());
 }
 
-QIcon PlatformStyle::SingleColorIcon(const QString& filename, const QString& colorbase) const
+QIcon PlatformStyle::Icon(const QString& filename, const QString& colorbase) const
 {
     return ColorizeIcon(filename, QColor(colorbase));
 }
 
-QIcon PlatformStyle::SingleColorIcon(const QIcon& icon) const
+QIcon PlatformStyle::Icon(const QIcon& icon) const
 {
     return ColorizeIcon(icon, SingleColor());
 }
 
-QIcon PlatformStyle::TextColorIcon(const QString& filename) const
+QIcon PlatformStyle::IconAlt(const QString& filename) const
 {
     return ColorizeIcon(filename, TextColor());
 }
 
-QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
+QIcon PlatformStyle::IconAlt(const QIcon& icon) const
 {
     return ColorizeIcon(icon, TextColor());
 }
