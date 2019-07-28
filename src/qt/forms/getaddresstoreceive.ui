@@ -160,6 +160,27 @@
              </property>
             </widget>
            </item>
+           <item>
+            <layout class="QHBoxLayout" name="verticalLayout_13">
+             <item>
+               <widget class="QPushButton" name="copyClipboardButton">
+                <property name="text">
+                 <string>&amp;Copy to clipboard</string>
+                </property>
+                <property name="default">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="newAddressButton">
+                <property name="text">
+                 <string>&amp;Generate a new address</string>
+                </property>
+               </widget>
+              </item>
+            </layout>
+           </item>
           </layout>
          </item>
          <item>
@@ -221,23 +242,16 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="copyClipboardButton">
-         <property name="text">
-          <string>Copy to clipboard</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="requestPaymentButton">
          <property name="text">
-          <string>Request payment</string>
+          <string>&amp;Request payment</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="requestNewAddressButton">
          <property name="text">
-          <string>List old addresses</string>
+          <string>&amp;List old addresses</string>
          </property>
         </widget>
        </item>
@@ -272,16 +286,9 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="newAddressButton">
-         <property name="text">
-          <string>Generate a new address</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="coldStakingButton">
          <property name="text">
-          <string>Create a Cold Staking address</string>
+          <string>&amp;Create a Cold Staking address</string>
          </property>
         </widget>
        </item>
