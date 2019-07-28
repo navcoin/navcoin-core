@@ -8,6 +8,8 @@
 #include "walletview.h"
 #include "util.h"
 
+#include <guiutil.h>
+
 #include <cstdio>
 
 #include <QHBoxLayout>
@@ -32,6 +34,13 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     headerLayout = new QVBoxLayout();
     headerLayout->setContentsMargins(0,0,0,0);
     headerLayout->setSpacing(0);
+
+    int statusMargin = 5 * GUIUtil::scale();
+    statusLayout = new QHBoxLayout();
+    statusLayout->setContentsMargins(statusMargin, statusMargin, statusMargin, statusMargin);
+    statusLayout->setSpacing(5 * GUIUtil::scale());
+    statusLayout->setAlignment(Qt::AlignCenter | Qt::AlignRight);
+    headerLayout->addLayout(statusLayout);
 
     menuLayout = new QVBoxLayout();
     menuLayout->setContentsMargins(0,0,0,0);

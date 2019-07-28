@@ -44,6 +44,12 @@
     font: normal normal 1em/1em;
 }
 
+.status-icon {
+    background: palette(base);
+    border: 0.05em solid palette(alternate-base);
+    padding: 0 0.25em 0 0.25em;
+}
+
 #lblQRCode {
     border: 0;
     padding: 0.2em;

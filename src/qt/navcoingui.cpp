@@ -253,12 +253,6 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     statusBar()->setSizeGripEnabled(false);
 
     // Status bar notification icons
-    QFrame *frameBlocks = new QFrame();
-    frameBlocks->setContentsMargins(0,0,0,0);
-    frameBlocks->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
-    frameBlocksLayout->setContentsMargins(3,0,3,0);
-    frameBlocksLayout->setSpacing(3);
     unitDisplayControl = new QComboBox();
     unitDisplayControl->setEditable(true);
     unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
@@ -268,26 +262,25 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     }
     connect(unitDisplayControl,SIGNAL(currentIndexChanged(int)),this,SLOT(comboBoxChanged(int)));
     labelEncryptionIcon = new QLabel();
+    labelEncryptionIcon->setProperty("class", "status-icon");
     labelStakingIcon = new QLabel();
+    labelStakingIcon->setProperty("class", "status-icon");
     labelPrice = new QLabel();
+    labelPrice->setProperty("class", "StatusPrice");
     labelConnectionsIcon = new QLabel();
+    labelConnectionsIcon->setProperty("class", "status-icon");
     labelBlocksIcon = new GUIUtil::ClickableLabel();
+    labelBlocksIcon->setProperty("class", "status-icon");
     if(enableWallet)
     {
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelPrice);
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(unitDisplayControl);
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelEncryptionIcon);
-        frameBlocksLayout->addStretch();
-        frameBlocksLayout->addWidget(labelStakingIcon);
+        walletFrame->statusLayout->addWidget(labelPrice);
+        walletFrame->statusLayout->addWidget(labelEncryptionIcon);
+        walletFrame->statusLayout->addWidget(labelStakingIcon);
     }
-    frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelConnectionsIcon);
-    frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelBlocksIcon);
-    frameBlocksLayout->addStretch();
+    walletFrame->statusLayout->addWidget(labelConnectionsIcon);
+    walletFrame->statusLayout->addWidget(labelBlocksIcon);
+    if(enableWallet)
+        walletFrame->statusLayout->addWidget(unitDisplayControl);
 
     updatePrice(); // First price update
 
@@ -331,7 +324,6 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     // See https://qt-project.org/doc/qt-4.8/gallery.html
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
-    statusBar()->addPermanentWidget(frameBlocks);
 
     // Install event filter to be able to catch status tip events (QEvent::StatusTip)
     this->installEventFilter(this);
