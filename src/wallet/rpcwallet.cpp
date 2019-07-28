@@ -2331,9 +2331,9 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
     CAmount nNet = nCredit - nDebit;
     CAmount nFee = (wtx.IsFromMe(filter) ? wtx.GetValueOut() - nDebit : 0);
 
-    entry.push_back(Pair("amount", ValueFromAmount(nNet - (wtx.IsCoinStake() ? 0 : nFee))));
+    entry.pushKV("amount", ValueFromAmount(nNet - (wtx.IsCoinStake() ? 0 : nFee)));
     if (wtx.IsFromMe(filter))
-        entry.push_back(Pair("fee", ValueFromAmount(nFee - (wtx.IsCoinStake() ? nNet : 0))));
+        entry.pushKV("fee", ValueFromAmount(nFee - (wtx.IsCoinStake() ? nNet : 0)));
 
     WalletTxToJSON(wtx, entry);
 
