@@ -266,13 +266,18 @@ RPCConsole::RPCConsole(const PlatformStyle *platformStyle, QWidget *parent) :
 
     ui->openDebugLogfileButton->setToolTip(ui->openDebugLogfileButton->toolTip().arg(tr(PACKAGE_NAME)));
 
-    ui->openDebugLogfileButton->setIcon(platformStyle->Icon(":/icons/export"));
-    ui->clearButton->setIcon(platformStyle->Icon(":/icons/remove"));
-    ui->fontBiggerButton->setIcon(platformStyle->Icon(":/icons/fontbigger"));
-    ui->fontSmallerButton->setIcon(platformStyle->Icon(":/icons/fontsmaller"));
+    QSize iconSize = QSize(15 * GUIUtil::scale(), 15 * GUIUtil::scale());
 
+    ui->clearButton->setIcon(platformStyle->Icon(":/icons/remove"));
+    ui->clearButton->setIconSize(iconSize);
+    ui->fontBiggerButton->setIcon(platformStyle->Icon(":/icons/fontbigger"));
+    ui->fontBiggerButton->setIconSize(iconSize);
+    ui->fontSmallerButton->setIcon(platformStyle->Icon(":/icons/fontsmaller"));
+    ui->fontSmallerButton->setIconSize(iconSize);
+    ui->openDebugLogfileButton->setIcon(platformStyle->Icon(":/icons/export"));
+    ui->openDebugLogfileButton->setIconSize(iconSize);
     ui->promptIcon->setIcon(platformStyle->IconAlt(":/icons/prompticon"));
-    ui->promptIcon->setIconSize(QSize(15 * GUIUtil::scale(), 15 * GUIUtil::scale()));
+    ui->promptIcon->setIconSize(iconSize);
 
     // Install event filter for up and down arrow
     ui->lineEdit->installEventFilter(this);
