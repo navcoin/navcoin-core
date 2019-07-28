@@ -31,7 +31,10 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="lblAddress">
+    <widget class="QLineEdit" name="lblAddress">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>

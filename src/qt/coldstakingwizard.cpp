@@ -107,15 +107,15 @@ ColdStakingAddressPage::ColdStakingAddressPage(QWidget *parent)
     image->setObjectName("lblQRCode");
     image->setAlignment(Qt::AlignCenter);
 
-    label = new QLabel();
-    label->setObjectName("lblAddress");
-    label->setAlignment(Qt::AlignCenter);
+    address = new QLineEdit();
+    address->setReadOnly(true);
+    address->setAlignment(Qt::AlignCenter);
 
     button = new QPushButton("&Copy to Clipboard");
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(image);
-    layout->addWidget(label);
+    layout->addWidget(address);
     layout->addWidget(button);
     setLayout(layout);
 
@@ -173,8 +173,8 @@ void ColdStakingAddressPage::initializePage()
             // Set the image
             image->setPixmap(QPixmap::fromImage(qrImage.scaled(qrSize, qrSize)));
 
-            // Set the label
-            label->setText(coldStakingAddress);
+            // Set the address
+            address->setText(coldStakingAddress);
         }
     }
 #endif

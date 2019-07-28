@@ -1165,7 +1165,7 @@ void NavCoinGUI::setNumConnections(int count)
         case 7: case 8: case 9: icon = ":/icons/connect_3"; break;
         default: icon = ":/icons/connect_4"; break;
     }
-    labelConnectionsIcon->setPixmap(platformStyle->Icon(icon).pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+    labelConnectionsIcon->setPixmap(platformStyle->IconAlt(icon).pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
     labelConnectionsIcon->setToolTip(tr("%n active connection(s) to NavCoin network", "", count));
     if(walletFrame){
         walletFrame->setStatusTitleConnections(tr("%n active connections.","",count));
@@ -1246,7 +1246,7 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     if(secs < 90*60)
     {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
-        labelBlocksIcon->setPixmap(platformStyle->Icon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelBlocksIcon->setPixmap(platformStyle->IconAlt(":/icons/synced").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
 
 #ifdef ENABLE_WALLET
         if(walletFrame)
@@ -1301,7 +1301,7 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
         if(count != prevBlocks)
         {
-            labelBlocksIcon->setPixmap(platformStyle->Icon(QString(
+            labelBlocksIcon->setPixmap(platformStyle->IconAlt(QString(
                 ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
                 .pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
             spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
@@ -1541,7 +1541,7 @@ void NavCoinGUI::setEncryptionStatus(int status)
 {
     if(fWalletUnlockStakingOnly)
     {
-        labelEncryptionIcon->setPixmap(platformStyle->Icon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
         changePassphraseAction->setEnabled(false);
         unlockWalletAction->setVisible(false);
@@ -1564,7 +1564,7 @@ void NavCoinGUI::setEncryptionStatus(int status)
         break;
     case WalletModel::Unlocked:
         labelEncryptionIcon->show();
-        labelEncryptionIcon->setPixmap(platformStyle->Icon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         unlockWalletAction->setVisible(false);
         encryptWalletAction->setChecked(true);
@@ -1575,7 +1575,7 @@ void NavCoinGUI::setEncryptionStatus(int status)
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->show();
-        labelEncryptionIcon->setPixmap(platformStyle->Icon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelEncryptionIcon->setPixmap(platformStyle->IconAlt(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
@@ -1900,7 +1900,7 @@ void NavCoinGUI::updateStakingStatus()
     {
         walletFrame->setStakingStatus(tr("Staking is turned off."));
         walletFrame->showLockStaking(false);
-        labelStakingIcon->setPixmap(platformStyle->Icon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(tr("Wallet Staking is <b>OFF</b>"));
     }
     else if (nLastCoinStakeSearchInterval && nWeight)
@@ -1977,7 +1977,7 @@ void NavCoinGUI::updateStakingStatus()
         nWeight /= COIN;
         nNetworkWeight /= COIN;
 
-        labelStakingIcon->setPixmap(platformStyle->Icon(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(text);
         walletFrame->setStakingStatus(text);
     }
@@ -1994,7 +1994,7 @@ void NavCoinGUI::updateStakingStatus()
         else if (!nWeight)
             text = tr("Not staking because you don't have mature coins");
 
-        labelStakingIcon->setPixmap(platformStyle->Icon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(text);
         walletFrame->setStakingStatus(text);
     }

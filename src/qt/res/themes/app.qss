@@ -49,15 +49,6 @@
     padding: 0.2em;
 }
 
-#lblAddress {
-    font: normal normal 1em/1em;
-    background: #c1c1c1;
-    color: #111111;
-    border: 0;
-    border-radius: 0.2em;
-    padding: 0.2em 0.5em;
-}
-
 #unlockStakingButton {
     border-image: url(:/icons/lock_closed) 0 0 0 0 stretch stretch;
     border: 0px;

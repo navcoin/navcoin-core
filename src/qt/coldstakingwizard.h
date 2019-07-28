@@ -69,7 +69,7 @@ public:
 
 private:
     QRImageWidget *image;
-    QLabel *label;
+    QLineEdit *address;
     QPushButton *button;
     QString coldStakingAddress;
 
