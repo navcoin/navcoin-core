@@ -1893,112 +1893,111 @@ void NavCoinGUI::updateStakingStatus()
     updateWeight();
     updateDaoNewCount();
 
-    if(walletFrame){
-        if (!GetStaking())
-        {
-            walletFrame->setStakingStatus(tr("Staking is turned off."));
-            walletFrame->showLockStaking(false);
-            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-        }
-        else if (nLastCoinStakeSearchInterval && nWeight)
-        {
-            {
-                LOCK(cs_main);
+    if(!walletFrame)
+        return;
 
-                CProposalMap mapProposals;
-
-                if(pcoinsTip->GetAllProposals(mapProposals))
-                {
-                    for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
-                    {
-                        CFund::CProposal proposal;
-                        if (!pcoinsTip->GetProposal(it_->first, proposal))
-                            continue;
-                        if (proposal.fState != CFund::NIL)
-                            continue;
-                        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                                [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-                        if (it == vAddedProposalVotes.end()) {
-                            break;
-                        }
-                    }
-                }
-            }
-            {
-                CPaymentRequestMap mapPaymentRequests;
-
-                if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
-                {
-                    for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
-                    {
-                        CFund::CPaymentRequest prequest;
-
-                        if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
-                            continue;
-
-                        if (prequest.fState != CFund::NIL)
-                            continue;
-                        auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                                                [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-                        if (it == vAddedPaymentRequestVotes.end()) {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            uint64_t nWeight = this->nWeight;
-            uint64_t nNetworkWeight = GetPoSKernelPS();
-            int nBestHeight = pindexBestHeader->nHeight;
-
-            unsigned nEstimateTime = GetTargetSpacing(nBestHeight) * nNetworkWeight / nWeight;
-
-            QString text;
-            if (nEstimateTime > 60)
-            {
-                if (nEstimateTime < 60*60)
-                {
-                    text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
-                }
-                else if (nEstimateTime < 24*60*60)
-                {
-                    text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
-                }
-                else
-                {
-                    text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
-                }
-            }
-
-            nWeight /= COIN;
-            nNetworkWeight /= COIN;
-
-            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-            walletFrame->setStakingStatus(text!=""&&GetBoolArg("showexpectedstaketime",false)?text:tr("You are staking"));
-        }
-        else
-        {
-
-            labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-            if (pwalletMain && pwalletMain->IsLocked())
-                walletFrame->setStakingStatus(tr("Not staking because wallet is locked"));
-            else if (vNodes.empty())
-                walletFrame->setStakingStatus(tr("Not staking because wallet is offline"));
-            else if (IsInitialBlockDownload())
-                walletFrame->setStakingStatus(tr("Not staking because wallet is syncing"));
-            else if (!nWeight)
-                walletFrame->setStakingStatus(tr("Not staking because you don't have mature coins"));
-            else
-                walletFrame->setStakingStatus(tr("Not staking, please wait"));
-        }
-
-//        vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
-//        int nItemCounted = GetsStakeSubTotal(aRange);
-//        if(ARRAYLEN(aRange) > 32){
-//            walletFrame->setStakingStats(FormatMoney(aRange[30].Total).c_str(),FormatMoney(aRange[31].Total).c_str(),FormatMoney(aRange[32].Total).c_str());
-//        }
+    if (!GetStaking())
+    {
+        walletFrame->setStakingStatus(tr("Staking is turned off."));
+        walletFrame->showLockStaking(false);
+        labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelStakingIcon->setToolTip(tr("Wallet Staking is <b>OFF</b>"));
     }
+    else if (nLastCoinStakeSearchInterval && nWeight)
+    {
+        {
+            LOCK(cs_main);
 
+            CProposalMap mapProposals;
+
+            if(pcoinsTip->GetAllProposals(mapProposals))
+            {
+                for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
+                {
+                    CFund::CProposal proposal;
+                    if (!pcoinsTip->GetProposal(it_->first, proposal))
+                        continue;
+                    if (proposal.fState != CFund::NIL)
+                        continue;
+                    auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                            [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
+                    if (it == vAddedProposalVotes.end()) {
+                        break;
+                    }
+                }
+            }
+        }
+        {
+            CPaymentRequestMap mapPaymentRequests;
+
+            if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+            {
+                for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+                {
+                    CFund::CPaymentRequest prequest;
+
+                    if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                        continue;
+
+                    if (prequest.fState != CFund::NIL)
+                        continue;
+                    auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                            [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
+                    if (it == vAddedPaymentRequestVotes.end()) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        uint64_t nWeight = this->nWeight;
+        uint64_t nNetworkWeight = GetPoSKernelPS();
+        int nBestHeight = pindexBestHeader->nHeight;
+
+        unsigned nEstimateTime = GetTargetSpacing(nBestHeight) * nNetworkWeight / nWeight;
+
+        QString text = tr("You are staking");
+
+        if (nEstimateTime > 60 && GetBoolArg("showexpectedstaketime", false))
+        {
+            if (nEstimateTime < 60*60)
+            {
+                text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
+            }
+            else if (nEstimateTime < 24*60*60)
+            {
+                text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
+            }
+            else
+            {
+                text = tr("Expected time to earn reward is %n day(s)", "", nEstimateTime/(60*60*24));
+            }
+        }
+
+        nWeight /= COIN;
+        nNetworkWeight /= COIN;
+
+        labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelStakingIcon->setToolTip(text);
+        walletFrame->setStakingStatus(text);
+    }
+    else
+    {
+        QString text = tr("Not staking, please wait");
+
+        if (pwalletMain && pwalletMain->IsLocked())
+            text = tr("Not staking because wallet is locked");
+        else if (vNodes.empty())
+            text = tr("Not staking because wallet is offline");
+        else if (IsInitialBlockDownload())
+            text = tr("Not staking because wallet is syncing");
+        else if (!nWeight)
+            text = tr("Not staking because you don't have mature coins");
+
+        labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelStakingIcon->setToolTip(text);
+        walletFrame->setStakingStatus(text);
+    }
 }
 
 #endif
