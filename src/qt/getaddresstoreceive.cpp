@@ -37,6 +37,8 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
         }
     }
 
+    ui->lblAddress->setMinimumWidth(360 * GUIUtil::scale());
+
     connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
     connect(ui->copyClipboardButton,SIGNAL(clicked()),this,SLOT(copyToClipboard()));
     connect(ui->newAddressButton,SIGNAL(clicked()),this,SLOT(getNewAddress()));
