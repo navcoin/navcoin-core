@@ -196,9 +196,6 @@ private:
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
 
-    /** Load the stylesheet and base style for the app */
-    void loadTheme();
-
     void updateWeight();
 
     void cfundProposalsOpen(bool fMode);

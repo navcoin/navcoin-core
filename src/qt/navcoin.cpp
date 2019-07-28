@@ -20,6 +20,9 @@
 #include "utilitydialog.h"
 #include "winshutdownmonitor.h"
 
+#include <styles/dark.h>
+#include <styles/light.h>
+
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
 #include "walletmodel.h"
@@ -177,6 +180,9 @@ public:
     explicit NavCoinApplication(int &argc, char **argv);
     ~NavCoinApplication();
 
+    /** Load the stylesheet and base style for the app */
+    void loadTheme();
+
 #ifdef ENABLE_WALLET
     /// Create payment server
     void createPaymentServer();
@@ -288,16 +294,6 @@ NavCoinApplication::NavCoinApplication(int &argc, char **argv):
     returnValue(0)
 {
     setQuitOnLastWindowClosed(false);
-
-    // UI per-platform customization
-    // This must be done inside the NavCoinApplication constructor, or after it, because
-    // PlatformStyle::instantiate requires a QApplication
-    std::string platformName;
-    platformName = GetArg("-uiplatform", NavCoinGUI::DEFAULT_UIPLATFORM);
-    platformStyle = PlatformStyle::instantiate(QString::fromStdString(platformName));
-    if (!platformStyle) // Fall back to "other" if specified name not found
-        platformStyle = PlatformStyle::instantiate("other");
-    assert(platformStyle);
 }
 
 NavCoinApplication::~NavCoinApplication()
@@ -320,6 +316,56 @@ NavCoinApplication::~NavCoinApplication()
     optionsModel = 0;
     delete platformStyle;
     platformStyle = 0;
+}
+
+void NavCoinApplication::loadTheme()
+{
+    // Get an instance of settings
+    QSettings settings;
+
+    // What theme are we using? DEFAULT: light
+    QString theme = settings.value("theme", "light").toString();
+
+    qDebug() << "THEME LOADED:" << settings.value("theme").toString();
+
+    // Load the style sheet
+    QFile appQss(":/themes/app");
+    QFile sharedQss(":/themes/shared");
+    QFile themeQss(":/themes/" + theme);
+
+    // Check if we can access it
+    if (
+            appQss.open(QIODevice::ReadOnly) &&    // check app specific styles
+            sharedQss.open(QIODevice::ReadOnly) && // check shared stlyes
+            themeQss.open(QIODevice::ReadOnly)     // check theme styles
+       )
+    {
+        // Create a text stream
+        QTextStream appQssStream(&appQss);
+        QTextStream sharedQssStream(&sharedQss);
+        QTextStream themeQssStream(&themeQss);
+
+        // Load the whole stylesheet into the app
+        qApp->setStyleSheet(appQssStream.readAll() + sharedQssStream.readAll() + themeQssStream.readAll());
+
+        // Check if we which theme we want
+        if (theme == "dark") {
+            qApp->setStyle(new StyleDark);
+        } else {
+            qApp->setStyle(new StyleLight);
+        }
+
+        // Close the streams
+        appQss.close();
+        sharedQss.close();
+        themeQss.close();
+    }
+
+    // UI per-platform customization
+    // This must be done inside the NavCoinApplication constructor, or after it, because
+    // PlatformStyle::instantiate requires a QApplication
+    platformStyle = PlatformStyle::instantiate();
+    assert(platformStyle);
 }
 
 #ifdef ENABLE_WALLET
@@ -515,7 +561,9 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(navcoin);
     Q_INIT_RESOURCE(navcoin_locale);
 
+    // Load the app
     NavCoinApplication app(argc, argv);
+
     // Generate high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #if QT_VERSION >= 0x050600
@@ -543,6 +591,9 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationDomain(QAPP_ORG_DOMAIN);
     QApplication::setApplicationName(QAPP_APP_NAME_DEFAULT);
     GUIUtil::SubstituteFonts(GetLangTerritory());
+
+    // Load the application styles
+    app.loadTheme();
 
     /// 4. Initialization of translations, so that intro dialog is in user's language
     // Now that QSettings are accessible, initialize translations

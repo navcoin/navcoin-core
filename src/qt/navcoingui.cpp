@@ -25,9 +25,6 @@
 #include "walletmodel.h"
 #include "wallet/rpcwallet.h"
 
-#include <styles/dark.h>
-#include <styles/light.h>
-
 #ifdef ENABLE_WALLET
 #include "walletframe.h"
 #include "walletmodel.h"
@@ -235,9 +232,6 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     // Accept D&D of URIs
     setAcceptDrops(true);
-
-    // Load the application styles
-    loadTheme();
 
     // Create actions for the toolbar, menu bar and tray/dock icon
     // Needs walletFrame to be initialized
@@ -1739,48 +1733,6 @@ void NavCoinGUI::toggleStaking()
 
     Q_EMIT message(tr("Staking"), GetStaking() ? tr("Staking has been enabled") : tr("Staking has been disabled"),
                    CClientUIInterface::MSG_INFORMATION);
-}
-
-void NavCoinGUI::loadTheme()
-{
-    // Get an instance of settings
-    QSettings settings;
-
-    // What theme are we using? DEFAULT: light
-    QString theme = settings.value("theme", "light").toString();
-
-    // Load the style sheet
-    QFile appQss(":/themes/app");
-    QFile sharedQss(":/themes/shared");
-    QFile themeQss(":/themes/" + theme);
-
-    // Check if we can access it
-    if (
-            appQss.open(QIODevice::ReadOnly) &&    // check app specific styles
-            sharedQss.open(QIODevice::ReadOnly) && // check shared stlyes
-            themeQss.open(QIODevice::ReadOnly)     // check theme styles
-       )
-    {
-        // Create a text stream
-        QTextStream appQssStream(&appQss);
-        QTextStream sharedQssStream(&sharedQss);
-        QTextStream themeQssStream(&themeQss);
-
-        // Load the whole stylesheet into the app
-        qApp->setStyleSheet(appQssStream.readAll() + sharedQssStream.readAll() + themeQssStream.readAll());
-
-        // Check if we which theme we want
-        if (theme == "dark") {
-            qApp->setStyle(new StyleDark);
-        } else {
-            qApp->setStyle(new StyleLight);
-        }
-
-        // Close the streams
-        appQss.close();
-        sharedQss.close();
-        themeQss.close();
-    }
 }
 
 #ifdef ENABLE_WALLET
