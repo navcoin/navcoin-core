@@ -164,11 +164,6 @@ void OverviewPage::setStakingStats(QString day, QString week, QString month, QSt
     ui->label30dStakingStats->setText(month);
 }
 
-void OverviewPage::setVotingStatus(QString text)
-{
-    ui->votingStatusLabel->setText(text);
-}
-
 void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
                               const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
                               const CAmount& coldStakingBalance)
@@ -224,41 +219,6 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 {
 
 }
-
-void OverviewPage::setStakingStatus(QString text)
-{
-    ui->stakingStatusLabel->setText(text);
-};
-
-
-void OverviewPage::setStatusTitleBlocks(QString text)
-{
-    ui->statusTitleBlocks->setText(text);
-}
-
-void OverviewPage::setStatusTitleConnections(QString text)
-{
-    ui->statusTitleConnections->setText(text);
-
-}
-
-void OverviewPage::setStatusTitle(QString text)
-{
-    ui->statusTitle->setText(text);
-}
-
-void OverviewPage::showStatusTitleConnections(){
-    ui->statusTitleConnections->show();
-};
-void OverviewPage::hideStatusTitleConnections(){
-    ui->statusTitleConnections->hide();
-};
-void OverviewPage::showStatusTitleBlocks(){
-    ui->statusTitleBlocks->show();
-};
-void OverviewPage::hideStatusTitleBlocks(){
-    ui->statusTitleBlocks->hide();
-};
 
 void OverviewPage::setClientModel(ClientModel *model)
 {

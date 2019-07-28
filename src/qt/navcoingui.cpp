@@ -240,6 +240,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     // Create application menu bar
     createMenuBar();
 
+    // Create the header widgets
+    createHeaderWidgets();
+
     // Create the toolbars
     createToolBars();
 
@@ -256,6 +259,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unitDisplayControl = new QComboBox();
     unitDisplayControl->setEditable(true);
     unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
+    unitDisplayControl->setFixedHeight(25 * scale());
     Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
     {
         unitDisplayControl->addItem(QString(NavCoinUnits::name(u)), u);
@@ -586,39 +590,17 @@ void NavCoinGUI::createMenuBar()
     help->addAction(aboutQtAction);
 }
 
-void NavCoinGUI::createToolBars()
+void NavCoinGUI::createHeaderWidgets()
 {
-    if(walletFrame == nullptr)
-        return;
-
-    // Sizes
-    int logoHeight = 79 * scale();
-    QSize iconSize = QSize(35 * scale(), 35 * scale());
-    QSize logoIconSize = QSize(60 * scale(), 60 * scale());
-
-    // Create the logo icon
-    QIcon logoIcon = QIcon(":/icons/logo_n");
-
-    // Create the logo button
-    QToolButton* logoBtn = new QToolButton();
-    logoBtn->setIcon(logoIcon);
-    logoBtn->setIconSize(logoIconSize);
-    logoBtn->setProperty("class", "main-menu-btn");
-    logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-    // Attach the logo button to the layout
-    walletFrame->menuLayout->addWidget(logoBtn);
-
     // Notifications layout vertical
     QVBoxLayout* notificationLayout = new QVBoxLayout();
-    notificationLayout->setContentsMargins(50 * scale(), 5 * scale(), 50 * scale(), 5 * scale());
+    notificationLayout->setContentsMargins(0, 0, 0, 0);
     notificationLayout->setSpacing(2 * scale());
     notificationLayout->setAlignment(Qt::AlignVCenter);
 
     // Add a spacer to header to create a background
     QWidget* headerSpacer = new QWidget();
     headerSpacer->setObjectName("HeaderSpacer");
-    headerSpacer->setFixedHeight(logoHeight);
     headerSpacer->setLayout(notificationLayout);
 
     // Build each new notification
@@ -646,6 +628,29 @@ void NavCoinGUI::createToolBars()
     // Add the header spacer and header bar
     walletFrame->headerLayout->addWidget(headerSpacer);
     walletFrame->headerLayout->addWidget(headerBar);
+}
+
+void NavCoinGUI::createToolBars()
+{
+    if(walletFrame == nullptr)
+        return;
+
+    // Sizes
+    QSize iconSize = QSize(35 * scale(), 35 * scale());
+    QSize logoIconSize = QSize(60 * scale(), 60 * scale());
+
+    // Create the logo icon
+    QIcon logoIcon = QIcon(":/icons/logo_n");
+
+    // Create the logo button
+    QToolButton* logoBtn = new QToolButton();
+    logoBtn->setIcon(logoIcon);
+    logoBtn->setIconSize(logoIconSize);
+    logoBtn->setProperty("class", "main-menu-btn");
+    logoBtn->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+    // Attach the logo button to the layout
+    walletFrame->menuLayout->addWidget(logoBtn);
 
     // Buttons icon
     QString btnNamesIcon[5] = {
@@ -1159,13 +1164,6 @@ void NavCoinGUI::setNumConnections(int count)
     }
     labelConnectionsIcon->setPixmap(platformStyle->IconAlt(icon).pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
     labelConnectionsIcon->setToolTip(tr("%n active connection(s) to NavCoin network", "", count));
-    if(walletFrame){
-        walletFrame->setStatusTitleConnections(tr("%n active connections.","",count));
-        if(count > 0)
-            walletFrame->showStatusTitleConnections();
-        else
-            walletFrame->hideStatusTitleConnections();
-    }
 }
 
 bool showingVotingDialog = false;
@@ -1186,53 +1184,12 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     // Prevent orphan statusbar messages (e.g. hover Quit in main menu, wait until chain-sync starts -> garbelled text)
     statusBar()->clearMessage();
 
-    // Acquire current block source
-    enum BlockSource blockSource = clientModel->getBlockSource();
-    switch (blockSource) {
-        case BLOCK_SOURCE_NETWORK:
-            if (header) {
-                return;
-            }
-            if(walletFrame)
-                walletFrame->setStatusTitle(tr("Synchronizing with network..."));
-            break;
-        case BLOCK_SOURCE_DISK:
-            if (header) {
-                if(walletFrame)
-                    walletFrame->setStatusTitle(tr("Indexing blocks on disk..."));
-            } else {
-                if(walletFrame)
-                    walletFrame->setStatusTitle(tr("Processing blocks on disk..."));
-            }
-            break;
-        case BLOCK_SOURCE_REINDEX:
-            if(walletFrame)
-                walletFrame->setStatusTitle(tr("Reindexing blocks on disk..."));
-            break;
-        case BLOCK_SOURCE_NONE:
-            if (header) {
-                return;
-            }
-            // Case: not Importing, not Reindexing and no network connection
-            if(walletFrame)
-                walletFrame->setStatusTitle(tr("No block source available..."));
-            break;
-    }
-
     QString tooltip;
 
     QDateTime currentDate = QDateTime::currentDateTime();
     qint64 secs = blockDate.secsTo(currentDate);
 
     tooltip = tr("Processed %n block(s) of transaction history.", "", count);
-    if(walletFrame){
-        walletFrame->setStatusTitleBlocks(tr("Last block: %n","",count));
-        if(count > 0)
-            walletFrame->showStatusTitleBlocks();
-        else
-            walletFrame->hideStatusTitleBlocks();
-
-    }
 
     // Set icon state: spinning if catching up, tick otherwise
     if(secs < 90*60)
@@ -1250,8 +1207,6 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
-        if(walletFrame)
-            walletFrame->setStatusTitle(tr("Connected to NavCoin network."));
     }
     else
     {
@@ -1261,9 +1216,6 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         const int DAY_IN_SECONDS = 24*60*60;
         const int WEEK_IN_SECONDS = 7*24*60*60;
         const int YEAR_IN_SECONDS = 31556952; // Average length of year in Gregorian calendar
-
-        if(walletFrame)
-            walletFrame->setStatusTitle(tr("Connecting to NavCoin network..."));
 
         if(secs < 2*DAY_IN_SECONDS)
         {
@@ -1890,7 +1842,6 @@ void NavCoinGUI::updateStakingStatus()
 
     if (!GetStaking())
     {
-        walletFrame->setStakingStatus(tr("Staking is turned off."));
         walletFrame->showLockStaking(false);
         labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(tr("Wallet Staking is <b>OFF</b>"));
@@ -1971,7 +1922,6 @@ void NavCoinGUI::updateStakingStatus()
 
         labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(text);
-        walletFrame->setStakingStatus(text);
     }
     else
     {
@@ -1988,7 +1938,6 @@ void NavCoinGUI::updateStakingStatus()
 
         labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(text);
-        walletFrame->setStakingStatus(text);
     }
 }
 

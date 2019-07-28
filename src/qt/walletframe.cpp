@@ -23,38 +23,50 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
 {
     setContentsMargins(0,0,0,0);
 
+    int headerMargin = 15 * GUIUtil::scale();
+
     // Leave HBox hook for adding a list view later
     QHBoxLayout *frameLayout = new QHBoxLayout(this);
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    QHBoxLayout *contentLayout = new QHBoxLayout();
+    frameLayout->setSpacing(0);
+    frameLayout->setContentsMargins(0,0,0,0);
 
+    QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->setSpacing(0);
 
     headerLayout = new QVBoxLayout();
-    headerLayout->setContentsMargins(0,0,0,0);
-    headerLayout->setSpacing(0);
+    headerLayout->setContentsMargins(headerMargin, headerMargin, headerMargin, headerMargin);
+    headerLayout->setSpacing(headerMargin);
 
-    int statusMargin = 5 * GUIUtil::scale();
+    QHBoxLayout* headLayout = new QHBoxLayout();
+    headLayout->setContentsMargins(0,0,0,0);
+    headLayout->setSpacing(0);
+    headLayout->setAlignment(Qt::AlignCenter);
+    headerLayout->addLayout(headLayout);
+
+    balanceLayout = new QHBoxLayout();
+    balanceLayout->setContentsMargins(0, 0, 0, 0);
+    balanceLayout->setSpacing(0);
+    headLayout->setAlignment(Qt::AlignTop | Qt::AlignRight);
+    headLayout->addLayout(balanceLayout);
+
     statusLayout = new QHBoxLayout();
-    statusLayout->setContentsMargins(statusMargin, statusMargin, statusMargin, statusMargin);
+    statusLayout->setContentsMargins(0, 0, 0, 0);
     statusLayout->setSpacing(5 * GUIUtil::scale());
     statusLayout->setAlignment(Qt::AlignCenter | Qt::AlignRight);
-    headerLayout->addLayout(statusLayout);
+    headLayout->addLayout(statusLayout);
 
     menuLayout = new QVBoxLayout();
     menuLayout->setContentsMargins(0,0,0,0);
     menuLayout->setSpacing(0);
 
-    frameLayout->setSpacing(0);
-    frameLayout->setContentsMargins(0,0,0,0);
-
     walletStack = new QStackedWidget(this);
 
+    QHBoxLayout* contentLayout = new QHBoxLayout();
     contentLayout->setContentsMargins(0,0,0,0);
     contentLayout->addWidget(walletStack);
 
-    QLabel *noWallet = new QLabel(tr("No wallet has been loaded."));
+    QLabel* noWallet = new QLabel(tr("No wallet has been loaded."));
     noWallet->setAlignment(Qt::AlignCenter);
     walletStack->addWidget(noWallet);
 
@@ -141,27 +153,6 @@ void WalletFrame::gotoOverviewPage()
         i.value()->gotoOverviewPage();
 }
 
-void WalletFrame::setStatusTitleBlocks(QString text)
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->setStatusTitleBlocks(text);
-}
-
-void WalletFrame::setStakingStatus(QString text)
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->setStakingStatus(text);
-}
-
-void WalletFrame::setStatusTitleConnections(QString text)
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->setStatusTitleConnections(text);
-}
-
 void WalletFrame::setStakingStats(QString day, QString week, QString month, QString year, QString all)
 {
     QMap<QString, WalletView*>::const_iterator i;
@@ -169,53 +160,11 @@ void WalletFrame::setStakingStats(QString day, QString week, QString month, QStr
         i.value()->setStakingStats(day,week,month,year,all);
 }
 
-void WalletFrame::showStatusTitleConnections()
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->showStatusTitleConnections();
-}
-
-void WalletFrame::hideStatusTitleConnections()
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->hideStatusTitleConnections();
-}
-
-void WalletFrame::showStatusTitleBlocks()
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->showStatusTitleBlocks();
-}
-
-void WalletFrame::hideStatusTitleBlocks()
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->hideStatusTitleBlocks();
-}
-
-void WalletFrame::setStatusTitle(QString text)
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->setStatusTitle(text);
-}
-
 void WalletFrame::showLockStaking(bool status)
 {
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->showLockStaking(status);
-}
-
-void WalletFrame::setVotingStatus(QString text)
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->setVotingStatus(text);
 }
 
 void WalletFrame::gotoHistoryPage()

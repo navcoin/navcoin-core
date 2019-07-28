@@ -44,6 +44,8 @@ public:
     QWidget *topMenu;
     QVBoxLayout *menuLayout;
     QVBoxLayout *headerLayout;
+    QHBoxLayout *headLayout;
+    QHBoxLayout *balanceLayout;
     QHBoxLayout *statusLayout;
 
 Q_SIGNALS:
@@ -95,23 +97,9 @@ public Q_SLOTS:
     void importPrivateKey();
     void exportMasterPrivateKeyAction();
 
-    void setStatusTitleBlocks(QString text);
-
-    void setStatusTitleConnections(QString text);
-
-    void setStatusTitle(QString text);
-
-    void showStatusTitleConnections();
-    void hideStatusTitleConnections();
-    void showStatusTitleBlocks();
-    void hideStatusTitleBlocks();
-
     void showLockStaking(bool status);
 
-    void setStakingStatus(QString text);
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
-
-    void setVotingStatus(QString text);
 
     /** Show used sending addresses */
     void usedSendingAddresses();

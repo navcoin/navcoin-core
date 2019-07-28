@@ -43,23 +43,10 @@ public Q_SLOTS:
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
                     const CAmount& coldStakingBalance);
 
-    void setStatusTitleBlocks(QString text);
-
-    void setStatusTitleConnections(QString text);
-
-    void setStatusTitle(QString text);
-
-    void showStatusTitleConnections();
-    void hideStatusTitleConnections();
-    void showStatusTitleBlocks();
-    void hideStatusTitleBlocks();
-
     void showLockStaking(bool status);
-    void setStakingStatus(QString text);
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
     void updateStakeReportNow();
     void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
-    void setVotingStatus(QString text);
 
 
 Q_SIGNALS:

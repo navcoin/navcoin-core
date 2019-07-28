@@ -218,47 +218,11 @@ void WalletView::gotoSendCoinsPage(QString addr)
         sendCoinsPage->setAddress(addr);
 }
 
-void WalletView::setStatusTitleBlocks(QString text)
-{
-    overviewPage->setStatusTitleBlocks(text);
-}
-
-void WalletView::setStatusTitleConnections(QString text)
-{
-    overviewPage->setStatusTitleConnections(text);
-}
-
-void WalletView::setStatusTitle(QString text)
-{
-    overviewPage->setStatusTitle(text);
-}
-
-void WalletView::setVotingStatus(QString text)
-{
-    overviewPage->setVotingStatus(text);
-}
-
-void WalletView::setStakingStatus(QString text)
-{
-    overviewPage->setStakingStatus(text);
-}
-
-void WalletView::showStatusTitleConnections(){
-    overviewPage->showStatusTitleConnections();
-};
-void WalletView::hideStatusTitleConnections(){
-    overviewPage->hideStatusTitleConnections();
-};
-void WalletView::showStatusTitleBlocks(){
-    overviewPage->showStatusTitleBlocks();
-};
-void WalletView::hideStatusTitleBlocks(){
-    overviewPage->hideStatusTitleBlocks();
-};
 void WalletView::showLockStaking(bool status)
 {
     overviewPage->showLockStaking(status);
 }
+
 void WalletView::gotoSignMessageTab(QString addr)
 {
     // calls show() in showTab_SM()
