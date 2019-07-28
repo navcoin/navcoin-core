@@ -326,7 +326,7 @@ void NavCoinApplication::loadTheme()
     // What theme are we using? DEFAULT: light
     QString theme = settings.value("theme", "light").toString();
 
-    info("THEME LOADED: "  + settings.value("theme").toString().toStdString());
+    qDebug() << __func__ << ": THEME LOADED: " << settings.value("theme").toString();
 
     // Load the style sheet
     QFile appQss(":/themes/app");
@@ -592,9 +592,6 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(QAPP_APP_NAME_DEFAULT);
     GUIUtil::SubstituteFonts(GetLangTerritory());
 
-    // Load the application styles
-    app.loadTheme();
-
     /// 4. Initialization of translations, so that intro dialog is in user's language
     // Now that QSettings are accessible, initialize translations
     QTranslator qtTranslatorBase, qtTranslator, translatorBase, translator;
@@ -654,6 +651,10 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(networkStyle->getAppName());
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
+
+    // Load the application styles
+    // Needs to be loaded after setting the app name from networkStyle
+    app.loadTheme();
 
 #ifdef ENABLE_WALLET
     /// 8. URI IPC sending
