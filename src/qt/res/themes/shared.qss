@@ -9,7 +9,6 @@ QToolTip {
     color: palette(text);
     background: palette(base);
     border: 0.05em solid palette(highlight);
-    border-radius: 0.3em;
 }
 
 QMenuBar {
