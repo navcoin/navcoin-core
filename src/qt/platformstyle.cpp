@@ -13,20 +13,6 @@
 #include <QPalette>
 #include <QPixmap>
 
-static const struct {
-    const char *platformId;
-    /** Show images on push buttons */
-    const bool imagesOnButtons;
-    /** Extra padding/spacing in transactionview */
-    const bool useExtraSpacing;
-} platform_styles[] = {
-    {"macosx", false, true},
-    {"windows", true, false},
-    /* Other: linux, unix, ... */
-    {"other", true, false}
-};
-static const unsigned platform_styles_count = sizeof(platform_styles)/sizeof(*platform_styles);
-
 namespace {
 /* Local functions for colorizing single-color images */
 
@@ -71,24 +57,12 @@ QIcon ColorizeIcon(const QString& filename, const QColor& colorbase)
 }
 
 
-PlatformStyle::PlatformStyle(const QString &name, bool imagesOnButtons, bool useExtraSpacing):
-    name(name),
-    imagesOnButtons(imagesOnButtons),
-    useExtraSpacing(useExtraSpacing),
+PlatformStyle::PlatformStyle():
     singleColor(0,0,0),
     textColor(0,0,0)
 {
     // Determine icon highlighting color
-    const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
-    const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
-    const QColor colorText(QApplication::palette().color(QPalette::WindowText));
-    const int colorTextLightness = colorText.lightness();
-    QColor colorbase;
-    if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness))
-        colorbase = colorHighlightBg;
-    else
-        colorbase = colorHighlightFg;
-    singleColor = colorbase;
+    singleColor = QColor(QApplication::palette().color(QPalette::Highlight));
 
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
@@ -124,18 +98,8 @@ QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
     return ColorizeIcon(icon, TextColor());
 }
 
-const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
+const PlatformStyle *PlatformStyle::instantiate()
 {
-    for (unsigned x=0; x<platform_styles_count; ++x)
-    {
-        if (platformId == platform_styles[x].platformId)
-        {
-            return new PlatformStyle(
-                    platform_styles[x].platformId,
-                    platform_styles[x].imagesOnButtons,
-                    platform_styles[x].useExtraSpacing);
-        }
-    }
-    return 0;
+    return new PlatformStyle();
 }
 
