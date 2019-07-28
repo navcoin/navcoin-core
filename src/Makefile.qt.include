@@ -352,8 +352,13 @@ RES_ICONS += \
 	qt/res/fonts/roboto.ttf \
 	qt/res/fonts/source.ttf
 
+# Main styles
 RES_STYLESHEETS = \
-	qt/res/themes/main.qss \
+	qt/res/themes/app.qss \
+	qt/res/themes/shared.qss
+
+# Theme styles
+RES_STYLESHEETS += \
 	qt/res/themes/dark/styles.qss \
 	qt/res/themes/light/styles.qss
 

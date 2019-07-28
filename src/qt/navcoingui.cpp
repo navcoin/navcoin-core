@@ -1746,34 +1746,39 @@ void NavCoinGUI::loadTheme()
     // Get an instance of settings
     QSettings settings;
 
-    // What theme are we using?
+    // What theme are we using? DEFAULT: light
     QString theme = settings.value("theme", "light").toString();
 
     // Load the style sheet
-    QFile mainQss(":/themes/main");
+    QFile appQss(":/themes/app");
+    QFile sharedQss(":/themes/shared");
     QFile themeQss(":/themes/" + theme);
 
     // Check if we can access it
-    if (mainQss.open(QIODevice::ReadOnly) && themeQss.open(QIODevice::ReadOnly))
+    if (
+            appQss.open(QIODevice::ReadOnly) &&    // check app specific styles
+            sharedQss.open(QIODevice::ReadOnly) && // check shared stlyes
+            themeQss.open(QIODevice::ReadOnly)     // check theme styles
+       )
     {
         // Create a text stream
-        QTextStream mainQssStream(&mainQss);
+        QTextStream appQssStream(&appQss);
+        QTextStream sharedQssStream(&sharedQss);
         QTextStream themeQssStream(&themeQss);
 
         // Load the whole stylesheet into the app
-        qApp->setStyleSheet(mainQssStream.readAll() + themeQssStream.readAll());
+        qApp->setStyleSheet(appQssStream.readAll() + sharedQssStream.readAll() + themeQssStream.readAll());
 
         // Check if we which theme we want
         if (theme == "dark") {
-            // Load the style
             qApp->setStyle(new StyleDark);
         } else {
-            // Load the style
             qApp->setStyle(new StyleLight);
         }
 
-        // Close the stream
-        mainQss.close();
+        // Close the streams
+        appQss.close();
+        sharedQss.close();
         themeQss.close();
     }
 }

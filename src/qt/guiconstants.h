@@ -39,6 +39,7 @@ static const QString COLOR_BLUE_LIGHT = "#46b1e8";
 static const QString COLOR_MAGENTA = "#c42bb7";
 static const QString COLOR_GREY = "#c1c1c1";
 static const QString COLOR_GRAY = "#c1c1c1";
+static const QString COLOR_LINK = "#2a82da";
 
 /* Invalid field background style */
 #define STYLE_INVALID "background:#FF8080"

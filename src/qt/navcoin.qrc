@@ -106,7 +106,9 @@
         <file alias="spinner-035">res/movies/spinner-035.png</file>
     </qresource>
     <qresource prefix="/themes">
-        <file alias="main">res/themes/main.qss</file>
+        <file alias="app">res/themes/app.qss</file>
+        <file alias="shared">res/themes/shared.qss</file>
+
         <file alias="dark">res/themes/dark/styles.qss</file>
         <file alias="light">res/themes/light/styles.qss</file>
     </qresource>

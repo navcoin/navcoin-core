@@ -1,0 +1,219 @@
+/**
+ * Copyright (c) 2019 The NavCoin Core developers
+ * Distributed under the MIT software license, see the accompanying
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.
+ */
+
+QToolTip {
+    padding: 0.1em;
+    color: palette(text);
+    background: palette(base);
+    border: 0.05em solid palette(highlight);
+    border-radius: 0.3em;
+}
+
+QMenuBar {
+    background: palette(alternate-base);
+}
+
+QMenuBar::item {
+    spacing: 0.05em;
+    padding: 0.2em;
+    background: transparent;
+}
+
+QMenuBar::item:pressed,
+QMenuBar::item:selected {
+    background: palette(base);
+}
+
+QMenu {
+    background: palette(window);
+    border: 0.05em solid palette(shadow);
+}
+
+QMenu::item {
+    padding: 0.15em 1.0em 0.15em 1.5em;
+}
+
+QMenu::item:disabled {
+    background: palette(shadow);
+    color: palette(disabled);
+}
+
+QMenu::item:selected {
+    background: palette(base);
+}
+
+QMenu::icon {
+    padding: 0.15em 0.2em;
+}
+
+QMenu::separator {
+    height: 0.05em;
+    background: palette(alternate-base);
+    margin-left: 0.1em;
+    margin-right: 0.1em;
+}
+
+QMenu::indicator {
+    width: 1.4em;
+    height: 1.4em;
+}
+
+QMainWindow::separator {
+    width: 6px;
+    height: 5px;
+    padding: 0.1em;
+}
+
+QStatusBar {
+    background: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop:0 palette(base), stop:1 palette(alternate-base));
+    color: palette(mid);
+}
+
+QMainWindow::separator:hover,
+QSplitter::handle:hover {
+    background: palette(highlight);
+}
+
+QTabBar::tab {
+    background: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop:0 palette(base), stop:1 palette(alternate-base));
+    padding: 0.2em 0.8em;
+    border: 0.05em solid palette(dark);
+    border-bottom: 0.1em solid transparent;
+    border-top-left-radius: 0.2em;
+    border-top-right-radius: 0.2em;
+}
+
+QTabBar::tab:selected,
+QTabBar::tab:hover {
+    border-bottom: 0.1em solid palette(highlight);
+}
+
+QTabBar::tab::selected:disabled {
+    border-bottom: 0.1em solid palette(disabled);
+}
+
+QTabWidget::pane {
+    background: palette(window);
+    border: 0.05em solid palette(dark);
+}
+
+QCheckBox::indicator,
+QRadioButton::indicator {
+    width: 1.15em;
+    height: 1.15em;
+}
+
+QTreeView,
+QTableView {
+    alternate-background-color: palette(window);
+    background: palette(base);
+}
+
+QTreeView QHeaderView::section,
+QTableView QHeaderView::section {
+    background: qlineargradient(x1:0, y1:1, x2:0, y2:0, stop:0 palette(base), stop:1 palette(alternate-base));
+    border-style: none;
+    border-bottom: 0.05em solid palette(dark);
+    padding-left: 0.1em;
+    padding-right: 0.1em;
+}
+
+QTreeView::item:selected:disabled,
+QTableView::item:selected:disabled {
+    background: palette(disabled);
+}
+
+QTreeView::branch {
+    background: palette(base);
+}
+
+QScrollBar:vertical {
+    background: palette(base);
+    border-top-right-radius: 0.1em;
+    border-bottom-right-radius: 0.1em;
+    width: 0.8em;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background: palette(alternate-base);
+    border-radius: 0.1em;
+    min-height: 2em;
+    margin: 0.2em;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: palette(highlight);
+}
+
+QScrollBar::add-line:vertical {
+    background: none;
+    height: 0;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+    background: none;
+    height: 0;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar:horizontal {
+    background: palette(base);
+    height: 0.8em;
+    margin: 0;
+}
+
+QScrollBar::handle:horizontal {
+    background: palette(base);
+    border-radius: 0.2em;
+    min-width: 1em;
+    margin: 0.2em;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: palette(highlight);
+}
+
+QScrollBar::add-line:horizontal {
+    background: none;
+    width: 0;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal {
+    background: none;
+    width: 0;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QSlider::handle:horizontal {
+    border-radius: 0.25em;
+    border: 0.05em solid palette(dark);
+    background: palette(alternate-base);
+    min-height: 1em;
+    margin: 0 -0.2em;
+}
+
+QSlider::handle:horizontal:hover {
+    background: palette(highlight);
+}
+
+QSlider::add-page:horizontal {
+    background: palette(base);
+}
+
+QSlider::sub-page:horizontal {
+    background: palette(highlight);
+}
+
+QSlider::sub-page:horizontal:disabled {
+    background: palette(disabled);
+}
