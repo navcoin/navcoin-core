@@ -271,6 +271,9 @@ RPCConsole::RPCConsole(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->fontBiggerButton->setIcon(platformStyle->Icon(":/icons/fontbigger"));
     ui->fontSmallerButton->setIcon(platformStyle->Icon(":/icons/fontsmaller"));
 
+    ui->promptIcon->setIcon(platformStyle->IconAlt(":/icons/prompticon"));
+    ui->promptIcon->setIconSize(QSize(15 * GUIUtil::scale(), 15 * GUIUtil::scale()));
+
     // Install event filter for up and down arrow
     ui->lineEdit->installEventFilter(this);
     ui->messagesWidget->installEventFilter(this);
