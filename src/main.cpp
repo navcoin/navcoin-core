@@ -8622,7 +8622,25 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
         return error("CheckProofOfStake() : INFO: read txPrev failed %s",txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
 
-    if (txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking())
+    bool fColdStaking = txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking();
+
+    if (!fColdStaking && tx.vin.size() > 1)
+    {
+        for (unsigned int i = 1; i < tx.vin.size(); i++)
+        {
+            CTransaction txPrev_;
+            uint256 hashBlock_ = uint256();
+            if (!GetTransaction(tx.vin[i].prevout.hash, txPrev_, Params().GetConsensus(), hashBlock_, true))
+                return error("CheckProofOfStake() : INFO: read txPrev failed %s",tx.vin[i].prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
+            if (txPrev_.vout[tx.vin[i].prevout.n].scriptPubKey.IsColdStaking())
+            {
+                fColdStaking = true;
+                break;
+            }
+        }
+    }
+
+    if (fColdStaking)
     {
         CAmount valueIn = view.GetValueIn(tx);
         CAmount valueOut = 0;
