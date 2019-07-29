@@ -8623,8 +8623,9 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
         return error("CheckProofOfStake() : INFO: read txPrev failed %s",txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
 
     bool fColdStaking = txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking();
+    bool fPoolEnabled = IsColdStakingPoolFeeEnabled(pindexPrev, Params().GetConsensus());
 
-    if (!fColdStaking && tx.vin.size() > 1)
+    if (!fColdStaking && fPoolEnabled && tx.vin.size() > 1)
     {
         for (unsigned int i = 1; i < tx.vin.size(); i++)
         {
@@ -8644,8 +8645,6 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     {
         CAmount valueIn = view.GetValueIn(tx);
         CAmount valueOut = 0;
-
-        bool fPoolEnabled = IsColdStakingPoolFeeEnabled(pindexPrev, Params().GetConsensus());
 
         for(unsigned int i = 1; i < tx.vout.size() - (fPoolEnabled?0:1); i++) // First output is empty, last is CFund contribution
             if(fPoolEnabled && tx.vout[i].scriptPubKey == txPrev.vout[txin.prevout.n].scriptPubKey)
