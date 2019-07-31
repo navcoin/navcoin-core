@@ -4693,7 +4693,6 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
 
 bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex * const pindexPrev, int64_t nAdjustedTime)
 {
-
     // Check timestamp
     if (block.GetBlockTime() > nAdjustedTime + (IsNtpSyncEnabled(pindexPrev,Params().GetConsensus()) ? Params().GetConsensus().nMaxFutureDrift : 2 * 60 * 60))
         return state.Invalid(false, REJECT_INVALID, "time-too-new", "block timestamp too far in the future");
@@ -4752,6 +4751,9 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected, block version isn't v4.5.2");
+
+    if(pindexPrev->nHeight+1 > Params().GetConsensus().nLastPOWBlock && block.nBits != GetNextTargetRequired(pindexPrev, true))
+        return state.DoS(10, error("%s: incorrect proof-of-stake at height %d (%d)", __func__, pindexPrev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
     
     return true;
 }
