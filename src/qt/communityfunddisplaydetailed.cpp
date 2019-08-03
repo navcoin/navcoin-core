@@ -209,6 +209,7 @@ void CommunityFundDisplayDetailed::setProposalLabels()
 
 void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
 {
+    // Make sure we have a lock
     LOCK(cs_main);
 
     //cast the vote
