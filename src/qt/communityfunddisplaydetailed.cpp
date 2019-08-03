@@ -95,7 +95,7 @@ void CommunityFundDisplayDetailed::onDetails()
 void CommunityFundDisplayDetailed::setProposalLabels()
 {
     ui->labelProposalTitle->setText(QString::fromStdString(proposal.strDZeel));
-    ui->labelAddress->setText(QString::fromStdString(proposal.Address));
+    ui->labelAddress->setText(QString::fromStdString(proposal.GetPaymentAddress()));
 
     uint64_t deadline_d = std::floor(proposal.nDeadline/86400);
     uint64_t deadline_h = std::floor((proposal.nDeadline-deadline_d*86400)/3600);

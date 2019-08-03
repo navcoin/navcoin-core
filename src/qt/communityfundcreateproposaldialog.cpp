@@ -188,7 +188,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
             CProposal *proposal = new CProposal();
-            proposal->Address = Address;
+            proposal->ownerAddress = Address;
             proposal->nAmount = nReqAmount;
             proposal->strDZeel = sDesc;
             proposal->nDeadline = nDeadline;

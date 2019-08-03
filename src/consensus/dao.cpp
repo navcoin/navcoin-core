@@ -1461,9 +1461,9 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
             std::to_string(nAmount) + "NAV from the proposal " +
             proposal.hash.ToString() + ". Payment request id: " + strDZeel;
 
-    CNavCoinAddress addr(proposal.Address);
+    CNavCoinAddress addr(proposal.GetOwnerAddress());
     if (!addr.IsValid())
-        return error("%s: Address %s is not valid for payment request %s", __func__, proposal.Address, Hash.c_str(), tx.GetHash().ToString());
+        return error("%s: Address %s is not valid for payment request %s", __func__, proposal.GetOwnerAddress(), Hash.c_str(), tx.GetHash().ToString());
 
     CKeyID keyID;
     addr.GetKeyID(keyID);
@@ -1552,21 +1552,27 @@ bool IsValidProposal(CTransaction tx, uint64_t nMaskVersion)
     }
 
     CAmount nAmount = find_value(metadata, "n").get_int64();
-    std::string Address = find_value(metadata, "a").get_str();
+    std::string ownerAddress = find_value(metadata, "a").get_str();
+    std::string paymentAddress = find_value(metadata, "p").isStr() ? find_value(metadata, "p").get_str() : ownerAddress;
     int64_t nDeadline = find_value(metadata, "d").get_int64();
     CAmount nContribution = 0;
     int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : 1;
 
-    CNavCoinAddress address(Address);
-    if (!address.IsValid())
-        return error("%s: Wrong address %s for proposal %s", __func__, Address.c_str(), tx.GetHash().ToString());
+    CNavCoinAddress oaddress(ownerAddress);
+    if (!oaddress.IsValid())
+        return error("%s: Wrong address %s for proposal %s", __func__, ownerAddress.c_str(), tx.GetHash().ToString());
+
+    CNavCoinAddress paddress(paymentAddress);
+    if (!paddress.IsValid())
+        return error("%s: Wrong address %s for proposal %s", __func__, paymentAddress.c_str(), tx.GetHash().ToString());
 
     for(unsigned int i=0;i<tx.vout.size();i++)
         if(tx.vout[i].IsCommunityFundContribution())
             nContribution +=tx.vout[i].nValue;
 
     bool ret = (nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE) &&
-            Address != "" &&
+            ownerAddress != "" &&
+            paymentAddress != "" &&
             nAmount < MAX_MONEY &&
             nAmount > 0 &&
             nDeadline > 0 &&
@@ -1640,6 +1646,14 @@ bool CProposal::IsRejected() const
 
     return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
            && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/ 10000.0));
+}
+
+std::string CProposal::GetOwnerAddress() const {
+    return ownerAddress;
+}
+
+std::string CProposal::GetPaymentAddress() const {
+    return (nVersion & PAYMENT_ADDRESS_VERSION) ? paymentAddress : ownerAddress;
 }
 
 bool CProposal::CanVote() const {
@@ -1720,9 +1734,9 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
 
 std::string CProposal::ToString(CStateViewCache& coins, uint32_t currentTime) const {
     std::string str;
-    str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, address=%s, nDeadline=%u, nVotesYes=%u, "
+    str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, ownerAddress=%s, paymentAddress=%s, nDeadline=%u, nVotesYes=%u, "
                      "nVotesAbs=%u, nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
-                     hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable(coins)/COIN, (float)nFee/COIN, Address, nDeadline,
+                     hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable(coins)/COIN, (float)nFee/COIN, ownerAddress, paymentAddress, nDeadline,
                      nVotesYes, nVotesAbs, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
     CPaymentRequestMap mapPaymentRequests;
 
@@ -1804,7 +1818,8 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("requestedAmount", FormatMoney(nAmount));
     ret.pushKV("notPaidYet", FormatMoney(GetAvailable(coins)));
     ret.pushKV("userPaidFee", FormatMoney(nFee));
-    ret.pushKV("paymentAddress", Address);
+    ret.pushKV("ownerAddress", ownerAddress);
+    ret.pushKV("paymentAddress", paymentAddress);
     if(nVersion & BASE_VERSION) {
         ret.pushKV("proposalDuration", (uint64_t)nDeadline);
         if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {

@@ -2983,11 +2983,21 @@ bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, 
         return error("%s: Could not read strDZeel of Proposal (%s in %s): %s\n", __func__, e.what(), hash.ToString(), blockhash.ToString());
     }
 
+    proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
     proposal.nAmount = find_value(metadata, "n").get_int64();
-    proposal.Address = find_value(metadata, "a").get_str();
+    proposal.ownerAddress = find_value(metadata, "a").get_str();
+    if (find_value(metadata, "p").isStr())
+    {
+        proposal.nVersion |= CProposal::PAYMENT_ADDRESS_VERSION;
+        proposal.paymentAddress = find_value(metadata, "a").get_str();
+    }
+    else
+    {
+        proposal.nVersion &= ~CProposal::PAYMENT_ADDRESS_VERSION;
+        proposal.paymentAddress = proposal.ownerAddress;
+    }
     proposal.nDeadline = find_value(metadata, "d").get_int64();
     proposal.strDZeel = find_value(metadata, "s").get_str();
-    proposal.nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int() : 1;
     proposal.nFee = nProposalFee;
     proposal.hash = hash;
     proposal.txblockhash = blockhash;
@@ -4026,7 +4036,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
 
-                if(block.vtx[0].vout[i].nValue != prequest->nAmount || prequest->fState != DAOFlags::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
+                if(block.vtx[0].vout[i].nValue != prequest->nAmount || prequest->fState != DAOFlags::ACCEPTED || proposal.GetPaymentAddress() != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
 
                 if(prequest->paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)

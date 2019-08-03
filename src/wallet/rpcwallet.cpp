@@ -563,12 +563,13 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             "\nCreates a proposal for the community fund. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
-            "1. \"navcoinaddress\"     (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
-            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to request. eg 0.1\n"
+            "1. \"navcoinaddress\"       (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
+            "2. \"amount\"               (numeric or string, required) The amount in " + CURRENCY_UNIT + " to request. eg 0.1\n"
             "3. duration               (numeric, required) Number of seconds the proposal will exist after being accepted.\n"
-            "4. \"desc\"               (string, required) Short description of the proposal.\n"
+            "4. \"desc\"                 (string, required) Short description of the proposal.\n"
             "5. fee                    (numeric, optional) Contribution to the fund used as fee.\n"
             "6. dump_raw               (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "7. \"owneraddress\"         (string, optional) The owner of the proposal who will sign the payment requests. Default: the payment address\n"
             "\nResult:\n"
             "\"{ hash: proposalid,\"            (string) The proposal id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
@@ -591,11 +592,16 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     CWalletTx wtx;
     bool fSubtractFeeFromAmount = false;
 
-    string Address = params[0].get_str();
+    string paymentAddress = params[0].get_str();
+    string ownerAddress = params.size() == 7 ? params[6].get_str() : paymentAddress;
 
-    CNavCoinAddress destaddress(Address);
-    if (!destaddress.IsValid())
-      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address");
+    CNavCoinAddress paddress(paymentAddress);
+    if (!paddress.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for payment");
+
+    CNavCoinAddress oaddress(ownerAddress);
+    if (!oaddress.IsValid())
+      throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Navcoin address for the owner");
 
     CAmount nReqAmount = AmountFromValue(params[1]);
     int64_t nDeadline = params[2].get_int64();
@@ -615,7 +621,9 @@ UniValue createproposal(const UniValue& params, bool fHelp)
         nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
     strDZeel.pushKV("n",nReqAmount);
-    strDZeel.pushKV("a",Address);
+    strDZeel.pushKV("a",ownerAddress);
+    if (ownerAddress != paymentAddress)
+        strDZeel.pushKV("p",paymentAddress);
     strDZeel.pushKV("d",nDeadline);
     strDZeel.pushKV("s",sDesc);
     strDZeel.pushKV("v",(uint64_t)nVersion);
@@ -893,7 +901,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(proposal.fState != DAOFlags::ACCEPTED)
         throw JSONRPCError(RPC_TYPE_ERROR, "Proposal has not been accepted.");
 
-    CNavCoinAddress address(proposal.Address);
+    CNavCoinAddress address(proposal.GetOwnerAddress());
 
     if(!address.IsValid())
         throw JSONRPCError(RPC_TYPE_ERROR, "Address of the proposal is not a valid NavCoin address.");

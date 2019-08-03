@@ -398,11 +398,13 @@ public:
     static const uint64_t BASE_VERSION=1<<1;
     static const uint64_t REDUCED_QUORUM_VERSION=1<<2;
     static const uint64_t ABSTAIN_VOTE_VERSION=1<<3;
-    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION;
+    static const uint64_t PAYMENT_ADDRESS_VERSION=1<<4;
+    static const uint64_t ALL_VERSION = 1 | BASE_VERSION | REDUCED_QUORUM_VERSION | ABSTAIN_VOTE_VERSION | PAYMENT_ADDRESS_VERSION;
 
     CAmount nAmount;
     CAmount nFee;
-    std::string Address;
+    std::string ownerAddress;
+    std::string paymentAddress;
     uint32_t nDeadline;
     flags fState;
     int nVotesYes;
@@ -422,7 +424,8 @@ public:
     void SetNull() {
         nAmount = 0;
         nFee = 0;
-        Address = "";
+        ownerAddress = "";
+        paymentAddress = "";
         fState = DAOFlags::NIL;
         nVotesYes = 0;
         nVotesNo = 0;
@@ -440,7 +443,8 @@ public:
     void swap(CProposal &to) {
         std::swap(to.nAmount, nAmount);
         std::swap(to.nFee, nFee);
-        std::swap(to.Address, Address);
+        std::swap(to.ownerAddress, ownerAddress);
+        std::swap(to.paymentAddress, paymentAddress);
         std::swap(to.nDeadline, nDeadline);
         std::swap(to.fState, fState);
         std::swap(to.nVotesYes, nVotesYes);
@@ -457,7 +461,7 @@ public:
     }
 
     bool IsNull() const {
-        return (nAmount == 0 && nFee == 0 && Address == "" && nVotesYes == 0 && fState == DAOFlags::NIL
+        return (nAmount == 0 && nFee == 0 && ownerAddress == "" && paymentAddress == "" && nVotesYes == 0 && fState == DAOFlags::NIL
                 && nVotesYes == 0 && nVotesNo == 0 && nVotesAbs == 0 && nDeadline == 0 && strDZeel == "");
     }
 
@@ -481,6 +485,10 @@ public:
     bool CanRequestPayments() const {
         return fState == DAOFlags::ACCEPTED;
     }
+
+    std::string GetOwnerAddress() const;
+
+    std::string GetPaymentAddress() const;
 
     bool HasPendingPaymentRequests(CStateViewCache& coins) const;
 
@@ -518,7 +526,7 @@ public:
             READWRITE(this->nVersion);
         }
 
-        READWRITE(Address);
+        READWRITE(ownerAddress);
         READWRITE(nDeadline);
         READWRITE(fState);
         READWRITE(nVotesYes);
@@ -536,6 +544,10 @@ public:
 
         if(nVersion & ABSTAIN_VOTE_VERSION) {
            READWRITE(nVotesAbs);
+        }
+
+        if(nVersion & PAYMENT_ADDRESS_VERSION) {
+            READWRITE(ownerAddress);
         }
 
         if (ser_action.ForRead())

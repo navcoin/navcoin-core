@@ -130,7 +130,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         }
 
         // Get Address
-        CNavCoinAddress address(proposal.Address);
+        CNavCoinAddress address(proposal.GetOwnerAddress());
         if(!address.IsValid()) {
             QMessageBox msgBox(this);
             std::string str = "The address of the Proposal is not valid\n";

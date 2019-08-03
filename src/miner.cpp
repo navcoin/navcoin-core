@@ -397,7 +397,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     if(coins.GetProposal(prequest.proposalhash, proposal))
                     {
-                        CNavCoinAddress addr(proposal.Address);
+                        CNavCoinAddress addr(proposal.GetPaymentAddress());
 
                         if (!addr.IsValid())
                             continue;

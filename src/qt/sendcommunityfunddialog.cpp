@@ -31,7 +31,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* pro
     // Set UI elements to proposal view
     ui->labelProposalHashTitle->setVisible(false);
     ui->labelProposalHash->setVisible(false);
-    ui->labelAddress->setText(QString(proposal->Address.c_str()));
+    ui->labelAddress->setText(QString(proposal->GetOwnerAddress().c_str()));
 
     // Amount label
     QSettings settings;
