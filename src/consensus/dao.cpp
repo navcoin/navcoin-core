@@ -8,10 +8,10 @@
 #include "rpc/server.h"
 #include "utilmoneystr.h"
 
-void GetVersionMask(uint64_t &nProposalMask, uint64_t &nPaymentRequestMask, uint64_t &nConsultationMask, uint64_t &nConsultationAnswerMask)
+void GetVersionMask(uint64_t &nProposalMask, uint64_t &nPaymentRequestMask, uint64_t &nConsultationMask, uint64_t &nConsultationAnswerMask, CBlockIndex* pindex)
 {
-    bool fReducedQuorum = IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus());
-    bool fAbstainVote = IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus());
+    bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindex, Params().GetConsensus());
+    bool fAbstainVote = IsAbstainVoteEnabled(pindex, Params().GetConsensus());
 
     nProposalMask = Params().GetConsensus().nProposalMaxVersion;
     nPaymentRequestMask = Params().GetConsensus().nPaymentRequestMaxVersion;

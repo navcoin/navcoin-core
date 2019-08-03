@@ -42,7 +42,7 @@ bool RemoveVote(uint256 hash);
 bool Support(uint256 hash, bool &duplicate);
 bool RemoveSupport(string str);
 
-void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask, uint64_t& nConsultationMask, uint64_t& nConsultatioAnswernMask);
+void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask, uint64_t& nConsultationMask, uint64_t& nConsultatioAnswernMask, CBlockIndex* pindex);
 
 class CVote
 {

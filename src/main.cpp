@@ -1369,7 +1369,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             uint64_t nVersionMaskConsultation;
             uint64_t nVersionMaskConsultationAnswer;
 
-            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, chainActive.Tip());
 
             if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION)
                 if(!IsValidProposal(tx, nVersionMaskProposal))
@@ -1466,7 +1466,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 }
             }
 
-            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, chainActive.Tip());
 
             if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
                 CProposal proposal;
@@ -2557,7 +2557,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             uint64_t nVersionMaskConsultation;
             uint64_t nVersionMaskConsultationAnswer;
 
-            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, pindex->pprev);
 
             if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal))
             {
@@ -3593,7 +3593,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             uint64_t nVersionMaskConsultation;
             uint64_t nVersionMaskConsultationAnswer;
 
-            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, pindex->pprev);
 
             if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION)
             {
@@ -3826,7 +3826,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             uint64_t nVersionMaskConsultation;
             uint64_t nVersionMaskConsultationAnswer;
 
-            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer);
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, pindex->pprev);
 
             if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal)){
                 CProposal proposal;
