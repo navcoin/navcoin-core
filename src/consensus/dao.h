@@ -547,7 +547,7 @@ public:
         }
 
         if(nVersion & PAYMENT_ADDRESS_VERSION) {
-            READWRITE(ownerAddress);
+            READWRITE(paymentAddress);
         }
 
         if (ser_action.ForRead())
