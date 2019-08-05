@@ -196,6 +196,8 @@ private:
     /** Disconnect core signals from GUI client */
     void unsubscribeFromCoreSignals();
 
+    void updateHeadersSyncProgressLabel();
+
     void updateWeight();
 
     void cfundProposalsOpen(bool fMode);
