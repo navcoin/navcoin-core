@@ -39,11 +39,10 @@ share/qt/Info.plist
 
 src/univalue/gen
 
-src/qt/*.moc
-src/qt/moc_*.cpp
-src/qt/forms/ui_*.h
-
-src/qt/test/moc*.cpp
+# Some QT Generated files
+*.moc
+moc_*.cpp
+ui_*.h
 
 .deps
 .dirstamp
