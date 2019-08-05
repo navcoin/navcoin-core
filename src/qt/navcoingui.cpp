@@ -338,6 +338,10 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     gotoOverviewPage();
 #endif
+
+#ifdef Q_OS_MAC
+    appNapInhibitor = new CAppNapInhibitor;
+#endif
 }
 
 NavCoinGUI::~NavCoinGUI()
@@ -349,6 +353,7 @@ NavCoinGUI::~NavCoinGUI()
     if(trayIcon) // Hide tray icon, as deleting will let it linger until quit (on Ubuntu)
         trayIcon->hide();
 #ifdef Q_OS_MAC
+    delete appNapInhibitor;
     delete appMenuBar;
     MacDockIconHandler::cleanup();
 #endif
@@ -1171,7 +1176,7 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 {
 #ifdef Q_OS_MAC
     // Disabling macOS App Nap on initial sync, disk and reindex operations.
-    (m_node.isInitialBlockDownload() || m_node.getReindex() || m_node.getImporting()) ? m_app_nap_inhibitor->disableAppNap() : m_app_nap_inhibitor->enableAppNap();
+    IsInitialBlockDownload() ? appNapInhibitor->disableAppNap() : appNapInhibitor->enableAppNap();
 #endif
 
     if (modalOverlay)

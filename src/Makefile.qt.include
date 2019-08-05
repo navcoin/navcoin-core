@@ -140,6 +140,7 @@ QT_MOC_CPP = \
 	qt/moc_getaddresstoreceive.cpp \
 	qt/moc_guiutil.cpp \
 	qt/moc_intro.cpp \
+	qt/moc_macappnapinhibitor.cpp \
 	qt/moc_macdockiconhandler.cpp \
 	qt/moc_macnotificationhandler.cpp \
 	qt/moc_modaloverlay.cpp \
@@ -181,6 +182,7 @@ QT_MOC_CPP = \
 	qt/styles/moc_light.cpp
 
 NAVCOIN_MM = \
+	qt/macappnapinhibitor.mm \
 	qt/macdockiconhandler.mm \
 	qt/macnotificationhandler.mm
 
@@ -226,6 +228,7 @@ NAVCOIN_QT_H = \
 	qt/guiutil.h \
 	qt/intro.h \
 	qt/listview.h \
+	qt/macappnapinhibitor.h \
 	qt/macdockiconhandler.h \
 	qt/macnotificationhandler.h \
 	qt/getaddresstoreceive.h \
