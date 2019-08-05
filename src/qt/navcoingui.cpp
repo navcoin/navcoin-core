@@ -328,7 +328,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     // Subscribe to notifications from core
     subscribeToCoreSignals();
 
-    modalOverlay = new ModalOverlay(this->centralWidget());
+    modalOverlay = new ModalOverlay(platformStyle, this->centralWidget());
 #ifdef ENABLE_WALLET
     if(enableWallet) {
         connect(walletFrame, &WalletFrame::requestedSyncWarningInfo, this, &NavCoinGUI::showModalOverlay);

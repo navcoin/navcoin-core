@@ -9,16 +9,19 @@
 
 #include "chainparams.h"
 
+#include "platformstyle.h"
+
 #include <QResizeEvent>
 #include <QPropertyAnimation>
 
-ModalOverlay::ModalOverlay(QWidget *parent) :
-QWidget(parent),
-ui(new Ui::ModalOverlay),
-bestHeaderHeight(0),
-bestHeaderDate(QDateTime()),
-layerIsVisible(false),
-userClosed(false)
+ModalOverlay::ModalOverlay(const PlatformStyle *platformStyle, QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::ModalOverlay),
+    bestHeaderHeight(0),
+    bestHeaderDate(QDateTime()),
+    layerIsVisible(false),
+    platformStyle(platformStyle),
+    userClosed(false)
 {
     ui->setupUi(this);
     connect(ui->closeButton, &QPushButton::clicked, this, &ModalOverlay::closeClicked);
@@ -26,6 +29,26 @@ userClosed(false)
         parent->installEventFilter(this);
         raise();
     }
+
+    int mainMargin = 60 * GUIUtil::scale();
+    ui->progressLayout->setSpacing(0);
+    ui->progressLayout->setContentsMargins(mainMargin, mainMargin, mainMargin, mainMargin);
+
+    int innerMargin = 20 * GUIUtil::scale();
+    ui->progressLayoutInner->setSpacing(0);
+    ui->progressLayoutInner->setContentsMargins(innerMargin, innerMargin, innerMargin, innerMargin);
+
+    ui->iconLayout->setSpacing(0);
+    ui->iconLayout->setContentsMargins(0, 0, 0, 0);
+
+    ui->iconTextLayout->setSpacing(10 * GUIUtil::scale());
+    ui->iconTextLayout->setContentsMargins(0, 0, 0, 0);
+
+    ui->verticalLayoutInfoText->setSpacing(5 * GUIUtil::scale());
+    ui->verticalLayoutInfoText->setContentsMargins(0, 0, 0, 0);
+
+    int iconSize = 60 * GUIUtil::scale();
+    ui->warningIconLabel->setPixmap(platformStyle->IconAlt(":/icons/warning").pixmap(iconSize));
 
     blockProcessTime.clear();
     setVisible(false);

@@ -324,7 +324,12 @@ void NavCoinApplication::loadTheme()
     QSettings settings;
 
     // What theme are we using? DEFAULT: light
-    QString theme = settings.value("theme", "light").toString();
+    QString theme = settings.value("theme").toString();
+
+    // Check theme
+    if (theme != "light" && theme != "dark") {
+        theme = "light";
+    }
 
     qDebug() << __func__ << ": THEME LOADED: " << settings.value("theme").toString();
 

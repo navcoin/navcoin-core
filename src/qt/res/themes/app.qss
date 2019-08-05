@@ -77,3 +77,12 @@
 #SplashBarInner {
     background: #c42bb7;
 }
+
+#progressBackground {
+    background: rgba(0,0,0,220);
+}
+
+#progressContent {
+    background: palette(alternate-base);
+    border-radius: 0.8em;
+}

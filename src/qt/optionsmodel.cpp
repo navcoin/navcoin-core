@@ -140,8 +140,6 @@ void OptionsModel::Init(bool resetSettings)
     // Theme
     if (!settings.contains("theme"))
         settings.setValue("theme", "light");
-    if (!SoftSetArg("-theme", settings.value("theme").toString().toStdString()))
-        addOverriddenOption("-theme");
 
     theme = settings.value("theme").toString();
 
