@@ -101,16 +101,6 @@ static const struct {
 
 static const unsigned notifs_count = sizeof(notifs)/sizeof(*notifs);
 
-const std::string NavCoinGUI::DEFAULT_UIPLATFORM =
-#if defined(Q_OS_MAC)
-"macosx"
-#elif defined(Q_OS_WIN)
-"windows"
-#else
-"other"
-#endif
-;
-
 const QString NavCoinGUI::DEFAULT_WALLET = "~Default";
 
 NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
