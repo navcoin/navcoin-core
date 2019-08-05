@@ -1251,13 +1251,10 @@ void NavCoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         progressBar->setVisible(true);
 
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
-        if(count != prevBlocks)
-        {
-            labelBlocksIcon->setPixmap(platformStyle->IconAlt(QString(
-                ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
-                .pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
-            spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
-        }
+        labelBlocksIcon->setPixmap(platformStyle->IconAlt(QString(
+            ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
+            .pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
+        spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
         prevBlocks = count;
 
 #ifdef ENABLE_WALLET
