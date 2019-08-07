@@ -8651,7 +8651,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
                 return error(strprintf("%s: Coinstake output %d tried to move cold staking coins to a non authorised script. (%s vs. %s)",
                                        __func__, i, ScriptToAsmStr(txPrev.vout[txin.prevout.n].scriptPubKey), ScriptToAsmStr(tx.vout[i].scriptPubKey)));
 
-        if (valueIn > valueOut)
+        if (fPoolEnabled && valueIn > valueOut)
             return error("%s: Coinstake tried to move cold staking coins to a non authorised script.",__func__);
 
     }
