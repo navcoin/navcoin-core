@@ -89,7 +89,7 @@ void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote)
     script[3] = 0x20;
     memcpy(&script[4], hash.begin(), 32);
     if (vote > -1)
-        script << vote;
+        script << CScriptNum(vote);
 }
 
 void SetScriptForConsultationVoteRemove(CScript &script, uint256 hash)
