@@ -3136,6 +3136,16 @@ uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, CBlockIndex* p
     return ret;
 }
 
+uint64_t GetFundContributionPerBlock(CBlockIndex* pindex)
+{
+    return GetConsensusParameter(Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK, pindex) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_PERCENT_PER_BLOCK, pindex) / 100000;
+}
+
+uint64_t GetStakingRewardPerBlock(CBlockIndex* pindex)
+{
+    return GetConsensusParameter(Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK, pindex) - GetFundContributionPerBlock(pindex);
+}
+
 bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& blockhash,  CConsultationAnswer& answer)
 {
     UniValue metadata(UniValue::VOBJ);
@@ -3382,6 +3392,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
     bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
     bool fColdStakingv2 = IsColdStakingv2Enabled(pindex->pprev, Params().GetConsensus());
+
+    CAmount nFundContributionPerBlock = GetFundContributionPerBlock(pindex->pprev);
 
     std::vector<unsigned char> stakerScript;
 
@@ -3737,9 +3749,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 
                     if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus())) {
-                        if(tx.vout[tx.vout.size() - 1].nValue != GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindex->pprev) * nMultiplier && nMultiplier > 0)
+                        if(tx.vout[tx.vout.size() - 1].nValue != nFundContributionPerBlock * nMultiplier && nMultiplier > 0)
                             return state.DoS(100, error("ConnectBlock(): block pays incorrect amount to community fund (actual=%d vs consensus=%d)",
-                                                        tx.vout[tx.vout.size() - 1].nValue, GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindex->pprev) * nMultiplier),
+                                                        tx.vout[tx.vout.size() - 1].nValue, nFundContributionPerBlock * nMultiplier),
                                     REJECT_INVALID, "bad-cf-amount");
                     } else {
                         if(tx.vout[tx.vout.size() - 1].nValue != Params().GetConsensus().nCommunityFundAmount * nMultiplier && nMultiplier > 0)
@@ -3751,7 +3763,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(IsCommunityFundAmountV2Enabled(pindex->pprev, Params().GetConsensus()))
                     {
-                        nStakeReward -= GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK, pindex->pprev) * nMultiplier;
+                        nStakeReward -= nFundContributionPerBlock * nMultiplier;
                     } else {
                         nStakeReward -= Params().GetConsensus().nCommunityFundAmount * nMultiplier;
                     }
@@ -9334,7 +9346,7 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
   int64_t nSubsidy;
 
   if(IsStaticRewardEnabled(pindexPrev, Params().GetConsensus())){
-      nSubsidy = GetConsensusParameter(Consensus::CONSENSUS_PARAM_STAKING_STATIC_REWARD, pindexPrev);
+      nSubsidy = GetStakingRewardPerBlock(pindexPrev);
   } else {
       int64_t nRewardCoinYear;
       nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;

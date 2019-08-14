@@ -657,5 +657,7 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
 bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultationAnswer& answer);
 
 uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, CBlockIndex* pindex = nullptr);
+uint64_t GetFundContributionPerBlock(CBlockIndex* pindex);
+uint64_t GetStakingRewardPerBlock(CBlockIndex* pindex);
 
 #endif // NAVCOIN_MAIN_H

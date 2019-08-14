@@ -42,12 +42,10 @@ enum ConsensusParamsPos
     CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES,
 
     CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION,
-    CONSENSUS_PARAM_FUND_AMOUNT_PER_BLOCK,
+    CONSENSUS_PARAM_FUND_PERCENT_PER_BLOCK,
 
-    CONSENSUS_PARAM_STAKING_STATIC_REWARD,
-
+    CONSENSUS_PARAM_GENERATION_PER_BLOCK,
     CONSENSUS_PARAM_NAVNS_FEE,
-
     CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE,
 
     MAX_CONSENSUS_PARAMS
@@ -79,10 +77,9 @@ static std::string sConsensusParamsDesc[Consensus::MAX_CONSENSUS_PARAMS] = {
     "Maximum of voting cycles for fund proposal votings",
 
     "Frequency of the fund accumulation transaction",
-    "Amount contributed to the fund per block",
+    "Percentage of generated NAV going to the Fund",
 
-    "Staking reward per block",
-
+    "Amount of NAV generated per block",
     "Yearly fee for registering a name in NavNS",
     "Minimum fee as a fund contribution to submit a DAO vote using a light wallet"
 };
@@ -114,7 +111,7 @@ static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
     TYPE_NUMBER,
 
     TYPE_NUMBER,
-    TYPE_NAV,
+    TYPE_PERCENT,
 
     TYPE_NAV,
     TYPE_NAV,
