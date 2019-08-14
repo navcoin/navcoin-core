@@ -8626,7 +8626,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     bool fPoolEnabled = IsColdStakingPoolFeeEnabled(pindexPrev, Params().GetConsensus());
     CScript kernelScript = txPrev.vout[txin.prevout.n].scriptPubKey;
 
-    if (fPoolEnabled && tx.vin.size() > 1)
+    if (fColdStaking && fPoolEnabled && tx.vin.size() > 1)
     {
         for (unsigned int i = 1; i < tx.vin.size(); i++)
         {
