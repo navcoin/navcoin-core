@@ -3138,7 +3138,7 @@ uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, CBlockIndex* p
 
 uint64_t GetFundContributionPerBlock(CBlockIndex* pindex)
 {
-    return GetConsensusParameter(Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK, pindex) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_PERCENT_PER_BLOCK, pindex) / 100000;
+    return GetConsensusParameter(Consensus::CONSENSUS_PARAM_GENERATION_PER_BLOCK, pindex) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_PERCENT_PER_BLOCK, pindex) / 10000;
 }
 
 uint64_t GetStakingRewardPerBlock(CBlockIndex* pindex)
