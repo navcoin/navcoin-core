@@ -1672,11 +1672,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                         {
                             pcoinsTip->AddProposal(it);
                         }
-                        if (!pcoinsTip->Flush())
-                        {
-                            strLoadError = _("Failed to write to coin database");
-                            break;
-                        }
                     }
                 }
 
@@ -1692,11 +1687,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                         for (auto& it: vPaymentRequests)
                         {
                             pcoinsTip->AddPaymentRequest(it);
-                        }
-                        if (!pcoinsTip->Flush())
-                        {
-                            strLoadError = _("Failed to write to coin database");
-                            break;
                         }
                     }
                 }
