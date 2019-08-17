@@ -1690,7 +1690,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                             pcoinsTip->AddPaymentRequest(it);
                         }
                         pcoinsTip->Flush();
-                        pblocktree->WriteFlag("proposals_migrated", true);
+                        pblocktree->WriteFlag("prequests_migrated", true);
                     }
                 }
 
