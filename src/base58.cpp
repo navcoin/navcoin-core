@@ -320,7 +320,11 @@ CTxDestination CNavCoinAddress::Get() const
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
-        return CScript(vchData.begin(), vchData.end());
+    {
+        std::vector<unsigned char> vData(vchData.size());
+        memcpy(&vData[0], &vchData[0], vchData.size());
+        return CScript(vData.begin(), vData.end());
+    }
     else
         return CNoDestination();
 }
