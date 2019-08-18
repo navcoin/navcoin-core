@@ -19,6 +19,7 @@ class CreateRawScriptAddress(NavCoinTestFramework):
         self.is_network_split = split
 
     def run_test(self):
+        assert(self.nodes[0].createrawscriptaddress("6ac1") == "3HnzbJ4TR9")
         assert(self.nodes[0].validateaddress("3HnzbJ4TR9")["isvalid"] == True)
         assert(self.nodes[0].validateaddress("3HnzbJ4TR9")["scriptPubKey"] == "6ac1")
 
