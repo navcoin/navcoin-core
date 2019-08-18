@@ -252,6 +252,12 @@ bool CNavCoinAddress::Set(const CScriptID& id)
     return true;
 }
 
+bool CNavCoinAddress::Set(const CScript& scriptIn)
+{
+    SetData(Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS), &scriptIn[0], scriptIn.size());
+    return true;
+}
+
 bool CNavCoinAddress::Set(const CTxDestination& dest)
 {
     return boost::apply_visitor(CNavCoinAddressVisitor(this), dest);
@@ -286,6 +292,8 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
 {
     if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
         return vchData.size() == 40;
+    if (vchVersion == params.Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
+        return vchData.size() > 0;
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
@@ -311,6 +319,8 @@ CTxDestination CNavCoinAddress::Get() const
         return CKeyID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);
+    else if (vchVersion == Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
+        return CScript(vchData.begin(), vchData.end());
     else
         return CNoDestination();
 }
@@ -369,6 +379,11 @@ bool CNavCoinAddress::GetSpendingKeyID(CKeyID& keyID) const
 bool CNavCoinAddress::IsScript() const
 {
     return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+}
+
+bool CNavCoinAddress::IsRawScript() const
+{
+    return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS);
 }
 
 void CNavCoinSecret::SetKey(const CKey& vchSecret)
