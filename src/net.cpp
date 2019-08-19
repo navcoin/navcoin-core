@@ -439,6 +439,17 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool fCountFailure
         {
             LOCK(cs_vNodes);
             vNodes.push_back(pnode);
+            // Dandelion: new outbound connection
+            vDandelionOutbound.push_back(pnode);
+            if (vDandelionDestination.size()<DANDELION_MAX_DESTINATIONS) {
+                vDandelionDestination.push_back(pnode);
+            }
+            LogPrint("dandelion", "Added outbound Dandelion connection:\n%s", GetDandelionRoutingDataDebugString());
+            // Dandelion service discovery
+            uint256 dummyHash;
+            dummyHash.SetHex("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+            CInv dummyInv(MSG_DANDELION_TX, dummyHash);
+            pnode->PushInventory(dummyInv);
         }
 
         pnode->nServicesExpected = ServiceFlags(addrConnect.nServices & nRelevantServices);
@@ -1080,6 +1091,13 @@ static void AcceptConnection(const ListenSocket& hListenSocket) {
     {
         LOCK(cs_vNodes);
         vNodes.push_back(pnode);
+        // Dandelion: new inbound connection
+        vDandelionInbound.push_back(pnode);
+        CNode* pto = SelectFromDandelionDestinations();
+        if (pto!=nullptr) {
+            mDandelionRoutes.insert(std::make_pair(pnode, pto));
+        }
+        LogPrint("dandelion", "Added inbound Dandelion connection:\n%s", GetDandelionRoutingDataDebugString());
     }
 }
 
@@ -1140,6 +1158,9 @@ void ThreadSocketHandler()
                     }
                     if (fDelete)
                     {
+                        // Dandelion: close connection
+                        CloseDandelionConnections(pnode);
+                        LogPrint("dandelion", "Removed Dandelion connection:\n%s", GetDandelionRoutingDataDebugString());
                         vNodesDisconnected.remove(pnode);
                         delete pnode;
                     }
@@ -1473,7 +1494,292 @@ void MapPort(bool)
 
 
 
+bool IsDandelionInbound(const CNode* const pnode)
+{
+    return (std::find(vDandelionInbound.begin(), vDandelionInbound.end(), pnode) != vDandelionInbound.end());
+}
 
+bool IsLocalDandelionDestinationSet()
+{
+    return (localDandelionDestination != nullptr);
+}
+
+bool SetLocalDandelionDestination()
+{
+    if (!IsLocalDandelionDestinationSet()) {
+        localDandelionDestination = SelectFromDandelionDestinations();
+        LogPrint("dandelion", "Set local Dandelion destination:\n%s", GetDandelionRoutingDataDebugString());
+    }
+    return IsLocalDandelionDestinationSet();
+}
+
+CNode* GetDandelionDestination(CNode* pfrom) {
+    for (auto const& e : mDandelionRoutes) {
+        if (pfrom==e.first) {
+            return e.second;
+        }
+    }
+    CNode* newPto = SelectFromDandelionDestinations();
+    if (newPto!=nullptr) {
+        mDandelionRoutes.insert(std::make_pair(pfrom, newPto));
+        LogPrint("dandelion", "Added Dandelion route:\n%s", GetDandelionRoutingDataDebugString());
+    }
+    return newPto;
+}
+
+bool LocalDandelionDestinationPushInventory(const CInv& inv) {
+    if(IsLocalDandelionDestinationSet()) {
+        localDandelionDestination->PushInventory(inv);
+        return true;
+    } else if (SetLocalDandelionDestination()) {
+        localDandelionDestination->PushInventory(inv);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo) {
+    auto pair = mDandelionEmbargo.insert(std::make_pair(hash, embargo));
+    return pair.second;
+}
+
+bool IsTxDandelionEmbargoed(const uint256& hash) {
+    auto pair = mDandelionEmbargo.find(hash);
+    if (pair != mDandelionEmbargo.end()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool RemoveDandelionEmbargo(const uint256& hash) {
+    bool removed = false;
+    for (auto iter=mDandelionEmbargo.begin(); iter!=mDandelionEmbargo.end();) {
+        if (iter->first==hash) {
+            iter = mDandelionEmbargo.erase(iter);
+            removed = true;
+        } else {
+            iter++;
+        }
+    }
+    return removed;
+}
+
+CNode* SelectFromDandelionDestinations()
+{
+    std::map<CNode*,uint64_t> mDandelionDestinationCounts;
+    for (size_t i=0; i<vDandelionDestination.size(); i++) {
+        mDandelionDestinationCounts.insert(std::make_pair(vDandelionDestination.at(i),0));
+    }
+    for (auto& e : mDandelionDestinationCounts) {
+        for (auto const& f : mDandelionRoutes) {
+            if (e.first == f.second) {
+                e.second+=1;
+            }
+        }
+    }
+    unsigned int minNumConnections = vDandelionInbound.size();
+    for (auto const& e : mDandelionDestinationCounts) {
+        if (e.second < minNumConnections) {
+            minNumConnections = e.second;
+        }
+    }
+    std::vector<CNode*> candidateDestinations;
+    for (auto const& e : mDandelionDestinationCounts) {
+        if (e.second == minNumConnections) {
+            candidateDestinations.push_back(e.first);
+        }
+    }
+    FastRandomContext rng;
+    CNode* dandelionDestination = nullptr;
+    if (candidateDestinations.size()>0) {
+        dandelionDestination = candidateDestinations.at(rng.randrange(candidateDestinations.size()));
+    }
+    return dandelionDestination;
+}
+
+void CloseDandelionConnections(const CNode* const pnode)
+{
+    // Remove pnode from vDandelionInbound, if present
+    for (auto iter=vDandelionInbound.begin(); iter!=vDandelionInbound.end();) {
+        if (*iter==pnode) {
+            iter=vDandelionInbound.erase(iter);
+        } else {
+            iter++;
+        }
+    }
+    // Remove pnode from vDandelionOutbound, if present
+    for (auto iter=vDandelionOutbound.begin(); iter!=vDandelionOutbound.end();) {
+        if (*iter==pnode) {
+            iter=vDandelionOutbound.erase(iter);
+        } else {
+            iter++;
+        }
+    }
+    // Remove pnode from vDandelionDestination, if present
+    bool isDandelionDestination = false;
+    for (auto iter=vDandelionDestination.begin(); iter!=vDandelionDestination.end();) {
+        if (*iter==pnode) {
+            isDandelionDestination = true;
+            iter=vDandelionDestination.erase(iter);
+        } else {
+            iter++;
+        }
+    }
+    // Generate a replacement Dandelion destination, if necessary
+    if (isDandelionDestination) {
+        // Gather a vector of candidate replacements (outbound peers that are not already destinations)
+        std::vector<CNode*> candidateReplacements;
+        for (auto iteri=vDandelionOutbound.begin(); iteri!=vDandelionOutbound.end();) {
+            bool eligibleCandidate = true;
+            for (auto iterj=vDandelionDestination.begin(); iterj!=vDandelionDestination.end();) {
+                if (*iteri==*iterj) {
+                    eligibleCandidate = false;
+                    iterj = vDandelionDestination.end();
+                } else {
+                    iterj++;
+                }
+            }
+            if (eligibleCandidate) {
+                candidateReplacements.push_back(*iteri);
+            }
+            iteri++;
+        }
+        // Select a candidate to be the replacement destination
+        FastRandomContext rng;
+        CNode* replacementDestination = nullptr;
+        if (candidateReplacements.size()>0) {
+            replacementDestination = candidateReplacements.at(rng.randrange(candidateReplacements.size()));
+        }
+        if (replacementDestination!=nullptr) {
+            vDandelionDestination.push_back(replacementDestination);
+        }
+    }
+    // Generate a replacement pnode, to be used if necessary
+    CNode* newPto = SelectFromDandelionDestinations();
+    // Remove from mDandelionRoutes, if present; if destination, try to replace
+    for(auto iter=mDandelionRoutes.begin(); iter!=mDandelionRoutes.end();) {
+        if (iter->first==pnode) {
+            iter = mDandelionRoutes.erase(iter);
+        } else if (iter->second==pnode) {
+            if (newPto==nullptr) {
+                iter = mDandelionRoutes.erase(iter);
+            } else {
+                iter->second = newPto;
+                iter++;
+            }
+        } else {
+            iter++;
+        }
+    }
+    // Replace localDandelionDestination if equal to pnode
+    if (localDandelionDestination==pnode) {
+        localDandelionDestination = newPto;
+    }
+}
+
+std::string GetDandelionRoutingDataDebugString() {
+    std::string dandelionRoutingDataDebugString = "";
+    dandelionRoutingDataDebugString.append("  vDandelionInbound: ");
+    for(auto const& e : vDandelionInbound) {
+        dandelionRoutingDataDebugString.append(std::to_string(e->GetId())+" ");
+    }
+    dandelionRoutingDataDebugString.append("\n");
+    dandelionRoutingDataDebugString.append("  vDandelionOutbound: ");
+    for(auto const& e : vDandelionOutbound) {
+        dandelionRoutingDataDebugString.append(std::to_string(e->GetId())+" ");
+    }
+    dandelionRoutingDataDebugString.append("\n");
+    dandelionRoutingDataDebugString.append("  vDandelionDestination: ");
+    for(auto const& e : vDandelionDestination) {
+        dandelionRoutingDataDebugString.append(std::to_string(e->GetId())+" ");
+    }
+    dandelionRoutingDataDebugString.append("\n");
+    dandelionRoutingDataDebugString.append("  mDandelionRoutes: ");
+    for(auto const& e : mDandelionRoutes) {
+        dandelionRoutingDataDebugString.append("("+std::to_string(e.first->GetId())+","+std::to_string(e.second->GetId())+") ");
+    }
+    dandelionRoutingDataDebugString.append("\n");
+    dandelionRoutingDataDebugString.append("  localDandelionDestination: ");
+    if(localDandelionDestination==nullptr) {
+        dandelionRoutingDataDebugString.append("nullptr");
+    } else {
+        dandelionRoutingDataDebugString.append(std::to_string(localDandelionDestination->GetId()));
+    }
+    dandelionRoutingDataDebugString.append("\n");
+    return dandelionRoutingDataDebugString;
+}
+
+void DandelionShuffle() {
+    // Dandelion debug message
+    LogPrint("dandelion", "Before Dandelion shuffle:\n%s", GetDandelionRoutingDataDebugString());
+    {
+        // Lock node pointers
+        LOCK(cs_vNodes);
+        // Iterate through mDandelionRoutes to facilitate bookkeeping
+        for (auto iter=mDandelionRoutes.begin(); iter!=mDandelionRoutes.end();) {
+            iter = mDandelionRoutes.erase(iter);
+        }
+        // Set localDandelionDestination to nulltpr and perform bookkeeping
+        if (localDandelionDestination!=nullptr) {
+            localDandelionDestination = nullptr;
+        }
+        // Clear vDandelionDestination
+        //  (bookkeeping already done while iterating through mDandelionRoutes)
+        vDandelionDestination.clear();
+        // Repopulate vDandelionDestination
+        while (vDandelionDestination.size()<DANDELION_MAX_DESTINATIONS &&
+               vDandelionDestination.size()<vDandelionOutbound.size()) {
+            std::vector<CNode*> candidateDestinations;
+            for (auto iteri=vDandelionOutbound.begin(); iteri!=vDandelionOutbound.end();) {
+                bool eligibleCandidate = true;
+                for (auto iterj=vDandelionDestination.begin(); iterj!=vDandelionDestination.end();) {
+                    if (*iteri==*iterj) {
+                        eligibleCandidate = false;
+                        iterj = vDandelionDestination.end();
+                    } else {
+                        iterj++;
+                    }
+                }
+                if (eligibleCandidate) {
+                    candidateDestinations.push_back(*iteri);
+                }
+                iteri++;
+            }
+            FastRandomContext rng;
+            if (candidateDestinations.size()>0) {
+                vDandelionDestination.push_back(candidateDestinations.at(rng.randrange(candidateDestinations.size())));
+            } else {
+                break;
+            }
+        }
+        // Generate new routes
+        for (auto pnode : vDandelionInbound) {
+            CNode* pto = SelectFromDandelionDestinations();
+            if (pto != nullptr) {
+                mDandelionRoutes.insert(std::make_pair(pnode, pto));
+            }
+        }
+        localDandelionDestination = SelectFromDandelionDestinations();
+    }
+    // Dandelion debug message
+    LogPrint("dandelion", "After Dandelion shuffle:\n%s", GetDandelionRoutingDataDebugString());
+}
+
+void ThreadDandelionShuffle() {
+    int64_t nCurrTime = GetTimeMicros();
+    int64_t nNextDandelionShuffle = PoissonNextSend(nCurrTime, DANDELION_SHUFFLE_INTERVAL);
+    while (true) {
+        nCurrTime = GetTimeMicros();
+        if (nCurrTime > nNextDandelionShuffle) {
+            DandelionShuffle();
+            nNextDandelionShuffle = PoissonNextSend(nCurrTime, DANDELION_SHUFFLE_INTERVAL);
+            // Sleep until the next shuffle time
+            MilliSleep((nNextDandelionShuffle-nCurrTime)/1000);
+        }
+    }
+}
 
 
 static std::string GetDNSHost(const CDNSSeedData& data, ServiceFlags* requiredServiceBits)
@@ -2086,6 +2392,9 @@ void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     // Process messages
     threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
+
+    // Dandelion shuffle
+    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "dandelion", &ThreadDandelionShuffle));
 
     // Dump network addresses
     scheduler.scheduleEvery(&DumpData, DUMP_ADDRESSES_INTERVAL);

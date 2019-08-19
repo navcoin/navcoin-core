@@ -1996,8 +1996,17 @@ bool CWalletTx::RelayWalletTransaction()
     {
         if (GetDepthInMainChain() == 0 && !isAbandoned() && InMempool()) {
             LogPrintf("Relaying wtx %s\n", GetHash().ToString());
-            RelayTransaction((CTransaction)*this);
-            return true;
+            if (GetBoolArg("-dandelion", false)) {
+                int64_t nCurrTime = GetTimeMicros();
+                int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
+                InsertDandelionEmbargo(GetHash(),nEmbargo);
+                LogPrint("dandelion", "dandeliontx %s embargoed for %d seconds\n", GetHash().ToString(), (nEmbargo-nCurrTime)/1000000);
+                CInv inv(MSG_DANDELION_TX, GetHash());
+                return LocalDandelionDestinationPushInventory(inv);
+            } else {
+                RelayTransaction((CTransaction)*this);
+                return true;
+            }
         }
     }
     return false;
@@ -4272,5 +4281,17 @@ int CMerkleTx::GetBlocksToMaturity() const
 bool CMerkleTx::AcceptToMemoryPool(bool fLimitFree, CAmount nAbsurdFee)
 {
     CValidationState state;
-    return ::AcceptToMemoryPool(mempool, state, *this, fLimitFree, NULL, false, nAbsurdFee);
+    bool ret;
+    if (GetBoolArg("-dandelion", false)) {
+        ret = ::AcceptToMemoryPool(stempool, state, *this, fLimitFree /* pfMissingInputs */,
+                                   nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
+    } else {
+        ret = ::AcceptToMemoryPool(mempool, state, *this, fLimitFree /* pfMissingInputs */,
+                                   nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
+        // Changes to mempool should also be made to Dandelion stempool
+        CValidationState dummyState;
+        ret = ::AcceptToMemoryPool(stempool, dummyState, *this, fLimitFree /* pfMissingInputs */,
+                                   nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
+    }
+    return ret;
 }
