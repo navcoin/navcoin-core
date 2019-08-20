@@ -606,7 +606,7 @@ void NavCoinGUI::createToolBars()
         topMenuLogo->setFixedSize(187,94);
         topMenuLogo->setObjectName("navLogo");
         topMenuLogo->setStyleSheet(
-           "#navLogo { background: url(:/icons/menu_logo) center center; border: 0px; }");
+           "#navLogo { background: url(:/icons/menu_logo) bottom center repeat-y #eee; border: 0; }");
 
         topMenu1 = new QPushButton();
         walletFrame->menuLayout->addWidget(topMenu1);
@@ -614,8 +614,8 @@ void NavCoinGUI::createToolBars()
         topMenu1->setObjectName("topMenu1");
         connect(topMenu1, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
         topMenu1->setStyleSheet(
-           "#topMenu1 { background: url(:/icons/menu_home_ns) center center; border: 0px; }"
-           "#topMenu1:hover { background: url(:/icons/menu_home_hover) center center; border: 0px; }");
+           "#topMenu1 { background: url(:/icons/menu_home_ns) bottom center repeat-y #eee; border: 0; }"
+           "#topMenu1:hover { background: url(:/icons/menu_home_hover) bottom center repeat-y #ddd; border: 0; }");
 
         topMenu2 = new QPushButton();
         walletFrame->menuLayout->addWidget(topMenu2);
@@ -623,8 +623,8 @@ void NavCoinGUI::createToolBars()
         topMenu2->setObjectName("topMenu2");
         connect(topMenu2, SIGNAL(clicked()), this, SLOT(gotoSendCoinsPage()));
         topMenu2->setStyleSheet(
-                    "#topMenu2 { background: url(:/icons/menu_send_ns) center center; border: 0px; }"
-                    "#topMenu2:hover { background: url(:/icons/menu_send_hover) center center; border: 0px; }");
+                    "#topMenu2 { background: url(:/icons/menu_send_ns) bottom center repeat-y #eee; border: 0; }"
+                    "#topMenu2:hover { background: url(:/icons/menu_send_hover) bottom center repeat-y #ddd; border: 0; }");
 
         topMenu3 = new QPushButton();
         walletFrame->menuLayout->addWidget(topMenu3);
@@ -633,8 +633,8 @@ void NavCoinGUI::createToolBars()
         connect(topMenu3, SIGNAL(clicked()), this, SLOT(gotoRequestPaymentPage()));
         topMenu3->move(469,0);
         topMenu3->setStyleSheet(
-                    "#topMenu3 { background: url(:/icons/menu_receive_ns) center center; border: 0px; }"
-                    "#topMenu3:hover { background: url(:/icons/menu_receive_hover) center center; border: 0px; }");
+                    "#topMenu3 { background: url(:/icons/menu_receive_ns) bottom center repeat-y #eee; border: 0; }"
+                    "#topMenu3:hover { background: url(:/icons/menu_receive_hover) bottom center repeat-y #ddd; border: 0; }");
 
         topMenu4 = new QPushButton();
         walletFrame->menuLayout->addWidget(topMenu4);
@@ -642,16 +642,16 @@ void NavCoinGUI::createToolBars()
         topMenu4->setObjectName("topMenu4");
         connect(topMenu4, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
         topMenu4->setStyleSheet(
-                    "#topMenu4 { background: url(:/icons/menu_transaction_ns) center center; border: 0px; }"
-                    "#topMenu4:hover { background: url(:/icons/menu_transaction_hover) center center; border: 0px; }");
+                    "#topMenu4 { background: url(:/icons/menu_transaction_ns) bottom center repeat-y #eee; border: 0; }"
+                    "#topMenu4:hover { background: url(:/icons/menu_transaction_hover) bottom center repeat-y #ddd; border: 0; }");
         topMenu5 = new QPushButton();
         walletFrame->menuLayout->addWidget(topMenu5);
         topMenu5->setFixedSize(215,94);
         topMenu5->setObjectName("topMenu5");
         connect(topMenu5, SIGNAL(clicked()), this, SLOT(gotoCommunityFundPage()));
         topMenu5->setStyleSheet(
-                    "#topMenu5 { background: url(:/icons/menu_community_fund_ns) center center; border: 0px; }"
-                    "#topMenu5:hover { background: url(:/icons/menu_community_fund_hover) center center; border: 0px; }");
+                    "#topMenu5 { background: url(:/icons/menu_community_fund_ns) bottom center repeat-y #eee; border: 0; }"
+                    "#topMenu5:hover { background: url(:/icons/menu_community_fund_hover) bottom center repeat-y #ddd; border: 0; }");
         QWidget *topMenu = new QWidget();
         topMenu->setObjectName("topMenu");
         topMenu->setStyleSheet(
