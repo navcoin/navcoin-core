@@ -9,6 +9,8 @@
 #include "crypto/chacha20.h"
 #include "uint256.h"
 
+#include <limits>
+
 #include <stdint.h>
 
 /* Seed OpenSSL PRNG with additional entropy data */
