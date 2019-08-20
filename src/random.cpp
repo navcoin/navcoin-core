@@ -16,7 +16,6 @@
 #include "utilstrencodings.h" // for GetTime()
 
 #include <stdlib.h>
-#include <limits>
 
 #ifndef WIN32
 #include <sys/time.h>

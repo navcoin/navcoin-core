@@ -108,6 +108,15 @@ CCriticalSection cs_nLastNodeId;
 static CSemaphore *semOutbound = NULL;
 boost::condition_variable messageHandlerCondition;
 
+// Public Dandelion field
+std::map<uint256, int64_t> mDandelionEmbargo;
+// Dandelion fields
+std::vector<CNode*> vDandelionInbound;
+std::vector<CNode*> vDandelionOutbound;
+std::vector<CNode*> vDandelionDestination;
+CNode* localDandelionDestination = nullptr;
+std::map<CNode*, CNode*> mDandelionRoutes;
+
 // Signals for message handling
 static CNodeSignals g_signals;
 CNodeSignals& GetNodeSignals() { return g_signals; }

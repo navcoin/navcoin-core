@@ -189,7 +189,7 @@ extern std::vector<std::string> vAddedAnonServers;
 extern CCriticalSection cs_vAddedAnonServers;
 
 // Public Dandelion field
-std::map<uint256, int64_t> mDandelionEmbargo;
+extern std::map<uint256, int64_t> mDandelionEmbargo;
 // Dandelion methods
 bool IsDandelionInbound(const CNode* const pnode);
 bool IsLocalDandelionDestinationSet();
@@ -200,11 +200,11 @@ bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo);
 bool IsTxDandelionEmbargoed(const uint256& hash);
 bool RemoveDandelionEmbargo(const uint256& hash);
 // Dandelion fields
-std::vector<CNode*> vDandelionInbound;
-std::vector<CNode*> vDandelionOutbound;
-std::vector<CNode*> vDandelionDestination;
-CNode* localDandelionDestination = nullptr;
-std::map<CNode*, CNode*> mDandelionRoutes;
+extern std::vector<CNode*> vDandelionInbound;
+extern std::vector<CNode*> vDandelionOutbound;
+extern std::vector<CNode*> vDandelionDestination;
+extern CNode* localDandelionDestination;
+extern std::map<CNode*, CNode*> mDandelionRoutes;
 // Dandelion helper functions
 CNode* SelectFromDandelionDestinations();
 void CloseDandelionConnections(const CNode* const pnode);
