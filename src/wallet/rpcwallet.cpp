@@ -131,9 +131,24 @@ UniValue createrawscriptaddress(const UniValue& params, bool fHelp)
 
     std::string data = params[0].get_str();
 
+    if (!IsHex(data))
+        throw JSONRPCError(RPC_MISC_ERROR, "the script is not expressed in hexadecimal");
+
     std::vector<unsigned char> vData = ParseHex(data);
 
-    return CNavCoinAddress(CScript(vData.begin(), vData.end())).ToString();
+    CScript script(vData.begin(), vData.end());
+
+    std::string strAsm = ScriptToAsmStr(script);
+
+    if (strAsm.find("[error]") != std::string::npos || strAsm.find("OP_UNKNOWN") != std::string::npos)
+        throw JSONRPCError(RPC_MISC_ERROR, "the script includes invalid or unknown op codes");
+
+    CNavCoinAddress address(script);
+
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_MISC_ERROR, "the generated address is not valid");
+
+    return address.ToString();
 }
 
 UniValue getnewaddress(const UniValue& params, bool fHelp)
