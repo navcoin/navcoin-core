@@ -1653,7 +1653,7 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
-    info("Updating prices");
+    static int nBypassSSLVerify = 0; // not using it
 
     std::thread pThread{[this]{
         try {
@@ -1706,10 +1706,51 @@ void NavCoinGUI::updatePrice()
                 return;
             }
 
+            info("Updating prices request");
+
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, priceUdateWriteCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+            if (nBypassSSLVerify == 1)
+            {
+                curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+                curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+            }
+
             curlCode = curl_easy_perform(curl);
+
+            if(curlCode != CURLE_OK)
+            {
+                LogPrintf("%s: Curl error code=%d = %s\n"
+                           "url=%s\nreponse:%s\n",
+                         "updatePrice()", curlCode, curl_easy_strerror(curlCode),
+                         url, response);
+            }
+
+            if (!nBypassSSLVerify && curlCode == CURLE_PEER_FAILED_VERIFICATION)
+            {  // retry without verify
+                curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+                curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
+                curlCode = curl_easy_perform(curl);
+
+                if(curlCode == CURLE_OK)
+                {
+                    LogPrintf("%s: Curl worked. By-passing ssl verify from now.\n",
+                            "updatePrice()");
+                    nBypassSSLVerify = 1;
+                }
+                else
+                {
+                    LogPrintf("%s: Curl failed again error code=%d = %s\n"
+                              "url=%s\nreponse:%s\n",
+                             "updatePrice()", curlCode, curl_easy_strerror(curlCode),
+                             url, response);
+                    nBypassSSLVerify = 2;     // failed. don't try again
+                }
+            }
+
             curl_easy_cleanup(curl);
 
             // Parse json
