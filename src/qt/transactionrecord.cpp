@@ -36,8 +36,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 {
     QList<TransactionRecord> parts;
     int64_t nTime = wtx.GetTxTime();
-    isminefilter dCFilter = (wtx.IsCoinStake() && wtx.vout[1].scriptPubKey.IsColdStaking()) ? wallet->IsMine(wtx.vout[1]) : ISMINE_ALL;
-    CAmount nCredit = wtx.GetCredit(dCFilter);
+    isminefilter dCFilter = wtx.IsCoinStake() ? wallet->IsMine(wtx.vout[1]) : ISMINE_ALL;
+    CAmount nCredit = wtx.GetCredit(dCFilter, false);
     CAmount nDebit = wtx.GetDebit(dCFilter);
     CAmount nCFundCredit = wtx.GetDebit(ISMINE_ALL);
     CAmount nNet = nCredit - nDebit;
@@ -58,8 +58,17 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         unsigned int i = 0;
         unsigned int rewardIdx = 0;
         if (wtx.IsCoinStake())
-            // If coinstake has no cfund contribution, get details of last vout or else use second to last
-            rewardIdx = wtx.vout.size() - (wtx.GetValueOutCFund() == 0 ? 1 : 2);
+        {
+            for (unsigned int j = wtx.vout.size(); j--;)
+            {
+                if (wallet->IsMine(wtx.vout[j]))
+                {
+                    rewardIdx = j;
+                    break;
+                }
+
+            }
+        }
 
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
         {
@@ -101,7 +110,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     }
 
                     sub.type = TransactionRecord::Staked;
-                    sub.credit = nNet > 0 ? nNet : wtx.GetValueOut() - nDebit - wtx.GetValueOutCFund();
+                    sub.credit = nNet;
                 }
                 if(wtx.fAnon)
                 {
