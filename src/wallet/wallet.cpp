@@ -241,6 +241,8 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
 {
     vCoins.clear();
 
+    nMinimumInputValue = GetArg("-mininputvalue", 1 * COIN);
+
     {
         LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
