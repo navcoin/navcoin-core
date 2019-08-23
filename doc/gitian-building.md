@@ -493,5 +493,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[NAVCoin/navcoin-sigs](https://github.com/NAVCoin/navcoin-sigs) repository, or if that's not possible create a pull
+[NAVCoin/navcoin-sigs](https://github.com/navcoin/navcoin-sigs) repository, or if that's not possible create a pull
 request.
