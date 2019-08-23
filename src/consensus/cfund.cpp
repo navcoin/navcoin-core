@@ -623,9 +623,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
         {
-            if(!view.GetProposal(pindexblock->vProposalVotes[i].first, proposal))
-                continue;
-
             if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0)
             {
                 if(vCacheProposalsToUpdate.count(pindexblock->vProposalVotes[i].first) == 0)
@@ -642,20 +639,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++)
         {
-            if(!view.GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
-                continue;
-
-            if(!view.GetProposal(prequest.proposalhash, proposal))
-                continue;
-
-            if (mapBlockIndex.count(proposal.blockhash) == 0)
-                continue;
-
-            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
-
-            if(pindexblockparent == NULL)
-                continue;
-
             if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
             {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
