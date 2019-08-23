@@ -2915,7 +2915,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (pindex->IsProofOfStake())
         setStakeSeen.insert(make_pair(pindex->prevoutStake, pindex->nStakeTime));
 
-
     // Check proof of stake
     if (block.nBits != GetNextTargetRequired(pindex->pprev, block.IsProofOfStake())){
         return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake",pindex->pprev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
@@ -2928,9 +2927,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     {
         arith_uint256 targetProofOfStake;
         // Signature will be checked in CheckInputs(), we can avoid it here (fCheckSignature = false)
-        if (!CheckProofOfStake(pindex->pprev, block.vtx[1], block.nBits, hashProof, targetProofOfStake, NULL, false))
+        if (!CheckProofOfStake(pindex->pprev, block.vtx[1], block.nBits, hashProof, targetProofOfStake, NULL, view, false))
         {
-              return error("ConnectBlock() : check proof-of-stake signature failed for block %s", block.GetHash().GetHex());
+              return error("ContextualCheckBlock() : check proof-of-stake signature failed for block %s", block.GetHash().GetHex());
         }
     }
 
@@ -2938,7 +2937,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         hashProof = UintToArith256(block.GetPoWHash());
 
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
-        return state.DoS(1,error("ConnectBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
+        return state.DoS(1,error("ContextualCheckBlock() : SetStakeEntropyBit() failed"), REJECT_INVALID, "bad-entropy-bit");
 
     // Record proof hash value
     pindex->hashProof = hashProof;
@@ -2946,7 +2945,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
     if (!ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier))
-        return state.DoS(1, error("ConnectBlock() : ComputeNextStakeModifier() failed"), REJECT_INVALID, "bad-stake-modifier");
+        return state.DoS(1, error("ContextualCheckBlock() : ComputeNextStakeModifier() failed"), REJECT_INVALID, "bad-stake-modifier");
 
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
 
@@ -4618,6 +4617,12 @@ bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsColdStakingPoolFeeEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_POOL_FEE, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
@@ -8604,10 +8609,10 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockInd
 }
 
 //Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, bool fCHeckSignature)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, CCoinsViewCache& view, bool fCHeckSignature)
 {
     if (!tx.IsCoinStake())
-        return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
+        return error("%s: called on non-coinstake %s", __func__, tx.GetHash().ToString());
 
     // Kernel (input 0) must match the stake hash target per coin age (nBits)
     const CTxIn& txin = tx.vin[0];
@@ -8615,13 +8620,43 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     CTransaction txPrev;
     uint256 hashBlock = uint256();
     if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
-        return error("CheckProofOfStake() : INFO: read txPrev failed %s",txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
+        return error("%s: INFO: read txPrev failed %s",__func__, txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
 
-    if (txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking())
-        for(unsigned int i = 1; i < tx.vout.size() - 1; i++) // First output is empty, last is CFund contribution
-            if(tx.vout[i].scriptPubKey != txPrev.vout[txin.prevout.n].scriptPubKey)
-                return error(strprintf("CheckProofOfStake(): Coinstake output %d tried to move cold staking coins to a non authorised script. (%s vs. %s)",
-                                       i, ScriptToAsmStr(txPrev.vout[txin.prevout.n].scriptPubKey), ScriptToAsmStr(tx.vout[i].scriptPubKey)));
+    bool fColdStaking = txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking();
+    bool fPoolEnabled = IsColdStakingPoolFeeEnabled(pindexPrev, Params().GetConsensus());
+    CScript kernelScript = txPrev.vout[txin.prevout.n].scriptPubKey;
+
+    if (fPoolEnabled && tx.vin.size() > 1)
+    {
+        for (unsigned int i = 1; i < tx.vin.size(); i++)
+        {
+            CTransaction txPrev_;
+            uint256 hashBlock_ = uint256();
+            if (!GetTransaction(tx.vin[i].prevout.hash, txPrev_, Params().GetConsensus(), hashBlock_, true))
+                return error("%s: INFO: read txPrev failed %s",__func__, tx.vin[i].prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
+
+            fColdStaking |= txPrev_.vout[tx.vin[i].prevout.n].scriptPubKey.IsColdStaking();
+            if (fColdStaking && txPrev_.vout[tx.vin[i].prevout.n].scriptPubKey != kernelScript)
+                return error("%s: Coinstake spends inputs from more than one different kernel", __func__);
+        }
+    }
+
+    if (fColdStaking)
+    {
+        CAmount valueIn = view.GetValueIn(tx);
+        CAmount valueOut = 0;
+
+        for(unsigned int i = 1; i < tx.vout.size() - (fPoolEnabled?0:1); i++) // First output is empty, last is CFund contribution
+            if(fPoolEnabled && tx.vout[i].scriptPubKey == txPrev.vout[txin.prevout.n].scriptPubKey)
+                valueOut += tx.vout[i].nValue;
+            else if(!fPoolEnabled && tx.vout[i].scriptPubKey != txPrev.vout[txin.prevout.n].scriptPubKey)
+                return error(strprintf("%s: Coinstake output %d tried to move cold staking coins to a non authorised script. (%s vs. %s)",
+                                       __func__, i, ScriptToAsmStr(txPrev.vout[txin.prevout.n].scriptPubKey), ScriptToAsmStr(tx.vout[i].scriptPubKey)));
+
+        if (fPoolEnabled && valueIn > valueOut)
+            return error("%s: Coinstake tried to move cold staking coins to a non authorised script.",__func__);
+
+    }
 
     if (pvChecks)
         pvChecks->reserve(tx.vin.size());
@@ -8641,19 +8676,19 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
             pvChecks->push_back(CScriptCheck());
             check.swap(pvChecks->back());
         } else if (!check())
-            return error("CheckProofOfStake() : script-verify-failed %s",ScriptErrorString(check.GetScriptError()));
+            return error("%s: script-verify-failed %s",__func__, ScriptErrorString(check.GetScriptError()));
     }
 
     if (mapBlockIndex.count(hashBlock) == 0)
-        return fDebug? error("CheckProofOfStake() : read block failed") : false; // unable to read block of previous transaction
+        return fDebug? error("%s: read block failed",__func__) : false; // unable to read block of previous transaction
 
     CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
     if (txin.prevout.hash != txPrev.GetHash())
-        return error("CheckProofOfStake(): Coinstake input does not match previous output %s",txin.prevout.hash.GetHex());
+        return error("%s: Coinstake input does not match previous output %s",__func__, txin.prevout.hash.GetHex());
 
     if (!CheckStakeKernelHash(pindexPrev, nBits, *pblockindex, txPrev, txin.prevout, tx.nTime, hashProofOfStake, targetProofOfStake, fDebug))
-        return error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString()); // may occur during initial download or if behind on block chain sync
+        return error("%s: INFO: check kernel failed on coinstake %s, hashProof=%s",__func__,  tx.GetHash().ToString(), hashProofOfStake.ToString()); // may occur during initial download or if behind on block chain sync
 
     return true;
 }
