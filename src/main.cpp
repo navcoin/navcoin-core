@@ -1062,10 +1062,10 @@ bool TestLockPointValidity(const LockPoints* lp)
     return true;
 }
 
-bool CheckSequenceLocks(const CTxMemPool &pmempool, const CTransaction &tx, int flags, LockPoints* lp, bool useExistingLockPoints)
+bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp, bool useExistingLockPoints)
 {
     AssertLockHeld(cs_main);
-    AssertLockHeld(pmempool.cs);
+    LOCK(mempool.cs);
 
     CBlockIndex* tip = chainActive.Tip();
     CBlockIndex index;
@@ -1453,7 +1453,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // be mined yet.
         // Must keep pool.cs for this unless we change CheckSequenceLocks to take a
         // CoinsViewCache instead of create its own
-        if (!CheckSequenceLocks(pool, tx, STANDARD_LOCKTIME_VERIFY_FLAGS, &lp))
+        if (!CheckSequenceLocks(tx, STANDARD_LOCKTIME_VERIFY_FLAGS, &lp))
             return state.DoS(0, false, REJECT_NONSTANDARD, "non-BIP68-final");
         }
 

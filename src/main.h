@@ -432,7 +432,7 @@ bool SequenceLocks(const CTransaction &tx, int flags, std::vector<int>* prevHeig
  *
  * See consensus/consensus.h for flag definitions.
  */
-bool CheckSequenceLocks(const CTxMemPool &pmempool, const CTransaction &tx, int flags, LockPoints* lp = NULL, bool useExistingLockPoints = false);
+bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp = NULL, bool useExistingLockPoints = false);
 
 /**
  * Closure representing one script verification

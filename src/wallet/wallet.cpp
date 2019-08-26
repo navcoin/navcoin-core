@@ -1984,7 +1984,7 @@ void CWallet::ReacceptWalletTransactions()
     {
         CWalletTx& wtx = *(item.second);
 
-        LOCK(mempool.cs);
+        LOCK2(stempool.cs, mempool.cs);
         wtx.AcceptToMemoryPool(false, maxTxFee);
     }
 }
