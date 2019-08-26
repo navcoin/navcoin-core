@@ -6305,7 +6305,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
 
-    CheckDandelionEmbargoes();
+    {
+        LOCK(cs_main);
+        CheckDandelionEmbargoes();
+    }
 
     if (strCommand == NetMsgType::VERSION)
     {
@@ -8897,12 +8900,15 @@ static void CheckDandelionEmbargoes()
             LogPrint("dandelion", "dandeliontx %s embargo expired\n", iter->first.ToString());
             CValidationState state;
             std::shared_ptr<const CTransaction> ptx = stempool.get(iter->first);
-            const CTransaction& tx = *ptx;
-            bool fMissingInputs = false;
-            AcceptToMemoryPool(mempool, state, tx, false, &fMissingInputs, false, 0);
-            LogPrint("mempool", "AcceptToMemoryPool: accepted %s (poolsz %u txn, %u kB)\n",
-                     iter->first.ToString(), mempool.size(), mempool.DynamicMemoryUsage() / 1000);
-            RelayTransaction(*ptx);
+            if (ptx)
+            {
+                const CTransaction& tx = *ptx;
+                bool fMissingInputs = false;
+                AcceptToMemoryPool(mempool, state, tx, false, &fMissingInputs, false, 0);
+                LogPrint("mempool", "AcceptToMemoryPool: accepted %s (poolsz %u txn, %u kB)\n",
+                         iter->first.ToString(), mempool.size(), mempool.DynamicMemoryUsage() / 1000);
+                RelayTransaction(*ptx);
+            }
             iter = mDandelionEmbargo.erase(iter);
         } else {
             iter++;
