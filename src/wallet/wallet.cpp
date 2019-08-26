@@ -1996,7 +1996,7 @@ bool CWalletTx::RelayWalletTransaction()
     {
         if (GetDepthInMainChain() == 0 && !isAbandoned() && InMempool()) {
             LogPrintf("Relaying wtx %s\n", GetHash().ToString());
-            if (GetBoolArg("-dandelion", false)) {
+            if (GetBoolArg("-dandelion", true)) {
                 int64_t nCurrTime = GetTimeMicros();
                 int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
                 InsertDandelionEmbargo(GetHash(),nEmbargo);
@@ -4282,7 +4282,7 @@ bool CMerkleTx::AcceptToMemoryPool(bool fLimitFree, CAmount nAbsurdFee)
 {
     CValidationState state;
     bool ret;
-    if (GetBoolArg("-dandelion", false)) {
+    if (GetBoolArg("-dandelion", true)) {
         ret = ::AcceptToMemoryPool(stempool, state, *this, fLimitFree /* pfMissingInputs */,
                                    nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
     } else {
@@ -4290,7 +4290,7 @@ bool CMerkleTx::AcceptToMemoryPool(bool fLimitFree, CAmount nAbsurdFee)
                                    nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
         // Changes to mempool should also be made to Dandelion stempool
         CValidationState dummyState;
-        ret = ::AcceptToMemoryPool(stempool, dummyState, *this, fLimitFree /* pfMissingInputs */,
+        ret &= ::AcceptToMemoryPool(stempool, dummyState, *this, fLimitFree /* pfMissingInputs */,
                                    nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
     }
     return ret;
