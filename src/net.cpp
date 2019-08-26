@@ -1787,6 +1787,7 @@ void ThreadDandelionShuffle() {
             // Sleep until the next shuffle time
             MilliSleep((nNextDandelionShuffle-nCurrTime)/1000);
         }
+        boost::this_thread::interruption_point();
     }
 }
 
