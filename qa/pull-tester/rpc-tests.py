@@ -186,6 +186,7 @@ testScripts = [
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py',
+    'staking_mininputvalue.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
