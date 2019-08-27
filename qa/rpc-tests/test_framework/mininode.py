@@ -1526,6 +1526,9 @@ class NodeConnCB(object):
             time.sleep(deliver_sleep)
         with mininode_lock:
             try:
+                command = message.command.decode('ascii')
+                self.message_count[command] += 1
+                self.last_message[command] = message
                 print("Delivering ", 'on_' + message.command.decode('ascii'))
                 getattr(self, 'on_' + message.command.decode('ascii'))(conn, message)
             except:

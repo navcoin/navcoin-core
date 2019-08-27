@@ -48,22 +48,6 @@ class TestP2PConn(NodeConnCB):
         self.connection = conn
         self.peer_disconnected = False
 
-    def on_inv(self, conn, message):
-        """Receive message and dispatch message to appropriate callback.
-
-        We keep a count of how many of each message type has been received
-        and the most recent message of each type."""
-        with mininode_lock:
-            try:
-                command = message.command.decode('ascii')
-                self.message_count[command] += 1
-                self.last_message[command] = message
-                getattr(self, 'on_' + command)(message)
-            except:
-                print("ERROR delivering %s (%s)" % (repr(message), sys.exc_info()[0]))
-                raise
-
-
     # Track the last getdata message we receive (used in the test)
     def on_getdata(self, conn, message):
         self.last_getdata = message
@@ -113,13 +97,13 @@ class DandelionTest(NavCoinTestFramework):
         self.num_nodes = 8
         self.extra_args = []
         for i in range(self.num_nodes):
-            self.extra_args.append(["-dandelion=1", "-staking=0"]) # ,"-debug=dandelion","-printtoconsole=1"
+            self.extra_args.append(["-dandelion=1"]) # ,"-debug=dandelion","-printtoconsole=1"
 
     def setup_nodes(self):
         print("setup_nodes");
         return start_nodes(
             self.num_nodes, self.options.tmpdir,
-            extra_args=[['-debug', '-whitelist=127.0.0.1']] * self.num_nodes)
+            extra_args=[['-debug', '-whitelist=127.0.0.1', '-staking=0']] * self.num_nodes)
 
     def setup_network(self):
         print("Setting up network for dandelion.")
@@ -176,10 +160,10 @@ class DandelionTest(NavCoinTestFramework):
               assert(test_node0.message_count['notfound']==1)
               if not test_1_passed:
                 test_1_passed = True
-                self.log.info('Success: resistance to active probing')
+                print('Success: resistance to active probing')
             except AssertionError:
               if not test_1_passed and tries_left == 0:
-                self.log.info('Failed: resistance to active probing')
+                print('Failed: resistance to active probing')
             # Test 2: Loop behavior
             test_node0.message_count['notfound'] = 0
             time.sleep(3)
@@ -189,10 +173,10 @@ class DandelionTest(NavCoinTestFramework):
               assert(test_node0.message_count['notfound']==1)
               if not test_2_passed:
                 test_2_passed = True
-                self.log.info('Success: loop behavior')
+                print('Success: loop behavior')
             except AssertionError:
               if not test_2_passed and tries_left == 0:
-                self.log.info('Failed: loop behavior')
+                print('Failed: loop behavior')
             # Test 3: Resistance to black holes
             test_node0.message_count['tx'] = 0
             time.sleep(44)
@@ -202,10 +186,10 @@ class DandelionTest(NavCoinTestFramework):
               assert(test_node0.message_count['tx']==1)
               if not test_3_passed:
                 test_3_passed = True
-                self.log.info('Success: resistance to black holes')
+                print('Success: resistance to black holes')
             except AssertionError:
               if not test_3_passed and tries_left == 0:
-                self.log.info('Failed: resistance to black holes')
+                print('Failed: resistance to black holes')
 
         print("Running dandelion test 7")
         all_tests_passed = test_1_passed and test_2_passed and test_3_passed
