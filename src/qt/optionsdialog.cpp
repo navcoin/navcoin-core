@@ -13,6 +13,7 @@
 #include "guiutil.h"
 #include "optionsmodel.h"
 
+#include "base58.h"
 #include "chainparams.h"
 #include "main.h" // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
 #include "miner.h"
@@ -74,6 +75,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->voteLabel->setVisible(showVoting);
     ui->voteTextField->setVisible(showVoting);
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
+    ui->rewardsTextField->setText(QString::fromStdString(GetArg("-stakingaddress","")));
 
     /* Window elements init */
 #ifdef Q_OS_MAC
@@ -141,6 +143,7 @@ void OptionsDialog::setModel(OptionsModel *model)
     QSettings settings;
 
     ui->voteTextField->setText(QString::fromStdString(GetArg("-stakervote","")));
+    ui->rewardsTextField->setText(QString::fromStdString(GetArg("-stakingaddress","")));
     ui->voteQuestionLabel->setText(settings.value("votingQuestion", "").toString());
 
     if(model)
@@ -238,6 +241,17 @@ void OptionsDialog::on_resetButton_clicked()
 
 void OptionsDialog::on_okButton_clicked()
 {
+    std::string rewardAddress = ui->rewardsTextField->text().toStdString();
+    CNavCoinAddress a(rewardAddress);
+    if (a.IsValid() || rewardAddress == "")
+    {
+        RemoveConfigFile("stakingaddress");
+        if (rewardAddress != "")
+        {
+            SoftSetArg("-stakingaddress", rewardAddress, true);
+            WriteConfigFile("stakingaddress", rewardAddress);
+        }
+    }
     mapper->submit();
     accept();
     updateDefaultProxyNets();
