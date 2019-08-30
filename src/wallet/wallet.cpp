@@ -240,6 +240,8 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
 {
     vCoins.clear();
 
+    nMinimumInputValue = GetArg("-mininputvalue", 1 * COIN);
+
     {
         LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
@@ -584,6 +586,18 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             txNew.vout[txNew.vout.size()-1].nValue -= nReward;
             txNew.vout.push_back(CTxOut(nReward, GetScriptForDestination(address.Get())));
         }
+    }
+
+    CNavCoinAddress poolFeeAddress(GetArg("-pooladdress", ""));
+    double nPoolFee = GetArg("-poolfee", 0) / 100.0;
+
+    if (nPoolFee > 0 && poolFeeAddress.IsValid())
+    {
+        CAmount nRewardAsFee = nReward * nPoolFee;
+        txNew.vout[txNew.vout.size()-1].nValue -= nRewardAsFee;
+        if (txNew.vout[txNew.vout.size()-1].nValue == 0)
+            txNew.vout.erase(txNew.vout.begin()+txNew.vout.size()-1);
+        txNew.vout.push_back(CTxOut(nRewardAsFee, GetScriptForDestination(poolFeeAddress.Get())));
     }
 
     // Adds Community Fund output if enabled
@@ -2059,10 +2073,10 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
     return debit;
 }
 
-CAmount CWalletTx::GetCredit(const isminefilter& filter) const
+CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity) const
 {
     // Must wait until coinbase is safely deep enough in the chain before valuing it
-    if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
+    if (fCheckMaturity && (IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0)
         return 0;
 
     CAmount credit = 0;

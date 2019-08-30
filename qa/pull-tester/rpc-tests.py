@@ -176,6 +176,7 @@ testScripts = [
     'getstakinginfo.py',
     'coldstaking_staking.py',
     'coldstaking_spending.py',
+    'coldstaking_fee.py',
     'staticr-staking-amount.py',
     'hardfork-451.py',
     'hardfork-452.py',
@@ -185,6 +186,7 @@ testScripts = [
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py',
+    'staking_mininputvalue.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')

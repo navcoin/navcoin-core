@@ -144,3 +144,6 @@ ui_*.h
 *.creator
 *.files
 *.includes
+
+# VS Code
+navcoin-core.code-workspace
