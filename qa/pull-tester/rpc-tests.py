@@ -109,6 +109,7 @@ testScripts = [
 #    'walletbackup.py',
 #    'bip68-112-113-p2p.py',
 
+    'staking_mininputvalue.py',
      'wallet.py',
     'wallet-hd.py',
 
@@ -176,6 +177,7 @@ testScripts = [
     'getstakinginfo.py',
     'coldstaking_staking.py',
     'coldstaking_spending.py',
+    'coldstaking_fee.py',
     'staticr-staking-amount.py',
     'hardfork-451.py',
     'hardfork-452.py',

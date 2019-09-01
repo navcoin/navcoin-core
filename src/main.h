@@ -535,6 +535,7 @@ bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus:
 
 /** Check whether ColdStaking has been activated. */
 bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsColdStakingPoolFeeEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);
@@ -622,7 +623,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockInd
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
-bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, bool fCHeckSignature = false);
+bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, CCoinsViewCache& view, bool fCHeckSignature = false);
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(int nHeight, int64_t nTimeBlock, int64_t nTimeTx);

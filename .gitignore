@@ -139,3 +139,13 @@ ui_*.h
 *.cflags
 *.cxxflags
 *.creator.*
+
+craig-core.files
+
+craig-core.includes
+
+navcoin-core.code-workspace
+
+craig-core.config
+
+craig-core.creator
