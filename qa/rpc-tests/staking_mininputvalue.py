@@ -9,7 +9,7 @@ from test_framework.util import *
 class MinInputValueTest(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
-        self.setup_clean_chain = False
+        self.setup_clean_chain = True
         self.num_nodes = 3
 
     def setup_network(self, split=False):
@@ -22,8 +22,9 @@ class MinInputValueTest(NavCoinTestFramework):
             self.nodes.append(start_node(i, self.options.tmpdir, base_optio + node_option[i]))
             self.nodes[i].textname = node_textname[i]
 
+        print('nodes started')
+
     def show_status(self, Bfrom, Bto=0):
-        print()
         for node in self.nodes:
             node.LastUtxos = node.listunspent(-Bto, -Bfrom)
 

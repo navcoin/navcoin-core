@@ -1285,14 +1285,15 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     string sMsg = "";
     int nWarningCounter = 0;
+    int nMinMeasures = GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE);
 
-    if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0)
+    if(nMinMeasures == 0)
     {
         sMsg = "You have set to ignore NTP Sync with the wallet "
                "setting ntpminmeasures=0. Please be aware that "
                "your system clock needs to be correct in order "
                "to synchronize with the network. ";
-    } else {
+    } else if(nMinMeasures > 0) {
         while(1)
         {
             if(ShutdownRequested())
