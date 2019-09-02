@@ -94,16 +94,13 @@ class TestP2PConn(NodeConnCB):
 class DandelionTest(NavCoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
-        self.num_nodes = 8
-        self.extra_args = []
-        for i in range(self.num_nodes):
-            self.extra_args.append(["-dandelion=1"]) # ,"-debug=dandelion","-printtoconsole=1"
+        self.num_nodes = 3
 
     def setup_nodes(self):
         print("setup_nodes");
         return start_nodes(
             self.num_nodes, self.options.tmpdir,
-            extra_args=[['-debug', '-whitelist=127.0.0.1', '-staking=0']] * self.num_nodes)
+            extra_args=[['-whitelist=127.0.0.1', '-staking=0', '-dandelion=1']] * self.num_nodes)
 
     def setup_network(self):
         print("Setting up network for dandelion.")

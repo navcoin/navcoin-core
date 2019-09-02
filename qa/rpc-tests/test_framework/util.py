@@ -159,12 +159,12 @@ def initialize_datadir(dirname, n):
     rpc_u, rpc_p = rpc_auth_pair(n)
     with open(os.path.join(datadir, "navcoin.conf"), 'w') as f:
         f.write("devnet=1\n")
-        f.write("dandelion=0\n")
         f.write("rpcuser=" + rpc_u + "\n")
         f.write("rpcpassword=" + rpc_p + "\n")
         f.write("port="+str(p2p_port(n))+"\n")
         f.write("rpcport="+str(rpc_port(n))+"\n")
         f.write("listenonion=0\n")
+        f.write("dandelion=0\n")
         f.write("ntpminmeasures=-1\n")
     return datadir
 

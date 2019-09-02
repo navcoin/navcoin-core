@@ -1763,9 +1763,13 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
 {
     std::vector<uint256> vHashTxToUncache;
     bool res = AcceptToMemoryPoolWorker(pool, state, tx, fLimitFree, pfMissingInputs, fOverrideMempoolLimit, nAbsurdFee, vHashTxToUncache);
-    if (!res) {
+    if (res)
+        LogPrintf("%s: Successfully added txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
+    else
+    {
+        LogPrintf("%s: FAILED to add txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
         BOOST_FOREACH(const uint256& hashTx, vHashTxToUncache)
-            pcoinsTip->Uncache(hashTx);
+                pcoinsTip->Uncache(hashTx);
     }
     return res;
 }
@@ -7038,43 +7042,42 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         FlushStateToDisk(state, FLUSH_STATE_PERIODIC);
     }
     else if (strCommand == NetMsgType::DANDELIONTX)
-      {
-          CValidationState state;
-          CTransaction tx;
-          vRecv >> tx;
-          bool fMissingInputs = false;
-          CInv inv(MSG_DANDELION_TX, tx.GetHash());
-          LOCK(cs_main);
-          if (IsDandelionInbound(pfrom)) {
-              if (!stempool.exists(inv.hash)) {
-                  bool ret = AcceptToMemoryPool(stempool, state, tx, false, &fMissingInputs, false, 0);
-                  if (ret) {
-                      LogPrint("mempool", "AcceptToStemPool: peer=%d: accepted %s (poolsz %u txn, %u kB)\n",
-                               pfrom->GetId(), tx.GetHash().ToString(), stempool.size(), stempool.DynamicMemoryUsage() / 1000);
-                      int64_t nCurrTime = GetTimeMicros();
-                      int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-                      InsertDandelionEmbargo(tx.GetHash(),nEmbargo);
-                      LogPrint("dandelion", "dandeliontx %s embargoed for %d seconds\n", tx.GetHash().ToString(), (nEmbargo-nCurrTime)/1000000);
-                  }
-                  int nDoS = 0;
-                  if (state.IsInvalid(nDoS)) {
-                      LogPrint("mempool", "%s from peer=%d was not accepted: %s\n", tx.GetHash().ToString(),
-                               pfrom->GetId(), FormatStateMessage(state));
-                      if (state.GetRejectCode() > 0 && state.GetRejectCode() < REJECT_INTERNAL) { // Never send AcceptToMemoryPool's internal codes over P2P
-                          pfrom->PushMessage(NetMsgType::REJECT, strCommand, (unsigned char)state.GetRejectCode(),
-                                               state.GetRejectReason().substr(0, MAX_REJECT_MESSAGE_LENGTH), inv.hash);
-                      }
-                      if (nDoS > 0) {
-                          Misbehaving(pfrom->GetId(), nDoS);
-                      }
-                  }
-              }
-              if (stempool.exists(inv.hash)) {
-                  RelayDandelionTransaction(tx, pfrom);
-              }
-          }
-      }
-
+    {
+        CValidationState state;
+        CTransaction tx;
+        vRecv >> tx;
+        bool fMissingInputs = false;
+        CInv inv(MSG_DANDELION_TX, tx.GetHash());
+        LOCK(cs_main);
+        if (IsDandelionInbound(pfrom)) {
+            if (!stempool.exists(inv.hash)) {
+                bool ret = AcceptToMemoryPool(stempool, state, tx, false, &fMissingInputs, false, 0);
+                if (ret) {
+                    LogPrint("mempool", "AcceptToStemPool: peer=%d: accepted %s (poolsz %u txn, %u kB)\n",
+                             pfrom->GetId(), tx.GetHash().ToString(), stempool.size(), stempool.DynamicMemoryUsage() / 1000);
+                    int64_t nCurrTime = GetTimeMicros();
+                    int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
+                    InsertDandelionEmbargo(tx.GetHash(),nEmbargo);
+                    LogPrint("dandelion", "dandeliontx %s embargoed for %d seconds\n", tx.GetHash().ToString(), (nEmbargo-nCurrTime)/1000000);
+                }
+                int nDoS = 0;
+                if (state.IsInvalid(nDoS)) {
+                    LogPrint("mempool", "%s from peer=%d was not accepted: %s\n", tx.GetHash().ToString(),
+                             pfrom->GetId(), FormatStateMessage(state));
+                    if (state.GetRejectCode() > 0 && state.GetRejectCode() < REJECT_INTERNAL) { // Never send AcceptToMemoryPool's internal codes over P2P
+                        pfrom->PushMessage(NetMsgType::REJECT, strCommand, (unsigned char)state.GetRejectCode(),
+                                           state.GetRejectReason().substr(0, MAX_REJECT_MESSAGE_LENGTH), inv.hash);
+                    }
+                    if (nDoS > 0) {
+                        Misbehaving(pfrom->GetId(), nDoS);
+                    }
+                }
+            }
+            if (stempool.exists(inv.hash)) {
+                RelayDandelionTransaction(tx, pfrom);
+            }
+        }
+    }
     else if (strCommand == NetMsgType::CMPCTBLOCK && !fImporting && !fReindex) // Ignore blocks received while importing
     {
         CBlockHeaderAndShortTxIDs cmpctblock;
@@ -8904,14 +8907,18 @@ unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int
 
 static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom)
 {
+    if (!stempool.exists(tx.GetHash())) {
+        LogPrintf("ERROR: Trying to relay dandelion transaction %s which is not in the stempool.\n",
+                  tx.GetHash().ToString());
+        return;
+    }
     FastRandomContext rng;
     if (rng.randrange(100)<DANDELION_FLUFF) {
         LogPrint("dandelion", "Dandelion fluff: %s\n", tx.GetHash().ToString());
         CValidationState state;
         std::shared_ptr<const CTransaction> ptx = stempool.get(tx.GetHash());
-        const CTransaction& tx = *ptx;
         bool fMissingInputs = false;
-        AcceptToMemoryPool(mempool, state, tx, false, &fMissingInputs, false, 0);
+        AcceptToMemoryPool(mempool, state, *ptx, false, &fMissingInputs, false, 0);
         LogPrint("mempool", "AcceptToMemoryPool: peer=%d: accepted %s (poolsz %u txn, %u kB)\n",
                  pfrom->GetId(), tx.GetHash().ToString(), mempool.size(), mempool.DynamicMemoryUsage() / 1000);
         RelayTransaction(tx);
@@ -8934,16 +8941,21 @@ static void CheckDandelionEmbargoes()
         } else if (iter->second < nCurrTime) {
             LogPrint("dandelion", "dandeliontx %s embargo expired\n", iter->first.ToString());
             CValidationState state;
-            std::shared_ptr<const CTransaction> ptx = stempool.get(iter->first);
-            if (ptx)
-            {
-                const CTransaction& tx = *ptx;
-                bool fMissingInputs = false;
-                AcceptToMemoryPool(mempool, state, tx, false, &fMissingInputs, false, 0);
-                LogPrint("mempool", "AcceptToMemoryPool: accepted %s (poolsz %u txn, %u kB)\n",
-                         iter->first.ToString(), mempool.size(), mempool.DynamicMemoryUsage() / 1000);
-                RelayTransaction(*ptx);
+            shared_ptr<const CTransaction> ptx = stempool.get(iter->first);
+            // If txn was not found in Stempool, then something went wrong,
+            // Keep it embargoed for now.
+            if (!ptx) {
+                LogPrintf(
+                            "ERROR: dandeliontx %s embargo expired, but not found in stempool.\n",
+                            iter->first.ToString());
+                iter = mDandelionEmbargo.erase(iter);
+                continue;
             }
+            bool fMissingInputs = false;
+            AcceptToMemoryPool(mempool, state, *ptx, false, &fMissingInputs, false, 0);
+            LogPrint("mempool", "AcceptToMemoryPool: accepted %s (poolsz %u txn, %u kB)\n",
+                     iter->first.ToString(), mempool.size(), mempool.DynamicMemoryUsage() / 1000);
+            RelayTransaction(*ptx);
             iter = mDandelionEmbargo.erase(iter);
         } else {
             iter++;
