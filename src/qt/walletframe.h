@@ -97,8 +97,6 @@ public Q_SLOTS:
     void importPrivateKey();
     void exportMasterPrivateKeyAction();
 
-    void showLockStaking(bool status);
-
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
 
     /** Show used sending addresses */

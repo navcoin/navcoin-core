@@ -1500,8 +1500,6 @@ void NavCoinGUI::setEncryptionStatus(int status)
         changePassphraseAction->setEnabled(false);
         unlockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(false);
-        if(walletFrame)
-            walletFrame->showLockStaking(false);
     }
     else
     {
@@ -1513,8 +1511,6 @@ void NavCoinGUI::setEncryptionStatus(int status)
         changePassphraseAction->setEnabled(false);
         encryptWalletAction->setEnabled(true);
         unlockWalletAction->setVisible(false);
-        if(walletFrame)
-            walletFrame->showLockStaking(false);
         break;
     case WalletModel::Unlocked:
         labelEncryptionIcon->show();
@@ -1524,8 +1520,6 @@ void NavCoinGUI::setEncryptionStatus(int status)
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-        if(walletFrame)
-            walletFrame->showLockStaking(false);
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->show();
@@ -1535,8 +1529,6 @@ void NavCoinGUI::setEncryptionStatus(int status)
         changePassphraseAction->setEnabled(true);
         unlockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-        if(walletFrame)
-            walletFrame->showLockStaking(true);
         break;
     }
     }
@@ -1852,7 +1844,6 @@ void NavCoinGUI::updateStakingStatus()
 
     if (!GetStaking())
     {
-        walletFrame->showLockStaking(false);
         labelStakingIcon->setPixmap(platformStyle->IconAlt(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE * GUIUtil::scale(), STATUSBAR_ICONSIZE * GUIUtil::scale()));
         labelStakingIcon->setToolTip(tr("Wallet Staking is <b>OFF</b>"));
     }

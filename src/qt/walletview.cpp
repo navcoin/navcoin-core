@@ -218,11 +218,6 @@ void WalletView::gotoSendCoinsPage(QString addr)
         sendCoinsPage->setAddress(addr);
 }
 
-void WalletView::showLockStaking(bool status)
-{
-    overviewPage->showLockStaking(status);
-}
-
 void WalletView::gotoSignMessageTab(QString addr)
 {
     // calls show() in showTab_SM()

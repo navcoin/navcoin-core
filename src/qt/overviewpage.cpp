@@ -135,7 +135,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
-    connect(ui->unlockStakingButton, SIGNAL(clicked()), this, SLOT(unlockWalletStaking()));
 
     // start with displaying the "out of sync" warnings
     updateStakeReportNow();
@@ -145,11 +144,6 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
 {
     if(filter)
         Q_EMIT transactionClicked(filter->mapToSource(index));
-}
-
-void OverviewPage::showLockStaking(bool status)
-{
-    ui->unlockStakingButton->setVisible(status);
 }
 
 OverviewPage::~OverviewPage()
@@ -164,10 +158,16 @@ void OverviewPage::setStakingStats(QString day, QString week, QString month, QSt
     ui->label30dStakingStats->setText(month);
 }
 
-void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                              const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
-                              const CAmount& coldStakingBalance)
-{
+void OverviewPage::setBalance(
+    const CAmount& balance,
+    const CAmount& unconfirmedBalance,
+    const CAmount& stakingBalance,
+    const CAmount& immatureBalance,
+    const CAmount& watchOnlyBalance,
+    const CAmount& watchUnconfBalance,
+    const CAmount& watchImmatureBalance,
+    const CAmount& coldStakingBalance
+) {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     currentBalance = balance;
     currentUnconfirmedBalance = unconfirmedBalance;
@@ -188,30 +188,6 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, currentTotalBalance + currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
 
     updateStakeReportNow();
-
-    bool showStaking = stakingBalance != 0;
-
-    ui->labelStaking->setVisible(showStaking);
-    ui->labelStakingText->setVisible(showStaking);
-
-    bool showColdStaking = coldStakingBalance != 0;
-
-    ui->labelColdStaking->setVisible(showColdStaking);
-    ui->labelColdStakingText->setVisible(showColdStaking);
-
-    bool showWatchOnly = currentWatchOnlyTotalBalance != 0;
-
-    ui->labelWatchedBalance->setVisible(showWatchOnly);
-    ui->labelWatchedBalanceText->setVisible(showWatchOnly);
-
-    // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
-    // for the non-mining users
-    bool showImmature = false;
-    bool showWatchOnlyImmature = watchImmatureBalance != 0;
-
-    // for symmetry reasons also show immature label when the watch-only one is shown
-    ui->labelImmature->setVisible(false);
-    ui->labelImmatureText->setVisible(false);
 }
 
 // show/hide watch-only labels
@@ -274,18 +250,6 @@ void OverviewPage::updateDisplayUnit()
     }
 }
 
-void OverviewPage::unlockWalletStaking()
-{
-    if(!walletModel)
-        return;
-    // Unlock wallet when requested by wallet model
-    if (walletModel->getEncryptionStatus() == WalletModel::Locked)
-    {
-        AskPassphraseDialog dlg(AskPassphraseDialog::UnlockStaking, this);
-        dlg.setModel(walletModel);
-        dlg.exec();
-    }
-}
 
 using namespace boost;
 using namespace std;

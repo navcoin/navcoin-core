@@ -43,7 +43,6 @@ public Q_SLOTS:
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
                     const CAmount& coldStakingBalance);
 
-    void showLockStaking(bool status);
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
     void updateStakeReportNow();
     void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
@@ -77,7 +76,6 @@ private Q_SLOTS:
     void updateDisplayUnit();
     void handleTransactionClicked(const QModelIndex &index);
     void updateWatchOnlyLabels(bool showWatchOnly);
-    void unlockWalletStaking();
 };
 
 #endif // NAVCOIN_QT_OVERVIEWPAGE_H
