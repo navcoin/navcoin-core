@@ -26,23 +26,23 @@ class ColdStakingFeeTest(NavCoinTestFramework):
         slow_gen(self.nodes[2], 300)
         assert (get_bip9_status(self.nodes[2], "coldstaking")["status"] == "active")
 
-        csaddress0 = self.nodes[0].getcoldstakingaddress(self.nodes[0].getnewaddress(),"n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
-        csaddress1 = self.nodes[1].getcoldstakingaddress(self.nodes[1].getnewaddress(),"n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
-        csaddress2 = self.nodes[2].getcoldstakingaddress(self.nodes[2].getnewaddress(),"n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
+        csaddress1 = self.nodes[0].getcoldstakingaddress(self.nodes[0].getnewaddress(),"n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
+        csaddress2 = self.nodes[1].getcoldstakingaddress(self.nodes[1].getnewaddress(),"n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
+        csaddress3 = self.nodes[2].getcoldstakingaddress(self.nodes[2].getnewaddress(),"n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
 
-        self.nodes[0].sendtoaddress(csaddress0, self.nodes[0].getbalance(), "", "", "", True)
-        self.nodes[1].sendtoaddress(csaddress1, self.nodes[1].getbalance(), "", "", "", True)
-        self.nodes[2].sendtoaddress(csaddress2, self.nodes[2].getbalance(), "", "", "", True)
+        self.nodes[0].sendtoaddress(csaddress1, self.nodes[0].getbalance(), "", "", "", True)
+        self.nodes[1].sendtoaddress(csaddress2, self.nodes[1].getbalance(), "", "", "", True)
+        self.nodes[2].sendtoaddress(csaddress3, self.nodes[2].getbalance(), "", "", "", True)
 
         self.nodes[0].generatetoaddress(100, "n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
         self.nodes[1].generatetoaddress(100, "n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
         self.nodes[2].generatetoaddress(100, "n1wgKgwFPZYcQrm8qBtPrBvz2piqCwc1ry")
 
-        tx=self.nodes[0].sendtoaddress(csaddress0, self.nodes[0].getbalance(), "", "", "", True)
+        tx=self.nodes[0].sendtoaddress(csaddress1, self.nodes[0].getbalance(), "", "", "", True)
         fees0=self.nodes[0].gettransaction(tx)["fee"]*100000000/2
-        tx2=self.nodes[1].sendtoaddress(csaddress1, self.nodes[1].getbalance(), "", "", "", True)
+        tx2=self.nodes[1].sendtoaddress(csaddress2, self.nodes[1].getbalance(), "", "", "", True)
         fees1=self.nodes[1].gettransaction(tx2)["fee"]*100000000
-        self.nodes[2].sendtoaddress(csaddress2, self.nodes[2].getbalance(), "", "", "", True)
+        self.nodes[2].sendtoaddress(csaddress3, self.nodes[2].getbalance(), "", "", "", True)
 
         while self.nodes[0].getblockcount() < 401:
             time.sleep(1)
@@ -58,11 +58,6 @@ class ColdStakingFeeTest(NavCoinTestFramework):
         assert(node1balance > 0)
         assert_equal((node0balance+fees0) % 100000000, 0)
         assert_equal((node1balance+fees1) % 200000000, 0)
-
-        time.sleep(32)
-        time.sleep(32)
-        time.sleep(32)
-        time.sleep(32)
 
         assert("Coinstake tried to move cold staking coins to a non authorised script" in open(self.options.tmpdir + '/node2/devnet/debug.log').read())
 
