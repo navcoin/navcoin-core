@@ -373,29 +373,15 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
     }
 
     for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end();) {
-        if (it->second.IsNull()) {
-            CProposalMap::iterator itUs = cacheProposals.find(it->first);
-            if (itUs != cacheProposals.end()) {
-                cacheProposals.erase(itUs);
-            }
-        } else {
-            CProposal& entry = cacheProposals[it->first];
-            entry.swap(it->second);
-        }
+        CProposal& entry = cacheProposals[it->first];
+        entry.swap(it->second);
         CProposalMap::iterator itOld = it++;
         mapProposals.erase(itOld);
     }
 
     for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();) {
-        if (it->second.IsNull()) {
-            CPaymentRequestMap::iterator itUs = cachePaymentRequests.find(it->first);
-            if (itUs != cachePaymentRequests.end()) {
-                cachePaymentRequests.erase(itUs);
-            }
-        } else {
-            CPaymentRequest& entry = cachePaymentRequests[it->first];
-            entry.swap(it->second);
-        }
+        CPaymentRequest& entry = cachePaymentRequests[it->first];
+        entry.swap(it->second);
         CPaymentRequestMap::iterator itOld = it++;
         mapPaymentRequests.erase(itOld);
     }
@@ -407,6 +393,8 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
 bool CCoinsViewCache::Flush() {
     bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, hashBlock);
     cacheCoins.clear();
+    cacheProposals.clear();
+    cachePaymentRequests.clear();
     cachedCoinsUsage = 0;
     return fOk;
 }
