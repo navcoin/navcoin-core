@@ -158,7 +158,7 @@ static const bool DEFAULT_FEEFILTER = true;
 /** Default for -headerspamfilter, use header spam filter */
 static const bool DEFAULT_HEADER_SPAM_FILTER = true;
 /** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
-static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = 50;
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = 500;
 /** Default for -headerspamfiltermaxavg, maximum average size of an index occurrence in the header spam filter */
 static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
 /** Default for -headerspamfilterignoreport, ignore the port in the ip address when looking for header spam,

@@ -4873,6 +4873,18 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
             return true;
         }
 
+        // Check for the checkpoint
+        if (chainActive.Tip() && block.hashPrevBlock != chainActive.Tip()->GetBlockHash())
+        {
+            // Extra checks to prevent "fill up memory by spamming with bogus blocks"
+            const CBlockIndex* pcheckpoint = Checkpoints::AutoSelectSyncCheckpoint();
+            int64_t deltaTime = block.GetBlockTime() - pcheckpoint->nTime;
+            if (deltaTime < 0)
+            {
+                return state.DoS(1, false, REJECT_INVALID, "older-than-checkpoint", false,"AcceptBlockHeader(): Block with a timestamp before last checkpoint");
+            }
+        }
+
         if (!CheckBlockHeader(block, state, chainparams.GetConsensus(), false))
             return error("%s: Consensus::CheckBlockHeader: %s, %s", __func__, hash.ToString(), FormatStateMessage(state));
 
