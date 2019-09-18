@@ -146,4 +146,4 @@ ui_*.h
 *.includes
 
 # VS Code
-navcoin-core.code-workspace
+*.code-workspace
