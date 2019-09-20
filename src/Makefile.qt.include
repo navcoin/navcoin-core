@@ -158,8 +158,9 @@ QT_MOC_CPP = \
 	qt/moc_communityfundcreatepaymentrequestdialog.cpp \
 	qt/moc_peertablemodel.cpp \
 	qt/moc_paymentserver.cpp \
-	qt/moc_qvalidatedlineedit.cpp \
-	qt/moc_qvalidatedplaintextedit.cpp \
+  qt/moc_qjsonmodel.cpp \
+  qt/moc_qvalidatedlineedit.cpp \
+  qt/moc_qvalidatedplaintextedit.cpp \
 	qt/moc_qvalidatedspinbox.cpp \
 	qt/moc_qvaluecombobox.cpp \
 	qt/moc_receivecoinsdialog.cpp \
@@ -171,6 +172,7 @@ QT_MOC_CPP = \
 	qt/moc_sendcommunityfunddialog.cpp \
 	qt/moc_communityfundsuccessdialog.cpp \
 	qt/moc_signverifymessagedialog.cpp \
+  qt/moc_splitrewards.cpp \
 	qt/moc_splashscreen.cpp \
 	qt/moc_trafficgraphwidget.cpp \
 	qt/moc_transactiondesc.cpp \
@@ -229,6 +231,8 @@ NAVCOIN_QT_H = \
 	qt/guiconstants.h \
 	qt/guiutil.h \
 	qt/intro.h \
+  qt/qjsonitem.h \
+  qt/qjsonmodel.h \
 	qt/listview.h \
 	qt/macdockiconhandler.h \
 	qt/macnotificationhandler.h \
@@ -268,6 +272,7 @@ NAVCOIN_QT_H = \
 	qt/communityfundsuccessdialog.h \
 	qt/signverifymessagedialog.h \
 	qt/skinize.h \
+  qt/splitrewards.h \
 	qt/splashscreen.h \
 	qt/trafficgraphwidget.h \
 	qt/transactiondesc.h \
@@ -414,6 +419,8 @@ NAVCOIN_QT_CPP += \
 	qt/communityfunddisplaydetailed.cpp \
 	qt/communityfundcreateproposaldialog.cpp \
 	qt/communityfundcreatepaymentrequestdialog.cpp \
+  qt/qjsonitem.cpp \
+  qt/qjsonmodel.cpp \
 	qt/paymentrequestplus.cpp \
 	qt/paymentserver.cpp \
 	qt/receivecoinsdialog.cpp \
@@ -424,6 +431,7 @@ NAVCOIN_QT_CPP += \
 	qt/sendcommunityfunddialog.cpp \
 	qt/communityfundsuccessdialog.cpp \
 	qt/signverifymessagedialog.cpp \
+  qt/splitrewards.cpp \
 	qt/transactiondesc.cpp \
 	qt/transactiondescdialog.cpp \
 	qt/transactionfilterproxy.cpp \

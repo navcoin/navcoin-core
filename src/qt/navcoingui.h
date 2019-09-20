@@ -136,6 +136,7 @@ private:
     QAction *unlockWalletAction;
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
+    QAction *splitRewardAction;
     QPushButton *topMenu1; // Home
     QPushButton *topMenu2; // Send
     QPushButton *topMenu3; // Recieve
@@ -275,6 +276,7 @@ private Q_SLOTS:
     void updateDisplayUnit(int unit);
     /** Toggle Staking **/
     void toggleStaking();
+    void splitRewards();
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
