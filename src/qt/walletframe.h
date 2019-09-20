@@ -112,6 +112,8 @@ public Q_SLOTS:
 
     void setVotingStatus(QString text);
 
+    void splitRewards();
+
     /** Show used sending addresses */
     void usedSendingAddresses();
     /** Show used receiving addresses */
