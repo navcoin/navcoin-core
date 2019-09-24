@@ -26,9 +26,9 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     topBoxLayout->setContentsMargins(QMargins());
     topBox->setLayout(topBoxLayout);
 
-    topBoxLayout->addWidget(new QLabel(tr("<b>Staking Rewards</b>")));
+    topBoxLayout->addWidget(new QLabel(tr("Configure where your staking rewards are forwarded.")));
     topBoxLayout->addStretch(1);
-    topBoxLayout->addWidget(new QLabel(tr("Setup for Staking Address:")));
+    topBoxLayout->addWidget(new QLabel(tr("Setup for staking address:")));
     topBoxLayout->addWidget(comboAddress);
 
 
@@ -52,7 +52,7 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     QPushButton* quitBtn = new QPushButton(tr("Cancel"));
     connect(quitBtn, SIGNAL(clicked()), this, SLOT(onQuit()));
 
-    connect(comboAddress, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(comboAddress, QOverload<int>::of(&QComboBox::activated),
         [=](int index){ showFor(comboAddress->itemData(index).toString()); });
 
     bottomBoxLayout->addWidget(addBtn);
@@ -67,30 +67,37 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     layout->addWidget(strDesc);
     layout->addWidget(bottomBox);
 
+    std::map<QString, CAmount> mapAddressBalance;
+
+    std::vector<COutput> vCoins;
+    pwalletMain->AvailableCoins(vCoins);
+
+    comboAddress->clear();
+    comboAddress->insertItem(0, "Default", "all");
+
+    for (const COutput& out: vCoins)
+    {
+        CTxDestination dest;
+        if (ExtractDestination(out.tx->vout[out.i].scriptPubKey, dest)){
+            QString strAddress = QString::fromStdString(CNavCoinAddress(dest).ToString());
+            if (mapAddressBalance.count(strAddress) == 0)
+                mapAddressBalance[strAddress] = 0;
+            mapAddressBalance[strAddress] += out.tx->vout[out.i].nValue;
+        }
+    }
+
+    int i = 1;
+
+    for (const auto &it: mapAddressBalance)
+    {
+        comboAddress->insertItem(i++, it.first +" ("+ QString::fromStdString(FormatMoney(it.second)) +" NAV)",it.first);
+    }
+
     showFor("all");
 }
 
 void SplitRewardsDialog::showFor(QString sin)
 {
-    if (!model || !model->getOptionsModel() || !model->getAddressTableModel())
-        return;
-
-    std::map<QString, std::vector<COutput> > mapCoins;
-    model->listCoins(mapCoins);
-
-    comboAddress->addItem("Default", "all");
-
-    for(const std::pair<QString, std::vector<COutput>>& coins: mapCoins) {
-        QString strAddress = coins.first;
-        CAmount value;
-        for (const COutput& out: coins.second)
-        {
-            value += out.tx->vout[out.i].nValue;
-        }
-        if (value > 0)
-            comboAddress->addItem(strAddress + " (" + QString::fromStdString(FormatMoney(value)) +" NAV)", strAddress);
-    }
-
     currentAddress = sin;
 
     QJsonObject j;
