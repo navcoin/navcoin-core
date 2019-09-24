@@ -6,8 +6,8 @@
 
 SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     strDesc(new QLabel),
-    strLabel(new QLabel),
-    tree(new QTreeView)
+    tree(new QTreeView),
+    comboAddress(new QComboBox)
 {
     QVBoxLayout* layout(new QVBoxLayout);
 
@@ -26,13 +26,10 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     topBoxLayout->setContentsMargins(QMargins());
     topBox->setLayout(topBoxLayout);
 
-    QPushButton* changeBtn = new QPushButton(tr("Change"));
-    connect(changeBtn, SIGNAL(clicked()), this, SLOT(onChange()));
-
-    topBoxLayout->addWidget(new QLabel(tr("<b>Staking Rewards Setup</b>")));
+    topBoxLayout->addWidget(new QLabel(tr("<b>Staking Rewards</b>")));
     topBoxLayout->addStretch(1);
-    topBoxLayout->addWidget(strLabel);
-    topBoxLayout->addWidget(changeBtn);
+    topBoxLayout->addWidget(new QLabel(tr("Setup for Staking Address:")));
+    topBoxLayout->addWidget(comboAddress);
 
 
     auto *bottomBox = new QFrame;
@@ -55,6 +52,9 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     QPushButton* quitBtn = new QPushButton(tr("Cancel"));
     connect(quitBtn, SIGNAL(clicked()), this, SLOT(onQuit()));
 
+    connect(comboAddress, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        [=](int index){ showFor(comboAddress->itemData(index).toString()); });
+
     bottomBoxLayout->addWidget(addBtn);
     bottomBoxLayout->addWidget(editBtn);
     bottomBoxLayout->addWidget(removeBtn);
@@ -72,6 +72,25 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
 
 void SplitRewardsDialog::showFor(QString sin)
 {
+    if (!model || !model->getOptionsModel() || !model->getAddressTableModel())
+        return;
+
+    std::map<QString, std::vector<COutput> > mapCoins;
+    model->listCoins(mapCoins);
+
+    comboAddress->addItem("Default", "all");
+
+    for(const std::pair<QString, std::vector<COutput>>& coins: mapCoins) {
+        QString strAddress = coins.first;
+        CAmount value;
+        for (const COutput& out: coins.second)
+        {
+            value += out.tx->vout[out.i].nValue;
+        }
+        if (value > 0)
+            comboAddress->addItem(strAddress + " (" + QString::fromStdString(FormatMoney(value)) +" NAV)", strAddress);
+    }
+
     currentAddress = sin;
 
     QJsonObject j;
@@ -83,7 +102,7 @@ void SplitRewardsDialog::showFor(QString sin)
     }
 
     availableAmount = 100;
-    CAmount nCFundContribution =  Params().GetConsensus().nCommunityFundAmountV2;
+    CAmount nCFundContribution = Params().GetConsensus().nCommunityFundAmountV2;
 
     QStringList descs;
 
@@ -131,8 +150,6 @@ void SplitRewardsDialog::showFor(QString sin)
     tree->setModel(jmodel);
 
     tree->resizeColumnToContents(1);
-
-    strLabel->setText(currentAddress == "all" ? tr("Default settings") : tr("Settings for ") + currentAddress);
 
     strDesc->setText(tr("For each block, %1 NAV will go to the Community Fund, %2 and %3 will be accumulated in your own address").arg(QString::fromStdString(FormatMoney(nCFundContribution)), descs.join(", "), QString::fromStdString(FormatMoney(PercentageToNav(availableAmount)))));
 
@@ -261,21 +278,6 @@ void SplitRewardsDialog::onSave()
 void SplitRewardsDialog::onQuit()
 {
     QDialog::accept();
-}
-
-void SplitRewardsDialog::onChange()
-{
-    bool ok;
-    QString item = QInputDialog::getText(this, tr("Set up a concrete address"),
-            tr("Enter an address (\"all\" for default settings):"), QLineEdit::Normal, "", &ok);
-    if (ok && !item.isEmpty() && (CNavCoinAddress(item.toStdString()).IsValid() || item == "all"))
-    {
-        showFor(item);
-    }
-    else
-    {
-        return;
-    }
 }
 
 CAmount PercentageToNav(int percentage)

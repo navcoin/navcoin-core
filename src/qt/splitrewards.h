@@ -11,6 +11,7 @@
 #include "utilmoneystr.h"
 #include "walletmodel.h"
 
+#include <QComboBox>
 #include <QDialog>
 #include <QInputDialog>
 #include <QJsonObject>
@@ -43,15 +44,14 @@ private:
     QJsonObject jsonObject;
     QString currentAddress;
     QLabel *strDesc;
-    QLabel *strLabel;
     QTreeView *tree;
+    QComboBox *comboAddress;
 
     int availableAmount;
 
 private Q_SLOTS:
     void onAdd();
     void onRemove();
-    void onChange();
     void onSave();
     void onEdit();
     void onQuit();
