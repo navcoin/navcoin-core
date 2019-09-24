@@ -79,7 +79,11 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     {
         CTxDestination dest;
         if (ExtractDestination(out.tx->vout[out.i].scriptPubKey, dest)){
-            QString strAddress = QString::fromStdString(CNavCoinAddress(dest).ToString());
+            CNavCoinAddress address(dest);
+            if (address.IsColdStakingAddress(Params()))
+                if (!address.GetStakingAddress(address))
+                    continue;
+            QString strAddress = QString::fromStdString(address.ToString());
             if (mapAddressBalance.count(strAddress) == 0)
                 mapAddressBalance[strAddress] = 0;
             mapAddressBalance[strAddress] += out.tx->vout[out.i].nValue;
