@@ -537,7 +537,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 }
                 else if(find_value(addressMap, lookForKey).isObject())
                 {
-                    find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).getObjMap(splitObject);
+                    find_value(addressMap, lookForKey).getObjMap(splitObject);
 
                     for ( const auto &pair : splitObject ) {
                         address = CNavCoinAddress(pair.first);
