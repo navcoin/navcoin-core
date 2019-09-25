@@ -178,7 +178,7 @@ void SplitRewardsDialog::onAdd()
     if (availableAmount <= 0)
     {
         QMessageBox msgBox(this);
-        msgBox.setText(tr("You are already contributing the 100% of your staking rewards."));
+        msgBox.setText(tr("You are already contributing 100% of your staking rewards."));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle("Error");
