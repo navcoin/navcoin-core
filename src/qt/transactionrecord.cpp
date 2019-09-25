@@ -56,19 +56,20 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         // Credit
         //
         unsigned int i = 0;
-        unsigned int rewardIdx = 0;
+        CAmount nExternalReward = 0;
         if (wtx.IsCoinStake())
         {
-            for (unsigned int j = wtx.vout.size(); j--;)
+            for (unsigned int j = 0; j < wtx.vout.size(); j++)
             {
-                if (wallet->IsMine(wtx.vout[j]))
+                if (wtx.vout[j].scriptPubKey != wtx.vout[1].scriptPubKey && wallet->IsMine(wtx.vout[j]))
                 {
-                    rewardIdx = j;
+                    nExternalReward += wtx.vout[j].nValue;
                     break;
                 }
-
             }
         }
+
+        bool fAddedReward = false;
 
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
         {
@@ -103,14 +104,25 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Generated (proof-of-stake)
 
-                    if (i != rewardIdx)
+                    if (wtx.vout[i].scriptPubKey == wtx.vout[1].scriptPubKey)
                     {
-                        i++;
-                        continue; // only append details of the address with reward output
-                    }
+                        if (fAddedReward)
+                        {
+                            i++;
+                            continue; // only append details of the address with reward output
+                        }
+                        else
+                        {
+                            fAddedReward = true;
 
-                    sub.type = TransactionRecord::Staked;
-                    sub.credit = nNet;
+                            sub.type = TransactionRecord::Staked;
+                            sub.credit = nNet - nExternalReward;
+                        }
+                    }
+                    else
+                    {
+                        sub.type = TransactionRecord::Staked;
+                    }
                 }
                 if(wtx.fAnon)
                 {
