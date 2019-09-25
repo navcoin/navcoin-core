@@ -60,13 +60,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         if (wtx.IsCoinStake())
         {
             for (unsigned int j = 0; j < wtx.vout.size(); j++)
-            {
                 if (wtx.vout[j].scriptPubKey != wtx.vout[1].scriptPubKey && wallet->IsMine(wtx.vout[j]))
-                {
                     nExternalReward += wtx.vout[j].nValue;
-                    break;
-                }
-            }
         }
 
         bool fAddedReward = false;

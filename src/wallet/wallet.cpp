@@ -1827,13 +1827,27 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         nFee = nDebit - nValueOut + nValueOutCFund;
     }
 
+    CAmount nExternalReward = 0;
+    if (IsCoinStake())
+    {
+        for (unsigned int j = 0; j < vout.size(); j++)
+        {
+            if (vout[j].scriptPubKey != vout[1].scriptPubKey)
+            {
+                nExternalReward += vout[j].nValue;
+            }
+        }
+    }
+
+    bool fAddedReward = false;
+
     // Sent/received.
     for (unsigned int i = 0; i < vout.size(); ++i)
     {
         const CTxOut& txout = vout[i];
 
         // Skip special stake out
-        if (txout.scriptPubKey.empty())
+        if (txout.scriptPubKey.empty() || (IsCoinStake() && txout.scriptPubKey.IsCommunityFundContribution()))
             continue;
 
         isminetype fIsMine = pwallet->IsMine(txout);
@@ -1868,7 +1882,20 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
             listSent.push_back(output);
 
         // If we are receiving the output, add it as a "received" entry
-        if (fIsMine & filter)
+        if (IsCoinStake() && fIsMine & filter && txout.scriptPubKey == vout[1].scriptPubKey)
+        {
+            if (fAddedReward)
+            {
+                continue; // only append details of the address with reward output
+            }
+            else
+            {
+                fAddedReward = true;
+                output.amount = GetValueOut() - nDebit - nExternalReward;
+                listReceived.push_back(output);
+            }
+        }
+        else if (fIsMine & filter)
             listReceived.push_back(output);
     }
 
