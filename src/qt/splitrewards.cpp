@@ -31,6 +31,7 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     topBoxLayout->addWidget(new QLabel(tr("Setup for staking address:")));
     topBoxLayout->addWidget(comboAddress);
 
+    strDesc->setWordWrap(true);
 
     auto *bottomBox = new QFrame;
     auto *bottomBoxLayout = new QHBoxLayout;
