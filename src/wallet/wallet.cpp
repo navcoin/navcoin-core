@@ -535,7 +535,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
                     for ( const auto &pair : splitObject ) {
                         address = CNavCoinAddress(pair.first);
-                        if (!address.IsValid())
+                        if (!address.IsValid() || second.get_real() <= 0)
                             continue;
                         if (nAccumulatedFee+pair.second.get_real() > 100.0)
                             return error("%s: -stakingaddress tries to contribute more than 100%");
