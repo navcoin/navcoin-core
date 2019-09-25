@@ -621,31 +621,15 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
     }
 
     for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end();) {
-        if (it->second.IsNull()) {
-            CProposalMap::iterator itUs = cacheProposals.find(it->first);
-            if (itUs != cacheProposals.end()) {
-                cacheProposals.erase(itUs);
-            }
-        } else {
-            CProposal& entry = cacheProposals[it->first];
-            entry.swap(it->second);
-            entry.fDirty = true;
-        }
+        CProposal& entry = cacheProposals[it->first];
+        entry.swap(it->second);
         CProposalMap::iterator itOld = it++;
         mapProposals.erase(itOld);
     }
 
     for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();) {
-        if (it->second.IsNull()) {
-            CPaymentRequestMap::iterator itUs = cachePaymentRequests.find(it->first);
-            if (itUs != cachePaymentRequests.end()) {
-                cachePaymentRequests.erase(itUs);
-            }
-        } else {
-            CPaymentRequest& entry = cachePaymentRequests[it->first];
-            entry.swap(it->second);
-            entry.fDirty = true;
-        }
+        CPaymentRequest& entry = cachePaymentRequests[it->first];
+        entry.swap(it->second);
         CPaymentRequestMap::iterator itOld = it++;
         mapPaymentRequests.erase(itOld);
     }
