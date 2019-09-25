@@ -5245,7 +5245,7 @@ bool IsConsultationsEnabled(const CBlockIndex* pindexPrev, const Consensus::Para
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_CONSULTATIONS, versionbitscache) == THRESHOLD_ACTIVE);
-
+}
   
 bool IsColdStakingPoolFeeEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
@@ -9251,7 +9251,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockInd
 }
 
 //Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, CCoinsViewCache& view, bool fCHeckSignature)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, CStateViewCache& view, bool fCHeckSignature)
 {
     if (!tx.IsCoinStake())
         return error("%s: called on non-coinstake %s", __func__, tx.GetHash().ToString());
