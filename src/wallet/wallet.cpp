@@ -517,7 +517,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
                 if (find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).isObject())
                 {
-                    find_value(addressMap, lookForKey).getObjMap(splitObject);
+                    find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).getObjMap(splitObject);
                     if (splitObject.size() > 0)
                         lookForKey = CNavCoinAddress(key.GetPubKey().GetID()).ToString();
                 }
