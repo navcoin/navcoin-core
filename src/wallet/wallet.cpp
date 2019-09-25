@@ -529,10 +529,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                         return error("%s: -stakingaddress includes a wrong address %s", __func__, find_value(addressMap, lookForKey).get_str());
                     }
                 }
-                else if(find_value(addressMap, lookForKey).isObject())
+                else if(find_value(addressMap, lookForKey).isObject() && find_value(addressMap, lookForKey).getObjMap(splitObject) && splitObject.size() > 0)
                 {
-                    find_value(addressMap, lookForKey).getObjMap(splitObject);
-
                     for ( const auto &pair : splitObject ) {
                         address = CNavCoinAddress(pair.first);
                         if (!address.IsValid() || pair.second.get_real() <= 0)
