@@ -71,7 +71,7 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
     std::map<QString, CAmount> mapAddressBalance;
 
     std::vector<COutput> vCoins;
-    pwalletMain->AvailableCoins(vCoins);
+    pwalletMain->AvailableCoinsForStaking(vCoins, GetTime());
 
     comboAddress->clear();
     comboAddress->insertItem(0, "Default", "all");
