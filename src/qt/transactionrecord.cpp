@@ -56,12 +56,12 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         // Credit
         //
         unsigned int i = 0;
-        CAmount nExternalReward = 0;
+        CAmount nReward = -nDebit;
         if (wtx.IsCoinStake())
         {
             for (unsigned int j = 0; j < wtx.vout.size(); j++)
-                if (wtx.vout[j].scriptPubKey != wtx.vout[1].scriptPubKey && wallet->IsMine(wtx.vout[j]))
-                    nExternalReward += wtx.vout[j].nValue;
+                if (wtx.vout[j].scriptPubKey == wtx.vout[1].scriptPubKey)
+                    nReward += wtx.vout[j].nValue;
         }
 
         bool fAddedReward = false;
@@ -111,7 +111,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                             fAddedReward = true;
 
                             sub.type = TransactionRecord::Staked;
-                            sub.credit = nNet - nExternalReward;
+                            sub.credit = nReward;
                         }
                     }
                     else

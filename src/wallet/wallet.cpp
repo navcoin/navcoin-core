@@ -1833,14 +1833,14 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         nFee = nDebit - nValueOut + nValueOutCFund;
     }
 
-    CAmount nExternalReward = 0;
+    CAmount nReward = -nDebit;
     if (IsCoinStake())
     {
         for (unsigned int j = 0; j < vout.size(); j++)
         {
-            if (vout[j].scriptPubKey != vout[1].scriptPubKey)
+            if (vout[j].scriptPubKey == vout[1].scriptPubKey)
             {
-                nExternalReward += vout[j].nValue;
+                nReward += vout[j].nValue;
             }
         }
     }
@@ -1897,7 +1897,7 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
             else
             {
                 fAddedReward = true;
-                output.amount = GetValueOut() - nDebit - nExternalReward;
+                output.amount = nReward;
                 listReceived.push_back(output);
             }
         }
