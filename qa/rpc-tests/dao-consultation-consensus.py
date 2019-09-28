@@ -9,7 +9,7 @@ from test_framework.cfund_util import *
 import time
 
 
-class ConsultationsTest(NavCoinTestFramework):
+class ConsensusConsultationsTest(NavCoinTestFramework):
     """Tests the consultations of the DAO"""
 
     def __init__(self):
@@ -48,10 +48,8 @@ class ConsultationsTest(NavCoinTestFramework):
                     answers.append(answer["hash"])
             assert(second_answer in answers and third_answer_not_supported in answers)
 
-        self.nodes[0].support(proposal)
         self.nodes[0].support(first_answer)
         self.nodes[0].support(second_answer)
-
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
@@ -113,4 +111,4 @@ class ConsultationsTest(NavCoinTestFramework):
         assert(self.nodes[0].gettransaction(self.nodes[0].getblock(self.nodes[0].getbestblockhash())["tx"][1])["amount"] == Decimal('2.80000000')) # 3.5 * 0.8
 
 if __name__ == '__main__':
-    ConsultationsTest().main()
+    ConsensusConsultationsTest().main()

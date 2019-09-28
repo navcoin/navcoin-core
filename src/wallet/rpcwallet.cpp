@@ -663,12 +663,19 @@ UniValue getconsensusparameters(const UniValue& params, bool fHelp)
         Consensus::ConsensusParamsPos id = (Consensus::ConsensusParamsPos)i;
         int type = (int)Consensus::vConsensusParamsType[id];
         std::string sDesc = Consensus::sConsensusParamsDesc[id];
-        UniValue entry(UniValue::VOBJ);
-        entry.pushKV("id", (uint64_t)i);
-        entry.pushKV("desc", sDesc);
-        entry.pushKV("type", type);
-        entry.pushKV("value", GetConsensusParameter(id));
-        ret.push_back(entry);
+        if (params.size() > 0)
+        {
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV("id", (uint64_t)i);
+            entry.pushKV("desc", sDesc);
+            entry.pushKV("type", type);
+            entry.pushKV("value", GetConsensusParameter(id));
+            ret.push_back(entry);
+        }
+        else
+        {
+            ret.push_back(GetConsensusParameter(id));
+        }
     }
     return ret;
 }
