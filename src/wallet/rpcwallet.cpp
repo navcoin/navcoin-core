@@ -785,8 +785,8 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
             "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
             "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
             "\nExamples:\n"
-            + HelpExampleCli("createconsultation", "\"Who should be the CEO of NavCoin? /s\" 1 1 1209600")
-            + HelpExampleCli("createconsultation", "\"How much should NavCoin's CEO earn per month? /s\" 1000 5000 1209600 true")
+            + HelpExampleCli("createconsultation", "\"Who should be the CEO of NavCoin? /s\" 1 1")
+            + HelpExampleCli("createconsultation", "\"How much should NavCoin's CEO earn per month? /s\" 1000 5000 true")
         );
 
     LOCK2(cs_main, pwalletMain->cs_wallet);

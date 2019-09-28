@@ -24,6 +24,19 @@ def activate_cfund(node):
     # Verify the Community Fund is active
     assert (get_bip9_status(node, "communityfund")["status"] == "active")
 
+def activate_softfork(node, what):
+    slow_gen(node, 100)
+    # Verify the Community Fund is started
+    assert (get_bip9_status(node, what)["status"] == "started")
+
+    slow_gen(node, 100)
+    # Verify the Community Fund is locked_in
+    assert (get_bip9_status(node, what)["status"] == "locked_in")
+
+    slow_gen(node, 100)
+    # Verify the Community Fund is active
+    assert (get_bip9_status(node, what)["status"] == "active")
+
 def end_cycle(node):
     # Move to the end of the cycle
     slow_gen(node, node.cfundstats()["votingPeriod"]["ending"] - node.cfundstats()["votingPeriod"][
@@ -62,4 +75,3 @@ def create_vote_tx(node, vote_type, vote, p_hash):
         "", 0
     )
     return vote_tx
-
