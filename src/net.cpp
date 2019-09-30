@@ -1508,6 +1508,11 @@ bool IsDandelionInbound(const CNode* const pnode)
     return (std::find(vDandelionInbound.begin(), vDandelionInbound.end(), pnode) != vDandelionInbound.end());
 }
 
+bool IsDandelionOutbound(const CNode* const pnode)
+{
+    return (std::find(vDandelionOutbound.begin(), vDandelionOutbound.end(), pnode) != vDandelionOutbound.end());
+}
+
 bool IsLocalDandelionDestinationSet()
 {
     return (localDandelionDestination != nullptr);

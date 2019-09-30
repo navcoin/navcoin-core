@@ -192,6 +192,7 @@ extern CCriticalSection cs_vAddedAnonServers;
 extern std::map<uint256, int64_t> mDandelionEmbargo;
 // Dandelion methods
 bool IsDandelionInbound(const CNode* const pnode);
+bool IsDandelionOutbound(const CNode* const pnode);
 bool IsLocalDandelionDestinationSet();
 bool SetLocalDandelionDestination();
 CNode* GetDandelionDestination(CNode* pfrom);
