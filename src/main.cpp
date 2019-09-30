@@ -6191,7 +6191,7 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                       auto txinfo = stempool.info(inv.hash);
                       uint256 dandelionServiceDiscoveryHash;
                       dandelionServiceDiscoveryHash.SetHex("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-                      if (txinfo.tx && IsDandelionOutbound(pfrom) && pfrom->setDandelionInventoryKnown.count(inv.hash)!=0) {
+                      if (txinfo.tx && !IsDandelionInbound(pfrom) && pfrom->setDandelionInventoryKnown.count(inv.hash)!=0) {
                           pfrom->PushMessageWithFlag(nSendFlags, NetMsgType::DANDELIONTX, *txinfo.tx);
                           push = true;
                       } else if (inv.hash==dandelionServiceDiscoveryHash && pfrom->setDandelionInventoryKnown.count(inv.hash)!=0) {
@@ -6202,7 +6202,7 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                   } else if(inv.type == MSG_TX || inv.type == MSG_WITNESS_TX) {
                       auto mi = mapRelay.find(inv.hash);
                       int nSendFlags = (inv.type == MSG_TX ? SERIALIZE_TRANSACTION_NO_WITNESS : 0);
-                      if (!pfrom->fSupportsDandelion && !IsDandelionOutbound(pfrom) && pfrom->setDandelionInventoryKnown.count(inv.hash)!=0) {
+                      if (!pfrom->fSupportsDandelion && !IsDandelionInbound(pfrom) && pfrom->setDandelionInventoryKnown.count(inv.hash)!=0) {
                           auto txinfo = stempool.info(inv.hash);
                           if (txinfo.tx) {
                               pfrom->PushMessageWithFlag(nSendFlags, NetMsgType::TX, *txinfo.tx);
