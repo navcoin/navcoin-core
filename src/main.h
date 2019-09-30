@@ -161,6 +161,9 @@ static const bool DEFAULT_HEADER_SPAM_FILTER = true;
 static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = 50;
 /** Default for -headerspamfiltermaxavg, maximum average size of an index occurrence in the header spam filter */
 static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
+/** Default for -headerspamfilterignoreport, ignore the port in the ip address when looking for header spam,
+ multiple nodes on the same ip will be treated as the one when computing the filter*/
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT = true;
 
 /** Maximum number of headers to announce when relaying blocks with headers message.*/
 static const unsigned int MAX_BLOCKS_TO_ANNOUNCE = 8;
@@ -289,6 +292,7 @@ bool IsInitialBlockDownload();
  * This function only returns the highest priority warning of the set selected by strFor.
  */
 std::string GetWarnings(const std::string& strFor);
+std::string GetWarnings(const std::string& strFor, bool fForStaking);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
@@ -525,6 +529,7 @@ bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus:
 
 /** Check whether ColdStaking has been activated. */
 bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsColdStakingPoolFeeEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** When there are blocks in the active chain with missing data, rewind the chainstate and remove them from the block index */
 bool RewindBlockIndex(const CChainParams& params);
@@ -612,7 +617,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, CBlockInd
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
-bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, bool fCHeckSignature = false);
+bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, arith_uint256& hashProofOfStake, arith_uint256& targetProofOfStake, std::vector<CScriptCheck> *pvChecks, CCoinsViewCache& view, bool fCHeckSignature = false);
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(int nHeight, int64_t nTimeBlock, int64_t nTimeTx);
@@ -638,11 +643,9 @@ static const unsigned int MAX_STANDARD_TX_SIZE = MAX_BLOCK_SIZE_GEN/5;
 
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 
-void CountVotes(CValidationState& state, CBlockIndex *pindexNew, bool fUndo, CCoinsViewCache& coins);
-
 bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pindexPrev);
 
-bool NewProposal(const CTransaction& tx, const uint256& blockhash, const CAmount& nProposalFee, CValidationState& state);
-bool NewPaymentRequest(const CTransaction& tx, const uint256& blockhash, CValidationState& state);
+bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal);
+bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
 
 #endif // NAVCOIN_MAIN_H

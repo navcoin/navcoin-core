@@ -193,6 +193,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
 
+        // Deployment of Cold Staking Pool Fee
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].bit = 18;
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
+
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -328,52 +334,57 @@ public:
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1462060800; // May 1st, 2016
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of Cold Staking
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_COLDSTAKING].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of SegWit (BIP141 and BIP143)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].bit = 6;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nStartTime = 1493424000; // May 1st, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of Community Fund Accumulation
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].bit = 7;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of NTP Sync
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].bit = 8;
         consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_NTPSYNC].nTimeout = 1556712000; // 1622548800; // Jun 1st, 2021
 
         // Deployment of Community Fund Accumulation Spread(NPIP-0003)
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].bit = 14;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].nStartTime = 1525132800; // May 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].nTimeout = 1556712000; // May 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Increate in Community Fund Accumulation Ammonut (NPIP-0004)
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].bit = 16;
         consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].nStartTime = 1533081600; // Aug 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].nTimeout = 1564617600; // Aug 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of Static Reward
         consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].bit = 15;
         consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nStartTime = 1533081600; // August 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1564617600; // August 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_STATIC_REWARD].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of Quorum reduction for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
-        consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1622548800; // Jun 1st, 2021
+
+        // Deployment of Cold Staking Pool Fee
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].bit = 18;
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -473,7 +484,7 @@ public:
         consensus.nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
         consensus.nTargetTimespan = 25 * 30;
         consensus.nLastPOWBlock = 100000;
-        consensus.nBlocksPerVotingCycle = 180; // 1.5 hours
+        consensus.nBlocksPerVotingCycle = 30; // 15 minutes
         consensus.nMinimumQuorum = 0.5;
         consensus.nMinimumQuorumFirstHalf = 0.5;
         consensus.nMinimumQuorumSecondHalf = 0.4;
@@ -550,6 +561,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1651363200; // May 1st, 2022
 
+        // Deployment of Cold Staking Pool Fee
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].bit = 18;
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -570,13 +586,13 @@ public:
         // 2) Rebuild
         // 3) Launch daemon. It'll calculate the new parameters.
         // 4) Update the following variables with the new values:
-        uint256 hashGenesisBlock = uint256S("0x0000e01b12644af6917e5aada637a609dd9590ad6bdc4828cd8df95258d85c02");
+        uint256 hashGenesisBlock = uint256S("0x0000971c241a5a1b8462c3cb8d455f0493043eb37c7163f88c658c70aa689929");
         uint256 hashMerkleRoot = uint256S("0x2d9101b87fe7b9deaea41849c1f3bed71e060739147802a238fe968f75ad0fd9");
-        uint32_t nNonce = 2043184832;
+        uint32_t nNonce = 2043198879;
         // 5) Rebuild. Launch daemon.
         // 6) Generate first block using RPC command "./navcoin-cli generate 1"
 
-        genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
+        genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0xffffffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
 
         if (true && (genesis.GetHash() != hashGenesisBlock || genesis.hashMerkleRoot != hashMerkleRoot))
@@ -734,6 +750,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
+
+        // Deployment of Cold Staking Pool Fee
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].bit = 18;
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

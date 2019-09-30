@@ -11,7 +11,7 @@
  #ifndef MAP_ANON
  #define MAP_ANON MAP_ANONYMOUS
 @@ -527,24 +524,6 @@
- 
+
  			HD(cnt);
  		}
 -#ifdef HAVE_GETAUXVAL
@@ -32,6 +32,6 @@
 -			HD(p);
 -#  endif
 -#endif /* HAVE_GETAUXVAL */
- 
+
  		CRYPTO_SHA512_FINAL(results, &ctx);
  		memcpy((char*)buf + i, results, min(sizeof(results), len - i));

@@ -429,7 +429,6 @@ void SendCoinsDialog::on_sendButton_clicked()
         address.append("</span>");
 
         QString recipientElement;
-        int nLength = currentTransaction.recipients.length();
 
         if (!rcp.paymentRequest.IsInitialized()) // normal payment
         {
@@ -493,15 +492,19 @@ void SendCoinsDialog::on_sendButton_clicked()
     questionString.append("<hr />");
     CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee + anonfee;
     QStringList alternativeUnits;
-    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
-    {
-        if(u != model->getOptionsModel()->getDisplayUnit())
-            alternativeUnits.append(NavCoinUnits::formatHtmlWithUnit(u, totalAmount));
-    }
+
+    // Check if we have selected a display unit that is not NAV
+    if (model->getOptionsModel()->getDisplayUnit() != NavCoinUnits::NAV)
+        alternativeUnits.append(NavCoinUnits::formatHtmlWithUnit(NavCoinUnits::NAV, totalAmount));
+
+    // Check if we have selected a display unit that is not BTC
+    if (model->getOptionsModel()->getDisplayUnit() != NavCoinUnits::BTC)
+        alternativeUnits.append(NavCoinUnits::formatHtmlWithUnit(NavCoinUnits::BTC, totalAmount));
+
     questionString.append(tr("Total Amount %1")
         .arg(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
     questionString.append(QString("<span style='font-size:10pt;font-weight:normal;'><br />(=%2)</span>")
-        .arg(alternativeUnits.join(" " + tr("or") + "<br />")));
+        .arg(alternativeUnits.join(" " + tr("or") + " ")));
 
     SendConfirmationDialog confirmationDialog(tr("Confirm send coins"),
         questionString.arg(formatted.join("<br />")), SEND_CONFIRM_DELAY, this);

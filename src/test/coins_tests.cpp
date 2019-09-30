@@ -22,6 +22,8 @@ class CCoinsViewTest : public CCoinsView
 {
     uint256 hashBestBlock_;
     std::map<uint256, CCoins> map_;
+    std::map<uint256, CFund::CProposal> mapP_;
+    std::map<uint256, CFund::CPaymentRequest> mapPR_;
 
 public:
     bool GetCoins(const uint256& txid, CCoins& coins) const
@@ -46,7 +48,8 @@ public:
 
     uint256 GetBestBlock() const { return hashBestBlock_; }
 
-    bool BatchWrite(CCoinsMap& mapCoins, const uint256& hashBlock)
+    bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
+                    CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock)
     {
         for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end(); ) {
             if (it->second.flags & CCoinsCacheEntry::DIRTY) {

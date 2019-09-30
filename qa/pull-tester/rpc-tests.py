@@ -50,7 +50,8 @@ if 'ENABLE_UTILS' not in vars():
 if 'ENABLE_ZMQ' not in vars():
     ENABLE_ZMQ=0
 
-ENABLE_COVERAGE=0
+ENABLE_COVERAGE = False
+FAILFAST = False
 
 #Create a set to store arguments and create the passon string
 opts = set()
@@ -66,7 +67,9 @@ for arg in sys.argv[1:]:
         print_help = True
         break
     if arg == '--coverage':
-        ENABLE_COVERAGE = 1
+        ENABLE_COVERAGE = True
+    elif arg == '--failfast':
+        FAILFAST = True
     elif PASSON_REGEX.match(arg):
         passon_args.append(arg)
     elif PARALLEL_REGEX.match(arg):
@@ -106,6 +109,7 @@ testScripts = [
 #    'walletbackup.py',
 #    'bip68-112-113-p2p.py',
 
+    'staking_mininputvalue.py',
      'wallet.py',
     'wallet-hd.py',
 
@@ -169,8 +173,11 @@ testScripts = [
     'reject-version-bit.py',
     'getcoldstakingaddress.py',
     'getstakereport.py',
+    'importaddress.py',
+    'getstakinginfo.py',
     'coldstaking_staking.py',
     'coldstaking_spending.py',
+    'coldstaking_fee.py',
     'staticr-staking-amount.py',
     'hardfork-451.py',
     'hardfork-452.py',
@@ -179,7 +186,7 @@ testScripts = [
     'mnemonic.py',
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
-    'rpc-help.py', 
+    'rpc-help.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
@@ -255,6 +262,12 @@ def runtests():
         print('stderr:\n' if not stderr == '' else '', stderr)
         results += "%s | %s | %s s\n" % (name.ljust(max_len_name), str(passed).ljust(6), duration)
         print("Pass: %s%s%s, Duration: %s s\n" % (BOLD[1], passed, BOLD[0], duration))
+
+        # Check if we need to quit
+        if FAILFAST and not passed:
+            print("Early exiting after test failure")
+            break
+
     results += BOLD[1] + "\n%s | %s | %s s (accumulated)" % ("ALL".ljust(max_len_name), str(all_passed).ljust(6), time_sum) + BOLD[0]
     print(results)
     print("\nRuntime: %s s" % (int(time.time() - time0)))

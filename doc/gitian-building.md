@@ -364,7 +364,7 @@ Output from `gbuild` will look something like
     remote: Total 57959 (delta 0), reused 0 (delta 0), pack-reused 57958
     Receiving objects: 100% (57959/57959), 53.76 MiB | 484.00 KiB/s, done.
     Resolving deltas: 100% (41590/41590), done.
-    From https://github.com/navcoindev/navcoin-core
+    From https://github.com/navcoin/navcoin-core
     ... (new tags, new branch etc)
     --- Building for trusty amd64 ---
     Stopping target if it is up
@@ -390,7 +390,7 @@ and inputs.
 
 For example:
 ```bash
-URL=https://github.com/navcoindev/navcoin-core.git
+URL=https://github.com/navcoin/navcoin-core.git
 COMMIT=2014_03_windows_unicode_path
 ./bin/gbuild --commit navcoin-core=${COMMIT} --url navcoin-core=${URL} ../navcoin-core/contrib/gitian-descriptors/gitian-arm.yml
 ./bin/gbuild --commit navcoin-core=${COMMIT} --url navcoin-core=${URL} ../navcoin-core/contrib/gitian-descriptors/gitian-linux.yml
@@ -493,5 +493,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[NAVCoin/navcoin-sigs](https://github.com/NAVCoin/navcoin-sigs) repository, or if that's not possible create a pull
+[NAVCoin/navcoin-sigs](https://github.com/navcoin/navcoin-sigs) repository, or if that's not possible create a pull
 request.

@@ -51,7 +51,7 @@ MOCKTIME = 0
 
 def enable_mocktime():
     #For backwared compatibility of the python scripts
-    #with previous versions of the cache, set MOCKTIME 
+    #with previous versions of the cache, set MOCKTIME
     #to Jan 1, 2014 + (201 * 10 * 60)
     global MOCKTIME
     MOCKTIME = 1388534400 + (201 * 10 * 60)
@@ -67,7 +67,6 @@ def enable_coverage(dirname):
     """Maintain a log of which RPC calls are made during testing."""
     global COVERAGE_DIR
     COVERAGE_DIR = dirname
-
 
 def get_rpc_proxy(url, node_number, timeout=None):
     """
@@ -165,6 +164,7 @@ def initialize_datadir(dirname, n):
         f.write("port="+str(p2p_port(n))+"\n")
         f.write("rpcport="+str(rpc_port(n))+"\n")
         f.write("listenonion=0\n")
+        f.write("ntpminmeasures=-1\n")
     return datadir
 
 def rpc_auth_pair(n):
@@ -179,20 +179,30 @@ def wait_for_navcoind_start(process, url, i):
     Wait for navcoind to start. This means that RPC is accessible and fully initialized.
     Raise an exception if navcoind exits during initialization.
     '''
-    while True:
+    polls_interval = 1.0 / 4
+    runtime = 60
+    while runtime > 0:
         if process.poll() is not None:
             raise Exception('navcoind exited with status %i during initialization' % process.returncode)
         try:
+            # print('Checking RPC')
             rpc = get_rpc_proxy(url, i)
             blocks = rpc.getblockcount()
-            break # break out of loop on success
+            # print('RPC replied with blocks: %i' % blocks)
+            return # break out of loop on success
         except IOError as e:
             if e.errno != errno.ECONNREFUSED: # Port not yet open?
                 raise # unknown IO error
+            # else:
+            #     print('Waiting for port')
         except JSONRPCException as e: # Initialization phase
             if e.error['code'] != -28: # RPC in warmup?
                 raise # unkown JSON RPC exception
-        time.sleep(0.25)
+            # else:
+            #     print('RPC in warmup')
+        time.sleep(polls_interval)
+        runtime -= polls_interval
+    raise Exception('navcoind RPC timeout')
 
 def initialize_chain(test_dir, num_nodes):
     """

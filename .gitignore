@@ -136,4 +136,13 @@ ui_*.h
 # IDE specific
 .idea/*
 .vscode
-*.creator.user
+*.cflags
+*.cxxflags
+*.creator.*
+
+craig-core.files
+craig-core.includes
+navcoin-core.code-workspace
+craig-core.config
+craig-core.creator
+navcoin-core\.code-workspace

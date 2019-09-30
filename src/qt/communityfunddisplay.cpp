@@ -44,7 +44,7 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 }
 
 void CommunityFundDisplay::refresh()
-{    
+{
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
@@ -188,22 +188,31 @@ void CommunityFundDisplay::refresh()
 
 void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
 {
+    // Make sure we have a lock when voting
+    LOCK(cs_main);
+
     // Cast the vote
     bool duplicate = false;
 
+    CFund::CProposal p;
+    if (!pcoinsTip->GetProposal(uint256S(proposal.hash.ToString()), p))
+    {
+        return;
+    }
+
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        CFund::VoteProposal(proposal.hash.ToString(), true, duplicate);
+        CFund::VoteProposal(p, true, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        CFund::VoteProposal(proposal.hash.ToString(), false, duplicate);
+        CFund::VoteProposal(p, false, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
-        CFund::RemoveVoteProposal(proposal.hash.ToString());
+        CFund::RemoveVoteProposal(p.hash.ToString());
         refresh();
     }
     else

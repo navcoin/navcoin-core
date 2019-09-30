@@ -65,6 +65,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
+    void outOfSyncWarningClicked();
 
 private:
     Ui::OverviewPage *ui;
@@ -75,9 +76,11 @@ private:
     CAmount currentStakingBalance;
     CAmount currentColdStakingBalance;
     CAmount currentImmatureBalance;
+    CAmount currentTotalBalance;
     CAmount currentWatchOnlyBalance;
     CAmount currentWatchUnconfBalance;
     CAmount currentWatchImmatureBalance;
+    CAmount currentWatchOnlyTotalBalance;
 
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
@@ -90,7 +93,7 @@ private Q_SLOTS:
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
     void unlockWalletStaking();
-
+    void handleOutOfSyncWarningClicks();
 };
 
 #endif // NAVCOIN_QT_OVERVIEWPAGE_H

@@ -197,6 +197,24 @@ public:
             abort();
         }
     }
+    bool GetProposal(const uint256 &id, CFund::CProposal &proposal) const {
+        try {
+            return CCoinsViewBacked::GetProposal(id, proposal);
+        } catch(const std::runtime_error& e) {
+            uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
+            LogPrintf("Error reading from database: %s\n", e.what());
+            abort();
+        }
+    }
+    bool GetPaymentRequest(const uint256 &id, CFund::CPaymentRequest &prequest) const {
+        try {
+            return CCoinsViewBacked::GetPaymentRequest(id, prequest);
+        } catch(const std::runtime_error& e) {
+            uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
+            LogPrintf("Error reading from database: %s\n", e.what());
+            abort();
+        }
+    }
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 
@@ -306,7 +324,7 @@ void HandleSIGTERM(int)
 
 void HandleSIGHUP(int)
 {
-    fReopenDebugLog = true;
+    fReopenLogFiles = true;
 }
 
 bool static Bind(const CService &addr, unsigned int flags) {
@@ -498,6 +516,7 @@ std::string HelpMessage(HelpMessageMode mode)
                                                                  CURRENCY_UNIT));
     strUsage += HelpMessageOpt("-maxtxfee=<amt>", strprintf(_("Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions"),
                                                             CURRENCY_UNIT));
+    strUsage += HelpMessageOpt("-print", _("Send trace/debug info to console instead of debug.log file"));
     strUsage += HelpMessageOpt("-printtoconsole", _("Send trace/debug info to console instead of debug.log file"));
     if (showDebug)
     {
@@ -543,13 +562,14 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-headerspamfilter=<n>", strprintf(_("Use header spam filter (default: %u)"), DEFAULT_HEADER_SPAM_FILTER));
     strUsage += HelpMessageOpt("-headerspamfiltermaxsize=<n>", strprintf(_("Maximum size of the list of indexes in the header spam filter (default: %u)"), DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE));
     strUsage += HelpMessageOpt("-headerspamfiltermaxavg=<n>", strprintf(_("Maximum average size of an index occurrence in the header spam filter (default: %u)"), DEFAULT_HEADER_SPAM_FILTER_MAX_AVG));
+    strUsage += HelpMessageOpt("-headerspamfilterignoreport=<n>", strprintf("Ignore the port in the ip address when looking for header spam, determine whether or not multiple nodes can be on the same IP (default: %u)", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT));
 
     return strUsage;
 }
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/NAVCoin/navcoin-core>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/navcoin/navcoin-core>";
     const std::string URL_WEBSITE = "<https://navcoin.org>";
     // todo: remove urls from translations on next change
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2009, COPYRIGHT_YEAR) + " ") + "\n" +
@@ -825,6 +845,12 @@ void InitParameterInteraction()
             LogPrintf("%s: parameter interaction: -zapwallettxes=<mode> -> setting -rescan=1\n", __func__);
     }
 
+    // -importmnemonic implies a rescan
+    if (mapArgs.count("-importmnemonic")) {
+        if (SoftSetBoolArg("-rescan", true))
+            LogPrintf("%s: parameter interaction: -importmnemonic=\"word list\" -> setting -rescan=1\n", __func__);
+    }
+
     // disable walletbroadcast and whitelistrelay in blocksonly mode
     if (GetBoolArg("-blocksonly", DEFAULT_BLOCKSONLY)) {
         if (SoftSetBoolArg("-whitelistrelay", false))
@@ -849,7 +875,7 @@ static std::string ResolveErrMsg(const char * const optname, const std::string& 
 
 void InitLogging()
 {
-    fPrintToConsole = GetBoolArg("-printtoconsole", false);
+    fPrintToConsole = GetBoolArg("-print", GetBoolArg("-printtoconsole", false));
     fLogTimestamps = GetBoolArg("-logtimestamps", DEFAULT_LOGTIMESTAMPS);
     fLogTimeMicros = GetBoolArg("-logtimemicros", DEFAULT_LOGTIMEMICROS);
     fLogIPs = GetBoolArg("-logips", DEFAULT_LOGIPS);
@@ -1285,14 +1311,15 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     string sMsg = "";
     int nWarningCounter = 0;
+    int nMinMeasures = GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE);
 
-    if(GetArg("-ntpminmeasures", MINIMUM_NTP_MEASURE) == 0)
+    if(nMinMeasures == 0)
     {
         sMsg = "You have set to ignore NTP Sync with the wallet "
                "setting ntpminmeasures=0. Please be aware that "
                "your system clock needs to be correct in order "
                "to synchronize with the network. ";
-    } else {
+    } else if(nMinMeasures > 0) {
         while(1)
         {
             if(ShutdownRequested())
@@ -1632,6 +1659,39 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     strLoadError = _("Corrupted block database detected");
                     break;
                 }
+
+                std::vector<CFund::CProposal> vProposals;
+
+                if (pblocktree->GetProposalIndex(vProposals))
+                {
+                    CProposalMap mapProposals;
+                    pcoinsTip->GetAllProposals(mapProposals);
+                    if (vProposals.size() > 0 && mapProposals.size() == 0)
+                    {
+                        LogPrintf("Importing %d proposals to the new CoinsDB...\n", vProposals.size());
+                        for (auto& it: vProposals)
+                        {
+                            pcoinsTip->AddProposal(it);
+                        }
+                    }
+                }
+
+                std::vector<CFund::CPaymentRequest> vPaymentRequests;
+
+                if (pblocktree->GetPaymentRequestIndex(vPaymentRequests))
+                {
+                    CPaymentRequestMap mapPaymentRequest;
+                    pcoinsTip->GetAllPaymentRequests(mapPaymentRequest);
+                    if (vPaymentRequests.size() > 0 && mapPaymentRequest.size() == 0)
+                    {
+                        LogPrintf("Importing %d payment requests to the new CoinsDB...\n", vPaymentRequests.size());
+                        for (auto& it: vPaymentRequests)
+                        {
+                            pcoinsTip->AddPaymentRequest(it);
+                        }
+                    }
+                }
+
             } catch (const std::exception& e) {
                 if (fDebug) LogPrintf("%s\n", e.what());
                 strLoadError = _("Error opening block database");

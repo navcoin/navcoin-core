@@ -35,7 +35,7 @@ Libunbound needs to be compiled from source. Download last version from http://w
 1.  Clone the navcoin source code and cd into `navcoin`
 
     ```bash
-    git clone https://github.com/NAVCoin/navcoin-core.git
+    git clone https://github.com/navcoin/navcoin-core.git
     cd navcoin-core
     ```
 
@@ -123,6 +123,6 @@ brew install qt@5.7
 
 ## Notes
 
-- Tested on OS X 10.7 through 10.13.5 on 64-bit Intel processors only.
+- Tested on OS X 10.10 through 10.13.5 on 64-bit Intel processors only.
 
 - Building with downloaded Qt binaries is not officially supported. See the notes in [#7714](https://github.com/navcoin/navcoin/issues/7714)

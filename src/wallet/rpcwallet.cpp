@@ -27,12 +27,14 @@
 #include <stdint.h>
 
 #include <boost/assign/list_of.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/lexical_cast.hpp>
 #include <univalue.h>
 
 using namespace std;
 
 int64_t nWalletUnlockTime;
+int64_t nWalletFirstStakeTime = -1;
 static CCriticalSection cs_nWalletUnlockTime;
 Navtech navtech;
 
@@ -66,29 +68,29 @@ void EnsureWalletIsUnlocked()
 void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
 {
     int confirms = wtx.GetDepthInMainChain();
-    entry.push_back(Pair("confirmations", confirms));
+    entry.pushKV("confirmations", confirms);
     if (wtx.IsCoinBase() || wtx.IsCoinStake())
-        entry.push_back(Pair("generated", true));
+        entry.pushKV("generated", true);
     if (confirms > 0)
     {
-        entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
-        entry.push_back(Pair("blockindex", wtx.nIndex));
+        entry.pushKV("blockhash", wtx.hashBlock.GetHex());
+        entry.pushKV("blockindex", wtx.nIndex);
         if (mapBlockIndex.count(wtx.hashBlock) > 0)
-            entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+            entry.pushKV("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime());
         else
-            entry.push_back(Pair("blocktime", 0));
+            entry.pushKV("blocktime", 0);
     } else {
-        entry.push_back(Pair("trusted", wtx.IsTrusted()));
+        entry.pushKV("trusted", wtx.IsTrusted());
     }
     uint256 hash = wtx.GetHash();
-    entry.push_back(Pair("txid", hash.GetHex()));
+    entry.pushKV("txid", hash.GetHex());
     UniValue conflicts(UniValue::VARR);
     BOOST_FOREACH(const uint256& conflict, wtx.GetConflicts())
         conflicts.push_back(conflict.GetHex());
-    entry.push_back(Pair("walletconflicts", conflicts));
-    entry.push_back(Pair("time", wtx.GetTxTime()));
-    entry.push_back(Pair("timereceived", (int64_t)wtx.nTimeReceived));
-    entry.push_back(Pair("anon-destination", wtx.strDZeel));
+    entry.pushKV("walletconflicts", conflicts);
+    entry.pushKV("time", wtx.GetTxTime());
+    entry.pushKV("timereceived", (int64_t)wtx.nTimeReceived);
+    entry.pushKV("anon-destination", wtx.strDZeel);
     // Add opt-in RBF status
     std::string rbfStatus = "no";
     if (confirms <= 0) {
@@ -99,10 +101,10 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
         else if (rbfState == RBF_TRANSACTIONSTATE_REPLACEABLE_BIP125)
             rbfStatus = "yes";
     }
-    entry.push_back(Pair("bip125-replaceable", rbfStatus));
+    entry.pushKV("bip125-replaceable", rbfStatus);
 
     BOOST_FOREACH(const PAIRTYPE(string,string)& item, wtx.mapValue)
-        entry.push_back(Pair(item.first, item.second));
+        entry.pushKV(item.first, item.second);
 }
 
 string AccountFromValue(const UniValue& value)
@@ -588,11 +590,11 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     UniValue strDZeel(UniValue::VOBJ);
 
-    strDZeel.push_back(Pair("n",nReqAmount));
-    strDZeel.push_back(Pair("a",Address));
-    strDZeel.push_back(Pair("d",nDeadline));
-    strDZeel.push_back(Pair("s",sDesc));
-    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2));
+    strDZeel.pushKV("n",nReqAmount);
+    strDZeel.pushKV("a",Address);
+    strDZeel.pushKV("d",nDeadline);
+    strDZeel.pushKV("s",sDesc);
+    strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -607,8 +609,8 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
     else
@@ -657,7 +659,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     CFund::CProposal proposal;
 
-    if(!CFund::FindProposal(params[0].get_str(),proposal))
+    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
     if(proposal.fState != CFund::ACCEPTED)
@@ -707,12 +709,12 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     UniValue strDZeel(UniValue::VOBJ);
 
-    strDZeel.push_back(Pair("h",params[0].get_str()));
-    strDZeel.push_back(Pair("n",nReqAmount));
-    strDZeel.push_back(Pair("s",Signature));
-    strDZeel.push_back(Pair("r",sRandom));
-    strDZeel.push_back(Pair("i",id));
-    strDZeel.push_back(Pair("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2));
+    strDZeel.pushKV("h",params[0].get_str());
+    strDZeel.pushKV("n",nReqAmount);
+    strDZeel.pushKV("s",Signature);
+    strDZeel.pushKV("r",sRandom);
+    strDZeel.pushKV("i",id);
+    strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CPaymentRequest::CURRENT_VERSION : 2);
 
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::PAYMENT_REQUEST_VERSION;
@@ -726,8 +728,8 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     {
         UniValue ret(UniValue::VOBJ);
 
-        ret.push_back(Pair("hash",wtx.GetHash().GetHex()));
-        ret.push_back(Pair("strDZeel",wtx.strDZeel));
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
         return ret;
     }
     else
@@ -1719,13 +1721,13 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
         {
             UniValue obj(UniValue::VOBJ);
             if(fIsWatchonly)
-                obj.push_back(Pair("involvesWatchonly", true));
-            obj.push_back(Pair("address",       address.ToString()));
-            obj.push_back(Pair("account",       strAccount));
-            obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
-            obj.push_back(Pair("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf)));
+                obj.pushKV("involvesWatchonly", true);
+            obj.pushKV("address",       address.ToString());
+            obj.pushKV("account",       strAccount);
+            obj.pushKV("amount",        ValueFromAmount(nAmount));
+            obj.pushKV("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf));
             if (!fByAccounts)
-                obj.push_back(Pair("label", strAccount));
+                obj.pushKV("label", strAccount);
             UniValue transactions(UniValue::VARR);
             if (it != mapTally.end())
             {
@@ -1734,7 +1736,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
                     transactions.push_back(item.GetHex());
                 }
             }
-            obj.push_back(Pair("txids", transactions));
+            obj.pushKV("txids", transactions);
             ret.push_back(obj);
         }
     }
@@ -1747,10 +1749,10 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
             int nConf = (*it).second.nConf;
             UniValue obj(UniValue::VOBJ);
             if((*it).second.fIsWatchonly)
-                obj.push_back(Pair("involvesWatchonly", true));
-            obj.push_back(Pair("account",       (*it).first));
-            obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
-            obj.push_back(Pair("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf)));
+                obj.pushKV("involvesWatchonly", true);
+            obj.pushKV("account",       (*it).first);
+            obj.pushKV("amount",        ValueFromAmount(nAmount));
+            obj.pushKV("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf));
             ret.push_back(obj);
         }
     }
@@ -1837,7 +1839,7 @@ static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
 {
     CNavCoinAddress addr;
     if (addr.Set(dest)) {
-        entry.push_back(Pair("address", addr.ToString()));
+        entry.pushKV("address", addr.ToString());
     }
 }
 
@@ -1850,34 +1852,34 @@ void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strA
     {
         UniValue entry(UniValue::VOBJ);
         if(involvesWatchonly || (::IsMine(*pwalletMain, r.destination) & ISMINE_WATCH_ONLY))
-            entry.push_back(Pair("involvesWatchonly", true));
-        entry.push_back(Pair("account", account));
+            entry.pushKV("involvesWatchonly", true);
+        entry.pushKV("account", account);
         MaybePushAddress(entry, r.destination);
         if (wtx.IsCoinBase() || wtx.IsCoinStake())
         {
             if (wtx.GetDepthInMainChain() < 1)
-                entry.push_back(Pair("category", "orphan"));
+                entry.pushKV("category", "orphan");
             else if (wtx.GetBlocksToMaturity() > 0)
-                entry.push_back(Pair("category", "immature"));
+                entry.pushKV("category", "immature");
             else
-                entry.push_back(Pair("category", "generate"));
+                entry.pushKV("category", "generate");
         }
         else
         {
-            entry.push_back(Pair("category", "receive"));
+            entry.pushKV("category", "receive");
         }
         if (!wtx.IsCoinStake())
-            entry.push_back(Pair("amount", ValueFromAmount(r.amount)));
+            entry.pushKV("amount", ValueFromAmount(r.amount));
         else {
-            entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
+            entry.pushKV("amount", ValueFromAmount(-nFee));
         }
-        entry.push_back(Pair("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
+        entry.pushKV("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
                                           (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
-                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false));
-        entry.push_back(Pair("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false));
+                                           !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false);
+        entry.pushKV("canSpend", (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE) ? true : false);
         if (pwalletMain->mapAddressBook.count(r.destination))
-            entry.push_back(Pair("label", account));
-        entry.push_back(Pair("vout", r.vout));
+            entry.pushKV("label", account);
+        entry.pushKV("vout", r.vout);
         if (fLong)
             WalletTxToJSON(wtx, entry);
         ret.push_back(entry);
@@ -1903,8 +1905,8 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
         {
             UniValue entry(UniValue::VOBJ);
             if(involvesWatchonly || (::IsMine(*pwalletMain, s.destination) & ISMINE_WATCH_ONLY))
-                entry.push_back(Pair("involvesWatchonly", true));
-            entry.push_back(Pair("account", strSentAccount));
+                entry.pushKV("involvesWatchonly", true);
+            entry.pushKV("account", strSentAccount);
             MaybePushAddress(entry, s.destination);
             bool fCFund = false;
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
@@ -1912,15 +1914,15 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 const CTxOut& txout = wtx.vout[nOut];
                 if (txout.scriptPubKey.IsCommunityFundContribution()) fCFund = true;
             }
-            entry.push_back(Pair("category", fCFund ? "cfund contribution" : "send"));
-            entry.push_back(Pair("amount", ValueFromAmount(-s.amount)));
+            entry.pushKV("category", fCFund ? "cfund contribution" : "send");
+            entry.pushKV("amount", ValueFromAmount(-s.amount));
             if (pwalletMain->mapAddressBook.count(s.destination))
-                entry.push_back(Pair("label", pwalletMain->mapAddressBook[s.destination].name));
-            entry.push_back(Pair("vout", s.vout));
-            entry.push_back(Pair("fee", ValueFromAmount(-nFee)));
+                entry.pushKV("label", pwalletMain->mapAddressBook[s.destination].name);
+            entry.pushKV("vout", s.vout);
+            entry.pushKV("fee", ValueFromAmount(-nFee));
             if (fLong)
                 WalletTxToJSON(wtx, entry);
-            entry.push_back(Pair("abandoned", wtx.isAbandoned()));
+            entry.pushKV("abandoned", wtx.isAbandoned());
             ret.push_back(entry);
         }
     }
@@ -1953,12 +1955,12 @@ void AcentryToJSON(const CAccountingEntry& acentry, const string& strAccount, Un
     if (fAllAccounts || acentry.strAccount == strAccount)
     {
         UniValue entry(UniValue::VOBJ);
-        entry.push_back(Pair("account", acentry.strAccount));
-        entry.push_back(Pair("category", "move"));
-        entry.push_back(Pair("time", acentry.nTime));
-        entry.push_back(Pair("amount", ValueFromAmount(acentry.nCreditDebit)));
-        entry.push_back(Pair("otheraccount", acentry.strOtherAccount));
-        entry.push_back(Pair("comment", acentry.strComment));
+        entry.pushKV("account", acentry.strAccount);
+        entry.pushKV("category", "move");
+        entry.pushKV("time", acentry.nTime);
+        entry.pushKV("amount", ValueFromAmount(acentry.nCreditDebit));
+        entry.pushKV("otheraccount", acentry.strOtherAccount);
+        entry.pushKV("comment", acentry.strComment);
         ret.push_back(entry);
     }
 }
@@ -2168,7 +2170,7 @@ UniValue listaccounts(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VOBJ);
     BOOST_FOREACH(const PAIRTYPE(string, CAmount)& accountBalance, mapAccountBalances) {
-        ret.push_back(Pair(accountBalance.first, ValueFromAmount(accountBalance.second)));
+        ret.pushKV(accountBalance.first, ValueFromAmount(accountBalance.second));
     }
     return ret;
 }
@@ -2259,8 +2261,8 @@ UniValue listsinceblock(const UniValue& params, bool fHelp)
     uint256 lastblock = pblockLast ? pblockLast->GetBlockHash() : uint256();
 
     UniValue ret(UniValue::VOBJ);
-    ret.push_back(Pair("transactions", transactions));
-    ret.push_back(Pair("lastblock", lastblock.GetHex()));
+    ret.pushKV("transactions", transactions);
+    ret.pushKV("lastblock", lastblock.GetHex());
 
     return ret;
 }
@@ -2324,23 +2326,23 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
     const CWalletTx& wtx = pwalletMain->mapWallet[hash];
 
-    CAmount nCredit = wtx.GetCredit(filter);
+    CAmount nCredit = wtx.GetCredit(filter, false);
     CAmount nDebit = wtx.GetDebit(filter);
     CAmount nNet = nCredit - nDebit;
     CAmount nFee = (wtx.IsFromMe(filter) ? wtx.GetValueOut() - nDebit : 0);
 
-    entry.push_back(Pair("amount", ValueFromAmount(nNet - nFee)));
+    entry.pushKV("amount", ValueFromAmount(nNet - (wtx.IsCoinStake() ? 0 : nFee)));
     if (wtx.IsFromMe(filter))
-        entry.push_back(Pair("fee", ValueFromAmount(nFee)));
+        entry.pushKV("fee", ValueFromAmount(nFee - (wtx.IsCoinStake() ? nNet : 0)));
 
     WalletTxToJSON(wtx, entry);
 
     UniValue details(UniValue::VARR);
     ListTransactions(wtx, "*", 0, false, details, filter);
-    entry.push_back(Pair("details", details));
+    entry.pushKV("details", details);
 
     string strHex = EncodeHexTx(static_cast<CTransaction>(wtx));
-    entry.push_back(Pair("hex", strHex));
+    entry.pushKV("hex", strHex);
 
     return entry;
 }
@@ -2788,8 +2790,8 @@ UniValue listlockunspent(const UniValue& params, bool fHelp)
     BOOST_FOREACH(COutPoint &outpt, vOutpts) {
         UniValue o(UniValue::VOBJ);
 
-        o.push_back(Pair("txid", outpt.hash.GetHex()));
-        o.push_back(Pair("vout", (int)outpt.n));
+        o.pushKV("txid", outpt.hash.GetHex());
+        o.pushKV("vout", (int)outpt.n);
         ret.push_back(o);
     }
 
@@ -2854,22 +2856,22 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     UniValue obj(UniValue::VOBJ);
-    obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
-    obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
-    obj.push_back(Pair("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance())));
-    obj.push_back(Pair("unconfirmed_balance", ValueFromAmount(pwalletMain->GetUnconfirmedBalance())));
-    obj.push_back(Pair("immature_balance",    ValueFromAmount(pwalletMain->GetImmatureBalance())));
-    obj.push_back(Pair("txcount",       (int)pwalletMain->mapWallet.size()));
-    obj.push_back(Pair("keypoololdest", pwalletMain->GetOldestKeyPoolTime()));
-    obj.push_back(Pair("keypoolsize",   (int)pwalletMain->GetKeyPoolSize()));
+    obj.pushKV("walletversion", pwalletMain->GetVersion());
+    obj.pushKV("balance",       ValueFromAmount(pwalletMain->GetBalance()));
+    obj.pushKV("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance()));
+    obj.pushKV("unconfirmed_balance", ValueFromAmount(pwalletMain->GetUnconfirmedBalance()));
+    obj.pushKV("immature_balance",    ValueFromAmount(pwalletMain->GetImmatureBalance()));
+    obj.pushKV("txcount",       (int)pwalletMain->mapWallet.size());
+    obj.pushKV("keypoololdest", pwalletMain->GetOldestKeyPoolTime());
+    obj.pushKV("keypoolsize",   (int)pwalletMain->GetKeyPoolSize());
     if (pwalletMain->IsCrypted()) {
-        obj.push_back(Pair("unlocked_until", nWalletUnlockTime));
-        obj.push_back(Pair("unlocked_for_staking", fWalletUnlockStakingOnly));
+        obj.pushKV("unlocked_until", nWalletUnlockTime);
+        obj.pushKV("unlocked_for_staking", fWalletUnlockStakingOnly);
     }
-    obj.push_back(Pair("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK())));
+    obj.pushKV("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK()));
     CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
     if (!masterKeyID.IsNull())
-         obj.push_back(Pair("hdmasterkeyid", masterKeyID.GetHex()));
+         obj.pushKV("hdmasterkeyid", masterKeyID.GetHex());
     return obj;
 }
 
@@ -2981,28 +2983,28 @@ UniValue listunspent(const UniValue& params, bool fHelp)
             continue;
 
         UniValue entry(UniValue::VOBJ);
-        entry.push_back(Pair("txid", out.tx->GetHash().GetHex()));
-        entry.push_back(Pair("vout", out.i));
+        entry.pushKV("txid", out.tx->GetHash().GetHex());
+        entry.pushKV("vout", out.i);
 
         if (fValidAddress) {
-            entry.push_back(Pair("address", CNavCoinAddress(address).ToString()));
+            entry.pushKV("address", CNavCoinAddress(address).ToString());
 
             if (pwalletMain->mapAddressBook.count(address))
-                entry.push_back(Pair("account", pwalletMain->mapAddressBook[address].name));
+                entry.pushKV("account", pwalletMain->mapAddressBook[address].name);
 
             if (scriptPubKey.IsPayToScriptHash()) {
                 const CScriptID& hash = boost::get<CScriptID>(address);
                 CScript redeemScript;
                 if (pwalletMain->GetCScript(hash, redeemScript))
-                    entry.push_back(Pair("redeemScript", HexStr(redeemScript.begin(), redeemScript.end())));
+                    entry.pushKV("redeemScript", HexStr(redeemScript.begin(), redeemScript.end()));
             }
         }
 
-        entry.push_back(Pair("scriptPubKey", HexStr(scriptPubKey.begin(), scriptPubKey.end())));
-        entry.push_back(Pair("amount", ValueFromAmount(out.tx->vout[out.i].nValue)));
-        entry.push_back(Pair("confirmations", out.nDepth));
-        entry.push_back(Pair("spendable", out.fSpendable));
-        entry.push_back(Pair("solvable", out.fSolvable));
+        entry.pushKV("scriptPubKey", HexStr(scriptPubKey.begin(), scriptPubKey.end()));
+        entry.pushKV("amount", ValueFromAmount(out.tx->vout[out.i].nValue));
+        entry.pushKV("confirmations", out.nDepth);
+        entry.pushKV("spendable", out.fSpendable);
+        entry.pushKV("solvable", out.fSolvable);
         results.push_back(entry);
     }
 
@@ -3129,9 +3131,9 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INTERNAL_ERROR, strFailReason);
 
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("hex", EncodeHexTx(tx)));
-    result.push_back(Pair("changepos", changePosition));
-    result.push_back(Pair("fee", ValueFromAmount(nFeeOut)));
+    result.pushKV("hex", EncodeHexTx(tx));
+    result.pushKV("changepos", changePosition);
+    result.pushKV("fee", ValueFromAmount(nFeeOut));
 
     return result;
 }
@@ -3149,12 +3151,73 @@ struct StakePeriodRange_T {
 
 typedef std::vector<StakePeriodRange_T> vStakePeriodRange_T;
 
+// Check if we have a Tx that can be counted in staking report
+bool IsTxCountedAsStaked(const CWalletTx* tx)
+{
+    // Make sure we have a lock
+    LOCK(cs_main);
+
+    // orphan block or immature
+    if ((!tx->GetDepthInMainChain()) || (tx->GetBlocksToMaturity() > 0))
+        return false;
+
+    // abandoned transactions
+    if (tx->isAbandoned())
+        return false;
+
+    // transaction other than POS block
+    return tx->IsCoinStake();
+}
+
+// Get the amount for a staked tx used in staking report
+CAmount GetTxStakeAmount(const CWalletTx* tx)
+{
+    // use the cached amount if available
+    if ((tx->fCreditCached || tx->fColdStakingCreditCached) && (tx->fDebitCached || tx->fColdStakingDebitCached))
+        return tx->nCreditCached + tx->nColdStakingCreditCached - tx->nDebitCached - tx->nColdStakingDebitCached;
+    // Check for cold staking
+    else if (tx->vout[1].scriptPubKey.IsColdStaking())
+        return tx->GetCredit(pwalletMain->IsMine(tx->vout[1])) - tx->GetDebit(pwalletMain->IsMine(tx->vout[1]));
+
+    return tx->GetCredit(ISMINE_SPENDABLE) + tx->GetCredit(ISMINE_STAKABLE) - tx->GetDebit(ISMINE_SPENDABLE) - tx->GetDebit(ISMINE_STAKABLE);
+}
+
+// Gets timestamp for first stake
+// Returns -1 (Zero) if has not staked yet
+int64_t GetFirstStakeTime()
+{
+    // Check if we already know when
+    if (nWalletFirstStakeTime > 0)
+        return nWalletFirstStakeTime;
+
+    // Need a pointer for the tx
+    const CWalletTx* tx;
+
+    // scan the entire wallet transactions
+    for(auto& it: pwalletMain->wtxOrdered)
+    {
+        tx = it.second.first;
+
+        // Check if we have a useable tx
+        if (IsTxCountedAsStaked(tx)) {
+            nWalletFirstStakeTime = tx->nTime; // Save it for later use
+            return nWalletFirstStakeTime;
+        }
+    }
+
+    // Did not find the first stake
+    return nWalletFirstStakeTime;
+}
+
 // **em52: Get total coins staked on given period
 // inspired from CWallet::GetStake()
 // Parameter aRange = Vector with given limit date, and result
 // return int =  Number of Wallet's elements analyzed
 int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 {
+    // Lock cs_main before we try to call GetTxStakeAmount
+    LOCK(cs_main);
+
     int nElement = 0;
     int64_t nAmount = 0;
 
@@ -3162,7 +3225,6 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 
     vStakePeriodRange_T::iterator vIt;
 
-    LOCK(cs_main);
     // scan the entire wallet transactions
     for (map<uint256, CWalletTx>::const_iterator it = pwalletMain->mapWallet.begin();
          it != pwalletMain->mapWallet.end();
@@ -3170,30 +3232,14 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
     {
         pcoin = &(*it).second;
 
-        // skip orphan block or immature
-        if ((!pcoin->GetDepthInMainChain()) || (pcoin->GetBlocksToMaturity()>0))
-            continue;
-
-        // skip abandoned transactions
-        if (pcoin->isAbandoned())
-            continue;
-
-        // skip transaction other than POS block
-        if (!(pcoin->IsCoinStake()))
-            continue;
-
-        if (pcoin->isAbandoned())
+        // Check if we have a useable tx
+        if (!IsTxCountedAsStaked(pcoin))
             continue;
 
         nElement++;
 
-        // use the cached amount if available
-        if ((pcoin->fCreditCached || pcoin->fColdStakingCreditCached) && (pcoin->fDebitCached || pcoin->fColdStakingDebitCached))
-            nAmount = pcoin->nCreditCached + pcoin->nColdStakingCreditCached - pcoin->nDebitCached - pcoin->nColdStakingDebitCached;
-        else if (pcoin->vout[1].scriptPubKey.IsColdStaking())
-            nAmount = pcoin->GetCredit(pwalletMain->IsMine(pcoin->vout[1])) - pcoin->GetDebit(pwalletMain->IsMine(pcoin->vout[1]));
-        else
-            nAmount = pcoin->GetCredit(ISMINE_SPENDABLE) + pcoin->GetCredit(ISMINE_STAKABLE) - pcoin->GetDebit(ISMINE_SPENDABLE) - pcoin->GetDebit(ISMINE_STAKABLE);
+        // Get the stake tx amount from pcoin
+        nAmount = GetTxStakeAmount(pcoin);
 
         // scan the range
         for(vIt=aRange.begin(); vIt != aRange.end(); vIt++)
@@ -3212,12 +3258,10 @@ int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
                 }
             }
         }
-
     }
 
     return nElement;
 }
-
 
 // prepare range for stake report
 vStakePeriodRange_T PrepareRangeForStakeReport()
@@ -3225,15 +3269,15 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     vStakePeriodRange_T aRange;
     StakePeriodRange_T x;
 
-    struct tm Loc_MidNight;
 
     int64_t n1Hour = 60*60;
     int64_t n1Day = 24 * n1Hour;
 
     int64_t nToday = GetTime();
     time_t CurTime = nToday;
+    auto localTime = boost::posix_time::second_clock::local_time();
+    struct tm Loc_MidNight = boost::posix_time::to_tm(localTime);
 
-    localtime_r(&CurTime, &Loc_MidNight);
     Loc_MidNight.tm_hour = 0;
     Loc_MidNight.tm_min = 0;
     Loc_MidNight.tm_sec = 0;  // set midnight
@@ -3257,7 +3301,7 @@ vStakePeriodRange_T PrepareRangeForStakeReport()
     }
 
     // prepare subtotal range of last 24H, 1 week, 30 days, 1 years
-    int GroupDays[5][2] = { {1 ,0}, {7 ,0 }, {30, 0}, {365, 0}, {99999999, 0}};
+    int GroupDays[5][2] = { {1, 0}, {7, 0}, {30, 0}, {365, 0}, {99999999, 0}};
     std::string sGroupName[] = {"24H", "7 Days", "30 Days", "365 Days", "All" };
 
     nToday = GetTime();
@@ -3291,30 +3335,63 @@ UniValue getstakereport(const UniValue& params, bool fHelp)
 
     vStakePeriodRange_T aRange = PrepareRangeForStakeReport();
 
+    LOCK(cs_main);
+
     // get subtotal calc
     int64_t nTook = GetTimeMillis();
     int nItemCounted = GetsStakeSubTotal(aRange);
-    nTook = GetTimeMillis() - nTook;
 
     UniValue result(UniValue::VOBJ);
 
     vStakePeriodRange_T::iterator vIt;
 
+    // Span of days to compute average over
+    int nDays = 0;
+
+    // Get the wallet's staking age in days
+    int nWalletDays = 0;
+
+    // Check if we have a stake already
+    if (GetFirstStakeTime() != -1)
+        nWalletDays = (GetTime() - GetFirstStakeTime()) / 86400;
+
     // report it
     for(vIt = aRange.begin(); vIt != aRange.end(); vIt++)
     {
-        result.push_back(Pair(vIt->Name, FormatMoney(vIt->Total).c_str()));
+        // Add it to results
+        result.pushKV(vIt->Name, FormatMoney(vIt->Total).c_str());
+
+        // Get the nDays value
+        nDays = 0;
+        if (vIt->Name == "Last 7 Days")
+            nDays = 7;
+        else if (vIt->Name == "Last 30 Days")
+            nDays = 30;
+        else if (vIt->Name == "Last 365 Days")
+            nDays = 365;
+
+        // Check if we need to add the average
+        if (nDays > 0) {
+            // Check if nDays is larger than the wallet's staking age in days
+            if (nDays > nWalletDays && nWalletDays > 0)
+                nDays = nWalletDays;
+
+            // Add the Average
+            result.pushKV(vIt->Name + " Avg", FormatMoney(vIt->Total / nDays).c_str());
+        }
     }
 
     vIt--;
-    result.push_back(Pair("Latest Time",
+    result.pushKV("Latest Time",
        vIt->Start ? DateTimeStrFormat("%Y-%m-%d %H:%M:%S",vIt->Start).c_str() :
-       "Never"));
+       "Never");
 
+    // Moved nTook call down here to be more accurate
+    nTook = GetTimeMillis() - nTook;
 
     // report element counted / time took
-    result.push_back(Pair("Stake counted", nItemCounted));
-    result.push_back(Pair("time took (ms)",  nTook ));
+    result.pushKV("Stake counted", nItemCounted);
+    result.pushKV("time took (ms)",  nTook);
 
     return  result;
 }
@@ -3342,13 +3419,13 @@ UniValue resolveopenalias(const UniValue& params, bool fHelp)
 
   std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_available, dnssec_valid);
 
-  result.push_back(Pair("dnssec_available",dnssec_available));
-  result.push_back(Pair("dnssec_valid",dnssec_valid));
+  result.pushKV("dnssec_available",dnssec_available);
+  result.pushKV("dnssec_valid",dnssec_valid);
 
   if (addresses.empty())
-      result.push_back(Pair("address",""));
+      result.pushKV("address","");
   else
-      result.push_back(Pair("address",addresses.front()));
+      result.pushKV("address",addresses.front());
 
   return result;
 }
@@ -3380,30 +3457,37 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     UniValue novotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    std::vector<CFund::CProposal> vec;
-     if(pblocktree->GetProposalIndex(vec))
-     {
-         BOOST_FOREACH(const CFund::CProposal& proposal, vec) {
-             if (proposal.fState != CFund::NIL)
-                 continue;
-             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                 [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-             UniValue p(UniValue::VOBJ);
-             proposal.ToJson(p, *pcoinsTip);
-             if (it != vAddedProposalVotes.end()) {
-                 if (it->second)
-                     yesvotes.push_back(p);
-                 else
-                     novotes.push_back(p);
-             } else {
-                 nullvotes.push_back(p);
-             }
-         }
-     }
+    CProposalMap mapProposals;
 
-    ret.push_back(Pair("yes",yesvotes));
-    ret.push_back(Pair("no",novotes));
-    ret.push_back(Pair("null",nullvotes));
+    if(pcoinsTip->GetAllProposals(mapProposals))
+    {
+        for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
+        {
+            CFund::CProposal proposal;
+
+            if (!pcoinsTip->GetProposal(it_->first, proposal))
+                continue;
+
+            if (proposal.fState != CFund::NIL)
+                continue;
+            auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
+                                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+            UniValue p(UniValue::VOBJ);
+            proposal.ToJson(p, *pcoinsTip);
+            if (it != vAddedProposalVotes.end()) {
+                if (it->second)
+                    yesvotes.push_back(p);
+                else
+                    novotes.push_back(p);
+            } else {
+                nullvotes.push_back(p);
+            }
+        }
+    }
+
+    ret.pushKV("yes",yesvotes);
+    ret.pushKV("no",novotes);
+    ret.pushKV("null",nullvotes);
 
     return ret;
 }
@@ -3447,18 +3531,22 @@ UniValue poolProposalVoteList(const UniValue& params, bool fHelp) {
 
     PoolVoteProposalList(spendingAddress.ToString(), votes);
 
-    for (unsigned int i = 0; i < votes.size(); i++) {
-        CFund::CProposal proposal;
-        if (CFund::FindProposal(votes[i].first, proposal) && proposal.CanVote()) {
-            if (votes[i].second == true)
-                yesvotes.push_back(votes[i].first);
-            else if (votes[i].second == false)
-                novotes.push_back(votes[i].first);
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals)) {
+        for (unsigned int i = 0; i < votes.size(); i++) {
+            CFund::CProposal proposal;
+            if (pcoinsTip->GetProposal(uint256S(votes[i].first), proposal) && proposal.CanVote()) {
+                if (votes[i].second == true)
+                    yesvotes.push_back(votes[i].first);
+                else if (votes[i].second == false)
+                    novotes.push_back(votes[i].first);
+            }
         }
     }
 
-    ret.push_back(Pair("yes", yesvotes));
-    ret.push_back(Pair("no", novotes));
+    ret.pushKV("yes",yesvotes);
+    ret.pushKV("no",novotes);
 
     return ret;
 }
@@ -3485,32 +3573,47 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CFund::CProposal proposal;
+    if (!pcoinsTip->GetProposal(uint256S(strHash), proposal))
+    {
+        return NullUniValue;
+    }
+
     if (strCommand == "yes")
     {
-      bool ret = CFund::VoteProposal(strHash,true,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
+        bool ret = CFund::VoteProposal(proposal,true,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
     }
     else if (strCommand == "no")
     {
-      bool ret = CFund::VoteProposal(strHash,false,duplicate);
-      if (duplicate) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
-      } else if (ret) {
-        return NullUniValue;
-      }
+        bool ret = CFund::VoteProposal(proposal,false,duplicate);
+        if (duplicate)
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is already in the list: ")+strHash);
+        }
+        else if (ret)
+        {
+            return NullUniValue;
+        }
     }
     else if(strCommand == "remove")
     {
-      bool ret = CFund::RemoveVoteProposal(strHash);
-      if (ret) {
-        return NullUniValue;
-      } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is not in the list: ")+strHash);
-      }
+        bool ret = CFund::RemoveVoteProposal(strHash);
+        if (ret)
+        {
+            return NullUniValue;
+        }
+        else
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The proposal is not in the list: ")+strHash);
+        }
     }
 
     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
@@ -3537,30 +3640,37 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue novotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    std::vector<CFund::CPaymentRequest> vec;
-     if(pblocktree->GetPaymentRequestIndex(vec))
-     {
-         BOOST_FOREACH(const CFund::CPaymentRequest& prequest, vec) {
-             if (prequest.fState != CFund::NIL)
-                 continue;
-             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                 [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
-             UniValue p(UniValue::VOBJ);
-             prequest.ToJson(p);
-             if (it != vAddedPaymentRequestVotes.end()) {
-                 if (it->second)
-                     yesvotes.push_back(p);
-                 else
-                     novotes.push_back(p);
-             } else {
-                 nullvotes.push_back(p);
-             }
-         }
-     }
+    CPaymentRequestMap mapPaymentRequests;
 
-    ret.push_back(Pair("yes",yesvotes));
-    ret.push_back(Pair("no",novotes));
-    ret.push_back(Pair("null",nullvotes));
+    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    {
+        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
+        {
+            CFund::CPaymentRequest prequest;
+
+            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                continue;
+
+            if (prequest.fState != CFund::NIL)
+                continue;
+            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
+                                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+            UniValue p(UniValue::VOBJ);
+            prequest.ToJson(p);
+            if (it != vAddedPaymentRequestVotes.end()) {
+                if (it->second)
+                    yesvotes.push_back(p);
+                else
+                    novotes.push_back(p);
+            } else {
+                nullvotes.push_back(p);
+            }
+        }
+    }
+
+    ret.pushKV("yes",yesvotes);
+    ret.pushKV("no",novotes);
+    ret.pushKV("null",nullvotes);
 
     return ret;
 }
@@ -3604,18 +3714,23 @@ UniValue poolPaymentRequestVoteList(const UniValue& params, bool fHelp) {
 
     PoolVotePaymentRequestList(spendingAddress.ToString(), votes);
 
-    for (unsigned int i = 0; i < votes.size(); i++) {
-        CFund::CPaymentRequest prequest;
-        if (CFund::FindPaymentRequest(votes[i].first, prequest) && prequest.CanVote(*pcoinsTip)) {
-            if (votes[i].second == true)
-                yesvotes.push_back(votes[i].first);
-            else if (votes[i].second == false)
-                novotes.push_back(votes[i].first);
+    CPaymentRequestMap mapPaymentRequests;
+
+    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests)) {
+        for (unsigned int i = 0; i < votes.size(); i++) {
+            CFund::CPaymentRequest prequest;
+
+            if (!pcoinsTip->GetPaymentRequest(uint256S(votes[i].first), prequest) && prequest.CanVote(*pcoinsTip)) {
+                if (votes[i].second == true)
+                    yesvotes.push_back(votes[i].first);
+                else if (votes[i].second == false)
+                    novotes.push_back(votes[i].first);
+            }
         }
     }
 
-    ret.push_back(Pair("yes", yesvotes));
-    ret.push_back(Pair("no", novotes));
+    ret.pushKV("yes",yesvotes);
+    ret.pushKV("no",novotes);
 
     return ret;
 }
@@ -3642,9 +3757,16 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     string strHash = params[0].get_str();
     bool duplicate = false;
 
+    CFund::CPaymentRequest prequest;
+
+    if (!pcoinsTip->GetPaymentRequest(uint256S(strHash), prequest))
+    {
+        return NullUniValue;
+    }
+
     if (strCommand == "yes")
     {
-      bool ret = CFund::VotePaymentRequest(strHash,true,duplicate);
+      bool ret = CFund::VotePaymentRequest(prequest,true,duplicate);
       if (duplicate) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
       } else if (ret) {
@@ -3653,7 +3775,7 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     }
     else if (strCommand == "no")
     {
-      bool ret = CFund::VotePaymentRequest(strHash,false,duplicate);
+      bool ret = CFund::VotePaymentRequest(prequest,false,duplicate);
       if (duplicate) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The payment request is already in the list: ")+strHash);
       } else if (ret) {
@@ -3694,9 +3816,9 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
     if (PoolExistsAccountFile(spendingAddress.ToString())) {
         boost::filesystem::path accountFile = PoolGetAccountFile(spendingAddress.ToString());
         UniValue result(UniValue::VOBJ);
-        result.push_back(Pair("stakingAddress", PoolReadFile(accountFile, "stakingAddress")));
-        result.push_back(Pair("spendingAddress", spendingAddress.ToString()));
-        result.push_back(Pair("coldStakingAddress", PoolReadFile(accountFile, "coldStakingAddress")));
+        result.pushKV("stakingAddress",PoolReadFile(accountFile, "stakingAddress"));
+        result.pushKV("spendingAddress",spendingAddress.ToString());
+        result.pushKV("coldStakingAddress",PoolReadFile(accountFile, "coldStakingAddress"));
 
         return result;
     }
@@ -3723,9 +3845,9 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
     PoolInitAccount(spendingAddress.ToString(), stakingAddress.ToString(), coldStakingAddress.ToString());
 
     UniValue result(UniValue::VOBJ);
-    result.push_back(Pair("stakingAddress", stakingAddress.ToString()));
-    result.push_back(Pair("spendingAddress", spendingAddress.ToString()));
-    result.push_back(Pair("coldStakingAddress", coldStakingAddress.ToString()));
+    result.pushKV("stakingAddress",stakingAddress.ToString());
+    result.pushKV("stakingAddress",spendingAddress.ToString());
+    result.pushKV("stakingAddress",coldStakingAddress.ToString());
 
     return result;
 }

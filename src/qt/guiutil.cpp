@@ -51,20 +51,12 @@
 #include <QDoubleValidator>
 #include <QFileDialog>
 #include <QFont>
+#include <QFontDatabase>
 #include <QLineEdit>
 #include <QSettings>
 #include <QTextDocument> // for Qt::mightBeRichText
 #include <QThread>
-
-#if QT_VERSION < 0x050000
-#include <QUrl>
-#else
 #include <QUrlQuery>
-#endif
-
-#if QT_VERSION >= 0x50200
-#include <QFontDatabase>
-#endif
 
 #if BOOST_FILESYSTEM_VERSION >= 3
 static boost::filesystem::detail::utf8_codecvt_facet utf8;
@@ -94,17 +86,7 @@ QString dateTimeStr(qint64 nTime)
 
 QFont fixedPitchFont()
 {
-#if QT_VERSION >= 0x50200
     return QFontDatabase::systemFont(QFontDatabase::FixedFont);
-#else
-    QFont font("Monospace");
-#if QT_VERSION >= 0x040800
-    font.setStyleHint(QFont::Monospace);
-#else
-    font.setStyleHint(QFont::TypeWriter);
-#endif
-    return font;
-#endif
 }
 
 // Just some dummy data to generate an convincing random-looking (but consistent) address
@@ -129,12 +111,10 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
     parent->setFocusProxy(widget);
 
     widget->setFont(fixedPitchFont());
-#if QT_VERSION >= 0x040700
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
     widget->setPlaceholderText(QObject::tr("Enter a NavCoin address or OpenAlias address (e.g. %1)").arg(
         QString::fromStdString(DummyAddress(Params()))));
-#endif
     widget->setValidator(new NavCoinAddressEntryValidator(parent));
     widget->setCheckValidator(new NavCoinAddressCheckValidator(parent));
 }
@@ -162,12 +142,8 @@ bool parseNavCoinURI(const QUrl &uri, SendCoinsRecipient *out)
     }
     rv.amount = 0;
 
-#if QT_VERSION < 0x050000
-    QList<QPair<QString, QString> > items = uri.queryItems();
-#else
     QUrlQuery uriQuery(uri);
     QList<QPair<QString, QString> > items = uriQuery.queryItems();
-#endif
     for (QList<QPair<QString, QString> >::iterator i = items.begin(); i != items.end(); i++)
     {
         bool fShouldReturnFalse = false;
@@ -253,11 +229,7 @@ bool isDust(const QString& address, const CAmount& amount)
 
 QString HtmlEscape(const QString& str, bool fMultiLine)
 {
-#if QT_VERSION < 0x050000
-    QString escaped = Qt::escape(str);
-#else
     QString escaped = str.toHtmlEscaped();
-#endif
     if(fMultiLine)
     {
         escaped = escaped.replace("\n", "<br>\n");
@@ -304,11 +276,7 @@ QString getSaveFileName(QWidget *parent, const QString &caption, const QString &
     QString myDir;
     if(dir.isEmpty()) // Default to user documents location
     {
-#if QT_VERSION < 0x050000
-        myDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
-#else
         myDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-#endif
     }
     else
     {
@@ -354,11 +322,7 @@ QString getOpenFileName(QWidget *parent, const QString &caption, const QString &
     QString myDir;
     if(dir.isEmpty()) // Default to user documents location
     {
-#if QT_VERSION < 0x050000
-        myDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
-#else
         myDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-#endif
     }
     else
     {
@@ -429,38 +393,13 @@ void openNavCoinConf()
 
 void SubstituteFonts(const QString& language)
 {
-#if defined(Q_OS_MAC)
-// Background:
-// OSX's default font changed in 10.9 and Qt is unable to find it with its
-// usual fallback methods when building against the 10.7 sdk or lower.
-// The 10.8 SDK added a function to let it find the correct fallback font.
-// If this fallback is not properly loaded, some characters may fail to
-// render correctly.
-//
-// The same thing happened with 10.10. .Helvetica Neue DeskInterface is now default.
-//
-// Solution: If building with the 10.7 SDK or lower and the user's platform
-// is 10.9 or higher at runtime, substitute the correct font. This needs to
-// happen before the QApplication is created.
-#if defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_8
-    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_8)
-    {
-        if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_9)
-            /* On a 10.9 - 10.9.x system */
-            QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
-        else
-        {
-            /* 10.10 or later system */
-            if (language == "zh_CN" || language == "zh_TW" || language == "zh_HK") // traditional or simplified Chinese
-              QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Heiti SC");
-            else if (language == "ja") // Japanesee
-              QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Songti SC");
-            else
-              QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Lucida Grande");
-        }
-    }
-#endif
-#endif
+    /* 10.10 or later system */
+    if (language == "zh_CN" || language == "zh_TW" || language == "zh_HK") // traditional or simplified Chinese
+        QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Heiti SC");
+    else if (language == "ja") // Japanesee
+        QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Songti SC");
+    else
+        QFont::insertSubstitution(".Helvetica Neue DeskInterface", "Lucida Grande");
 }
 
 ToolTipToRichTextFilter::ToolTipToRichTextFilter(int size_threshold, QObject *parent) :
@@ -505,11 +444,7 @@ void TableViewLastColumnResizingFixer::disconnectViewHeadersSignals()
 // Refactored here for readability.
 void TableViewLastColumnResizingFixer::setViewHeaderResizeMode(int logicalIndex, QHeaderView::ResizeMode resizeMode)
 {
-#if QT_VERSION < 0x050000
-    tableView->horizontalHeader()->setResizeMode(logicalIndex, resizeMode);
-#else
     tableView->horizontalHeader()->setSectionResizeMode(logicalIndex, resizeMode);
-#endif
 }
 
 void TableViewLastColumnResizingFixer::resizeColumn(int nColumnIndex, int width)
@@ -952,6 +887,53 @@ QString formatPingTime(double dPingTime)
 QString formatTimeOffset(int64_t nTimeOffset)
 {
   return QString(QObject::tr("%1 s")).arg(QString::number((int)nTimeOffset, 10));
+}
+
+QString formatNiceTimeOffset(qint64 secs)
+{
+    // Represent time from last generated block in human readable text
+    QString timeBehindText;
+    const int HOUR_IN_SECONDS = 60*60;
+    const int DAY_IN_SECONDS = 24*60*60;
+    const int WEEK_IN_SECONDS = 7*24*60*60;
+    const int YEAR_IN_SECONDS = 31556952; // Average length of year in Gregorian calendar
+    if(secs < 60)
+    {
+        timeBehindText = QObject::tr("%n second(s)","",secs);
+    }
+    else if(secs < 2*HOUR_IN_SECONDS)
+    {
+        timeBehindText = QObject::tr("%n minute(s)","",secs/60);
+    }
+    else if(secs < 2*DAY_IN_SECONDS)
+    {
+        timeBehindText = QObject::tr("%n hour(s)","",secs/HOUR_IN_SECONDS);
+    }
+    else if(secs < 2*WEEK_IN_SECONDS)
+    {
+        timeBehindText = QObject::tr("%n day(s)","",secs/DAY_IN_SECONDS);
+    }
+    else if(secs < YEAR_IN_SECONDS)
+    {
+        timeBehindText = QObject::tr("%n week(s)","",secs/WEEK_IN_SECONDS);
+    }
+    else
+    {
+        qint64 years = secs / YEAR_IN_SECONDS;
+        qint64 remainder = secs % YEAR_IN_SECONDS;
+        timeBehindText = QObject::tr("%1 and %2").arg(QObject::tr("%n year(s)", "", years)).arg(QObject::tr("%n week(s)","", remainder/WEEK_IN_SECONDS));
+    }
+    return timeBehindText;
+}
+
+void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_EMIT clicked(event->pos());
+}
+
+void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_EMIT clicked(event->pos());
 }
 
 } // namespace GUIUtil

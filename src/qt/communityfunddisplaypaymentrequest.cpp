@@ -191,19 +191,25 @@ void CommunityFundDisplayPaymentRequest::click_buttonBoxVote(QAbstractButton *bu
     //cast the vote
     bool duplicate = false;
 
+    CFund::CPaymentRequest pr;
+    if (!pcoinsTip->GetPaymentRequest(uint256S(prequest.hash.ToString()), pr))
+    {
+        return;
+    }
+
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        CFund::VotePaymentRequest(prequest.hash.ToString(), true, duplicate);
+        CFund::VotePaymentRequest(pr, true, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        CFund::VotePaymentRequest(prequest.hash.ToString(), false, duplicate);
+        CFund::VotePaymentRequest(pr, false, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
-        CFund::RemoveVotePaymentRequest(prequest.hash.ToString());
+        CFund::RemoveVotePaymentRequest(pr.hash.ToString());
         refresh();
     }
     else {
