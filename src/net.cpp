@@ -94,7 +94,7 @@ std::string strSubVersion;
 
 std::vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
-limitedmap<uint256, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
+limitedmap<CInv, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
 
 static std::deque<std::string> vOneShots;
 CCriticalSection cs_vOneShots;
@@ -2833,7 +2833,7 @@ void CNode::AskFor(const CInv& inv)
     // We're using mapAskFor as a priority queue,
     // the key is the earliest time the request can be sent
     int64_t nRequestTime;
-    limitedmap<uint256, int64_t>::const_iterator it = mapAlreadyAskedFor.find(inv.hash);
+    limitedmap<CInv, int64_t>::const_iterator it = mapAlreadyAskedFor.find(inv);
     if (it != mapAlreadyAskedFor.end())
         nRequestTime = it->second;
     else
@@ -2852,7 +2852,7 @@ void CNode::AskFor(const CInv& inv)
     if (it != mapAlreadyAskedFor.end())
         mapAlreadyAskedFor.update(it, nRequestTime);
     else
-        mapAlreadyAskedFor.insert(std::make_pair(inv.hash, nRequestTime));
+        mapAlreadyAskedFor.insert(std::make_pair(inv, nRequestTime));
     mapAskFor.insert(std::make_pair(nRequestTime, inv));
 }
 

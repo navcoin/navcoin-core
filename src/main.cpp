@@ -6890,7 +6890,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CValidationState dummyState; // Dummy state for Dandelion stempool
 
         pfrom->setAskFor.erase(inv.hash);
-        mapAlreadyAskedFor.erase(inv.hash);
+        mapAlreadyAskedFor.erase(inv);
 
         if (!AlreadyHave(inv) && AcceptToMemoryPool(mempool, state, tx, true, &fMissingInputs)) {
             // Changes to mempool should also be made to Dandelion stempool

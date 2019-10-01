@@ -177,7 +177,7 @@ extern int nMaxConnections;
 
 extern std::vector<CNode*> vNodes;
 extern CCriticalSection cs_vNodes;
-extern limitedmap<uint256, int64_t> mapAlreadyAskedFor;
+extern limitedmap<CInv, int64_t> mapAlreadyAskedFor;
 
 extern std::vector<std::string> vAddedNodes;
 extern CCriticalSection cs_vAddedNodes;
