@@ -1075,7 +1075,9 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
             return error("%s: Invalid consultation %s. The proposed value %s is not valid", __func__, tx.GetHash().ToString(), it);
     }
 
-    bool ret = (sQuestion != "" && nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) &&
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answersArray.size();
+
+    bool ret = (sQuestion != "" && nContribution >= nMinFee &&
                ((fRange && nMin >= 0 && nMax < (uint64_t)-5  && nMax > nMin) ||
                 (!fRange && nMax > 0  && nMax < 16)) &&
                ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&

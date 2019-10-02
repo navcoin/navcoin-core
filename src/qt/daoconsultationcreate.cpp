@@ -222,6 +222,8 @@ void DaoConsultationCreate::onCreate()
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
 
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answers.size();
+
     // Ensure wallet is unlocked
     WalletModel::UnlockContext ctx(model->requestUnlock());
     if(!ctx.isValid())
@@ -234,7 +236,7 @@ void DaoConsultationCreate::onCreate()
     CAmount curBalance = pwalletMain->GetBalance();
     if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) {
         QMessageBox msgBox(this);
-        string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE));
+        string fee = FormatMoney(nMinFee);
         std::string str = tr("You require at least %1 NAV mature and available to create a consultation.\n").arg(QString::fromStdString(fee)).toStdString();
         msgBox.setText(tr(str.c_str()));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
@@ -253,7 +255,7 @@ void DaoConsultationCreate::onCreate()
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
+    CAmount nValue = nMinFee;
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
     vecSend.push_back(recipient);
 
@@ -361,6 +363,8 @@ void DaoConsultationCreate::onCreateConsensus()
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
 
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answers.size();
+
     // Ensure wallet is unlocked
     WalletModel::UnlockContext ctx(model->requestUnlock());
     if(!ctx.isValid())
@@ -371,9 +375,9 @@ void DaoConsultationCreate::onCreateConsensus()
 
     // Check balance
     CAmount curBalance = pwalletMain->GetBalance();
-    if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) {
+    if (curBalance <= nMinFee) {
         QMessageBox msgBox(this);
-        string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE));
+        string fee = FormatMoney(nMinFee);
         std::string str = tr("You require at least %1 NAV mature and available to create a proposal for a consensus change.\n").arg(QString::fromStdString(fee)).toStdString();
         msgBox.setText(tr(str.c_str()));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
@@ -392,7 +396,7 @@ void DaoConsultationCreate::onCreateConsensus()
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
+    CAmount nValue = nMinFee;
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
     vecSend.push_back(recipient);
 

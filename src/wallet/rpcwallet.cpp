@@ -685,14 +685,16 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE);
+
     if (fHelp || params.size() < 2 || !params[0].isNum() || !params[1].isNum())
         throw runtime_error(
             "proposeconsensuschange parameter value ( fee dump_raw )\n"
-            "\nCreates a proposal to the DAO for changing a consensus paremeter. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) + "NAV is required.\n"
+            "\nCreates a proposal to the DAO for changing a consensus paremeter. Min fee of " + FormatMoney(nMinFee) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. parameter        (numeric, required) The parameter id as specified in the output of the getconsensusparameters rpc command.\n"
-            "2. value            (numeric, optional) The minimum amount for the range. Only used if range equals true.\n"
+            "2. value            (numeric, optional) The proposed value.\n"
             "3. fee              (numeric, optional) Contribution to the fund used as fee.\n"
             "4. dump_raw         (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
             "\nResult:\n"
@@ -708,8 +710,8 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
 
 
     // Amount
-    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
-    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE))
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : nMinFee;
+    if (nAmount <= 0 || nAmount < nMinFee)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == 4 ? params[3].getBool() : false;
