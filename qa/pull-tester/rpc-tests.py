@@ -187,6 +187,7 @@ testScripts = [
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py',
+    'max-reorg-depth.py',
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
