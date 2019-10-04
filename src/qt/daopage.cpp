@@ -1989,18 +1989,25 @@ void DaoPage::onViewChart() {
             title = QString::fromStdString(consultation.strDZeel);
 
             if (consultation.CanBeSupported())
-                title += " - Showing Support";
-
-            if (consultation.mapVotes.count((uint64_t)-5))
+                title += " - Showing support";
+            else if (consultation.mapVotes.count((uint64_t)-5))
                 mapVotes.insert(make_pair(QString(tr("Abstention") + " (" + QString::number(consultation.mapVotes.at((uint64_t)-5)) + ")"), consultation.mapVotes.at((uint64_t)-5)));
 
             if (consultation.IsRange())
             {
-                for (auto&it: consultation.mapVotes)
+                if (consultation.CanBeSupported())
                 {
-                    if (it.first == -1)
-                        continue;
-                    mapVotes.insert(make_pair(QString::number(it.first) + " (" + QString::number(it.second) + ")", it.second));
+                    mapVotes.insert(make_pair(tr("Showed support") + " (" + QString::number(consultation.nSupport) + ")", consultation.nSupport));
+                    mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)-consultation.nSupport) + ")", GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)-consultation.nSupport));
+                }
+                else
+                {
+                    for (auto&it: consultation.mapVotes)
+                    {
+                        if (it.first == -1)
+                            continue;
+                            mapVotes.insert(make_pair(QString::number(it.first) + " (" + QString::number(it.second) + ")", it.second));
+                    }
                 }
             }
             else
