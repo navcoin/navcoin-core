@@ -749,7 +749,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     }
                 }
 
-                if (answer->IsConsensusAccepted())
+                if (answer->IsConsensusAccepted() && answer->fState != DAOFlags::PASSED)
                 {
                     CConsultation parent;
                     if (view.GetConsultation(answer->parent, parent))
