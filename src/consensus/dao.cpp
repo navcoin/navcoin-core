@@ -1045,7 +1045,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
                     continue;
 
                 if (consultation.IsAboutConsensusParameter() && consultation.fState != DAOFlags::EXPIRED && consultation.nMin == nMin)
-                    return error("%s: Invalid consultation %s. There already exists an active consultation about that consensus parameter.", __func__, tx.GetHash().ToString());;
+                    return error("%s: Invalid consultation %s. There already exists an active consultation %s about that consensus parameter.", __func__, tx.GetHash().ToString(), consultation.hash.ToString());;
             }
         }
     }
