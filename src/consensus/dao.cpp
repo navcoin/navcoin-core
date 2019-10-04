@@ -752,7 +752,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if (answer->IsConsensusAccepted() && answer->fState != DAOFlags::PASSED)
                 {
                     CConsultation parent;
-                    if (view.GetConsultation(answer->parent, parent))
+                    if (view.GetConsultation(answer->parent, parent) && parent.IsAboutConsensusParameter())
                     {
                         fParentExpired = parent.IsExpired(pindexNew);
                         fParentAccepted = parent.fState == DAOFlags::ACCEPTED;
