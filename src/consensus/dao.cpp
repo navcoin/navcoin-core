@@ -708,6 +708,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             bool fUpdate = false;
             bool fParentExpired = false;
+            bool fParentAccepted = false;
 
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
 
@@ -754,6 +755,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     if (view.GetConsultation(answer->parent, parent))
                     {
                         fParentExpired = parent.IsExpired(pindexNew);
+                        fParentAccepted = parent.fState == DAOFlags::ACCEPTED;
                         pindexNew->mapConsensusParameters[(Consensus::ConsensusParamsPos)parent.nMin] = stoll(answer->sAnswer);
                         answer->fState = DAOFlags::PASSED;
                         answer->blockhash = pindexNew->GetBlockHash();
@@ -767,7 +769,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if (!vSeen.count(answer->hash) && answer->fState == DAOFlags::NIL)
                     answer->nSupport = 0;
 
-                if (answer->fState != DAOFlags::PASSED && !fParentExpired)
+                if (answer->fState != DAOFlags::PASSED && fParentAccepted)
                     answer->nVotes = 0;
             }
         }
@@ -887,7 +889,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if (!vSeen.count(consultation->hash) && consultation->fState == DAOFlags::NIL)
                     consultation->nSupport = 0;
 
-                if (consultation->fState != DAOFlags::EXPIRED)
+                if (consultation->fState == DAOFlags::ACCEPTED)
                     consultation->mapVotes.clear();
             }
         }
