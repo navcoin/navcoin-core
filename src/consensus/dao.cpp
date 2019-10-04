@@ -764,12 +764,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0 && !vSeen.count(answer->hash))
             {
-                if (!vSeen.count(answer->hash) && answer->fState == DAOFlags::NIL)
+                if (answer->fState == DAOFlags::NIL)
                     answer->nSupport = 0;
-
-                if (answer->fState != DAOFlags::PASSED && fParentAccepted)
+                else if (answer->fState != DAOFlags::PASSED && fParentAccepted)
                     answer->nVotes = 0;
             }
         }
@@ -825,7 +824,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             auto oldState = consultation->fState;
             auto oldCycle = consultation->nVotingCycle;
 
-            if((consultation->fState == DAOFlags::NIL || consultation->fState == DAOFlags::REFLECTION || fUndo) && nVotingCycles != consultation->nVotingCycle)
+            if(((consultation->fState != DAOFlags::EXPIRED && consultation->fState != DAOFlags::PASSED) || fUndo) && nVotingCycles != consultation->nVotingCycle)
             {
                 consultation->nVotingCycle = nVotingCycles;
                 fUpdate = true;
@@ -878,18 +877,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if (fUndo && fUpdate && consultation->fState == oldState
-                && consultation->fState != DAOFlags::NIL
-                && consultation->fState != DAOFlags::REFLECTION
-                && consultation->nVotingCycle != oldCycle)
-                consultation->nVotingCycle = oldCycle;
-
-            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0 && !vSeen.count(consultation->hash))
             {
-                if (!vSeen.count(consultation->hash) && consultation->fState == DAOFlags::NIL)
+                if (consultation->fState == DAOFlags::NIL)
                     consultation->nSupport = 0;
-
-                if (consultation->fState == DAOFlags::ACCEPTED)
+                else if (consultation->fState == DAOFlags::ACCEPTED)
                     consultation->mapVotes.clear();
             }
         }
