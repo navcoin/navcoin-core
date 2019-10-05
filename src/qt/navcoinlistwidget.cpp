@@ -45,6 +45,8 @@ NavCoinListWidget::NavCoinListWidget(QWidget *parent, QString title, ValidatorFu
     connect(listWidget,
             SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
             this, SLOT(onSelect(QListWidgetItem *)));
+
+    listWidget->setSortingEnabled(true);
 }
 
 void NavCoinListWidget::onRemove()
