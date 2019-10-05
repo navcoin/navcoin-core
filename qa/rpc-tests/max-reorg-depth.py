@@ -25,6 +25,7 @@ class MaxReorgDepth(NavCoinTestFramework):
 
     def run_test(self):
 
+        self.nodes[0].staking(False)
         self.nodes[1].staking(False)
         slow_gen(self.nodes[0], 1000)
         self.sync_all()
@@ -41,12 +42,23 @@ class MaxReorgDepth(NavCoinTestFramework):
         blocks0 = self.nodes[0].getblockcount()
         blocks1 = self.nodes[1].getblockcount()
 
-        slow_gen(self.nodes[0], 501)
+        counter = 0
+        while counter < 10:
+          slow_gen(self.nodes[0], 50)
+          time.sleep(1)
+          print(self.nodes[0].getblockcount(), self.nodes[0].getbestblockhash())
+          counter = counter + 1
+
+        slow_gen(self.nodes[0], 1)
+        
+
+        time.sleep(10)
+
         slow_gen(self.nodes[1], 501)
 
         print(self.nodes[0].getblockcount(), blocks0, self.nodes[0].getbestblockhash())
         print(self.nodes[1].getblockcount(), blocks1, self.nodes[1].getbestblockhash())
-
+        
         assert(self.nodes[0].getblockcount() == blocks0 + 501)
         assert(self.nodes[1].getblockcount() == blocks1 + 501)
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
