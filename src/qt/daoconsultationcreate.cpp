@@ -272,12 +272,14 @@ void DaoConsultationCreate::onCreate()
 
     if (created) {
         // Display success UI and close current dialog
-        QMessageBox msgBox(this);
-        msgBox.setText(tr("The consultation has been correctly created."));
-        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setWindowTitle("Success!");
-        msgBox.exec();
+        if (QMessageBox::Yes == QMessageBox(QMessageBox::Information,
+                                            tr("Success!"),
+                                            tr("Your consultation has been correctly created.")+"<br><br>"+tr("Now you need to find support from stakers so the voting can start!")+"<br><br>"+tr("Do you want to support your own consultation?"),
+                                            QMessageBox::Yes|QMessageBox::No).exec())
+        {
+            bool duplicate;
+            Support(wtx.hash, duplicate);
+        }
         QDialog::accept();
         return;
     }
@@ -413,12 +415,14 @@ void DaoConsultationCreate::onCreateConsensus()
 
     if (created) {
         // Display success UI and close current dialog
-        QMessageBox msgBox(this);
-        msgBox.setText(tr("The proposal for a consensus change has been correctly created."));
-        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setWindowTitle("Success!");
-        msgBox.exec();
+        if (QMessageBox::Yes == QMessageBox(QMessageBox::Information,
+                                            tr("Success!"),
+                                            tr("Your proposal for a consensus change has been correctly created.")+"<br><br>"+tr("Now you need to find support from stakers so the voting can start!")+"<br><br>"+tr("Do you want to support your own consultation?"),
+                                            QMessageBox::Yes|QMessageBox::No).exec())
+        {
+            bool duplicate;
+            Support(wtx.hash, duplicate);
+        }
         QDialog::accept();
         return;
     }
