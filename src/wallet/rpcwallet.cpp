@@ -857,6 +857,98 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     }
 }
 
+UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() < 2)
+        throw runtime_error(
+            "createconsultationwithanswers \"question\" \"[answers]\" ( maxanswers admitsanswerproposals fee dump_raw )\n"
+            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) + "NAV is required.\n"
+            + HelpRequiringPassphrase() +
+            "\nArguments:\n"
+            "1. \"question\"            (string, required) The question of the new consultation.\n"
+            "2.  \"[answers]\"          (array of strings, required) An array of strings with the proposed answers.\n"
+            "3. maxanswers            (numeric, optional) The maximum amount of answers a block can vote for at the same time.\n"
+            "4. admitsanswerproposals (bool, optional) Stakers are allowed to propose new answers.\n"
+            "5. fee                   (numeric, optional) Contribution to the fund used as fee.\n"
+            "6. dump_raw              (bool, optional) Dump the raw transaction instead of sending. Default: false\n"
+            "\nResult:\n"
+            "\"{ hash: consultation_id,\"            (string) The consultation id.\n"
+            "\"  strDZeel: string }\"            (string) The attached strdzeel property.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createconsultationwithanswers", "\"Who should be the CEO of NavCoin? /s\" \"[\\\"Craig Wright\\\",\\\"Loomdart\\\"]\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
+    bool fRange = false;
+    UniValue answers = params[1].get_array();
+    CAmount nMinFee = answers.size() * GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
+    CAmount nAmount = params.size() >= 5 ? AmountFromValue(params[4]) : nMinFee;
+
+    // Amount
+    if (nAmount <= 0 || nAmount < nMinFee)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() >= 6 ? params[5].getBool() : false;
+
+    CWalletTx wtx;
+    bool fSubtractFeeFromAmount = false;
+
+    int64_t nMin = 0;
+    int64_t nMax = params.size() >= 3 ? params[2].get_int64() : 1;
+
+    if (nMax > 16)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
+
+    bool fAdmitsAnswers = params.size() >= 4 ? params[3].get_bool() : true;
+    string sQuestion = params[0].get_str();
+
+    UniValue strDZeel(UniValue::VOBJ);
+    uint64_t nVersion = CConsultation::BASE_VERSION;
+
+    if (fAdmitsAnswers)
+        nVersion |= CConsultation::MORE_ANSWERS_VERSION;
+    else if (answers.size() == 1)
+        throw JSONRPCError(RPC_TYPE_ERROR, "You must add at least 2 answers if no other answers can be proposed");
+
+    strDZeel.pushKV("q",sQuestion);
+    strDZeel.pushKV("m",nMin);
+    strDZeel.pushKV("a",answers);
+    strDZeel.pushKV("n",nMax);
+    strDZeel.pushKV("v",(uint64_t)nVersion);
+
+    wtx.strDZeel = strDZeel.write();
+    wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
+
+    if(wtx.strDZeel.length() > 1024)
+        throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
+
+    EnsureWalletIsUnlocked();
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+
+    if (!fDump)
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("hash",wtx.GetHash().GetHex());
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+    else
+    {
+        UniValue ret(UniValue::VOBJ);
+
+        ret.pushKV("raw",EncodeHexTx(wtx));
+        ret.pushKV("strDZeel",wtx.strDZeel);
+        return ret;
+    }
+}
+
 std::string random_string( size_t length )
 {
     auto randchar = []() -> char
@@ -4347,6 +4439,9 @@ static const CRPCCommand commands[] =
     { "communityfund",      "createpaymentrequest",     &createpaymentrequest,     false },
     { "communityfund",      "createproposal",           &createproposal,           false },
     { "dao",                "createconsultation",       &createconsultation,       false },
+    { "dao",                "createconsultationwithanswers",
+                                                        &createconsultationwithanswers,
+                                                                                   false },
     { "dao",                "proposeanswer",            &proposeanswer,            false },
     { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
     { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
