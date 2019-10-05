@@ -35,6 +35,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QtCharts/QChartView>
@@ -192,6 +193,7 @@ private:
     QPushButton* createBtn;
     QPushButton* backToFilterBtn;
     QLabel* warningLbl;
+    QProgressBar* cycleProgressBar;
     QMenu* contextMenu;
     QTableWidgetItem *contextItem = nullptr;
     QString contextHash;

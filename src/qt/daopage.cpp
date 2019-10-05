@@ -50,6 +50,12 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     childFilterLbl = new QLabel();
     backToFilterBtn = new QPushButton(tr("Back"));
     warningLbl = new QLabel();
+    cycleProgressBar = new QProgressBar();
+
+    cycleProgressBar->setMinimum(0);
+    cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+    cycleProgressBar->setTextVisible(true);
+    cycleProgressBar->setFormat("%p%");
 
     warningLbl->setObjectName("warning");
 
@@ -78,6 +84,9 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     topBoxLayout->addWidget(consultationsBtn);
     topBoxLayout->addWidget(deploymentsBtn);
     topBoxLayout->addWidget(consensusBtn);
+    topBoxLayout->addStretch();
+    topBoxLayout->addWidget(new QLabel(tr("Cycle Progress")));
+    topBoxLayout->addWidget(cycleProgressBar);
     topBoxLayout->addStretch();
 
     bottomBoxLayout->addSpacing(30);
@@ -210,6 +219,8 @@ void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
         }
     }
     }
+
+    cycleProgressBar->setValue(chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
 
     if (!force && unit == nCurrentUnit && nFilter == nCurrentFilter && nFilter2 == nCurrentFilter2 &&
             ((nCurrentView == VIEW_PROPOSALS && proposalMap.size() == proposalModel.size()) ||
