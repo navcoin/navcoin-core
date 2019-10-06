@@ -111,9 +111,12 @@ CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) 
     if (it != cacheProposals.end())
         return it;
 
+    if (it->second.IsNull())
+        return cacheProposals.end();
+
     CProposal tmp;
 
-    if (!base->GetProposal(pid, tmp))
+    if (!base->GetProposal(pid, tmp) || tmp.IsNull())
         return cacheProposals.end();
 
     CProposalMap::iterator ret = cacheProposals.insert(std::make_pair(pid, CProposal())).first;
@@ -128,9 +131,12 @@ CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const ui
     if (it != cachePaymentRequests.end())
         return it;
 
+    if (it->second.IsNull())
+        return cachePaymentRequests.end();
+
     CPaymentRequest tmp;
 
-    if (!base->GetPaymentRequest(prid, tmp))
+    if (!base->GetPaymentRequest(prid, tmp) || tmp.IsNull())
         return cachePaymentRequests.end();
 
     CPaymentRequestMap::iterator ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest())).first;
