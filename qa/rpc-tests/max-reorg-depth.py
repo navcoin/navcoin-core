@@ -42,45 +42,40 @@ class MaxReorgDepth(NavCoinTestFramework):
         blocks0 = self.nodes[0].getblockcount()
         blocks1 = self.nodes[1].getblockcount()
 
-        cur_time = int(time.time())
+        cur_time = int(self.nodes[0].getblock(self.nodes[0].getbestblockhash())["time"])
 
         filter_size = 500
 
-        for i in range(filter_size):
-          self.nodes[0].setmocktime(cur_time + 30)
-          self.nodes[0].generate(1)
-          self.nodes[1].setmocktime(cur_time + 30)
-          self.nodes[1].generate(1)
+        for i in range(filter_size+1):
           cur_time += 30
+          self.nodes[0].setmocktime(cur_time)
+          self.nodes[1].setmocktime(cur_time)
+          self.nodes[0].generate(1)
+          self.nodes[1].generate(1)
 
         print(self.nodes[0].getblockcount(), blocks0, self.nodes[0].getbestblockhash())
         print(self.nodes[1].getblockcount(), blocks1, self.nodes[1].getbestblockhash())
         
-        assert(self.nodes[0].getblockcount() == blocks0 + filter_size)
-        assert(self.nodes[1].getblockcount() == blocks1 + filter_size)
+        assert(self.nodes[0].getblockcount() == blocks0 + filter_size + 1)
+        assert(self.nodes[1].getblockcount() == blocks1 + filter_size + 1)
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
 
-        self.nodes[1].setmocktime(cur_time)
-        slow_gen(self.nodes[1], 1)
-
-        assert(self.nodes[1].getblockcount() == blocks1 + filter_size + 1)
-
-        longestChainHash = self.nodes[1].getbestblockhash()
+        node1ChainHash = self.nodes[1].getbestblockhash()
 
         # reconnect the node trying to force node 0 reorg to node 1 and hit the filter
         connect_nodes_bi(self.nodes,0,1)
-        sync_blocks(self.nodes)
 
-        print("After Reconnect")
+        try:
+            sync_blocks(self.nodes)
+            raise ValueError("Error should be thrown for sync_blocks because both nodes can't sync with each other")
+        except Exception as e:
+            pass
 
         print(self.nodes[0].getblockcount(), blocks0, self.nodes[0].getbestblockhash())
         print(self.nodes[1].getblockcount(), blocks1, self.nodes[1].getbestblockhash())
 
-        assert(self.nodes[0].getblockcount() == blocks0 + filter_size)
-        assert(self.nodes[1].getblockcount() == blocks1 + filter_size + 1)
-
-        assert(self.nodes[0].getbestblockhash() != longestChainHash)
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
+        assert(self.nodes[0].getblockhash(1001) != self.nodes[1].getblockhash(1001))
 
         print("Reorg Prevented")
        

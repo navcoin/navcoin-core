@@ -137,7 +137,7 @@ arith_uint256 bnProofOfStakeLimitV2(~arith_uint256() >> 20);
 CScript COINBASE_FLAGS;
 
 const string strMessageMagic = "Navcoin Signed Message:\n";
-
+static const int nCheckpointSpan = 500;
 
 enum FlushStateMode {
     FLUSH_STATE_NONE,
@@ -4877,11 +4877,11 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
         if (chainActive.Tip() && block.hashPrevBlock != chainActive.Tip()->GetBlockHash())
         {
             // Extra checks to prevent "fill up memory by spamming with bogus blocks"
-            const CBlockIndex* pcheckpoint = Checkpoints::AutoSelectSyncCheckpoint();
+            const CBlockIndex* pcheckpoint = chainActive[max(chainActive.Height() - nCheckpointSpan, 0)];
             int64_t deltaTime = block.GetBlockTime() - pcheckpoint->nTime;
             if (deltaTime < 0)
             {
-                return state.DoS(1, false, REJECT_INVALID, "older-than-checkpoint", false,"AcceptBlockHeader(): Block with a timestamp before last checkpoint");
+                return state.DoS(1, false, REJECT_INVALID, "older-than-checkpoint", false, strprintf("%s: Block with a timestamp before last checkpoint", __func__));
             }
         }
 

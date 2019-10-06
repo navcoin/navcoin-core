@@ -25,9 +25,6 @@ int GetTotalBlocksEstimate(const CCheckpointData& data);
 //! Returns last CBlockIndex* in mapBlockIndex that is a checkpoint
 CBlockIndex* GetLastCheckpoint(const CCheckpointData& data);
 
-//! Returns last CBlockIndex* from the auto selected checkpoint
-const CBlockIndex* AutoSelectSyncCheckpoint();
-
 double GuessVerificationProgress(const CCheckpointData& data, CBlockIndex* pindex, bool fSigchecks = true);
 
 } //namespace Checkpoints
