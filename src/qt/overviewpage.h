@@ -62,7 +62,7 @@ public Q_SLOTS:
     void updateStakeReportNow();
     void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
     void setVotingStatus(QString text);
-    void on_pushButton_clicked();
+    void on_showStakingSetup_clicked();
 
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);

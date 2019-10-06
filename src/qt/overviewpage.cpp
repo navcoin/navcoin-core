@@ -419,7 +419,7 @@ void OverviewPage::updateStakeReportNow()
     updateStakeReport(true);
 }
 
-void OverviewPage::on_pushButton_clicked()
+void OverviewPage::on_showStakingSetup_clicked()
 {
     SplitRewardsDialog dlg(this);
     dlg.setModel(walletModel);

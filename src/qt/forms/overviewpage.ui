@@ -1053,7 +1053,7 @@
         </widget>
        </item>
        <item alignment="Qt::AlignLeft">
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="showStakingSetup">
          <property name="text">
           <string>Set up Staking Rewards</string>
          </property>
