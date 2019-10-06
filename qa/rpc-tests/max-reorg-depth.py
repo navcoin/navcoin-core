@@ -42,14 +42,9 @@ class MaxReorgDepth(NavCoinTestFramework):
         blocks0 = self.nodes[0].getblockcount()
         blocks1 = self.nodes[1].getblockcount()
 
-        cur_time = int(self.nodes[0].getblock(self.nodes[0].getbestblockhash())["time"])
-
         filter_size = 500
 
         for i in range(filter_size+1):
-          cur_time += 30
-          self.nodes[0].setmocktime(cur_time)
-          self.nodes[1].setmocktime(cur_time)
           self.nodes[0].generate(1)
           self.nodes[1].generate(1)
 
