@@ -44,7 +44,9 @@ class MaxReorgDepth(NavCoinTestFramework):
 
         cur_time = int(time.time())
 
-        for i in range(500):
+        filter_size = 500
+
+        for i in range(filter_size):
           self.nodes[0].setmocktime(cur_time + 30)
           self.nodes[0].generate(1)
           self.nodes[1].setmocktime(cur_time + 30)
@@ -54,14 +56,14 @@ class MaxReorgDepth(NavCoinTestFramework):
         print(self.nodes[0].getblockcount(), blocks0, self.nodes[0].getbestblockhash())
         print(self.nodes[1].getblockcount(), blocks1, self.nodes[1].getbestblockhash())
         
-        assert(self.nodes[0].getblockcount() == blocks0 + 500)
-        assert(self.nodes[1].getblockcount() == blocks1 + 500)
+        assert(self.nodes[0].getblockcount() == blocks0 + filter_size)
+        assert(self.nodes[1].getblockcount() == blocks1 + filter_size)
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
 
         self.nodes[1].setmocktime(cur_time)
         slow_gen(self.nodes[1], 1)
 
-        assert(self.nodes[1].getblockcount() == blocks1 + 501)
+        assert(self.nodes[1].getblockcount() == blocks1 + filter_size + 1)
 
         longestChainHash = self.nodes[1].getbestblockhash()
 
@@ -74,8 +76,8 @@ class MaxReorgDepth(NavCoinTestFramework):
         print(self.nodes[0].getblockcount(), blocks0, self.nodes[0].getbestblockhash())
         print(self.nodes[1].getblockcount(), blocks1, self.nodes[1].getbestblockhash())
 
-        assert(self.nodes[0].getblockcount() == blocks0 + 500)
-        assert(self.nodes[1].getblockcount() == blocks1 + 501)
+        assert(self.nodes[0].getblockcount() == blocks0 + filter_size)
+        assert(self.nodes[1].getblockcount() == blocks1 + filter_size + 1)
 
         assert(self.nodes[0].getbestblockhash() != longestChainHash)
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
