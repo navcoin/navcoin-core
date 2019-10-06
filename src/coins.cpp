@@ -133,9 +133,12 @@ CProposalMap::const_iterator CStateViewCache::FetchProposal(const uint256 &pid) 
     if (it != cacheProposals.end())
         return it;
 
+    if (it->second.IsNull())
+        return cacheProposals.end();
+
     CProposal tmp;
 
-    if (!base->GetProposal(pid, tmp))
+    if (!base->GetProposal(pid, tmp) || tmp.IsNull())
         return cacheProposals.end();
 
     CProposalMap::iterator ret = cacheProposals.insert(std::make_pair(pid, CProposal())).first;
@@ -150,9 +153,12 @@ CPaymentRequestMap::const_iterator CStateViewCache::FetchPaymentRequest(const ui
     if (it != cachePaymentRequests.end())
         return it;
 
+    if (it->second.IsNull())
+        return cacheProposals.end();
+
     CPaymentRequest tmp;
 
-    if (!base->GetPaymentRequest(prid, tmp))
+    if (!base->GetPaymentRequest(prid, tmp) || tmp.IsNull())
         return cachePaymentRequests.end();
 
     CPaymentRequestMap::iterator ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest())).first;
@@ -168,9 +174,12 @@ CVoteMap::const_iterator CStateViewCache::FetchVote(const CVoteMapKey &voter) co
     if (it != cacheVotes.end())
         return it;
 
+    if (it->second.IsNull())
+        return cacheVotes.end();
+
     CVoteList tmp;
 
-    if (!base->GetCachedVoter(voter, tmp))
+    if (!base->GetCachedVoter(voter, tmp) || tmp.IsNull())
         return cacheVotes.end();
 
     CVoteMap::iterator ret = cacheVotes.insert(std::make_pair(voter, CVoteList())).first;
@@ -185,9 +194,12 @@ CConsultationMap::const_iterator CStateViewCache::FetchConsultation(const uint25
     if (it != cacheConsultations.end())
         return it;
 
+    if (it->second.IsNull())
+        return cacheConsultations.end();
+
     CConsultation tmp;
 
-    if (!base->GetConsultation(cid, tmp))
+    if (!base->GetConsultation(cid, tmp) || tmp.IsNull())
         return cacheConsultations.end();
 
     CConsultationMap::iterator ret = cacheConsultations.insert(std::make_pair(cid, CConsultation())).first;
@@ -202,9 +214,12 @@ CConsultationAnswerMap::const_iterator CStateViewCache::FetchConsultationAnswer(
     if (it != cacheAnswers.end())
         return it;
 
+    if (it->second.IsNull())
+        return cacheAnswers.end();
+
     CConsultationAnswer tmp;
 
-    if (!base->GetConsultationAnswer(cid, tmp))
+    if (!base->GetConsultationAnswer(cid, tmp) || tmp.IsNull())
         return cacheAnswers.end();
 
     CConsultationAnswerMap::iterator ret = cacheAnswers.insert(std::make_pair(cid, CConsultationAnswer())).first;
