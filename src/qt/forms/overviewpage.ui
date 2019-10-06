@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>822</width>
-    <height>690</height>
+    <height>755</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1049,6 +1049,13 @@
          </property>
          <property name="wordWrap">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Set up Staking Rewards</string>
          </property>
         </widget>
        </item>

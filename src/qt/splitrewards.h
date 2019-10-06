@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 
 static QMap<QString, QString> teamAddresses = {{"NN5QSSMAdtRU35BffLZUw9vChnhHKKMeuL", "Alex aguycalled - Core Dev"},
+                                               {"NPAxaKnCb7ukrUvFmntSyZWcZgbrGHUeC4", "Craig proletesseract - Core Dev"},
                                                {"NRXfZ1egFxMSUsc4Ufpi4Lm7DdXStYmeBG", "mxaddict - Core Dev"},
                                                {"3HnzbJ4TR9", "Community Fund"},
                                                {"XVPMwBdNU9ou3a3TnwaVgAgEecbdsEVZHbVmeY4TMAHbY6BdtY8xW6m1Q1rkb", "Core Dev Bounty"},
