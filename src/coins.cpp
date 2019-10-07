@@ -154,7 +154,7 @@ CPaymentRequestMap::const_iterator CStateViewCache::FetchPaymentRequest(const ui
         return it;
 
     if (it->second.IsNull())
-        return cacheProposals.end();
+        return cachePaymentRequests.end();
 
     CPaymentRequest tmp;
 
