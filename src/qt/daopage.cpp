@@ -55,7 +55,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     cycleProgressBar->setMinimum(0);
     cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
     cycleProgressBar->setTextVisible(true);
-    cycleProgressBar->setFormat("%p%");
+    cycleProgressBar->setFormat("%v/%m");
 
     warningLbl->setObjectName("warning");
 
@@ -220,7 +220,8 @@ void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
     }
     }
 
-    cycleProgressBar->setValue(chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+    cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+    cycleProgressBar->setValue((chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+1);
 
     if (!force && unit == nCurrentUnit && nFilter == nCurrentFilter && nFilter2 == nCurrentFilter2 &&
             ((nCurrentView == VIEW_PROPOSALS && proposalMap.size() == proposalModel.size()) ||
