@@ -111,9 +111,6 @@ CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) 
     if (it != cacheProposals.end())
         return it;
 
-    if (it->second.IsNull())
-        return cacheProposals.end();
-
     CProposal tmp;
 
     if (!base->GetProposal(pid, tmp) || tmp.IsNull())
@@ -130,9 +127,6 @@ CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const ui
 
     if (it != cachePaymentRequests.end())
         return it;
-
-    if (it->second.IsNull())
-        return cachePaymentRequests.end();
 
     CPaymentRequest tmp;
 
