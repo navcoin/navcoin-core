@@ -274,11 +274,23 @@ void DaoConsultationCreate::onCreate()
         // Display success UI and close current dialog
         if (QMessageBox::Yes == QMessageBox(QMessageBox::Information,
                                             tr("Success!"),
-                                            tr("Your consultation has been correctly created.")+"<br><br>"+tr("Now you need to find support from stakers so the voting can start!")+"<br><br>"+tr("Do you want to support your own consultation?"),
+                                            tr("Your consultation has been correctly created.")+"<br><br>"+tr("Now you need to find support from stakers so the voting can start!")+"<br><br>"+tr("Do you want to support your own consultation/answers?"),
                                             QMessageBox::Yes|QMessageBox::No).exec())
         {
             bool duplicate;
-            Support(wtx.hash, duplicate);
+            if (fRange)
+                Support(wtx.hash, duplicate);
+            else {
+                CConsultation consultation;
+                std::vector<CConsultationAnswer> vAnswers;
+                if (TxToConsultation(wtx.strDZeel, wtx.GetHash(), uint256(), consultation, vAnswers))
+                {
+                    for (auto &it: vAnswers)
+                    {
+                        Support(it.hash, duplicate);
+                    }
+                }
+            }
         }
         QDialog::accept();
         return;
@@ -421,7 +433,15 @@ void DaoConsultationCreate::onCreateConsensus()
                                             QMessageBox::Yes|QMessageBox::No).exec())
         {
             bool duplicate;
-            Support(wtx.hash, duplicate);
+            CConsultation consultation;
+            std::vector<CConsultationAnswer> vAnswers;
+            if (TxToConsultation(wtx.strDZeel, wtx.GetHash(), uint256(), consultation, vAnswers))
+            {
+                for (auto &it: vAnswers)
+                {
+                    Support(it.hash, duplicate);
+                }
+            }
         }
         QDialog::accept();
         return;
@@ -429,7 +449,7 @@ void DaoConsultationCreate::onCreateConsensus()
     else {
         // Display something went wrong UI
         QMessageBox msgBox(this);
-        msgBox.setText(tr("Proposal creation failed"));
+        msgBox.setText(tr("Proposal creation failed."));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle("Error");
