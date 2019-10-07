@@ -994,6 +994,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         else if (fHasConsultation && consultation.consultation.fState == DAOFlags::ACCEPTED)
             status = tr("voting");
 
+        status.replace(", ","\n");
+
         if (fHasConsultation && consultation.myVotes.size() == 0 && consultation.consultation.fState == DAOFlags::ACCEPTED)
             nBadgeConsensus++;
 
