@@ -708,7 +708,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             bool fUpdate = false;
             bool fParentExpired = false;
-            bool fParentAccepted = false;
+            bool fParentPassed = false;
 
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
 
@@ -755,7 +755,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     if (view.GetConsultation(answer->parent, parent) && parent.IsAboutConsensusParameter())
                     {
                         fParentExpired = parent.IsExpired(pindexNew);
-                        fParentAccepted = parent.fState == DAOFlags::ACCEPTED;
+                        fParentPassed = parent.fState == DAOFlags::PASSED;
                         pindexNew->mapConsensusParameters[(Consensus::ConsensusParamsPos)parent.nMin] = stoll(answer->sAnswer);
                         answer->fState = DAOFlags::PASSED;
                         answer->blockhash = pindexNew->GetBlockHash();
@@ -764,11 +764,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0 && !vSeen.count(answer->hash))
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
-                if (answer->fState == DAOFlags::NIL)
+                if (answer->fState == DAOFlags::NIL && !vSeen.count(answer->hash))
                     answer->nSupport = 0;
-                else if (answer->fState != DAOFlags::PASSED && fParentAccepted)
+                if (answer->fState != DAOFlags::PASSED && !fParentExpired && !fParentPassed)
                     answer->nVotes = 0;
             }
         }
@@ -877,11 +877,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0 && !vSeen.count(consultation->hash))
+            if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0 )
             {
-                if (consultation->fState == DAOFlags::NIL)
+                if (consultation->fState == DAOFlags::NIL && !vSeen.count(consultation->hash))
                     consultation->nSupport = 0;
-                else if (consultation->fState == DAOFlags::ACCEPTED)
+                if (consultation->fState == DAOFlags::ACCEPTED)
                     consultation->mapVotes.clear();
             }
         }

@@ -147,20 +147,33 @@ class ConsultationsTest(NavCoinTestFramework):
         slow_gen(self.nodes[0] , 5)
 
         valid = 0
+        finished = 0
+        round = 0
 
-        for consultation in self.nodes[0].listconsultations():
-            if consultation["status"] == "voting started":
-                count = 0
-                if not consultation["answers"] == [{}]:
-                    for answer in consultation["answers"]:
-                        if not "votes" in answer.keys():
-                            count = count + int(sum(answer.values()))
-                        else:
-                            count = count + answer["votes"]
-                    assert(count == 5)
+        while True:
+            for consultation in self.nodes[0].listconsultations():
+                if consultation["status"] == "voting started":
+                    count = 0
+                    if not consultation["answers"] == [{}]:
+                        for answer in consultation["answers"]:
+                            if not "votes" in answer.keys():
+                                count = count + int(sum(answer.values()))
+                            else:
+                                count = count + answer["votes"]
+                        assert(count == 5)
+                        valid = valid + 1
+                elif consultation["status"] == "finished, waiting for end of voting period":
                     valid = valid + 1
-
-        assert(valid==2)
+                if consultation["status"] == "finished":
+                    finished = finished + 1
+            slow_gen(self.nodes[0], self.nodes[0].getconsensusparameters()[0])
+            if finished == 2:
+                break
+            finished = 0
+            assert(valid==2)
+            valid = 0
+            round = round + 1
+            assert(round <= self.nodes[0].getconsensusparameters()[0])
 
 if __name__ == '__main__':
     ConsultationsTest().main()
