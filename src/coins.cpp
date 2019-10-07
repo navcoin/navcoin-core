@@ -133,9 +133,6 @@ CProposalMap::const_iterator CStateViewCache::FetchProposal(const uint256 &pid) 
     if (it != cacheProposals.end())
         return it;
 
-    if (it->second.IsNull())
-        return cacheProposals.end();
-
     CProposal tmp;
 
     if (!base->GetProposal(pid, tmp) || tmp.IsNull())
@@ -152,9 +149,6 @@ CPaymentRequestMap::const_iterator CStateViewCache::FetchPaymentRequest(const ui
 
     if (it != cachePaymentRequests.end())
         return it;
-
-    if (it->second.IsNull())
-        return cachePaymentRequests.end();
 
     CPaymentRequest tmp;
 
@@ -174,9 +168,6 @@ CVoteMap::const_iterator CStateViewCache::FetchVote(const CVoteMapKey &voter) co
     if (it != cacheVotes.end())
         return it;
 
-    if (it->second.IsNull())
-        return cacheVotes.end();
-
     CVoteList tmp;
 
     if (!base->GetCachedVoter(voter, tmp) || tmp.IsNull())
@@ -193,10 +184,6 @@ CConsultationMap::const_iterator CStateViewCache::FetchConsultation(const uint25
 
     if (it != cacheConsultations.end())
         return it;
-
-    if (it->second.IsNull())
-        return cacheConsultations.end();
-
     CConsultation tmp;
 
     if (!base->GetConsultation(cid, tmp) || tmp.IsNull())
@@ -213,9 +200,6 @@ CConsultationAnswerMap::const_iterator CStateViewCache::FetchConsultationAnswer(
 
     if (it != cacheAnswers.end())
         return it;
-
-    if (it->second.IsNull())
-        return cacheAnswers.end();
 
     CConsultationAnswer tmp;
 
