@@ -657,6 +657,15 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
 UniValue getconsensusparameters(const UniValue& params, bool fHelp)
 {
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+                "getconsensusparameters (extended)\n"
+                "\nArguments:\n"
+                "1. extended       (bool, optional, default false) Show a more detailed output.\n"
+                "\nReturns a list containing the current values of the consensus parameters which can be voted in the DAO.\n"
+
+        );
+
     UniValue ret(UniValue::VARR);
     for (unsigned int i = 0; i < Consensus::MAX_CONSENSUS_PARAMS; i++)
     {
