@@ -709,7 +709,10 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
                     if (v != mapAddedVotes.end() && v->second == 1)
                     {
-                        myVotes << QString::fromStdString(answer.sAnswer);
+                        if (consultation.IsAboutConsensusParameter())
+                            myVotes << QString::fromStdString(FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, answer.sAnswer));
+                        else
+                            myVotes << QString::fromStdString(answer.sAnswer);
                     }
                 }
 

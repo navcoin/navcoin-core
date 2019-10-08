@@ -77,7 +77,12 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
             if (c.parent != consultation.hash)
                 continue;
 
-            QCheckBox* answer = new QCheckBox(QString::fromStdString(c.sAnswer));
+            std::string sAnswer = c.sAnswer;
+
+            if (consultation.IsAboutConsensusParameter())
+                sAnswer = FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, c.sAnswer);
+
+            QCheckBox* answer = new QCheckBox(QString::fromStdString(sAnswer));
 
             answers << answer;
             answer->setProperty("id", QString::fromStdString(c.hash.GetHex()));
