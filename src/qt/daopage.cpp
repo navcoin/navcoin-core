@@ -193,6 +193,8 @@ void DaoPage::refreshForce()
         setWarning("");
         refresh(true);
     }
+    if (fChartOpen)
+        chartDlg->updateView();
 }
 
 void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
@@ -1993,6 +1995,29 @@ void DaoPage::onViewChart() {
     if (contextHash.isEmpty())
         return;
 
+    chartDlg = new DaoChart(this, uint256S(contextHash.toStdString()));
+    connect(chartDlg, SIGNAL(accepted()), this, SLOT(closedChart()));
+    fChartOpen = true;
+    chartDlg->show();
+}
+
+void DaoPage::closedChart() {
+    fChartOpen = false;
+}
+
+DaoChart::DaoChart(QWidget *parent, uint256 hash) :
+    layout(new QVBoxLayout),
+    hash(hash)
+{
+    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setLayout(layout);
+    this->setStyleSheet(Skinize());
+    this->resize(450, 300);
+
+    updateView();
+}
+
+void DaoChart::updateView() {
     CConsultation consultation;
     CProposal proposal;
     CPaymentRequest prequest;
@@ -2001,7 +2026,7 @@ void DaoPage::onViewChart() {
 
     {
         LOCK(cs_main);
-        if (pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation))
+        if (pcoinsTip->GetConsultation(hash, consultation))
         {
             title = QString::fromStdString(consultation.strDZeel);
 
@@ -2029,6 +2054,7 @@ void DaoPage::onViewChart() {
             }
             else
             {
+                CConsultationAnswerMap consultationAnswerMap;
                 if (pcoinsTip->GetAllConsultationAnswers(consultationAnswerMap))
                 {
                     for (auto&it: consultationAnswerMap)
@@ -2044,7 +2070,7 @@ void DaoPage::onViewChart() {
                 }
             }
         }
-        else if (pcoinsTip->GetProposal(uint256S(contextHash.toStdString()), proposal))
+        else if (pcoinsTip->GetProposal(hash, proposal))
         {
             title = QString::fromStdString(proposal.strDZeel);
 
@@ -2052,7 +2078,7 @@ void DaoPage::onViewChart() {
             mapVotes.insert(make_pair(QString("No (" + QString::number(proposal.nVotesNo) + ")"), proposal.nVotesNo));
             mapVotes.insert(make_pair(QString("Abstention (" + QString::number(proposal.nVotesAbs) + ")"), proposal.nVotesAbs));
         }
-        else if (pcoinsTip->GetPaymentRequest(uint256S(contextHash.toStdString()), prequest))
+        else if (pcoinsTip->GetPaymentRequest(hash, prequest))
         {
             title = QString::fromStdString(prequest.strDZeel);
 
@@ -2061,18 +2087,6 @@ void DaoPage::onViewChart() {
             mapVotes.insert(make_pair(QString("Abstention (" + QString::number(prequest.nVotesAbs) + ")"), prequest.nVotesAbs));
         }
     }
-
-    DaoChart dlg(this, title, mapVotes);
-    dlg.exec();
-}
-
-DaoChart::DaoChart(QWidget *parent, QString title, std::map<QString, uint64_t> mapVotes) :
-    layout(new QVBoxLayout)
-{
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->setLayout(layout);
-    this->setStyleSheet(Skinize());
-    this->resize(450, 300);
 
     QtCharts::QPieSeries *series = new QtCharts::QPieSeries();
 
@@ -2094,6 +2108,14 @@ DaoChart::DaoChart(QWidget *parent, QString title, std::map<QString, uint64_t> m
 
     QtCharts::QChartView *chartView = new QtCharts::QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
+
+    QLayoutItem *item;
+    while((item = layout->takeAt(0))) {
+        if (item->widget()) {
+           delete item->widget();
+        }
+        delete item;
+    }
 
     layout->addWidget(chartView);
 }

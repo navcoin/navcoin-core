@@ -150,6 +150,19 @@ struct ConsultationConsensusEntry {
     bool fCanVote;
 };
 
+class DaoChart : public QDialog
+{
+    Q_OBJECT
+
+public:
+    DaoChart(QWidget *parent, uint256 hash);
+    void updateView();
+
+private:
+    QVBoxLayout *layout;
+    uint256 hash;
+};
+
 class DaoPage : public QWidget
 {
     Q_OBJECT
@@ -199,6 +212,9 @@ private:
     QString contextHash;
     QString filterHash;
     int contextId;
+
+    DaoChart* chartDlg;
+    bool fChartOpen;
 
     int64_t nLastUpdate;
 
@@ -343,17 +359,8 @@ private Q_SLOTS:
     void setWarning(QString text);
 
     void showContextMenu(const QPoint& pt);
-};
 
-class DaoChart : public QDialog
-{
-    Q_OBJECT
-
-public:
-    DaoChart(QWidget *parent, QString title, std::map<QString, uint64_t> mapVotes);
-
-private:
-    QVBoxLayout *layout;
+    void closedChart();
 };
 
 #endif // DAOPAGE_H
