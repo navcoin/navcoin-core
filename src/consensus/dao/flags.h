@@ -18,5 +18,16 @@ static const flags PENDING_VOTING_PREQ = 0x5;
 static const flags PASSED = 0x6;
 static const flags REFLECTION = 0x7;
 }
+namespace VoteFlags
+{
+static const int64_t VOTE_YES = 1;
+static const int64_t VOTE_NO = 0;
+static const int64_t VOTE_ABSTAIN = -1;
+static const int64_t VOTE_REMOVE = -2;
+static const int64_t SUPPORT_ABSTAIN = -3;
+static const int64_t SUPPORT_REMOVE = -4;
+static const int64_t CONSULTATION_ABSTAIN = -5;
+static const int64_t CONSULTATION_REMOVE = -6;
+}
 
 #endif // FLAGS_H

@@ -5,6 +5,7 @@
 
 #include "script.h"
 
+#include "consensus/dao/flags.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 
@@ -442,13 +443,13 @@ bool CScript::ExtractVote(uint256 &hash, int64_t &vote) const
 
     vector<unsigned char> vHash(this->begin()+5, this->begin()+37);
     hash = uint256(vHash);
-    vote = (*this)[3] == OP_YES ? 1 : 0;
+    vote = (*this)[3] == OP_YES ? VoteFlags::VOTE_YES : VoteFlags::VOTE_NO;
 
     if ((*this)[3] == OP_ABSTAIN)
-        vote = -1;
+        vote = VoteFlags::VOTE_ABSTAIN;
 
     if ((*this)[3] == OP_REMOVE)
-        vote = -2;
+        vote = VoteFlags::VOTE_REMOVE;
 
     return true;
 }
@@ -464,10 +465,10 @@ bool CScript::ExtractSupportVote(uint256 &hash, int64_t &vote) const
     vote = 0;
 
     if ((*this)[2] == OP_REMOVE)
-        vote = -4;
+        vote = VoteFlags::SUPPORT_REMOVE;
 
     if ((*this)[2] == OP_YES)
-        vote = -3;
+        vote = VoteFlags::SUPPORT_ABSTAIN;
 
     return true;
 }
@@ -483,10 +484,10 @@ bool CScript::ExtractConsultationVote(uint256 &hash, int64_t &vote) const
     vote = 0;
 
     if ((*this)[2] == OP_REMOVE)
-        vote = -6;
+        vote = VoteFlags::CONSULTATION_REMOVE;
 
     else if ((*this)[2] == OP_ABSTAIN)
-        vote = -5;
+        vote = VoteFlags::CONSULTATION_ABSTAIN;
 
     else if (this->size() > 36)
     {

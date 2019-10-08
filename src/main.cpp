@@ -2722,11 +2722,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
         if(vSeen.count(proposal->hash) == 0)
         {
-            if(pindex->vProposalVotes[i].second == 1)
+            if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_YES)
                 proposal->nVotesYes = max(proposal->nVotesYes - 1, 0);
-            else if(pindex->vProposalVotes[i].second == -1)
+            else if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_ABSTAIN)
                 proposal->nVotesAbs = max(proposal->nVotesAbs - 1, 0);
-            else if(pindex->vProposalVotes[i].second == 0)
+            else if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_NO)
                 proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
 
             vSeen[pindex->vProposalVotes[i].first]=true;
@@ -2754,11 +2754,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
         if(vSeen.count(prequest->hash) == 0)
         {
-            if(pindex->vPaymentRequestVotes[i].second == 1)
+            if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_YES)
                 prequest->nVotesYes = max(prequest->nVotesYes - 1, 0);
-            else if(pindex->vPaymentRequestVotes[i].second == -1)
+            else if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_ABSTAIN)
                 prequest->nVotesAbs = max(prequest->nVotesAbs - 1, 0);
-            else if(pindex->vPaymentRequestVotes[i].second == 0)
+            else if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_NO)
                 prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
 
             vSeen[pindex->vPaymentRequestVotes[i].first]=true;
@@ -3438,6 +3438,39 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         continue;
                 }
 
+                if (fStake && fVoteCacheState && fStakerScript)
+                {
+                    CVoteList pVoteList;
+
+                    if (view.GetCachedVoter(stakerScript, pVoteList))
+                    {
+                        std::map<uint256, CVote> list = pVoteList.GetList();
+
+                        for (auto& it: list)
+                        {
+                            uint256 hash = it.first;
+                            int64_t val;
+
+                            it.second.GetValue(val);
+
+                            bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
+                            bool fParent = false;
+                            if (fAnswer)
+                                fParent = view.HaveConsultation(answer.parent) && view.GetConsultation(answer.parent, consultation);
+
+                            if (fAnswer && fParent)
+                            {
+                                if (answer.CanBeVoted(view))
+                                {
+                                    if (mapCacheMaxAnswers.count(answer.parent) == 0)
+                                        mapCacheMaxAnswers[answer.parent] = consultation.nMax;
+                                    mapCountAnswers[answer.parent]++;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 for (size_t j = 0; j < tx.vout.size(); j++)
                 {
                     uint256 hash;
@@ -3466,7 +3499,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == -6 || vote == -5))) && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
+                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
                                     if (fValidConsultationAnswer)
@@ -3560,10 +3593,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == -6 || vote == -5))) && (consultation.IsValidVote(vote) || vote == -6 || vote == -5)) ||
+                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    if (vote != -6)
+                                    if (vote != VoteFlags::CONSULTATION_REMOVE)
                                     {
                                         if (fValidConsultationAnswer)
                                         {
@@ -3584,7 +3617,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         }
                                         else if (fValidConsultationAnswer)
                                         {
-                                            if (vote == -5)
+                                            if (vote == VoteFlags::CONSULTATION_ABSTAIN)
                                             {
                                                 CConsultationModifier mParentConsultation = view.ModifyConsultation(answer.parent);
                                                 if (!mParentConsultation->IsNull())
@@ -3947,7 +3980,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     int64_t val;
                     it.second.GetValue(val);
 
-                    if (val == -6 || val == -4 || val == -2)
+                    if (val == VoteFlags::CONSULTATION_REMOVE || val == VoteFlags::SUPPORT_REMOVE || val == VoteFlags::VOTE_REMOVE)
                         continue;
 
                     if (view.HaveProposal(it.first))
@@ -3958,7 +3991,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     {
                         pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
                     }
-                    else if (val == -3)
+                    else if (val == VoteFlags::SUPPORT_ABSTAIN)
                     {
                         if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
                         {

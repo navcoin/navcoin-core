@@ -261,7 +261,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             int64_t vote = it.second;
 
-            if (!fAbstain && vote == -1)
+            if (!fAbstain && vote == VoteFlags::VOTE_ABSTAIN)
                 continue;
 
             if (votes.count(it.first) != 0)
@@ -271,12 +271,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             {
                 if ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == -1)
                 {
-                    if (mapCacheMaxAnswers.count(consultation.hash) == 0)
-                        mapCacheMaxAnswers[consultation.hash] = consultation.nMax;
-                    mapCountAnswers[consultation.hash]++;
-                    if (mapCountAnswers[consultation.hash] > mapCacheMaxAnswers[consultation.hash])
-                        continue;
-
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
                     SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash,vote);
@@ -320,7 +314,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             int64_t vote = it.second;
 
-            if (!fAbstain && vote == -1)
+            if (!fAbstain && vote == VoteFlags::VOTE_ABSTAIN)
                 continue;
 
             if (votes.count(it.first) != 0)
@@ -1043,6 +1037,35 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   view.GetCachedVoter(stakerScript, pVoteList);
                   std::map<uint256, CVote> list = pVoteList.GetList();
 
+                  std::map<uint256, int> mapCountAnswers;
+                  std::map<uint256, int> mapCacheMaxAnswers;
+
+                  CConsultation consultation;
+                  CConsultationAnswer answer;
+
+                  for (auto& it: list)
+                  {
+                      uint256 hash = it.first;
+                      int64_t val;
+
+                      it.second.GetValue(val);
+
+                      bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
+                      bool fParent = false;
+                      if (fAnswer)
+                          fParent = view.HaveConsultation(answer.parent) && view.GetConsultation(answer.parent, consultation);
+
+                      if (fAnswer && fParent)
+                      {
+                          if (answer.CanBeVoted(view))
+                          {
+                              if (mapCacheMaxAnswers.count(answer.parent) == 0)
+                                  mapCacheMaxAnswers[answer.parent] = consultation.nMax;
+                              mapCountAnswers[answer.parent]++;
+                          }
+                      }
+                  }
+
                   for (auto it = pblock->vtx[0].vout.begin(); it != pblock->vtx[0].vout.end();)
                   {
 
@@ -1112,6 +1135,17 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                           int64_t vote;
                           out.scriptPubKey.ExtractConsultationVote(hash, vote);
 
+                          if (view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer))
+                          {
+                              mapCountAnswers[answer.parent]++;
+                              if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                              {
+                                  it = pblock->vtx[0].vout.erase(it);
+                                  continue;
+                              }
+                          }
+
+
                           if (list.count(hash) > 0)
                           {
                               int64_t nval;
@@ -1129,8 +1163,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   }
 
                   std::map<uint256, bool> votes;
-                  CConsultation consultation;
-                  CConsultationAnswer answer;
 
                   for (auto& it: list)
                   {
@@ -1147,9 +1179,9 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                           pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
 
                           if (fProposal)
-                              SetScriptForProposalVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
+                              SetScriptForProposalVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
                           else if (fPaymentRequest)
-                              SetScriptForPaymentRequestVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, -2);
+                              SetScriptForPaymentRequestVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
 
                           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
                           votes[hash] = true;
@@ -1194,7 +1226,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               CTransaction txNewConst(txCoinStake);
               for(unsigned int i = 0; i < txCoinStake.vin.size(); i++)
               {
-                  bool signSuccess;
+                  bool signSuccess = false;
                   uint256 prevHash = txCoinStake.vin[i].prevout.hash;
                   uint32_t n = txCoinStake.vin[i].prevout.n;
                   assert(pwalletMain->mapWallet.count(prevHash));
