@@ -249,7 +249,12 @@ std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::str
     if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
         ret = FormatMoney(stoll(string)) + " NAV";
     else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
-        ret =  std::to_string(((float)stoll(string) / 100.0)) + "%";
+    {
+        std::ostringstream out;
+        out.precision(2);
+        out << std::fixed << (float)stoll(string) / 100.0;
+        ret =  out.str() + "%";
+    }
 
     return ret;
 }
@@ -264,7 +269,9 @@ std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, st
     if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
         ret = std::to_string((uint64_t)(stof(string) * COIN));
     else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
+    {
         ret = std::to_string((uint64_t)(stof(string) * 100));
+    }
 
     return ret;
 }
