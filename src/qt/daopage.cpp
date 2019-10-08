@@ -63,6 +63,8 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     backToFilterBtn->setVisible(false);
     warningLbl->setVisible(false);
 
+    fChartOpen = false;
+
     connect(proposalsBtn, SIGNAL(clicked()), this, SLOT(viewProposals()));
     connect(paymentRequestsBtn, SIGNAL(clicked()), this, SLOT(viewPaymentRequests()));
     connect(consultationsBtn, SIGNAL(clicked()), this, SLOT(viewConsultations()));
@@ -2033,23 +2035,41 @@ void DaoChart::updateView() {
     std::map<QString, uint64_t> mapVotes;
     QString title;
 
+    auto nMaxCycles = 0;
+    auto nVotingLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH);
+    auto nCurrentCycle = 0;
+
     {
         LOCK(cs_main);
         if (pcoinsTip->GetConsultation(hash, consultation))
         {
             title = QString::fromStdString(consultation.strDZeel);
+            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES);
 
             if (consultation.CanBeSupported())
+            {
+                nCurrentCycle = consultation.nVotingCycle;
+                nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES);
                 title += " - Showing support";
-            else if (consultation.mapVotes.count((uint64_t)-5))
-                mapVotes.insert(make_pair(QString(tr("Abstention") + " (" + QString::number(consultation.mapVotes.at((uint64_t)-5)) + ")"), consultation.mapVotes.at((uint64_t)-5)));
+            }
+            else
+            {
+                if (mapBlockIndex.count(consultation.blockhash) > 0) {
+                    auto nCreated = (unsigned int)(mapBlockIndex[consultation.blockhash]->nHeight / nVotingLength);
+                    auto nCurrent= (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
+                    nCurrentCycle = nCurrent - nCreated;
+                }
+
+                if (consultation.mapVotes.count((uint64_t)-5))
+                    mapVotes.insert(make_pair(QString(tr("Abstention") + " (" + QString::number(consultation.mapVotes.at((uint64_t)-5)) + ")"), consultation.mapVotes.at((uint64_t)-5)));
+            }
 
             if (consultation.IsRange())
             {
                 if (consultation.CanBeSupported())
                 {
                     mapVotes.insert(make_pair(tr("Showed support") + " (" + QString::number(consultation.nSupport) + ")", consultation.nSupport));
-                    mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)-consultation.nSupport) + ")", GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)-consultation.nSupport));
+                    mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(nVotingLength-consultation.nSupport) + ")", nVotingLength-consultation.nSupport));
                 }
                 else
                 {
@@ -2073,7 +2093,7 @@ void DaoChart::updateView() {
                         if (answer.parent == consultation.hash)
                         {
                             uint64_t nAmount = consultation.CanBeSupported() ? answer.nSupport : answer.nVotes;
-                            mapVotes.insert(make_pair(QString::fromStdString(answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+ "%)",nAmount));
+                            mapVotes.insert(make_pair(QString::fromStdString(answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/nVotingLength)+ "%)",nAmount));
                         }
                     }
                 }
@@ -2081,6 +2101,8 @@ void DaoChart::updateView() {
         }
         else if (pcoinsTip->GetProposal(hash, proposal))
         {
+            nCurrentCycle = proposal.nVotingCycle;
+            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
             title = QString::fromStdString(proposal.strDZeel);
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(proposal.nVotesYes) + ")"), proposal.nVotesYes));
@@ -2089,6 +2111,8 @@ void DaoChart::updateView() {
         }
         else if (pcoinsTip->GetPaymentRequest(hash, prequest))
         {
+            nCurrentCycle = prequest.nVotingCycle;
+            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
             title = QString::fromStdString(prequest.strDZeel);
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(prequest.nVotesYes) + ")"), prequest.nVotesYes));
@@ -2113,6 +2137,9 @@ void DaoChart::updateView() {
         slice->setLabelVisible();
         i++;
     }
+
+    title += " / ";
+    title += tr("Cycle %1 of %2").arg(nCurrentCycle).arg(nMaxCycles);
 
     chart->addSeries(series);
     chart->setTitle(title);
