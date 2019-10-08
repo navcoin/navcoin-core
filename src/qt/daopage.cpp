@@ -375,6 +375,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_ANSWERS, QHeaderView::Stretch);
             table->horizontalHeaderItem(C_COLUMN_TITLE)->setTextAlignment(Qt::AlignLeft);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_STATUS, QHeaderView::ResizeToContents);
+            table->horizontalHeaderItem(C_COLUMN_STATUS)->setTextAlignment(Qt::AlignCenter);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_MY_VOTES, QHeaderView::ResizeToContents);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_COLOR, QHeaderView::Fixed);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_VOTE, QHeaderView::ResizeToContents);
@@ -796,6 +797,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
         }
 
+        QString sState = QString::fromStdString(consultation.GetState(chainActive.Tip())).replace(", ","\n");
+
         ConsultationEntry p = {
             it.first,
             "#6666ff",
@@ -803,7 +806,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             answers,
             "",
             consultation.nVotingCycle,
-            QString::fromStdString(consultation.GetState(chainActive.Tip())),
+            sState,
             consultation.fState,
             fCanVote,
             myVotes,
