@@ -2026,14 +2026,17 @@ void DaoPage::onViewChart() {
             }
             else
             {
-                for (auto&it: consultationAnswerMap)
+                if (pcoinsTip->GetAllConsultationAnswers(consultationAnswerMap))
                 {
-                    CConsultationAnswer answer = it.second;
-
-                    if (answer.parent == consultation.hash)
+                    for (auto&it: consultationAnswerMap)
                     {
-                        uint64_t nAmount = consultation.CanBeSupported() ? answer.nSupport*100/GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) : answer.nVotes;
-                        mapVotes.insert(make_pair(QString::fromStdString(answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+ "%)",nAmount));
+                        CConsultationAnswer answer = it.second;
+
+                        if (answer.parent == consultation.hash)
+                        {
+                            uint64_t nAmount = consultation.CanBeSupported() ? answer.nSupport*100/GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) : answer.nVotes;
+                            mapVotes.insert(make_pair(QString::fromStdString(answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+ "%)",nAmount));
+                        }
                     }
                 }
             }
