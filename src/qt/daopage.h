@@ -161,6 +161,9 @@ public:
 private:
     QVBoxLayout *layout;
     uint256 hash;
+    QtCharts::QPieSeries *series;
+    QtCharts::QChart *chart;
+    QtCharts::QChartView *chartView;
 };
 
 class DaoPage : public QWidget

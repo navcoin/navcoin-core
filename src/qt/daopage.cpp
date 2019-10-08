@@ -2017,6 +2017,12 @@ DaoChart::DaoChart(QWidget *parent, uint256 hash) :
     this->setStyleSheet(Skinize());
     this->resize(450, 300);
 
+    series = new QtCharts::QPieSeries();
+    chart = new QtCharts::QChart();
+    chartView = new QtCharts::QChartView(chart);
+
+    layout->addWidget(chartView);
+
     updateView();
 }
 
@@ -2091,7 +2097,11 @@ void DaoChart::updateView() {
         }
     }
 
-    QtCharts::QPieSeries *series = new QtCharts::QPieSeries();
+
+    for(unsigned int i=0; i<series->slices().count(); i++)
+    {
+        series->remove(series->slices()[i]);
+    }
 
     int i = 0;
     for (auto& it: mapVotes)
@@ -2104,21 +2114,9 @@ void DaoChart::updateView() {
         i++;
     }
 
-    QtCharts::QChart *chart = new QtCharts::QChart();
     chart->addSeries(series);
     chart->setTitle(title);
     chart->legend()->hide();
 
-    QtCharts::QChartView *chartView = new QtCharts::QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
-
-    QLayoutItem *item;
-    while((item = layout->takeAt(0))) {
-        if (item->widget()) {
-           delete item->widget();
-        }
-        delete item;
-    }
-
-    layout->addWidget(chartView);
 }
