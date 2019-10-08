@@ -315,13 +315,13 @@ struct CCacheEntry
 
 typedef CCacheEntry<CCoins> CCoinsCacheEntry;
 typedef boost::unordered_map<uint256, CCoinsCacheEntry, SaltedTxidHasher> CCoinsMap;
-typedef std::map<uint256, CProposal> CProposalMap;
 typedef std::vector<unsigned char> CVoteMapKey;
 typedef CVoteList CVoteMapValue;
 typedef std::map<CVoteMapKey, CVoteMapValue> CVoteMap;
-typedef boost::unordered_map<uint256, CPaymentRequest, SaltedTxidHasher> CPaymentRequestMap;
-typedef boost::unordered_map<uint256, CConsultation, SaltedTxidHasher> CConsultationMap;
-typedef boost::unordered_map<uint256, CConsultationAnswer, SaltedTxidHasher> CConsultationAnswerMap;
+typedef std::map<uint256, CProposal> CProposalMap;
+typedef std::map<uint256, CPaymentRequest> CPaymentRequestMap;
+typedef std::map<uint256, CConsultation> CConsultationMap;
+typedef std::map<uint256, CConsultationAnswer> CConsultationAnswerMap;
 
 /** Cursor for iterating over CoinsView state */
 class CStateViewCursor
