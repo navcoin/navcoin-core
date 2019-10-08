@@ -299,7 +299,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     std::map<uint256, bool> mapSeen;
     std::map<uint256, bool> mapSeenSupport;
 
-    if (fUndo || nBlocks == 1 || mapCacheProposalsToUpdate.empty() || mapCachePaymentRequestToUpdate.empty()) {
+    if (fUndo || nBlocks == 1) {
         mapCacheProposalsToUpdate.clear();
         mapCachePaymentRequestToUpdate.clear();
         mapCacheSupportToUpdate.clear();
@@ -777,8 +777,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             {
                 if (answer->fState == DAOFlags::NIL && !mapSeenSupport.count(answer->hash))
                     answer->nSupport = 0;
-                if (answer->fState != DAOFlags::PASSED && !fParentExpired && !fParentPassed)
-                    answer->nVotes = 0;
             }
         }
     }
@@ -789,6 +787,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeStart7 = GetTimeMicros();
     CConsultationMap mapConsultations;
+
+    std::vector<uint256> vClearAnswers;
 
     if(view.GetAllConsultations(mapConsultations))
     {
@@ -891,8 +891,26 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if (consultation->fState == DAOFlags::NIL && !mapSeenSupport.count(consultation->hash))
                     consultation->nSupport = 0;
                 if (consultation->fState == DAOFlags::ACCEPTED)
+                {
                     consultation->mapVotes.clear();
+                    vClearAnswers.push_back(consultation->hash);
+                }
             }
+        }
+    }
+
+    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
+    {
+        for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
+        {
+            if (!view.HaveConsultationAnswer(it->first))
+                continue;
+
+            if (std::find(vClearAnswers.begin(), vClearAnswers.end(), it->second.parent) == vClearAnswers.end())
+                continue;
+
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
+            answer->nVotes = 0;
         }
     }
 

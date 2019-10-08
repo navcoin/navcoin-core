@@ -2063,7 +2063,7 @@ void DaoChart::updateView() {
 
                         if (answer.parent == consultation.hash)
                         {
-                            uint64_t nAmount = consultation.CanBeSupported() ? answer.nSupport*100/GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) : answer.nVotes;
+                            uint64_t nAmount = consultation.CanBeSupported() ? answer.nSupport : answer.nVotes;
                             mapVotes.insert(make_pair(QString::fromStdString(answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+ "%)",nAmount));
                         }
                     }
