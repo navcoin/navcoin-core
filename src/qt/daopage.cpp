@@ -2033,7 +2033,8 @@ void DaoChart::updateView() {
     CProposal proposal;
     CPaymentRequest prequest;
     std::map<QString, uint64_t> mapVotes;
-    QString title;
+    QString title = "";
+    QString state = "";
 
     auto nMaxCycles = 0;
     auto nVotingLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH);
@@ -2044,6 +2045,7 @@ void DaoChart::updateView() {
         if (pcoinsTip->GetConsultation(hash, consultation))
         {
             title = QString::fromStdString(consultation.strDZeel);
+            state = QString::fromStdString(consultation.GetState(chainActive.Tip()));
             nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES);
 
             if (consultation.CanBeSupported())
@@ -2104,6 +2106,7 @@ void DaoChart::updateView() {
             nCurrentCycle = proposal.nVotingCycle;
             nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
             title = QString::fromStdString(proposal.strDZeel);
+            state = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime()));
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(proposal.nVotesYes) + ")"), proposal.nVotesYes));
             mapVotes.insert(make_pair(QString("No (" + QString::number(proposal.nVotesNo) + ")"), proposal.nVotesNo));
@@ -2114,6 +2117,7 @@ void DaoChart::updateView() {
             nCurrentCycle = prequest.nVotingCycle;
             nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
             title = QString::fromStdString(prequest.strDZeel);
+            state = QString::fromStdString(prequest.GetState());
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(prequest.nVotesYes) + ")"), prequest.nVotesYes));
             mapVotes.insert(make_pair(QString("No (" + QString::number(prequest.nVotesNo) + ")"), prequest.nVotesNo));
@@ -2135,8 +2139,17 @@ void DaoChart::updateView() {
         i++;
     }
 
+    title += "<br><br>";
+    title += tr("Block %1 of %2")
+            .arg((chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+1)
+            .arg(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
     title += " / ";
     title += tr("Cycle %1 of %2").arg(nCurrentCycle).arg(nMaxCycles);
+    if (state != "")
+    {
+        title += "<br><br>";
+        title += state;
+    }
 
     chart->addSeries(series);
     chart->setTitle(title);
