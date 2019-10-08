@@ -2122,10 +2122,7 @@ void DaoChart::updateView() {
     }
 
 
-    for(unsigned int i=0; i<series->slices().count(); i++)
-    {
-        series->remove(series->slices()[i]);
-    }
+    series->clear();
 
     int i = 0;
     for (auto& it: mapVotes)
