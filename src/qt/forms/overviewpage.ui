@@ -271,7 +271,7 @@
        </layout>
       </widget>
      </item>
-     <item alignment="Qt::AlignLeft">
+     <item>
       <widget class="QPushButton" name="showStakingSetup">
        <property name="text">
         <string>Set up Staking Rewards</string>
