@@ -496,6 +496,8 @@ bool CScript::ExtractConsultationVote(uint256 &hash, int64_t &vote) const
         vote = nVote.getint();
     }
 
+    vote = true;
+
     return true;
 }
 

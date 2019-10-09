@@ -384,7 +384,37 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 mapCacheSupportToUpdate[it.first] += 1;
                 mapSeenSupport[it.first]=true;
             }
+        }
 
+        for (auto&it: pindexblock->mapConsultationVotes)
+        {
+            if(!it.second)
+                continue;
+
+            mapSeen[it.first]=true;
+
+            if (view.HaveConsultation(it.first))
+            {
+                mapSeen[it.first]=true;
+                CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
+                mConsultation->mapVotes[it.second] = mConsultation->mapVotes[it.second] + 1;
+            }
+            else if (view.HaveConsultationAnswer(it.first) && view.GetConsultationAnswer(it.first, answer))
+            {
+                mapSeen[it.first]=true;
+                if (it.second == VoteFlags::CONSULTATION_ABSTAIN && view.HaveConsultation(answer.parent))
+                {
+                    mapSeen[answer.parent]=true;
+                    CConsultationModifier mParentConsultation = view.ModifyConsultation(answer.parent);
+                    if (!mParentConsultation->IsNull())
+                        mParentConsultation->mapVotes[it.second] = mParentConsultation->mapVotes[it.second] + 1;
+                }
+                else
+                {
+                    CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
+                    mConsultationAnswer->nVotes = mConsultationAnswer->nVotes + 1;
+                }
+            }
         }
         pindexblock = pindexblock->pprev;
         nBlocks--;
@@ -890,7 +920,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             {
                 if (consultation->fState == DAOFlags::NIL && !mapSeenSupport.count(consultation->hash))
                     consultation->nSupport = 0;
-                if (consultation->fState == DAOFlags::ACCEPTED)
+                if (consultation->fState == DAOFlags::ACCEPTED && !mapSeen.count(consultation->hash))
                 {
                     consultation->mapVotes.clear();
                     vClearAnswers.push_back(consultation->hash);

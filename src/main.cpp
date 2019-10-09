@@ -3609,26 +3609,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         }
 
                                         pindex->mapConsultationVotes.insert(make_pair(hash, vote));
-
-                                        if (fValidConsultation)
-                                        {
-                                            CConsultationModifier mConsultation = view.ModifyConsultation(hash);
-                                            mConsultation->mapVotes[vote] = mConsultation->mapVotes[vote] + 1;
-                                        }
-                                        else if (fValidConsultationAnswer)
-                                        {
-                                            if (vote == VoteFlags::CONSULTATION_ABSTAIN)
-                                            {
-                                                CConsultationModifier mParentConsultation = view.ModifyConsultation(answer.parent);
-                                                if (!mParentConsultation->IsNull())
-                                                    mParentConsultation->mapVotes[vote] = mParentConsultation->mapVotes[vote] + 1;
-                                            }
-                                            else
-                                            {
-                                                CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(hash);
-                                                mConsultationAnswer->nVotes = mConsultationAnswer->nVotes + 1;
-                                            }
-                                        }
                                     }
                                 }
                                 else
@@ -4001,14 +3981,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     else if (view.HaveConsultation(it.first))
                     {
                         pindex->mapConsultationVotes.insert(make_pair(it.first, val));
-                        CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
-                        mConsultation->mapVotes[val] = mConsultation->mapVotes[val] + 1;
                     }
                     else if (view.HaveConsultationAnswer(it.first))
                     {
                         pindex->mapConsultationVotes.insert(make_pair(it.first, true));
-                        CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
-                        mConsultationAnswer->nVotes = mConsultationAnswer->nVotes + 1;
                     }
                 }
             }
