@@ -2061,7 +2061,7 @@ void DaoChart::updateView() {
                 if (mapBlockIndex.count(consultation.blockhash) > 0) {
                     auto nCreated = (unsigned int)(mapBlockIndex[consultation.blockhash]->nHeight / nVotingLength);
                     auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
-                    nCurrentCycle = nCurrent - nCreated;
+                    nCurrentCycle = nCurrent - nCreated - 1;
                 }
 
                 if (consultation.mapVotes.count((uint64_t)-5))
