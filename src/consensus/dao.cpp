@@ -279,6 +279,7 @@ std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, st
 std::map<uint256, std::pair<std::pair<int, int>, int>> mapCacheProposalsToUpdate;
 std::map<uint256, std::pair<std::pair<int, int>, int>> mapCachePaymentRequestToUpdate;
 std::map<uint256, int> mapCacheSupportToUpdate;
+std::map<std::pair<uint256, int64_t>, int> mapCacheConsultationToUpdate;
 
 bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& view)
 {
@@ -299,10 +300,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     std::map<uint256, bool> mapSeen;
     std::map<uint256, bool> mapSeenSupport;
 
-    if (fUndo || nBlocks == 1) {
+    if (fUndo || nBlocks == 1 || (mapCacheProposalsToUpdate.empty() && mapCachePaymentRequestToUpdate.empty() && mapCacheSupportToUpdate.empty() && mapCacheConsultationToUpdate.empty())) {
         mapCacheProposalsToUpdate.clear();
         mapCachePaymentRequestToUpdate.clear();
         mapCacheSupportToUpdate.clear();
+        mapCacheConsultationToUpdate.clear();
     } else {
         nBlocks = 1;
     }
@@ -317,6 +319,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         CConsultationAnswer answer;
 
         mapSeen.clear();
+        mapSeenSupport.clear();
 
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
         {
@@ -388,31 +391,29 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for (auto&it: pindexblock->mapConsultationVotes)
         {
-            if(!it.second)
+            if (!it.second)
+                continue;
+
+            if (mapSeen.count(it.first))
                 continue;
 
             mapSeen[it.first]=true;
 
-            if (view.HaveConsultation(it.first))
+            if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
             {
-                mapSeen[it.first]=true;
-                CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
-                mConsultation->mapVotes[it.second] = mConsultation->mapVotes[it.second] + 1;
-            }
-            else if (view.HaveConsultationAnswer(it.first) && view.GetConsultationAnswer(it.first, answer))
-            {
-                mapSeen[it.first]=true;
-                if (it.second == VoteFlags::CONSULTATION_ABSTAIN && view.HaveConsultation(answer.parent))
+                if (it.second == VoteFlags::CONSULTATION_ABSTAIN && view.GetConsultationAnswer(it.first, answer))
                 {
-                    mapSeen[answer.parent]=true;
-                    CConsultationModifier mParentConsultation = view.ModifyConsultation(answer.parent);
-                    if (!mParentConsultation->IsNull())
-                        mParentConsultation->mapVotes[it.second] = mParentConsultation->mapVotes[it.second] + 1;
+                    if(mapCacheConsultationToUpdate.count(std::make_pair(answer.parent,it.second)) == 0)
+                        mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] = 0;
+
+                    mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] += 1;
                 }
                 else
                 {
-                    CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
-                    mConsultationAnswer->nVotes = mConsultationAnswer->nVotes + 1;
+                    if(mapCacheConsultationToUpdate.count(std::make_pair(it.first,it.second)) == 0)
+                        mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] = 0;
+
+                    mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] += 1;
                 }
             }
         }
@@ -427,9 +428,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     LogPrint("bench", "   - CFund count votes from headers: %.2fms\n", (nTimeEnd2 - nTimeStart2) * 0.001);
 
     int64_t nTimeStart3 = GetTimeMicros();
-    std::map<uint256, std::pair<std::pair<int, int>, int>>::iterator it;
-    std::vector<std::pair<uint256, CProposal>> vecProposalsToUpdate;
-    std::vector<std::pair<uint256, CPaymentRequest>> vecPaymentRequestsToUpdate;
 
     for(auto& it: mapCacheProposalsToUpdate)
     {
@@ -468,6 +466,32 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
             answer->nSupport = it.second;
             mapSeenSupport[answer->hash]=true;
+        }
+    }
+
+    std::map<uint256, bool> mapAlreadyCleared;
+
+    for(auto& it: mapCacheConsultationToUpdate)
+    {
+
+        if (view.HaveConsultation(it.first.first))
+        {
+            CConsultationModifier consultation = view.ModifyConsultation(it.first.first);
+
+            if (mapAlreadyCleared.count(it.first.first) == 0)
+            {
+                mapAlreadyCleared[it.first.first] = true;
+                consultation->mapVotes.clear();
+            }
+            consultation->mapVotes[it.first.second] = it.second;
+            mapSeen[it.first.first]=true;
+        }
+        else if (view.HaveConsultationAnswer(it.first.first))
+        {
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first.first);
+            answer->nVotes = it.second;
+            mapSeen[it.first.first]=true;
+            mapSeen[answer->parent]=true;
         }
     }
 
