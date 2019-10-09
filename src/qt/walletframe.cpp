@@ -160,6 +160,13 @@ void WalletFrame::setStakingStats(QString day, QString week, QString month, QStr
         i.value()->setStakingStats(day,week,month,year,all);
 }
 
+void WalletFrame::splitRewards()
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->splitRewards();
+}
+
 void WalletFrame::gotoHistoryPage()
 {
     QMap<QString, WalletView*>::const_iterator i;

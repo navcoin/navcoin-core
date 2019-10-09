@@ -157,6 +157,7 @@ private:
     QAction *unlockWalletAction;
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
+    QAction *splitRewardAction;
     QToolButton *menuBtns[5];
     QLabel *menuBubbles[5];
     QLabel *notifications[3];
@@ -301,6 +302,7 @@ private Q_SLOTS:
     void updateDisplayUnit(int unit);
     /** Toggle Staking **/
     void toggleStaking();
+    void splitRewards();
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);

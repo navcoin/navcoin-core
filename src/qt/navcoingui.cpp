@@ -154,6 +154,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
+    splitRewardAction(0),
     platformStyle(platformStyle),
     updatePriceAction(0),
     fShowingVoting(0)
@@ -402,6 +403,9 @@ void NavCoinGUI::createActions()
     toggleStakingAction = new QAction(tr("Toggle &Staking"), this);
     toggleStakingAction->setStatusTip(tr("Toggle Staking"));
 
+    splitRewardAction = new QAction(tr("Set up staking rewards"), this);
+    splitRewardAction->setStatusTip(tr("Configure how to split the staking rewards"));
+
     historyAction = new QAction(platformStyle->Icon(":/icons/transactions"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
@@ -430,6 +434,7 @@ void NavCoinGUI::createActions()
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(toggleStakingAction, SIGNAL(triggered()), this, SLOT(toggleStaking()));
+    connect(splitRewardAction, SIGNAL(triggered()), this, SLOT(splitRewards()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->IconAlt(":/icons/quit"), tr("E&xit"), this);
@@ -568,6 +573,7 @@ void NavCoinGUI::createMenuBar()
         settings->addAction(changePassphraseAction);
         settings->addSeparator();
         settings->addAction(toggleStakingAction);
+        settings->addAction(splitRewardAction);
         settings->addSeparator();
         settings->addAction(updatePriceAction);
     }
@@ -1679,6 +1685,11 @@ void NavCoinGUI::toggleStaking()
 
     Q_EMIT message(tr("Staking"), GetStaking() ? tr("Staking has been enabled") : tr("Staking has been disabled"),
                    CClientUIInterface::MSG_INFORMATION);
+}
+
+void NavCoinGUI::splitRewards()
+{
+    walletFrame->splitRewards();
 }
 
 #ifdef ENABLE_WALLET

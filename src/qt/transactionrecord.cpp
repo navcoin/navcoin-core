@@ -50,19 +50,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         // Credit
         //
         unsigned int i = 0;
-        unsigned int rewardIdx = 0;
+        CAmount nReward = -nDebit;
         if (wtx.IsCoinStake())
         {
-            for (unsigned int j = wtx.vout.size(); j--;)
-            {
-                if (wallet->IsMine(wtx.vout[j]))
-                {
-                    rewardIdx = j;
-                    break;
-                }
-
-            }
+            for (unsigned int j = 0; j < wtx.vout.size(); j++)
+                if (wtx.vout[j].scriptPubKey == wtx.vout[1].scriptPubKey)
+                    nReward += wtx.vout[j].nValue;
         }
+
+        bool fAddedReward = false;
 
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
         {
@@ -97,14 +93,25 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Generated (proof-of-stake)
 
-                    if (i != rewardIdx)
+                    if (wtx.vout[i].scriptPubKey == wtx.vout[1].scriptPubKey)
                     {
-                        i++;
-                        continue; // only append details of the address with reward output
-                    }
+                        if (fAddedReward)
+                        {
+                            i++;
+                            continue; // only append details of the address with reward output
+                        }
+                        else
+                        {
+                            fAddedReward = true;
 
-                    sub.type = TransactionRecord::Staked;
-                    sub.credit = nNet;
+                            sub.type = TransactionRecord::Staked;
+                            sub.credit = nReward;
+                        }
+                    }
+                    else
+                    {
+                        sub.type = TransactionRecord::Staked;
+                    }
                 }
                 if(wtx.fAnon)
                 {
