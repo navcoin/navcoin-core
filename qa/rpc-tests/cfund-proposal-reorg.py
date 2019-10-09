@@ -20,7 +20,7 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
         self.nodes.append(start_node(0, self.options.tmpdir, []))
         self.nodes.append(start_node(1, self.options.tmpdir, []))
 
-        connect_nodes(self.nodes[0], 1)
+        connect_nodes_bi(self.nodes, 0, 1)
 
         self.is_network_split = split
 
@@ -41,7 +41,7 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
         self.nodes[0].generate(1)
         self.nodes[1].generate(2)
 
-        connect_nodes(self.nodes[0], 1)
+        connect_nodes_bi(self.nodes, 0, 1)
         sync_blocks(self.nodes)
 
         assert(self.nodes[0].getproposal(hash) == self.nodes[0].getproposal(hash))
