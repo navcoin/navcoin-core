@@ -1061,14 +1061,25 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                           {
                               if (mapCacheMaxAnswers.count(answer.parent) == 0)
                                   mapCacheMaxAnswers[answer.parent] = consultation.nMax;
-                              mapCountAnswers[answer.parent]++;
+
+                              for (auto &it: pblock->vtx[0].vout)
+                              {
+                                  uint256 hash_;
+                                  int64_t vote_;
+                                  it.scriptPubKey.ExtractVote(hash_, vote_);
+
+                                  if (hash == hash_)
+                                  {
+                                      mapCountAnswers[answer.parent]++;
+                                      break;
+                                  }
+                              }
                           }
                       }
                   }
 
                   for (auto it = pblock->vtx[0].vout.begin(); it != pblock->vtx[0].vout.end();)
                   {
-
                       CTxOut out = *it;
 
                       if (fCFund && out.IsVote())
@@ -1137,6 +1148,9 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
                           if (view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer))
                           {
+                              CConsultation parentConsultation;
+                              if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                  mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
                               mapCountAnswers[answer.parent]++;
                               if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                               {

@@ -2023,6 +2023,8 @@ DaoChart::DaoChart(QWidget *parent, uint256 hash) :
     chart = new QtCharts::QChart();
     chartView = new QtCharts::QChartView(chart);
 
+    chart->addSeries(series);
+
     layout->addWidget(chartView);
 
     updateView();
@@ -2058,7 +2060,7 @@ void DaoChart::updateView() {
             {
                 if (mapBlockIndex.count(consultation.blockhash) > 0) {
                     auto nCreated = (unsigned int)(mapBlockIndex[consultation.blockhash]->nHeight / nVotingLength);
-                    auto nCurrent= (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
+                    auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
                     nCurrentCycle = nCurrent - nCreated;
                 }
 
@@ -2079,7 +2081,7 @@ void DaoChart::updateView() {
                     {
                         if (it.first == -1)
                             continue;
-                            mapVotes.insert(make_pair(QString::number(it.first) + " (" + QString::number(it.second) + ")", it.second));
+                        mapVotes.insert(make_pair(QString::number(it.first) + " (" + QString::number(it.second) + ")", it.second));
                     }
                 }
             }
@@ -2151,7 +2153,6 @@ void DaoChart::updateView() {
         title += state;
     }
 
-    chart->addSeries(series);
     chart->setTitle(title);
     chart->legend()->hide();
 
