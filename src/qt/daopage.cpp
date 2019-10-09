@@ -2146,7 +2146,7 @@ void DaoChart::updateView() {
             .arg((chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+1)
             .arg(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
     title += " / ";
-    title += tr("Cycle %1 of %2").arg(nCurrentCycle).arg(nMaxCycles);
+    title += tr("Cycle %1 of %2").arg(std::max(nMaxCycles,nCurrentCycle)).arg(nMaxCycles);
     if (state != "")
     {
         title += "<br><br>";
