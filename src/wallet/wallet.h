@@ -513,7 +513,13 @@ public:
     std::string ToString() const;
 };
 
-
+struct sortByCoinAgeDescending
+{
+    inline bool operator() (const COutput& cOutput1, const COutput& cOutput2)
+    {
+        return (cOutput1.tx->nTime > cOutput2.tx->nTime);
+    }
+};
 
 
 /** Private key that includes an expiration date in case it never gets used. */
