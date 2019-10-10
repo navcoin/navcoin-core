@@ -1934,11 +1934,11 @@ void DaoPage::showContextMenu(const QPoint& pt) {
         {
             if (consultation.CanHaveNewAnswers())
             {
-                proposeChange->setDisabled(true);
+                proposeChange->setDisabled(false);
             }
             else
             {
-                proposeChange->setDisabled(false);
+                proposeChange->setDisabled(true);
             }
         }
         else if (pcoinsTip->GetProposal(uint256S(contextHash.toStdString()), proposal))
