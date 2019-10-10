@@ -1001,7 +1001,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         bool fHasConsultation = !consultation.consultation.IsNull() && consultation.consultation.fState != DAOFlags::EXPIRED && consultation.consultation.fState != DAOFlags::PASSED;
 
         if (fHasConsultation && (consultation.consultation.CanBeSupported() || consultation.consultation.fState == DAOFlags::REFLECTION))
-            status = tr("change proposed") + " " + QString::fromStdString(consultation.consultation.GetState(chainActive.Tip()));
+            status = tr("change proposed") + ", " + QString::fromStdString(consultation.consultation.GetState(chainActive.Tip()));
         else if (fHasConsultation && consultation.consultation.fState == DAOFlags::ACCEPTED)
             status = tr("voting");
 
