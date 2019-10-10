@@ -275,6 +275,10 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 }
         }
     }
+
+    if (GetBoolArg("-stakingsortbycoinage",false)) {
+        std::sort(vCoins.begin(), vCoins.end(), sortByCoinAgeDescending());
+    }
 }
 
 // Select some coins without random shuffle or best subset approximation
@@ -430,9 +434,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 LogPrint("coinstake", "CreateCoinStake : added kernel type=%d\n", whichType);
                 fKernelFound = true;
                 break;
-
             }
-
         }
 
         if (fKernelFound)
@@ -485,74 +487,25 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         nCredit += nReward;
     }
 
-    if (nCredit >= Params().GetConsensus().nStakeSplitThreshold)
-        txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
-
-    // Inode Payments
-    int payments = 1;
-    // start inode payments
-    bool bINodePayment = false; // note was false, set true to test
-
-
-    CScript payee;
-    bool hasPayment = false;
-    if(bINodePayment) {
-        //hub
-        // if(!inodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee)){
-        //     int winningNode = GetCurrentINode(1);
-        //         if(winningNode >= 0){
-        //             payee =GetScriptForDestination(vecInodes[winningNode].pubkey.GetID());
-        //         } else {
-        //             LogPrintf("CreateCoinStake: Failed to detect inode to pay\n");
-        //             hasPayment = false;
-        //         }
-        // }
-    }
-
-    if(hasPayment){
-        payments = txNew.vout.size() + 1;
-        txNew.vout.resize(payments);
-
-        txNew.vout[payments-1].scriptPubKey = payee;
-        txNew.vout[payments-1].nValue = 0;
-
-        CTxDestination address1;
-        ExtractDestination(payee, address1);
-        CNavCoinAddress address2(address1);
-
-        LogPrintf("Inode payment to %s\n", address2.ToString().c_str());
-    }
-
     int64_t blockValue = nCredit;
-    int64_t inodePayment = 0; //GetInodePayment(pindexPrev->nHeight+1, nReward);
+    std::map<CNavCoinAddress, double> splitMap;
+    double nAccumulatedFee = 0.0;
 
+    CNavCoinAddress poolFeeAddress(GetArg("-pooladdress", ""));
+    double nPoolFee = GetArg("-poolfee", 0) / 100.0;
 
-    // Set output amount
-    if (!hasPayment && txNew.vout.size() == 3) // 2 stake outputs, stake was split, no inode payment
+    if (nPoolFee > 0 && poolFeeAddress.IsValid())
     {
-        txNew.vout[1].nValue = (blockValue / 2 / CENT) * CENT;
-        txNew.vout[2].nValue = blockValue - txNew.vout[1].nValue;
+        CAmount nRewardAsFee = nReward * nPoolFee;
+        blockValue -= nRewardAsFee;
+        txNew.vout.push_back(CTxOut(nRewardAsFee, GetScriptForDestination(poolFeeAddress.Get())));
     }
-    else if(hasPayment && txNew.vout.size() == 4) // 2 stake outputs, stake was split, plus a inode payment
+    else if (GetArg("-stakingaddress", "") != "")
     {
-        txNew.vout[payments-1].nValue = inodePayment;
-        blockValue -= inodePayment;
-        txNew.vout[1].nValue = (blockValue / 2 / CENT) * CENT;
-        txNew.vout[2].nValue = blockValue - txNew.vout[1].nValue;
-    }
-    else if(!hasPayment && txNew.vout.size() == 2) // only 1 stake output, was not split, no inode payment
-        txNew.vout[1].nValue = blockValue;
-    else if(hasPayment && txNew.vout.size() == 3) // only 1 stake output, was not split, plus a inode payment
-    {
-        txNew.vout[payments-1].nValue = inodePayment;
-        blockValue -= inodePayment;
-        txNew.vout[1].nValue = blockValue;
-    }
-
-    if (GetArg("-stakingaddress", "") != "" && !txNew.vout[txNew.vout.size()-1].scriptPubKey.IsColdStaking() && !txNew.vout[txNew.vout.size()-1].scriptPubKey.IsColdStakingv2()) {
         CNavCoinAddress address;
         UniValue stakingAddress;
         UniValue addressMap(UniValue::VOBJ);
+        std::map<std::string, UniValue> splitObject;
 
         if (stakingAddress.read(GetArg("-stakingaddress", "")))
         {
@@ -562,15 +515,46 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 else
                     return error("%s: Failed to read JSON from -stakingaddress argument", __func__);
 
-                // Use "all" address if present
-                if(find_value(addressMap, "all").isStr())
+                std::string lookForKey = "all";
+
+                if (find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).isStr())
+                    lookForKey = CNavCoinAddress(key.GetPubKey().GetID()).ToString();
+
+                if (find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).isObject())
                 {
-                    address = CNavCoinAddress(find_value(addressMap, "all").get_str());
+                    find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).getObjMap(splitObject);
+                    if (splitObject.size() > 0)
+                        lookForKey = CNavCoinAddress(key.GetPubKey().GetID()).ToString();
                 }
-                // Or use specified address if present
-                if(find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).isStr())
+
+                if(find_value(addressMap, lookForKey).isStr())
                 {
-                    address = CNavCoinAddress(find_value(addressMap, CNavCoinAddress(key.GetPubKey().GetID()).ToString()).get_str());
+                    address = CNavCoinAddress(find_value(addressMap, lookForKey).get_str());
+
+                    if (address.IsValid())
+                    {
+                        splitMap[address] = 100.0;
+                    }
+                    else
+                    {
+                        return error("%s: -stakingaddress includes a wrong address %s", __func__, find_value(addressMap, lookForKey).get_str());
+                    }
+                }
+                else if(find_value(addressMap, lookForKey).isObject())
+                {
+                    find_value(addressMap, lookForKey).getObjMap(splitObject);
+
+                    for ( const auto &pair : splitObject ) {
+                        address = CNavCoinAddress(pair.first);
+                        if (!address.IsValid() || pair.second.get_real() <= 0)
+                            continue;
+                        if (nAccumulatedFee+pair.second.get_real() > 100.0)
+                            return error("%s: -stakingaddress tries to contribute more than 100%");
+
+                        nAccumulatedFee += pair.second.get_real();
+
+                        splitMap[address] = pair.second.get_real();
+                    }
                 }
 
             } catch (const UniValue& objError) {
@@ -582,25 +566,35 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         else
         {
             address = CNavCoinAddress(GetArg("-stakingaddress", ""));
+            if (address.IsValid()) {
+                splitMap[address] = 100;
+            }
         }
 
-        if (address.IsValid()) {
-            txNew.vout[txNew.vout.size()-1].nValue -= nReward;
-            txNew.vout.push_back(CTxOut(nReward, GetScriptForDestination(address.Get())));
+        for (const auto& entry: splitMap)
+        {
+            CAmount thisOut = nReward * entry.second/100.0;
+            blockValue -= thisOut;
+            txNew.vout.push_back(CTxOut(thisOut, GetScriptForDestination(entry.first.Get())));
         }
     }
 
-    CNavCoinAddress poolFeeAddress(GetArg("-pooladdress", ""));
-    double nPoolFee = GetArg("-poolfee", 0) / 100.0;
+    bool fSplit = false;
 
-    if (nPoolFee > 0 && poolFeeAddress.IsValid())
+    if (blockValue >= Params().GetConsensus().nStakeSplitThreshold)
     {
-        CAmount nRewardAsFee = nReward * nPoolFee;
-        txNew.vout[txNew.vout.size()-1].nValue -= nRewardAsFee;
-        if (txNew.vout[txNew.vout.size()-1].nValue == 0)
-            txNew.vout.erase(txNew.vout.begin()+txNew.vout.size()-1);
-        txNew.vout.push_back(CTxOut(nRewardAsFee, GetScriptForDestination(poolFeeAddress.Get())));
+        fSplit = true;
+        txNew.vout.insert(txNew.vout.begin()+2, CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
     }
+
+    // Set output amount
+    if (fSplit) // 2 stake outputs, stake was split
+    {
+        txNew.vout[1].nValue = (blockValue / 2 / CENT) * CENT;
+        txNew.vout[2].nValue = blockValue - txNew.vout[1].nValue;
+    }
+    else if(!fSplit) // only 1 stake output, was not split
+        txNew.vout[1].nValue = blockValue;
 
     // Adds Community Fund output if enabled
     if(IsCommunityFundAccumulationEnabled(pindexPrev, Params().GetConsensus(), false))
@@ -1844,13 +1838,27 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         nFee = nDebit - nValueOut + nValueOutCFund;
     }
 
+    CAmount nReward = -nDebit;
+    if (IsCoinStake())
+    {
+        for (unsigned int j = 0; j < vout.size(); j++)
+        {
+            if (vout[j].scriptPubKey == vout[1].scriptPubKey)
+            {
+                nReward += vout[j].nValue;
+            }
+        }
+    }
+
+    bool fAddedReward = false;
+
     // Sent/received.
     for (unsigned int i = 0; i < vout.size(); ++i)
     {
         const CTxOut& txout = vout[i];
 
         // Skip special stake out
-        if (txout.scriptPubKey.empty())
+        if (txout.scriptPubKey.empty() || (IsCoinStake() && txout.scriptPubKey.IsCommunityFundContribution()))
             continue;
 
         isminetype fIsMine = pwallet->IsMine(txout);
@@ -1885,7 +1893,20 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
             listSent.push_back(output);
 
         // If we are receiving the output, add it as a "received" entry
-        if (fIsMine & filter)
+        if (IsCoinStake() && fIsMine & filter && txout.scriptPubKey == vout[1].scriptPubKey)
+        {
+            if (fAddedReward)
+            {
+                continue; // only append details of the address with reward output
+            }
+            else
+            {
+                fAddedReward = true;
+                output.amount = nReward;
+                listReceived.push_back(output);
+            }
+        }
+        else if (fIsMine & filter)
             listReceived.push_back(output);
     }
 

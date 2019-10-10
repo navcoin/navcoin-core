@@ -6,6 +6,7 @@
 #define NAVCOIN_QT_WALLETVIEW_H
 
 #include "amount.h"
+#include "splitrewards.h"
 
 #include <QStackedWidget>
 #include <QPushButton>
@@ -112,6 +113,8 @@ public Q_SLOTS:
     void lockWallet();
     void importPrivateKey();
     void exportMasterPrivateKeyAction();
+
+    void splitRewards();
 
     /** Show used sending addresses */
     void usedSendingAddresses();
