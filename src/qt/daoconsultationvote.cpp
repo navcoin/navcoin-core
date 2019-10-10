@@ -126,10 +126,13 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
     warningLbl->setFont(subtitleFnt);
     warningLbl->setVisible(false);
 
+    QLabel* title = new QLabel(consultation.nMax == 1 || consultation.IsRange() ? tr("Your vote:") : tr("Your votes (you can select up to %1):").arg(consultation.nMax));
+    title->setWordWrap(true);
+
     layout->addSpacing(15);
     layout->addWidget(topBox);
     layout->addSpacing(15);
-    layout->addWidget(new QLabel(consultation.nMax == 1 || consultation.IsRange() ? tr("Your vote:") : tr("Your votes (you can select up to %1):").arg(consultation.nMax)));
+    layout->addWidget(title);
     if (consultation.IsRange())
     {
         layout->addWidget(middleBox);
