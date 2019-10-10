@@ -5,6 +5,7 @@
 #ifndef SPLITREWARDS_H
 #define SPLITREWARDS_H
 
+#include "main.h"
 #include "skinize.h"
 #include "util.h"
 #include "qjsonmodel.h"

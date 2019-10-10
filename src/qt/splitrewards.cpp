@@ -114,7 +114,7 @@ void SplitRewardsDialog::showFor(QString sin)
     }
 
     availableAmount = 100;
-    CAmount nCFundContribution = Params().GetConsensus().nCommunityFundAmountV2;
+    CAmount nCFundContribution = GetFundContributionPerBlock(chainActive.Tip());
 
     QStringList descs;
 
@@ -305,5 +305,5 @@ void SplitRewardsDialog::onQuit()
 
 CAmount PercentageToNav(int percentage)
 {
-    return Params().GetConsensus().nStaticReward * percentage / 100;
+    return GetStakingRewardPerBlock(chainActive.Tip()) * percentage / 100;
 }
