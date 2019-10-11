@@ -64,13 +64,10 @@ void CommunityFundDisplayPaymentRequest::refresh()
     uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
 
-    std::string s_deadline = "";
     if(deadline_d >= 14)
-        s_deadline = std::to_string(deadline_d) + std::string(" Days");
+        ui->labelDuration->setText(tr("%n Days", "", deadline_d));
     else
-        s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
-
-    ui->labelDuration->setText(QString::fromStdString(s_deadline));
+        ui->labelDuration->setText(tr("%n Days", "", deadline_d) + tr(" %n Hours", "", deadline_h) + tr(" %n Minutes", "", deadline_m));
 
     // Hide ability to vote is the status is expired
     std::string status = ui->labelStatus->text().toStdString();
@@ -81,36 +78,28 @@ void CommunityFundDisplayPaymentRequest::refresh()
     // If prequest is accepted, show when it was accepted
     if (prequest.fState == DAOFlags::ACCEPTED)
     {
-        std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[48];
-        if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-            ss << buf;
-        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
-        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        ui->labelTitleDuration->setText(tr("Accepted on: "));
+        ui->labelDuration->setText(QString::fromStdString(ss.str()));
     }
 
     // If prequest is pending show voting cycles left
     if (prequest.fState == DAOFlags::NIL)
     {
-        std::string duration_title = "Voting Cycle: ";
-        std::string duration = std::to_string(prequest.nVotingCycle) +  " of " + std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES));
-        ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
-        ui->labelDuration->setText(QString::fromStdString(duration));
+        ui->labelTitleDuration->setText(tr("Voting Cycle: "));
+        ui->labelDuration->setText(QString::number(prequest.nVotingCycle) + tr("of") + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
     }
 
     // If prequest is rejected, show when it was rejected
     if (prequest.fState == DAOFlags::REJECTED)
     {
-        std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[48];
-        if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-            ss << buf;
-        ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        ui->labelTitleDuration->setText(tr("Rejected on: "));
+        ui->labelDuration->setText(QString::fromStdString(ss.str()));
     }
 
     // If expired show when it expired
@@ -118,21 +107,16 @@ void CommunityFundDisplayPaymentRequest::refresh()
     {
         if (prequest.fState == DAOFlags::EXPIRED)
         {
-            std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
-            char buf[48];
-            if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-                ss << buf;
-            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-            ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+            ss << std::put_time(std::gmtime(&t), "%c %Z");
+            ui->labelTitleDuration->setText(tr("Expired on: "));
+            ui->labelDuration->setText(QString::fromStdString(ss.str()));
         }
         else
         {
-            std::string expiry_title = "Expires: ";
-            std::string expiry = "At end of voting period";
-            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-            ui->labelDuration->setText(QString::fromStdString(expiry));
+            ui->labelTitleDuration->setText(tr("Expires: "));
+            ui->labelDuration->setText(tr("At end of voting period"));
         }
     }
 

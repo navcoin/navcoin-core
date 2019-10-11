@@ -100,19 +100,16 @@ void CommunityFundDisplayDetailed::setProposalLabels()
     uint64_t deadline_d = std::floor(proposal.nDeadline/86400);
     uint64_t deadline_h = std::floor((proposal.nDeadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((proposal.nDeadline-(deadline_d*86400 + deadline_h*3600))/60);
-    std::string s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
+    ui->labelDeadline->setText(tr("%n Days", "", deadline_d) + tr(" %n Hours", "", deadline_h) + tr(" %n Minutes", "", deadline_m));
 
     uint64_t proptime = 0;
     if (mapBlockIndex.count(proposal.blockhash) > 0) {
         proptime = mapBlockIndex[proposal.blockhash]->GetBlockTime();
     }
 
-    ui->labelDeadline->setText(QString::fromStdString(s_deadline));
     if (proposal.fState == DAOFlags::NIL) {
-        std::string expiry_title = "Voting period finishes in: ";
-        ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-        std::string expiry = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) - proposal.nVotingCycle) +  " voting cycles";
-        ui->labelExpiresIn->setText(QString::fromStdString(expiry));
+        ui->labelExpiresInTitle->setText(tr("Voting period finishes in: "));
+        ui->labelExpiresIn->setText(tr("%n voting cycles", "", Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES - proposal.nVotingCycle));
     }
     if (proposal.fState == DAOFlags::ACCEPTED) {
         uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
@@ -121,43 +118,29 @@ void CommunityFundDisplayDetailed::setProposalLabels()
         uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
         uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
 
-        std::string s_deadline = "";
         if(deadline_d >= 14)
-        {
-            s_deadline = std::to_string(deadline_d) + std::string(" Days");
-        }
+            ui->labelExpiresIn->setText(tr("%n Days", "", deadline_d));
         else
-        {
-            s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
-        }
-        ui->labelExpiresIn->setText(QString::fromStdString(s_deadline));
+            ui->labelExpiresIn->setText(tr("%n Days", "", deadline_d) + tr(" %n Hours", "", deadline_h) + tr(" %n Minutes", "", deadline_m));
     }
     if (proposal.fState == DAOFlags::REJECTED) {
-        std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[48];
-        if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-            ss << buf;
-        ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-        ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
+        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        ui->labelExpiresInTitle->setText(tr("Rejected on: "));
+        ui->labelExpiresIn->setText(QString::fromStdString(ss.str()));
     }
     if (proposal.fState == DAOFlags::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) {
         if (proposal.fState == DAOFlags::EXPIRED) {
-            std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
-            char buf[48];
-            if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-                ss << buf;
-            ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-            ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
+            ss << std::put_time(std::gmtime(&t), "%c %Z");
+            ui->labelExpiresInTitle->setText(tr("Expired on: "));
+            ui->labelExpiresIn->setText(QString::fromStdString(ss.str()));
         }
         else {
-            std::string expiry_title = "Expires: ";
-            std::string expiry = "At end of voting period";
-            ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-            ui->labelExpiresIn->setText(QString::fromStdString(expiry));
+            ui->labelExpiresInTitle->setText(tr("Expires: "));
+            ui->labelExpiresIn->setText(tr("At end of voting period"));
         }
     }
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
