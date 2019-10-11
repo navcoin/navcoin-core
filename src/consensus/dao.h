@@ -716,6 +716,7 @@ public:
     bool CanHaveAnswers() const;
     bool HaveEnoughAnswers() const;
     bool IsAboutConsensusParameter() const;
+    bool IsFinished() const;
 
     ADD_SERIALIZE_METHODS;
 

@@ -1125,7 +1125,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
                 if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
                     continue;
 
-                if (consultation.IsAboutConsensusParameter() && consultation.fState != DAOFlags::EXPIRED && consultation.nMin == nMin)
+                if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == nMin)
                     return error("%s: Invalid consultation %s. There already exists an active consultation %s about that consensus parameter.", __func__, tx.GetHash().ToString(), consultation.hash.ToString());;
             }
         }
@@ -1234,6 +1234,10 @@ bool CConsultation::HaveEnoughAnswers() const {
     }
 
     return nSupportedAnswersCount >= (IsAboutConsensusParameter() ? 1 : 2);
+}
+
+bool CConsultation::IsFinished() const {
+    return fState == DAOFlags::EXPIRED || fState == DAOFlags::PASSED;
 }
 
 std::string CConsultation::GetState(CBlockIndex* pindex) const {
