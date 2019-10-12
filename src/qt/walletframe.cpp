@@ -214,6 +214,13 @@ void WalletFrame::setVotingStatus(QString text)
         i.value()->setVotingStatus(text);
 }
 
+void WalletFrame::splitRewards()
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->splitRewards();
+}
+
 void WalletFrame::gotoHistoryPage()
 {
     QMap<QString, WalletView*>::const_iterator i;

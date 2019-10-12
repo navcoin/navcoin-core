@@ -352,6 +352,13 @@ void WalletView::unlockWallet()
     }
 }
 
+void WalletView::splitRewards()
+{
+    SplitRewardsDialog dlg(this);
+    dlg.setModel(walletModel);
+    dlg.exec();
+}
+
 void WalletView::exportMasterPrivateKeyAction()
 {
     LOCK2(cs_main, pwalletMain->cs_wallet);
