@@ -345,13 +345,17 @@ void RPCConsole::errorLogInitPos()
     // We need to move the file pos back by ERROR_LOG_INITIAL_COUNT lines
     QString ch;
     int lineCount = 0;
+    int lastPos = 0;
     while ((lineCount < ERROR_LOG_INITIAL_COUNT) && (errorLogFile->pos() > 0))
     {
+        // Save the last position before the read
+        lastPos = errorLogFile->pos();
+
         // Load the current character
         ch = errorLogFile->read(1);
 
         // Move pos back by 2 spaces
-        errorLogFile->seek(errorLogFile->pos() - 2);
+        errorLogFile->seek(lastPos - 1);
 
         // Check if we have a newline
         if (ch == "\n")
