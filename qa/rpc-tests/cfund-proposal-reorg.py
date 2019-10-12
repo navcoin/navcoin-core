@@ -31,9 +31,11 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
 
         rawproposal = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 36000, "test", 50, True)
 
-        # disconnect the nodes and generate the payout on each node
+        # disconnect the nodes and generate the proposal on each node
         url = urllib.parse.urlparse(self.nodes[1].url)
         self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
+
+        time.sleep(2) # wait for disconnect
 
         hash = self.nodes[0].sendrawtransaction(rawproposal)
         self.nodes[1].sendrawtransaction(rawproposal)
@@ -41,10 +43,12 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
         self.nodes[0].generate(1)
         self.nodes[1].generate(2)
 
+        assert(self.nodes[0].getproposal(hash)['blockHash'] != self.nodes[1].getproposal(hash)['blockHash'])
+
         connect_nodes_bi(self.nodes, 0, 1)
         sync_blocks(self.nodes)
 
-        assert(self.nodes[0].getproposal(hash) == self.nodes[0].getproposal(hash))
+        assert(self.nodes[0].getproposal(hash) == self.nodes[1].getproposal(hash))
         assert(self.nodes[0].getproposal(hash)['hash'] == hash)
 
 if __name__ == '__main__':
