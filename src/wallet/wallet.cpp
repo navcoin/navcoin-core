@@ -273,6 +273,10 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 }
         }
     }
+
+    if (GetBoolArg("-stakingsortbycoinage",false)) {
+        std::sort(vCoins.begin(), vCoins.end(), sortByCoinAgeDescending());
+    }
 }
 
 // Select some coins without random shuffle or best subset approximation
