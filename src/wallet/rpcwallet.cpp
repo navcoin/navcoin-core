@@ -115,6 +115,42 @@ string AccountFromValue(const UniValue& value)
     return strAccount;
 }
 
+UniValue createrawscriptaddress(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "createrawscriptaddress \"hex script\"\n"
+            "\nReturns the NavCoin address for the specified raw hex script.\n"
+            "\nArguments:\n"
+            "1. \"hex script\"        (string) The hex script to encode in the address.\n"
+            "\nResult:\n"
+            "\"navcoinaddress\"    (string) The  navcoin address\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createrawscriptaddress", "6ac4c5")
+        );
+
+    std::string data = params[0].get_str();
+
+    if (!IsHex(data))
+        throw JSONRPCError(RPC_MISC_ERROR, "the script is not expressed in hexadecimal");
+
+    std::vector<unsigned char> vData = ParseHex(data);
+
+    CScript script(vData.begin(), vData.end());
+
+    std::string strAsm = ScriptToAsmStr(script);
+
+    if (strAsm.find("[error]") != std::string::npos || strAsm.find("OP_UNKNOWN") != std::string::npos)
+        throw JSONRPCError(RPC_MISC_ERROR, "the script includes invalid or unknown op codes");
+
+    CNavCoinAddress address(script);
+
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_MISC_ERROR, "the generated address is not valid");
+
+    return address.ToString();
+}
+
 UniValue getnewaddress(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -3683,6 +3719,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "addmultisigaddress",       &addmultisigaddress,       true  },
     { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true  },
     { "wallet",             "backupwallet",             &backupwallet,             true  },
+    { "wallet",             "createrawscriptaddress",   &createrawscriptaddress,   true  },
     { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
     { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
     { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },
