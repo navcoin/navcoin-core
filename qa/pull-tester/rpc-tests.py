@@ -163,6 +163,7 @@ testScripts = [
     'cfund-proposal-state-accept.py',
     'cfund-proposal-state-expired.py',
     'cfund-proposal-reorg.py',
+    'cfund-paymentrequest-reorg.py',
     'cfund-rawtx-create-proposal.py',
     'cfund-rawtx-paymentrequest-create.py',
     'cfund-rawtx-paymentrequest-vote.py',
