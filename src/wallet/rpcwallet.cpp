@@ -3846,8 +3846,8 @@ UniValue newPoolAddress(const UniValue& params, bool fHelp) {
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("stakingAddress",stakingAddress.ToString());
-    result.pushKV("stakingAddress",spendingAddress.ToString());
-    result.pushKV("stakingAddress",coldStakingAddress.ToString());
+    result.pushKV("spendingAddress",spendingAddress.ToString());
+    result.pushKV("coldStakingAddress",coldStakingAddress.ToString());
 
     return result;
 }
