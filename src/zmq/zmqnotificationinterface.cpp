@@ -31,7 +31,7 @@ CZMQNotificationInterface::~CZMQNotificationInterface()
 
 CZMQNotificationInterface* CZMQNotificationInterface::CreateWithArguments(const std::map<std::string, std::string> &args)
 {
-    CZMQNotificationInterface* notificationInterface = NULL;
+    CZMQNotificationInterface* notificationInterface = nullptr;
     std::map<std::string, CZMQNotifierFactory> factories;
     std::list<CZMQAbstractNotifier*> notifiers;
 
@@ -62,7 +62,7 @@ CZMQNotificationInterface* CZMQNotificationInterface::CreateWithArguments(const 
         if (!notificationInterface->Initialize())
         {
             delete notificationInterface;
-            notificationInterface = NULL;
+            notificationInterface = nullptr;
         }
     }
 

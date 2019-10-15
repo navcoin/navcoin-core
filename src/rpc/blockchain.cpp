@@ -986,7 +986,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     vCacheProposalsRPC.clear();
     vCachePaymentRequestRPC.clear();
 
-    while(nBlocks > 0 && pindexblock != NULL) {
+    while(nBlocks > 0 && pindexblock != nullptr) {
         vSeen.clear();
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
             if(!pcoinsTip->GetProposal(pindexblock->vProposalVotes[i].first, proposal))
@@ -1009,7 +1009,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             if (mapBlockIndex.count(proposal.blockhash) == 0)
                 continue;
             CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
-            if(pindexblockparent == NULL)
+            if(pindexblockparent == nullptr)
                 continue;
             if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
                 if(vCachePaymentRequestRPC.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
@@ -1203,7 +1203,7 @@ static UniValue SoftForkMajorityDesc(int minVersion, CBlockIndex* pindex, int nR
 {
     int nFound = 0;
     CBlockIndex* pstart = pindex;
-    for (int i = 0; i < consensusParams.nMajorityWindow && pstart != NULL; i++)
+    for (int i = 0; i < consensusParams.nMajorityWindow && pstart != nullptr; i++)
     {
         if (pstart->nVersion >= minVersion)
             ++nFound;
