@@ -254,7 +254,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unitDisplayControl = new QComboBox();
     unitDisplayControl->setEditable(true);
     unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
-    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+    for(NavCoinUnits::Unit u: NavCoinUnits::availableUnits())
     {
         unitDisplayControl->addItem(QString(NavCoinUnits::name(u)), u);
     }
@@ -1415,7 +1415,7 @@ void NavCoinGUI::dropEvent(QDropEvent *event)
 {
     if(event->mimeData()->hasUrls())
     {
-        Q_FOREACH(const QUrl &uri, event->mimeData()->urls())
+        for(const QUrl &uri: event->mimeData()->urls())
         {
             Q_EMIT receivedURI(uri.toString());
         }
