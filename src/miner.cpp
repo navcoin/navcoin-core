@@ -275,6 +275,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash,vote);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+
+                    LogPrint("dao", "%s: Adding consultation-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+
                     votes[consultation.hash] = true;
 
                     continue;
@@ -295,6 +298,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,answer.hash,-2);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+
+                    LogPrint("dao", "%s: Adding consultation-answer-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+
                     votes[answer.hash] = true;
 
                     continue;
@@ -329,6 +335,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     SetScriptForProposalVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,proposal.hash, vote);
 
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+
+                    LogPrint("dao", "%s: Adding proposal-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+
                     votes[proposal.hash] = vote;
                     continue;
                 }
@@ -355,6 +364,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
                     votes[prequest.hash] = vote;
+
+                    LogPrint("dao", "%s: Adding payment-request-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
 
                     continue;
                 }
@@ -400,10 +411,12 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey = GetScriptForDestination(addr.Get());
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = prequest.nAmount;
 
+                        LogPrint("dao", "%s: Adding payment-request-payout output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+
                         strDZeel.push_back(prequest.hash.ToString());
                     }
                     else
-                        LogPrint("cfund", "Could not find parent proposal of payment request %s.\n", prequest.hash.ToString());
+                        LogPrint("dao", "Could not find parent proposal of payment request %s.\n", prequest.hash.ToString());
                 }
             }
         }
@@ -1086,6 +1099,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       {
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
+                              LogPrint("dao", "%s: Removing vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1101,6 +1115,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               {
                                   if (nval == vote)
                                   {
+                                      LogPrint("dao", "%s: Removing vote output %s because it is already in the voting cache\n", __func__, out.ToString());
                                       it = pblock->vtx[0].vout.erase(it);
                                       continue;
                                   }
@@ -1112,6 +1127,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       {
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
+                              LogPrint("dao", "%s: Removing support vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1127,6 +1143,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               {
                                   if (nval == vote)
                                   {
+                                      LogPrint("dao", "%s: Removing support vote output %s because it is already in the voting cache\n", __func__, out.ToString());
                                       it = pblock->vtx[0].vout.erase(it);
                                       continue;
                                   }
@@ -1138,6 +1155,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       {
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
+                              LogPrint("dao", "%s: Removing consultation vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1154,11 +1172,11 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               mapCountAnswers[answer.parent]++;
                               if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                               {
+                                  LogPrint("dao", "%s: Removing consultation vote output %s because it already voted the max amount of times\n", __func__, out.ToString());
                                   it = pblock->vtx[0].vout.erase(it);
                                   continue;
                               }
                           }
-
 
                           if (list.count(hash) > 0)
                           {
@@ -1167,6 +1185,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               {
                                   if (nval == vote)
                                   {
+                                      LogPrint("dao", "%s: Removing consultation vote output %s because it is already in the voting cache\n", __func__, out.ToString());
                                       it = pblock->vtx[0].vout.erase(it);
                                       continue;
                                   }
@@ -1198,6 +1217,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               SetScriptForPaymentRequestVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
 
                           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
+                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].ToString());
                           votes[hash] = true;
                       }
 
@@ -1212,6 +1232,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                           else
                               SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash);
                           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
+                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].ToString());
                           votes[hash] = true;
                       }
                   }

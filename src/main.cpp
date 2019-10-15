@@ -1473,7 +1473,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
                     if (viewMemPool.AddProposal(proposal))
-                        LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, chainActive.Tip()->GetBlockTime()));
+                        LogPrint("dao","New proposal (mempool) %s\n", proposal.ToString(view, chainActive.Tip()->GetBlockTime()));
                 }
                 else
                 {
@@ -1488,7 +1488,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     if (viewMemPool.GetProposal(prequest.proposalhash, proposal) && proposal.fState == DAOFlags::ACCEPTED)
                     {
                         if (viewMemPool.AddPaymentRequest(prequest))
-                            LogPrint("cfund","New payment request (mempool) %s\n", prequest.ToString());
+                            LogPrint("dao","New payment request (mempool) %s\n", prequest.ToString());
                     }
                     else
                     {
@@ -1508,13 +1508,13 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 {
                     if (viewMemPool.AddConsultation(consultation))
                     {
-                        LogPrint("cfund","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()));
+                        LogPrint("dao","New consultation (mempool) %s\n", consultation.ToString(chainActive.Tip()));
                         if (!consultation.IsRange())
                         {
                             for (CConsultationAnswer& ans: vAnswers)
                             {
                                 if (viewMemPool.AddConsultationAnswer(ans))
-                                    LogPrint("cfund","New consultation answer (mempool) %s\n", ans.ToString());
+                                    LogPrint("dao","New consultation answer (mempool) %s\n", ans.ToString());
                             }
                         }
                     }
@@ -1534,7 +1534,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                     if (viewMemPool.GetConsultation(answer.parent, consultation) && consultation.CanHaveNewAnswers() && !viewMemPool.HaveConsultationAnswer(answer.hash))
                     {
                         if (viewMemPool.AddConsultationAnswer(answer))
-                            LogPrint("cfund","New consultation answer (mempool) %s\n", answer.ToString());
+                            LogPrint("dao","New consultation answer (mempool) %s\n", answer.ToString());
                     }
                 }
                 else
@@ -2729,6 +2729,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_NO)
                 proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
 
+            LogPrint("dao", "%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), proposal->ToString(view));
+
             vSeen[pindex->vProposalVotes[i].first]=true;
         }
     }
@@ -2761,6 +2763,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_NO)
                 prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
 
+            LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
+
             vSeen[pindex->vPaymentRequestVotes[i].first]=true;
         }
     }
@@ -2773,6 +2777,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 CConsultationModifier consultation = view.ModifyConsultation(it.first);
                 consultation->nSupport = max(consultation->nSupport - 1, 0);
+                LogPrint("dao", "%s: Updated consultation %s: %s\n", __func__, consultation->hash.ToString(), consultation->ToString(pindex));
                 vSeen[it.first] = true;
             }
         }
@@ -2782,6 +2787,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
                 answer->nSupport = max(answer->nSupport - 1, 0);
+                LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, answer->hash.ToString(), answer->ToString());
                 vSeen[it.first] = true;
             }
         }
@@ -2793,11 +2799,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         {
             CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
             mConsultation->mapVotes[it.second] = mConsultation->mapVotes[it.second] - 1;
+            LogPrint("dao", "%s: Updated consultation %s: %s\n", __func__, mConsultation->hash.ToString(), mConsultation->ToString(pindex));
         }
         else if (view.HaveConsultationAnswer(it.first))
         {
             CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
             mConsultationAnswer->nVotes = mConsultationAnswer->nVotes - 1;
+            LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, mConsultationAnswer->hash.ToString(), mConsultationAnswer->ToString());
         }
     }
 
@@ -2814,7 +2822,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             return AbortNode(state, "Failed to get voters list");
 
         for (auto&it: baseMap)
+        {
             view.ModifyVote(it.first)->Clear(pindex->nHeight);
+            LogPrint("dao", "%s: Clearing votes for staker %s at height %d\n", __func__, HexStr(stakerScript), pindex->nHeight);
+        }
     }
 
     // move best block pointer to prevout block
@@ -3512,6 +3523,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                             continue;
                                     }
                                     view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
+                                    LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                                 }
                                 else
                                 {
@@ -3549,6 +3561,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                                 votes[hash] = vote;
                                 view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
+                                LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                             }
                         }
                         else
@@ -3850,6 +3863,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             fContribution=true;
             pindex->nCFSupply += vout.nValue;
             nProposalFee += vout.nValue;
+            LogPrint("dao", "%s: Updated DAO Fund supply to %d\n", __func__, pindex->nCFSupply);
           }
         }
 
@@ -3867,7 +3881,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
                     if (view.AddProposal(proposal))
-                        LogPrint("cfund","New proposal %s\n", proposal.ToString(view, block.nTime));
+                        LogPrint("dao","New proposal %s\n", proposal.ToString(view, block.nTime));
                 }
                 else
                 {
@@ -3883,7 +3897,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (view.GetProposal(prequest.proposalhash, proposal) && proposal.fState == DAOFlags::ACCEPTED)
                     {
                         if (view.AddPaymentRequest(prequest))
-                            LogPrint("cfund","New payment request %s\n", prequest.ToString());
+                            LogPrint("dao","New payment request %s\n", prequest.ToString());
                     }
                 }
                 else
@@ -3899,13 +3913,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 {
                     if (view.AddConsultation(consultation))
                     {
-                        LogPrint("cfund","New consultation %s\n", consultation.ToString(pindex));
+                        LogPrint("dao","New consultation %s\n", consultation.ToString(pindex));
                         if (!consultation.IsRange())
                         {
                             for (CConsultationAnswer& ans: vAnswers)
                             {
                                 if (view.AddConsultationAnswer(ans))
-                                    LogPrint("cfund","New consultation answer %s\n", ans.ToString());
+                                    LogPrint("dao","New consultation answer %s\n", ans.ToString());
                             }
                         }
                     }
@@ -3924,7 +3938,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (view.GetConsultation(answer.parent, consultation) && consultation.CanHaveNewAnswers() && !view.HaveConsultationAnswer(answer.hash))
                     {
                         if (view.AddConsultationAnswer(answer))
-                            LogPrint("cfund","New consultation answer %s\n", answer.ToString());
+                            LogPrint("dao","New consultation answer %s\n", answer.ToString());
                     }
                 }
                 else
@@ -3966,25 +3980,30 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (view.HaveProposal(it.first))
                     {
                         pindex->vProposalVotes.push_back(make_pair(it.first, val));
+                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                     }
                     else if (view.HavePaymentRequest(it.first))
                     {
                         pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
+                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                     }
                     else if (val == VoteFlags::SUPPORT_ABSTAIN)
                     {
                         if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
                         {
                             pindex->mapSupport.insert(make_pair(it.first, true));
+                            LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
                         }
                     }
                     else if (view.HaveConsultation(it.first))
                     {
                         pindex->mapConsultationVotes.insert(make_pair(it.first, val));
+                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - consultation hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                     }
                     else if (view.HaveConsultationAnswer(it.first))
                     {
                         pindex->mapConsultationVotes.insert(make_pair(it.first, true));
+                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - consultation hash: %s vote: %yes\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
                     }
                 }
             }
@@ -4063,6 +4082,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return state.DoS(100, error("CheckBlock() : coinbase output tries to pay an already paid payment request"));
 
                 prequest->paymenthash = block.GetHash();
+
+                LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
             }
             else
             {

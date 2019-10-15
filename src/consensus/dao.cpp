@@ -44,7 +44,7 @@ void SetScriptForProposalVote(CScript &script, uint256 proposalhash, int64_t vot
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PROP;
-    script[3] = vote == -2 ? OP_REMOVE : (vote == -1 ? OP_ABSTAIN : (vote == 1 ? OP_YES : OP_NO));
+    script[3] = vote == VoteFlags::VOTE_REMOVE ? OP_REMOVE : (vote == VoteFlags::VOTE_ABSTAIN ? OP_ABSTAIN : (vote == VoteFlags::VOTE_YES ? OP_YES : OP_NO));
     script[4] = 0x20;
     memcpy(&script[5], proposalhash.begin(), 32);
 }
@@ -55,7 +55,7 @@ void SetScriptForPaymentRequestVote(CScript &script, uint256 prequesthash, int64
     script[0] = OP_RETURN;
     script[1] = OP_CFUND;
     script[2] = OP_PREQ;
-    script[3] = vote == -2 ? OP_REMOVE : (vote == -1 ? OP_ABSTAIN : (vote == 1 ? OP_YES : OP_NO));
+    script[3] = vote == VoteFlags::VOTE_REMOVE ? OP_REMOVE : (vote == VoteFlags::VOTE_ABSTAIN ? OP_ABSTAIN : (vote == VoteFlags::VOTE_YES ? OP_YES : OP_NO));
     script[4] = 0x20;
     memcpy(&script[5], prequesthash.begin(), 32);
 }
@@ -85,7 +85,7 @@ void SetScriptForConsultationVote(CScript &script, uint256 hash, int64_t vote)
     script.resize(36);
     script[0] = OP_RETURN;
     script[1] = OP_CONSULTATION;
-    script[2] = vote == -1 ? OP_ABSTAIN : OP_ANSWER;
+    script[2] = vote == VoteFlags::VOTE_ABSTAIN ? OP_ABSTAIN : OP_ANSWER;
     script[3] = 0x20;
     memcpy(&script[4], hash.begin(), 32);
     if (vote > -1)
@@ -311,6 +311,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeStart2 = GetTimeMicros();
 
+    LogPrint("dao", "%s: Scanning %d block(s) starting at %d\n", __func__, nBlocks, pindexblock->nHeight);
+
     while(nBlocks > 0 && pindexblock != NULL)
     {
         CProposal proposal;
@@ -331,11 +333,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if(mapCacheProposalsToUpdate.count(pindexblock->vProposalVotes[i].first) == 0)
                     mapCacheProposalsToUpdate[pindexblock->vProposalVotes[i].first] = make_pair(make_pair(0, 0), 0);
 
-                if(pindexblock->vProposalVotes[i].second == 1)
+                if(pindexblock->vProposalVotes[i].second == VoteFlags::VOTE_YES)
                     mapCacheProposalsToUpdate[pindexblock->vProposalVotes[i].first].first.first += 1;
-                else if(pindexblock->vProposalVotes[i].second == -1)
+                else if(pindexblock->vProposalVotes[i].second == VoteFlags::VOTE_ABSTAIN)
                     mapCacheProposalsToUpdate[pindexblock->vProposalVotes[i].first].second += 1;
-                else if(pindexblock->vProposalVotes[i].second == 0)
+                else if(pindexblock->vProposalVotes[i].second == VoteFlags::VOTE_NO)
                     mapCacheProposalsToUpdate[pindexblock->vProposalVotes[i].first].first.second += 1;
 
                 mapSeen[pindexblock->vProposalVotes[i].first]=true;
@@ -363,11 +365,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if(mapCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     mapCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first] = make_pair(make_pair(0, 0), 0);
 
-                if(pindexblock->vPaymentRequestVotes[i].second == 1)
+                if(pindexblock->vPaymentRequestVotes[i].second == VoteFlags::VOTE_YES)
                     mapCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first].first.first += 1;
-                else if(pindexblock->vPaymentRequestVotes[i].second == -1)
+                else if(pindexblock->vPaymentRequestVotes[i].second == VoteFlags::VOTE_ABSTAIN)
                     mapCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first].second += 1;
-                else if(pindexblock->vPaymentRequestVotes[i].second == 0)
+                else if(pindexblock->vPaymentRequestVotes[i].second == VoteFlags::VOTE_NO)
                     mapCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first].first.second += 1;
 
                 mapSeen[pindexblock->vPaymentRequestVotes[i].first]=true;
@@ -437,6 +439,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             proposal->nVotesYes = it.second.first.first;
             proposal->nVotesAbs = it.second.second;
             proposal->nVotesNo = it.second.first.second;
+            LogPrint("dao", "%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), proposal->ToString(view));
             mapSeen[proposal->hash]=true;
         }
     }
@@ -449,6 +452,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             prequest->nVotesYes = it.second.first.first;
             prequest->nVotesAbs = it.second.second;
             prequest->nVotesNo = it.second.first.second;
+            LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
             mapSeen[prequest->hash]=true;
         }
     }
@@ -459,12 +463,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             CConsultationModifier consultation = view.ModifyConsultation(it.first);
             consultation->nSupport = it.second;
+            LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, consultation->hash.ToString(), consultation->ToString(pindexNew));
             mapSeenSupport[consultation->hash]=true;
         }
         else if (view.HaveConsultationAnswer(it.first))
         {
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
             answer->nSupport = it.second;
+            LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, answer->hash.ToString(), answer->ToString());
             mapSeenSupport[answer->hash]=true;
         }
     }
@@ -484,12 +490,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 consultation->mapVotes.clear();
             }
             consultation->mapVotes[it.first.second] = it.second;
+            LogPrint("dao", "%s: Updated consultation %s: %s\n", __func__, consultation->hash.ToString(), consultation->ToString(pindexNew));
             mapSeen[it.first.first]=true;
         }
         else if (view.HaveConsultationAnswer(it.first.first))
         {
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first.first);
             answer->nVotes = it.second;
+            LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, answer->hash.ToString(), answer->ToString());
             mapSeen[it.first.first]=true;
             mapSeen[answer->parent]=true;
         }
@@ -608,7 +616,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if (fUndo && fUpdate && prequest->fState == oldState && prequest->fState != DAOFlags::NIL
                     && prequest->nVotingCycle != oldCycle)
+            {
                 prequest->nVotingCycle = oldCycle;
+                fUpdate = true;
+            }
 
             if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
@@ -616,8 +627,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     !((proposal.fState == DAOFlags::ACCEPTED || proposal.fState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())){
                     prequest->nVotesYes = 0;
                     prequest->nVotesNo = 0;
+                    fUpdate = true;
                 }
             }
+
+            if (fUpdate)
+                LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
         }
     }
 
@@ -741,7 +756,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             }
 
             if (fUndo && fUpdate && proposal->fState == oldState && proposal->fState != DAOFlags::NIL && proposal->nVotingCycle != oldCycle)
+            {
+                fUpdate = true;
                 proposal->nVotingCycle = oldCycle;
+            }
 
             if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
@@ -750,8 +768,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     proposal->nVotesYes = 0;
                     proposal->nVotesAbs = 0;
                     proposal->nVotesNo = 0;
+                    fUpdate = true;
                 }
             }
+
+            if (fUpdate)
+                LogPrint("dao", "%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), proposal->ToString(view));
         }
     }
 
@@ -830,8 +852,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
                 if (answer->fState == DAOFlags::NIL && !mapSeenSupport.count(answer->hash))
+                {
                     answer->nSupport = 0;
+                    fUpdate = true;
+                }
             }
+
+            if (fUpdate)
+                LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, answer->hash.ToString(), answer->ToString());
         }
     }
 
@@ -943,13 +971,20 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0 )
             {
                 if (consultation->fState == DAOFlags::NIL && !mapSeenSupport.count(consultation->hash))
+                {
                     consultation->nSupport = 0;
+                    fUpdate = true;
+                }
                 if (consultation->fState == DAOFlags::ACCEPTED && !mapSeen.count(consultation->hash))
                 {
                     consultation->mapVotes.clear();
                     vClearAnswers.push_back(consultation->hash);
+                    fUpdate = true;
                 }
             }
+
+            if (fUpdate)
+                LogPrint("dao", "%s: Updated consultation %s: %s\n", __func__, consultation->hash.ToString(), consultation->ToString(pindexNew));
         }
     }
 
@@ -965,6 +1000,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
             answer->nVotes = 0;
+
+            LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, answer->hash.ToString(), answer->ToString());
         }
     }
 
@@ -1240,7 +1277,7 @@ bool CConsultation::IsFinished() const {
     return fState == DAOFlags::EXPIRED || fState == DAOFlags::PASSED;
 }
 
-std::string CConsultation::GetState(CBlockIndex* pindex) const {
+std::string CConsultation::GetState(const CBlockIndex* pindex) const {
     CStateViewCache view(pcoinsTip);
     std::string sFlags = "waiting for support";
 
@@ -1279,7 +1316,7 @@ bool CConsultation::IsSupported(CStateViewCache& view) const
     return HaveEnoughAnswers() && nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES);
 }
 
-std::string CConsultation::ToString(CBlockIndex* pindex) const {
+std::string CConsultation::ToString(const CBlockIndex* pindex) const {
     std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, status=%s, answers=[",
                                  hash.ToString(), nVersion, strDZeel, fState, GetState(pindex));
 
@@ -1359,7 +1396,7 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
     ret.pushKV("stateChangedOnBlock", blockhash.ToString());
 }
 
-bool CConsultation::IsExpired(CBlockIndex* pindex) const
+bool CConsultation::IsExpired(const CBlockIndex* pindex) const
 {
     if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
         auto nCreatedOnCycle = (unsigned int)(mapBlockIndex[blockhash]->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));

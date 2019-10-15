@@ -702,13 +702,13 @@ public:
         mapVotes.clear();
     };
 
-    std::string GetState(CBlockIndex* pindex) const;
-    std::string ToString(CBlockIndex* pindex) const;
+    std::string GetState(const CBlockIndex* pindex) const;
+    std::string ToString(const CBlockIndex* pindex) const;
     void ToJson(UniValue& ret, CStateViewCache& view) const;
     bool CanBeSupported() const;
     bool CanBeVoted() const;
     bool IsSupported(CStateViewCache& view) const;
-    bool IsExpired(CBlockIndex* pindex) const;
+    bool IsExpired(const CBlockIndex* pindex) const;
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;
     bool IsRange() const;
