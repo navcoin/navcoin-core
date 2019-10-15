@@ -4003,7 +4003,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     else if (view.HaveConsultationAnswer(it.first))
                     {
                         pindex->mapConsultationVotes.insert(make_pair(it.first, true));
-                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - consultation hash: %s vote: %yes\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
+                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - consultation hash: %s vote: yes\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
                     }
                 }
             }
