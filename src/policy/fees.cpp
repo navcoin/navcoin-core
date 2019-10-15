@@ -295,7 +295,7 @@ void CBlockPolicyEstimator::removeTx(uint256 hash)
     unsigned int entryHeight = pos->second.blockHeight;
     unsigned int bucketIndex = pos->second.bucketIndex;
 
-    if (stats != NULL)
+    if (stats != nullptr)
         stats->removeTx(entryHeight, nBestSeenHeight, bucketIndex);
     mapMemPoolTxs.erase(hash);
 }
@@ -347,7 +347,7 @@ void CBlockPolicyEstimator::processTransaction(const CTxMemPoolEntry& entry, boo
 {
     unsigned int txHeight = entry.GetHeight();
     uint256 hash = entry.GetTx().GetHash();
-    if (mapMemPoolTxs[hash].stats != NULL) {
+    if (mapMemPoolTxs[hash].stats != nullptr) {
         LogPrint("estimatefee", "Blockpolicy error mempool tx %s already being tracked\n",
                  hash.ToString().c_str());
 	return;

@@ -145,7 +145,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblocktemplate.reset(new CBlockTemplate());
 
     if(!pblocktemplate.get())
-        return NULL;
+        return nullptr;
     pblock = &pblocktemplate->block; // pointer for convenience
 
     // Add dummy coinbase tx as first transaction
@@ -237,7 +237,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if (mapBlockIndex.count(proposal.blockhash) == 0)
                     continue;
                 CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
-                if(pblockindex == NULL)
+                if(pblockindex == nullptr)
                     continue;
                 if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
                         && prequest.CanVote(*pcoinsTip) && votes.count(prequest.hash) == 0 &&
@@ -266,7 +266,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if (mapBlockIndex.count(prequest.blockhash) == 0)
                     continue;
                 CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
-                if(pblockindex == NULL)
+                if(pblockindex == nullptr)
                     continue;
                 if(prequest.hash == uint256())
                     continue;
@@ -979,7 +979,7 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
         return error("CheckStake(): could not find previous block");
 
     // verify hash target and signature of coinstake tx
-    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], pblock->vtx[1], pblock->nBits, proofHash, hashTarget, NULL, *pcoinsTip, false))
+    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], pblock->vtx[1], pblock->nBits, proofHash, hashTarget, nullptr, *pcoinsTip, false))
         return error("CheckStake() : proof-of-stake checking failed");
 
     //// debug print
@@ -1001,7 +1001,7 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
 
         // Process this block the same as if we had received it from another node
         CValidationState state;
-        if (!ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL))
+        if (!ProcessNewBlock(state, chainparams, nullptr, pblock, true, nullptr))
         {
             return error("NavCoinStaker: ProcessNewBlock, block not accepted");
         }

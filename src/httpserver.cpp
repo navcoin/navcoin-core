@@ -298,7 +298,7 @@ static void http_request_cb(struct evhttp_request* req, void* arg)
 static void http_reject_request_cb(struct evhttp_request* req, void*)
 {
     LogPrint("http", "Rejecting request while shutting down\n");
-    evhttp_send_error(req, HTTP_SERVUNAVAIL, NULL);
+    evhttp_send_error(req, HTTP_SERVUNAVAIL, nullptr);
 }
 
 /** Event dispatcher thread */
@@ -418,7 +418,7 @@ bool InitHTTPServer()
     evhttp_set_timeout(http, GetArg("-rpcservertimeout", DEFAULT_HTTP_SERVER_TIMEOUT));
     evhttp_set_max_headers_size(http, MAX_HEADERS_SIZE);
     evhttp_set_max_body_size(http, MAX_SIZE);
-    evhttp_set_gencb(http, http_request_cb, NULL);
+    evhttp_set_gencb(http, http_request_cb, nullptr);
 
     if (!HTTPBindAddresses(http)) {
         LogPrintf("Unable to bind any endpoint for RPC server\n");
@@ -460,7 +460,7 @@ void InterruptHTTPServer()
             evhttp_del_accept_socket(eventHTTP, socket);
         }
         // Reject requests on current connections
-        evhttp_set_gencb(eventHTTP, http_reject_request_cb, NULL);
+        evhttp_set_gencb(eventHTTP, http_reject_request_cb, nullptr);
     }
     if (workQueue)
         workQueue->Interrupt();
@@ -529,7 +529,7 @@ HTTPEvent::~HTTPEvent()
 }
 void HTTPEvent::trigger(struct timeval* tv)
 {
-    if (tv == NULL)
+    if (tv == nullptr)
         event_active(ev, 0, 0); // immediately trigger event in main thread
     else
         evtimer_add(ev, tv); // trigger after timeval passed

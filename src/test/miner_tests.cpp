@@ -224,7 +224,7 @@
 //         pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 //         pblock->nNonce = blockinfo[i].nonce;
 //         CValidationState state;
-//         BOOST_CHECK(ProcessNewBlock(state, chainparams, NULL, pblock, true, NULL));
+//         BOOST_CHECK(ProcessNewBlock(state, chainparams, nullptr, pblock, true, nullptr));
 //         BOOST_CHECK(state.IsValid());
 //         pblock->hashPrevBlock = pblock->GetHash();
 //     }

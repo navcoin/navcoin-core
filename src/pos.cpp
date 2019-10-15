@@ -13,9 +13,9 @@ double GetDifficulty(const CBlockIndex* blockindex)
 {
   // Floating point number that is a multiple of the minimum difficulty,
   // minimum difficulty = 1.0.
-  if (blockindex == NULL)
+  if (blockindex == nullptr)
   {
-      if (pindexBestHeader == NULL)
+      if (pindexBestHeader == nullptr)
           return 1.0;
       else
           blockindex = GetLastBlockIndex(pindexBestHeader, false);
@@ -52,7 +52,7 @@ double GetPoSKernelPS()
     int nStakesHandled = 0, nStakesTime = 0;
 
     CBlockIndex* pindex = pindexBestHeader;
-    CBlockIndex* pindexPrevStake = NULL;
+    CBlockIndex* pindexPrevStake = nullptr;
 
     while (pindex && nStakesHandled < nPoSInterval)
     {
