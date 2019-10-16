@@ -3471,7 +3471,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             if (fAnswer && fParent)
                             {
-                                if (answer.CanBeVoted(view))
+                                if (answer.CanBeVoted(view) && val != VoteFlags::SUPPORT)
                                 {
                                     if (mapCacheMaxAnswers.count(answer.parent) == 0)
                                         mapCacheMaxAnswers[answer.parent] = consultation.nMax;
@@ -3518,7 +3518,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    if (fValidConsultationAnswer)
+                                    if (fValidConsultationAnswer && !fSupport)
                                     {
                                         CConsultation parentConsultation;
                                         if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
@@ -3623,7 +3623,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 LogPrint("dao", "%s: Adding support vote at height %d - hash: %s\n", __func__, pindex->nHeight, hash.ToString());
                                 pindex->mapSupport.insert(make_pair(hash, true));
                             }
-                            else if (fDAOConsultations && fConsultation)
+                            else if (fDAOConsultations && fConsultation && !fSupport)
                             {
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
