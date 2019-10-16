@@ -3499,6 +3499,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     bool fSupport = tx.vout[j].IsSupportVote();
                     bool fConsultation = tx.vout[j].IsConsultationVote();
 
+                    if (!(fProposal || fPaymentRequest || fSupport || fConsultation))
+                        continue;
+
                     if(votes.count(hash) == 0)
                     {
                         votes[hash] = vote;
@@ -3520,13 +3523,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                             mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
                                         mapCountAnswers[answer.parent]++;
                                         if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                                        {
+                                            LogPrint("dao", "%s: Ignoring output %s. It exceeded max allowed of answers.", __func__, tx.vout[j].ToString());
                                             continue;
+                                        }
                                     }
                                     view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
                                     LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                                 }
                                 else
                                 {
+                                    LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
 
@@ -3551,10 +3558,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         if(!((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
                                                 && prequest.CanVote(view)
                                                 && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
+                                        {
+                                            LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
                                             continue;
+                                        }
                                     }
                                     else
                                     {
+                                        LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)", __func__, tx.vout[j].ToString());
                                         continue;
                                     }
                                 }
