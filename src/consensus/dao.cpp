@@ -300,7 +300,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     std::map<uint256, bool> mapSeen;
     std::map<uint256, bool> mapSeenSupport;
 
-    if (fUndo || nBlocks == 1 || mapCacheProposalsToUpdate.empty() || mapCachePaymentRequestToUpdate.empty() || mapCacheSupportToUpdate.empty() || mapCacheConsultationToUpdate.empty()) {
+    if (fUndo || nBlocks == 1) {// || (mapCacheProposalsToUpdate.empty() && mapCachePaymentRequestToUpdate.empty() || mapCacheSupportToUpdate.empty() || mapCacheConsultationToUpdate.empty()) {
         mapCacheProposalsToUpdate.clear();
         mapCachePaymentRequestToUpdate.clear();
         mapCacheSupportToUpdate.clear();
@@ -1528,7 +1528,7 @@ bool CConsultationAnswer::IsConsensusAccepted() const
 }
 
 std::string CConsultationAnswer::ToString() const {
-    return strprintf("CConsultationAnswer(fState=%u, sAnswer=\"%s\", nVotes=%u)", fState, sAnswer, nVotes);
+    return strprintf("CConsultationAnswer(fState=%u, sAnswer=\"%s\", nVotes=%u, nSupport=%u)", fState, sAnswer, nVotes, nSupport);
 }
 
 void CConsultationAnswer::ToJson(UniValue& ret) const {
