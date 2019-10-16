@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/foreach.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
@@ -16,7 +15,7 @@
 template <typename T>
 class CCheckQueueControl;
 
-/** 
+/**
  * Queue for verifications that have to be performed.
   * The verifications are represented by a type T, which must provide an
   * operator(), returning a bool.
@@ -119,7 +118,7 @@ private:
                 fOk = fAllOk;
             }
             // execute work
-            BOOST_FOREACH (T& check, vChecks)
+            for(T& check: vChecks)
                 if (fOk)
                     fOk = check();
             vChecks.clear();
@@ -146,7 +145,7 @@ public:
     void Add(std::vector<T>& vChecks)
     {
         boost::unique_lock<boost::mutex> lock(mutex);
-        BOOST_FOREACH (T& check, vChecks) {
+        for(T& check: vChecks) {
             queue.push_back(T());
             check.swap(queue.back());
         }
@@ -169,7 +168,7 @@ public:
 
 };
 
-/** 
+/**
  * RAII-style controller object for a CCheckQueue that guarantees the passed
  * queue is finished before continuing.
  */
