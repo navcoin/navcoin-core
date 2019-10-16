@@ -3508,6 +3508,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         if (fStake && fVoteCacheState && fStakerScript)
                         {
+                            LogPrint("dao", "%s: Looking for votes to add in the cache.", __func__);
+
                             if (fDAOConsultations && fConsultation)
                             {
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
@@ -3529,7 +3531,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         }
                                     }
                                     view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
-                                    LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
+                                    LogPrint("dao", "%s: Setting consultation vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                                 }
                                 else
                                 {
@@ -3577,8 +3579,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         }
                         else
                         {
+                            LogPrint("dao", "%s: Looking for votes to add in the block index.", __func__);
+
                             if (fCFund && (fProposal && view.GetProposal(hash, proposal) && proposal.CanVote()))
                             {
+                                LogPrint("dao", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                 pindex->vProposalVotes.push_back(make_pair(hash, vote));
                             }
                             else if (fCFund && (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))
@@ -3596,20 +3601,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     if(!((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
                                             && prequest.CanVote(view)
                                             && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
+                                    {
+                                        LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
                                         continue;
+                                    }
 
                                 }
                                 else
                                 {
+                                    LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
 
+                                LogPrint("dao", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                             }
                             else if(fDAOConsultations && fSupport &&
                                     ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported()) ||
                                      (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view))))
                             {
+                                LogPrint("dao", "%s: Adding support vote at height %d - hash: %s\n", __func__, pindex->nHeight, hash.ToString());
                                 pindex->mapSupport.insert(make_pair(hash, true));
                             }
                             else if (fDAOConsultations && fConsultation)
@@ -3631,12 +3642,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                             if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                                                 continue;
                                         }
-
+                                        LogPrint("dao", "%s: Adding consultation vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                         pindex->mapConsultationVotes.insert(make_pair(hash, vote));
                                     }
                                 }
                                 else
                                 {
+                                    LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
 
