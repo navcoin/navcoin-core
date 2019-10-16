@@ -3524,7 +3524,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         mapCountAnswers[answer.parent]++;
                                         if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                                         {
-                                            LogPrint("dao", "%s: Ignoring output %s. It exceeded max allowed of answers.", __func__, tx.vout[j].ToString());
+                                            LogPrint("dao", "%s: Ignoring output %s. It exceeded max allowed of answers (%d vs %d).", __func__, tx.vout[j].ToString(), mapCountAnswers[answer.parent], mapCacheMaxAnswers[answer.parent]);
                                             continue;
                                         }
                                     }
