@@ -1224,7 +1224,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation);
                       bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
 
-                      if (mapSupported.count(hash) == 0 && votes.count(hash) == 0 && !it.second.IsNull() && (fConsultation || fAnswer))
+                      if (((val == -3 && mapSupported.count(hash) == 0) || (val != -3 && votes.count(hash) == 0)) && !it.second.IsNull() && (fConsultation || fAnswer))
                       {
                           pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
                           if (val == -3)
