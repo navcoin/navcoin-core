@@ -27,7 +27,6 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
-#include <boost/foreach.hpp>
 
 #include <univalue.h>
 
@@ -63,7 +62,7 @@ unsigned int ParseScriptFlags(string strFlags)
     vector<string> words;
     boost::algorithm::split(words, strFlags, boost::algorithm::is_any_of(","));
 
-    BOOST_FOREACH(string word, words)
+    for(string word: words)
     {
         if (!mapFlagNames.count(word))
             BOOST_ERROR("Bad test: unknown verification flag '" << word << "'");
@@ -398,7 +397,7 @@ void CheckWithFlag(const CTransaction& output, const CMutableTransaction& input,
 static CScript PushAll(const vector<valtype>& values)
 {
     CScript result;
-    BOOST_FOREACH(const valtype& v, values) {
+    for(const valtype& v: values) {
         if (v.size() == 0) {
             result << OP_0;
         } else if (v.size() == 1 && v[0] >= 1 && v[0] <= 16) {
