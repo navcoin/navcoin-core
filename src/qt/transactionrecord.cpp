@@ -12,8 +12,6 @@
 
 #include <stdint.h>
 
-#include <boost/foreach.hpp>
-
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
@@ -60,7 +58,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 
         bool fAddedReward = false;
 
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for(const CTxOut& txout: wtx.vout)
         {
             isminetype mine = wallet->IsMine(txout);
             if(mine)
@@ -131,7 +129,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     {
         bool involvesWatchAddress = false;
         isminetype fAllFromMe = ISMINE_SPENDABLE;
-        BOOST_FOREACH(const CTxIn& txin, wtx.vin)
+        for(const CTxIn& txin: wtx.vin)
         {
             isminetype mine = wallet->IsMine(txin);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
@@ -139,7 +137,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
 
         isminetype fAllToMe = ISMINE_SPENDABLE;
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for(const CTxOut& txout: wtx.vout)
         {
             isminetype mine = wallet->IsMine(txout);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
@@ -231,7 +229,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
     // Determine transaction status
 
     // Find the block the tx is in
-    CBlockIndex* pindex = NULL;
+    CBlockIndex* pindex = nullptr;
     BlockMap::iterator mi = mapBlockIndex.find(wtx.hashBlock);
     if (mi != mapBlockIndex.end())
         pindex = (*mi).second;

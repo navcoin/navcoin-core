@@ -251,7 +251,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unitDisplayControl->setEditable(true);
     unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
     unitDisplayControl->setFixedHeight(25 * scale());
-    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+    for(NavCoinUnits::Unit u: NavCoinUnits::availableUnits())
     {
         unitDisplayControl->addItem(QString(NavCoinUnits::name(u)), u);
     }
@@ -1384,7 +1384,7 @@ void NavCoinGUI::message(const QString &title, const QString &message, unsigned 
         showNormalIfMinimized();
         QMessageBox mBox((QMessageBox::Icon)nMBoxIcon, strTitle, message, buttons, this);
         int r = mBox.exec();
-        if (ret != NULL)
+        if (ret != nullptr)
             *ret = r == QMessageBox::Ok;
     }
     else
@@ -1464,7 +1464,7 @@ void NavCoinGUI::dropEvent(QDropEvent *event)
 {
     if(event->mimeData()->hasUrls())
     {
-        Q_FOREACH(const QUrl &uri, event->mimeData()->urls())
+        for(const QUrl &uri: event->mimeData()->urls())
         {
             Q_EMIT receivedURI(uri.toString());
         }

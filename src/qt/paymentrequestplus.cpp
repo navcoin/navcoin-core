@@ -66,7 +66,7 @@ bool PaymentRequestPlus::getMerchant(X509_STORE* certStore, QString& merchant) c
 
     // One day we'll support more PKI types, but just
     // x509 for now:
-    const EVP_MD* digestAlgorithm = NULL;
+    const EVP_MD* digestAlgorithm = nullptr;
     if (paymentRequest.pki_type() == "x509+sha256") {
         digestAlgorithm = EVP_sha256();
     }
@@ -129,7 +129,7 @@ bool PaymentRequestPlus::getMerchant(X509_STORE* certStore, QString& merchant) c
         return false;
     }
 
-    char *website = NULL;
+    char *website = nullptr;
     bool fResult = true;
     try
     {
@@ -182,7 +182,7 @@ bool PaymentRequestPlus::getMerchant(X509_STORE* certStore, QString& merchant) c
 
 
         // OpenSSL API for getting human printable strings from certs is baroque.
-        int textlen = X509_NAME_get_text_by_NID(certname, NID_commonName, NULL, 0);
+        int textlen = X509_NAME_get_text_by_NID(certname, NID_commonName, nullptr, 0);
         website = new char[textlen + 1];
         if (X509_NAME_get_text_by_NID(certname, NID_commonName, website, textlen + 1) == textlen && textlen > 0) {
             merchant = website;

@@ -12,7 +12,6 @@
 
 #include <vector>
 
-#include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace std;
@@ -73,7 +72,7 @@ ScriptError VerifyWithFlag(const CTransaction& output, const CMutableTransaction
 {
     ScriptError error;
     CTransaction inputi(input);
-    bool ret = VerifyScript(inputi.vin[0].scriptSig, output.vout[0].scriptPubKey, inputi.wit.vtxinwit.size() > 0 ? &inputi.wit.vtxinwit[0].scriptWitness : NULL, flags, TransactionSignatureChecker(&inputi, 0, output.vout[0].nValue), &error);
+    bool ret = VerifyScript(inputi.vin[0].scriptSig, output.vout[0].scriptPubKey, inputi.wit.vtxinwit.size() > 0 ? &inputi.wit.vtxinwit[0].scriptWitness : nullptr, flags, TransactionSignatureChecker(&inputi, 0, output.vout[0].nValue), &error);
     BOOST_CHECK((ret == true) == (error == SCRIPT_ERR_OK));
 
     return error;

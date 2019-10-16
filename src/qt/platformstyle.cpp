@@ -32,8 +32,7 @@ void MakeImage(QImage& img, const QColor& colorbase)
 QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
 {
     QIcon new_ico;
-    QSize sz;
-    Q_FOREACH(sz, ico.availableSizes())
+    for(QSize sz: ico.availableSizes())
     {
         QImage img(ico.pixmap(sz).toImage());
         MakeImage(img, colorbase);

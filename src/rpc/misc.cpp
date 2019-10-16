@@ -73,7 +73,7 @@ UniValue getinfo(const UniValue& params, bool fHelp)
         );
 
 #ifdef ENABLE_WALLET
-    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
+    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : nullptr);
 #else
     LOCK(cs_main);
 #endif
@@ -164,7 +164,7 @@ public:
             obj.pushKV("script", GetTxnOutputType(whichType));
             obj.pushKV("hex", HexStr(subscript.begin(), subscript.end()));
             UniValue a(UniValue::VARR);
-            BOOST_FOREACH(const CTxDestination& addr, addresses)
+            for(const CTxDestination& addr: addresses)
                 a.push_back(CNavCoinAddress(addr).ToString());
             obj.pushKV("addresses", a);
             if (whichType == TX_MULTISIG)
@@ -207,7 +207,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
         );
 
 #ifdef ENABLE_WALLET
-    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
+    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : nullptr);
 #else
     LOCK(cs_main);
 #endif
@@ -541,7 +541,7 @@ UniValue setmocktime(const UniValue& params, bool fHelp)
     SetMockTime(params[0].get_int64());
 
     uint64_t t = GetTime();
-    BOOST_FOREACH(CNode* pnode, vNodes) {
+    for(CNode* pnode: vNodes) {
         pnode->nLastSend = pnode->nLastRecv = t;
     }
 

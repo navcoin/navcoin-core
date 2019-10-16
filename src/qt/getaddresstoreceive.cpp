@@ -9,8 +9,6 @@
 #include "getaddresstoreceive.h"
 #include "ui_getaddresstoreceive.h"
 
-#include <boost/foreach.hpp>
-
 #include <stdint.h>
 
 #include <QSettings>
@@ -26,7 +24,7 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     ui->setupUi(this);
 
     LOCK(pwalletMain->cs_wallet);
-    BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
+    for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: pwalletMain->mapAddressBook)
     {
         const CNavCoinAddress& addressbook = item.first;
         bool fMine = IsMine(*pwalletMain, addressbook.Get());

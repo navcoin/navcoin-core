@@ -139,7 +139,7 @@ static bool rest_headers(HTTPRequest* req,
     if (path.size() != 2)
         return RESTERR(req, HTTP_BAD_REQUEST, "No header count specified. Use /rest/headers/<count>/<hash>.<ext>.");
 
-    long count = strtol(path[0].c_str(), NULL, 10);
+    long count = strtol(path[0].c_str(), nullptr, 10);
     if (count < 1 || count > 2000)
         return RESTERR(req, HTTP_BAD_REQUEST, "Header count out of range: " + path[0]);
 
@@ -153,7 +153,7 @@ static bool rest_headers(HTTPRequest* req,
     {
         LOCK(cs_main);
         BlockMap::const_iterator it = mapBlockIndex.find(hash);
-        const CBlockIndex *pindex = (it != mapBlockIndex.end()) ? it->second : NULL;
+        const CBlockIndex *pindex = (it != mapBlockIndex.end()) ? it->second : nullptr;
         while (pindex != NULL && chainActive.Contains(pindex)) {
             headers.push_back(pindex);
             if (headers.size() == (unsigned long)count)
@@ -163,7 +163,7 @@ static bool rest_headers(HTTPRequest* req,
     }
 
     CDataStream ssHeader(SER_NETWORK, PROTOCOL_VERSION);
-    BOOST_FOREACH(const CBlockIndex *pindex, headers) {
+    for(const CBlockIndex *pindex: headers) {
         ssHeader << pindex->GetBlockHeader();
     }
 
@@ -183,7 +183,7 @@ static bool rest_headers(HTTPRequest* req,
     }
     case RF_JSON: {
         UniValue jsonHeaders(UniValue::VARR);
-        BOOST_FOREACH(const CBlockIndex *pindex, headers) {
+        for(const CBlockIndex *pindex: headers) {
             jsonHeaders.push_back(blockheaderToJSON(pindex));
         }
         string strJSON = jsonHeaders.write() + "\n";
@@ -214,7 +214,7 @@ static bool rest_block(HTTPRequest* req,
         return RESTERR(req, HTTP_BAD_REQUEST, "Invalid hash: " + hashStr);
 
     CBlock block;
-    CBlockIndex* pblockindex = NULL;
+    CBlockIndex* pblockindex = nullptr;
     {
         LOCK(cs_main);
         if (mapBlockIndex.count(hash) == 0)
@@ -570,7 +570,7 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
         objGetUTXOResponse.pushKV("bitmap", bitmapStringRepresentation);
 
         UniValue utxos(UniValue::VARR);
-        BOOST_FOREACH (const CCoin& coin, outs) {
+        for(const CCoin& coin: outs) {
             UniValue utxo(UniValue::VOBJ);
             utxo.pushKV("txvers", (int32_t)coin.nTxVer);
             utxo.pushKV("height", (int32_t)coin.nHeight);

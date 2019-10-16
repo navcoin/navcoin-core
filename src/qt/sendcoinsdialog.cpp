@@ -250,7 +250,7 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     QString questionString = tr("Are you sure you want to send?");
 
-    Q_FOREACH(const SendCoinsRecipient &rcp, currentTransaction.getRecipients())
+    for(const SendCoinsRecipient &rcp: currentTransaction.getRecipients())
     {
         nTotalAmount += rcp.amount;
     }
