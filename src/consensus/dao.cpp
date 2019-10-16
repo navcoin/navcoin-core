@@ -300,7 +300,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     std::map<uint256, bool> mapSeen;
     std::map<uint256, bool> mapSeenSupport;
 
-    if (fUndo || nBlocks == 1 || (mapCacheProposalsToUpdate.empty() && mapCachePaymentRequestToUpdate.empty() && mapCacheSupportToUpdate.empty() && mapCacheConsultationToUpdate.empty())) {
+    if (fUndo || nBlocks == 1 || mapCacheProposalsToUpdate.empty() || mapCachePaymentRequestToUpdate.empty() || mapCacheSupportToUpdate.empty() || mapCacheConsultationToUpdate.empty()) {
         mapCacheProposalsToUpdate.clear();
         mapCachePaymentRequestToUpdate.clear();
         mapCacheSupportToUpdate.clear();
@@ -330,6 +330,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if(mapSeen.count(pindexblock->vProposalVotes[i].first) == 0)
             {
+                LogPrint("dao", "%s: Found vote %d for proposal %s at block height %d\n", __func__,
+                         pindexblock->vProposalVotes[i].second, pindexblock->vProposalVotes[i].first.ToString(),
+                         pindexblock->nHeight);
+
                 if(mapCacheProposalsToUpdate.count(pindexblock->vProposalVotes[i].first) == 0)
                     mapCacheProposalsToUpdate[pindexblock->vProposalVotes[i].first] = make_pair(make_pair(0, 0), 0);
 
@@ -362,6 +366,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if(mapSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
             {
+                LogPrint("dao", "%s: Found vote %d for payment request %s at block height %d\n", __func__,
+                         pindexblock->vPaymentRequestVotes[i].second, pindexblock->vPaymentRequestVotes[i].first.ToString(),
+                         pindexblock->nHeight);
+
                 if(mapCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
                     mapCachePaymentRequestToUpdate[pindexblock->vPaymentRequestVotes[i].first] = make_pair(make_pair(0, 0), 0);
 
@@ -383,6 +391,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if ((view.GetConsultation(it.first, consultation) || view.GetConsultationAnswer(it.first, answer)) && !mapSeenSupport.count(it.first))
             {
+                LogPrint("dao", "%s: Found support vote for %s at block height %d\n", __func__,
+                         it.first.ToString(),
+                         pindexblock->nHeight);
+
                 if(mapCacheSupportToUpdate.count(it.first) == 0)
                     mapCacheSupportToUpdate[it.first] = 0;
 
@@ -403,6 +415,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
             {
+                LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d\n", __func__,
+                         it.second, it.first.ToString(), pindexblock->nHeight);
+
                 if (it.second == VoteFlags::CONSULTATION_ABSTAIN && view.GetConsultationAnswer(it.first, answer))
                 {
                     if(mapCacheConsultationToUpdate.count(std::make_pair(answer.parent,it.second)) == 0)
