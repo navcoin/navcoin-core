@@ -19,7 +19,7 @@ class ConsultationsTest(NavCoinTestFramework):
 
     def setup_network(self, split=False):
         self.nodes = []
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [[]])
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-debug=dao"],["-debug=dao"]])
 
     def run_test(self):
         # Get cfund parameters
@@ -100,7 +100,6 @@ class ConsultationsTest(NavCoinTestFramework):
         assert(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] == "reflection phase")
 
         end_cycle(self.nodes[0])
-        slow_gen(self.nodes[0] , 1)
 
         #cycle 4
 
@@ -160,7 +159,7 @@ class ConsultationsTest(NavCoinTestFramework):
                                 count = count + int(sum(answer.values()))
                             else:
                                 count = count + answer["votes"]
-                        assert(count == 5)
+                        assert_equal(count, 5)
                         valid = valid + 1
                 elif consultation["status"] == "finished, waiting for end of voting period":
                     valid = valid + 1
@@ -174,6 +173,68 @@ class ConsultationsTest(NavCoinTestFramework):
             valid = 0
             round = round + 1
             assert(round <= self.nodes[0].getconsensusparameters()[0])
+
+        hash = self.nodes[0].createconsultationwithanswers("question",["a","b"])['hash']
+        self.nodes[0].generate(1)
+
+        consultation = self.nodes[0].getconsultation(hash)
+        assert_equal(len(consultation["answers"]), 2)
+
+        self.nodes[0].support(consultation["answers"][0]['hash'])
+
+        self.nodes[0].generate(2)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['support'], 2)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['support'], 0)
+
+        self.nodes[0].support(consultation["answers"][0]['hash'], 'remove')
+        self.nodes[0].support(consultation["answers"][1]['hash'])
+
+        self.nodes[0].generate(2)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['support'], 2)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['support'], 2)
+
+        self.nodes[0].support(consultation["answers"][0]['hash'])
+
+        self.nodes[0].generate(2)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['support'], 4)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['support'], 4)
+
+        for i in range(self.nodes[0].getconsensusparameters()[2] + self.nodes[0].getconsensusparameters()[5] + 1):
+            end_cycle(self.nodes[0])
+            slow_gen(self.nodes[0] , 1)
+
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
+        self.nodes[0].generate(1)
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
+
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 1)
+        self.nodes[0].generate(1)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 1)
+
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
+        self.nodes[0].generate(1)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 2)
+
+        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'yes')
+        self.nodes[0].generate(1)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
+
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
+        self.nodes[0].generate(1)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 1)
+
+        self.nodes[0].generate(5)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 6)
+
+        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'remove')
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
+
+        self.nodes[0].generate(5)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 8)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 6)
+
 
 if __name__ == '__main__':
     ConsultationsTest().main()
