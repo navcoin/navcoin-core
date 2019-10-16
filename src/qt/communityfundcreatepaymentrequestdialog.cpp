@@ -194,14 +194,18 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Validate requested amount
         if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
             QMessageBox msgBox(this);
-            std::string str = "Requested amount must be greater than 0 NAV (Zero)\n";
+            QString str = tr("Requested amount must be greater than 0 NAV (Zero)\n");
             if (nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
-                str = "Requested amount %1 is more than avaible coins in the proposal (%2)\n";
+                str = tr("Requested amount %1 is more than avaible coins in the proposal (%2)\n")
+                    .arg(
+                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, nReqAmount),
+                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, proposal.GetAvailable(*pcoinsTip, true))
+                    );
             }
-            msgBox.setText(tr(str.c_str()).arg(NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, nReqAmount), NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, proposal.GetAvailable(*pcoinsTip, true))));
+            msgBox.setText(str);
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle("Invalid Amount");
+            msgBox.setWindowTitle(tr("Invalid Amount"));
             msgBox.exec();
             return;
         }
