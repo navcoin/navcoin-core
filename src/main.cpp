@@ -3962,6 +3962,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (fStake && fVoteCacheState && fStakerScript)
     {
         CVoteList pVoteList;
+        CProposal proposal;
+        CPaymentRequest prequest;
+        CConsultation consultation;
+        CConsultationAnswer answer;
 
         if (view.GetCachedVoter(stakerScript, pVoteList))
         {
@@ -3977,33 +3981,66 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (val == VoteFlags::CONSULTATION_REMOVE || val == VoteFlags::SUPPORT_REMOVE || val == VoteFlags::VOTE_REMOVE)
                         continue;
 
-                    if (view.HaveProposal(it.first))
+                    if (fCFund && view.HaveProposal(it.first) && view.GetProposal(it.first, proposal) && proposal.CanVote())
                     {
                         pindex->vProposalVotes.push_back(make_pair(it.first, val));
                         LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                     }
-                    else if (view.HavePaymentRequest(it.first))
+                    else if (fCFund && view.HavePaymentRequest(it.first) && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
                     {
+                        if (view.GetProposal(prequest.proposalhash, proposal))
+                        {
+                            if (mapBlockIndex.count(proposal.blockhash) == 0)
+                                continue;
+
+                            CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
+
+                            if(pblockindex == NULL)
+                                continue;
+
+                            if(!((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
+                                    && prequest.CanVote(view)
+                                    && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
+                                continue;
+
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
                         pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
                         LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                     }
-                    else if (val == VoteFlags::SUPPORT_ABSTAIN)
+                    else if (val == VoteFlags::SUPPORT)
                     {
-                        if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
+                        if (fDAOConsultations &&
+                                ((view.GetConsultation(it.first, consultation) && consultation.CanBeSupported()) ||
+                                 (view.GetConsultationAnswer(it.first, answer) && answer.CanBeSupported(view))))
                         {
                             pindex->mapSupport.insert(make_pair(it.first, true));
                             LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
                         }
                     }
-                    else if (view.HaveConsultation(it.first))
+                    else if (fDAOConsultations)
                     {
-                        pindex->mapConsultationVotes.insert(make_pair(it.first, val));
-                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - consultation hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
-                    }
-                    else if (view.HaveConsultationAnswer(it.first))
-                    {
-                        pindex->mapConsultationVotes.insert(make_pair(it.first, true));
-                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - consultation hash: %s vote: yes\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
+                        bool fValidConsultation = view.GetConsultation(it.first, consultation);
+                        bool fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer);
+
+                        if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (val == VoteFlags::CONSULTATION_REMOVE || val == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(val) || val == VoteFlags::CONSULTATION_REMOVE || val == VoteFlags::CONSULTATION_ABSTAIN))
+                                ||
+                            (fValidConsultationAnswer && answer.CanBeVoted(view)))
+                        {
+                            if (val != VoteFlags::CONSULTATION_REMOVE)
+                            {
+                                pindex->mapConsultationVotes.insert(make_pair(it.first, val));
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
                     }
                 }
             }

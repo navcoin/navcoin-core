@@ -468,7 +468,7 @@ bool CScript::ExtractSupportVote(uint256 &hash, int64_t &vote) const
         vote = VoteFlags::SUPPORT_REMOVE;
 
     if ((*this)[2] == OP_YES)
-        vote = VoteFlags::SUPPORT_ABSTAIN;
+        vote = VoteFlags::SUPPORT;
 
     return true;
 }
