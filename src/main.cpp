@@ -2559,19 +2559,19 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, pindex->pprev);
 
-            if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nVersionMaskProposal))
+            if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION)
             {
                 view.RemoveProposal(hash);
             }
-            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
+            else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
             {
                 view.RemovePaymentRequest(hash);
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION && IsValidConsultation(tx, view, nVersionMaskConsultation, pindex->pprev))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
             {
                 view.RemoveConsultation(hash);
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
+            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
             {
                 view.RemoveConsultationAnswer(hash);
             }

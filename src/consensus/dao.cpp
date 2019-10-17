@@ -565,10 +565,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!view.GetProposal(prequest->proposalhash, proposal))
                 continue;
 
-            auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            auto nCurrentCycle = (unsigned )(pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min((uint64_t)nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) + 1);
+            uint64_t nCreatedOnCycle = (pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nCurrentCycle = (pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
+            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) + 1);
 
             auto oldState = prequest->fState;
             auto oldCycle = prequest->nVotingCycle;
@@ -687,10 +687,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CBlockIndex* pblockindex = mapBlockIndex[proposal->txblockhash];
 
-            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min((uint64_t)nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) + 1);
+            uint64_t nCreatedOnCycle = (pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nCurrentCycle = (pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
+            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) + 1);
 
             auto oldState = proposal->fState;
             auto oldCycle = proposal->nVotingCycle;
@@ -922,10 +922,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CBlockIndex* pblockindex = mapBlockIndex[consultation->txblockhash];
 
-            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min((uint64_t)nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES) + 1);
+            uint64_t nCreatedOnCycle = (pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nCurrentCycle = (pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
+            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES) + 1);
 
             auto oldState = consultation->fState;
             auto oldCycle = consultation->nVotingCycle;
@@ -1414,9 +1414,9 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
 bool CConsultation::IsExpired(const CBlockIndex* pindex) const
 {
     if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-        auto nCreatedOnCycle = (unsigned int)(mapBlockIndex[blockhash]->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-        auto nCurrentCycle = (unsigned int)(pindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-        auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
+        uint64_t nAcceptedOnCycle = ((uint64_t)mapBlockIndex[blockhash]->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+        uint64_t nCurrentCycle = ((uint64_t)pindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+        uint64_t nElapsedCycles = std::max(nCurrentCycle - nAcceptedOnCycle, (uint64_t)0);
         return (nElapsedCycles > GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES));
     }
     return (fState == DAOFlags::EXPIRED) || (ExceededMaxVotingCycles() && fState == DAOFlags::NIL);
