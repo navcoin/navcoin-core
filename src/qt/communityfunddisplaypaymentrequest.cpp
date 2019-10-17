@@ -89,7 +89,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     if (prequest.fState == DAOFlags::NIL)
     {
         ui->labelTitleDuration->setText(tr("Voting Cycle: "));
-        ui->labelDuration->setText(QString::number(prequest.nVotingCycle) + tr("of") + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
+        ui->labelDuration->setText(QString::number(prequest.nVotingCycle) + tr(" of ") + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
     }
 
     // If prequest is rejected, show when it was rejected
