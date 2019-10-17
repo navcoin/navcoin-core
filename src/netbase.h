@@ -6,11 +6,11 @@
 #define NAVCOIN_NETBASE_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "compat.h"
-#include "serialize.h"
+#include <compat.h>
+#include <serialize.h>
 
 #include <stdint.h>
 #include <string>

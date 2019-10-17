@@ -6,11 +6,11 @@
 // Unit tests for block-chain checkpoints
 //
 
-#include "checkpoints.h"
+#include <checkpoints.h>
 
-#include "uint256.h"
-#include "test/test_navcoin.h"
-#include "chainparams.h"
+#include <uint256.h>
+#include <test/test_navcoin.h>
+#include <chainparams.h>
 
 #include <boost/test/unit_test.hpp>
 

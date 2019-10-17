@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_QT_NAVCOINAMOUNTFIELD_H
 #define NAVCOIN_QT_NAVCOINAMOUNTFIELD_H
 
-#include "amount.h"
+#include <amount.h>
 
 #include <QLabel>
 #include <QWidget>

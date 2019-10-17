@@ -1,12 +1,12 @@
-#include "navtech.h"
-#include "net.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <wallet/navtech.h>
+#include <net.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #include <stdexcept>
 #include <algorithm>
 #include <sstream>
-#include "rpc/server.h"
+#include <rpc/server.h>
 #include <stdio.h>
 #include <iterator>
 #include <openssl/aes.h>

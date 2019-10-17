@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "navcoinamountfield.h"
+#include <qt/navcoinamountfield.h>
 
-#include "navcoinunits.h"
-#include "guiconstants.h"
-#include "qvaluecombobox.h"
-#include "skinize.h"
+#include <qt/navcoinunits.h>
+#include <qt/guiconstants.h>
+#include <qt/qvaluecombobox.h>
+#include <qt/skinize.h>
 
 #include <QApplication>
 #include <QAbstractSpinBox>
@@ -192,7 +192,7 @@ Q_SIGNALS:
 
 };
 
-#include "navcoinamountfield.moc"
+#include <qt/navcoinamountfield.moc>
 
 NavCoinAmountField::NavCoinAmountField(QWidget *parent) :
     QWidget(parent),

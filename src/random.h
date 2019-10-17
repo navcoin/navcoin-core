@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_RANDOM_H
 #define NAVCOIN_RANDOM_H
 
-#include "uint256.h"
+#include <uint256.h>
 
 #include <stdint.h>
 

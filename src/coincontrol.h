@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_COINCONTROL_H
 #define NAVCOIN_COINCONTROL_H
 
-#include "primitives/transaction.h"
+#include <primitives/transaction.h>
 
 /** Coin Control Features. */
 class CCoinControl

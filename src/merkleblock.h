@@ -6,10 +6,10 @@
 #ifndef NAVCOIN_MERKLEBLOCK_H
 #define NAVCOIN_MERKLEBLOCK_H
 
-#include "serialize.h"
-#include "uint256.h"
-#include "primitives/block.h"
-#include "bloom.h"
+#include <serialize.h>
+#include <uint256.h>
+#include <primitives/block.h>
+#include <bloom.h>
 
 #include <vector>
 

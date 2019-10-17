@@ -7,7 +7,7 @@
 #define NAVCOIN_COMPAT_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
 #ifdef WIN32
@@ -49,7 +49,7 @@
 #define MSG_DONTWAIT        0
 #else
 typedef u_int SOCKET;
-#include "errno.h"
+#include <errno.h>
 #define WSAGetLastError()   errno
 #define WSAEINVAL           EINVAL
 #define WSAEALREADY         EALREADY

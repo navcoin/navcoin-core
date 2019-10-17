@@ -2,15 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "util.h"
+#include <util.h>
 
-#include "clientversion.h"
-#include "primitives/transaction.h"
-#include "random.h"
-#include "sync.h"
-#include "utilstrencodings.h"
-#include "utilmoneystr.h"
-#include "test/test_navcoin.h"
+#include <clientversion.h>
+#include <primitives/transaction.h>
+#include <random.h>
+#include <sync.h>
+#include <utilstrencodings.h>
+#include <utilmoneystr.h>
+#include <test/test_navcoin.h>
 
 #include <stdint.h>
 #include <vector>

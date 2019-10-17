@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QDialog>
-#include "../consensus/cfund.h"
+#include <qt/../consensus/cfund.h>
 
 namespace Ui {
 class CommunityFundSuccessDialog;
