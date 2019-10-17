@@ -1,19 +1,19 @@
-#include "communityfundpage.h"
-#include "forms/ui_communityfundpage.h"
-#include "communityfundpage.moc"
+#include <qt/communityfundpage.h>
+#include <qt/forms/ui_communityfundpage.h>
+#include <qt/communityfundpage.moc>
 
-#include "main.h"
-#include "txdb.h"
-#include "wallet/wallet.h"
+#include <main.h>
+#include <txdb.h>
+#include <wallet/wallet.h>
 #include <string>
 #include <iomanip>
 #include <sstream>
 #include <QAbstractScrollArea>
 
-#include "communityfunddisplay.h"
-#include "communityfunddisplaypaymentrequest.h"
-#include "communityfundcreateproposaldialog.h"
-#include "communityfundcreatepaymentrequestdialog.h"
+#include <qt/communityfunddisplay.h>
+#include <qt/communityfunddisplaypaymentrequest.h>
+#include <qt/communityfundcreateproposaldialog.h>
+#include <qt/communityfundcreatepaymentrequestdialog.h>
 
 CommunityFundPage::CommunityFundPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),

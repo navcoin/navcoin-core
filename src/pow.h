@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_POW_H
 #define NAVCOIN_POW_H
 
-#include "consensus/params.h"
+#include <consensus/params.h>
 
 #include <stdint.h>
 

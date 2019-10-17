@@ -6,9 +6,9 @@
 #ifndef NAVCOIN_POLICY_POLICY_H
 #define NAVCOIN_POLICY_POLICY_H
 
-#include "consensus/consensus.h"
-#include "script/interpreter.h"
-#include "script/standard.h"
+#include <consensus/consensus.h>
+#include <script/interpreter.h>
+#include <script/standard.h>
 
 #include <string>
 

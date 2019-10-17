@@ -1,9 +1,9 @@
-#include "navtechsetup.h"
-#include "navtechitem.h"
-#include "ui_navtechsetup.h"
-#include "net.h"
-#include "skinize.h"
-#include "util.h"
+#include <qt/navtechsetup.h>
+#include <qt/navtechitem.h>
+#include <qt/ui_navtechsetup.h>
+#include <net.h>
+#include <qt/skinize.h>
+#include <util.h>
 
 #include <QVBoxLayout>
 #include <QListWidgetItem>

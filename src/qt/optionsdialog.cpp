@@ -3,24 +3,24 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "optionsdialog.h"
-#include "ui_optionsdialog.h"
+#include <qt/optionsdialog.h>
+#include <ui_optionsdialog.h>
 
-#include "navcoinunits.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
+#include <qt/navcoinunits.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
 
-#include "chainparams.h"
-#include "main.h" // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
-#include "miner.h"
-#include "netbase.h"
-#include "txdb.h" // for -dbcache defaults
+#include <chainparams.h>
+#include <main.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
+#include <miner.h>
+#include <netbase.h>
+#include <txdb.h> // for -dbcache defaults
 
 #ifdef ENABLE_WALLET
-#include "wallet/wallet.h" // for CWallet::GetRequiredFee()
+#include <wallet/wallet.h> // for CWallet::GetRequiredFee()
 #endif
 
 #include <boost/thread.hpp>

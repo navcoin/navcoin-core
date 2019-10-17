@@ -3,13 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <vector>
-#include "prevector.h"
-#include "random.h"
+#include <prevector.h>
+#include <random.h>
 
-#include "serialize.h"
-#include "streams.h"
+#include <serialize.h>
+#include <streams.h>
 
-#include "test/test_navcoin.h"
+#include <test/test_navcoin.h>
 
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/test/unit_test.hpp>

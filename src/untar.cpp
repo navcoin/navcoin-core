@@ -1,6 +1,6 @@
 // Based on original code by Tim Kientzle, March 2009.
 
-#include "util.h"
+#include <util.h>
 
 #include <stdio.h>
 #include <stdlib.h>

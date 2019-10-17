@@ -1,8 +1,8 @@
 #ifndef COMMUNITYFUNDCREATEPROPOSALDIALOG_H
 #define COMMUNITYFUNDCREATEPROPOSALDIALOG_H
 
-#include "qvalidatedspinbox.h"
-#include "walletmodel.h"
+#include <qt/qvalidatedspinbox.h>
+#include <qt/walletmodel.h>
 
 #include <QDialog>
 

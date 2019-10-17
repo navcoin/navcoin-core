@@ -4,36 +4,36 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "miner.h"
+#include <miner.h>
 
-#include "amount.h"
-#include "base58.h"
-#include "chain.h"
-#include "chainparams.h"
-#include "coins.h"
-#include "consensus/consensus.h"
-#include "consensus/merkle.h"
-#include "consensus/validation.h"
-#include "core_io.h"
-#include "hash.h"
-#include "init.h"
-#include "main.h"
-#include "net.h"
-#include "ntpclient.h"
-#include "policy/policy.h"
-#include "pos.h"
-#include "primitives/transaction.h"
-#include "script/sign.h"
-#include "script/standard.h"
-#include "timedata.h"
-#include "txmempool.h"
-#include "util.h"
-#include "utiltime.h"
-#include "utilmoneystr.h"
-#include "validationinterface.h"
-#include "versionbits.h"
-#include "wallet/wallet.h"
-#include "kernel.h"
+#include <amount.h>
+#include <base58.h>
+#include <chain.h>
+#include <chainparams.h>
+#include <coins.h>
+#include <consensus/consensus.h>
+#include <consensus/merkle.h>
+#include <consensus/validation.h>
+#include <core_io.h>
+#include <hash.h>
+#include <init.h>
+#include <main.h>
+#include <net.h>
+#include <ntpclient.h>
+#include <policy/policy.h>
+#include <pos.h>
+#include <primitives/transaction.h>
+#include <script/sign.h>
+#include <script/standard.h>
+#include <timedata.h>
+#include <txmempool.h>
+#include <util.h>
+#include <utiltime.h>
+#include <utilmoneystr.h>
+#include <validationinterface.h>
+#include <versionbits.h>
+#include <wallet/wallet.h>
+#include <kernel.h>
 
 #include <algorithm>
 #include <boost/thread.hpp>

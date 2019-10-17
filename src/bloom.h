@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_BLOOM_H
 #define NAVCOIN_BLOOM_H
 
-#include "serialize.h"
+#include <serialize.h>
 
 #include <vector>
 

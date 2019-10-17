@@ -6,10 +6,10 @@
 #ifndef NAVCOIN_WALLET_WALLETDB_H
 #define NAVCOIN_WALLET_WALLETDB_H
 
-#include "amount.h"
-#include "primitives/transaction.h"
-#include "wallet/db.h"
-#include "key.h"
+#include <amount.h>
+#include <primitives/transaction.h>
+#include <wallet/db.h>
+#include <key.h>
 
 #include <list>
 #include <stdint.h>
