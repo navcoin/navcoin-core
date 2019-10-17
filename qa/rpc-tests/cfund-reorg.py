@@ -94,6 +94,7 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
         assert_equal(self.nodes[0].getpaymentrequest(hash)['hash'], hash)
 
         assert_equal(self.nodes[0].getpaymentrequest(hash)["blockHash"], blockhash1)
+        assert_equal(self.nodes[1].getpaymentrequest(hash)["blockHash"], blockhash1)
 
 
 
