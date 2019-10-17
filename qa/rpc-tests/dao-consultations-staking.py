@@ -174,6 +174,8 @@ class ConsultationsTest(NavCoinTestFramework):
             round = round + 1
             assert(round <= self.nodes[0].getconsensusparameters()[0])
 
+        self.end_cycle_stake(self.nodes[0])
+
         hash = self.nodes[0].createconsultationwithanswers("question",["a","b"])['hash']
         self.stake_block(self.nodes[0], 1)
 
@@ -200,7 +202,7 @@ class ConsultationsTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['support'], 4)
 
         for i in range(self.nodes[0].getconsensusparameters()[2] + self.nodes[0].getconsensusparameters()[5] + 1):
-            self.self.end_cycle_stake(self.nodes[0])
+            self.end_cycle_stake(self.nodes[0])
             self.stake_block(self.nodes[0] , 1)
 
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
