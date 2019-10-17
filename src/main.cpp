@@ -3519,7 +3519,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    if (fValidConsultationAnswer && !fSupport)
+                                    if (fValidConsultationAnswer && !fSupport && vote != VoteFlags::CONSULTATION_REMOVE)
                                     {
                                         CConsultation parentConsultation;
                                         if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
