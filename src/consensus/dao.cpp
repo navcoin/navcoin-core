@@ -1335,23 +1335,42 @@ std::string CConsultation::ToString(const CBlockIndex* pindex) const {
     std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, status=%s, answers=[",
                                  hash.ToString(), nVersion, strDZeel, fState, GetState(pindex));
 
-    CConsultationAnswerMap mapConsultationAnswers;
-
-    if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
+    UniValue answers(UniValue::VARR);
+    if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
     {
-        for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+        UniValue a(UniValue::VOBJ);
+        for (auto &it: mapVotes)
         {
-            CConsultationAnswer answer;
+            sRet += ((it.first == (uint64_t)-5 ? "abstain" : to_string(it.first)) + "=" + to_string(it.second) + ", ");
+        }
 
-            if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
-                continue;
+    }
+    else
+    {
+        if (mapVotes.count((uint64_t)-5) != 0)
+        {
+             sRet += "abstain=" + to_string(mapVotes.at((uint64_t)-5)) + ", ";
+        }
+        CConsultationAnswerMap mapConsultationAnswers;
 
-            if (answer.parent != hash)
-                continue;
+        if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
+        {
+            for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
+            {
+                CConsultationAnswer answer;
 
-            sRet += answer.ToString();
+                if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
+                    continue;
+
+                if (answer.parent != hash)
+                    continue;
+
+                sRet += answer.ToString();
+            }
         }
     }
+
+
 
     sRet += strprintf("], nVotingCycle=%u, nSupport=%u, blockhash=%s)",
                      nVotingCycle, nSupport, blockhash.ToString().substr(0,10));
