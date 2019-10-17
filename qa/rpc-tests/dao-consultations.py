@@ -224,16 +224,16 @@ class ConsultationsTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 1)
 
-        self.nodes[0].generate(5)
+        self.nodes[0].generate(2)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 6)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 3)
 
         self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'remove')
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
 
-        self.nodes[0].generate(5)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 8)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 6)
+        self.nodes[0].generate(2)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 5)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 3)
 
 
 if __name__ == '__main__':

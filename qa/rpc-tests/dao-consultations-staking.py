@@ -224,16 +224,16 @@ class ConsultationsTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 1)
 
-        self.stake_block(self.nodes[0], 5)
+        self.stake_block(self.nodes[0], 2)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 6)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 3)
 
         self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'remove')
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
 
-        self.stake_block(self.nodes[0], 5)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 8)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 6)
+        self.stake_block(self.nodes[0], 2)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 5)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 3)
 
     def stake_block(self, node, count=1):
         # Get the current block count to check against while we wait for a stake
