@@ -143,7 +143,7 @@ bool parseCommandLine(std::vector<std::string> &args, const std::string &strComm
         STATE_ESCAPE_DOUBLEQUOTED
     } state = STATE_EATING_SPACES;
     std::string curarg;
-    Q_FOREACH(char ch, strCommand)
+    for(char ch: strCommand)
     {
         switch(state)
         {
@@ -325,7 +325,7 @@ RPCConsole::~RPCConsole()
 void RPCConsole::errorLogInitPos()
 {
     // Check if we already have the file
-    if (errorLogFile == NULL) {
+    if (errorLogFile == nullptr) {
         // Get a QFile instance
         errorLogFile = new QFile(QString::fromStdString(GetErrorLogPath().string()));
 
@@ -847,7 +847,7 @@ void RPCConsole::peerLayoutChanged()
     if (!clientModel || !clientModel->getPeerTableModel())
         return;
 
-    const CNodeCombinedStats *stats = NULL;
+    const CNodeCombinedStats *stats = nullptr;
     bool fUnselect = false;
     bool fReselect = false;
 

@@ -614,7 +614,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
     int64_t nTimeStart2 = GetTimeMicros();
 
-    while(nBlocks > 0 && pindexblock != NULL)
+    while(nBlocks > 0 && pindexblock != nullptr)
     {
         CProposal proposal;
         CPaymentRequest prequest;
