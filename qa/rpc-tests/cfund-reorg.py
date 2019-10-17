@@ -91,6 +91,17 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
         assert_equal(self.nodes[0].getpaymentrequest(hash)['hash'], hash)
 
 
+  
+        
+        #payment request recorded blockHash is still the block which should have been reorged out of the chain
+        print(preq1)
+        print(self.nodes[0].getpaymentrequest(hash))
+        print(self.nodes[1].getpaymentrequest(hash))
+
+        assert(self.nodes[0].getpaymentrequest(hash) != preq1)
+        assert(self.nodes[1].getpaymentrequest(hash) != preq1)
+
+
 
 if __name__ == '__main__':
     CommunityFundProposalReorg().main()
