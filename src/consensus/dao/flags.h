@@ -26,8 +26,6 @@ static const int64_t VOTE_ABSTAIN = -1;
 static const int64_t VOTE_REMOVE = -2;
 static const int64_t SUPPORT = -3;
 static const int64_t SUPPORT_REMOVE = -4;
-static const int64_t CONSULTATION_ABSTAIN = -5;
-static const int64_t CONSULTATION_REMOVE = -6;
 }
 
 #endif // FLAGS_H

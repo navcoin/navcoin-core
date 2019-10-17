@@ -484,10 +484,10 @@ bool CScript::ExtractConsultationVote(uint256 &hash, int64_t &vote) const
     vote = 0;
 
     if ((*this)[2] == OP_REMOVE)
-        vote = VoteFlags::CONSULTATION_REMOVE;
+        vote = VoteFlags::VOTE_REMOVE;
 
     else if ((*this)[2] == OP_ABSTAIN)
-        vote = VoteFlags::CONSULTATION_ABSTAIN;
+        vote = VoteFlags::VOTE_ABSTAIN;
 
     else if (this->size() > 36)
     {

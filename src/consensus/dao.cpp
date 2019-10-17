@@ -418,7 +418,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d\n", __func__,
                          it.second, it.first.ToString(), pindexblock->nHeight);
 
-                if (it.second == VoteFlags::CONSULTATION_ABSTAIN && view.GetConsultationAnswer(it.first, answer))
+                if (it.second == VoteFlags::VOTE_ABSTAIN && view.GetConsultationAnswer(it.first, answer))
                 {
                     if(mapCacheConsultationToUpdate.count(std::make_pair(answer.parent,it.second)) == 0)
                         mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] = 0;

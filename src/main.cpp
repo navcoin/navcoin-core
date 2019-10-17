@@ -3472,7 +3472,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             if (fAnswer && fParent)
                             {
-                                if (answer.CanBeVoted(view) && val != VoteFlags::SUPPORT)
+                                if (answer.CanBeVoted(view) && val != VoteFlags::SUPPORT && val != VoteFlags::SUPPORT_REMOVE && VoteFlags::VOTE_REMOVE)
                                 {
                                     if (mapCacheMaxAnswers.count(answer.parent) == 0)
                                         mapCacheMaxAnswers[answer.parent] = consultation.nMax;
@@ -3516,10 +3516,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN)) ||
+                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    if (fValidConsultationAnswer && !fSupport && vote != VoteFlags::CONSULTATION_REMOVE)
+                                    if (fValidConsultationAnswer && !fSupport && vote != VoteFlags::VOTE_REMOVE)
                                     {
                                         CConsultation parentConsultation;
                                         if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
@@ -3629,10 +3629,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::CONSULTATION_REMOVE || vote == VoteFlags::CONSULTATION_ABSTAIN)) ||
+                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    if (vote != VoteFlags::CONSULTATION_REMOVE)
+                                    if (vote != VoteFlags::VOTE_REMOVE)
                                     {
                                         if (fValidConsultationAnswer)
                                         {
@@ -4002,7 +4002,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     int64_t val;
                     it.second.GetValue(val);
 
-                    if (val == VoteFlags::CONSULTATION_REMOVE || val == VoteFlags::SUPPORT_REMOVE || val == VoteFlags::VOTE_REMOVE)
+                    if (val == VoteFlags::SUPPORT_REMOVE || val == VoteFlags::VOTE_REMOVE)
                         continue;
 
                     if (fCFund && view.HaveProposal(it.first) && view.GetProposal(it.first, proposal) && proposal.CanVote())
@@ -4051,11 +4051,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         bool fValidConsultation = view.GetConsultation(it.first, consultation);
                         bool fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer);
 
-                        if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (val == VoteFlags::CONSULTATION_REMOVE || val == VoteFlags::CONSULTATION_ABSTAIN))) && (consultation.IsValidVote(val) || val == VoteFlags::CONSULTATION_REMOVE || val == VoteFlags::CONSULTATION_ABSTAIN))
+                        if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (val == VoteFlags::VOTE_REMOVE || val == VoteFlags::VOTE_ABSTAIN))) && (consultation.IsValidVote(val) || val == VoteFlags::VOTE_REMOVE || val == VoteFlags::VOTE_ABSTAIN))
                                 ||
                             (fValidConsultationAnswer && answer.CanBeVoted(view)))
                         {
-                            if (val != VoteFlags::CONSULTATION_REMOVE)
+                            if (val != VoteFlags::VOTE_REMOVE)
                             {
                                 pindex->mapConsultationVotes.insert(make_pair(it.first, val));
                             }
