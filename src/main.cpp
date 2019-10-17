@@ -3508,7 +3508,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                         if (fStake && fVoteCacheState && fStakerScript)
                         {
-                            LogPrint("dao", "%s: Looking for votes to add in the cache.", __func__);
+                            LogPrint("dao", "%s: Looking for votes to add in the cache.\n", __func__);
 
                             if (fDAOConsultations && fConsultation)
                             {
@@ -3526,7 +3526,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         mapCountAnswers[answer.parent]++;
                                         if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                                         {
-                                            LogPrint("dao", "%s: Ignoring output %s. It exceeded max allowed of answers (%d vs %d).", __func__, tx.vout[j].ToString(), mapCountAnswers[answer.parent], mapCacheMaxAnswers[answer.parent]);
+                                            LogPrint("dao", "%s: Ignoring output %s. It exceeded max allowed of answers (%d vs %d).\n", __func__, tx.vout[j].ToString(), mapCountAnswers[answer.parent], mapCacheMaxAnswers[answer.parent]);
                                             continue;
                                         }
                                     }
@@ -3535,7 +3535,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 }
                                 else
                                 {
-                                    LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
+                                    LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
 
@@ -3561,13 +3561,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                                 && prequest.CanVote(view)
                                                 && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                                         {
-                                            LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
+                                            LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                             continue;
                                         }
                                     }
                                     else
                                     {
-                                        LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)", __func__, tx.vout[j].ToString());
+                                        LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)\n", __func__, tx.vout[j].ToString());
                                         continue;
                                     }
                                 }
@@ -3579,7 +3579,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         }
                         else
                         {
-                            LogPrint("dao", "%s: Looking for votes to add in the block index.", __func__);
+                            LogPrint("dao", "%s: Looking for votes to add in the block index.\n", __func__);
 
                             if (fCFund && (fProposal && view.GetProposal(hash, proposal) && proposal.CanVote()))
                             {
@@ -3602,14 +3602,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                             && prequest.CanVote(view)
                                             && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                                     {
-                                        LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
+                                        LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                         continue;
                                     }
 
                                 }
                                 else
                                 {
-                                    LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)", __func__, tx.vout[j].ToString());
+                                    LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)\n", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
 
@@ -3648,7 +3648,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 }
                                 else
                                 {
-                                    LogPrint("dao", "%s: Ignoring invalid vote output %s", __func__, tx.vout[j].ToString());
+                                    LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
 
