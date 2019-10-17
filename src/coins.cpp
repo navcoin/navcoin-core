@@ -5,14 +5,9 @@
 
 #include <coins.h>
 
-<<<<<<< HEAD
-#include "memusage.h"
-#include "random.h"
-#include "util.h"
-=======
 #include <memusage.h>
 #include <random.h>
->>>>>>> upstream/master
+#include <util.h>
 
 #include <assert.h>
 

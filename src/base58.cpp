@@ -320,13 +320,10 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
 {
     if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
         return vchData.size() == 40;
-<<<<<<< HEAD
     if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS_V2))
         return vchData.size() == 60;
-=======
     if (vchVersion == params.Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
         return vchData.size() > 0;
->>>>>>> upstream/master
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);

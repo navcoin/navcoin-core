@@ -3,32 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-<<<<<<< HEAD
-#include "amount.h"
-#include "base58.h"
-#include "chain.h"
-#include "consensus/dao.h"
-#include "core_io.h"
-#include "init.h"
-#include "main.h"
-#include "navtech.h"
-#include "net.h"
-#include "netbase.h"
-#include "policy/rbf.h"
-#include "pos.h"
-#include "rpc/server.h"
-#include "txdb.h"
-#include "timedata.h"
-#include "util.h"
-#include "utils/dns_utils.h"
-#include "utilmoneystr.h"
-#include "wallet.h"
-#include "walletdb.h"
-=======
 #include <amount.h>
 #include <base58.h>
 #include <chain.h>
-#include <consensus/cfund.h>
+#include <consensus/dao.h>
 #include <core_io.h>
 #include <init.h>
 #include <main.h>
@@ -45,7 +23,6 @@
 #include <utilmoneystr.h>
 #include <wallet/wallet.h>
 #include <wallet/walletdb.h>
->>>>>>> upstream/master
 
 #include <stdint.h>
 

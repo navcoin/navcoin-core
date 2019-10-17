@@ -218,8 +218,8 @@ public:
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 
-static CCoinsViewDB *pcoinsdbview = nullptr;
-static CCoinsViewErrorCatcher *pcoinscatcher = nullptr;
+static CStateViewDB *pcoinsdbview = nullptr;
+static CStateViewErrorCatcher *pcoinscatcher = nullptr;
 static boost::scoped_ptr<ECCVerifyHandle> globalVerifyHandle;
 
 void Interrupt(boost::thread_group& threadGroup)

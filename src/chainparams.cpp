@@ -4,14 +4,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-<<<<<<< HEAD
-#include "chainparams.h"
-#include "consensus/merkle.h"
-#include "consensus/dao.h"
-=======
+#include <consensus/dao.h>
 #include <chainparams.h>
 #include <consensus/merkle.h>
->>>>>>> upstream/master
 
 #include <tinyformat.h>
 #include <util.h>

@@ -164,11 +164,7 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
                     missed_an_entry = true;
                 }
             }
-<<<<<<< HEAD
-            BOOST_FOREACH(const CStateViewCacheTest *test, stack) {
-=======
-            for(const CCoinsViewCacheTest *test: stack) {
->>>>>>> upstream/master
+            for(const CStateViewCacheTest *test: stack) {
                 test->SelfTest();
             }
         }
