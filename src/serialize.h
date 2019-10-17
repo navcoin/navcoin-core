@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_SERIALIZE_H
 #define NAVCOIN_SERIALIZE_H
 
-#include "compat/endian.h"
+#include <compat/endian.h>
 
 #include <algorithm>
 #include <assert.h>

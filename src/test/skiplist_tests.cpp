@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "chain.h"
-#include "random.h"
-#include "util.h"
-#include "test/test_navcoin.h"
+#include <chain.h>
+#include <random.h>
+#include <util.h>
+#include <test/test_navcoin.h>
 
 #include <vector>
 
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(skiplist_test)
             BOOST_CHECK(vIndex[i].pskip == &vIndex[vIndex[i].pskip->nHeight]);
             BOOST_CHECK(vIndex[i].pskip->nHeight < i);
         } else {
-            BOOST_CHECK(vIndex[i].pskip == NULL);
+            BOOST_CHECK(vIndex[i].pskip == nullptr);
         }
     }
 
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(getlocator_test)
     for (unsigned int i=0; i<vBlocksMain.size(); i++) {
         vHashMain[i] = ArithToUint256(i); // Set the hash equal to the height, so we can quickly check the distances.
         vBlocksMain[i].nHeight = i;
-        vBlocksMain[i].pprev = i ? &vBlocksMain[i - 1] : NULL;
+        vBlocksMain[i].pprev = i ? &vBlocksMain[i - 1] : nullptr;
         vBlocksMain[i].phashBlock = &vHashMain[i];
         vBlocksMain[i].BuildSkip();
         BOOST_CHECK_EQUAL((int)UintToArith256(vBlocksMain[i].GetBlockHash()).GetLow64(), vBlocksMain[i].nHeight);

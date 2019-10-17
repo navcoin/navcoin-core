@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_ZMQ_ZMQABSTRACTNOTIFIER_H
 #define NAVCOIN_ZMQ_ZMQABSTRACTNOTIFIER_H
 
-#include "zmqconfig.h"
+#include <zmq/zmqconfig.h>
 
 class CBlockIndex;
 class CZMQAbstractNotifier;

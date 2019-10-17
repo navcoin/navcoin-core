@@ -1,22 +1,22 @@
-#include "communityfundcreatepaymentrequestdialog.h"
-#include "communityfundsuccessdialog.h"
-#include "sendcommunityfunddialog.h"
-#include "ui_communityfundcreatepaymentrequestdialog.h"
+#include <qt/communityfundcreatepaymentrequestdialog.h>
+#include <qt/communityfundsuccessdialog.h>
+#include <qt/sendcommunityfunddialog.h>
+#include <ui_communityfundcreatepaymentrequestdialog.h>
 
 #include <QMessageBox>
 #include <QComboBox>
 #include <string>
 
-#include "base58.h"
-#include "consensus/dao.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "main.cpp"
-#include "main.h"
-#include "skinize.h"
-#include "sync.h"
-#include "wallet/wallet.h"
-#include "walletmodel.h"
+#include <base58.h>
+#include <consensus/dao.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <main.cpp>
+#include <main.h>
+#include <qt/skinize.h>
+#include <sync.h>
+#include <wallet/wallet.h>
+#include <qt/walletmodel.h>
 
 std::string random_str(size_t length)
 {
@@ -301,7 +301,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
                 bool created_prequest = true;
 
-                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true, "")) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_prequest = false;
                     }

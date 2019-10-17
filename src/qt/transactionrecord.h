@@ -5,8 +5,8 @@
 #ifndef NAVCOIN_QT_TRANSACTIONRECORD_H
 #define NAVCOIN_QT_TRANSACTIONRECORD_H
 
-#include "amount.h"
-#include "uint256.h"
+#include <amount.h>
+#include <uint256.h>
 
 #include <QList>
 #include <QString>

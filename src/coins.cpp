@@ -3,11 +3,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "coins.h"
+#include <coins.h>
 
+<<<<<<< HEAD
 #include "memusage.h"
 #include "random.h"
 #include "util.h"
+=======
+#include <memusage.h>
+#include <random.h>
+>>>>>>> upstream/master
 
 #include <assert.h>
 
@@ -34,7 +39,7 @@ void CCoins::CalcMaskSize(unsigned int &nBytes, unsigned int &nNonzeroBytes) con
     nBytes += nLastUsedByte;
 }
 
-bool CCoins::Spend(uint32_t nPos) 
+bool CCoins::Spend(uint32_t nPos)
 {
     if (nPos >= vout.size() || vout[nPos].IsNull())
         return false;
@@ -516,7 +521,7 @@ bool CStateViewCache::RemoveConsultationAnswer(const uint256 &cid) const {
 const CCoins* CStateViewCache::AccessCoins(const uint256 &txid) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     if (it == cacheCoins.end()) {
-        return NULL;
+        return nullptr;
     } else {
         return &it->second.coins;
     }
@@ -770,7 +775,7 @@ double CStateViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount
     if (tx.IsCoinBase())
         return 0.0;
     double dResult = 0.0;
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    for(const CTxIn& txin: tx.vin)
     {
         const CCoins* coins = AccessCoins(txin.prevout.hash);
         assert(coins);

@@ -5,11 +5,11 @@
 #ifndef NAVCOIN_TEST_TEST_NAVCOIN_H
 #define NAVCOIN_TEST_TEST_NAVCOIN_H
 
-#include "chainparamsbase.h"
-#include "key.h"
-#include "pubkey.h"
-#include "txdb.h"
-#include "txmempool.h"
+#include <chainparamsbase.h>
+#include <key.h>
+#include <pubkey.h>
+#include <txdb.h>
+#include <txmempool.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>

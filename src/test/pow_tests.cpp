@@ -2,12 +2,12 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "chain.h"
-#include "chainparams.h"
-#include "pow.h"
-#include "random.h"
-#include "util.h"
-#include "test/test_navcoin.h"
+#include <chain.h>
+#include <chainparams.h>
+#include <pow.h>
+#include <random.h>
+#include <util.h>
+#include <test/test_navcoin.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(GetBlockProofEquivalentTime_test)
 
     std::vector<CBlockIndex> blocks(10000);
     for (int i = 0; i < 10000; i++) {
-        blocks[i].pprev = i ? &blocks[i - 1] : NULL;
+        blocks[i].pprev = i ? &blocks[i - 1] : nullptr;
         blocks[i].nHeight = i;
         blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
         blocks[i].nBits = 0x207fffff; /* target 0x7fffff000... */

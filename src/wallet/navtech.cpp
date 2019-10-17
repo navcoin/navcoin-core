@@ -1,12 +1,12 @@
-#include "navtech.h"
-#include "net.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <wallet/navtech.h>
+#include <net.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #include <stdexcept>
 #include <algorithm>
 #include <sstream>
-#include "rpc/server.h"
+#include <rpc/server.h>
 #include <stdio.h>
 #include <iterator>
 #include <openssl/aes.h>
@@ -63,15 +63,15 @@ vector<anonServer> Navtech::GetAnonServers() {
 
   vector<string> confAnonServers = mapMultiArgs["-addanonserver"];
 
-  BOOST_FOREACH(string confAnonServer, confAnonServers) {
+  for(string confAnonServer: confAnonServers) {
       anonServers.push_back(confAnonServer);
   }
 
-  BOOST_FOREACH(string vAddedAnonServer, vAddedAnonServers) {
+  for(string vAddedAnonServer: vAddedAnonServers) {
       anonServers.push_back(vAddedAnonServer);
   }
 
-  BOOST_FOREACH(string currentServer, anonServers) {
+  for(string currentServer: anonServers) {
       anonServer tempServer;
 
       string::size_type portPos;
@@ -233,7 +233,7 @@ int Navtech::PublicEncrypt(unsigned char* data, int data_len, unsigned char* key
 
 RSA * Navtech::CreateRSA(unsigned char * key,int isPublic)
 {
-    RSA *rsa= NULL;
+    RSA *rsa= nullptr;
     BIO *keybio ;
     keybio = BIO_new_mem_buf(key, -1);
     if (keybio==NULL)
@@ -243,13 +243,13 @@ RSA * Navtech::CreateRSA(unsigned char * key,int isPublic)
     }
     if(isPublic)
     {
-        rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, NULL);
+        rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa,NULL, nullptr);
     }
     else
     {
-        rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, NULL);
+        rsa = PEM_read_bio_RSAPrivateKey(keybio, &rsa,NULL, nullptr);
     }
-    if(rsa == NULL)
+    if(rsa == nullptr)
     {
         LogPrintf("Failed to create RSA\n");
     }

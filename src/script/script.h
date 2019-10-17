@@ -6,11 +6,11 @@
 #ifndef NAVCOIN_SCRIPT_SCRIPT_H
 #define NAVCOIN_SCRIPT_SCRIPT_H
 
-#include "crypto/common.h"
-#include "prevector.h"
-#include "pubkey.h"
-#include "uint256.h"
-#include "utilstrencodings.h"
+#include <crypto/common.h>
+#include <prevector.h>
+#include <pubkey.h>
+#include <uint256.h>
+#include <utilstrencodings.h>
 
 #include <assert.h>
 #include <climits>

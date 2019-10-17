@@ -2,16 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "addresstablemodel.h"
+#include <qt/addresstablemodel.h>
 
-#include "guiutil.h"
-#include "main.h"
-#include "walletmodel.h"
+#include <qt/guiutil.h>
+#include <main.h>
+#include <qt/walletmodel.h>
 
-#include "base58.h"
-#include "wallet/wallet.h"
-
-#include <boost/foreach.hpp>
+#include <base58.h>
+#include <wallet/wallet.h>
 
 #include <QFont>
 #include <QDebug>
@@ -83,7 +81,7 @@ public:
         cachedAddressTable.clear();
         {
             LOCK(wallet->cs_wallet);
-            BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, wallet->mapAddressBook)
+            for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: wallet->mapAddressBook)
             {
                 const CNavCoinAddress& address = item.first;
                 bool fMine = IsMine(*wallet, address.Get());

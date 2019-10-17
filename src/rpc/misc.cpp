@@ -3,21 +3,21 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "base58.h"
-#include "clientversion.h"
-#include "init.h"
-#include "main.h"
-#include "net.h"
-#include "netbase.h"
-#include "rpc/server.h"
-#include "timedata.h"
-#include "txmempool.h"
-#include "util.h"
-#include "utilstrencodings.h"
-#include "utils/dns_utils.h"
+#include <base58.h>
+#include <clientversion.h>
+#include <init.h>
+#include <main.h>
+#include <net.h>
+#include <netbase.h>
+#include <rpc/server.h>
+#include <timedata.h>
+#include <txmempool.h>
+#include <util.h>
+#include <utilstrencodings.h>
+#include <utils/dns_utils.h>
 #ifdef ENABLE_WALLET
-#include "wallet/wallet.h"
-#include "wallet/walletdb.h"
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
 #endif
 
 #include <stdint.h>
@@ -73,7 +73,7 @@ UniValue getinfo(const UniValue& params, bool fHelp)
         );
 
 #ifdef ENABLE_WALLET
-    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
+    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : nullptr);
 #else
     LOCK(cs_main);
 #endif
@@ -181,7 +181,7 @@ public:
             obj.pushKV("script", GetTxnOutputType(whichType));
             obj.pushKV("hex", HexStr(subscript.begin(), subscript.end()));
             UniValue a(UniValue::VARR);
-            BOOST_FOREACH(const CTxDestination& addr, addresses)
+            for(const CTxDestination& addr: addresses)
                 a.push_back(CNavCoinAddress(addr).ToString());
             obj.pushKV("addresses", a);
             if (whichType == TX_MULTISIG)
@@ -225,7 +225,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
         );
 
 #ifdef ENABLE_WALLET
-    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
+    LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : nullptr);
 #else
     LOCK(cs_main);
 #endif
@@ -570,7 +570,7 @@ UniValue setmocktime(const UniValue& params, bool fHelp)
     SetMockTime(params[0].get_int64());
 
     uint64_t t = GetTime();
-    BOOST_FOREACH(CNode* pnode, vNodes) {
+    for(CNode* pnode: vNodes) {
         pnode->nLastSend = pnode->nLastRecv = t;
     }
 

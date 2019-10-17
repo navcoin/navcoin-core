@@ -6,13 +6,13 @@
 #ifndef NAVCOIN_TXDB_H
 #define NAVCOIN_TXDB_H
 
-#include "main.h"
-#include "coins.h"
-#include "dbwrapper.h"
-#include "chain.h"
-#include "addressindex.h"
-#include "spentindex.h"
-#include "timestampindex.h"
+#include <main.h>
+#include <coins.h>
+#include <dbwrapper.h>
+#include <chain.h>
+#include <addressindex.h>
+#include <spentindex.h>
+#include <timestampindex.h>
 
 #include <functional>
 #include <map>

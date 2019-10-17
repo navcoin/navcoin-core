@@ -14,12 +14,12 @@
 #ifndef NAVCOIN_BASE58_H
 #define NAVCOIN_BASE58_H
 
-#include "chainparams.h"
-#include "key.h"
-#include "pubkey.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "support/allocators/zeroafterfree.h"
+#include <chainparams.h>
+#include <key.h>
+#include <pubkey.h>
+#include <script/script.h>
+#include <script/standard.h>
+#include <support/allocators/zeroafterfree.h>
 
 #include <string>
 #include <vector>
@@ -111,18 +111,27 @@ public:
     bool Set(const CKeyID &id, const CKeyID &id2);
     bool Set(const CKeyID &id, const CKeyID &id2, const CKeyID &id3);
     bool Set(const CScriptID &id);
+    bool Set(const CScript &scriptIn);
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
     bool IsValid(const CChainParams &params) const;
     bool IsColdStakingAddress(const CChainParams& params) const;
+<<<<<<< HEAD
     bool IsColdStakingv2Address(const CChainParams& params) const;
+=======
+    bool IsRawScript() const;
+>>>>>>> upstream/master
 
     CNavCoinAddress() {}
     CNavCoinAddress(const CTxDestination &dest) { Set(dest); }
     CNavCoinAddress(const std::string& strAddress) { SetString(strAddress); }
     CNavCoinAddress(const char* pszAddress) { SetString(pszAddress); }
+<<<<<<< HEAD
     CNavCoinAddress(const CKeyID &id, const CKeyID &id2) { Set(id, id2); }
     CNavCoinAddress(const CKeyID &id, const CKeyID &id2, const CKeyID &id3) { Set(id, id2, id3); }
+=======
+    CNavCoinAddress(const CScript &scriptIn) { Set(scriptIn); }
+>>>>>>> upstream/master
 
     CTxDestination Get() const;
     bool GetKeyID(CKeyID &keyID) const;

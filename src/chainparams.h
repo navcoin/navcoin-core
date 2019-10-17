@@ -6,11 +6,11 @@
 #ifndef NAVCOIN_CHAINPARAMS_H
 #define NAVCOIN_CHAINPARAMS_H
 
-#include "chainparamsbase.h"
-#include "consensus/params.h"
-#include "primitives/block.h"
-#include "protocol.h"
-#include "arith_uint256.h"
+#include <chainparamsbase.h>
+#include <consensus/params.h>
+#include <primitives/block.h>
+#include <protocol.h>
+#include <arith_uint256.h>
 
 #include <vector>
 
@@ -47,6 +47,7 @@ public:
     enum Base58Type {
         PUBKEY_ADDRESS,
         SCRIPT_ADDRESS,
+        RAW_SCRIPT_ADDRESS,
         SECRET_KEY,
         EXT_PUBLIC_KEY,
         EXT_SECRET_KEY,

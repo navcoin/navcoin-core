@@ -1,5 +1,5 @@
-#include "sendcommunityfunddialog.h"
-#include "ui_sendcommunityfunddialog.h"
+#include <qt/sendcommunityfunddialog.h>
+#include <ui_sendcommunityfunddialog.h>
 
 #include <QSettings>
 #include <guiutil.h>
@@ -10,7 +10,6 @@
 #include "main.h"
 #include "base58.h"
 #include "chain.h"
-
 
 SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* proposal, int secDelay) :
     QDialog(parent),

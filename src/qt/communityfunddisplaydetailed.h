@@ -2,8 +2,8 @@
 #define COMMUNITYFUNDDISPLAYDETAILED_H
 
 #include <QWidget>
-#include "consensus/dao.h"
-#include "wallet/wallet.h"
+#include <consensus/dao.h>
+#include <wallet/wallet.h>
 #include <QDialog>
 #include <QAbstractButton>
 

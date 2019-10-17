@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "amount.h"
-#include "test/test_navcoin.h"
+#include <amount.h>
+#include <test/test_navcoin.h>
 
 #include <boost/test/unit_test.hpp>
 

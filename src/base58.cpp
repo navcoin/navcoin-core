@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "base58.h"
+#include <base58.h>
 
-#include "hash.h"
-#include "uint256.h"
+#include <hash.h>
+#include <uint256.h>
 
 #include <assert.h>
 #include <stdint.h>
@@ -35,7 +35,7 @@ bool DecodeBase58(const char* psz, std::vector<unsigned char>& vch)
     while (*psz && !isspace(*psz)) {
         // Decode base58 character
         const char* ch = strchr(pszBase58, *psz);
-        if (ch == NULL)
+        if (ch == nullptr)
             return false;
         // Apply "b256 = b256 * 58 + ch".
         int carry = ch - pszBase58;
@@ -270,6 +270,12 @@ bool CNavCoinAddress::Set(const CScriptID& id)
     return true;
 }
 
+bool CNavCoinAddress::Set(const CScript& scriptIn)
+{
+    SetData(Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS), &scriptIn[0], scriptIn.size());
+    return true;
+}
+
 bool CNavCoinAddress::Set(const CTxDestination& dest)
 {
     return boost::apply_visitor(CNavCoinAddressVisitor(this), dest);
@@ -314,8 +320,13 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
 {
     if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS))
         return vchData.size() == 40;
+<<<<<<< HEAD
     if (vchVersion == params.Base58Prefix(CChainParams::COLDSTAKING_ADDRESS_V2))
         return vchData.size() == 60;
+=======
+    if (vchVersion == params.Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
+        return vchData.size() > 0;
+>>>>>>> upstream/master
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
@@ -355,6 +366,12 @@ CTxDestination CNavCoinAddress::Get() const
         return CKeyID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);
+    else if (vchVersion == Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
+    {
+        std::vector<unsigned char> vData(vchData.size());
+        memcpy(&vData[0], &vchData[0], vchData.size());
+        return CScript(vData.begin(), vData.end());
+    }
     else
         return CNoDestination();
 }
@@ -429,6 +446,11 @@ bool CNavCoinAddress::GetVotingKeyID(CKeyID& keyID) const
 bool CNavCoinAddress::IsScript() const
 {
     return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
+}
+
+bool CNavCoinAddress::IsRawScript() const
+{
+    return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS);
 }
 
 void CNavCoinSecret::SetKey(const CKey& vchSecret)

@@ -1,5 +1,5 @@
-#include "communityfundsuccessdialog.h"
-#include "ui_communityfundsuccessdialog.h"
+#include <qt/communityfundsuccessdialog.h>
+#include <ui_communityfundsuccessdialog.h>
 #include <QDialog>
 
 CommunityFundSuccessDialog::CommunityFundSuccessDialog(uint256 hash, QWidget *parent, CProposal* proposal) :
