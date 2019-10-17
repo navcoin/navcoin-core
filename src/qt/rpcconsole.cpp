@@ -354,7 +354,7 @@ void RPCConsole::errorLogInitPos()
         // Load the current character
         ch = errorLogFile->read(1);
 
-        // Move pos back by 2 spaces
+        // Move pos back by 1 spaces
         errorLogFile->seek(lastPos - 1);
 
         // Check if we have a newline
