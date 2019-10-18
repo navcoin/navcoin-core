@@ -174,6 +174,8 @@ class ConsultationsTest(NavCoinTestFramework):
             round = round + 1
             assert(round <= self.nodes[0].getconsensusparameters()[0])
 
+        end_cycle(self.nodes[0])
+
         hash = self.nodes[0].createconsultationwithanswers("question",["a","b"])['hash']
         self.nodes[0].generate(1)
 
