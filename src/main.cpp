@@ -3472,7 +3472,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             if (fAnswer && fParent)
                             {
-                                if (answer.CanBeVoted(view) && val != VoteFlags::SUPPORT && val != VoteFlags::SUPPORT_REMOVE && VoteFlags::VOTE_REMOVE)
+                                if (answer.CanBeVoted(view) && val != VoteFlags::SUPPORT && val != VoteFlags::SUPPORT_REMOVE && val != VoteFlags::VOTE_REMOVE)
                                 {
                                     if (mapCacheMaxAnswers.count(answer.parent) == 0)
                                         mapCacheMaxAnswers[answer.parent] = consultation.nMax;
