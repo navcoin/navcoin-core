@@ -87,7 +87,7 @@ public:
  *  * Pair of one CKeyID and one pair of two CKeyID: TX_COLDSTAKING_V2 destination
  *  A CTxDestination is the internal data type encoded in a CNavCoinAddress
  */
-typedef boost::variant<CNoDestination, CKeyID, CScriptID, std::pair<CKeyID, CKeyID>, std::pair<CKeyID, std::pair<CKeyID, CKeyID>>> CTxDestination;
+typedef boost::variant<CNoDestination, CKeyID, CScriptID, std::pair<CKeyID, CKeyID>, std::pair<CKeyID, std::pair<CKeyID, CKeyID>>, CScript> CTxDestination;
 
 const char* GetTxnOutputType(txnouttype t);
 
