@@ -34,7 +34,7 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
         self.nodes[0].donatefund(10)
         slow_gen(self.nodes[0], 1)
 
-        rawproposal = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 36000, "test", 50, True)
+        rawproposal = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 36000, "test", 50, True)["raw"]
 
         # disconnect the nodes and generate the proposal on each node
         url = urllib.parse.urlparse(self.nodes[1].url)
@@ -53,6 +53,8 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
 
         assert_equal(self.nodes[0].getproposal(hash), self.nodes[1].getproposal(hash))
 
+        end_cycle(self.nodes[0])
+
         self.nodes[0].proposalvote(hash, "yes")
         slow_gen(self.nodes[0], 1)
         end_cycle(self.nodes[0])
@@ -61,7 +63,7 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
 
         assert_equal(self.nodes[0].getproposal(hash)['status'], 'accepted')
 
-        rawpaymentrequest = self.nodes[0].createpaymentrequest(hash, 10, "paymentReq1", True)
+        rawpaymentrequest = self.nodes[0].createpaymentrequest(hash, 10, "paymentReq1", True)["raw"]
 
         # disconnect the nodes and generate the proposal on each node
         url = urllib.parse.urlparse(self.nodes[1].url)
