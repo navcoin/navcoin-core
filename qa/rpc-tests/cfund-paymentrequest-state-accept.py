@@ -115,26 +115,29 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"] + 1
         yes_votes = int(total_votes * min_yes_votes) + 1
 
-        self.nodes[0].paymentrequestvote(paymentrequestid0, "yes")
-        slow_gen(self.nodes[0], yes_votes)
+        slow_gen(self.nodes[0], 1)
+        end_cycle(self.nodes[0])
+
         self.nodes[0].paymentrequestvote(paymentrequestid0, "no")
-        slow_gen(self.nodes[0], total_votes - yes_votes - 4)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 2)
         self.nodes[0].paymentrequestvote(paymentrequestid0, "abs")
-        blocks = slow_gen(self.nodes[0], 4)
+        slow_gen(self.nodes[0], 2)
+        self.nodes[0].paymentrequestvote(paymentrequestid0, "yes")
+        blocks = slow_gen(self.nodes[0], yes_votes)
+
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted waiting for end of voting period")
-        assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"], 0)
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"], "accepted waiting for end of voting period")
+        assert_equal(self.nodes[0].cfundstats()["funds"]["locked"], locked_accepted)
 
         time.sleep(0.2)
 
         # Revert last vote and check status
-
         self.nodes[0].invalidateblock(blocks[-1])
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "pending")
-        assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"], 0)
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"], "pending")
+        assert_equal(self.nodes[0].cfundstats()["funds"]["locked"], locked_accepted)
         self.nodes[0].cfundstats()
 
         # Vote again
@@ -173,6 +176,8 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         paymentrequestid2 = self.nodes[0].createpaymentrequest(proposalid0, 4, "test2")["hash"]
         slow_gen(self.nodes[0], 1)
 
+        end_cycle(self.nodes[0])
+
         assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["state"] == 0)
         assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"] == "pending")
         assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["state"] == 0)
@@ -183,17 +188,17 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         slow_gen(self.nodes[0], yes_votes)
         self.nodes[0].paymentrequestvote(paymentrequestid1, "no")
         self.nodes[0].paymentrequestvote(paymentrequestid2, "no")
-        blocks = slow_gen(self.nodes[0], total_votes - yes_votes - 5)
+        blocks = slow_gen(self.nodes[0], total_votes - yes_votes - 2)
         self.nodes[0].paymentrequestvote(paymentrequestid1, "abs")
         self.nodes[0].paymentrequestvote(paymentrequestid2, "abs")
-        blocks = slow_gen(self.nodes[0], 5)
+        blocks = slow_gen(self.nodes[0], 2)
         self.nodes[0].paymentrequestvote(paymentrequestid1, "remove")
         self.nodes[0].paymentrequestvote(paymentrequestid2, "remove")
 
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"] == "accepted waiting for end of voting period")
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid2)["status"] == "accepted waiting for end of voting period")
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid1)["state"], 0)
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"], "accepted waiting for end of voting period")
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid2)["state"], 0)
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid2)["status"], "accepted waiting for end of voting period")
 
         time.sleep(0.2)
 
