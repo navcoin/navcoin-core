@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "versionbits.h"
+#include <versionbits.h>
 
-#include "main.h"
-#include "chainparams.h"
-#include "consensus/params.h"
+#include <main.h>
+#include <chainparams.h>
+#include <consensus/params.h>
 
 const struct BIP9DeploymentInfo VersionBitsDeploymentInfo[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
     {

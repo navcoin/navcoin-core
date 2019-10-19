@@ -1,5 +1,5 @@
-#include "qvalidatedspinbox.h"
-#include "guiconstants.h"
+#include <qt/qvalidatedspinbox.h>
+#include <qt/guiconstants.h>
 
 #include <QDialog>
 

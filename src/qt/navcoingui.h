@@ -6,10 +6,10 @@
 #define NAVCOIN_QT_NAVCOINGUI_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "amount.h"
+#include <amount.h>
 
 #include <QAbstractButton>
 #include <QComboBox>

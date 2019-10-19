@@ -1,21 +1,22 @@
-#include "communityfunddisplay.h"
-#include "ui_communityfunddisplay.h"
+#include <qt/communityfunddisplay.h>
+#include <ui_communityfunddisplay.h>
 
 #include <QtWidgets/QDialogButtonBox>
-#include "main.h"
-#include "../txdb.h"
+#include <main.h>
+#include <qt/../txdb.h>
 #include <iomanip>
 #include <sstream>
 #include <ctime>
-#include "wallet/wallet.h"
-#include "base58.h"
-#include "consensus/cfund.h"
-#include "chain.h"
-#include "guiutil.h"
-#include "ui_interface.h"
 
-#include "communityfunddisplaydetailed.h"
-#include "communityfundpage.h"
+#include <wallet/wallet.h>
+#include <base58.h>
+#include <consensus/cfund.h>
+#include <chain.h>
+#include <qt/guiutil.h>
+#include <ui_interface.h>
+
+#include <qt/communityfunddisplaydetailed.h>
+#include <qt/communityfundpage.h>
 
 CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
     QWidget(parent),

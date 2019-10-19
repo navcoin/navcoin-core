@@ -5,11 +5,11 @@
 #ifndef NAVCOIN_QT_WALLETMODEL_H
 #define NAVCOIN_QT_WALLETMODEL_H
 
-#include "paymentrequestplus.h"
-#include "walletmodeltransaction.h"
+#include <qt/paymentrequestplus.h>
+#include <qt/walletmodeltransaction.h>
 
-#include "support/allocators/secure.h"
-#include "wallet/wallet.h"
+#include <support/allocators/secure.h>
+#include <wallet/wallet.h>
 
 #include <map>
 #include <vector>

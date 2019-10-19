@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "coins.h"
+#include <coins.h>
 
-#include "memusage.h"
-#include "random.h"
+#include <memusage.h>
+#include <random.h>
 
 #include <assert.h>
 
@@ -113,7 +113,7 @@ CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) 
 
     CProposal tmp;
 
-    if (!base->GetProposal(pid, tmp))
+    if (!base->GetProposal(pid, tmp) || tmp.IsNull())
         return cacheProposals.end();
 
     CProposalMap::iterator ret = cacheProposals.insert(std::make_pair(pid, CProposal())).first;
@@ -130,7 +130,7 @@ CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const ui
 
     CPaymentRequest tmp;
 
-    if (!base->GetPaymentRequest(prid, tmp))
+    if (!base->GetPaymentRequest(prid, tmp) || tmp.IsNull())
         return cachePaymentRequests.end();
 
     CPaymentRequestMap::iterator ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest())).first;

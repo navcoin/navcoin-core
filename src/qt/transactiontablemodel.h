@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_QT_TRANSACTIONTABLEMODEL_H
 #define NAVCOIN_QT_TRANSACTIONTABLEMODEL_H
 
-#include "navcoinunits.h"
+#include <qt/navcoinunits.h>
 
 #include <QAbstractTableModel>
 #include <QIcon>

@@ -3,14 +3,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "ismine.h"
+#include <script/ismine.h>
 
-#include "base58.h"
-#include "key.h"
-#include "keystore.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "script/sign.h"
+#include <base58.h>
+#include <key.h>
+#include <keystore.h>
+#include <script/script.h>
+#include <script/standard.h>
+#include <script/sign.h>
 
 using namespace std;
 

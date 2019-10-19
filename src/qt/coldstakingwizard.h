@@ -5,9 +5,9 @@
 #ifndef COLDSTAKINGWIZARD_H
 #define COLDSTAKINGWIZARD_H
 
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "receiverequestdialog.h"
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/receiverequestdialog.h>
 
 #include <QGridLayout>
 #include <QLabel>

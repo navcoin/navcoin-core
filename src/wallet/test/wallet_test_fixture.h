@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_WALLET_TEST_FIXTURE_H
 #define NAVCOIN_WALLET_TEST_FIXTURE_H
 
-#include "test/test_navcoin.h"
+#include <test/test_navcoin.h>
 
 /** Testing setup and teardown for wallet.
  */

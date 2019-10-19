@@ -1,7 +1,7 @@
-#include "communityfundcreateproposaldialog.h"
-#include "communityfundsuccessdialog.h"
-#include "sendcommunityfunddialog.h"
-#include "ui_communityfundcreateproposaldialog.h"
+#include <qt/communityfundcreateproposaldialog.h>
+#include <qt/communityfundsuccessdialog.h>
+#include <qt/sendcommunityfunddialog.h>
+#include <ui_communityfundcreateproposaldialog.h>
 
 #include <QDialog>
 #include <QMessageBox>
@@ -9,14 +9,14 @@
 #include <QTextListFormat>
 #include <string>
 
-#include "base58.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "main.h"
-#include "qvalidatedspinbox.h"
-#include "sync.h"
-#include "wallet/wallet.h"
-#include "walletmodel.h"
+#include <base58.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <main.h>
+#include <qt/qvalidatedspinbox.h>
+#include <sync.h>
+#include <wallet/wallet.h>
+#include <qt/walletmodel.h>
 
 CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *parent) :
     QDialog(parent),

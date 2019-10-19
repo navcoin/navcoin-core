@@ -52,7 +52,7 @@ class ColdStakingSpending(NavCoinTestFramework):
 
         # send funds to the cold staking address (leave some nav for fees) -- we specifically require
         # a transaction fee of minimum 0.002884 navcoin due to the complexity of this transaction
-        tx = self.nodes[0].sendtoaddress(coldstaking_address_spending, float(self.nodes[0].getbalance()) - MIN_COLDSTAKING_SENDING_FEE)
+        tx = self.nodes[0].sendtoaddress(coldstaking_address_spending, self.nodes[0].getbalance(), "", "", "", True)
         fee = self.nodes[0].gettransaction(tx)['fee']
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
@@ -63,7 +63,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         # asserts that the number of utxo recieved is only 1:
         assert(len(listunspent_txs) == 1)
         # asserts if amount recieved is what it should be; ~59814699.99660530 NAV
-        assert_equal(listunspent_txs[0]["amount"], Decimal('59814699.99660530'))
+        assert_equal(int(listunspent_txs[0]["amount"]), int(59814699))
         # grabs updated wallet balance and staking weight
         balance_post_send_one = self.nodes[0].getbalance()
         staking_weight_post_send = self.nodes[0].getstakinginfo()["weight"]
@@ -108,7 +108,7 @@ class ColdStakingSpending(NavCoinTestFramework):
         self.send_raw_transaction(decoded_raw_transaction = listunspent_txs[0], \
         to_address = address_Y_public_key, \
         change_address = coldstaking_address_spending, \
-        amount = float(str(float(listunspent_txs[0]["amount"]) - MIN_COLDSTAKING_SENDING_FEE) + "00")\
+        amount = listunspent_txs[0]["amount"]\
         )
         # put transaction in new block & update blockchain
         slow_gen(self.nodes[0], 1)
@@ -168,5 +168,3 @@ class ColdStakingSpending(NavCoinTestFramework):
 
 if __name__ == '__main__':
     ColdStakingSpending().main()
-
-

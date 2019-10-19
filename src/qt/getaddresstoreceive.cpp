@@ -1,13 +1,13 @@
-#include "addresstablemodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "main.h"
-#include "walletmodel.h"
-#include "wallet/wallet.h"
+#include <qt/addresstablemodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <main.h>
+#include <qt/walletmodel.h>
+#include <wallet/wallet.h>
 
-#include "coldstakingwizard.h"
-#include "getaddresstoreceive.h"
-#include "ui_getaddresstoreceive.h"
+#include <qt/coldstakingwizard.h>
+#include <qt/getaddresstoreceive.h>
+#include <qt/forms/ui_getaddresstoreceive.h>
 
 #include <stdint.h>
 

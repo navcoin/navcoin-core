@@ -5,8 +5,8 @@
 #ifndef NAVCOIN_QT_OVERVIEWPAGE_H
 #define NAVCOIN_QT_OVERVIEWPAGE_H
 
-#include "amount.h"
-#include "splitrewards.h"
+#include <amount.h>
+#include <splitrewards.h>
 
 #include <QWidget>
 #include <QPushButton>
