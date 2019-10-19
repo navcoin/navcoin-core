@@ -2558,8 +2558,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             uint64_t nVersionMaskConsultation;
             uint64_t nVersionMaskConsultationAnswer;
 
-            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, pindex->pprev);
-
             if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION)
             {
                 view.RemoveProposal(hash);
