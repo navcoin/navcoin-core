@@ -93,12 +93,14 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"] + 1
         yes_votes = int(total_votes * min_yes_votes) + 1
 
-        self.nodes[0].proposalvote(proposalid0, "yes")
-        slow_gen(self.nodes[0], yes_votes)
+
         self.nodes[0].proposalvote(proposalid0, "no")
-        slow_gen(self.nodes[0], total_votes - yes_votes - 4)
+        slow_gen(self.nodes[0], total_votes - yes_votes - 2)
         self.nodes[0].proposalvote(proposalid0, "abs")
-        blocks = slow_gen(self.nodes[0], 4)
+        slow_gen(self.nodes[0], 2)
+        self.nodes[0].proposalvote(proposalid0, "yes")
+        blocks = slow_gen(self.nodes[0], yes_votes)
+
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
