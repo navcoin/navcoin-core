@@ -26,7 +26,7 @@ class PaymentRequest452(NavCoinTestFramework):
 
         payoutTxID_1 = self.create_double_preq_payout()
         print("Second payment request payout:\n"+str(self.nodes[0].gettxout(payoutTxID_1, 1)))
-        
+
         # If the payment request is paid out again, the coinbase tx will have 2 vouts, so check txout at index 1
         assert(self.nodes[0].gettxout(payoutTxID_1, 1) != None)
 
@@ -36,11 +36,11 @@ class PaymentRequest452(NavCoinTestFramework):
 
         payoutTxID_2 = self.create_double_preq_payout()
         print("Second payment request payout:\n"+str(self.nodes[0].gettxout(payoutTxID_2, 1)))
-        
+
 
         # If the payment request is paid out again, the coinbase tx will have 2 vouts, so check txout at index 1
         assert(self.nodes[0].gettxout(payoutTxID_2, 1) == None)
-        
+
 
     def create_double_preq_payout(self):
         # Creates a proposal and payment request that is paid out twice
@@ -53,11 +53,11 @@ class PaymentRequest452(NavCoinTestFramework):
 
         proposalid0 = self.nodes[0].createproposal(paymentAddress, proposalAmount, 36000, "test")["hash"]
         start_new_cycle(self.nodes[0])
-        
+
         self.nodes[0].proposalvote(proposalid0, "yes")
-        
+
         start_new_cycle(self.nodes[0])
-        
+
         # Proposal should be accepted
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 1)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
@@ -70,9 +70,13 @@ class PaymentRequest452(NavCoinTestFramework):
 
         # vote yes for the payment request and generate until paid out
 
+        end_cycle(self.nodes[0])
+
         self.nodes[0].paymentrequestvote(paymentReq, "yes")
 
+        slow_gen(self.nodes[0], 1)
         start_new_cycle(self.nodes[0])
+
         assert(self.nodes[0].getpaymentrequest(paymentReq)["state"] == 1)
         assert(self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
 
@@ -87,11 +91,11 @@ class PaymentRequest452(NavCoinTestFramework):
 
         self.nodes[0].coinbaseoutputs([rawOutput])
         self.nodes[0].setcoinbasestrdzeel('[\"'+paymentReq+'\"]')
-        
+
         payoutBlockHash = slow_gen(self.nodes[0], 1)[0]
 
         payoutTxID = self.nodes[0].getblock(payoutBlockHash)["tx"][0]
-        
+
         return payoutTxID
 
 
