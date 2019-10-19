@@ -189,7 +189,7 @@ testScripts = [
     'stakeimmaturebalance.py',
     'rpc-help.py',
     'dao-consultations.py',
-    'dao-consultation-consensus.py'
+    'dao-consultation-consensus.py',
     'createrawscriptaddress.py'
 ]
 #if ENABLE_ZMQ:
