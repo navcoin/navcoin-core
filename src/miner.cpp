@@ -234,6 +234,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     SetScriptForConsultationSupport(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    LogPrint("dao", "%s: Adding consultation-support output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
                     votes[consultation.hash] = true;
 
                     continue;
@@ -247,6 +248,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     SetScriptForConsultationSupport(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,answer.hash);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
+                    LogPrint("dao", "%s: Adding consultation-support output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
                     votes[answer.hash] = true;
 
                     continue;
@@ -1207,15 +1209,15 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
                       if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && !it.second.IsNull() && (fProposal || fPaymentRequest))
                       {
-                          pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
+                          pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
 
                           if (fProposal)
-                              SetScriptForProposalVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
+                              SetScriptForProposalVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
                           else if (fPaymentRequest)
-                              SetScriptForPaymentRequestVote(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
+                              SetScriptForPaymentRequestVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
 
-                          pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
-                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].ToString());
+                          pblock->vtx[0].vout[1].nValue = 0;
+                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                           votes[hash] = true;
                       }
 
@@ -1224,13 +1226,14 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
                       if (((val == VoteFlags::SUPPORT && mapSupported.count(hash) == 0) || (val != VoteFlags::SUPPORT && mapAddedVotes.count(hash) == 0)) && votes.count(hash) == 0 && !it.second.IsNull() && (fConsultation || fAnswer))
                       {
-                          pblock->vtx[0].vout.resize(pblock->vtx[0].vout.size()+1);
+                          pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
+
                           if (val == -3)
-                              SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash);
+                              SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
                           else
-                              SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].scriptPubKey, hash);
+                              SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
                           pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
-                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].ToString());
+                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                           votes[hash] = true;
                       }
                   }
