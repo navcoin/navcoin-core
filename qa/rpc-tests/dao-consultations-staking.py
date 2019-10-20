@@ -207,9 +207,10 @@ class ConsultationsTest(NavCoinTestFramework):
 
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
         self.stake_block(self.nodes[0], 1)
-        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
 
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 1)
+
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
         self.stake_block(self.nodes[0], 1)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 1)
 
@@ -236,6 +237,21 @@ class ConsultationsTest(NavCoinTestFramework):
         self.stake_block(self.nodes[0], 2)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 5)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 3)
+
+        self.end_cycle_stake(self.nodes[0])
+        self.stake_block(self.nodes[0] , 1)
+
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 1)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 0)
+
+        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'remove')
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
+
+        self.end_cycle_stake(self.nodes[0])
+        self.stake_block(self.nodes[0] , 1)
+
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 0)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 0)
 
     def stake_block(self, node, count=1):
         # Get the current block count to check against while we wait for a stake
