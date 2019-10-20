@@ -137,6 +137,8 @@ public:
 
     bool Set(const int& height, const uint256& hash, int64_t vote)
     {
+        if (!Clear(height, hash))
+            return false;
         if (list.count(std::make_pair(height, hash)) == 0)
             list[std::make_pair(height, hash)] = CVote();
         list[std::make_pair(height, hash)].SetValue(vote);
@@ -146,6 +148,8 @@ public:
 
     bool Set(const int& height, const uint256& hash, CVote vote)
     {
+        if (!Clear(height, hash))
+            return false;
         list[std::make_pair(height, hash)] = vote;
         fDirty = true;
         return true;

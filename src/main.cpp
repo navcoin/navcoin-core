@@ -3503,7 +3503,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(votes.count(hash) == 0)
                     {
-                        votes[hash] = vote;
+                        if (vote != VoteFlags::VOTE_REMOVE)
+                            votes[hash] = vote;
 
                         if (fStake && fVoteCacheState && fStakerScript)
                         {
