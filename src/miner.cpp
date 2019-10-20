@@ -289,13 +289,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             {
                 if (answer.CanBeVoted(coins))
                 {
-                    CConsultation parentConsultation;
-                    if (mapCacheMaxAnswers.count(answer.parent) == 0 && coins.GetConsultation(answer.parent, parentConsultation))
-                        mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
-                    mapCountAnswers[answer.parent]++;
-                    if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
-                        continue;
-
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
                     SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,answer.hash,-2);
@@ -1044,7 +1037,12 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   fStakerIsColdStakingv2 = true;
               std::vector<unsigned char> stakerScript;
 
-              if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus()) && txCoinStake.vout[1].scriptPubKey.GetStakerScript(stakerScript))
+              CTransaction txPrev;
+              uint256 hashBlock = uint256();
+
+              if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus())
+                      && GetTransaction(txCoinStake.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true)
+                      && txPrev.vout[txCoinStake.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
               {
                   CVoteList pVoteList;
                   view.GetCachedVoter(stakerScript, pVoteList);
@@ -1237,7 +1235,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               supports[hash] = true;
                           }
 
-                          if (val != VoteFlags::SUPPORT && mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0)
+                          if (val != VoteFlags::SUPPORT && mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && val != VoteFlags::SUPPORT_REMOVE && val != VoteFlags::VOTE_REMOVE)
                           {
                               pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
 
