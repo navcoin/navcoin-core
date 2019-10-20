@@ -3396,7 +3396,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, chainparams.GetConsensus());
-    bool fStakerScript = fVoteCacheState;
+    bool fStakerScript = false;
     bool fStakerIsColdStakingv2 = false;
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
     bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
@@ -3406,13 +3406,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     std::vector<unsigned char> stakerScript;
 
-    if (fStake)
-    {
-        if (!block.vtx[1].vout[1].scriptPubKey.GetStakerScript(stakerScript))
-            fStakerScript = false;
-        if (block.vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
-            fStakerIsColdStakingv2 = true;
-    }
+    if (fStake && block.vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
+        fStakerIsColdStakingv2 = true;
 
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -3436,17 +3431,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 std::map<uint256, int> mapCountAnswers;
                 std::map<uint256, int> mapCacheMaxAnswers;
 
-                if (fDaoTx)
-                {
-                    CTransaction txPrev;
-                    uint256 hashBlock = uint256();
+                CTransaction txPrev;
+                uint256 hashBlock = uint256();
 
-                    if (!GetTransaction(tx.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
-                        continue;  // previous transaction not in main chain
+                if (!GetTransaction(tx.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                    continue;  // previous transaction not in main chain
 
-                    if(!txPrev.vout[tx.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
-                        continue;
-                }
+                if(!txPrev.vout[tx.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+                    continue;
+
+                if (fVoteCacheState && i == 1)
+                    fStakerScript = true;
 
                 for (size_t j = 0; j < tx.vout.size(); j++)
                 {
@@ -3473,7 +3468,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         if (vote != VoteFlags::VOTE_REMOVE)
                             votes[hash] = vote;
 
-                        if (fStake && fVoteCacheState && fStakerScript)
+                        if (fStake && fVoteCacheState)
                         {
                             LogPrint("dao", "%s: Looking for votes to add in the cache.\n", __func__);
 
@@ -3936,7 +3931,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
     }
 
-    if (fStake && fVoteCacheState && fStakerScript)
+    if (fStake && fVoteCacheState)
     {
         CVoteList pVoteList;
         CProposal proposal;
