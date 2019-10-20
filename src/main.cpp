@@ -3432,7 +3432,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 CPaymentRequest prequest;
                 CConsultation consultation;
                 CConsultationAnswer answer;
-                std::map<uint256, int> votes;
+                std::map<uint256, int> votes;               
                 std::map<uint256, int> mapCountAnswers;
                 std::map<uint256, int> mapCacheMaxAnswers;
 
@@ -3446,39 +3446,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(!txPrev.vout[tx.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
                         continue;
-                }
-
-                if (fStake && fVoteCacheState && fStakerScript)
-                {
-                    CVoteList pVoteList;
-
-                    if (view.GetCachedVoter(stakerScript, pVoteList))
-                    {
-                        std::map<uint256, CVote> list = pVoteList.GetList();
-
-                        for (auto& it: list)
-                        {
-                            uint256 hash = it.first;
-                            int64_t val;
-
-                            it.second.GetValue(val);
-
-                            bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
-                            bool fParent = false;
-                            if (fAnswer)
-                                fParent = view.HaveConsultation(answer.parent) && view.GetConsultation(answer.parent, consultation);
-
-                            if (fAnswer && fParent)
-                            {
-                                if (answer.CanBeVoted(view) && val != VoteFlags::SUPPORT && val != VoteFlags::SUPPORT_REMOVE && val != VoteFlags::VOTE_REMOVE)
-                                {
-                                    if (mapCacheMaxAnswers.count(answer.parent) == 0)
-                                        mapCacheMaxAnswers[answer.parent] = consultation.nMax;
-                                    mapCountAnswers[answer.parent]++;
-                                }
-                            }
-                        }
-                    }
                 }
 
                 for (size_t j = 0; j < tx.vout.size(); j++)
@@ -3515,21 +3482,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
+                                if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    if (fValidConsultationAnswer && !fSupport && vote != VoteFlags::VOTE_REMOVE)
-                                    {
-                                        CConsultation parentConsultation;
-                                        if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
-                                            mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
-                                        mapCountAnswers[answer.parent]++;
-                                        if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
-                                        {
-                                            LogPrint("dao", "%s: Ignoring output %s. It exceeded max allowed of answers (%d vs %d).\n", __func__, tx.vout[j].ToString(), mapCountAnswers[answer.parent], mapCacheMaxAnswers[answer.parent]);
-                                            continue;
-                                        }
-                                    }
                                     view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
                                     LogPrint("dao", "%s: Setting consultation vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                                 }
@@ -3605,7 +3560,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                         continue;
                                     }
-
                                 }
                                 else
                                 {
@@ -3628,7 +3582,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN))) && (consultation.IsValidVote(vote) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
+                                if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
                                     if (vote != VoteFlags::VOTE_REMOVE)
@@ -3990,6 +3944,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         CConsultation consultation;
         CConsultationAnswer answer;
 
+        std::map<uint256, int> mapCountAnswers;
+        std::map<uint256, int> mapCacheMaxAnswers;
+
         if (view.GetCachedVoter(stakerScript, pVoteList))
         {
             std::map<uint256, CVote> list = pVoteList.GetList();
@@ -4050,12 +4007,24 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         bool fValidConsultation = view.GetConsultation(it.first, consultation);
                         bool fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer);
 
-                        if ((fValidConsultation && (consultation.CanBeVoted() || (consultation.fState == DAOFlags::ACCEPTED && (val == VoteFlags::VOTE_REMOVE || val == VoteFlags::VOTE_ABSTAIN))) && (consultation.IsValidVote(val) || val == VoteFlags::VOTE_REMOVE || val == VoteFlags::VOTE_ABSTAIN))
-                                ||
+                        if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(val)) || val == VoteFlags::VOTE_ABSTAIN)) ||
                             (fValidConsultationAnswer && answer.CanBeVoted(view)))
                         {
                             if (val != VoteFlags::VOTE_REMOVE)
                             {
+                                if (fValidConsultationAnswer)
+                                {
+                                    CConsultation parentConsultation;
+                                    if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                        mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
+                                    mapCountAnswers[answer.parent]++;
+                                    if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                                    {
+                                        LogPrint("dao", "%s: Ignoring vote for staker %s - it exceeded max allowed of answers- hash: %s vote: %d\n", __func__, HexStr(stakerScript), it.first.ToString(), val);
+                                        continue;
+                                    }
+                                }
+                                LogPrint("dao", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                                 pindex->mapConsultationVotes.insert(make_pair(it.first, val));
                             }
                         }
