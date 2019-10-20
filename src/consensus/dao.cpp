@@ -990,10 +990,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     consultation->nSupport = 0;
                     fUpdate = true;
                 }
-                if (consultation->fState == DAOFlags::ACCEPTED && !mapSeen.count(consultation->hash))
+                if (consultation->fState == DAOFlags::ACCEPTED)
                 {
                     consultation->mapVotes.clear();
-                    vClearAnswers.push_back(consultation->hash);
+                    if (!consultation->IsRange())
+                        vClearAnswers.push_back(consultation->hash);
                     fUpdate = true;
                 }
             }
@@ -1007,7 +1008,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
         {
-            if (!view.HaveConsultationAnswer(it->first))
+            if (!view.HaveConsultationAnswer(it->first) || mapSeen.count(it->first))
                 continue;
 
             if (std::find(vClearAnswers.begin(), vClearAnswers.end(), it->second.parent) == vClearAnswers.end())
