@@ -1196,6 +1196,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                   }
 
                   std::map<uint256, bool> votes;
+                  std::map<uint256, bool> supports;
 
                   for (auto& it: list)
                   {
@@ -1224,17 +1225,27 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                       bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation);
                       bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
 
-                      if (((val == VoteFlags::SUPPORT && mapSupported.count(hash) == 0) || (val != VoteFlags::SUPPORT && mapAddedVotes.count(hash) == 0)) && votes.count(hash) == 0 && !it.second.IsNull() && (fConsultation || fAnswer))
+                      if (!it.second.IsNull() && (fConsultation || fAnswer))
                       {
-                          pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
+                          if (val == VoteFlags::SUPPORT && mapSupported.count(hash) == 0 && supports.count(hash) == 0)
+                          {
+                              pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
 
-                          if (val == -3)
                               SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
-                          else
+                              pblock->vtx[0].vout[0].nValue = 0;
+                              LogPrint("dao", "%s: Adding remove-support output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
+                              supports[hash] = true;
+                          }
+
+                          if (val != VoteFlags::SUPPORT && mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0)
+                          {
+                              pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
+
                               SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
-                          pblock->vtx[0].vout[0].nValue = 0;
-                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
-                          votes[hash] = true;
+                              pblock->vtx[0].vout[0].nValue = 0;
+                              LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
+                              votes[hash] = true;
+                          }
                       }
                   }
               }
