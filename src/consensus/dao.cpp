@@ -120,6 +120,8 @@ bool Support(uint256 hash, bool &duplicate)
 
     mapSupported[hash] = true;
 
+    LogPrint("dao", "%s: Supporting %s\n", __func__, str);
+
     return true;
 }
 
@@ -165,6 +167,8 @@ bool Vote(uint256 hash, int64_t vote, bool &duplicate)
 
     mapAddedVotes[hash] = vote;
 
+    LogPrint("dao", "%s: Voting %d for %s\n", __func__, vote, hash.ToString());
+
     return true;
 }
 
@@ -183,15 +187,19 @@ bool VoteValue(uint256 hash, int64_t vote, bool &duplicate)
 
     mapAddedVotes[hash] = vote;
 
+    LogPrint("dao", "%s: Voting %d for %s\n", __func__, vote, hash.ToString());
+
     return true;
 }
 
 bool RemoveSupport(string str)
 {
-
     RemoveConfigFile("support", str);
     if (mapSupported.count(uint256S(str)) > 0)
+    {
         mapSupported.erase(uint256S(str));
+        LogPrint("dao", "%s: Removing support for %s\n", __func__, str);
+    }
     else
         return false;
     return true;
@@ -210,7 +218,10 @@ bool RemoveVote(string str)
     RemoveConfigFile("addpaymentrequestvoteabs", str);
     RemoveConfigFile("addpaymentrequestvoteno", str);
     if (mapAddedVotes.count(uint256S(str)) > 0)
+    {
         mapAddedVotes.erase(uint256S(str));
+        LogPrint("dao", "%s: Removing vote for %s\n", __func__, str);
+    }
     else
         return false;
     return true;
@@ -221,7 +232,10 @@ bool RemoveVoteValue(string str)
 
     RemoveConfigFilePair("vote", str);
     if (mapAddedVotes.count(uint256S(str)) > 0)
+    {
         mapAddedVotes.erase(uint256S(str));
+        LogPrint("dao", "%s: Removing support for %s\n", __func__, str);
+    }
     else
         return false;
     return true;
