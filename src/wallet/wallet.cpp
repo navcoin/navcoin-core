@@ -321,7 +321,7 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
     return true;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key, CScript& kernelScriptPubKey)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
     arith_uint256 bnTargetPerCoinDay;
@@ -430,6 +430,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 nCredit += pcoin.first->vout[pcoin.second].nValue;
                 vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
+                kernelScriptPubKey = scriptPubKeyKernel;
 
                 LogPrint("coinstake", "CreateCoinStake : added kernel type=%d\n", whichType);
                 fKernelFound = true;

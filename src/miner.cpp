@@ -1011,7 +1011,8 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
   {
 
       int64_t nSearchInterval = nBestHeight+1 > 0 ? 1 : nSearchTime - nLastCoinStakeSearchTime;
-      if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nFees, txCoinStake, key))
+      CScript kernelScriptPubKey;
+      if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nFees, txCoinStake, key, kernelScriptPubKey))
       {
           if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
           {
@@ -1041,8 +1042,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               uint256 hashBlock = uint256();
 
               if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus())
-                      && GetTransaction(txCoinStake.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true)
-                      && txPrev.vout[txCoinStake.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+                      && kernelScriptPubKey.GetStakerScript(stakerScript))
               {
                   CVoteList pVoteList;
                   view.GetCachedVoter(stakerScript, pVoteList);
