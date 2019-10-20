@@ -1216,7 +1216,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                           else if (fPaymentRequest)
                               SetScriptForPaymentRequestVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
 
-                          pblock->vtx[0].vout[1].nValue = 0;
+                          pblock->vtx[0].vout[0].nValue = 0;
                           LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                           votes[hash] = true;
                       }
@@ -1232,7 +1232,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
                               SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
                           else
                               SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
-                          pblock->vtx[0].vout[pblock->vtx[0].vout.size()-1].nValue = 0;
+                          pblock->vtx[0].vout[0].nValue = 0;
                           LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                           votes[hash] = true;
                       }
