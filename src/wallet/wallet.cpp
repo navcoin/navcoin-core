@@ -445,6 +445,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
         return false;
 
+    CTransaction txPrev;
+    uint256 hashBlock = uint256();
+
     for(PAIRTYPE(const CWalletTx*, unsigned int) pcoin: setCoins)
     {
         // Attempt to add more inputs
@@ -465,6 +468,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 continue;
             // Do not add input that is still too young
             if (nTimeWeight < Params().GetConsensus().nStakeMinAge)
+                continue;
+            if (!GetTransaction(pcoin.first->GetHash(), txPrev, Params().GetConsensus(), hashBlock, true))
                 continue;
 
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));

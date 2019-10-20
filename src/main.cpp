@@ -3434,11 +3434,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 CTransaction txPrev;
                 uint256 hashBlock = uint256();
 
-                if (!GetTransaction(tx.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
-                    continue;  // previous transaction not in main chain
+                const CTransaction &txRead = (i == 0 && block.vtx.size() > 1) ? block.vtx[1] : tx;
 
-                if(!txPrev.vout[tx.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+                if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                {
+                    LogPrintf("%s: Could not find %s to read staker script.\n", __func__, tx.vin[0].prevout.hash.ToString());
+                    continue;  // previous transaction not in main chain
+                }
+
+                if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+                {
+                    LogPrintf("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
                     continue;
+                }
 
                 if (fVoteCacheState && i == 1)
                     fStakerScript = true;
@@ -9317,9 +9325,9 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     CTransaction txPrev;
     uint256 hashBlock = uint256();
     if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
-        return error("%s: INFO: read txPrev failed %s",__func__, txin.prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
+        return error("%s: INFO: read txPrev failed %s\ncan't validate coinstake %s",__func__, txin.prevout.hash.GetHex(), tx.ToString());  // previous transaction not in main chain, may occur during initial download
 
-    bool fColdStaking = txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking();
+    bool fColdStaking = txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStaking() || txPrev.vout[txin.prevout.n].scriptPubKey.IsColdStakingv2();
     bool fPoolEnabled = IsColdStakingPoolFeeEnabled(pindexPrev, Params().GetConsensus());
     CScript kernelScript = txPrev.vout[txin.prevout.n].scriptPubKey;
 
@@ -9330,9 +9338,9 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
             CTransaction txPrev_;
             uint256 hashBlock_ = uint256();
             if (!GetTransaction(tx.vin[i].prevout.hash, txPrev_, Params().GetConsensus(), hashBlock_, true))
-                return error("%s: INFO: read txPrev failed %s",__func__, tx.vin[i].prevout.hash.GetHex());  // previous transaction not in main chain, may occur during initial download
+                return error("%s: INFO: read txPrev failed %s\ncan't check kernel from coinstake %s",__func__, tx.vin[i].prevout.hash.GetHex(), tx.ToString());  // previous transaction not in main chain, may occur during initial download
 
-            fColdStaking |= txPrev_.vout[tx.vin[i].prevout.n].scriptPubKey.IsColdStaking();
+            fColdStaking |= txPrev_.vout[tx.vin[i].prevout.n].scriptPubKey.IsColdStaking() || txPrev_.vout[tx.vin[i].prevout.n].scriptPubKey.IsColdStakingv2();
             if (fColdStaking && txPrev_.vout[tx.vin[i].prevout.n].scriptPubKey != kernelScript)
                 return error("%s: Coinstake spends inputs from more than one different kernel", __func__);
         }
