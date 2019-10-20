@@ -239,16 +239,15 @@ class ConsultationsTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 3)
 
         self.end_cycle_stake(self.nodes[0])
-        self.stake_block(self.nodes[0] , 1)
+        self.stake_block(self.nodes[0], 1)
 
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 1)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 0)
 
-        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'remove')
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
 
         self.end_cycle_stake(self.nodes[0])
-        self.stake_block(self.nodes[0] , 1)
+        self.stake_block(self.nodes[0], 1)
 
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 0)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 0)
