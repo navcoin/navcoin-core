@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_QT_RECENTREQUESTSTABLEMODEL_H
 #define NAVCOIN_QT_RECENTREQUESTSTABLEMODEL_H
 
-#include "walletmodel.h"
+#include <qt/walletmodel.h>
 
 #include <QAbstractTableModel>
 #include <QStringList>

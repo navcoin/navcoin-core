@@ -4,15 +4,15 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "chainparamsbase.h"
-#include "clientversion.h"
-#include "rpc/client.h"
-#include "rpc/protocol.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <chainparamsbase.h>
+#include <clientversion.h>
+#include <rpc/client.h>
+#include <rpc/protocol.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #include <boost/filesystem/operations.hpp>
 #include <stdio.h>

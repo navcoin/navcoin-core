@@ -1,23 +1,23 @@
-#include "communityfundcreatepaymentrequestdialog.h"
-#include "communityfundsuccessdialog.h"
-#include "sendcommunityfunddialog.h"
-#include "ui_communityfundcreatepaymentrequestdialog.h"
+#include <qt/communityfundcreatepaymentrequestdialog.h>
+#include <qt/communityfundsuccessdialog.h>
+#include <qt/sendcommunityfunddialog.h>
+#include <ui_communityfundcreatepaymentrequestdialog.h>
 
 #include <QMessageBox>
 #include <string>
 
 #include <qt/navcoinunits.h>
 
-#include "base58.h"
-#include "consensus/cfund.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "main.cpp"
-#include "main.h"
-#include "skinize.h"
-#include "sync.h"
-#include "wallet/wallet.h"
-#include "walletmodel.h"
+#include <base58.h>
+#include <consensus/cfund.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <main.cpp>
+#include <main.h>
+#include <qt/skinize.h>
+#include <sync.h>
+#include <wallet/wallet.h>
+#include <qt/walletmodel.h>
 
 std::string random_str(size_t length)
 {

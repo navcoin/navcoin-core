@@ -6,9 +6,9 @@
 #ifndef NAVCOIN_RPCSERVER_H
 #define NAVCOIN_RPCSERVER_H
 
-#include "amount.h"
-#include "rpc/protocol.h"
-#include "uint256.h"
+#include <amount.h>
+#include <rpc/protocol.h>
+#include <uint256.h>
 
 #include <list>
 #include <map>

@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_SERIALIZE_H
 #define NAVCOIN_SERIALIZE_H
 
-#include "compat/endian.h"
+#include <compat/endian.h>
 
 #include <algorithm>
 #include <assert.h>
@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-#include "prevector.h"
+#include <prevector.h>
 
 static const unsigned int MAX_SIZE = 0x02000000;
 

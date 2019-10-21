@@ -1,7 +1,7 @@
 #ifndef GETADDRESSTORECEIVE_H
 #define GETADDRESSTORECEIVE_H
 
-#include "walletmodel.h"
+#include <qt/walletmodel.h>
 #include <QWidget>
 
 namespace Ui {

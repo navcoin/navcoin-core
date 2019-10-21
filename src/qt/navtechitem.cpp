@@ -1,5 +1,5 @@
-#include "navtechitem.h"
-#include "ui_navtechitem.h"
+#include <qt/navtechitem.h>
+#include <qt/ui_navtechitem.h>
 
 navtechitem::navtechitem(QWidget *parent) :
     QWidget(parent),
