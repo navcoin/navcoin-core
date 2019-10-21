@@ -1035,8 +1035,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     CProposal proposal;
+    CStateViewCache view(pcoinsTip);
 
-    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
+    if(!view.GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
     if(proposal.fState != DAOFlags::ACCEPTED)

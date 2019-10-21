@@ -143,7 +143,9 @@ bool Vote(uint256 hash, int64_t vote, bool &duplicate)
 
     CConsultationAnswer answer;
 
-    if (pcoinsTip->GetConsultationAnswer(hash, answer))
+    CStateViewCache view(pcoinsTip);
+
+    if (view.GetConsultationAnswer(hash, answer))
     {
         std::string strParent = answer.parent.ToString();
         mapAddedVotes.erase(answer.parent);
@@ -1269,6 +1271,8 @@ bool CConsultation::IsAboutConsensusParameter() const
 }
 
 bool CConsultation::HaveEnoughAnswers() const {
+    AssertLockHeld(cs_main);
+
     int nSupportedAnswersCount = 0;
 
     if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
@@ -1278,14 +1282,15 @@ bool CConsultation::HaveEnoughAnswers() const {
     else
     {
         CConsultationAnswerMap mapConsultationAnswers;
+        CStateViewCache view(pcoinsTip);
 
-        if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
+        if(view.GetAllConsultationAnswers(mapConsultationAnswers))
         {
             for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
             {
                 CConsultationAnswer answer;
 
-                if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
+                if (!view.GetConsultationAnswer(it_->first, answer))
                     continue;
 
                 if (answer.parent != hash)
@@ -1347,6 +1352,8 @@ bool CConsultation::IsSupported(CStateViewCache& view) const
 }
 
 std::string CConsultation::ToString(const CBlockIndex* pindex) const {
+    AssertLockHeld(cs_main);
+
     std::string sRet = strprintf("CConsultation(hash=%s, nVersion=%d, strDZeel=\"%s\", fState=%s, status=%s, answers=[",
                                  hash.ToString(), nVersion, strDZeel, fState, GetState(pindex));
 
@@ -1362,19 +1369,21 @@ std::string CConsultation::ToString(const CBlockIndex* pindex) const {
     }
     else
     {
+        CStateViewCache view(pcoinsTip);
+
         if (mapVotes.count((uint64_t)-5) != 0)
         {
              sRet += "abstain=" + to_string(mapVotes.at((uint64_t)-5)) + ", ";
         }
         CConsultationAnswerMap mapConsultationAnswers;
 
-        if(pcoinsTip->GetAllConsultationAnswers(mapConsultationAnswers))
+        if(view.GetAllConsultationAnswers(mapConsultationAnswers))
         {
             for (CConsultationAnswerMap::iterator it_ = mapConsultationAnswers.begin(); it_ != mapConsultationAnswers.end(); it_++)
             {
                 CConsultationAnswer answer;
 
-                if (!pcoinsTip->GetConsultationAnswer(it_->first, answer))
+                if (!view.GetConsultationAnswer(it_->first, answer))
                     continue;
 
                 if (answer.parent != hash)
@@ -1900,6 +1909,8 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
 }
 
 std::string CProposal::ToString(CStateViewCache& coins, uint32_t currentTime) const {
+    AssertLockHeld(cs_main);
+
     std::string str;
     str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, ownerAddress=%s, paymentAddress=%s, nDeadline=%u, nVotesYes=%u, "
                      "nVotesAbs=%u, nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
@@ -1907,13 +1918,15 @@ std::string CProposal::ToString(CStateViewCache& coins, uint32_t currentTime) co
                      nVotesYes, nVotesAbs, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
     CPaymentRequestMap mapPaymentRequests;
 
+    CStateViewCache view(pcoinsTip);
+
     if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
             CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)
@@ -2007,7 +2020,9 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
         ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     CPaymentRequestMap mapPaymentRequests;
 
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    CStateViewCache view(pcoinsTip);
+
+    if(view.GetAllPaymentRequests(mapPaymentRequests))
     {
         UniValue preq(UniValue::VOBJ);
         UniValue arr(UniValue::VARR);
@@ -2017,7 +2032,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
         {
             CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!view.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)

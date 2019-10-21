@@ -978,12 +978,12 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
     CStateViewCache view(pcoinsTip);
 
-    if(pcoinsTip->GetAllProposals(mapProposals))
+    if(view.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
             CProposal proposal;
-            if (!pcoinsTip->GetProposal(it->first, proposal))
+            if (!view.GetProposal(it->first, proposal))
                 continue;
 
             if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
@@ -1063,12 +1063,12 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
     CConsultationMap mapConsultations;
     CStateViewCache view(pcoinsTip);
 
-    if(pcoinsTip->GetAllConsultations(mapConsultations))
+    if(view.GetAllConsultations(mapConsultations))
     {
         for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
         {
             CConsultation consultation;
-            if (!pcoinsTip->GetConsultation(it->first, consultation))
+            if (!view.GetConsultation(it->first, consultation))
                 continue;
 
             if (!mapBlockIndex.count(consultation.txblockhash))
@@ -1082,12 +1082,12 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
             CConsultationAnswerMap mapAnswers;
             std::vector<CConsultationAnswer> vAnswers;
 
-            if(pcoinsTip->GetAllConsultationAnswers(mapAnswers))
+            if(view.GetAllConsultationAnswers(mapAnswers))
             {
                 for (CConsultationAnswerMap::iterator it = mapAnswers.begin(); it != mapAnswers.end(); it++)
                 {
                     CConsultationAnswer answer;
-                    if (!pcoinsTip->GetConsultationAnswer(it->first, answer) || answer.parent != consultation.hash)
+                    if (!view.GetConsultationAnswer(it->first, answer) || answer.parent != consultation.hash)
                         continue;
                     vAnswers.push_back(answer);
                 }
@@ -1132,12 +1132,14 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     vCacheProposalsRPC.clear();
     vCachePaymentRequestRPC.clear();
 
+    CStateViewCache view(pcoinsTip);
+
     while(nBlocks > 0 && pindexblock != nullptr) {
         vSeen.clear();
 
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
         {
-            if(!pcoinsTip->GetProposal(pindexblock->vProposalVotes[i].first, proposal))
+            if(!view.GetProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
 
             if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0)
@@ -1158,10 +1160,10 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++)
         {
-            if(!pcoinsTip->GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
+            if(!view.GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
 
-            if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+            if(!view.GetProposal(prequest.proposalhash, proposal))
                 continue;
 
             if (mapBlockIndex.count(proposal.blockhash) == 0)
@@ -1235,7 +1237,7 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     {
         CProposal proposal;
 
-        if(!pcoinsTip->GetProposal(it.first, proposal))
+        if(!view.GetProposal(it.first, proposal))
             continue;
 
         UniValue op(UniValue::VOBJ);
@@ -1253,10 +1255,10 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     {
         CPaymentRequest prequest; CProposal proposal;
 
-        if(!pcoinsTip->GetPaymentRequest(it.first, prequest))
+        if(!view.GetPaymentRequest(it.first, prequest))
             continue;
 
-        if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+        if(!view.GetProposal(prequest.proposalhash, proposal))
             continue;
 
         UniValue op(UniValue::VOBJ);
