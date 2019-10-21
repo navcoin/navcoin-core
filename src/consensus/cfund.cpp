@@ -591,7 +591,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 {
     AssertLockHeld(cs_main);
 
-    const CBlockIndex* pindexDelete;
+    const CBlockIndex* pindexDelete = nullptr;
     if (fUndo)
     {
         pindexDelete = pindexNew;
