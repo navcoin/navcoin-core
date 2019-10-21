@@ -2811,8 +2811,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, Params().GetConsensus());
 
-    std::vector<unsigned char> stakerScript;
-
     if (fStake && fVoteCacheState && fCFund)
     {
         CVoteMap baseMap;
@@ -2823,7 +2821,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         for (auto&it: baseMap)
         {
             view.ModifyVote(it.first)->Clear(pindex->nHeight);
-            LogPrint("dao", "%s: Clearing votes for staker %s at height %d\n", __func__, HexStr(stakerScript), pindex->nHeight);
+            LogPrint("dao", "%s: Clearing votes at height %d\n", __func__, pindex->nHeight);
         }
     }
 
@@ -3434,18 +3432,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 CTransaction txPrev;
                 uint256 hashBlock = uint256();
 
-                const CTransaction &txRead = (i == 0 && block.vtx.size() > 1) ? block.vtx[1] : tx;
-
-                if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                if (fStake)
                 {
-                    LogPrintf("%s: Could not find %s to read staker script.\n", __func__, tx.vin[0].prevout.hash.ToString());
-                    continue;  // previous transaction not in main chain
-                }
+                    const CTransaction &txRead = (i == 0 && block.vtx.size() > 1) ? block.vtx[1] : tx;
 
-                if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
-                {
-                    LogPrintf("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
-                    continue;
+                    if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+                    {
+                        LogPrintf("%s: Could not find %s to read staker script.\n", __func__, tx.vin[0].prevout.hash.ToString());
+                        continue;  // previous transaction not in main chain
+                    }
+
+                    if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+                    {
+                        LogPrintf("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
+                        continue;
+                    }
                 }
 
                 if (fVoteCacheState && i == 1)
