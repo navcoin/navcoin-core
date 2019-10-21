@@ -82,26 +82,24 @@ class ConsultationsTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getconsultation(hash2)["answers"][0]['votes'], 0)
         assert_equal(self.nodes[0].getconsultation(hash2)["answers"][1]['votes'], 0)
 
-        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
         self.nodes[0].consultationvote(consultation2["answers"][0]['hash'], 'yes')
-
-        self.stake_block(self.nodes[0], 1)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 1)
-        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 0)
-        assert_equal(self.nodes[0].getconsultation(hash2)["answers"][0]['votes'], 1)
-        assert_equal(self.nodes[0].getconsultation(hash2)["answers"][1]['votes'], 0)
-
-        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
-        self.nodes[0].consultationvote(consultation2["answers"][0]['hash'], 'remove')
-        self.nodes[0].consultationvote(consultation2["answers"][1]['hash'], 'yes')
 
         self.stake_block(self.nodes[0], 1)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 2)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 0)
         assert_equal(self.nodes[0].getconsultation(hash2)["answers"][0]['votes'], 1)
+        assert_equal(self.nodes[0].getconsultation(hash2)["answers"][1]['votes'], 0)
+
+        self.nodes[0].consultationvote(consultation2["answers"][0]['hash'], 'remove')
+        self.nodes[0].consultationvote(consultation2["answers"][1]['hash'], 'yes')
+
+        self.stake_block(self.nodes[0], 1)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
+        assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 0)
+        assert_equal(self.nodes[0].getconsultation(hash2)["answers"][0]['votes'], 1)
         assert_equal(self.nodes[0].getconsultation(hash2)["answers"][1]['votes'], 1)
 
-        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'yes')
+        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
 
         self.stake_block(self.nodes[0], 1)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
@@ -109,7 +107,7 @@ class ConsultationsTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getconsultation(hash2)["answers"][0]['votes'], 1)
         assert_equal(self.nodes[0].getconsultation(hash2)["answers"][1]['votes'], 2)
 
-        self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
+        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'yes')
         self.nodes[0].consultationvote(consultation2["answers"][0]['hash'], 'yes')
         self.nodes[0].consultationvote(consultation2["answers"][1]['hash'], 'remove')
 
