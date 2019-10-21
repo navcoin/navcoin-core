@@ -958,10 +958,10 @@ void NavCoinStaker(const CChainParams& chainparams)
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
                 CheckStake(pblock, *pwalletMain, chainparams);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
-                MilliSleep(1500);
+                MilliSleep(500);
             }
             else
-                MilliSleep(1500);
+                MilliSleep(nMinerSleep);
 
         }
     }
@@ -1014,7 +1014,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
       CScript kernelScriptPubKey;
       if (wallet.CreateCoinStake(wallet, pblock->nBits, nSearchInterval, nFees, txCoinStake, key, kernelScriptPubKey))
       {
-          if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit())
+          if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
           {
               // make sure coinstake would meet timestamp protocol
               //    as it would be the same as the block timestamp
