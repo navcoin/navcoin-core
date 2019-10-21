@@ -3536,7 +3536,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                             }
                         }
-                        else
+                        else if (i == 0)
                         {
                             LogPrint("dao", "%s: Looking for votes to add in the block index.\n", __func__);
 
