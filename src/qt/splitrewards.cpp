@@ -255,7 +255,7 @@ void SplitRewardsDialog::onRemove()
     QModelIndex indexrow = tree->model()->index(row, 0);
     QVariant data = tree->model()->data(indexrow);
     QString text = data.toString();
-    QJsonObject j  = jsonObject[currentAddress].toObject();
+    QJsonObject j = jsonObject[currentAddress].toObject();
     j.erase(j.find(text));
     jsonObject[currentAddress] = j;
     showFor(currentAddress);
