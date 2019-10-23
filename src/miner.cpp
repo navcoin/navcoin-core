@@ -303,6 +303,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             coinbaseTx.vout.insert(coinbaseTx.vout.end(), forcedTxOut);
     }
 
+    if (!(pindexPrev->nStatus & BLOCK_NONCE_BIT_0) && IsNonceBitMajority(0, pindexPrev, Params().GetConsensus()))
+    {
+        coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+        CFund::SetScriptForCommunityFundContribution(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey);
+        coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 74070829555284;
+    }
+
     pblock->vtx[0] = coinbaseTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
@@ -315,6 +322,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     pblock->vtx[0].nTime   = pblock->nTime;
     pblock->nBits          = GetNextTargetRequired(pindexPrev, fProofOfStake);
     pblock->nNonce         = 0;
+    if (GetBoolArg("-voteconfiscate", true) || IsNonceBitMajority(0, pindexPrev, Params().GetConsensus()))
+        pblock->nNonce    |= 1<<0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(pblock->vtx[0]);
 
     if (pFees)

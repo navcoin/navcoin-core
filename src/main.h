@@ -381,7 +381,7 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
  * instead of being performed inline.
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
-                 unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks = NULL);
+                 unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, int nHeight, std::vector<CScriptCheck> *pvChecks = NULL);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);
@@ -647,5 +647,10 @@ bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pinde
 
 bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal);
 bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
+
+typedef std::function<bool(CTransaction, uint32_t)> TxValidatorFunc;
+
+bool ValidateTransactionOutputFromHeight(int nHeight, CTransaction tx, TxValidatorFunc func);
+bool IsNonceBitMajority(int bit, const CBlockIndex* pstart, const Consensus::Params& consensusParams);
 
 #endif // NAVCOIN_MAIN_H
