@@ -4,6 +4,7 @@
 
 * [`Pull Request 509`](https://github.com/navcoin/navcoin-core/pull/509) [`Commit 40eac7ab`](https://github.com/navcoin/navcoin-core/commit/58e38079d7d854a6b02ebb228f06244140eac7ab) Updated some NULL -> nullptr
 * [`Pull Request 525`](https://github.com/navcoin/navcoin-core/pull/525) [`Commit 8ed8cf87`](https://github.com/navcoin/navcoin-core/commit/2e6aa1b3e598d3a443343c480bdbf6b88ed8cf87) Replaced all BOOST_FOREACH calls with new for() syntax (c++11)
+* [`Pull Request 527`](https://github.com/navcoin/navcoin-core/pull/527) [`Commit b2921285`](https://github.com/navcoin/navcoin-core/commit/74def82624ff9bb4598762186598d2bab2921285) Updated the custom 'change' address to be a persistent setting #527
 * [`Pull Request 546`](https://github.com/navcoin/navcoin-core/pull/546) [`Commit e1870814`](https://github.com/navcoin/navcoin-core/commit/083e790aed0120dd271a648d87948e5ae1870814) Added new -allindex option
 * [`Pull Request 554`](https://github.com/navcoin/navcoin-core/pull/554) [`Commit 82523147`](https://github.com/navcoin/navcoin-core/commit/0a8c872a60169de4f6b57b83dab9b39382523147) Replaced Q_FOREACH with for() from c++11 standard
 * [`Pull Request 560`](https://github.com/navcoin/navcoin-core/pull/560) [`Commit 762c3ffd`](https://github.com/navcoin/navcoin-core/commit/64f8cd453f4bdda04f4a718cb026d8a8762c3ffd) Set pindexDelete to nullptr on intialize
