@@ -19,3 +19,6 @@
 * [`Pull Request 612`](https://github.com/navcoin/navcoin-core/pull/612) [`Commit d5cfa467`](https://github.com/navcoin/navcoin-core/commit/902970adfdd5ce0e54e54bfa7545edfad5cfa467) Fix random RPC tests failing
 * [`Pull Request 614`](https://github.com/navcoin/navcoin-core/pull/614) [`Commit 80323b33`](https://github.com/navcoin/navcoin-core/commit/856d57a8f944ed3382d7001a3e9a1bfd80323b33) Patch for staking redirect gui
 * [`Pull Request 615`](https://github.com/navcoin/navcoin-core/pull/615) [`Commit 9e84d40a`](https://github.com/navcoin/navcoin-core/commit/662163ad8f73081d2d6145938571ca809e84d40a) Bump version number
+
+
+For additional information about new features, check [https://info.navcoin.org/navcoin-core/](https://info.navcoin.org/navcoin-core/) 
