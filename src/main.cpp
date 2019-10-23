@@ -6283,23 +6283,31 @@ bool InitBlockIndex(const CChainParams& chainparams)
     if (chainActive.Genesis() != nullptr)
         return true;
 
-    // Use the provided setting for -txindex in the new database
+    // Load the flag values | use DEFAULT_* values if not set
     fTxIndex = GetBoolArg("-txindex", DEFAULT_TXINDEX);
+    fAddressIndex = GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX);
+    fTimestampIndex = GetBoolArg("-timestampindex", DEFAULT_TIMESTAMPINDEX);
+    fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);
+
+    // Check if we want all indexes
+    if (GetBoolArg("-allindex", false))
+    {
+        fTxIndex = fAddressIndex = fTimestampIndex = fSpentIndex = true;
+    }
+
+    // Use the provided setting for -txindex in the new database
     pblocktree->WriteFlag("txindex", fTxIndex);
     LogPrintf("%s: transaction index %s\n", __func__, fTxIndex ? "enabled" : "disabled");
 
     // Use the provided setting for -addressindex in the new database
-    fAddressIndex = GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX);
     pblocktree->WriteFlag("addressindex", fAddressIndex);
     LogPrintf("%s: address index %s\n", __func__, fAddressIndex ? "enabled" : "disabled");
 
     // Use the provided setting for -timestampindex in the new database
-    fTimestampIndex = GetBoolArg("-timestampindex", DEFAULT_TIMESTAMPINDEX);
     pblocktree->WriteFlag("timestampindex", fTimestampIndex);
     LogPrintf("%s: timestamp index %s\n", __func__, fTimestampIndex ? "enabled" : "disabled");
 
     // Use the provided setting for -spentindex in the new database
-    fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);
     pblocktree->WriteFlag("spentindex", fSpentIndex);
     LogPrintf("%s: spent index %s\n", __func__, fSpentIndex ? "enabled" : "disabled");
 
