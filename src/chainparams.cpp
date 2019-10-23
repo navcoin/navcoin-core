@@ -85,7 +85,7 @@ public:
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
-        consensus.nMajorityWindow = 1000;
+        consensus.nMajorityWindow = 2880;
         consensus.BIP34Height = 900000;
         consensus.BIP34Hash = uint256S("0xecb7444214d068028ec1fa4561662433452c1cbbd6b0f8eeb6452bcfa1d0a7d6");
         consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
@@ -126,6 +126,8 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 2722100;
         consensus.nHeightv452Fork = 2882875;
+        consensus.mapForbiddenScripts[3586130] = {"21024b319b7063b8d6893d99dac514e37c1075a85dc8a71916c046a771e9fc83225eac",
+                                       "76a9148c606874f038670b698373386bc373f30fdf0f7988ac"};
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -328,6 +330,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 100000;
         consensus.nHeightv452Fork = 100000;
+        consensus.mapForbiddenScripts = {};
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
@@ -465,7 +468,7 @@ public:
         consensus.nSubsidyHalvingInterval = 210000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
-        consensus.nMajorityWindow = 1000;
+        consensus.nMajorityWindow = 100;
         consensus.BIP34Height = 900000;
         consensus.BIP34Hash = uint256S("0x0");
         consensus.powLimit = ArithToUint256(~arith_uint256(0) >> 16);
@@ -509,6 +512,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
+        consensus.mapForbiddenScripts[25] = {"76a9141f9653f37c4db61d23f9901baa7660edf3fa25d588ac"};
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 5;
@@ -700,6 +704,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
+        consensus.mapForbiddenScripts = {};
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 50;
