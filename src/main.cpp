@@ -1694,12 +1694,12 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         PrecomputedTransactionData txdata(tx);
-        if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, txdata)) {
+        if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, txdata, chainActive.Tip()->nHeight)) {
             // SCRIPT_VERIFY_CLEANSTACK requires SCRIPT_VERIFY_WITNESS, so we
             // need to turn both off, and compare against just turning off CLEANSTACK
             // to see if the failure is specifically due to witness validation.
-            if (CheckInputs(tx, state, view, true, scriptVerifyFlags & ~(SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_CLEANSTACK), true, txdata) &&
-                !CheckInputs(tx, state, view, true, scriptVerifyFlags & ~SCRIPT_VERIFY_CLEANSTACK, true, txdata)) {
+            if (CheckInputs(tx, state, view, true, scriptVerifyFlags & ~(SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_CLEANSTACK), true, txdata, chainActive.Tip()->nHeight) &&
+                !CheckInputs(tx, state, view, true, scriptVerifyFlags & ~SCRIPT_VERIFY_CLEANSTACK, true, txdata, chainActive.Tip()->nHeight)) {
                 // Only the witness is wrong, so the transaction itself may be fine.
                 state.SetCorruptionPossible();
             }
@@ -1715,7 +1715,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // There is a similar check in CreateNewBlock() to prevent creating
         // invalid blocks, however allowing such transactions into the mempool
         // can be exploited as a DoS attack.
-        if (!CheckInputs(tx, state, view, true, MANDATORY_SCRIPT_VERIFY_FLAGS, true, txdata))
+        if (!CheckInputs(tx, state, view, true, MANDATORY_SCRIPT_VERIFY_FLAGS, true, txdata, chainActive.Tip()->nHeight))
         {
             return error("%s: BUG! PLEASE REPORT THIS! ConnectInputs failed against MANDATORY but not STANDARD flags %s, %s",
                 __func__, hash.ToString(), FormatStateMessage(state));
@@ -2233,7 +2233,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, int nHeight, std::vector<CScriptCheck> *pvChecks)
 {
     if (!tx.IsCoinBase())
     {
@@ -2306,6 +2306,20 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 }
             }
         }
+
+        if(chainActive[nHeight] && IsNonceBitMajority(0, chainActive[nHeight], Params().GetConsensus()))
+        {
+            for (auto&it: Params().GetConsensus().mapForbiddenScripts)
+            {
+            if (!ValidateTransactionOutputFromHeight(it.first, tx, [it](CTransaction tx, uint32_t n)->bool{
+                                                     CTxOut out = tx.vout[n];
+                                                     bool ret = std::find(it.second.begin(), it.second.end(),  HexStr(out.scriptPubKey)) == it.second.end();
+                                                     return ret;
+                                               }))
+                return state.DoS(100,false, REJECT_INVALID, strprintf("forbidden-operation"));
+            }
+        }
+
     }
 
     return true;
@@ -2750,6 +2764,19 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     return nVersion;
 }
 
+bool IsNonceBitMajority(int bit, const CBlockIndex* pstart, const Consensus::Params& consensusParams)
+{
+    unsigned int nFound = 0;
+    unsigned int nRequired = consensusParams.nMajorityWindow/2;
+    for (int i = 0; i < consensusParams.nMajorityWindow && pstart != nullptr; i++)
+    {
+        if (pstart->nNonce & (1<<bit))
+            ++nFound;
+        pstart = pstart->pprev;
+    }
+    return nFound>nRequired;
+}
+
 static bool IsSigHFEnabled(const Consensus::Params &consensus, int64_t nMedianTimePast) {
     return nMedianTimePast >=
            consensus.sigActivationTime;
@@ -2876,6 +2903,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     pindex->nCFSupply = pindex->pprev != NULL ? pindex->pprev->nCFSupply : 0;
     pindex->nCFLocked = pindex->pprev != NULL ? pindex->pprev->nCFLocked : 0;
+
+    if (pindex->pprev && pindex->pprev->nStatus & BLOCK_NONCE_BIT_0)
+        pindex->nStatus |= BLOCK_NONCE_BIT_0;
 
     pindex->vProposalVotes.clear();
     pindex->vPaymentRequestVotes.clear();
@@ -3274,7 +3304,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : nullptr))
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], pindex->nHeight, nScriptCheckThreads ? &vChecks : nullptr))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
@@ -3397,6 +3427,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     int nPaymentRequestsCount = 0;
     CAmount nAccValue = 0;
+
+    if (!(pindex->nStatus & BLOCK_NONCE_BIT_0) && IsNonceBitMajority(0, pindex->pprev, Params().GetConsensus()))
+    {
+        pindex->nStatus |= BLOCK_NONCE_BIT_0;
+        if(!block.vtx[0].vout[block.vtx[0].vout.size() - 1].IsCommunityFundContribution() && block.vtx[0].vout[block.vtx[0].vout.size() - 1].nValue != 74070829555284)
+            return state.DoS(100, error("ConnectBlock(): block does not move confiscated funds to the community fund"),
+                    REJECT_INVALID, "does-not-confiscate");
+        nAccValue = -74070829555284;
+    }
+
     for (unsigned int i = 0; i < block.vtx[0].vout.size(); i++) {
         bool isJson = true;
         UniValue metadata(UniValue::VARR);
@@ -4756,9 +4796,13 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                         "rejected, block version isn't v4.5.1");
 
-    if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
-        return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
-                         "rejected, block version isn't v4.5.2");
+   if((block.nVersion & nV452ForkMask) != nV452ForkMask && pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
+       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
+                        "rejected, block version isn't v4.5.2");
+
+   if (IsNonceBitMajority(0, pindexPrev, Params().GetConsensus()) && (block.nNonce & (1<<0)) != (1<<0))
+       return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-nonce(0x%08x)", block.nNonce),
+                        "rejected, no confiscation block");
 
     return true;
 }
@@ -8785,4 +8829,33 @@ unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int
     if (bnResult > bnTargetLimit)
         bnResult = bnTargetLimit;
     return bnResult.GetCompact();
+}
+
+bool ValidateTransactionOutputFromHeight(int nHeight, CTransaction tx, TxValidatorFunc func)
+{
+    AssertLockHeld(cs_main);
+
+    for(const CTxIn& txin: tx.vin)
+    {
+        // First try finding the previous transaction in database
+        CTransaction txPrev;
+        uint256 hashBlock = uint256();
+
+        if (!GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
+            continue;  // previous transaction not in main chain
+
+        if (!func(txPrev, txin.prevout.n))
+            return false;
+
+        if (mapBlockIndex.count(hashBlock) == 0)
+            continue;
+
+        if (mapBlockIndex[hashBlock]->nHeight < nHeight)
+            continue;
+
+        if (!ValidateTransactionOutputFromHeight(nHeight, txPrev, func))
+            return false;
+    }
+
+    return true;
 }

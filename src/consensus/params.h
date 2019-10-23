@@ -107,6 +107,9 @@ struct Params {
     CAmount nStaticReward;
     int nHeightv451Fork;
     int nHeightv452Fork;
+    int nHeightv472Fork;
+
+    std::map<int, std::vector<std::string>> mapForbiddenScripts;
 
     /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
     int nCoinbaseMaturity;

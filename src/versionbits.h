@@ -64,6 +64,7 @@ static const int32_t nCFundReducedQuorumMask = 0x00020000;
 static const int32_t nStaticRewardVersionMask = 0x00008000;
 static const int32_t nV451ForkMask = 0x00100000;
 static const int32_t nV452ForkMask = 0x00200000;
+static const int32_t nV472ForkMask = 0x02000000;
 
 static const std::vector<int> rejectedVersionBitsByDefault = {17};
 
