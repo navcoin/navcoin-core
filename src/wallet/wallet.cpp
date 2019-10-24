@@ -265,6 +265,12 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++)
+            {
+                for (auto&it: Params().GetConsensus().mapForbiddenScripts)
+                    if (it.first >= chainActive.Tip()->nHeight)
+                        if (std::find(it.second.begin(), it.second.end(),  HexStr(pcoin->vout[i].scriptPubKey)) != it.second.end())
+                                continue;
+
                 if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue){
                     vCoins.push_back(COutput(pcoin, i, nDepth, true,
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO &&
@@ -272,6 +278,7 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_STAKABLE)) != ISMINE_NO &&
                                            IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))));
                 }
+            }
         }
     }
 
@@ -2506,6 +2513,11 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
+                for (auto&it: Params().GetConsensus().mapForbiddenScripts)
+                    if (it.first >= chainActive.Tip()->nHeight)
+                        if (std::find(it.second.begin(), it.second.end(),  HexStr(pcoin->vout[i].scriptPubKey)) != it.second.end())
+                                continue;
+
                 isminetype mine = IsMine(pcoin->vout[i]);
                 if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
                     !IsLockedCoin((*it).first, i) && (pcoin->vout[i].nValue > 0 || fIncludeZeroValue) &&
