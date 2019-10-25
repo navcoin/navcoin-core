@@ -2820,7 +2820,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
         for (auto&it: baseMap)
         {
-            view.ModifyVote(it.first)->Clear(pindex->nHeight);
+            CVoteModifier mVote = view.ModifyVote(it.first);
+            mVote->Clear(pindex->nHeight);
             LogPrint("dao", "%s: Clearing votes at height %d\n", __func__, pindex->nHeight);
         }
     }
@@ -3489,7 +3490,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
+                                    CVoteModifier mVote = view.ModifyVote(stakerScript);
+                                    mVote->Set(pindex->nHeight, hash, vote);
                                     LogPrint("dao", "%s: Setting consultation vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                                 }
                                 else
@@ -3532,7 +3534,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 }
 
                                 votes[hash] = vote;
-                                view.ModifyVote(stakerScript)->Set(pindex->nHeight, hash, vote);
+                                CVoteModifier mVote = view.ModifyVote(stakerScript);
+                                mVote->Set(pindex->nHeight, hash, vote);
                                 LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                             }
                         }
