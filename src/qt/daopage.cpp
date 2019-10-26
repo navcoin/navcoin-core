@@ -2061,7 +2061,12 @@ void DaoChart::updateView() {
                 if (mapBlockIndex.count(consultation.blockhash) > 0) {
                     auto nCreated = (unsigned int)(mapBlockIndex[consultation.blockhash]->nHeight / nVotingLength);
                     auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
-                    nCurrentCycle = nCurrent - nCreated - 1;
+                    nCurrentCycle = nCurrent - nCreated;
+                }
+
+                if (consultation.fState == DAOFlags::REFLECTION)
+                {
+                    nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH);
                 }
 
                 if (consultation.mapVotes.count((uint64_t)-5))
