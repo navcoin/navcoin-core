@@ -1353,8 +1353,13 @@ std::string CConsultation::GetState(const CBlockIndex* pindex) const {
 
 bool CConsultation::IsSupported(CStateViewCache& view) const
 {
-
-    return HaveEnoughAnswers() && nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES);
+    if (IsRange())
+    {
+        float nMinimumSupport = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_SUPPORT) / 10000.0;
+        return nSupport > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumSupport;
+    }
+    else
+        return HaveEnoughAnswers() && nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES);
 }
 
 std::string CConsultation::ToString(const CBlockIndex* pindex) const {
@@ -1503,7 +1508,7 @@ bool CConsultation::IsValidVote(int64_t vote) const
 
 bool CConsultation::ExceededMaxVotingCycles() const
 {
-    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES);
+    return nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES);
 };
 
 void CConsultationAnswer::Vote() {
