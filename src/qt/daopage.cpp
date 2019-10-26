@@ -70,7 +70,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(consultationsBtn, SIGNAL(clicked()), this, SLOT(viewConsultations()));
     connect(deploymentsBtn, SIGNAL(clicked()), this, SLOT(viewDeployments()));
     connect(consensusBtn, SIGNAL(clicked()), this, SLOT(viewConsensus()));
-    connect(createBtn, SIGNAL(clicked()), this, SLOT(onCreate()));
+    connect(createBtn, SIGNAL(clicked()), this, SLOT(onCreateBtn()));
     connect(filterCmb, SIGNAL(activated(int)), this, SLOT(onFilter(int)));
     connect(filter2Cmb, SIGNAL(activated(int)), this, SLOT(onFilter2(int)));
     connect(excludeBox, SIGNAL(toggled(bool)), this, SLOT(onExclude(bool)));
@@ -1600,7 +1600,7 @@ void DaoPage::setData(QVector<ConsensusEntry> data)
         widget->setLayout(boxLayout);
 
         // Only show vote button if proposal voting is in progress
-        if (entry.fCanVote || (entry.fState == DAOFlags::NIL && entry.fCanSupport)) {
+        if ((entry.fCanVote && entry.fState != DAOFlags::REFLECTION) || (entry.fState == DAOFlags::NIL && entry.fCanSupport)) {
             auto *button = new QPushButton;
             if (entry.fCanSupport)
                 button->setText(entry.myVotes.size() == 0 ? tr("Support") : tr("Unsupport"));
@@ -1848,6 +1848,11 @@ void DaoPage::onExclude(bool fChecked) {
     refresh(true);
 }
 
+void DaoPage::onCreateBtn() {
+    contextHash = "";
+    onCreate();
+}
+
 void DaoPage::onCreate() {
     if (nCurrentView == VIEW_PROPOSALS)
     {
@@ -1865,16 +1870,55 @@ void DaoPage::onCreate() {
     }
     else if (nCurrentView == VIEW_CONSULTATIONS)
     {
-        DaoConsultationCreate dlg(this);
-        dlg.setModel(walletModel);
-        dlg.exec();
+        LOCK(cs_main);
+
+        CStateViewCache coins(pcoinsTip);
+        CConsultation consultation;
+
+        if (coins.GetConsultation(uint256S(contextHash.toStdString()), consultation))
+        {
+            if (consultation.CanHaveNewAnswers())
+            {
+                DaoProposeAnswer dlg(this, consultation, [](QString s)->bool{
+                    return !s.isEmpty();
+                });
+                dlg.setModel(walletModel);
+                dlg.exec();
+            }
+        }
+        else
+        {
+            DaoConsultationCreate dlg(this);
+            dlg.setModel(walletModel);
+            dlg.exec();
+        }
+
         refresh(true);
     }
     else if (nCurrentView == VIEW_CONSENSUS && contextId >= 0)
     {
-        DaoConsultationCreate dlg(this, QString::fromStdString(Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)contextId]), contextId);
-        dlg.setModel(walletModel);
-        dlg.exec();
+        LOCK(cs_main);
+
+        CStateViewCache coins(pcoinsTip);
+        CConsultation consultation;
+
+        if (coins.GetConsultation(uint256S(contextHash.toStdString()), consultation))
+        {
+            if (consultation.CanHaveNewAnswers())
+            {
+                DaoProposeAnswer dlg(this, consultation, [consultation](QString s)->bool{
+                    return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, s.toStdString()), chainActive.Tip());
+                });
+                dlg.setModel(walletModel);
+                dlg.exec();
+            }
+        }
+        else
+        {
+            DaoConsultationCreate dlg(this, QString::fromStdString(Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)contextId]), contextId);
+            dlg.setModel(walletModel);
+            dlg.exec();
+        }
         refresh(true);
     }
 }
@@ -1930,7 +1974,7 @@ void DaoPage::showContextMenu(const QPoint& pt) {
 
         proposeChange->setDisabled(false);
 
-        if (pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation))
+        if (nCurrentView != VIEW_CONSENSUS && pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation))
         {
             if (consultation.CanHaveNewAnswers())
             {
@@ -1956,6 +2000,9 @@ void DaoPage::showContextMenu(const QPoint& pt) {
         {
             contextId = table->item(contextItem->row(), CP_COLUMN_ID)->data(Qt::DisplayRole).toInt();
             contextMenu->addAction(proposeChange);
+            if (pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation) && !consultation.CanHaveAnswers())
+                contextMenu->removeAction(proposeChange);
+
         }
         else
         {

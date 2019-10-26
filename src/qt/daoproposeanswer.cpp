@@ -141,12 +141,18 @@ void DaoProposeAnswer::onPropose()
 
     if (created) {
         // Display success UI and close current dialog
-        QMessageBox msgBox(this);
-        msgBox.setText(tr("The answer proposal has been correctly submitted."));
-        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setWindowTitle("Success!");
-        msgBox.exec();
+        if (QMessageBox::Yes == QMessageBox(QMessageBox::Information,
+                                            tr("Success!"),
+                                            tr("Your answer proposal has been correctly created.")+"<br><br>"+tr("Now you need to find support from stakers so it is included in the voting!")+"<br><br>"+tr("Do you want to support your own canswer?"),
+                                            QMessageBox::Yes|QMessageBox::No).exec())
+        {
+            bool duplicate;
+            CConsultationAnswer answer;
+            if (TxToConsultationAnswer(wtx.strDZeel, wtx.GetHash(), uint256(), answer))
+            {
+                Support(answer.hash, duplicate);
+            }
+        }
         QDialog::accept();
         return;
     }

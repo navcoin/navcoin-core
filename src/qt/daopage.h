@@ -342,6 +342,7 @@ private Q_SLOTS:
     void viewDeployments();
     void viewConsensus();
 
+    void onCreateBtn();
     void onCreate();
     void onVote();
     void onDetails();
