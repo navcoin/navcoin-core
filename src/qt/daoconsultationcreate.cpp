@@ -65,6 +65,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
 
     minBox->setMinimum(0);
     maxBox->setMinimum(1);
+    maxBox->setMaximum(pow(2,24));
 
     QPushButton* createBtn = new QPushButton(tr("Submit"));
     connect(createBtn, SIGNAL(clicked()), this, SLOT(onCreate()));
