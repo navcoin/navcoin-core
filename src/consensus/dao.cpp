@@ -1253,6 +1253,12 @@ bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::s
             return error("%s: Proposed parameter out of range for coin amounts", __func__);
     }
 
+    if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER)
+    {
+        if (val <= 0 || val > pow(2,24))
+            return error("%s: Proposed parameter out of range for type number", __func__);
+    }
+
     if (pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES && val > GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, pindex))
         return error("%s: Proposed cycles number out of range", __func__);
 
