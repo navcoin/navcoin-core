@@ -278,7 +278,7 @@ std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::str
 std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string)
 {
     string.erase(std::remove_if(string.begin(), string.end(),
-    [](const char& c ) -> bool { return !std::isdigit(c) && c != '.' && c != ','; } ), string.end());
+    [](const char& c ) -> bool { return !std::isdigit(c) && c != '.' && c != ',' && c != '-'; } ), string.end());
 
     std::string ret = string;
 
