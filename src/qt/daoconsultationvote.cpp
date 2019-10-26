@@ -25,6 +25,7 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
     topBox->setLayout(topBoxLayout);
 
     questionLbl = new QLabel(QString::fromStdString(consultation.strDZeel));
+    questionLbl->setWordWrap(true);
     questionLbl->setFont(subtitleFnt);
 
     topBoxLayout->addSpacing(15);
