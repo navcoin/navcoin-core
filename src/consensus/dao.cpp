@@ -282,11 +282,18 @@ std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, st
 
     std::string ret = string;
 
+    try
+    {
     if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NAV)
         ret = std::to_string((uint64_t)(stof(string) * COIN));
     else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
     {
         ret = std::to_string((uint64_t)(stof(string) * 100));
+    }
+    }
+    catch(...)
+    {
+        return "";
     }
 
     return ret;
