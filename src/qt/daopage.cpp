@@ -766,7 +766,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         if (!consultation.IsRange())
         {
-            fCanVote = true;
+            fCanVote = consultation.fState == DAOFlags::ACCEPTED;
 
             for (ConsultationAnswerEntry &a: answers)
             {
@@ -863,7 +863,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 continue;
         }
 
-        if (fExclude && consultation.IsExpired(chainActive.Tip()))
+        if (fExclude && (consultation.fState == DAOFlags::EXPIRED || consultation.fState == DAOFlags::PASSED))
             continue;
 
         consultationModel << p;
