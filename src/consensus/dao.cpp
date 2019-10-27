@@ -1196,11 +1196,14 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
             {
                 CConsultation consultation = it.second;
 
-                if (mapBlockIndex.count(consultation.txblockhash) == 0)
-                    continue;
+                if (consultation.txblockhash != uint256()) // only check if not mempool
+                {
+                    if (mapBlockIndex.count(consultation.txblockhash) == 0)
+                        continue;
 
-                if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
-                    continue;
+                    if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
+                        continue;
+                }
 
                 if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == nMin)
                     return error("%s: Invalid consultation %s. There already exists an active consultation %s about that consensus parameter.", __func__, tx.GetHash().ToString(), consultation.hash.ToString());;

@@ -734,7 +734,8 @@ public:
     bool GetConsultation(const uint256 &txid, CConsultation &consultation) const;
     bool GetConsultationAnswer(const uint256 &txid, CConsultationAnswer &answer) const;
     bool GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests);
-    bool GetAllConsultationAnswers(CConsultationAnswerMap& mapPaymentRequests);
+    bool GetAllConsultationAnswers(CConsultationAnswerMap& mapConsultationAnswers);
+    bool GetAllConsultations(CConsultationMap& mapConsultations);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddConsultation(const CConsultation& consultation) const;

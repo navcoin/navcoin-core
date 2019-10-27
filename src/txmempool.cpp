@@ -1218,6 +1218,21 @@ bool CStateViewMemPool::GetAllConsultationAnswers(CConsultationAnswerMap& mapAns
     return true;
 }
 
+bool CStateViewMemPool::GetAllConsultations(CConsultationMap& mapConsultations) {
+    mapConsultations.clear();
+    mapConsultations.insert(mempool.mapConsultation.begin(), mempool.mapConsultation.end());
+
+    CConsultationMap baseMap;
+
+    if (!base->GetAllConsultations(baseMap))
+        return false;
+
+    for (CConsultationMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapConsultations.insert(make_pair(it->first, it->second));
+
+    return true;
+}
+
 bool CStateViewMemPool::HaveCoins(const uint256 &txid) const {
     return mempool.exists(txid) || base->HaveCoins(txid);
 }
