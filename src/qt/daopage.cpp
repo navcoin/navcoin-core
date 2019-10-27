@@ -2047,6 +2047,15 @@ void DaoPage::onViewChart() {
     if (contextHash.isEmpty())
         return;
 
+    if (fChartOpen)
+    {
+        chartDlg->updateHash(uint256S(contextHash.toStdString()));
+        chartDlg->show();
+        chartDlg->raise();
+        chartDlg->activateWindow();
+        return;
+    }
+
     chartDlg = new DaoChart(this, uint256S(contextHash.toStdString()));
     connect(chartDlg, SIGNAL(accepted()), this, SLOT(closedChart()));
     fChartOpen = true;
@@ -2064,7 +2073,7 @@ DaoChart::DaoChart(QWidget *parent, uint256 hash) :
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
     this->setStyleSheet(Skinize());
-    this->resize(450, 300);
+    this->resize(800, 600);
 
     series = new QtCharts::QPieSeries();
     chart = new QtCharts::QChart();
@@ -2074,6 +2083,12 @@ DaoChart::DaoChart(QWidget *parent, uint256 hash) :
 
     layout->addWidget(chartView);
 
+    updateView();
+}
+
+void DaoChart::updateHash(uint256 hash)
+{
+    this->hash = hash;
     updateView();
 }
 

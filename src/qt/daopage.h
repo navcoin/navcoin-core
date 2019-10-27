@@ -157,6 +157,7 @@ class DaoChart : public QDialog
 public:
     DaoChart(QWidget *parent, uint256 hash);
     void updateView();
+    void updateHash(uint256 hash);
 
 private:
     QVBoxLayout *layout;
