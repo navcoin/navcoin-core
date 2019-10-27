@@ -1149,48 +1149,59 @@ bool CStateViewMemPool::GetCoins(const uint256 &txid, CCoins &coins) const {
 }
 
 bool CStateViewMemPool::GetProposal(const uint256 &txid, CProposal &proposal) const {
+    if (base->GetProposal(txid, proposal) && !proposal.IsNull())
+        return true;
+
     if (mempool.mapProposal.count(txid))
     {
         proposal = mempool.mapProposal.at(txid);
         return true;
     }
-    return (base->GetProposal(txid, proposal) && !proposal.IsNull());
+    return false;
 }
 
 bool CStateViewMemPool::GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const
 {
+    if (base->GetPaymentRequest(txid, prequest) && !prequest.IsNull())
+        return true;
+
     if (mempool.mapPaymentRequest.count(txid))
     {
         prequest = mempool.mapPaymentRequest.at(txid);
         return true;
     }
-    return (base->GetPaymentRequest(txid, prequest) && !prequest.IsNull());
+    return false;
 }
 
 
 bool CStateViewMemPool::GetConsultation(const uint256 &txid, CConsultation &consultation) const
 {
+    if (base->GetConsultation(txid, consultation) && !consultation.IsNull())
+        return true;
+
     if (mempool.mapConsultation.count(txid))
     {
         consultation = mempool.mapConsultation.at(txid);
         return true;
     }
-    return (base->GetConsultation(txid, consultation) && !consultation.IsNull());
+    return false;
 }
 
 bool CStateViewMemPool::GetConsultationAnswer(const uint256 &txid, CConsultationAnswer &answer) const
 {
+    if (base->GetConsultationAnswer(txid, answer) && !answer.IsNull())
+        return true;
+
     if (mempool.mapAnswer.count(txid))
     {
         answer = mempool.mapAnswer.at(txid);
         return true;
     }
-    return (base->GetConsultationAnswer(txid, answer) && !answer.IsNull());
+    return false;
 }
 
 bool CStateViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
     mapPaymentRequests.clear();
-    mapPaymentRequests.insert(mempool.mapPaymentRequest.begin(), mempool.mapPaymentRequest.end());
 
     CPaymentRequestMap baseMap;
 
@@ -1200,12 +1211,13 @@ bool CStateViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequ
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         mapPaymentRequests.insert(make_pair(it->first, it->second));
 
+    mapPaymentRequests.insert(mempool.mapPaymentRequest.begin(), mempool.mapPaymentRequest.end());
+
     return true;
 }
 
 bool CStateViewMemPool::GetAllConsultationAnswers(CConsultationAnswerMap& mapAnswers) {
     mapAnswers.clear();
-    mapAnswers.insert(mempool.mapAnswer.begin(), mempool.mapAnswer.end());
 
     CConsultationAnswerMap baseMap;
 
@@ -1215,12 +1227,13 @@ bool CStateViewMemPool::GetAllConsultationAnswers(CConsultationAnswerMap& mapAns
     for (CConsultationAnswerMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         mapAnswers.insert(make_pair(it->first, it->second));
 
+    mapAnswers.insert(mempool.mapAnswer.begin(), mempool.mapAnswer.end());
+
     return true;
 }
 
 bool CStateViewMemPool::GetAllConsultations(CConsultationMap& mapConsultations) {
     mapConsultations.clear();
-    mapConsultations.insert(mempool.mapConsultation.begin(), mempool.mapConsultation.end());
 
     CConsultationMap baseMap;
 
@@ -1229,6 +1242,8 @@ bool CStateViewMemPool::GetAllConsultations(CConsultationMap& mapConsultations) 
 
     for (CConsultationMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         mapConsultations.insert(make_pair(it->first, it->second));
+
+    mapConsultations.insert(mempool.mapConsultation.begin(), mempool.mapConsultation.end());
 
     return true;
 }

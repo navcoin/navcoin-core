@@ -19,7 +19,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
 
     def setup_network(self, split=False):
         self.nodes = []
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [[]])
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [['-debug=dao']])
 
     def run_test(self):
         # Get cfund parameters
