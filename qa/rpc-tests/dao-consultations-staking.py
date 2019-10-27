@@ -161,7 +161,7 @@ class ConsultationsTest(NavCoinTestFramework):
                                 count = count + answer["votes"]
                         assert_equal(count, 5)
                         valid = valid + 1
-                elif consultation["status"] == "finished, waiting for end of voting period":
+                elif consultation["status"] == "finished, waiting for end of voting period" or consultation["status"] == "last cycle, waiting for end of voting period":
                     valid = valid + 1
                 if consultation["status"] == "finished":
                     finished = finished + 1
