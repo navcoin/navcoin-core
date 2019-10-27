@@ -742,7 +742,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             if (fSupported)
                 myVotes << tr("Supported");
         }
-        else if (consultation.IsRange() && nVote != -10000)
+        else if (consultation.IsRange() && nVote != -10000 && nVote != -1)
         {
             myVotes << QString::number(nVote);
         }
