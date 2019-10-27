@@ -1015,7 +1015,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
                 if (consultation->fState == DAOFlags::ACCEPTED)
                 {
-                    consultation->mapVotes.clear();
+                    if (!mapSeen.count(consultation->hash))
+                        consultation->mapVotes.clear();
                     if (!consultation->IsRange())
                         vClearAnswers.push_back(consultation->hash);
                     fUpdate = true;
