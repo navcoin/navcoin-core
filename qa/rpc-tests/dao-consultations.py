@@ -74,10 +74,10 @@ class ConsultationsTest(NavCoinTestFramework):
 
         #cycle 1
 
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] == "waiting for support")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] == "waiting for support")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] , "waiting for support")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"] , "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"] , "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] , "waiting for support")
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
