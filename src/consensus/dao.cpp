@@ -1085,7 +1085,7 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
             return error("%s: Wrong strdzeel for answer %s", __func__, tx.GetHash().ToString());
 
         if (valRequest.isObject())
-          metadata = valRequest.get_obj();
+            metadata = valRequest.get_obj();
         else
             return error("%s: Wrong strdzeel for answer %s", __func__, tx.GetHash().ToString());
 
@@ -1095,40 +1095,47 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
         return error("%s: Wrong strdzeel for answer %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
-    if(!find_value(metadata, "a").isStr() || !find_value(metadata, "h").isStr())
+    try
     {
-        return error("%s: Wrong strdzeel for answer %s ()", __func__, tx.GetHash().ToString(), tx.strDZeel);
+        if(!find_value(metadata, "a").isStr() || !find_value(metadata, "h").isStr())
+        {
+            return error("%s: Wrong strdzeel for answer %s ()", __func__, tx.GetHash().ToString(), tx.strDZeel);
+        }
+
+        std::string sAnswer = find_value(metadata, "a").get_str();
+
+        if (sAnswer == "")
+            return error("%s: Empty text for answer %s", __func__, tx.GetHash().ToString());
+
+        std::string Hash = find_value(metadata, "h").get_str();
+        int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultationAnswer::BASE_VERSION;
+
+        CConsultation consultation;
+
+        if(!coins.GetConsultation(uint256S(Hash), consultation))
+            return error("%s: Could not find consultation %s for answer %s", __func__, Hash.c_str(), tx.GetHash().ToString());
+
+        if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
+            return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
+
+        if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer, pindex))
+            return error("%s: Invalid consultation %s. The proposed parameter %s is not valid", __func__, Hash, sAnswer);
+
+        CAmount nContribution;
+
+        for(unsigned int i=0;i<tx.vout.size();i++)
+            if(tx.vout[i].IsCommunityFundContribution())
+                nContribution +=tx.vout[i].nValue;
+
+        bool ret = (nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE));
+
+        if (!ret)
+            return error("%s: Not enough fee for answer %s", __func__, tx.GetHash().ToString());
     }
-
-    std::string sAnswer = find_value(metadata, "a").get_str();
-
-    if (sAnswer == "")
-        return error("%s: Empty text for answer %s", __func__, tx.GetHash().ToString());
-
-    std::string Hash = find_value(metadata, "h").get_str();
-    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultationAnswer::BASE_VERSION;
-
-    CConsultation consultation;
-
-    if(!coins.GetConsultation(uint256S(Hash), consultation))
-        return error("%s: Could not find consultation %s for answer %s", __func__, Hash.c_str(), tx.GetHash().ToString());
-
-    if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
-        return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
-
-    if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer, pindex))
-        return error("%s: Invalid consultation %s. The proposed parameter %s is not valid", __func__, Hash, sAnswer);
-
-    CAmount nContribution;
-
-    for(unsigned int i=0;i<tx.vout.size();i++)
-        if(tx.vout[i].IsCommunityFundContribution())
-            nContribution +=tx.vout[i].nValue;
-
-    bool ret = (nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE));
-
-    if (!ret)
-        return error("%s: Not enough fee for answer %s", __func__, tx.GetHash().ToString());
+    catch(...)
+    {
+        return false;
+    }
 
     return true;
 
@@ -1156,90 +1163,97 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         return error("%s: Wrong strdzeel for consultation %s: %s", __func__, tx.GetHash().ToString(), e.what());
     }
 
-    if(!(find_value(metadata, "n").isNum() &&
-         find_value(metadata, "q").isStr()))
+    try
     {
-        return error("%s: Wrong strdzeel for consultation %s (%s)", __func__, tx.GetHash().ToString(), tx.strDZeel);
-    }
-
-    CAmount nMin = find_value(metadata, "m").isNum() ? find_value(metadata, "m").get_int64() : 0;
-    CAmount nMax = find_value(metadata, "n").get_int64();
-    std::string sQuestion = find_value(metadata, "q").get_str();
-
-    CAmount nContribution = 0;
-    int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
-
-    for(unsigned int i=0;i<tx.vout.size();i++)
-        if(tx.vout[i].IsCommunityFundContribution())
-            nContribution +=tx.vout[i].nValue;
-
-    bool fRange = nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION;
-    bool fAcceptMoreAnswers = nVersion & CConsultation::MORE_ANSWERS_VERSION;
-    bool fIsAboutConsensusParameter = nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION;
-
-    if (fIsAboutConsensusParameter)
-    {
-        if (fRange || !fAcceptMoreAnswers)
-            return error("%s: Invalid consultation %s. A consultation about consensus parameters must allow proposals for answers and can't be a range", __func__, tx.GetHash().ToString());
-
-        if (nMax != 1)
-            return error("%s: Invalid consultation %s. n must be 1", __func__, tx.GetHash().ToString());
-
-        if (nMin < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || nMin >= Consensus::MAX_CONSENSUS_PARAMS)
-            return error("%s: Invalid consultation %s. Invalid m", __func__, tx.GetHash().ToString());
-
-        CConsultationMap consultationMap;
-
-        if (coins.GetAllConsultations(consultationMap))
+        if(!(find_value(metadata, "n").isNum() &&
+             find_value(metadata, "q").isStr()))
         {
-            for (auto& it: consultationMap)
+            return error("%s: Wrong strdzeel for consultation %s (%s)", __func__, tx.GetHash().ToString(), tx.strDZeel);
+        }
+
+        CAmount nMin = find_value(metadata, "m").isNum() ? find_value(metadata, "m").get_int64() : 0;
+        CAmount nMax = find_value(metadata, "n").get_int64();
+        std::string sQuestion = find_value(metadata, "q").get_str();
+
+        CAmount nContribution = 0;
+        int nVersion = find_value(metadata, "v").isNum() ? find_value(metadata, "v").get_int64() : CConsultation::BASE_VERSION;
+
+        for(unsigned int i=0;i<tx.vout.size();i++)
+            if(tx.vout[i].IsCommunityFundContribution())
+                nContribution +=tx.vout[i].nValue;
+
+        bool fRange = nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION;
+        bool fAcceptMoreAnswers = nVersion & CConsultation::MORE_ANSWERS_VERSION;
+        bool fIsAboutConsensusParameter = nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION;
+
+        if (fIsAboutConsensusParameter)
+        {
+            if (fRange || !fAcceptMoreAnswers)
+                return error("%s: Invalid consultation %s. A consultation about consensus parameters must allow proposals for answers and can't be a range", __func__, tx.GetHash().ToString());
+
+            if (nMax != 1)
+                return error("%s: Invalid consultation %s. n must be 1", __func__, tx.GetHash().ToString());
+
+            if (nMin < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || nMin >= Consensus::MAX_CONSENSUS_PARAMS)
+                return error("%s: Invalid consultation %s. Invalid m", __func__, tx.GetHash().ToString());
+
+            CConsultationMap consultationMap;
+
+            if (coins.GetAllConsultations(consultationMap))
             {
-                CConsultation consultation = it.second;
-
-                if (consultation.txblockhash != uint256()) // only check if not mempool
+                for (auto& it: consultationMap)
                 {
-                    if (mapBlockIndex.count(consultation.txblockhash) == 0)
-                        continue;
+                    CConsultation consultation = it.second;
 
-                    if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
-                        continue;
+                    if (consultation.txblockhash != uint256()) // only check if not mempool
+                    {
+                        if (mapBlockIndex.count(consultation.txblockhash) == 0)
+                            continue;
+
+                        if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
+                            continue;
+                    }
+
+                    if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == nMin)
+                        return error("%s: Invalid consultation %s. There already exists an active consultation %s about that consensus parameter.", __func__, tx.GetHash().ToString(), consultation.ToString(pindex));
                 }
-
-                if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == nMin)
-                    return error("%s: Invalid consultation %s. There already exists an active consultation %s about that consensus parameter.", __func__, tx.GetHash().ToString(), consultation.ToString(pindex));
             }
         }
+
+        UniValue answers(UniValue::VARR);
+
+        if (find_value(metadata, "a").isArray())
+            answers = find_value(metadata, "a").get_array();
+
+        std::map<std::string, bool> mapSeen;
+        UniValue answersArray = answers.get_array();
+
+        for (unsigned int i = 0; i < answersArray.size(); i++)
+        {
+            if (!answersArray[i].isStr())
+                continue;
+            std::string it = answersArray[i].get_str();
+            if (mapSeen.count(it) == 0)
+                mapSeen[it] = true;
+            if(fIsAboutConsensusParameter && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)nMin, it, pindex))
+                return error("%s: Invalid consultation %s. The proposed value %s is not valid", __func__, tx.GetHash().ToString(), it);
+        }
+
+        CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answersArray.size();
+
+        bool ret = (sQuestion != "" && nContribution >= nMinFee &&
+                ((fRange && nMin >= 0 && nMax < (uint64_t)-5  && nMax > nMin) ||
+                 (!fRange && nMax > 0  && nMax < 16)) &&
+                ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&
+                (nVersion & ~nMaskVersion) == 0);
+
+        if (!ret)
+            return error("%s: Wrong strdzeel %s for proposal %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
     }
-
-    UniValue answers(UniValue::VARR);
-
-    if (find_value(metadata, "a").isArray())
-        answers = find_value(metadata, "a").get_array();
-
-    std::map<std::string, bool> mapSeen;
-    UniValue answersArray = answers.get_array();
-
-    for (unsigned int i = 0; i < answersArray.size(); i++)
+    catch(...)
     {
-        if (!answersArray[i].isStr())
-            continue;
-        std::string it = answersArray[i].get_str();
-        if (mapSeen.count(it) == 0)
-            mapSeen[it] = true;
-        if(fIsAboutConsensusParameter && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)nMin, it, pindex))
-            return error("%s: Invalid consultation %s. The proposed value %s is not valid", __func__, tx.GetHash().ToString(), it);
+        return false;
     }
-
-    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answersArray.size();
-
-    bool ret = (sQuestion != "" && nContribution >= nMinFee &&
-               ((fRange && nMin >= 0 && nMax < (uint64_t)-5  && nMax > nMin) ||
-                (!fRange && nMax > 0  && nMax < 16)) &&
-               ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&
-               (nVersion & ~nMaskVersion) == 0);
-
-    if (!ret)
-        return error("%s: Wrong strdzeel %s for proposal %s", __func__, tx.strDZeel.c_str(), tx.GetHash().ToString());
 
     return true;
 
