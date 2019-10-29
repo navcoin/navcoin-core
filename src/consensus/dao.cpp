@@ -1206,7 +1206,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
                 }
 
                 if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == nMin)
-                    return error("%s: Invalid consultation %s. There already exists an active consultation %s about that consensus parameter.", __func__, tx.GetHash().ToString(), consultation.hash.ToString());;
+                    return error("%s: Invalid consultation %s. There already exists an active consultation %s about that consensus parameter.", __func__, tx.GetHash().ToString(), consultation.ToString(pindex));
             }
         }
     }
@@ -1416,10 +1416,14 @@ std::string CConsultation::ToString(const CBlockIndex* pindex) const {
         }
     }
 
+    sRet += strprintf("]");
 
+    if (IsRange())
+        sRet += strprintf(", fRange=true, nMin=%u, nMax=%u", nMin, nMax);
 
-    sRet += strprintf("], nVotingCycle=%u, nSupport=%u, blockhash=%s)",
+    sRet += strprintf(", nVotingCycle=%u, nSupport=%u, blockhash=%s)",
                      nVotingCycle, nSupport, blockhash.ToString().substr(0,10));
+
     return sRet;
 }
 
