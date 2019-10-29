@@ -662,6 +662,8 @@ public:
     flags fState;
     uint256 hash;
     uint256 txblockhash;
+    uint256 reflectionblockhash;
+    uint256 expiredblockhash;
     uint256 blockhash;
     uint64_t nVersion;
     unsigned int nVotingCycle;
@@ -679,6 +681,8 @@ public:
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
         std::swap(to.blockhash, blockhash);
+        std::swap(to.reflectionblockhash, reflectionblockhash);
+        std::swap(to.expiredblockhash, expiredblockhash);
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
         std::swap(to.fDirty, fDirty);
@@ -700,6 +704,8 @@ public:
         hash = uint256();
         txblockhash = uint256();
         blockhash = uint256();
+        expiredblockhash = uint256();
+        reflectionblockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
         fDirty = false;
@@ -740,6 +746,8 @@ public:
         READWRITE(blockhash);
         READWRITE(strDZeel);
         READWRITE(txblockhash);
+        READWRITE(expiredblockhash);
+        READWRITE(reflectionblockhash);
         READWRITE(mapVotes);
         if (ser_action.ForRead())
             fDirty = false;

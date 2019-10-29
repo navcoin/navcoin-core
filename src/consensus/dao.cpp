@@ -931,16 +931,28 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 continue;
             }
 
-            if(fUndo && consultation->blockhash == pindexDelete->GetBlockHash())
+            bool fEndCycle = (pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0;
+
+            if(fUndo)
             {
-                consultation->blockhash = pindexNew->GetBlockHash();
-                if (consultation->fState == DAOFlags::PASSED)
-                    consultation->fState = DAOFlags::ACCEPTED;
-                else if (consultation->fState == DAOFlags::ACCEPTED)
-                    consultation->fState = DAOFlags::REFLECTION;
-                else
+                if (consultation->reflectionblockhash == pindexDelete->GetBlockHash())
+                {
+                    consultation->reflectionblockhash = uint256();
                     consultation->fState = DAOFlags::NIL;
-                fUpdate = true;
+                    fUpdate = true;
+                }
+                else if (consultation->expiredblockhash == pindexDelete->GetBlockHash())
+                {
+                    consultation->expiredblockhash = uint256();
+                    consultation->fState = DAOFlags::ACCEPTED;
+                    fUpdate = true;
+                }
+                else if (consultation->blockhash == pindexDelete->GetBlockHash())
+                {
+                    consultation->blockhash = uint256();
+                    consultation->fState = DAOFlags::REFLECTION;
+                    fUpdate = true;
+                }
             }
 
             CBlockIndex* pblockindex = mapBlockIndex[consultation->txblockhash];
@@ -959,28 +971,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 fUpdate = true;
             }
 
-            if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
+            if(fEndCycle && !fUndo)
             {
-                if((!consultation->IsExpired(pindexNew) && consultation->fState == DAOFlags::EXPIRED))
-                {
-                    consultation->fState = DAOFlags::NIL;
-                    consultation->blockhash = uint256();
-                    fUpdate = true;
-                }
-
-                if(fUndo && !consultation->IsSupported(view) && (consultation->fState == DAOFlags::ACCEPTED ||
-                                                    consultation->fState == DAOFlags::REFLECTION))
-                {
-                    consultation->fState = DAOFlags::NIL;
-                    consultation->blockhash = uint256();
-                    fUpdate = true;
-                }
-
                 if(consultation->IsExpired(pindexNew))
                 {
                     if (consultation->fState != DAOFlags::EXPIRED)
                     {
                         consultation->fState = DAOFlags::EXPIRED;
+                        consultation->expiredblockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
                 } else if(consultation->IsSupported(view))
@@ -988,7 +986,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     if(consultation->fState == DAOFlags::NIL)
                     {
                         consultation->fState = DAOFlags::REFLECTION;
-                        consultation->blockhash = pindexNew->GetBlockHash();
+                        consultation->reflectionblockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
                     else if(consultation->fState == DAOFlags::REFLECTION)
@@ -1001,7 +999,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if (consultation->IsAboutConsensusParameter() && pindexNew->mapConsensusParameters.count((Consensus::ConsensusParamsPos)consultation->nMin))
                 {
                     consultation->fState = DAOFlags::PASSED;
-                    consultation->blockhash = pindexNew->GetBlockHash();
+                    consultation->expiredblockhash = pindexNew->GetBlockHash();
                     fUpdate = true;
                 }
             }

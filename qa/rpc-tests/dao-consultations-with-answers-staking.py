@@ -70,9 +70,37 @@ class ConsultationsTest(NavCoinTestFramework):
 
         self.nodes[0].support(consultation2["answers"][0]['hash'])
 
-        for i in range(self.nodes[0].getconsensusparameters()[2] + self.nodes[0].getconsensusparameters()[5] + 1):
+        statusesAnswer = ["found support, waiting for end of voting period"]
+        statusesAnswer = statusesAnswer + ["found support"] * (self.nodes[0].getconsensusparameters()[2])
+        statusesAnswer = statusesAnswer + ["found support"] * self.nodes[0].getconsensusparameters()[5]
+        statusesAnswer = statusesAnswer + ["found support", "found support"]
+
+        statuses = ["waiting for support"]
+        statuses = statuses + ["waiting for support"] * (self.nodes[0].getconsensusparameters()[2]-1)
+        statuses = statuses + ["found support, waiting for end of voting period"]
+        statuses = statuses + ["reflection phase"] * self.nodes[0].getconsensusparameters()[5]
+        statuses = statuses + ["voting started", "voting started"]
+        int = 0
+
+        for i in range(self.nodes[0].getconsensusparameters()[2] + self.nodes[0].getconsensusparameters()[5] + 2):
+            assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['status'], statusesAnswer[i])
+            assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['status'], statusesAnswer[i])
+            assert_equal(self.nodes[0].getconsultation(hash)['status'], statuses[i])
+            count = self.nodes[0].getinfo()["blocks"]
             self.end_cycle_stake(self.nodes[0])
             self.stake_block(self.nodes[0] , 1)
+            self.nodes[0].invalidateblock(self.nodes[0].getblockhash(count -2))
+            self.stake_block(self.nodes[0] , 3)
+            assert_equal(self.nodes[0].getinfo()["blocks"], count)
+            assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['status'], statusesAnswer[i])
+            assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['status'], statusesAnswer[i])
+            assert_equal(self.nodes[0].getconsultation(hash)['status'], statuses[i])
+            self.end_cycle_stake(self.nodes[0])
+            self.stake_block(self.nodes[0] , 1)
+            i = i + 1
+            assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['status'], statusesAnswer[i])
+            assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['status'], statusesAnswer[i])
+            assert_equal(self.nodes[0].getconsultation(hash)['status'], statuses[i])
 
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
         self.stake_block(self.nodes[0], 1)
