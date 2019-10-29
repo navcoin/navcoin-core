@@ -7,7 +7,7 @@
 
 This patch fixes a bug where a cfund database entry that was previously deleted is still persisting, preventing future writes of the entry. This can happen in a scenario where a proposal is included in a block which is invalidated (because of a reorganization) which is then included in a new block as part of the new longest chain.
 
-This fix is the main purpose of this patch release, while preparing this bugfix there were several other PR's merged which are also included in this release.
+This fix is the main purpose of the 4.7.1 patch release, while preparing this bugfix there were several other PR's merged which are also included in this release.
 
 ## Merged PRs
 
@@ -28,4 +28,5 @@ This fix is the main purpose of this patch release, while preparing this bugfix 
 * [`Pull Request 614`](https://github.com/navcoin/navcoin-core/pull/614) [`Commit 80323b33`](https://github.com/navcoin/navcoin-core/commit/856d57a8f944ed3382d7001a3e9a1bfd80323b33) Patch for staking redirect gui
 * [`Pull Request 615`](https://github.com/navcoin/navcoin-core/pull/615) [`Commit 9e84d40a`](https://github.com/navcoin/navcoin-core/commit/662163ad8f73081d2d6145938571ca809e84d40a) Bump version number
 
-For additional information about new features, check [https://info.navcoin.org/navcoin-core/](https://info.navcoin.org/navcoin-core/) 
+For additional information about new features, check [https://navcoin.org/en/notices/](https://navcoin.org/en/notices/) 
+
