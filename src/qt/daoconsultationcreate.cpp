@@ -141,7 +141,14 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent, QString title, int
     warningLbl->setVisible(false);
 
     listWidget = new NavCoinListWidget(this, tr("Possible answers"), [this](QString s)->bool{
-            return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)cpos, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)cpos, s.toStdString()), chainActive.Tip());
+            try
+            {
+                return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)cpos, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)cpos, s.toStdString()), chainActive.Tip());
+            }
+            catch(...)
+            {
+                return false;
+            }
     });
 
     layout->addWidget(new QLabel(tr("Propose a new value for:")));
