@@ -577,6 +577,7 @@ public:
     uint256 hash;
     uint256 parent;
     uint256 txblockhash;
+    uint256 txhash;
     uint256 blockhash;
     bool fDirty;
 
@@ -593,12 +594,13 @@ public:
         std::swap(to.txblockhash, txblockhash);
         std::swap(to.blockhash, blockhash);
         std::swap(to.parent, parent);
+        std::swap(to.txhash, txhash);
     }
 
     bool IsNull() const
     {
         return (sAnswer == "" && nVotes == 0 && nSupport == 0 && fState == 0 && nVersion == 0 &&
-                hash == uint256() && blockhash == uint256() && parent == uint256() && txblockhash == uint256());
+                hash == uint256() && txhash == uint256() && blockhash == uint256() && parent == uint256() && txblockhash == uint256());
     };
 
     void SetNull()
@@ -612,6 +614,7 @@ public:
         parent = uint256();
         txblockhash = uint256();
         blockhash = uint256();
+        txhash = uint256();
         fDirty = false;
     };
 
@@ -640,6 +643,7 @@ public:
         READWRITE(hash);
         READWRITE(parent);
         READWRITE(txblockhash);
+        READWRITE(txhash);
         READWRITE(blockhash);
         if (ser_action.ForRead())
             fDirty = false;

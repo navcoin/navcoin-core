@@ -3181,6 +3181,7 @@ bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& b
     hashAnswer << hash;
     hashAnswer << sAnswer;
 
+    answer.txhash = hash;
     answer.hash = hashAnswer.GetHash();
     answer.parent = uint256S(find_value(metadata, "h").get_str());
     answer.sAnswer = sAnswer;

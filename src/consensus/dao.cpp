@@ -1115,6 +1115,14 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
         if(!coins.GetConsultation(uint256S(Hash), consultation))
             return error("%s: Could not find consultation %s for answer %s", __func__, Hash.c_str(), tx.GetHash().ToString());
 
+        CHashWriter hashAnswer(0,0);
+
+        hashAnswer << uint256S(Hash);
+        hashAnswer << sAnswer;
+
+        if(coins.HaveConsultationAnswer(hashAnswer.GetHash()))
+            return error("%s: Duplicated answers are forbidden.", __func__);
+
         if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
             return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
 
