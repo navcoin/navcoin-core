@@ -20,13 +20,14 @@ enum ConsensusParamsPos
     CONSENSUS_PARAM_VOTING_CYCLE_LENGTH,
 
     CONSENSUS_PARAM_CONSULTATION_MIN_SUPPORT,
+    CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_SUPPORT,
+
     CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES,
     CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES,
     CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES,
     CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH,
     CONSENSUS_PARAM_CONSULTATION_MIN_FEE,
 
-    CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_SUPPORT,
     CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE,
 
     CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM,
@@ -54,14 +55,15 @@ enum ConsensusParamsPos
 static std::string sConsensusParamsDesc[Consensus::MAX_CONSENSUS_PARAMS] = {
     "Length in blocks of a voting cycle",
 
-    "Minimum of support needed for starting a consultation",
+    "Minimum of support needed for starting a range consultation",
+    "Minimum of support needed for a consultation answer proposal",
+
     "Earliest cycle when a consultation can get in confirmation phase",
     "Length in cycles for consultation votings",
     "Maximum of voting cycles for a consultation to gain support",
     "Length in cycles for the reflection phase of consultations",
     "Minimum fee to submit a consultation",
 
-    "Minimum of support needed for a consultation answer proposal",
     "Minimum fee to submit a consultation answer proposal",
 
     "Minimum of quorum for fund proposal votings",
@@ -89,13 +91,14 @@ static ConsensusParamType vConsensusParamsType[MAX_CONSENSUS_PARAMS] =
     TYPE_NUMBER,
 
     TYPE_PERCENT,
+    TYPE_PERCENT,
+
     TYPE_NUMBER,
     TYPE_NUMBER,
     TYPE_NUMBER,
     TYPE_NUMBER,
     TYPE_NAV,
 
-    TYPE_PERCENT,
     TYPE_NAV,
 
     TYPE_PERCENT,
