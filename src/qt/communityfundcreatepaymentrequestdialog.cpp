@@ -6,8 +6,6 @@
 #include <QMessageBox>
 #include <string>
 
-#include <qt/navcoinunits.h>
-
 #include <base58.h>
 #include <consensus/cfund.h>
 #include <qt/guiconstants.h>
@@ -194,18 +192,11 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Validate requested amount
         if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
             QMessageBox msgBox(this);
-            QString str = tr("Requested amount must be greater than 0 NAV (Zero)\n");
-            if (nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
-                str = tr("Requested amount %1 is more than avaible coins in the proposal (%2)\n")
-                    .arg(
-                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, nReqAmount),
-                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, proposal.GetAvailable(*pcoinsTip, true))
-                    );
-            }
-            msgBox.setText(str);
+            std::string str = "Cannot create a Payment Request for the requested amount\n";
+            msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle(tr("Invalid Amount"));
+            msgBox.setWindowTitle("Invalid Amount");
             msgBox.exec();
             return;
         }
