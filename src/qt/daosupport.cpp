@@ -144,7 +144,7 @@ void DaoSupport::onPropose()
     DaoProposeAnswer dlg(this, consultation, [this](QString s)->bool{
         try
         {
-            return consultation.IsAboutConsensusParameter() ? IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, s.toStdString()), chainActive.Tip()) : !s.isEmpty();
+            return consultation.IsAboutConsensusParameter() ? IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, s.toStdString()), chainActive.Tip(), *pcoinsTip) : !s.isEmpty();
         }
         catch (...)
         {

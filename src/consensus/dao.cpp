@@ -1125,7 +1125,7 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
         if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
             return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
 
-        if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer, pindex))
+        if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer, pindex, coins))
             return error("%s: Invalid consultation %s. The proposed parameter %s is not valid", __func__, Hash, sAnswer);
 
         CAmount nContribution;
@@ -1242,7 +1242,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
             std::string it = answersArray[i].get_str();
             if (mapSeen.count(it) == 0)
                 mapSeen[it] = true;
-            if(fIsAboutConsensusParameter && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)nMin, it, pindex))
+            if(fIsAboutConsensusParameter && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)nMin, it, pindex, coins))
                 return error("%s: Invalid consultation %s. The proposed value %s is not valid", __func__, tx.GetHash().ToString(), it);
         }
 
@@ -1266,7 +1266,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
 
 }
 
-bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex)
+bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex, CStateViewCache& coins)
 {
     if (proposal.empty() || proposal.find_first_not_of("0123456789") != string::npos)
         return error("%s: Proposed parameter is empty or not integer", __func__);
@@ -1296,6 +1296,33 @@ bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::s
 
     if (pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES && val < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES, pindex))
         return error("%s: Proposed cycles number out of range", __func__);
+
+    if (pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES || pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES)
+    {
+        auto lookFor = (pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES) ? Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES : Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES;
+
+        CConsultationMap consultationMap;
+
+        if (coins.GetAllConsultations(consultationMap))
+        {
+            for (auto& it: consultationMap)
+            {
+                CConsultation consultation = it.second;
+
+                if (consultation.txblockhash != uint256()) // only check if not mempool
+                {
+                    if (mapBlockIndex.count(consultation.txblockhash) == 0)
+                        continue;
+
+                    if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
+                        continue;
+                }
+
+                if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == lookFor)
+                    return error("%s: There already exists an active consultation %s about the consensus parameter %d. Both can not happen at the same time", __func__, consultation.ToString(pindex), lookFor);
+            }
+        }
+    }
 
     if (val == GetConsensusParameter(pos, pindex))
         return error("%s: The proposed value is the current one", __func__);

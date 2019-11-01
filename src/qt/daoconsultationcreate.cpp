@@ -143,7 +143,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent, QString title, int
     listWidget = new NavCoinListWidget(this, tr("Possible answers"), [this](QString s)->bool{
             try
             {
-                return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)cpos, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)cpos, s.toStdString()), chainActive.Tip());
+                return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)cpos, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)cpos, s.toStdString()), chainActive.Tip(), *pcoinsTip);
             }
             catch(...)
             {

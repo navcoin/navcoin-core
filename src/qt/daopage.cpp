@@ -1907,7 +1907,7 @@ void DaoPage::onCreate() {
             if (consultation.CanHaveNewAnswers())
             {
                 DaoProposeAnswer dlg(this, consultation, [consultation](QString s)->bool{
-                    return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, s.toStdString()), chainActive.Tip());
+                    return IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, RemoveFormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, s.toStdString()), chainActive.Tip(), *pcoinsTip);
                 });
                 dlg.setModel(walletModel);
                 dlg.exec();
