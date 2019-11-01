@@ -171,6 +171,7 @@ public:
             if (it.first.first == height)
                 it.second.SetNull();
         }
+        fDirty = true;
         return true;
     }
 

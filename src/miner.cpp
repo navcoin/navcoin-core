@@ -138,7 +138,7 @@ void BlockAssembler::resetBlock()
     blockFinished = false;
 }
 
-CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees)
+CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fProofOfStake, uint64_t* pFees, std::string &sLog)
 {
     resetBlock();
 
@@ -234,7 +234,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     SetScriptForConsultationSupport(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
-                    LogPrint("dao", "%s: Adding consultation-support output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+                    if (LogAcceptCategory("dao")) sLog += strprintf("%s: Adding consultation-support output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
                     votes[consultation.hash] = true;
 
                     continue;
@@ -248,7 +248,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     SetScriptForConsultationSupport(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,answer.hash);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
-                    LogPrint("dao", "%s: Adding consultation-support output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+                    if (LogAcceptCategory("dao")) sLog += strprintf("%s: Adding consultation-support output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
                     votes[answer.hash] = true;
 
                     continue;
@@ -278,7 +278,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,consultation.hash,vote);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
 
-                    LogPrint("dao", "%s: Adding consultation-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+                    if (LogAcceptCategory("dao")) sLog += strprintf("%s: Adding consultation-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
 
                     votes[consultation.hash] = true;
 
@@ -294,7 +294,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     SetScriptForConsultationVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,answer.hash,-2);
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
 
-                    LogPrint("dao", "%s: Adding consultation-answer-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+                    if (LogAcceptCategory("dao")) sLog += strprintf("%s: Adding consultation-answer-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
 
                     votes[answer.hash] = true;
 
@@ -331,7 +331,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
 
-                    LogPrint("dao", "%s: Adding proposal-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+                    if (LogAcceptCategory("dao")) sLog += strprintf("%s: Adding proposal-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
 
                     votes[proposal.hash] = vote;
                     continue;
@@ -359,7 +359,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                     coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
                     votes[prequest.hash] = vote;
 
-                    LogPrint("dao", "%s: Adding payment-request-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+                    if (LogAcceptCategory("dao")) sLog += strprintf("%s: Adding payment-request-vote output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
 
                     continue;
                 }
@@ -404,12 +404,12 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey = GetScriptForDestination(addr.Get());
                         coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = prequest.nAmount;
 
-                        LogPrint("dao", "%s: Adding payment-request-payout output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
+                        if (LogAcceptCategory("dao")) sLog += strprintf("%s: Adding payment-request-payout output %s\n", __func__, coinbaseTx.vout[coinbaseTx.vout.size()-1].ToString());
 
                         strDZeel.push_back(prequest.hash.ToString());
                     }
                     else
-                        LogPrint("dao", "Could not find parent proposal of payment request %s.\n", prequest.hash.ToString());
+                        if (LogAcceptCategory("dao")) sLog += strprintf("Could not find parent proposal of payment request %s.\n", prequest.hash.ToString());
                 }
             }
         }
@@ -939,8 +939,9 @@ void NavCoinStaker(const CChainParams& chainparams)
             // Create new block
             //
             uint64_t nFees = 0;
+            std::string sLog = "";
 
-            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, true, &nFees));
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, true, &nFees, sLog));
             if (!pblocktemplate.get())
             {
                 LogPrintf("Error in NavCoinStaker: Keypool ran out, please call keypoolrefill before restarting the staking thread\n");
@@ -952,7 +953,7 @@ void NavCoinStaker(const CChainParams& chainparams)
             //     ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
             //Trying to sign a block
-            if (SignBlock(pblock, *pwalletMain, nFees))
+            if (SignBlock(pblock, *pwalletMain, nFees, sLog))
             {
                 LogPrint("coinstake", "PoS Block signed\n");
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
@@ -977,8 +978,7 @@ void NavCoinStaker(const CChainParams& chainparams)
     }
 }
 
-#ifdef ENABLE_WALLET
-bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
+bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
 {
   std::vector<CTransaction> vtx = pblock->vtx;
   // if we are trying to sign
@@ -1016,6 +1016,9 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
       {
           if (txCoinStake.nTime >= chainActive.Tip()->GetPastTimeLimit()+1)
           {
+              if (sLog != "")
+                  LogPrintf("%s", sLog);
+
               // make sure coinstake would meet timestamp protocol
               //    as it would be the same as the block timestamp
               pblock->vtx[0].nTime = pblock->nTime = txCoinStake.nTime;
@@ -1311,7 +1314,6 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
 
   return false;
 }
-#endif
 
 bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams)
 {

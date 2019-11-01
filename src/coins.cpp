@@ -637,37 +637,31 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         if (it->second.fDirty || it->second.IsNull()) { // Ignore non-dirty entries (optimization).
             std::vector<unsigned char> voter = it->first;
             CVoteMap::iterator itUs = cacheVotes.find(voter);
-            if (it->second.IsNull()) {  // VoteList is completely null, we must remove it
-                if (itUs != cacheVotes.end()) {
-                    cacheVotes[voter].SetNull();
-                }
-            } else { // VoteList is not null
-                if (itUs != cacheVotes.end()) { // Parent has it
-                    std::map<std::pair<int, uint256>, CVote> list= it->second.GetFullList();
-                    for (auto& it: list)
+            if (itUs != cacheVotes.end()) { // Parent has it
+                std::map<std::pair<int, uint256>, CVote> list= it->second.GetFullList();
+                for (auto& it: list)
+                {
+                    if (it.second.IsNull()) // We must remove from parent
                     {
-                        if (it.second.IsNull()) // We must remove from parent
+                        if (!cacheVotes[voter].Clear(it.first.first, it.first.second))
+                            return error("Could not remove vote for %s", it.first.second.ToString());
+                    }
+                    else // We need to add to parent
+                    {
+                        int64_t val;
+                        if (it.second.GetValue(val))
                         {
-                            if (!cacheVotes[voter].Clear(it.first.first, it.first.second))
-                                return error("Could not remove vote for %s", it.first.second.ToString());
-                        }
-                        else // We need to add to parent
-                        {
-                            int64_t val;
-                            if (it.second.GetValue(val))
-                            {
-                                if (!cacheVotes[voter].Set(it.first.first, it.first.second, val))
-                                    return error("Could not add vote for %s", it.first.second.ToString());
-                            }
+                            if (!cacheVotes[voter].Set(it.first.first, it.first.second, val))
+                                return error("Could not add vote for %s", it.first.second.ToString());
                         }
                     }
                 }
-                else // It's unknown to parent, we must add it
-                {
-                    CVoteList& entry = cacheVotes[voter];
-                    entry.swap(it->second);
-                    entry.fDirty = true;
-                }
+            }
+            else // It's unknown to parent, we must add it
+            {
+                CVoteList& entry = cacheVotes[voter];
+                entry.swap(it->second);
+                entry.fDirty = true;
             }
         }
         CVoteMap::iterator itOld = it++;

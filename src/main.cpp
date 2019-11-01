@@ -3440,14 +3440,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true))
                     {
-                        LogPrintf("%s: Could not find %s to read staker script.\n", __func__, tx.vin[0].prevout.hash.ToString());
-                        continue;  // previous transaction not in main chain
+                        return error("%s: Could not find %s to read staker script.\n", __func__, tx.vin[0].prevout.hash.ToString());
                     }
 
                     if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
                     {
-                        LogPrintf("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
-                        continue;
+                        return error("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
                     }
                 }
 
@@ -3616,7 +3614,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
-
                             }
                         }
                     }
@@ -3740,7 +3737,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (!tx.IsCoinBase())
         {
-
             if (!tx.IsCoinStake())
                 nFees += view.GetValueIn(tx) - tx.GetValueOut();
             if (tx.IsCoinStake())
@@ -4011,6 +4007,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         {
                             pindex->mapSupport.insert(make_pair(it.first, true));
                             LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
+                        }
+                        else
+                        {
+                            LogPrint("dao", "%s: Ignoring support vote for staker %s in block index %d\n", __func__, HexStr(stakerScript), pindex->nHeight);
                         }
                     }
                     else if (fDAOConsultations)
