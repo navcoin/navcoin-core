@@ -1294,6 +1294,9 @@ bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::s
     if (pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES && val > GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, pindex))
         return error("%s: Proposed cycles number out of range", __func__);
 
+    if (pos == Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES && val < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES, pindex))
+        return error("%s: Proposed cycles number out of range", __func__);
+
     if (val == GetConsensusParameter(pos, pindex))
         return error("%s: The proposed value is the current one", __func__);
 
