@@ -1976,14 +1976,7 @@ void DaoPage::showContextMenu(const QPoint& pt) {
 
         if (nCurrentView != VIEW_CONSENSUS && pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation))
         {
-            if (consultation.CanHaveNewAnswers())
-            {
-                proposeChange->setDisabled(false);
-            }
-            else
-            {
-                proposeChange->setDisabled(true);
-            }
+            contextMenu->removeAction(proposeChange);
         }
         else if (pcoinsTip->GetProposal(uint256S(contextHash.toStdString()), proposal))
         {
