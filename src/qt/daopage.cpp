@@ -1982,7 +1982,6 @@ void DaoPage::showContextMenu(const QPoint& pt) {
         {
             contextMenu->addAction(seePaymentRequestsAction);
             contextMenu->removeAction(seeProposalAction);
-
         }
         else if (pcoinsTip->GetPaymentRequest(uint256S(contextHash.toStdString()), prequest))
         {
@@ -1995,7 +1994,6 @@ void DaoPage::showContextMenu(const QPoint& pt) {
             contextMenu->addAction(proposeChange);
             if (pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation) && !consultation.CanHaveAnswers())
                 contextMenu->removeAction(proposeChange);
-
         }
         else
         {
@@ -2126,6 +2124,9 @@ void DaoChart::updateView() {
 
                 if (consultation.fState == DAOFlags::REFLECTION)
                 {
+                    auto nCreated = (unsigned int)(mapBlockIndex[consultation.reflectionblockhash]->nHeight / nVotingLength);
+                    auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
+                    nCurrentCycle = nCurrent - nCreated;
                     nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH);
                 }
 

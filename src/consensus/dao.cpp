@@ -981,7 +981,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         consultation->expiredblockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
-                } else if(consultation->IsSupported(view))
+                }
+                else if(consultation->IsSupported(view))
                 {
                     if(consultation->fState == DAOFlags::NIL)
                     {
@@ -989,7 +990,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         consultation->reflectionblockhash = pindexNew->GetBlockHash();
                         fUpdate = true;
                     }
-                    else if(consultation->fState == DAOFlags::REFLECTION)
+                    else if(consultation->fState == DAOFlags::REFLECTION && consultation->IsReflectionOver(pindexNew))
                     {
                         consultation->fState = DAOFlags::ACCEPTED;
                         consultation->blockhash = pindexNew->GetBlockHash();
@@ -1511,6 +1512,18 @@ bool CConsultation::IsExpired(const CBlockIndex* pindex) const
     return (fState == DAOFlags::EXPIRED) || (ExceededMaxVotingCycles() && fState == DAOFlags::NIL);
 };
 
+bool CConsultation::IsReflectionOver(const CBlockIndex* pindex) const
+{
+    auto nVotingLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH);
+    if (mapBlockIndex.count(reflectionblockhash) > 0) {
+        auto nCreated = (unsigned int)(mapBlockIndex[reflectionblockhash]->nHeight / nVotingLength);
+        auto nCurrent = (unsigned int)(pindex->nHeight / nVotingLength);
+        auto nElapsedCycles = nCurrent - nCreated;
+        auto nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH);
+        return nElapsedCycles >= nMaxCycles;
+    }
+    return false;
+}
 bool CConsultation::CanBeSupported() const
 {
     return fState == DAOFlags::NIL;

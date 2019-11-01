@@ -724,6 +724,7 @@ public:
     bool CanBeVoted() const;
     bool IsSupported(CStateViewCache& view) const;
     bool IsExpired(const CBlockIndex* pindex) const;
+    bool IsReflectionOver(const CBlockIndex* pindex) const;
     bool IsValidVote(int64_t vote) const;
     bool ExceededMaxVotingCycles() const;
     bool IsRange() const;
