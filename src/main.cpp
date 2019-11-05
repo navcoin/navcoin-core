@@ -2821,8 +2821,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         for (auto&it: baseMap)
         {
             CVoteModifier mVote = view.ModifyVote(it.first);
+            LogPrint("dao", "%s: Clearing votes at height %d for staker %s\n", __func__, pindex->nHeight, HexStr(it.first));
             mVote->Clear(pindex->nHeight);
-            LogPrint("dao", "%s: Clearing votes at height %d\n", __func__, pindex->nHeight);
         }
     }
 
@@ -3954,12 +3954,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         std::map<uint256, int> mapCountAnswers;
         std::map<uint256, int> mapCacheMaxAnswers;
 
+        LogPrint("dao", "%s: Looking for the votes of staker %s\n", __func__, HexStr(stakerScript));
+
         if (view.GetCachedVoter(stakerScript, pVoteList))
         {
             std::map<uint256, CVote> list = pVoteList.GetList();
 
             for (auto& it: list)
             {
+
+                LogPrint("dao", "%s: Found %s %s\n", __func__, it.first.ToString(), it.second.ToString());
+
                 if (!it.second.IsNull())
                 {
                     int64_t val;

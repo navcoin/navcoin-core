@@ -139,10 +139,13 @@ public:
     {
         if (!Clear(height, hash))
             return false;
+
         if (list.count(std::make_pair(height, hash)) == 0)
-            list[std::make_pair(height, hash)] = CVote();
+            list.insert(std::make_pair(std::make_pair(height, hash), CVote()));
+
         list[std::make_pair(height, hash)].SetValue(vote);
         fDirty = true;
+
         return true;
     }
 
@@ -150,17 +153,26 @@ public:
     {
         if (!Clear(height, hash))
             return false;
-        list[std::make_pair(height, hash)] = vote;
+
+        if (list.count(std::make_pair(height, hash)) == 0)
+            list.insert(std::make_pair(std::make_pair(height, hash), vote));
+        else
+            list[std::make_pair(height, hash)] = vote;
+
         fDirty = true;
+
         return true;
     }
 
     bool Clear(const int& height, const uint256& hash)
     {
         if (list.count(std::make_pair(height, hash)) == 0)
-            list[std::make_pair(height, hash)] = CVote();
-        list[std::make_pair(height, hash)].SetNull();
+            list.insert(std::make_pair(std::make_pair(height, hash), CVote()));
+        else
+            list[std::make_pair(height, hash)].SetNull();
+
         fDirty = true;
+
         return true;
     }
 
@@ -169,9 +181,11 @@ public:
         for (auto &it: list)
         {
             if (it.first.first == height)
+            {
+                fDirty = true;
                 it.second.SetNull();
+            }
         }
-        fDirty = true;
         return true;
     }
 
@@ -196,15 +210,9 @@ public:
     }
 
 
-    std::map<std::pair<int, uint256>, CVote> GetFullList()
+    std::map<std::pair<int, uint256>, CVote>* GetFullList()
     {
-        std::map<std::pair<int, uint256>, CVote> ret;
-        for (auto &it: list)
-        {
-            if (!it.second.IsNull())
-                ret[it.first] = it.second;
-        }
-        return ret;
+        return &list;
     }
 
     std::string ToString()

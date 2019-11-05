@@ -1109,7 +1109,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           int64_t vote;
                           out.scriptPubKey.ExtractVote(hash, vote);
 
-                          if (list.count(hash) > 0)
+                          if (list.count(hash) > 0 && !list[hash].IsNull())
                           {
                               int64_t nval;
                               if (list[hash].GetValue(nval))
@@ -1137,7 +1137,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           int64_t vote;
                           out.scriptPubKey.ExtractSupportVote(hash, vote);
 
-                          if (list.count(hash) > 0)
+                          if (list.count(hash) > 0 && !list[hash].IsNull())
                           {
                               int64_t nval;
                               if (list[hash].GetValue(nval))
@@ -1179,7 +1179,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                               }
                           }
 
-                          if (list.count(hash) > 0)
+                          if (list.count(hash) > 0 && !list[hash].IsNull())
                           {
                               int64_t nval;
                               if (list[hash].GetValue(nval))

@@ -638,8 +638,8 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
             std::vector<unsigned char> voter = it->first;
             CVoteMap::iterator itUs = cacheVotes.find(voter);
             if (itUs != cacheVotes.end()) { // Parent has it
-                std::map<std::pair<int, uint256>, CVote> list= it->second.GetFullList();
-                for (auto& it: list)
+                std::map<std::pair<int, uint256>, CVote>* list= it->second.GetFullList();
+                for (auto& it: *list)
                 {
                     if (it.second.IsNull()) // We must remove from parent
                     {
