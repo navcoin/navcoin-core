@@ -1982,11 +1982,13 @@ void DaoPage::showContextMenu(const QPoint& pt) {
         {
             contextMenu->addAction(seePaymentRequestsAction);
             contextMenu->removeAction(seeProposalAction);
+            contextMenu->removeAction(proposeChange);
         }
         else if (pcoinsTip->GetPaymentRequest(uint256S(contextHash.toStdString()), prequest))
         {
             contextMenu->addAction(seeProposalAction);
             contextMenu->removeAction(seePaymentRequestsAction);
+            contextMenu->removeAction(proposeChange);
         }
         else if (nCurrentView == VIEW_CONSENSUS)
         {
