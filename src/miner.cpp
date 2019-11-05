@@ -1047,6 +1047,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
               if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus())
                       && kernelScriptPubKey.GetStakerScript(stakerScript))
               {
+                  LogPrint("dao", "%s: Reviewing vote outputs for stake script %s\n", __func__, HexStr(stakerScript));
                   CVoteList pVoteList;
                   view.GetCachedVoter(stakerScript, pVoteList);
                   std::map<uint256, CVote> list = pVoteList.GetList();

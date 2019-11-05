@@ -3960,7 +3960,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             for (auto& it: list)
             {
-
                 if (!it.second.IsNull())
                 {
                     int64_t val;
