@@ -4285,6 +4285,59 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find proposal ")+strHash);
 }
 
+UniValue getstakervote(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "getstakervote <stakerscript>\n"
+                "\nReturns a list of all the votes stored for a staker script.\n"
+                "\nResult:\n"
+                "[\n"
+                "     {\n"
+                "          \"height\":   height of the vote,\n"
+                "          \"hash\":     hash of the item,\n"
+                "          \"val\":      value of the vote\n"
+                "     }\n"
+                "]\n"
+                );
+
+    std::string data = params[0].get_str();
+
+    if (!IsHex(data))
+        throw JSONRPCError(RPC_MISC_ERROR, "the script is not expressed in hexadecimal");
+
+    LOCK(cs_main);
+
+    std::vector<unsigned char> stakerScript = ParseHex(data);
+    CStateViewCache view(pcoinsTip);
+    UniValue ret(UniValue::VARR);
+    CVoteList pVoteList;
+
+    if (!view.GetCachedVoter(stakerScript, pVoteList))
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find staker script ")+HexStr(stakerScript));
+    }
+
+    std::map<std::pair<int, uint256>, CVote>* list= pVoteList.GetFullList();
+
+    for (auto& it: *list)
+    {
+        if (!it.second.IsNull())
+        {
+            int64_t val;
+            it.second.GetValue(val);
+
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV("height", it.first.first);
+            entry.pushKV("hash", it.first.second.ToString());
+            entry.pushKV("val", val);
+            ret.push_back(entry);
+        }
+    }
+
+    return ret;
+}
+
 UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
@@ -4475,6 +4528,7 @@ static const CRPCCommand commands[] =
     { "dao",                "createconsultationwithanswers",
                                                         &createconsultationwithanswers,
                                                                                    false },
+    { "dao",                "getstakervote",            &getstakervote,            false },
     { "dao",                "proposeanswer",            &proposeanswer,            false },
     { "dao",                "proposeconsensuschange",   &proposeconsensuschange,   false },
     { "dao",                "getconsensusparameters",   &getconsensusparameters,   false },
