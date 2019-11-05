@@ -4205,13 +4205,13 @@ UniValue consultationvotelist(const UniValue& params, bool fHelp)
         if (fConsultation)
         {
             UniValue entry(UniValue::VOBJ);
-            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstention" : to_string(it.second));
+            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstain" : to_string(it.second));
             ret.push_back(entry);
         }
         else if (fConsultationAnswer)
         {
             UniValue entry(UniValue::VOBJ);
-            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstention" : (it.second == 1 ? "yes" : "unknown") );
+            entry.pushKV(it.first.ToString(), (it.second == -1) ? "abstain" : (it.second == 1 ? "yes" : "unknown") );
             ret.push_back(entry);
         }
     }

@@ -1175,7 +1175,7 @@ void DaoPage::setData(QVector<ProposalEntry> data)
         }
         else if (entry.nMyVote == -1)
         {
-            voteText = tr("Abstaining.");
+            voteText = tr("Abstain");
         }
         else if (entry.fCanVote)
         {
@@ -1292,7 +1292,7 @@ void DaoPage::setData(QVector<PaymentRequestEntry> data)
         }
         else if (entry.nMyVote == -1)
         {
-            voteText = tr("Abstaining.");
+            voteText = tr("Abstain");
         }
         else if (entry.fCanVote)
         {
@@ -2133,7 +2133,7 @@ void DaoChart::updateView() {
                 }
 
                 if (consultation.mapVotes.count((uint64_t)-5))
-                    mapVotes.insert(make_pair(QString(tr("Abstention") + " (" + QString::number(consultation.mapVotes.at((uint64_t)-5)) + ")"), consultation.mapVotes.at((uint64_t)-5)));
+                    mapVotes.insert(make_pair(QString(tr("Abstain") + " (" + QString::number(consultation.mapVotes.at((uint64_t)-5)) + ")"), consultation.mapVotes.at((uint64_t)-5)));
             }
 
             if (consultation.IsRange())
@@ -2183,7 +2183,7 @@ void DaoChart::updateView() {
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(proposal.nVotesYes) + ")"), proposal.nVotesYes));
             mapVotes.insert(make_pair(QString("No (" + QString::number(proposal.nVotesNo) + ")"), proposal.nVotesNo));
-            mapVotes.insert(make_pair(QString("Abstention (" + QString::number(proposal.nVotesAbs) + ")"), proposal.nVotesAbs));
+            mapVotes.insert(make_pair(QString("Abstain (" + QString::number(proposal.nVotesAbs) + ")"), proposal.nVotesAbs));
         }
         else if (pcoinsTip->GetPaymentRequest(hash, prequest))
         {
@@ -2197,7 +2197,7 @@ void DaoChart::updateView() {
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(prequest.nVotesYes) + ")"), prequest.nVotesYes));
             mapVotes.insert(make_pair(QString("No (" + QString::number(prequest.nVotesNo) + ")"), prequest.nVotesNo));
-            mapVotes.insert(make_pair(QString("Abstention (" + QString::number(prequest.nVotesAbs) + ")"), prequest.nVotesAbs));
+            mapVotes.insert(make_pair(QString("Abstain (" + QString::number(prequest.nVotesAbs) + ")"), prequest.nVotesAbs));
         }
     }
 

@@ -3954,16 +3954,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         std::map<uint256, int> mapCountAnswers;
         std::map<uint256, int> mapCacheMaxAnswers;
 
-        LogPrint("dao", "%s: Looking for the votes of staker %s\n", __func__, HexStr(stakerScript));
-
         if (view.GetCachedVoter(stakerScript, pVoteList))
         {
             std::map<uint256, CVote> list = pVoteList.GetList();
 
             for (auto& it: list)
             {
-
-                LogPrint("dao", "%s: Found %s %s\n", __func__, it.first.ToString(), it.second.ToString());
 
                 if (!it.second.IsNull())
                 {
