@@ -1249,7 +1249,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answersArray.size();
 
         bool ret = (sQuestion != "" && nContribution >= nMinFee &&
-                ((fRange && nMin >= 0 && nMax < (uint64_t)-5  && nMax > nMin) ||
+                ((fRange && nMin >= 0 && nMax < VoteFlags::VOTE_ABSTAIN  && nMax > nMin) ||
                  (!fRange && nMax > 0  && nMax < 16)) &&
                 ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&
                 (nVersion & ~nMaskVersion) == 0);
@@ -1436,7 +1436,7 @@ std::string CConsultation::ToString(const CBlockIndex* pindex) const {
         UniValue a(UniValue::VOBJ);
         for (auto &it: mapVotes)
         {
-            sRet += ((it.first == (uint64_t)-5 ? "abstain" : to_string(it.first)) + "=" + to_string(it.second) + ", ");
+            sRet += ((it.first == VoteFlags::VOTE_ABSTAIN ? "abstain" : to_string(it.first)) + "=" + to_string(it.second) + ", ");
         }
 
     }
@@ -1444,9 +1444,9 @@ std::string CConsultation::ToString(const CBlockIndex* pindex) const {
     {
         CStateViewCache view(pcoinsTip);
 
-        if (mapVotes.count((uint64_t)-5) != 0)
+        if (mapVotes.count(VoteFlags::VOTE_ABSTAIN) != 0)
         {
-             sRet += "abstain=" + to_string(mapVotes.at((uint64_t)-5)) + ", ";
+             sRet += "abstain=" + to_string(mapVotes.at(VoteFlags::VOTE_ABSTAIN)) + ", ";
         }
         CConsultationAnswerMap mapConsultationAnswers;
 
@@ -1491,16 +1491,16 @@ void CConsultation::ToJson(UniValue& ret, CStateViewCache& view) const
         UniValue a(UniValue::VOBJ);
         for (auto &it: mapVotes)
         {
-            a.pushKV(it.first == (uint64_t)-5 ? "abstain" : to_string(it.first), it.second);
+            a.pushKV(it.first == VoteFlags::VOTE_ABSTAIN ? "abstain" : to_string(it.first), it.second);
         }
         answers.push_back(a);
     }
     else
     {
-        if (mapVotes.count((uint64_t)-5) != 0)
+        if (mapVotes.count(VoteFlags::VOTE_ABSTAIN) != 0)
         {
             UniValue a(UniValue::VOBJ);
-            a.pushKV("abstain", mapVotes.at((uint64_t)-5));
+            a.pushKV("abstain", mapVotes.at(VoteFlags::VOTE_ABSTAIN));
             answers.push_back(a);
         }
         CConsultationAnswerMap mapConsultationAnswers;

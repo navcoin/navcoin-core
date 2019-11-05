@@ -859,7 +859,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
 
     if (!fRange && (nMax < 1 ||nMax > 16))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong maximum");
-    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)-5 && nMax > nMin))
+    else if(fRange && !(nMin >= 0 && nMax < VoteFlags::VOTE_ABSTAIN && nMax > nMin))
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong range");
 
     string sQuestion = params[0].get_str();

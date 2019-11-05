@@ -175,7 +175,7 @@ void DaoConsultationCreate::onCreate()
         showWarning(tr("Choose a smaller number of answers."));
         return;
     }
-    else if(fRange && !(nMin >= 0 && nMax < (uint64_t)-5 && nMax > nMin))
+    else if(fRange && !(nMin >= 0 && nMax < VoteFlags::VOTE_ABSTAIN && nMax > nMin))
     {
         showWarning(tr("Wrong range!"));
         return;

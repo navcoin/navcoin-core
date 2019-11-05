@@ -2132,8 +2132,8 @@ void DaoChart::updateView() {
                     nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH);
                 }
 
-                if (consultation.mapVotes.count((uint64_t)-5))
-                    mapVotes.insert(make_pair(QString(tr("Abstain") + " (" + QString::number(consultation.mapVotes.at((uint64_t)-5)) + ")"), consultation.mapVotes.at((uint64_t)-5)));
+                if (consultation.mapVotes.count(VoteFlags::VOTE_ABSTAIN))
+                    mapVotes.insert(make_pair(QString(tr("Abstain") + " (" + QString::number(consultation.mapVotes.at(VoteFlags::VOTE_ABSTAIN)) + ")"), consultation.mapVotes.at(VoteFlags::VOTE_ABSTAIN)));
             }
 
             if (consultation.IsRange())
@@ -2154,7 +2154,7 @@ void DaoChart::updateView() {
                 }
             }
             else
-            {
+            {       
                 CConsultationAnswerMap consultationAnswerMap;
                 if (pcoinsTip->GetAllConsultationAnswers(consultationAnswerMap))
                 {
