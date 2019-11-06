@@ -491,9 +491,13 @@ bool CScript::ExtractConsultationVote(uint256 &hash, int64_t &vote) const
 
     else if (this->size() > 36)
     {
-        vector<unsigned char> vVote(this->begin()+37, this->end());
-        CScriptNum nVote(vVote, false);
-        vote = nVote.getint();
+        if (this->size() == 37 && (*this)[36] == 0x00)
+            vote = 0;
+        else {
+            vector<unsigned char> vVote(this->begin()+37, this->end());
+            CScriptNum nVote(vVote, false);
+            vote = nVote.getint();
+        }
     }
     else
     {

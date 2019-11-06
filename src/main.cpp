@@ -3460,12 +3460,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     uint256 hash;
                     int64_t vote;
 
+                    bool fSuccessExtractingVote = true;
+
                     if(tx.vout[j].IsVote())
-                        tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
+                        fSuccessExtractingVote=tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
                     else if(tx.vout[j].IsSupportVote())
-                        tx.vout[j].scriptPubKey.ExtractSupportVote(hash, vote);
+                        fSuccessExtractingVote=tx.vout[j].scriptPubKey.ExtractSupportVote(hash, vote);
                     else if(tx.vout[j].IsConsultationVote())
-                        tx.vout[j].scriptPubKey.ExtractConsultationVote(hash, vote);
+                        fSuccessExtractingVote=tx.vout[j].scriptPubKey.ExtractConsultationVote(hash, vote);
+
+                    if (!fSuccessExtractingVote)
+                        return error("%s: Could not extract vote from script %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
 
                     bool fProposal = tx.vout[j].IsProposalVote();
                     bool fPaymentRequest = tx.vout[j].IsPaymentRequestVote();

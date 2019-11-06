@@ -428,9 +428,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for (auto&it: pindexblock->mapConsultationVotes)
         {
-            if (!it.second)
-                continue;
-
             if (mapSeen.count(it.first))
                 continue;
 
