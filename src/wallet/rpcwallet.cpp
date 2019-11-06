@@ -1017,7 +1017,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() < 3)
         throw runtime_error(
-            "createpaymentrequest \"hash\" \"amount\" \"id\" ( dump_raw )\n"
+            "createpaymentrequest \"hash\" \"amount\" \"id\" ( fee dump_raw )\n"
             "\nCreates a proposal to withdraw funds from the community fund. Fee: 0.0001 NAV\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
@@ -1061,7 +1061,12 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     CAmount nReqAmount = AmountFromValue(params[1]);
     std::string id = params[2].get_str();
 
-    bool fDump = params.size() == 4 ? params[3].getBool() : false;
+    // Amount
+    CAmount nAmount = params.size() == 4 ? AmountFromValue(params[3]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
+
+    bool fDump = params.size() == 5 ? params[4].getBool() : false;
 
     std::string sRandom = random_string(16);
 

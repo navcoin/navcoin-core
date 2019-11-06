@@ -1751,7 +1751,14 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
         return error("%s: Invalid requested amount for payment request %s (%d vs %d available)",
                      __func__, tx.GetHash().ToString(), nAmount, proposal.GetAvailable(coins, true));
 
-    bool ret = (nVersion & ~nMaskVersion) == 0;
+    CAmount nContribution = 0;
+
+    for(unsigned int i=0;i<tx.vout.size();i++)
+        if(tx.vout[i].IsCommunityFundContribution())
+            nContribution +=tx.vout[i].nValue;
+
+    bool ret = (nContribution >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE) &&
+                nVersion & ~nMaskVersion) == 0;
 
     if(!ret)
         return error("%s: Invalid version for payment request %s", __func__, tx.GetHash().ToString());
