@@ -2818,10 +2818,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if (!view.GetAllVotes(baseMap))
             return AbortNode(state, "Failed to get voters list");
 
+        LogPrint("dao", "%s: Clearing votes at height %d\n", __func__, pindex->nHeight);
+
         for (auto&it: baseMap)
         {
             CVoteModifier mVote = view.ModifyVote(it.first);
-            LogPrint("dao", "%s: Clearing votes at height %d for staker %s\n", __func__, pindex->nHeight, HexStr(it.first));
             mVote->Clear(pindex->nHeight);
         }
     }

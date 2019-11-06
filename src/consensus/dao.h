@@ -113,8 +113,11 @@ public:
     {
         for (auto& it: list)
         {
-            if (!it.second.IsNull())
-                return false;
+            for (auto& it2: it.second)
+            {
+                if (!it2.second.IsNull())
+                    return false;
+            }
         }
 
         return true;
@@ -126,10 +129,16 @@ public:
         int nHeight = 0;
         for (auto& it: list)
         {
-            if (it.first.first > nHeight && it.first.second == hash && !it.second.IsNull())
+            if (it.first < nHeight)
+                continue;
+
+            for (auto& it2: it.second)
             {
-                ret = &it.second;
-                nHeight = it.first.first;
+                if (it.first > nHeight && it2.first == hash && !it2.second.IsNull())
+                {
+                    ret = &it2.second;
+                    nHeight = it.first;
+                }
             }
         }
         return ret;
@@ -140,10 +149,16 @@ public:
         if (!Clear(height, hash))
             return false;
 
-        if (list.count(std::make_pair(height, hash)) == 0)
-            list.insert(std::make_pair(std::make_pair(height, hash), CVote()));
+        if (list.count(height) == 0)
+        {
+            std::map<uint256, CVote> mapVote;
+            mapVote.insert(std::make_pair(hash, CVote()));
+            list.insert(std::make_pair(height, mapVote));
+        }
+        else if (list[height].count(hash) == 0)
+            list[height].insert(std::make_pair(hash, CVote()));
 
-        list[std::make_pair(height, hash)].SetValue(vote);
+        list[height][hash].SetValue(vote);
         fDirty = true;
 
         return true;
@@ -154,10 +169,16 @@ public:
         if (!Clear(height, hash))
             return false;
 
-        if (list.count(std::make_pair(height, hash)) == 0)
-            list.insert(std::make_pair(std::make_pair(height, hash), vote));
+        if (list.count(height) == 0)
+        {
+            std::map<uint256, CVote> mapVote;
+            mapVote.insert(std::make_pair(hash, vote));
+            list.insert(std::make_pair(height, mapVote));
+        }
+        else if (list[height].count(hash) == 0)
+            list[height].insert(std::make_pair(hash, vote));
         else
-            list[std::make_pair(height, hash)] = vote;
+            list[height][hash] = vote;
 
         fDirty = true;
 
@@ -166,10 +187,16 @@ public:
 
     bool Clear(const int& height, const uint256& hash)
     {
-        if (list.count(std::make_pair(height, hash)) == 0)
-            list.insert(std::make_pair(std::make_pair(height, hash), CVote()));
+        if (list.count(height) == 0)
+        {
+            std::map<uint256, CVote> mapVote;
+            mapVote.insert(std::make_pair(hash, CVote()));
+            list.insert(std::make_pair(height, mapVote));
+        }
+        else if (list[height].count(hash) == 0)
+            list[height].insert(std::make_pair(hash, CVote()));
         else
-            list[std::make_pair(height, hash)].SetNull();
+            list[height][hash].SetNull();
 
         fDirty = true;
 
@@ -178,13 +205,13 @@ public:
 
     bool Clear(const int& height)
     {
-        for (auto &it: list)
+        if (list.count(height) == 0)
+            return true;
+
+        for (auto &it: list[height])
         {
-            if (it.first.first == height)
-            {
-                fDirty = true;
-                it.second.SetNull();
-            }
+            fDirty = true;
+            it.second.SetNull();
         }
         return true;
     }
@@ -195,14 +222,17 @@ public:
         std::map<uint256, int> mapCacheHeight;
         for (auto &it: list)
         {
-            if (!it.second.IsNull())
+            for (auto &it2: it.second)
             {
-                if (mapCacheHeight.count(it.first.second) == 0)
-                    mapCacheHeight[it.first.second] = 0;
-                if (it.first.first > mapCacheHeight[it.first.second])
+                if (!it2.second.IsNull())
                 {
-                    ret[it.first.second] = it.second;
-                    mapCacheHeight[it.first.second] = it.first.first;
+                    if (mapCacheHeight.count(it2.first) == 0)
+                        mapCacheHeight[it2.first] = 0;
+                    if (it.first > mapCacheHeight[it2.first])
+                    {
+                        ret[it2.first] = it2.second;
+                        mapCacheHeight[it2.first] = it.first;
+                    }
                 }
             }
         }
@@ -210,7 +240,7 @@ public:
     }
 
 
-    std::map<std::pair<int, uint256>, CVote>* GetFullList()
+    std::map<int, std::map<uint256, CVote>>* GetFullList()
     {
         return &list;
     }
@@ -220,7 +250,12 @@ public:
         std::string sList;
         for (auto& it:list)
         {
-            sList += strprintf("{%s at height %d => %s}, ", it.first.second.ToString(), it.first.first, it.second.ToString());
+            sList += strprintf("{height %d => {", it.first);
+            for (auto&it2: it.second)
+            {
+                sList += strprintf("%s => %d, ", it2.first.ToString(), it2.second.ToString());
+            }
+            sList += strprintf("}},");
         }
         return strprintf("CVoteList([%s])", sList);
     }
@@ -238,7 +273,7 @@ public:
     }
 
 private:
-    std::map<std::pair<int, uint256>, CVote> list;
+    std::map<int, std::map<uint256, CVote>> list;
 };
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);

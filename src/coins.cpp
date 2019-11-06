@@ -644,21 +644,24 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
             CVoteMap::iterator itUs = cacheVotes.find(voter);
             if (itUs != cacheVotes.end())
             { // Parent has it
-                std::map<std::pair<int, uint256>, CVote>* list= it->second.GetFullList();
+                std::map<int, std::map<uint256, CVote>>* list= it->second.GetFullList();
                 for (auto& it: *list)
                 {
-                    if (it.second.IsNull()) // We must remove from parent
+                    for (auto& it2: it.second)
                     {
-                        if (!cacheVotes[voter].Clear(it.first.first, it.first.second))
-                            return error("Could not remove vote for %s", it.first.second.ToString());
-                    }
-                    else // We need to add to parent
-                    {
-                        int64_t val;
-                        if (it.second.GetValue(val))
+                        if (it2.second.IsNull()) // We must remove from parent
                         {
-                            if (!cacheVotes[voter].Set(it.first.first, it.first.second, val))
-                                return error("Could not add vote for %s", it.first.second.ToString());
+                            if (!cacheVotes[voter].Clear(it.first, it2.first))
+                                return error("Could not remove vote for %s", it2.first.ToString());
+                        }
+                        else // We need to add to parent
+                        {
+                            int64_t val;
+                            if (it2.second.GetValue(val))
+                            {
+                                if (!cacheVotes[voter].Set(it.first, it2.first, val))
+                                    return error("Could not add vote for %s", it2.first.ToString());
+                            }
                         }
                     }
                 }
