@@ -2080,6 +2080,7 @@ void DaoChart::updateView() {
     auto nMaxCycles = 0;
     auto nVotingLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH);
     auto nCurrentCycle = 0;
+    auto nCurrentBlock = (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+1;
 
     bool fShouldShowCycleInfo = true;
 
@@ -2125,7 +2126,7 @@ void DaoChart::updateView() {
                 if (consultation.CanBeSupported() || consultation.fState == DAOFlags::SUPPORTED)
                 {
                     mapVotes.insert(make_pair(tr("Showed support") + " (" + QString::number(consultation.nSupport) + ")", consultation.nSupport));
-                    mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(nVotingLength-consultation.nSupport) + ")", nVotingLength-consultation.nSupport));
+                    mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(nCurrentBlock-consultation.nSupport) + ")", nCurrentBlock-consultation.nSupport));
                 }
                 else
                 {
@@ -2203,7 +2204,7 @@ void DaoChart::updateView() {
     if (fShouldShowCycleInfo)
     {
         title += tr("Block %1 of %2")
-                .arg((chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+1)
+                .arg(nCurrentBlock)
                 .arg(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
         title += " / ";
         title += tr("Cycle %1 of %2").arg(std::min(nMaxCycles,nCurrentCycle)).arg(nMaxCycles);
