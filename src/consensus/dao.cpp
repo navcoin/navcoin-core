@@ -2080,23 +2080,23 @@ std::string CProposal::GetState(uint32_t currentTime) const {
     if(IsAccepted()) {
         sFlags = "accepted";
         if(fState == DAOFlags::PENDING_FUNDS)
-            sFlags += " waiting for enough coins in fund";
+            sFlags += ", waiting for enough coins in fund";
         else if(fState != DAOFlags::ACCEPTED)
-            sFlags += " waiting for end of voting period";
+            sFlags += ", waiting for end of voting period";
     }
     if(IsRejected()) {
         sFlags = "rejected";
         if(fState != DAOFlags::REJECTED)
-            sFlags += " waiting for end of voting period";
+            sFlags += ", waiting for end of voting period";
     }
     if(currentTime > 0 && IsExpired(currentTime)) {
         sFlags = "expired";
         if(fState != DAOFlags::EXPIRED && !ExceededMaxVotingCycles())
             // This branch only occurs when a proposal expires due to exceeding its nDeadline during a voting cycle, not due to exceeding max voting cycles
-            sFlags += " waiting for end of voting period";
+            sFlags += ", waiting for end of voting period";
     }
     if(fState == DAOFlags::PENDING_VOTING_PREQ) {
-        sFlags = "expired pending voting of payment requests";
+        sFlags = "expired, pending voting of payment requests";
     }
     return sFlags;
 }

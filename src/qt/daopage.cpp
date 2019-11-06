@@ -128,6 +128,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     table->horizontalHeader()->setSortIndicatorShown(true);
     table->horizontalHeader()->setSectionsClickable(true);
     table->setContextMenuPolicy(Qt::CustomContextMenu);
+    table->setWordWrap(true);
 
     connect(table, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
 
@@ -510,7 +511,9 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         if(deadline_d >= 14)
             s_deadline = std::to_string(deadline_d) + std::string(" Days");
         else
-            s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
+            s_deadline = std::to_string(deadline_d) + std::string(" Days\n") + std::to_string(deadline_h) + std::string(" Hours\n") + std::to_string(deadline_m) + std::string(" Minutes");
+
+        QString status = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime())).replace(", ","\n");
 
         ProposalEntry p = {
             it.first,
@@ -523,7 +526,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             proposal.nVotesNo ? proposal.nVotesNo : 0,
             proposal.nVotesAbs ? proposal.nVotesAbs : 0,
             proposal.nVotingCycle,
-            QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime())),
+            status,
             proposal.CanVote(),
             nVote,
             (uint64_t)mapBlockIndex[proposal.txblockhash]->GetBlockTime()
@@ -614,6 +617,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         if (!coins.GetProposal(prequest.proposalhash, proposal))
             continue;
 
+        QString status = QString::fromStdString(prequest.GetState()).replace(", ","\n");
+
         PaymentRequestEntry p = {
             it.first,
             QString::fromStdString(prequest.strDZeel),
@@ -624,7 +629,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             prequest.nVotesNo ? prequest.nVotesNo : 0,
             prequest.nVotesAbs ? prequest.nVotesAbs : 0,
             proposal.nVotingCycle,
-            QString::fromStdString(prequest.GetState()),
+            status,
             prequest.CanVote(coins),
             nVote,
             (uint64_t)mapBlockIndex[prequest.txblockhash]->GetBlockTime()
