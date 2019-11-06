@@ -2822,6 +2822,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
         for (auto&it: baseMap)
         {
+            CVoteList pVoteList;
+            view.GetCachedVoter(it.first, pVoteList);
             CVoteModifier mVote = view.ModifyVote(it.first);
             mVote->Clear(pindex->nHeight);
         }

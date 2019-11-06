@@ -374,7 +374,6 @@ CProposalModifier CStateViewCache::ModifyProposal(const uint256 &pid) {
 CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter) {
     assert(!hasModifier);
     std::pair<CVoteMap::iterator, bool> ret = cacheVotes.insert(std::make_pair(voter, CVoteList()));
-    ret.first->second.fDirty = true;
     return CVoteModifier(*this, ret.first);
 }
 
