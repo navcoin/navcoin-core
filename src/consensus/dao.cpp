@@ -1648,14 +1648,14 @@ bool CConsultationAnswer::IsSupported() const
 {
     float nMinimumSupport = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_SUPPORT) / 10000.0;
 
-    return nSupport > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumSupport;
+    return nSupport >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumSupport;
 }
 
 bool CConsultationAnswer::IsConsensusAccepted() const
 {
     float nMinimumQuorum = Params().GetConsensus().nConsensusChangeMinAccept/10000.0;
 
-    return nVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum;
+    return nVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum;
 
 }
 
@@ -1861,8 +1861,8 @@ bool CPaymentRequest::IsAccepted() const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT) / 10000.0));
+    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesYes >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT) / 10000.0));
 }
 
 bool CPaymentRequest::IsRejected() const {
@@ -1875,8 +1875,8 @@ bool CPaymentRequest::IsRejected() const {
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT) / 10000.0));
+    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesNo >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT) / 10000.0));
 }
 
 bool CPaymentRequest::ExceededMaxVotingCycles() const {
@@ -1894,8 +1894,8 @@ bool CProposal::IsAccepted() const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT) / 10000.0));
+    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesYes >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT) / 10000.0));
 }
 
 bool CProposal::IsRejected() const
@@ -1909,8 +1909,8 @@ bool CProposal::IsRejected() const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/ 10000.0));
+    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesNo >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/ 10000.0));
 }
 
 std::string CProposal::GetOwnerAddress() const {
