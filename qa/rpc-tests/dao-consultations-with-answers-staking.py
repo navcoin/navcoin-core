@@ -76,7 +76,7 @@ class ConsultationsTest(NavCoinTestFramework):
         statusesAnswer = statusesAnswer + ["found support", "found support"]
 
         statuses = ["waiting for support"]
-        statuses = statuses + ["waiting for support"] * (self.nodes[0].getconsensusparameters()[2]-1)
+        statuses = statuses + ["waiting for support"] * (self.nodes[0].getconsensusparameters()[2]-2)
         statuses = statuses + ["found support, waiting for end of voting period"]
         statuses = statuses + ["reflection phase"] * self.nodes[0].getconsensusparameters()[5]
         statuses = statuses + ["voting started", "voting started"]
