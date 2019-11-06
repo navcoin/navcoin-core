@@ -280,7 +280,7 @@ int NavCoinUnits::decimals(int unit)
     }
 }
 
-QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators)
+QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool removeTrailing)
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
@@ -312,6 +312,8 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     QString quotient_str = QString::number((qint64)quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 
+    while (removeTrailing && remainder_str.endsWith('0')) { remainder_str.chop(1); }
+
     // Use SI-style thin space separators as these are locale independent and can't be
     // confused with the decimal marker.
     QChar thin_sp(THIN_SP_CP);
@@ -325,7 +327,7 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     else if (fPlus && n > 0)
         quotient_str.insert(0, '+');
 
-    return quotient_str + QString(".") + remainder_str;
+    return quotient_str + (remainder_str == "" ? "" : (QString(".") + remainder_str));
 }
 
 
@@ -337,14 +339,14 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
 
-QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)
 {
-    return format(unit, amount, plussign, separators) + QString(" ") + name(unit);
+    return format(unit, amount, plussign, separators, removeTrailing) + QString(" ") + name(unit);
 }
 
-QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)
 {
-    QString str(formatWithUnit(unit, amount, plussign, separators));
+    QString str(formatWithUnit(unit, amount, plussign, separators, removeTrailing));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }
