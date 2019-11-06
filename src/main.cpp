@@ -3470,7 +3470,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         fSuccessExtractingVote=tx.vout[j].scriptPubKey.ExtractConsultationVote(hash, vote);
 
                     if (!fSuccessExtractingVote)
-                        return error("%s: Could not extract vote from script %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
+                        return error("%s: Could not extract vote from script %s.\n", __func__, HexStr(tx.vout[j].scriptPubKey));
 
                     bool fProposal = tx.vout[j].IsProposalVote();
                     bool fPaymentRequest = tx.vout[j].IsPaymentRequestVote();
