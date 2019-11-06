@@ -1783,7 +1783,7 @@ bool CPaymentRequest::CanVote(CStateViewCache& coins) const
     if(!coins.GetProposal(proposalhash, proposal))
         return false;
 
-    return nAmount <= proposal.GetAvailable(coins) && fState != DAOFlags::ACCEPTED && fState != DAOFlags::REJECTED && fState != DAOFlags::EXPIRED && !ExceededMaxVotingCycles();
+    return nAmount <= proposal.GetAvailable(coins) && fState != DAOFlags::ACCEPTED && fState != DAOFlags::REJECTED && fState != DAOFlags::EXPIRED;
 }
 
 bool CPaymentRequest::IsExpired() const {
@@ -1887,7 +1887,7 @@ bool CPaymentRequest::IsRejected() const {
 }
 
 bool CPaymentRequest::ExceededMaxVotingCycles() const {
-    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
+    return nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
 }
 
 bool CProposal::IsAccepted() const
@@ -1939,7 +1939,7 @@ bool CProposal::CanVote() const {
     if(!chainActive.Contains(pindex))
         return false;
 
-    return (fState == DAOFlags::NIL) && (!ExceededMaxVotingCycles());
+    return (fState == DAOFlags::NIL);
 }
 
 uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
@@ -1966,7 +1966,7 @@ bool CProposal::IsExpired(uint32_t currentTime) const {
 }
 
 bool CProposal::ExceededMaxVotingCycles() const {
-    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
+    return nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
 }
 
 CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) const
