@@ -1249,7 +1249,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answersArray.size();
 
         bool ret = (sQuestion != "" && nContribution >= nMinFee &&
-                ((fRange && nMin >= 0 && nMax < VoteFlags::VOTE_ABSTAIN  && nMax > nMin) ||
+                ((fRange && nMin >= 0 && nMax < (uint64_t)VoteFlags::VOTE_ABSTAIN  && nMax > nMin) ||
                  (!fRange && nMax > 0  && nMax < 16)) &&
                 ((!fAcceptMoreAnswers && mapSeen.size() > 1) || fAcceptMoreAnswers || fRange) &&
                 (nVersion & ~nMaskVersion) == 0);
