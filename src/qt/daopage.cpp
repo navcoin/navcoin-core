@@ -1518,22 +1518,6 @@ void DaoPage::setData(QVector<DeploymentEntry> data)
         table->setItem(i, D_COLUMN_VOTE, votedItem);
     }
 
-    uint64_t nWeight = 0;
-    if (pwalletMain)
-        nWeight = pwalletMain->GetStakeWeight();
-    bool fWeight = nWeight > 0;
-    if (!fWeight) {
-        table->setColumnWidth(D_COLUMN_VOTE, 0);
-        table->setColumnWidth(D_COLUMN_MY_VOTES, 0);
-    }
-    else
-    {
-        table->setColumnWidth(D_COLUMN_VOTE, 150);
-        table->setColumnWidth(D_COLUMN_MY_VOTES, 150);
-
-    }
-    table->setColumnHidden(D_COLUMN_VOTE, !fWeight);
-    table->setColumnHidden(D_COLUMN_MY_VOTES, !fWeight);
     table->setSortingEnabled(true);
 }
 
