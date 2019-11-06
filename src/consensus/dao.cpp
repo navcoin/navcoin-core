@@ -935,10 +935,16 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if(fUndo)
             {
-                if (consultation->reflectionblockhash == pindexDelete->GetBlockHash())
+                if (consultation->supportedblockhash == pindexDelete->GetBlockHash())
                 {
                     consultation->reflectionblockhash = uint256();
                     consultation->fState = DAOFlags::NIL;
+                    fUpdate = true;
+                }
+                else if (consultation->reflectionblockhash == pindexDelete->GetBlockHash())
+                {
+                    consultation->reflectionblockhash = uint256();
+                    consultation->fState = DAOFlags::SUPPORTED;
                     fUpdate = true;
                 }
                 else if (consultation->expiredblockhash == pindexDelete->GetBlockHash())
@@ -985,6 +991,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 else if(consultation->IsSupported(view))
                 {
                     if(consultation->fState == DAOFlags::NIL)
+                    {
+                        consultation->fState = DAOFlags::SUPPORTED;
+                        consultation->supportedblockhash = pindexNew->GetBlockHash();
+                        fUpdate = true;
+                    }
+                    if(consultation->fState == DAOFlags::SUPPORTED && consultation->CanMoveInReflection())
                     {
                         consultation->fState = DAOFlags::REFLECTION;
                         consultation->reflectionblockhash = pindexNew->GetBlockHash();
@@ -1392,7 +1404,7 @@ std::string CConsultation::GetState(const CBlockIndex* pindex) const {
         sFlags = "found support";
         if (!HaveEnoughAnswers())
             sFlags += ", waiting for having enough supported answers";
-        if(fState != DAOFlags::REFLECTION)
+        if(fState != DAOFlags::SUPPORTED)
             sFlags += ", waiting for end of voting period";
         if(fState == DAOFlags::REFLECTION)
             sFlags = "reflection phase";
@@ -1418,10 +1430,15 @@ bool CConsultation::IsSupported(CStateViewCache& view) const
     if (IsRange())
     {
         float nMinimumSupport = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_SUPPORT) / 10000.0;
-        return nSupport > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumSupport && nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES);
+        return nSupport > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumSupport;
     }
     else
-        return HaveEnoughAnswers() && nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES);
+        return HaveEnoughAnswers();
+}
+
+bool CConsultation::CanMoveInReflection() const
+{
+    return nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_CYCLES);
 }
 
 std::string CConsultation::ToString(const CBlockIndex* pindex) const {

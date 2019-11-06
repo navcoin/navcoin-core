@@ -708,6 +708,7 @@ public:
     uint256 txblockhash;
     uint256 reflectionblockhash;
     uint256 expiredblockhash;
+    uint256 supportedblockhash;
     uint256 blockhash;
     uint64_t nVersion;
     unsigned int nVotingCycle;
@@ -727,6 +728,7 @@ public:
         std::swap(to.blockhash, blockhash);
         std::swap(to.reflectionblockhash, reflectionblockhash);
         std::swap(to.expiredblockhash, expiredblockhash);
+        std::swap(to.supportedblockhash, supportedblockhash);
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
         std::swap(to.fDirty, fDirty);
@@ -750,6 +752,7 @@ public:
         blockhash = uint256();
         expiredblockhash = uint256();
         reflectionblockhash = uint256();
+        supportedblockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
         fDirty = false;
@@ -766,6 +769,7 @@ public:
     bool CanBeSupported() const;
     bool CanBeVoted() const;
     bool IsSupported(CStateViewCache& view) const;
+    bool CanMoveInReflection() const;
     bool IsExpired(const CBlockIndex* pindex) const;
     bool IsReflectionOver(const CBlockIndex* pindex) const;
     bool IsValidVote(int64_t vote) const;
@@ -793,6 +797,7 @@ public:
         READWRITE(txblockhash);
         READWRITE(expiredblockhash);
         READWRITE(reflectionblockhash);
+        READWRITE(supportedblockhash);
         READWRITE(mapVotes);
         if (ser_action.ForRead())
             fDirty = false;
