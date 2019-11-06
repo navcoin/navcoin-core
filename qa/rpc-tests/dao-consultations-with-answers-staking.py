@@ -71,18 +71,18 @@ class ConsultationsTest(NavCoinTestFramework):
         self.nodes[0].support(consultation2["answers"][0]['hash'])
 
         statusesAnswer = ["found support, waiting for end of voting period"]
-        statusesAnswer = statusesAnswer + ["found support"] * (self.nodes[0].getconsensusparameters()[2])
-        statusesAnswer = statusesAnswer + ["found support"] * self.nodes[0].getconsensusparameters()[5]
+        statusesAnswer = statusesAnswer + ["found support"] * (self.nodes[0].getconsensusparameters()[3])
+        statusesAnswer = statusesAnswer + ["found support"] * self.nodes[0].getconsensusparameters()[6]
         statusesAnswer = statusesAnswer + ["found support", "found support"]
 
         statuses = ["waiting for support"]
-        statuses = statuses + ["waiting for support"] * (self.nodes[0].getconsensusparameters()[2]-2)
+        statuses = statuses + ["waiting for support"] * (self.nodes[0].getconsensusparameters()[3]-1)
         statuses = statuses + ["found support, waiting for end of voting period"]
-        statuses = statuses + ["reflection phase"] * self.nodes[0].getconsensusparameters()[5]
+        statuses = statuses + ["reflection phase"] * self.nodes[0].getconsensusparameters()[6]
         statuses = statuses + ["voting started", "voting started"]
         int = 0
 
-        for i in range(self.nodes[0].getconsensusparameters()[2] + self.nodes[0].getconsensusparameters()[5] + 2):
+        for i in range(self.nodes[0].getconsensusparameters()[3] + self.nodes[0].getconsensusparameters()[6] + 2):
             assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['status'], statusesAnswer[i])
             assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['status'], statusesAnswer[i])
             assert_equal(self.nodes[0].getconsultation(hash)['status'], statuses[i])
