@@ -1063,7 +1063,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
 
     // Amount
     CAmount nAmount = params.size() == 4 ? AmountFromValue(params[3]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE);
-    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE))
+    if (nAmount < 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == 5 ? params[4].getBool() : false;
