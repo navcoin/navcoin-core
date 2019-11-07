@@ -104,7 +104,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         self.nodes[0].proposalvote(proposalid0, "remove")
 
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 0)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted, waiting for end of voting period")
 
         time.sleep(0.2)
 

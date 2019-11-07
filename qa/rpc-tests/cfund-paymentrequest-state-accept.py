@@ -128,7 +128,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
         assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"], 0)
-        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"], "accepted waiting for end of voting period")
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"], "accepted, waiting for end of voting period")
         assert_equal(self.nodes[0].cfundstats()["funds"]["locked"], locked_accepted)
 
         time.sleep(0.2)
@@ -196,9 +196,9 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid2, "remove")
 
         assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid1)["state"], 0)
-        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"], "accepted waiting for end of voting period")
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid1)["status"], "accepted, waiting for end of voting period")
         assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid2)["state"], 0)
-        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid2)["status"], "accepted waiting for end of voting period")
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid2)["status"], "accepted, waiting for end of voting period")
 
         time.sleep(0.2)
 

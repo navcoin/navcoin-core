@@ -29,7 +29,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         proposal_amount = 10
 
         # Create a proposal and accept by voting
-        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), proposal_amount, proposal_duration, "test")["hash"]        
+        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), proposal_amount, proposal_duration, "test")["hash"]
         locked_before = self.nodes[0].cfundstats()["funds"]["locked"]
         end_cycle(self.nodes[0])
 
@@ -150,7 +150,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted waiting for end of voting period")
+        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted, waiting for end of voting period")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
 
         time.sleep(0.2)
