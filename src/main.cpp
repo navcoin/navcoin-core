@@ -3431,13 +3431,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             {
                 uint256 prid = uint256S(metadata[nPaymentRequestsCount].get_str());
 
-                if(!view.HavePaymentRequest(prid))
+                CPaymentRequest prequest;
+
+                if(!view.GetPaymentRequest(prid, prequest))
                     return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
 
-                CPaymentRequestModifier prequest = view.ModifyPaymentRequest(prid);
+                CPaymentRequestModifier mprequest = view.ModifyPaymentRequest(prid);
                 CFund::CProposal proposal;
 
-                if(!view.GetProposal(prequest->proposalhash, proposal))
+                if(!view.GetProposal(prequest.proposalhash, proposal))
                     return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
 
                 CTxDestination address;
@@ -3446,24 +3448,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!fValidAddress)
                     return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
 
-                if (mapBlockIndex.count(prequest->blockhash) == 0)
-                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s", prequest->blockhash.ToString()));
+                if (mapBlockIndex.count(prequest.blockhash) == 0)
+                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s", prequest.blockhash.ToString()));
 
-                CBlockIndex* pblockindex = mapBlockIndex[prequest->blockhash];
+                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
 
                 if(pblockindex == nullptr)
-                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s.", prequest->blockhash.ToString()));
+                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s.", prequest.blockhash.ToString()));
 
                 if(!(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
 
-                if(block.vtx[0].vout[i].nValue != prequest->nAmount || prequest->fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
+                if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
 
-                if(prequest->paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
+                if(prequest.paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
                     return state.DoS(100, error("CheckBlock() : coinbase output tries to pay an already paid payment request"));
 
-                prequest->paymenthash = block.GetHash();
+                mprequest->paymenthash = block.GetHash();
+
+                LogPrintf("%s: Updated payment request %s: paymenthash => %s\n", __func__, prequest.hash.ToString(), block.GetHash().ToString());
             }
             else
             {
