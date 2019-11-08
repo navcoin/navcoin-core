@@ -1423,7 +1423,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
                     viewMemPool.AddProposal(proposal);
-                    LogPrint("cfund","New proposal (mempool) %s\n", proposal.ToString(view, GetTime()));
+                    LogPrintf("New proposal (mempool) %s\n", proposal.ToString(view, GetTime()));
                 }
                 else
                 {
@@ -1436,7 +1436,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest, view))
                 {
                     viewMemPool.AddPaymentRequest(prequest);
-                    LogPrint("cfund","New payment request (mempool) %s\n", prequest.ToString());
+                    LogPrintf("New payment request (mempool) %s\n", prequest.ToString());
                 }
                 else
                 {
@@ -2455,10 +2455,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION) {
                 view.RemoveProposal(hash);
+                LogPrintf("Removed proposal %s\n", hash.ToString());
             }
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
                 view.RemovePaymentRequest(hash);
+                LogPrintf("Removed payment request %s\n", hash.ToString());
             }
         }
 
@@ -2612,6 +2614,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else
                 proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
 
+            LogPrint("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+
             vSeen[pindex->vProposalVotes[i].first]=true;
         }
     }
@@ -2641,6 +2645,8 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                 prequest->nVotesYes = max(prequest->nVotesYes - 1, 0);
             else
                 prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
+
+            LogPrint("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
 
             vSeen[pindex->vPaymentRequestVotes[i].first]=true;
         }
@@ -3353,7 +3359,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
                     view.AddProposal(proposal);
-                    LogPrint("cfund","New proposal %s\n", proposal.ToString(view, block.nTime));
+                    LogPrintf("New proposal %s\n", proposal.ToString(view, block.nTime));
                 }
                 else
                 {
@@ -3366,7 +3372,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest, view))
                 {
                     view.AddPaymentRequest(prequest);
-                    LogPrint("cfund","New payment request %s\n", prequest.ToString());
+                    LogPrintf("New payment request %s\n", prequest.ToString());
                 }
                 else
                 {

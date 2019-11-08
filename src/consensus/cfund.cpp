@@ -673,6 +673,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CProposalModifier proposal = view.ModifyProposal(it->first);
             proposal->nVotesYes = it->second.first;
             proposal->nVotesNo = it->second.second;
+            LogPrint("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
             vSeen[proposal->hash]=true;
         }
     }
@@ -684,6 +685,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
             prequest->nVotesYes = it->second.first;
             prequest->nVotesNo = it->second.second;
+            LogPrint("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
             vSeen[prequest->hash]=true;
         }
     }
@@ -705,6 +707,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             bool fUpdate = false;
 
+            CPaymentRequest oldprequest; view.GetPaymentRequest(it->first, oldprequest);
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
 
             if(fUndo && prequest->paymenthash == pindexDelete->GetBlockHash())
@@ -815,6 +818,10 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                     prequest->nVotesNo = 0;
                 }
             }
+
+            if (*prequest != oldprequest)
+                LogPrint("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
+
         }
     }
 
@@ -835,6 +842,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             bool fUpdate = false;
 
+            CProposal oldproposal; view.GetProposal(it->first, oldproposal);
             CProposalModifier proposal = view.ModifyProposal(it->first);
 
             if (proposal->txblockhash == uint256())
@@ -952,6 +960,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                     proposal->nVotesNo = 0;
                 }
             }
+
+            if (*proposal != oldproposal)
+                LogPrint("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
         }
     }
 
