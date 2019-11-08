@@ -6,7 +6,7 @@
 #define NAVCOIN_CLIENTVERSION_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #else
 
 /**
@@ -15,8 +15,8 @@
 
 //! These need to be macros, as clientversion.cpp's and navcoin*-res.rc's voodoo requires it
 #define CLIENT_VERSION_MAJOR 4
-#define CLIENT_VERSION_MINOR 6
-#define CLIENT_VERSION_REVISION 0
+#define CLIENT_VERSION_MINOR 7
+#define CLIENT_VERSION_REVISION 1
 #define CLIENT_VERSION_BUILD 0
 
 //! Set to true for release, false for prerelease or test build

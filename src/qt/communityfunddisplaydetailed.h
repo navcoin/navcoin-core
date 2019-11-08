@@ -1,8 +1,8 @@
 #ifndef COMMUNITYFUNDDISPLAYDETAILED_H
 #define COMMUNITYFUNDDISPLAYDETAILED_H
 
-#include "consensus/cfund.h"
-#include "wallet/wallet.h"
+#include <consensus/cfund.h>
+#include <wallet/wallet.h>
 #include <QDialog>
 #include <QAbstractButton>
 

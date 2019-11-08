@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_POLICY_RBF_H
 #define NAVCOIN_POLICY_RBF_H
 
-#include "txmempool.h"
+#include <txmempool.h>
 
 enum RBFTransactionState {
     RBF_TRANSACTIONSTATE_UNKNOWN,

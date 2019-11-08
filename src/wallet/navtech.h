@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_WALLET_NAVTECH_H
 #define NAVCOIN_WALLET_NAVTECH_H
 
-#include "compat.h"
+#include <compat.h>
 
 #include <vector>
 #include <string>
@@ -18,7 +18,7 @@
 #include <openssl/err.h>
 #include <stdio.h>
 #include <curl/curl.h>
-#include "script/standard.h"
+#include <script/standard.h>
 
 #define NAVTECH_DEFAULT_INPUT_DELAY 1
 #define NAVTECH_DEFAULT_OUT_DELAY 10

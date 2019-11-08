@@ -1,9 +1,9 @@
 #ifndef COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H
 #define COMMUNITYFUNDCREATEPAYMENTREQUESTDIALOG_H
 
-#include "../qvalidatedplaintextedit.h"
-#include "uint256.h"
-#include "walletmodel.h"
+#include <../qvalidatedplaintextedit.h>
+#include <uint256.h>
+#include <qt/walletmodel.h>
 
 #include <QDialog>
 

@@ -5,8 +5,8 @@
 #ifndef NAVCOIN_QT_WALLETMODELTRANSACTION_H
 #define NAVCOIN_QT_WALLETMODELTRANSACTION_H
 
-#include "walletmodel.h"
-#include "wallet/wallet.h"
+#include <qt/walletmodel.h>
+#include <wallet/wallet.h>
 
 #include <QObject>
 

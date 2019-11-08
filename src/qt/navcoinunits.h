@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_QT_NAVCOINUNITS_H
 #define NAVCOIN_QT_NAVCOINUNITS_H
 
-#include "amount.h"
+#include <amount.h>
 
 #include <QAbstractListModel>
 #include <QString>

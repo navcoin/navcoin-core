@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_MEMUSAGE_H
 #define NAVCOIN_MEMUSAGE_H
 
-#include "indirectmap.h"
+#include <indirectmap.h>
 
 #include <stdlib.h>
 
@@ -13,7 +13,6 @@
 #include <set>
 #include <vector>
 
-#include <boost/foreach.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 

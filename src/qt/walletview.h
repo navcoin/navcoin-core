@@ -5,8 +5,8 @@
 #ifndef NAVCOIN_QT_WALLETVIEW_H
 #define NAVCOIN_QT_WALLETVIEW_H
 
-#include "amount.h"
-#include "splitrewards.h"
+#include <amount.h>
+#include <splitrewards.h>
 
 #include <QStackedWidget>
 #include <QPushButton>

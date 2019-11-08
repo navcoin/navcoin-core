@@ -6,12 +6,12 @@
 #ifndef NAVCOIN_ADDRMAN_H
 #define NAVCOIN_ADDRMAN_H
 
-#include "netbase.h"
-#include "protocol.h"
-#include "random.h"
-#include "sync.h"
-#include "timedata.h"
-#include "util.h"
+#include <netbase.h>
+#include <protocol.h>
+#include <random.h>
+#include <sync.h>
+#include <timedata.h>
+#include <util.h>
 
 #include <map>
 #include <set>

@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "coins.h"
+#include <coins.h>
 
-#include "memusage.h"
-#include "random.h"
+#include <memusage.h>
+#include <random.h>
 
 #include <assert.h>
 
@@ -34,7 +34,7 @@ void CCoins::CalcMaskSize(unsigned int &nBytes, unsigned int &nNonzeroBytes) con
     nBytes += nLastUsedByte;
 }
 
-bool CCoins::Spend(uint32_t nPos) 
+bool CCoins::Spend(uint32_t nPos)
 {
     if (nPos >= vout.size() || vout[nPos].IsNull())
         return false;
@@ -113,7 +113,7 @@ CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) 
 
     CProposal tmp;
 
-    if (!base->GetProposal(pid, tmp))
+    if (!base->GetProposal(pid, tmp) || tmp.IsNull())
         return cacheProposals.end();
 
     CProposalMap::iterator ret = cacheProposals.insert(std::make_pair(pid, CProposal())).first;
@@ -130,7 +130,7 @@ CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const ui
 
     CPaymentRequest tmp;
 
-    if (!base->GetPaymentRequest(prid, tmp))
+    if (!base->GetPaymentRequest(prid, tmp) || tmp.IsNull())
         return cachePaymentRequests.end();
 
     CPaymentRequestMap::iterator ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest())).first;
@@ -290,7 +290,7 @@ bool CCoinsViewCache::RemovePaymentRequest(const uint256 &prid) const {
 const CCoins* CCoinsViewCache::AccessCoins(const uint256 &txid) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     if (it == cacheCoins.end()) {
-        return NULL;
+        return nullptr;
     } else {
         return &it->second.coins;
     }
@@ -451,7 +451,7 @@ double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount
     if (tx.IsCoinBase())
         return 0.0;
     double dResult = 0.0;
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    for(const CTxIn& txin: tx.vin)
     {
         const CCoins* coins = AccessCoins(txin.prevout.hash);
         assert(coins);

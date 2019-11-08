@@ -5,10 +5,10 @@
 #ifndef NAVCOIN_QT_RPCCONSOLE_H
 #define NAVCOIN_QT_RPCCONSOLE_H
 
-#include "guiutil.h"
-#include "peertablemodel.h"
+#include <qt/guiutil.h>
+#include <qt/peertablemodel.h>
 
-#include "net.h"
+#include <net.h>
 
 #include <QCompleter>
 #include <QFile>

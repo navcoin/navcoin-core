@@ -5,7 +5,7 @@
 #ifndef NAVCOIN_CRYPTO_HMAC_SHA512_H
 #define NAVCOIN_CRYPTO_HMAC_SHA512_H
 
-#include "crypto/sha512.h"
+#include <crypto/sha512.h>
 
 #include <stdint.h>
 #include <stdlib.h>
