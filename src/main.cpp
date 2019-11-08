@@ -2614,7 +2614,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else
                 proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
 
-            LogPrint("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+            proposal->fDirty = true;
+
+            LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
 
             vSeen[pindex->vProposalVotes[i].first]=true;
         }
@@ -2646,7 +2648,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else
                 prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
 
-            LogPrint("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+            LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+
+            prequest->fDirty = true;
 
             vSeen[pindex->vPaymentRequestVotes[i].first]=true;
         }
@@ -3126,7 +3130,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     {
                                         pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                                     }
-
                                 }
                             }
                         }
@@ -3466,6 +3469,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return state.DoS(100, error("CheckBlock() : coinbase output tries to pay an already paid payment request"));
 
                 mprequest->paymenthash = block.GetHash();
+                mprequest->fDirty = true;
 
                 LogPrintf("%s: Updated payment request %s: paymenthash => %s\n", __func__, prequest.hash.ToString(), block.GetHash().ToString());
             }

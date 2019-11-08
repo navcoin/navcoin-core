@@ -681,8 +681,11 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CProposalModifier proposal = view.ModifyProposal(it->first);
             proposal->nVotesYes = it->second.first;
             proposal->nVotesNo = it->second.second;
-            if (fLog && *proposal != oldproposal)
-                LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+            if (*proposal != oldproposal)
+            {
+                proposal->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+            }
             vSeen[proposal->hash]=true;
         }
     }
@@ -700,8 +703,11 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
             prequest->nVotesYes = it->second.first;
             prequest->nVotesNo = it->second.second;
-            if (fLog && *prequest != oldprequest)
-                LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+            if (*prequest != oldprequest)
+            {
+                prequest->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+            }
             vSeen[prequest->hash]=true;
         }
     }
@@ -842,8 +848,11 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 }
             }
 
-            if (fLog && *prequest != oldprequest)
-                LogPrint("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
+            if (*prequest != oldprequest)
+            {
+                prequest->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
+            }
 
         }
     }
@@ -992,8 +1001,11 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 }
             }
 
-            if (fLog && *proposal != oldproposal)
-                LogPrint("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
+            if (*proposal != oldproposal)
+            {
+                proposal->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
+            }
         }
     }
 

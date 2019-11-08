@@ -226,7 +226,6 @@ CProposalModifier CCoinsViewCache::ModifyProposal(const uint256 &pid) {
             ret.first->second.SetNull();
         }
     }
-    ret.first->second.fDirty = true;
     return CProposalModifier(*this, ret.first);
 }
 
@@ -238,7 +237,6 @@ CPaymentRequestModifier CCoinsViewCache::ModifyPaymentRequest(const uint256 &pri
             ret.first->second.SetNull();
         }
     }
-    ret.first->second.fDirty = true;
     return CPaymentRequestModifier(*this, ret.first);
 }
 
