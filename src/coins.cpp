@@ -221,6 +221,11 @@ CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
 CProposalModifier CCoinsViewCache::ModifyProposal(const uint256 &pid) {
     assert(!hasModifier);
     std::pair<CProposalMap::iterator, bool> ret = cacheProposals.insert(std::make_pair(pid, CProposal()));
+    if (ret.second) {
+        if (!base->GetProposal(pid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     ret.first->second.fDirty = true;
     return CProposalModifier(*this, ret.first);
 }
@@ -228,6 +233,11 @@ CProposalModifier CCoinsViewCache::ModifyProposal(const uint256 &pid) {
 CPaymentRequestModifier CCoinsViewCache::ModifyPaymentRequest(const uint256 &prid) {
     assert(!hasModifier);
     std::pair<CPaymentRequestMap::iterator, bool> ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest()));
+    if (ret.second) {
+        if (!base->GetPaymentRequest(prid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     ret.first->second.fDirty = true;
     return CPaymentRequestModifier(*this, ret.first);
 }
