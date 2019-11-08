@@ -673,7 +673,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CProposalModifier proposal = view.ModifyProposal(it->first);
             proposal->nVotesYes = it->second.first;
             proposal->nVotesNo = it->second.second;
-            LogPrint("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+            LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
             vSeen[proposal->hash]=true;
         }
     }
@@ -685,7 +685,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
             prequest->nVotesYes = it->second.first;
             prequest->nVotesNo = it->second.second;
-            LogPrint("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+            LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
             vSeen[prequest->hash]=true;
         }
     }
@@ -707,7 +707,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             bool fUpdate = false;
 
-            CPaymentRequest oldprequest; view.GetPaymentRequest(it->first, oldprequest);
+            CPaymentRequest tmp; CPaymentRequest oldprequest = CPaymentRequest(); view.GetPaymentRequest(it->first, tmp); tmp.swap(oldprequest);
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
 
             if(fUndo && prequest->paymenthash == pindexDelete->GetBlockHash())
@@ -842,7 +842,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             bool fUpdate = false;
 
-            CProposal oldproposal; view.GetProposal(it->first, oldproposal);
+            CProposal tmp; CProposal oldproposal = CProposal(); view.GetProposal(it->first, tmp); tmp.swap(oldproposal);
             CProposalModifier proposal = view.ModifyProposal(it->first);
 
             if (proposal->txblockhash == uint256())
