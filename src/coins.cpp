@@ -109,7 +109,7 @@ CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) 
     CProposalMap::iterator it = cacheProposals.find(pid);
 
     if (it != cacheProposals.end())
-        return it;
+        return it->second.IsNull() ? cacheProposals.end() : it;
 
     CProposal tmp;
 
@@ -126,7 +126,7 @@ CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const ui
     CPaymentRequestMap::iterator it = cachePaymentRequests.find(prid);
 
     if (it != cachePaymentRequests.end())
-        return it;
+        return it->second.IsNull() ? cachePaymentRequests.end() : it;
 
     CPaymentRequest tmp;
 
@@ -151,7 +151,7 @@ bool CCoinsViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
 
 bool CCoinsViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const {
     CProposalMap::const_iterator it = FetchProposal(pid);
-    if (it != cacheProposals.end()) {
+    if (it != cacheProposals.end() && !it->second.IsNull()) {
         proposal = it->second;
         return true;
     }
@@ -175,7 +175,7 @@ bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) {
 
 bool CCoinsViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &prequest) const {
     CPaymentRequestMap::const_iterator it = FetchPaymentRequest(pid);
-    if (it != cachePaymentRequests.end()) {
+    if (it != cachePaymentRequests.end() && !it->second.IsNull()) {
         prequest = it->second;
         return true;
     }
