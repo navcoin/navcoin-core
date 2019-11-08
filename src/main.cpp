@@ -1423,7 +1423,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
                     viewMemPool.AddProposal(proposal);
-                    LogPrintf("New proposal (mempool) %s\n", proposal.ToString(view, GetTime()));
+                    LogPrintf("%s: New proposal (mempool) %s\n", __func__, proposal.ToString(view, GetTime()));
                 }
                 else
                 {
@@ -1436,7 +1436,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest, view))
                 {
                     viewMemPool.AddPaymentRequest(prequest);
-                    LogPrintf("New payment request (mempool) %s\n", prequest.ToString());
+                    LogPrintf("%s: New payment request (mempool) %s\n", __func__, prequest.ToString());
                 }
                 else
                 {
@@ -2455,12 +2455,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
             if(tx.nVersion == CTransaction::PROPOSAL_VERSION) {
                 view.RemoveProposal(hash);
-                LogPrintf("Removed proposal %s\n", hash.ToString());
+                LogPrintf("%s: Removed proposal %s\n", __func__, hash.ToString());
             }
 
             if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
                 view.RemovePaymentRequest(hash);
-                LogPrintf("Removed payment request %s\n", hash.ToString());
+                LogPrintf("%s: Removed payment request %s\n", __func__, hash.ToString());
             }
         }
 
@@ -3359,7 +3359,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
                     view.AddProposal(proposal);
-                    LogPrintf("New proposal %s\n", proposal.ToString(view, block.nTime));
+                    LogPrintf("%s: New proposal %s\n", __func__, proposal.ToString(view, block.nTime));
                 }
                 else
                 {
@@ -3372,7 +3372,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest, view))
                 {
                     view.AddPaymentRequest(prequest);
-                    LogPrintf("New payment request %s\n", prequest.ToString());
+                    LogPrintf("%s: New payment request %s\n", __func__, prequest.ToString());
                 }
                 else
                 {
