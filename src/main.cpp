@@ -3090,6 +3090,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(tx.vout[j].IsProposalVote())
                     {
+                        LogPrint("dao", "%s: Checking prequest vote output %s\n", __func__, tx.vout[j].ToString());
+
                         if(votes.count(hash) == 0)
                         {
                             votes[hash] = vote;
@@ -3100,11 +3102,25 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 {
                                     pindex->vProposalVotes.push_back(make_pair(hash, vote));
                                 }
+                                else
+                                {
+                                    LogPrint("dao", "%s: Ignoring vote output, proposal %s can not receive votes",
+                                             __func__, hash.ToString());
+                                }
                             }
+                            else
+                            {
+                                LogPrint("dao", "%s: Ignoring vote output, could not find proposal %s\n", __func__, hash.ToString());
+                            }
+                        }
+                        else
+                        {
+                            LogPrint("dao", "%s: Ignoring duplicated vote for %s\n", __func__, hash.ToString());
                         }
                     }
                     else if (tx.vout[j].IsPaymentRequestVote())
                     {
+                        LogPrint("dao", "%s: Checking prequest vote output %s\n", __func__, tx.vout[j].ToString());
                         if(votes.count(hash) == 0)
                         {
                             votes[hash] = vote;
@@ -3117,12 +3133,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if (view.GetProposal(prequest.proposalhash, proposal))
                                 {
                                     if (mapBlockIndex.count(proposal.blockhash) == 0)
+                                    {
+                                        LogPrint("dao", "%s: Ignoring vote output, block %s not in main chain\n", __func__, proposal.blockhash.ToString());
                                         continue;
+                                    }
 
                                     CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
 
                                     if(pblockindex == nullptr)
+                                    {
+                                        LogPrint("dao", "%s: Ignoring vote output, block index %s is null\n", __func__, proposal.blockhash.ToString());
                                         continue;
+                                    }
 
                                     if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
                                             && prequest.CanVote(view)
@@ -3130,8 +3152,27 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     {
                                         pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                                     }
+                                    else
+                                    {
+                                        LogPrint("dao", "%s: Ignoring vote output, payment request %s can not receive votes ((%d || %d) && %d && %d)\n",
+                                                 __func__, hash.ToString(), proposal.CanRequestPayments(),
+                                                 proposal.fState == CFund::PENDING_VOTING_PREQ, prequest.CanVote(view),
+                                                 pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge);
+                                    }
+                                }
+                                else
+                                {
+                                    LogPrint("dao", "%s: Ignoring vote output, could not find proposal %s\n", __func__, prequest.proposalhash.ToString());
                                 }
                             }
+                            else
+                            {
+                                LogPrint("dao", "%s: Ignoring vote output, could not find payment request %s\n", __func__, hash.ToString());
+                            }
+                        }
+                        else
+                        {
+                            LogPrint("dao", "%s: Ignoring duplicated vote for %s\n", __func__, hash.ToString());
                         }
                     }
                 }
