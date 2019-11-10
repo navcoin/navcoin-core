@@ -596,6 +596,9 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 12000 3600 \"Promotional stickers for everyone\" 100")
         );
 
+    if (!Params().GetConsensus().fDaoClientActivated)
+        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
+
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
@@ -690,6 +693,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
             "\nExamples:\n"
             + HelpExampleCli("createpaymentrequest", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" 1000 \"Invoice March 2017\"")
         );
+
+    if (!Params().GetConsensus().fDaoClientActivated)
+        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
@@ -3533,6 +3539,9 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
+    if (!Params().GetConsensus().fDaoClientActivated)
+        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
+
     string strHash = params[0].get_str();
     bool duplicate = false;
 
@@ -3654,6 +3663,9 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
             "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
             "                      'remove' to remove a proposal from the list\n"
         );
+
+    if (!Params().GetConsensus().fDaoClientActivated)
+        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
 
     LOCK(cs_main);
 
