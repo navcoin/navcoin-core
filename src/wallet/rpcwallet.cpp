@@ -3539,9 +3539,6 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    if (!Params().GetConsensus().fDaoClientActivated)
-        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
-
     string strHash = params[0].get_str();
     bool duplicate = false;
 
@@ -3663,9 +3660,6 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
             "2. \"command\"       (string, required) 'yes' to vote yes, 'no' to vote no,\n"
             "                      'remove' to remove a proposal from the list\n"
         );
-
-    if (!Params().GetConsensus().fDaoClientActivated)
-        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
 
     LOCK(cs_main);
 

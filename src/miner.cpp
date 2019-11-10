@@ -208,7 +208,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
 
-    if(IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus()) && Params().GetConsensus().fDaoClientActivated)
+    if(IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus()))
     {
         std::map<uint256, bool> votes;
         for (unsigned int i = 0; i < vAddedProposalVotes.size(); i++)

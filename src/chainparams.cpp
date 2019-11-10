@@ -511,7 +511,7 @@ public:
         consensus.nStaticReward = 2 * COIN;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
-        consensus.fDaoClientActivated = false;
+        consensus.fDaoClientActivated = true;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
         consensus.nCoinbaseMaturity = 5;
