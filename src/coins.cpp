@@ -336,6 +336,16 @@ bool CCoinsViewCache::HaveCoinsInCache(const uint256 &txid) const {
     return it != cacheCoins.end();
 }
 
+bool CCoinsViewCache::HaveProposalInCache(const uint256 &pid) const {
+    auto it = cacheProposals.find(pid);
+    return it != cacheProposals.end() && !it->second.IsNull();
+}
+
+bool CCoinsViewCache::HavePaymentRequestInCache(const uint256 &txid) const {
+    auto it = cachePaymentRequests.find(txid);
+    return it != cachePaymentRequests.end() && !it->second.IsNull();
+}
+
 uint256 CCoinsViewCache::GetBestBlock() const {
     if (hashBlock.IsNull())
         hashBlock = base->GetBestBlock();
