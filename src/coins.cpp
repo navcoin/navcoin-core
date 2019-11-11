@@ -76,7 +76,7 @@ CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
-CCoinsViewCache::CCoinsViewCache(CCoinsView *baseIn) : CCoinsViewBacked(baseIn), hasModifier(false), cachedCoinsUsage(0) { }
+CCoinsViewCache::CCoinsViewCache(CCoinsView *baseIn) : CCoinsViewBacked(baseIn), hasModifier(false), cachedCoinsUsage(0) {}
 
 CCoinsViewCache::~CCoinsViewCache()
 {
@@ -168,7 +168,11 @@ bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) {
         return false;
 
     for (CProposalMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapProposal.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapProposal.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapProposal.begin(); it != mapProposal.end();)
+        it->second.IsNull() ? mapProposal.erase(it++) : ++it;
 
     return true;
 }
@@ -192,7 +196,11 @@ bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentReques
         return false;
 
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapPaymentRequests.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapPaymentRequests.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();)
+        it->second.IsNull() ? mapPaymentRequests.erase(it++) : ++it;
 
     return true;
 }
