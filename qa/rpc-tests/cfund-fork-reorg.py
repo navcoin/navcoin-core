@@ -76,7 +76,7 @@ class CfundForkReorg(NavCoinTestFramework):
         slow_gen(self.nodes[1], 1)
         end_cycle(self.nodes[1])
 
-        # Now makre sure that both nodes are on different chains
+        # Now make sure that both nodes are on different chains
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
 
         # we save node 1 best block hash to check node 0 reorgs correctly
