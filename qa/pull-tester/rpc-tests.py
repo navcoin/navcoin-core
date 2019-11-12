@@ -152,6 +152,7 @@ testScripts = [
      'importprunedfunds.py',
      'signmessages.py',
     'cfund-donate.py',
+    'cfund-fork-reorg.py',
     'cfund-listproposals.py',
     'cfund-paymentrequest-extract-funds.py',
     'cfund-paymentrequest-payout.py',
