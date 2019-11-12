@@ -3757,7 +3757,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
             if (atoi(pindex->strDZeel.substr(pindex->strDZeel.find(";") + 1).c_str()) > nExpectedVersion
                     && pindex->strDZeel.find(';') != std::string::npos)
                 ++nUpgraded;
-            if (i < 60 && pindex->nFlags & BLOCK_WRONG_CFUNDDB_HASH)
+            if (i < GetArg("-cfunddbstatehashcount", 60) && pindex->nFlags & BLOCK_WRONG_CFUNDDB_HASH)
                 nWrongStateHashCount++;
 
             pindex = pindex->pprev;
@@ -3777,7 +3777,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
                 fWarned = true;
             }
         }
-        if (nWrongStateHashCount > 60/2)
+        if (nWrongStateHashCount > GetArg("-cfunddbstatehashthreshold", 20))
         {
             std::string s = _("It looks like your state database might be corrupted. Please close the wallet and reindex.");
             strMiscWarning += s;

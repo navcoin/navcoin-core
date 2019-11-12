@@ -17,7 +17,7 @@ class CFundDBStateHash(NavCoinTestFramework):
     def setup_network(self):
         self.nodes = []
         self.nodes.append(start_node(0, self.options.tmpdir, ["-fakecfunddbstatehash=93020ecd66b76b08a3e62181151c2bce169003e85c4bdc63170904f1d0669258"]))
-        self.nodes.append(start_node(1, self.options.tmpdir, []))
+        self.nodes.append(start_node(1, self.options.tmpdir, ["-cfunddbstatehashthreshold=30", "-cfunddbstatehashcount=60"]))
         connect_nodes(self.nodes[0], 1)
 
     def run_test(self):
