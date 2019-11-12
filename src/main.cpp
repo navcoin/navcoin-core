@@ -3777,7 +3777,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
                 fWarned = true;
             }
         }
-        if (nWrongStateHashCount > GetArg("-cfunddbstatehashthreshold", 20))
+        if (nWrongStateHashCount > GetArg("-cfunddbstatehashthreshold", 21))
         {
             std::string s = _("It looks like your state database might be corrupted. Please close the wallet and reindex.");
             strMiscWarning += s;
