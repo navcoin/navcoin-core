@@ -676,7 +676,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
             continue;
         }
 
-        if(strKey == "-stakervote")
+        if(strKey == "-stakervote" || strKey == "fakecfunddbstatehash")
         {
             mapArgs[strKey] = strValue;
         }

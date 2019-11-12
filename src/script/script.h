@@ -188,6 +188,8 @@ enum opcodetype
 
     OP_COINSTAKE = 0xc6,
 
+    OP_CFUND_HASH = 0xcc,
+
     OP_POOL = 0xd0,
 
     // template matching params
@@ -685,6 +687,7 @@ public:
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
     bool IsCommunityFundContribution() const;
+    bool IsCommunityFundStateHash() const;
     bool IsProposalVote() const;
     bool IsProposalVoteYes() const;
     bool IsProposalVoteNo() const;
@@ -693,6 +696,7 @@ public:
     bool IsPaymentRequestVoteNo() const;
     bool IsPool() const;
     bool ExtractVote(uint256 &hash, bool &vote) const;
+    bool ExtractStateHash(uint256 &hash) const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;

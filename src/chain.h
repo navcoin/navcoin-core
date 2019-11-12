@@ -17,9 +17,10 @@
 
 #include <vector>
 
-#define BLOCK_PROOF_OF_STAKE 0x01 // is proof-of-stake block
-#define BLOCK_STAKE_ENTROPY  0x02 // entropy bit for stake modifier
-#define BLOCK_STAKE_MODIFIER 0x04
+#define BLOCK_PROOF_OF_STAKE      0x01 // is proof-of-stake block
+#define BLOCK_STAKE_ENTROPY       0x02 // entropy bit for stake modifier
+#define BLOCK_STAKE_MODIFIER      0x04
+#define BLOCK_WRONG_CFUNDDB_HASH  0x08 // cfund db state is wrong
 
 class CBlockFileInfo
 {

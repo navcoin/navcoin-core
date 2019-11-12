@@ -51,6 +51,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     case TX_NONSTANDARD:
     case TX_NULL_DATA:
     case TX_POOL:
+    case TX_STATEHASH:
     case TX_CONTRIBUTION:
     case TX_PROPOSALNOVOTE:
     case TX_PROPOSALYESVOTE:

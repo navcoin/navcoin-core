@@ -446,6 +446,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-requirednssec", _("Requires DNS Sec for OpenAlias requests (default: true)"));
     strUsage += HelpMessageOpt("-seednode=<ip>", _("Connect to a node to retrieve peer addresses, and disconnect"));
 #ifdef ENABLE_WALLET
+    strUsage += HelpMessageOpt("-fakecfunddbstatehash=<string>", _("Fakes the cfund db state hash to embed in blocks."));
     strUsage += HelpMessageOpt("-stakervote=<string>", _("Defines the staker vote to be attached to found blocks."));
 #endif
     strUsage += HelpMessageOpt("-timeout=<n>", strprintf(_("Specify connection timeout in milliseconds (minimum: 1, default: %d)"), DEFAULT_CONNECT_TIMEOUT));

@@ -2921,6 +2921,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         return state.DoS(1,error("ContextualCheckBlock() : incorrect %s at height %d (%d)", !block.IsProofOfStake() ? "proof-of-work" : "proof-of-stake",pindex->pprev->nHeight, block.nBits), REJECT_INVALID, "bad-diffbits");
     }
 
+    uint256 statehash;
+    for (auto& it: block.vtx[0].vout)
+    {
+        if (it.scriptPubKey.ExtractStateHash(statehash))
+        {
+            uint256 usstatehash = view.GetCFundDBStateHash();
+            if (statehash != usstatehash)
+            {
+                pindex->nFlags |= BLOCK_WRONG_CFUNDDB_HASH;
+                setDirtyBlockIndex.insert(pindex);
+            }
+            break;
+        }
+    }
+
     arith_uint256 hashProof;
 
     // Verify hash target and signature of coinstake tx
@@ -2956,7 +2971,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         pindex->RaiseValidity(BLOCK_VALID_STAKE);
         setDirtyBlockIndex.insert(pindex);
     }
-
 
     bool fScriptChecks = true;
     if (fCheckpointsEnabled) {
@@ -3715,6 +3729,7 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     if (!IsInitialBlockDownload())
     {
         int nUpgraded = 0;
+        int nWrongStateHashCount = 0;
         const CBlockIndex* pindex = chainActive.Tip();
 //
 // Commented - NavCoin uses now version control
@@ -3742,6 +3757,9 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
             if (atoi(pindex->strDZeel.substr(pindex->strDZeel.find(";") + 1).c_str()) > nExpectedVersion
                     && pindex->strDZeel.find(';') != std::string::npos)
                 ++nUpgraded;
+            if (i < 60 && pindex->nFlags & BLOCK_WRONG_CFUNDDB_HASH)
+                nWrongStateHashCount++;
+
             pindex = pindex->pprev;
         }
         if (nUpgraded > 0)
@@ -3754,6 +3772,19 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
             if (!fWarned) {
                 uiInterface.ThreadSafeMessageBox(
                     strMiscWarning,
+                    "", CClientUIInterface::MSG_WARNING);
+                AlertNotify(strMiscWarning);
+                fWarned = true;
+            }
+        }
+        if (nWrongStateHashCount > 60/2)
+        {
+            std::string s = _("It looks like your state database might be corrupted. Please close the wallet and reindex.");
+            strMiscWarning += s;
+            warningMessages.push_back(s);
+            if (!fWarned) {
+                uiInterface.ThreadSafeMessageBox(
+                    s,
                     "", CClientUIInterface::MSG_WARNING);
                 AlertNotify(strMiscWarning);
                 fWarned = true;

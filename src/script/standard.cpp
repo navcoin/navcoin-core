@@ -31,6 +31,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_MULTISIG: return "multisig";
     case TX_NULL_DATA: return "nulldata";
     case TX_CONTRIBUTION: return "cfund_contribution";
+    case TX_STATEHASH: return "state_hash";
     case TX_PROPOSALYESVOTE: return "proposal_yes_vote";
     case TX_PAYMENTREQUESTYESVOTE: return "payment_request_yes_vote";
     case TX_PROPOSALNOVOTE: return "proposal_no_vote";
@@ -88,6 +89,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
     if (scriptPubKey.IsCommunityFundContribution())
     {
         typeRet = TX_CONTRIBUTION;
+        return true;
+    }
+
+    if (scriptPubKey.IsCommunityFundStateHash())
+    {
+        typeRet = TX_STATEHASH;
         return true;
     }
 
@@ -319,7 +326,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
             return false;
     }
     else if (typeRet == TX_CONTRIBUTION || typeRet == TX_PAYMENTREQUESTNOVOTE || typeRet == TX_PAYMENTREQUESTYESVOTE
-             || typeRet == TX_PROPOSALNOVOTE || typeRet == TX_PROPOSALYESVOTE)
+             || typeRet == TX_PROPOSALNOVOTE || typeRet == TX_PROPOSALYESVOTE || typeRet == TX_STATEHASH)
     {
         return true;
     }

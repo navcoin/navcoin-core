@@ -256,6 +256,25 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
     return chainActive.Tip()->GetBlockHash().GetHex();
 }
 
+UniValue getcfunddbstatehash(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "getcfunddbstatehash\n"
+            "\nReturns the hash of the Cfund DB current state.\n"
+            "\nResult\n"
+            "\"hex\"      (string) the hash hex encoded\n"
+            "\nExamples\n"
+            + HelpExampleCli("getcfunddbstatehash", "")
+            + HelpExampleRpc("getcfunddbstatehash", "")
+        );
+
+    LOCK(cs_main);
+
+    CCoinsViewCache view(pcoinsTip);
+    return view.GetCFundDBStateHash().ToString();
+}
+
 UniValue getdifficulty(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
@@ -1648,7 +1667,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
     { "communityfund",      "listproposals",          &listproposals,          true  },
-
+    { "communityfund",      "getcfunddbstatehash",    &getcfunddbstatehash,    true  },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        true  },

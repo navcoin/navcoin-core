@@ -158,6 +158,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     CBlockIndex* pindexPrev = chainActive.Tip();
     nHeight = pindexPrev->nHeight + 1;
 
+    CCoinsViewCache view(pcoinsTip);
+
     // Decide whether to include witness transactions
     // This is only needed in case the witness softfork activation is reverted
     // (which would require a very deep reorganization) or when
@@ -213,7 +215,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             CFund::CProposal proposal;
             bool vote = vAddedProposalVotes[i].second;
-            if(pcoinsTip->GetProposal(uint256S(vAddedProposalVotes[i].first), proposal))
+            if(view.GetProposal(uint256S(vAddedProposalVotes[i].first), proposal))
             {
                 if(proposal.CanVote() && votes.count(proposal.hash) == 0)
                 {
@@ -230,9 +232,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             bool vote = vAddedPaymentRequestVotes[i].second;
-            if(pcoinsTip->GetPaymentRequest(uint256S(vAddedPaymentRequestVotes[i].first), prequest))
+            if(view.GetPaymentRequest(uint256S(vAddedPaymentRequestVotes[i].first), prequest))
             {
-                if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+                if(!view.GetProposal(prequest.proposalhash, proposal))
                     continue;
                 if (mapBlockIndex.count(proposal.blockhash) == 0)
                     continue;
@@ -240,7 +242,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if(pblockindex == nullptr)
                     continue;
                 if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
-                        && prequest.CanVote(*pcoinsTip) && votes.count(prequest.hash) == 0 &&
+                        && prequest.CanVote(view) && votes.count(prequest.hash) == 0 &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
@@ -254,13 +256,13 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         UniValue strDZeel(UniValue::VARR);
         CPaymentRequestMap mapPaymentRequests;
 
-        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+        if(view.GetAllPaymentRequests(mapPaymentRequests))
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
                 CFund::CPaymentRequest prequest;
 
-                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                if (!view.GetPaymentRequest(it_->first, prequest))
                     continue;
 
                 if (mapBlockIndex.count(prequest.blockhash) == 0)
@@ -273,7 +275,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                 if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal proposal;
-                    if(pcoinsTip->GetProposal(prequest.proposalhash, proposal)) {
+                    if(view.GetProposal(prequest.proposalhash, proposal)) {
                         CNavCoinAddress addr(proposal.Address);
                         if (!addr.IsValid())
                             continue;
@@ -302,6 +304,23 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         else
             coinbaseTx.vout.insert(coinbaseTx.vout.end(), forcedTxOut);
     }
+
+    coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
+
+    CScript script;
+    script.resize(35);
+    script[0] = OP_RETURN;
+    script[1] = OP_CFUND_HASH;
+    script[2] = 0x20;
+    uint256 statehash;
+    if (GetBoolArg("-devnet", false) && GetArg("-fakecfunddbstatehash","") != "" && GetArg("-fakecfunddbstatehash","").length() == 64)
+        statehash = uint256S(GetArg("-fakecfunddbstatehash",""));
+    else
+        statehash = view.GetCFundDBStateHash();
+    memcpy(&script[3], statehash.begin(), 32);
+
+    coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey = script;
+    coinbaseTx.vout[coinbaseTx.vout.size()-1].nValue = 0;
 
     pblock->vtx[0] = coinbaseTx;
 

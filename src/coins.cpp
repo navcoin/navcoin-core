@@ -8,6 +8,8 @@
 #include <random.h>
 
 #include <assert.h>
+#include <utiltime.h>
+#include <util.h>
 
 using namespace CFund;
 
@@ -195,6 +197,41 @@ bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentReques
         mapPaymentRequests.insert(make_pair(it->first, it->second));
 
     return true;
+}
+
+uint256 CCoinsViewCache::GetCFundDBStateHash()
+{
+    CPaymentRequestMap mapPaymentRequests;
+    CProposalMap mapProposals;
+
+    int64_t nTimeStart = GetTimeMicros();
+
+    if (GetAllProposals(mapProposals) && GetAllPaymentRequests(mapPaymentRequests))
+    {
+        CHashWriter writer(0,0);
+
+        for (auto &it: mapProposals)
+        {
+            if (!it.second.IsNull())
+                writer << it.second;
+        }
+
+        for (auto &it: mapPaymentRequests)
+        {
+            if (!it.second.IsNull())
+                writer << it.second;
+        }
+
+        uint256 ret = writer.GetHash();
+        int64_t nTimeEnd = GetTimeMicros();
+
+        LogPrint("bench", " Benchmark: Calculate CFundDB state hash: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+
+        return ret;
+
+    }
+
+    return uint256();
 }
 
 CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {

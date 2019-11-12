@@ -142,6 +142,7 @@ const char* GetOpName(opcodetype opcode)
     case OP_NOP10                  : return "OP_NOP10";
 
     case OP_CFUND                  : return "OP_CFUND";
+    case OP_CFUND_HASH             : return "OP_CFUND_HASH";
     case OP_PROP                   : return "OP_PROP";
     case OP_PREQ                   : return "OP_PREQ";
     case OP_YES                    : return "OP_YES";
@@ -257,6 +258,13 @@ bool CScript::IsCommunityFundContribution() const
       (*this)[1] == OP_CFUND);
 }
 
+bool CScript::IsCommunityFundStateHash() const
+{
+    return (this->size() == 35 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_CFUND_HASH);
+}
+
 bool CScript::IsProposalVote() const
 {
     return IsProposalVoteYes() || IsProposalVoteNo();
@@ -323,6 +331,17 @@ bool CScript::ExtractVote(uint256 &hash, bool &vote) const
     vector<unsigned char> vHash(this->begin()+5, this->begin()+37);
     hash = uint256(vHash);
     vote = (*this)[3] == OP_YES ? true : false;
+
+    return true;
+}
+
+bool CScript::ExtractStateHash(uint256 &hash) const
+{
+    if(!IsCommunityFundStateHash())
+        return false;
+
+    vector<unsigned char> vHash(this->begin()+3, this->begin()+35);
+    hash = uint256(vHash);
 
     return true;
 }
