@@ -170,7 +170,7 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
                     payoutTx = self.nodes[x].decoderawtransaction(payoutHex)
 
                     for vout in payoutTx["vout"]:
-                        if vout["scriptPubKey"]["addresses"][0] == proposal["address"] and vout["valueSat"] == preq["amount"] * SATOSHI:
+                        if vout["valueSat"] == preq["amount"] * SATOSHI and vout["scriptPubKey"]["addresses"][0] == proposal["address"]:
                             paymentsFound += 1
 
             assert(paymentsFound == 6)
