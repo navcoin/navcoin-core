@@ -108,7 +108,6 @@ testScripts = [
 # 'p2p-fullblocktest.py',
 #    'walletbackup.py',
 #    'bip68-112-113-p2p.py',
-
     'staking_mininputvalue.py',
      'wallet.py',
     'wallet-hd.py',
@@ -218,6 +217,10 @@ testScriptsExt = [
     'pruning.py', # leave pruning last as it takes a REALLY long time
 ]
 
+ignore_stderr = [
+    'cfunddb_statehash.py'
+]
+
 
 def runtests():
     test_list = []
@@ -252,7 +255,7 @@ def runtests():
     max_len_name = len(max(test_list, key=len))
     time_sum = 0
     time0 = time.time()
-    job_queue = RPCTestHandler(run_parallel, test_list, flags)
+    job_queue = RPCTestHandler(run_parallel, test_list, flags, ignore_stderr)
     results = BOLD[1] + "%s | %s | %s\n\n" % ("TEST".ljust(max_len_name), "PASSED", "DURATION") + BOLD[0]
     all_passed = True
     for _ in range(len(test_list)):
@@ -289,13 +292,14 @@ class RPCTestHandler:
     Trigger the testscrips passed in via the list.
     """
 
-    def __init__(self, num_tests_parallel, test_list=None, flags=None):
+    def __init__(self, num_tests_parallel, test_list=None, flags=None, ignore_stderr=[]):
         assert(num_tests_parallel >= 1)
         self.num_jobs = num_tests_parallel
         self.test_list = test_list
         self.flags = flags
         self.num_running = 0
         self.jobs = []
+        self.ignore_stderr = ignore_stderr
 
     def get_next(self):
         while self.num_running < self.num_jobs and self.test_list:
@@ -318,7 +322,9 @@ class RPCTestHandler:
                 (name, time0, proc) = j
                 if proc.poll() is not None:
                     (stdout, stderr) = proc.communicate(timeout=3)
-                    passed = stderr == "" and proc.returncode == 0
+                    passed = proc.returncode == 0
+                    if not name in self.ignore_stderr:
+                        passed = passed and stderr == ""
                     self.num_running -= 1
                     self.jobs.remove(j)
                     return name, stdout, stderr, passed, int(time.time() - time0)
