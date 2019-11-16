@@ -3480,7 +3480,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!view.GetPaymentRequest(prid, prequest))
                     return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
 
-                CPaymentRequestModifier mprequest = view.ModifyPaymentRequest(prid);
                 CFund::CProposal proposal;
 
                 if(!view.GetProposal(prequest.proposalhash, proposal))
@@ -3508,6 +3507,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 if(prequest.paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
                     return state.DoS(100, error("CheckBlock() : coinbase output tries to pay an already paid payment request"));
+
+                CPaymentRequestModifier mprequest = view.ModifyPaymentRequest(prid);
 
                 mprequest->paymenthash = block.GetHash();
                 mprequest->fDirty = true;
