@@ -8,7 +8,7 @@ from test_framework.cfund_util import *
 
 import urllib.parse
 
-class CfundForkReorg(NavCoinTestFramework):
+class CfundForkReorgPreq(NavCoinTestFramework):
     """Tests that reorg with 2 chains with same proposals/requests does not cause a fork"""
 
     def __init__(self):
@@ -45,14 +45,14 @@ class CfundForkReorg(NavCoinTestFramework):
         end_cycle(self.nodes[0])
         sync_blocks(self.nodes)
 
-        # disconnect the nodes and generate the proposal on each node
+        # disconnect the nodes and generate the preq on each node
         url = urllib.parse.urlparse(self.nodes[0].url)
         self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
         self.nodes[1].disconnectnode(url.hostname+":"+str(p2p_port(0)))
         time.sleep(2) # Wait for the nodes to disconnect
 
         # Create Payment request raw hex
-        paymentHex = self.send_raw_paymentrequest(proposalAmount, paymentAddress, proposalHash, "test")
+        paymentHex = self.create_raw_paymentrequest(proposalAmount, paymentAddress, proposalHash, "test")
 
         # Broadcast on node 0
         slow_gen(self.nodes[0], 1)
@@ -106,7 +106,7 @@ class CfundForkReorg(NavCoinTestFramework):
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(paymentHash0)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(paymentHash0)["blockHash"]))
         assert_equal(self.nodes[0].getpaymentrequest(paymentHash0), self.nodes[1].getpaymentrequest(paymentHash0))
 
-    def send_raw_paymentrequest(self, amount, address, proposal_hash, description):
+    def create_raw_paymentrequest(self, amount, address, proposal_hash, description):
         amount = amount * 100000000
         privkey = self.nodes[0].dumpprivkey(address)
         message = "I kindly ask to withdraw " + str(amount) + "NAV from the proposal " + proposal_hash + ". Payment request id: " + str(description)
@@ -116,7 +116,13 @@ class CfundForkReorg(NavCoinTestFramework):
         raw_payreq_tx = self.nodes[0].createrawtransaction(
             [],
             {"6ac1": 1},
-            json.dumps({"v": 2, "h": proposal_hash, "n": amount, "s": signature, "i": description})
+            json.dumps({
+              "v": 2, 
+              "h": proposal_hash, 
+              "n": amount, 
+              "s": signature, 
+              "i": description,
+              })
         )
 
         # Modify version for payreq creation
@@ -132,4 +138,4 @@ class CfundForkReorg(NavCoinTestFramework):
         return raw_payreq_tx
 
 if __name__ == '__main__':
-    CfundForkReorg().main()
+    CfundForkReorgPreq().main()
