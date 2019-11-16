@@ -101,13 +101,6 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         end_cycle(self.nodes[1])
         sync_blocks(self.nodes)
 
-        print("\r\ncfund after proposal reorg:\r\n")
-        print(self.nodes[0].cfundstats())
-
-        print("\r\nproposals for comparison:\r\n")
-        print(self.nodes[0].getproposal(proposalHash0))
-        print(self.nodes[1].getproposal(proposalHash0))
-
         # Create Payment Request
         paymentAmount = 5000
 
@@ -115,10 +108,8 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         paymentId = "".join(random.choice(letters) for i in range(32))
 
         preqHash = self.nodes[0].createpaymentrequest(proposalHash0, paymentAmount, paymentId)["hash"]
-        end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0], 1)
         sync_blocks(self.nodes)
-
-        print("\r\npreqHash:", preqHash, "\r\n")
 
         # Vote Yes
         self.nodes[1].paymentrequestvote(preqHash, "yes")
@@ -139,20 +130,6 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         end_cycle(self.nodes[1])
         sync_blocks(self.nodes)
 
-        # End cycle 3
-        slow_gen(self.nodes[1], 1)
-        end_cycle(self.nodes[1])
-        sync_blocks(self.nodes)
-
-        # End cycle 4
-        slow_gen(self.nodes[1], 1)
-        end_cycle(self.nodes[1])
-        sync_blocks(self.nodes)
-
-        print("\r\npreqs for comparison:\r\n")
-        print(self.nodes[0].getpaymentrequest(preqHash))
-        print(self.nodes[1].getpaymentrequest(preqHash))
-
         # Verify both nodes accpeted the payment
 
         assert_equal(self.nodes[0].getpaymentrequest(preqHash)["status"], "accepted")
@@ -161,12 +138,13 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(preqHash)["blockHash"]))
         assert_equal(self.nodes[0].getpaymentrequest(preqHash), self.nodes[1].getpaymentrequest(preqHash))
 
-        print("\r\npreqs for comparison:\r\n")
-        print(self.nodes[0].getpaymentrequest(preqHash))
-        print(self.nodes[1].getpaymentrequest(preqHash))
+        # Verify the payment was actually received
+        paidBlock = self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["paidOnBlock"])
+        unspent = self.nodes[0].listunspent(0, 80)
 
-
-
+        assert_equal(unspent[0]['address'], paymentAddress)
+        assert_equal(unspent[0]['amount'], paymentAmount)
+        assert_equal(paidBlock['tx'][0], unspent[0]['txid'])
 
 if __name__ == '__main__':
     CfundForkReorgProposal().main()
