@@ -149,11 +149,6 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         end_cycle(self.nodes[1])
         sync_blocks(self.nodes)
 
-        # End cycle 5
-        slow_gen(self.nodes[1], 1)
-        end_cycle(self.nodes[1])
-        sync_blocks(self.nodes)
-
         print("\r\npreqs for comparison:\r\n")
         print(self.nodes[0].getpaymentrequest(preqHash))
         print(self.nodes[1].getpaymentrequest(preqHash))
