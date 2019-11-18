@@ -700,8 +700,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     CFund::CProposal proposal;
+    CCoinsViewCache view(pcoinsTip);
 
-    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
+    if(!view.GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
     if(proposal.fState != CFund::ACCEPTED)
@@ -3486,14 +3487,15 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
     UniValue nullvotes(UniValue::VARR);
 
     CProposalMap mapProposals;
+    CCoinsViewCache view(pcoinsTip);
 
-    if(pcoinsTip->GetAllProposals(mapProposals))
+    if(view.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
         {
             CFund::CProposal proposal;
 
-            if (!pcoinsTip->GetProposal(it_->first, proposal))
+            if (!view.GetProposal(it_->first, proposal))
                 continue;
 
             if (proposal.fState != CFund::NIL)
@@ -3501,7 +3503,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
                                     [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
             UniValue p(UniValue::VOBJ);
-            proposal.ToJson(p, *pcoinsTip);
+            proposal.ToJson(p, view);
             if (it != vAddedProposalVotes.end()) {
                 if (it->second)
                     yesvotes.push_back(p);
@@ -3543,7 +3545,9 @@ UniValue proposalvote(const UniValue& params, bool fHelp)
     bool duplicate = false;
 
     CFund::CProposal proposal;
-    if (!pcoinsTip->GetProposal(uint256S(strHash), proposal))
+    CCoinsViewCache view(pcoinsTip);
+
+    if (!view.GetProposal(uint256S(strHash), proposal))
     {
         return NullUniValue;
     }
@@ -3610,14 +3614,15 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue nullvotes(UniValue::VARR);
 
     CPaymentRequestMap mapPaymentRequests;
+    CCoinsViewCache view(pcoinsTip);
 
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    if(view.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
             CFund::CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!view.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.fState != CFund::NIL)
@@ -3667,8 +3672,9 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
     bool duplicate = false;
 
     CFund::CPaymentRequest prequest;
+    CCoinsViewCache view(pcoinsTip);
 
-    if (!pcoinsTip->GetPaymentRequest(uint256S(strHash), prequest))
+    if (!view.GetPaymentRequest(uint256S(strHash), prequest))
     {
         return NullUniValue;
     }

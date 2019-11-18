@@ -439,7 +439,7 @@ std::string CFund::CProposal::ToString(CCoinsViewCache& coins, uint32_t currentT
         {
             CFund::CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)
@@ -456,13 +456,13 @@ bool CFund::CProposal::HasPendingPaymentRequests(CCoinsViewCache& coins) const {
 
     CPaymentRequestMap mapPaymentRequests;
 
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
             CFund::CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)
@@ -531,7 +531,7 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
         ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     CPaymentRequestMap mapPaymentRequests;
 
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         UniValue preq(UniValue::VOBJ);
         UniValue arr(UniValue::VARR);
@@ -541,7 +541,7 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
         {
             CFund::CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)
