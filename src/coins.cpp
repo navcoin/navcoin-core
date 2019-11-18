@@ -251,7 +251,10 @@ bool CCoinsViewCache::AddProposal(const CProposal& proposal) const {
     if (HaveProposal(proposal.hash))
         return false;
 
-    cacheProposals.insert(std::make_pair(proposal.hash, proposal));
+    if (cacheProposals.count(proposal.hash))
+        cacheProposals[proposal.hash]=proposal;
+    else
+        cacheProposals.insert(std::make_pair(proposal.hash, proposal));
 
     return true;
 }
@@ -259,7 +262,12 @@ bool CCoinsViewCache::AddProposal(const CProposal& proposal) const {
 bool CCoinsViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
     if (HavePaymentRequest(prequest.hash))
         return false;
-    cachePaymentRequests.insert(std::make_pair(prequest.hash, prequest));
+
+    if (cachePaymentRequests.count(prequest.hash))
+        cachePaymentRequests[prequest.hash]=prequest;
+    else
+        cachePaymentRequests.insert(std::make_pair(prequest.hash, prequest));
+
     return true;
 }
 
