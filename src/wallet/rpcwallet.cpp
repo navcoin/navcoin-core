@@ -3186,7 +3186,7 @@ bool IsTxCountedAsStaked(const CWalletTx* tx)
     LOCK(cs_main);
 
     // orphan block or immature
-    if ((!tx->GetDepthInMainChain()) || (tx->GetBlocksToMaturity() > 0))
+    if ((!tx->GetDepthInMainChain()) || (tx->GetBlocksToMaturity() > 0) || !IsInMainChain())
         return false;
 
     // abandoned transactions
