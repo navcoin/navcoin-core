@@ -705,7 +705,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(!view.GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid proposal hash.");
 
-    if(proposal.fState != CFund::ACCEPTED)
+    if(proposal.GetLastState() != CFund::ACCEPTED)
         throw JSONRPCError(RPC_TYPE_ERROR, "Proposal has not been accepted.");
 
     CNavCoinAddress address(proposal.Address);
@@ -3498,7 +3498,7 @@ UniValue proposalvotelist(const UniValue& params, bool fHelp)
             if (!view.GetProposal(it_->first, proposal))
                 continue;
 
-            if (proposal.fState != CFund::NIL)
+            if (proposal.GetLastState() != CFund::NIL)
                 continue;
             auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
                                     [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
@@ -3625,7 +3625,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
             if (!view.GetPaymentRequest(it_->first, prequest))
                 continue;
 
-            if (prequest.fState != CFund::NIL)
+            if (prequest.GetLastState() != CFund::NIL)
                 continue;
             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
                                     [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );

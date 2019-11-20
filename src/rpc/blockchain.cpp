@@ -944,13 +944,15 @@ UniValue listproposals(const UniValue& params, bool fHelp)
             if (!pcoinsTip->GetProposal(it->first, proposal))
                 continue;
 
+            flags fLastState = proposal.GetLastState();
+
             if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
-                            || proposal.fState == CFund::PENDING_VOTING_PREQ
-                            || proposal.fState == CFund::PENDING_FUNDS))
-                    || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
-                                         || proposal.fState == CFund::PENDING_FUNDS))
-                    || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
-                    || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
+                            || fLastState == CFund::PENDING_VOTING_PREQ
+                            || fLastState == CFund::PENDING_FUNDS))
+                    || (showPending  && (fLastState == CFund::NIL || fLastState == CFund::PENDING_VOTING_PREQ
+                                         || fLastState == CFund::PENDING_FUNDS))
+                    || (showAccepted && (fLastState == CFund::ACCEPTED || proposal.IsAccepted()))
+                    || (showRejected && (fLastState == CFund::REJECTED || proposal.IsRejected()))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o, *pcoinsTip);
@@ -1005,11 +1007,6 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             if(!pcoinsTip->GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
             if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
-                continue;
-            if (mapBlockIndex.count(proposal.blockhash) == 0)
-                continue;
-            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
-            if(pindexblockparent == nullptr)
                 continue;
             if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
                 if(vCachePaymentRequestRPC.count(pindexblock->vPaymentRequestVotes[i].first) == 0)

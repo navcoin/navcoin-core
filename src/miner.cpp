@@ -237,12 +237,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             {
                 if(!view.GetProposal(prequest.proposalhash, proposal))
                     continue;
-                if (mapBlockIndex.count(proposal.blockhash) == 0)
-                    continue;
-                CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
+                CBlockIndex* pblockindex = proposal.GetLastStateBlockIndex();
                 if(pblockindex == nullptr)
                     continue;
-                if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
+                if((proposal.CanRequestPayments() || proposal.GetLastState() == CFund::PENDING_VOTING_PREQ)
                         && prequest.CanVote(view) && votes.count(prequest.hash) == 0 &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
@@ -265,15 +263,12 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                 if (!view.GetPaymentRequest(it_->first, prequest))
                     continue;
-
-                if (mapBlockIndex.count(prequest.blockhash) == 0)
-                    continue;
-                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
+                CBlockIndex* pblockindex = prequest.GetLastStateBlockIndex();
                 if(pblockindex == nullptr)
                     continue;
                 if(prequest.hash == uint256())
                     continue;
-                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
+                if(prequest.GetLastState() == CFund::ACCEPTED &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal proposal;
                     if(view.GetProposal(prequest.proposalhash, proposal)) {

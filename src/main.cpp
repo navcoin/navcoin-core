@@ -2627,18 +2627,6 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             continue;
 
         CPaymentRequestModifier prequest = view.ModifyPaymentRequest(pindex->vPaymentRequestVotes[i].first);
-        CFund::CProposal proposal;
-
-        if(!view.GetProposal(prequest->proposalhash, proposal))
-            continue;
-
-        if (mapBlockIndex.count(proposal.blockhash) == 0)
-            continue;
-
-        CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
-
-        if(pindexblockparent == nullptr)
-            continue;
 
         if(vSeen.count(prequest->hash) == 0)
         {
@@ -3131,21 +3119,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                                 if (view.GetProposal(prequest.proposalhash, proposal))
                                 {
-                                    if (mapBlockIndex.count(proposal.blockhash) == 0)
-                                    {
-                                        LogPrint("dao", "%s: Ignoring vote output, block %s not in main chain\n", __func__, proposal.blockhash.ToString());
-                                        continue;
-                                    }
+                                    CBlockIndex* pblockindex = proposal.GetLastStateBlockIndex();
 
-                                    CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
-
-                                    if(pblockindex == nullptr)
-                                    {
-                                        LogPrint("dao", "%s: Ignoring vote output, block index %s is null\n", __func__, proposal.blockhash.ToString());
-                                        continue;
-                                    }
-
-                                    if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
+                                    if(pblockindex && (proposal.CanRequestPayments() || proposal.GetLastState() == CFund::PENDING_VOTING_PREQ)
                                             && prequest.CanVote(view)
                                             && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                                     {
@@ -3153,10 +3129,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     }
                                     else
                                     {
-                                        LogPrint("dao", "%s: Ignoring vote output, payment request %s can not receive votes ((%d || %d) && %d && %d)\n",
-                                                 __func__, hash.ToString(), proposal.CanRequestPayments(),
-                                                 proposal.fState == CFund::PENDING_VOTING_PREQ, prequest.CanVote(view),
-                                                 pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge);
+                                        LogPrint("dao", "%s: Ignoring vote output, payment request %s can not receive votes\n",
+                                                 __func__, hash.ToString());
                                     }
                                 }
                                 else
@@ -3490,26 +3464,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!fValidAddress)
                     return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
 
-                if (mapBlockIndex.count(prequest.blockhash) == 0)
-                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s", prequest.blockhash.ToString()));
+                bool fv452Fork = (!GetBoolArg("-testnet", false) && !GetBoolArg("-devnet", false) && !GetBoolArg("-regtest", false) && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork);
 
-                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
+                if(block.vtx[0].vout[i].nValue != prequest.nAmount || (!fv452Fork && prequest.GetLastState() != CFund::ACCEPTED) || proposal.Address != CNavCoinAddress(address).ToString())
+                    return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
 
-                if(pblockindex == nullptr)
-                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s.", prequest.blockhash.ToString()));
+                CBlockIndex* pblockindex = prequest.GetLastStateBlockIndex();
 
                 if(!(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
 
-                if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || proposal.Address != CNavCoinAddress(address).ToString())
-                    return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
-
-                if(prequest.paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
-                    return state.DoS(100, error("CheckBlock() : coinbase output tries to pay an already paid payment request"));
-
                 CPaymentRequestModifier mprequest = view.ModifyPaymentRequest(prid);
 
-                mprequest->paymenthash = block.GetHash();
+                mprequest->SetState(pindex, CFund::PAID);
                 mprequest->fDirty = true;
 
                 LogPrintf("%s: Updated payment request %s: paymenthash => %s\n", __func__, prequest.hash.ToString(), block.GetHash().ToString());
