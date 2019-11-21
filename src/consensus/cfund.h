@@ -132,7 +132,7 @@ public:
             for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
             thisMapState.pop_back();
             bMapState.pop_back();
-            ret += strprintf("mapState: %d => %d, ", thisMapState, bMapState);
+            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
         }
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
         if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
@@ -329,7 +329,7 @@ public:
             for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
             thisMapState.pop_back();
             bMapState.pop_back();
-            ret += strprintf("mapState: %d => %d, ", thisMapState, bMapState);
+            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
         }
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
         if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
