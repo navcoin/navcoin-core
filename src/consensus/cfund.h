@@ -102,8 +102,8 @@ public:
         std::string thisMapState = "";
         std::string bMapState = "";
 
-        for (auto &it:mapState) thisMapState += it.first.ToString()+","+to_string(it.second);
-        for (auto &it:b.mapState) bMapState += it.first.ToString()+","+to_string(it.second);
+        for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
+        for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
 
         return nAmount == b.nAmount
                 && thisMapState == bMapState
@@ -128,8 +128,8 @@ public:
         {
             std::string thisMapState = "";
             std::string bMapState = "";
-            for (auto &it:mapState) thisMapState += it.first.ToString()+","+to_string(it.second);
-            for (auto &it:b.mapState) bMapState += it.first.ToString()+","+to_string(it.second);
+            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
             thisMapState.pop_back();
             bMapState.pop_back();
             ret += strprintf("mapState: %d => %d, ", thisMapState, bMapState);
@@ -224,6 +224,7 @@ public:
         READWRITE(nVotesNo);
         READWRITE(hash);
         READWRITE(proposalhash);
+        READWRITE(txblockhash);
         READWRITE(strDZeel);
 
         // Version-based read/write
@@ -294,8 +295,8 @@ public:
         std::string thisMapState = "";
         std::string bMapState = "";
 
-        for (auto &it:mapState) thisMapState += it.first.ToString()+","+to_string(it.second);
-        for (auto &it:b.mapState) bMapState += it.first.ToString()+","+to_string(it.second);
+        for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
+        for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
 
         return nAmount == b.nAmount
                 && nFee == b.nFee
@@ -322,8 +323,8 @@ public:
         {
             std::string thisMapState = "";
             std::string bMapState = "";
-            for (auto &it:mapState) thisMapState += it.first.ToString()+","+to_string(it.second);
-            for (auto &it:b.mapState) bMapState += it.first.ToString()+","+to_string(it.second);
+            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
             thisMapState.pop_back();
             bMapState.pop_back();
             ret += strprintf("mapState: %d => %d, ", thisMapState, bMapState);
