@@ -169,6 +169,8 @@ public:
         }
         if(IsExpired())
             sFlags = "expired";
+        if (fState == PAID)
+            sFlags = "paid";
         return sFlags;
     }
 

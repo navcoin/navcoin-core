@@ -283,7 +283,7 @@ bool CFund::CPaymentRequest::CanVote(CCoinsViewCache& coins) const
 
     flags fLastState = GetLastState();
 
-    return nAmount <= proposal.GetAvailable(coins) && fLastState != ACCEPTED && fLastState != REJECTED && fLastState != EXPIRED && !ExceededMaxVotingCycles();
+    return nAmount <= proposal.GetAvailable(coins) && fLastState == NIL && !ExceededMaxVotingCycles();
 }
 
 bool CFund::CPaymentRequest::IsExpired() const {
