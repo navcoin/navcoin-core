@@ -3077,7 +3077,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if(tx.vout[j].IsProposalVote())
                     {
-                        LogPrint("dao", "%s: Checking prequest vote output %s\n", __func__, tx.vout[j].ToString());
+                        LogPrint("dao", "%s: Checking proposal vote output %s\n", __func__, tx.vout[j].ToString());
 
                         if(votes.count(hash) == 0)
                         {

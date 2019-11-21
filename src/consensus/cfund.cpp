@@ -939,7 +939,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 }
             }
 
-            if (*prequest != oldprequest || fUpdate)
+            if (*prequest != oldprequest)
             {
                 prequest->fDirty = true;
                 if (fLog) LogPrintf("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
@@ -1073,7 +1073,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 }
             }
 
-            if (*proposal != oldproposal || fUpdate)
+            if (*proposal != oldproposal)
             {
                 proposal->fDirty = true;
                 if (fLog) LogPrintf("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
