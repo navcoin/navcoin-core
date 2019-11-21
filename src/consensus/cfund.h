@@ -130,8 +130,8 @@ public:
             std::string bMapState = "";
             for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
             for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            thisMapState.pop_back();
-            bMapState.pop_back();
+            if (thisMapState.size() > 0) thisMapState.pop_back();
+            if (bMapState.size() > 0) bMapState.pop_back();
             ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
         }
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
@@ -327,8 +327,8 @@ public:
             std::string bMapState = "";
             for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
             for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            thisMapState.pop_back();
-            bMapState.pop_back();
+            if (thisMapState.size() > 0) thisMapState.pop_back();
+            if (bMapState.size() > 0) bMapState.pop_back();
             ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
         }
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
@@ -339,8 +339,8 @@ public:
             std::string bStrPayments = "";
             for (auto &it:vPayments) thisStrPayments += it.ToString()+",";
             for (auto &it:b.vPayments) bStrPayments += it.ToString()+",";
-            thisStrPayments.pop_back();
-            bStrPayments.pop_back();
+            if (thisStrPayments.size() > 0) thisStrPayments.pop_back();
+            if (bStrPayments.size() > 0) bStrPayments.pop_back();
             ret += strprintf("vPayments: %s => %s, ", thisStrPayments, bStrPayments);
         }
         if (strDZeel != b.strDZeel) ret += strprintf("strDZeel: %s => %s, ", strDZeel, b.strDZeel);
