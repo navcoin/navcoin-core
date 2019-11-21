@@ -5385,6 +5385,8 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     nCheckLevel = std::max(0, std::min(4, nCheckLevel));
     LogPrintf("Verifying last %i blocks at level %i\n", nCheckDepth, nCheckLevel);
     CCoinsViewCache coins(coinsview);
+    uint256 prevStateHash;
+    if (nCheckLevel >= 4) prevStateHash = coins.GetCFundDBStateHash();
     CBlockIndex* pindexState = chainActive.Tip();
     CBlockIndex* pindexFailure = nullptr;
     int nGoodTransactions = 0;
@@ -5458,6 +5460,9 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             CFundStep(state, pindex, false, coins);
         }
+        uint256 nowStateHash = coins.GetCFundDBStateHash();
+        if (prevStateHash != nowStateHash)
+            return error("VerifyDB(): *** the cfund db state hash differs after reconnecting blocks. it was %d, it is %s after\n", prevStateHash.ToString(), nowStateHash.ToString());
     }
 
     LogPrintf("[DONE].\n");

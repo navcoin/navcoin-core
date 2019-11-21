@@ -6,6 +6,8 @@
 
 #include <memusage.h>
 #include <random.h>
+#include <util.h>
+#include <utiltime.h>
 
 #include <assert.h>
 
@@ -444,6 +446,41 @@ void CCoinsViewCache::Uncache(const uint256& hash)
 
 unsigned int CCoinsViewCache::GetCacheSize() const {
     return cacheCoins.size();
+}
+
+uint256 CCoinsViewCache::GetCFundDBStateHash()
+{
+    CPaymentRequestMap mapPaymentRequests;
+    CProposalMap mapProposals;
+
+    int64_t nTimeStart = GetTimeMicros();
+
+    if (GetAllProposals(mapProposals) && GetAllPaymentRequests(mapPaymentRequests))
+    {
+        CHashWriter writer(0,0);
+
+        for (auto &it: mapProposals)
+        {
+            if (!it.second.IsNull())
+                writer << it.second;
+        }
+
+        for (auto &it: mapPaymentRequests)
+        {
+            if (!it.second.IsNull())
+                writer << it.second;
+        }
+
+        uint256 ret = writer.GetHash();
+        int64_t nTimeEnd = GetTimeMicros();
+
+        LogPrint("bench", " Benchmark: Calculate CFundDB state hash: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+
+        return ret;
+
+    }
+
+    return uint256();
 }
 
 const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
