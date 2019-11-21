@@ -142,13 +142,13 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
             for proposal in proposals:
                 for preq in proposal["preqs"]:
                     assert(self.nodes[x].getpaymentrequest(preq["hash"])["state"] == 1)
-                    assert(self.nodes[x].getpaymentrequest(preq["hash"])["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
+                    assert(self.nodes[x].getpaymentrequest(preq["hash"])["stateChangedOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
 
 
 
         wallet_info1 = self.nodes[0].getwalletinfo()
 
-        while self.nodes[0].getpaymentrequest(proposals[0]["preqs"][0]["hash"])["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
+        while self.nodes[0].getpaymentrequest(proposals[0]["preqs"][0]["hash"])["stateChangedOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
             blocks = slow_gen(self.nodes[0], 1)
 
         sync_blocks(self.nodes)
@@ -164,7 +164,7 @@ class CommunityFundPaymentRequestDuplicate(NavCoinTestFramework):
             for proposal in proposals:
                 for preq in proposal["preqs"]:
                     preqsFound += 1
-                    payoutBlockHash = self.nodes[x].getpaymentrequest(preq["hash"])["paidOnBlock"]
+                    payoutBlockHash = self.nodes[x].getpaymentrequest(preq["hash"])["stateChangedOnBlock"]
                     payoutBlock = self.nodes[x].getblock(payoutBlockHash)
                     payoutHex = self.nodes[x].getrawtransaction(payoutBlock["tx"][0])
                     payoutTx = self.nodes[x].decoderawtransaction(payoutHex)
