@@ -3363,7 +3363,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 fContribution=true;
                 pindex->nCFSupply += vout.nValue;
                 nProposalFee += vout.nValue;
-                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, pindex->nCFSupply, pindex->nCFLocked);
+                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindex->nCFSupply), FormatMoney(pindex->nCFLocked));
             }
         }
 
