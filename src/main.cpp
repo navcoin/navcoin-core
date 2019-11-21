@@ -3358,12 +3358,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         for(const CTxOut& vout: tx.vout)
         {
-          if(vout.IsCommunityFundContribution())
-          {
-            fContribution=true;
-            pindex->nCFSupply += vout.nValue;
-            nProposalFee += vout.nValue;
-          }
+            if(vout.IsCommunityFundContribution())
+            {
+                fContribution=true;
+                pindex->nCFSupply += vout.nValue;
+                nProposalFee += vout.nValue;
+                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, pindex->nCFSupply, pindex->nCFLocked);
+            }
         }
 
         if(IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus())) {

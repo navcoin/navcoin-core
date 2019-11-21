@@ -1029,6 +1029,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                                 {
                                     pindexNew->nCFSupply += proposal->GetAvailable(view);
                                     pindexNew->nCFLocked -= proposal->GetAvailable(view);
+                                    LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, pindexNew->nCFSupply, pindexNew->nCFLocked);
                                 }
                                 proposal->SetState(pindexNew, CFund::EXPIRED);
                                 fUpdate = true;
@@ -1050,6 +1051,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                             {
                                 pindexNew->nCFSupply -= proposal->GetAvailable(view);
                                 pindexNew->nCFLocked += proposal->GetAvailable(view);
+                                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, pindexNew->nCFSupply, pindexNew->nCFLocked);
                                 proposal->SetState(pindexNew, CFund::ACCEPTED);
                                 fUpdate = true;
                             }
