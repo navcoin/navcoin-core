@@ -489,6 +489,8 @@ public:
      * the backing CCoinsView are made.
      */
     bool HaveCoinsInCache(const uint256 &txid) const;
+    bool HaveProposalInCache(const uint256 &pid) const;
+    bool HavePaymentRequestInCache(const uint256 &prid) const;
 
     /**
      * Return a pointer to CCoins in the cache, or NULL if not found. This is
