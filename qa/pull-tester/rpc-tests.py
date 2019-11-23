@@ -190,7 +190,8 @@ testScripts = [
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py',
-    'createrawscriptaddress.py'
+    'createrawscriptaddress.py',
+    'dao/001-proposal-expires.py'
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
