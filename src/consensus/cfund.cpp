@@ -261,6 +261,29 @@ CBlockIndex* CFund::CPaymentRequest::GetLastStateBlockIndex() const {
     return ret;
 }
 
+CBlockIndex* CFund::CPaymentRequest::GetLastStateBlockIndexForState(flags state) const {
+    CBlockIndex* ret = nullptr;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (it.second != state)
+            continue;
+
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = mapBlockIndex[it.first];
+        }
+    }
+    return ret;
+}
+
 bool CFund::CPaymentRequest::SetState(const CBlockIndex* pindex, flags state) {
     mapState[pindex->GetBlockHash()] = state;
     return true;
@@ -436,7 +459,7 @@ uint64_t CFund::CProposal::getTimeTillExpired(uint32_t currentTime) const
 {
     if(nVersion >= 2) {
         uint256 blockhash;
-        CBlockIndex* pblockindex = GetLastStateBlockIndex();
+        CBlockIndex* pblockindex = GetLastStateBlockIndexForState(ACCEPTED);
         if (pblockindex) {
             return currentTime - (pblockindex->GetBlockTime() + nDeadline);
         }
@@ -447,11 +470,11 @@ uint64_t CFund::CProposal::getTimeTillExpired(uint32_t currentTime) const
 bool CFund::CProposal::IsExpired(uint32_t currentTime) const {
     if(nVersion >= 2) {
         uint256 blockhash;
-        CBlockIndex* pblockindex = GetLastStateBlockIndex();
-        if (GetLastState() == ACCEPTED && pblockindex) {
+        CBlockIndex* pblockindex = GetLastStateBlockIndexForState(ACCEPTED);
+        flags fLastState = GetLastState();
+        if (fLastState == ACCEPTED && pblockindex) {
             return (pblockindex->GetBlockTime() + nDeadline < currentTime);
         }
-        flags fLastState = GetLastState();
         return (fLastState == EXPIRED) || (fLastState == PENDING_VOTING_PREQ) || (ExceededMaxVotingCycles() && fLastState == NIL);
     } else {
         return (nDeadline < currentTime);
@@ -491,7 +514,7 @@ CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequ
                     continue;
             }
             flags fLastState = prequest.GetLastState();
-            if((fIncludeRequests && fLastState != REJECTED && fLastState != EXPIRED) || (!fIncludeRequests && fLastState == ACCEPTED))
+            if((fIncludeRequests && fLastState != REJECTED && fLastState != EXPIRED) || (!fIncludeRequests && (fLastState == ACCEPTED || fLastState == PAID)))
                 initial -= prequest.nAmount;
         }
     }
@@ -618,6 +641,29 @@ CBlockIndex* CFund::CProposal::GetLastStateBlockIndex() const {
     return ret;
 }
 
+CBlockIndex* CFund::CProposal::GetLastStateBlockIndexForState(flags state) const {
+    CBlockIndex* ret = nullptr;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (it.second != state)
+            continue;
+
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = mapBlockIndex[it.first];
+        }
+    }
+    return ret;
+}
+
 bool CFund::CProposal::SetState(const CBlockIndex* pindex, flags state) {
     mapState[pindex->GetBlockHash()] = state;
     return true;
@@ -658,7 +704,7 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     ret.pushKV("status", GetState(chainActive.Tip()->GetBlockTime()));
     ret.pushKV("state", (uint64_t)fState);
-    if(fState == ACCEPTED)
+    if(blockhash != uint256())
         ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     CPaymentRequestMap mapPaymentRequests;
 

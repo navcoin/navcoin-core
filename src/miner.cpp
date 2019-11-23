@@ -237,7 +237,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
             {
                 if(!view.GetProposal(prequest.proposalhash, proposal))
                     continue;
-                CBlockIndex* pblockindex = proposal.GetLastStateBlockIndex();
+                CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(CFund::ACCEPTED);
                 if(pblockindex == nullptr)
                     continue;
                 if((proposal.CanRequestPayments() || proposal.GetLastState() == CFund::PENDING_VOTING_PREQ)
@@ -263,7 +263,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
                 if (!view.GetPaymentRequest(it_->first, prequest))
                     continue;
-                CBlockIndex* pblockindex = prequest.GetLastStateBlockIndex();
+                CBlockIndex* pblockindex = prequest.GetLastStateBlockIndexForState(CFund::ACCEPTED);
                 if(pblockindex == nullptr)
                     continue;
                 if(prequest.hash == uint256())

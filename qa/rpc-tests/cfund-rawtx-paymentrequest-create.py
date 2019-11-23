@@ -105,7 +105,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         slow_gen(self.nodes[0], 10)
 
         # Check the payment request is paid out
-        assert (float(self.nodes[0].getproposal(self.goodProposalHash)["notPaidYet"]) == 9)
+        assert_equal(float(self.nodes[0].getproposal(self.goodProposalHash)["notPaidYet"]), 9)
         assert (float(self.nodes[0].cfundstats()["funds"]["locked"]) == 9)
 
 
@@ -203,7 +203,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         assert (paymentRequest['votingCycle'] == 0)
         assert (paymentRequest['status'] == 'pending')
         assert (paymentRequest['state'] == 0)
-        assert (paymentRequest['stateChangedOnBlock'] == '0000000000000000000000000000000000000000000000000000000000000000')
+        assert('stateChangedOnBlock' not in paymentRequest.keys())
 
     def send_raw_paymentrequest(self, amount, address, proposal_hash, description):
         amount = amount * 100000000

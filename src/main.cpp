@@ -3119,7 +3119,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                                 if (view.GetProposal(prequest.proposalhash, proposal))
                                 {
-                                    CBlockIndex* pblockindex = proposal.GetLastStateBlockIndex();
+                                    CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(CFund::ACCEPTED);
 
                                     if(pblockindex && (proposal.CanRequestPayments() || proposal.GetLastState() == CFund::PENDING_VOTING_PREQ)
                                             && prequest.CanVote(view)
@@ -3470,7 +3470,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(block.vtx[0].vout[i].nValue != prequest.nAmount || (fv452Fork && prequest.GetLastState() != CFund::ACCEPTED) || proposal.Address != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
 
-                CBlockIndex* pblockindex = prequest.GetLastStateBlockIndex();
+                CBlockIndex* pblockindex = prequest.GetLastStateBlockIndexForState(CFund::ACCEPTED);
 
                 if(fv452Fork && !(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));

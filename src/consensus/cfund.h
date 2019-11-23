@@ -177,6 +177,8 @@ public:
 
     CBlockIndex* GetLastStateBlockIndex() const;
 
+    CBlockIndex* GetLastStateBlockIndexForState(flags state) const;
+
     bool SetState(const CBlockIndex* pindex, flags state);
 
     bool ClearState(const CBlockIndex* pindex);
@@ -356,6 +358,8 @@ public:
     flags GetLastState() const;
 
     CBlockIndex* GetLastStateBlockIndex() const;
+
+    CBlockIndex* GetLastStateBlockIndexForState(flags state) const;
 
     bool SetState(const CBlockIndex* pindex, flags state);
 
