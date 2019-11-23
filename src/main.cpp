@@ -3465,7 +3465,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!fValidAddress)
                     return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
 
-                bool fv452Fork = (!GetBoolArg("-testnet", false) && !GetBoolArg("-devnet", false) && !GetBoolArg("-regtest", false) && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork);
+                bool fv452Fork = (pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork);
 
                 if(block.vtx[0].vout[i].nValue != prequest.nAmount || (fv452Fork && prequest.GetLastState() != CFund::ACCEPTED) || proposal.Address != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
@@ -3480,7 +3480,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 mprequest->SetState(pindex, CFund::PAID);
                 mprequest->fDirty = true;
 
-                LogPrintf("%s: Updated payment request %s: paymenthash => %s\n", __func__, prequest.hash.ToString(), block.GetHash().ToString());
+                LogPrintf("%s: Updated payment request %s: %s\n", __func__, mprequest->ToString(), mprequest->diff(prequest));
             }
             else
             {

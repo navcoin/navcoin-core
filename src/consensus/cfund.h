@@ -251,7 +251,6 @@ public:
     std::vector<uint256> vPayments;
     std::string strDZeel;
     uint256 hash;
-    uint256 blockhash;
     uint256 txblockhash;
     int nVersion;
     unsigned int nVotingCycle;
@@ -270,7 +269,6 @@ public:
         vPayments.clear();
         strDZeel = "";
         hash = uint256();
-        blockhash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
         fDirty = false;
@@ -346,7 +344,6 @@ public:
         if (strDZeel != b.strDZeel) ret += strprintf("strDZeel: %s => %s, ", strDZeel, b.strDZeel);
         if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
         if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
-        if (blockhash != b.blockhash) ret += strprintf("blockhash: %s => %s, ", blockhash.ToString(), b.blockhash.ToString());
         if (nVersion != b.nVersion) ret += strprintf("nVersion: %d => %d, ", nVersion, b.nVersion);
         if (nVotingCycle != b.nVotingCycle) ret += strprintf("nVotingCycle: %s => %s, ", nVotingCycle, b.nVotingCycle);
         if (ret != "")

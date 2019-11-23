@@ -16,6 +16,7 @@ class CfundForkReorgProposal(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
+        self.node_args = [['-debug=dao'], ['-debug=dao']]
         self.num_nodes = 2
 
     def setup_network(self, split=False):
@@ -132,7 +133,7 @@ class CfundForkReorgProposal(NavCoinTestFramework):
 
         # Verify both nodes accpeted the payment
 
-        assert_equal(self.nodes[0].getpaymentrequest(preqHash)["status"], "accepted")
+        assert_equal(self.nodes[0].getpaymentrequest(preqHash)["status"], "paid")
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["stateChangedOnBlock"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(preqHash)["stateChangedOnBlock"]))
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(preqHash)["blockHash"]))
