@@ -41,5 +41,3 @@ vote=None):
     print("Vote Not Found")
     print("proposalvotelist: ", myvotes)
     assert(False)
-
-    

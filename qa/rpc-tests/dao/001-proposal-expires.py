@@ -40,7 +40,5 @@ class CFund001ProposalExpires(NavCoinTestFramework):
       whenTheVotingCycleEnds(self.nodes[0], -1)
       thenTheProposalShouldBeExpired(self.nodes[0], hash)
 
-      assert(True)
-
 if __name__ == '__main__':
     CFund001ProposalExpires().main()

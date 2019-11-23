@@ -42,8 +42,5 @@ class CFund002ProposalRejected(NavCoinTestFramework):
       whenTheVotingCycleEnds(self.nodes[0], 2)
       thenTheProposalShouldBeRejected(self.nodes[0], hash)
 
-
-      assert(True)
-
 if __name__ == '__main__':
     CFund002ProposalRejected().main()

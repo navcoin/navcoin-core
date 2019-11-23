@@ -29,4 +29,3 @@ withAnswers=False):
   slow_gen(node, 100)
   # Verify the Community Fund is active
   assert (get_bip9_status(node, "communityfund")["status"] == "active")
-  

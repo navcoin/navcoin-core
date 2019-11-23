@@ -27,10 +27,3 @@ amount=None):
   
   slow_gen(node, 1)
   assert(node.cfundstats()["funds"]["available"] == availableBefore + amount)
-
-  
-
-
-
-
-  

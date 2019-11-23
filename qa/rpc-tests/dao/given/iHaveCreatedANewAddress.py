@@ -32,12 +32,3 @@ returnPrivateKey=False):
       assert(False)
   
   return keypair
-    
-    
-
-  
-
-
-
-
-  
