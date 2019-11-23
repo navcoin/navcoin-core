@@ -6,21 +6,44 @@ This file is a map of the tests scenarios which will be covered to ensure the CF
 
 ### Scenario 001
 
-| ID          |  CFUND_001 |
+| ID          |  DAO_001 |
 | ----------- | -----: |
 | Reporter    | @proletesseract |
 | Author      | @proletesseract |
-| Satus       | Ready |
+| Satus       | Done |
 | Description | It should create a proposal and let it expire |
 | File        | `./001-proposal-expires.py`
 
 1. **Given** I have created a proposal
-2. **When** The proposal has received no votes
+2. **When** The proposal is not voted on
 3. **Then** the proposal should expire 
 
 #### Test Steps
 - Activate CFund
 - Donate to the CFund
 - Create a proposal
-- End the voting cycles with no votes
+- Do not cast any votes
+- End the full round of voting cycles
 - Check proposal expired
+
+### Scenario 002
+
+| ID          |  DAO_002 |
+| ----------- | -----: |
+| Reporter    | @proletesseract |
+| Author      | @proletesseract |
+| Satus       | Done |
+| Description | It should create a proposal and the network should reject the proposal |
+| File        | `./002-proposal-is-rejected.py`
+
+1. **Given** I have created a proposal
+2. **When** The proposal receives the consensus of `no` votes
+3. **Then** the proposal should be rejected 
+
+#### Test Steps
+- Activate CFund
+- Donate to the CFund
+- Create a proposal
+- Votes `no` on the proposal
+- End the full round of voting cycles
+- Check proposal is rejected

@@ -1,5 +1,7 @@
-from dao.when.iDonateToTheCFund import whenIDonateToTheCFund
+from dao.then.theProposalShouldBeExpired import thenTheProposalShouldBeExpired
+from dao.then.theProposalShouldBeRejected import thenTheProposalShouldBeRejected
 
 __all__ = [
-  "whenIDonateToTheCFund",
+  "thenTheProposalShouldBeExpired",
+  "thenTheProposalShouldBeRejected",
   ]

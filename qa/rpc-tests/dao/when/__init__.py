@@ -1,5 +1,5 @@
-from dao.then.theCFundBalanceShouldBe import thenTheCFundBalanceShouldBe
+from dao.when.theVotingCycleEnds import whenTheVotingCycleEnds
 
 __all__ = [
-  "thenTheCFundBalanceShouldBe",
+  "whenTheVotingCycleEnds",
   ]
