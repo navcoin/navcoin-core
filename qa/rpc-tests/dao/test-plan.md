@@ -82,7 +82,7 @@ This file is a map of the tests scenarios which will be covered to ensure the CF
 
 1. **Given** I have an expired proposal
 2. **When** A payment request is made
-3. **Then** the payment request should be rejected
+3. **Then** the payment request should not exist
 
 #### Test Steps
 - Activate CFund
@@ -90,7 +90,8 @@ This file is a map of the tests scenarios which will be covered to ensure the CF
 - Create a proposal
 - Do not cast any votes
 - End the full round of voting cycles
-- Check payment request is rejected
+- Submit a payment request
+- Check payment request does not exist
 
 ### Scenario 005
 
@@ -104,7 +105,7 @@ This file is a map of the tests scenarios which will be covered to ensure the CF
 
 1. **Given** I have a rejected proposal
 2. **When** A payment request is made
-3. **Then** the payment request should be rejected
+3. **Then** the payment request should not exist
 
 #### Test Steps
 - Activate CFund
@@ -112,4 +113,28 @@ This file is a map of the tests scenarios which will be covered to ensure the CF
 - Create a proposal
 - Votes `no` on the proposal
 - End the full round of voting cycles
-- Check payment request is rejected
+- Submit a payment request
+- Check payment request does not exist
+
+### Scenario 006
+
+| ID          |  CFUND_006 |
+| ----------- | -----: |
+| Reporter    | @proletesseract |
+| Author      | @proletesseract |
+| Satus       | Done |
+| Description | It should create a payment request for an accepted proposal |
+| File        | `./006-proposal-accepted-preq.py`
+
+1. **Given** I have an accepted proposal
+2. **When** A payment request is made
+3. **Then** the payment request should exist
+
+#### Test Steps
+- Activate CFund
+- Donate to the CFund
+- Create a proposal
+- Votes `yes` on the proposal
+- End the full round of voting cycles
+- Submit a payment request
+- Check payment request exists
