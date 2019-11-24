@@ -229,9 +229,6 @@ flags CFund::CPaymentRequest::GetLastState() const {
         if (mapBlockIndex.count(it.first) == 0)
             continue;
 
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
-            continue;
-
         if (mapBlockIndex[it.first]->nHeight > nHeight)
         {
             nHeight = mapBlockIndex[it.first]->nHeight;
@@ -297,14 +294,6 @@ bool CFund::CPaymentRequest::ClearState(const CBlockIndex* pindex) {
 bool CFund::CPaymentRequest::CanVote(CCoinsViewCache& coins) const
 {
     AssertLockHeld(cs_main);
-
-    CBlockIndex* pindex;
-    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
-        return false;
-
-    pindex = mapBlockIndex[txblockhash];
-    if(!chainActive.Contains(pindex))
-        return false;
 
     CFund::CProposal proposal;
     if(!coins.GetProposal(proposalhash, proposal))
@@ -444,14 +433,6 @@ bool CFund::CProposal::IsRejected() const {
 bool CFund::CProposal::CanVote() const {
     AssertLockHeld(cs_main);
 
-    CBlockIndex* pindex;
-    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
-        return false;
-
-    pindex = mapBlockIndex[txblockhash];
-    if(!chainActive.Contains(pindex))
-        return false;
-
     return (GetLastState() == NIL) && (!ExceededMaxVotingCycles());
 }
 
@@ -504,16 +485,8 @@ CAmount CFund::CProposal::GetAvailable(CCoinsViewCache& coins, bool fIncludeRequ
             if (prequest.proposalhash != hash)
                 continue;
 
-            if (!coins.HaveCoins(prequest.hash))
-            {
-                CBlockIndex* pindex;
-                if(prequest.txblockhash == uint256() || !mapBlockIndex.count(prequest.txblockhash))
-                    continue;
-                pindex = mapBlockIndex[prequest.txblockhash];
-                if(!chainActive.Contains(pindex))
-                    continue;
-            }
             flags fLastState = prequest.GetLastState();
+
             if((fIncludeRequests && fLastState != REJECTED && fLastState != EXPIRED) || (!fIncludeRequests && (fLastState == ACCEPTED || fLastState == PAID)))
                 initial -= prequest.nAmount;
         }
@@ -607,9 +580,6 @@ flags CFund::CProposal::GetLastState() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -840,8 +810,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
     int64_t nTimeStart3 = GetTimeMicros();
     std::map<uint256, std::pair<int, int>>::iterator it;
-    std::vector<std::pair<uint256, CFund::CProposal>> vecProposalsToUpdate;
-    std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdate;
 
     bool fLog = LogAcceptCategory("dao");
 
@@ -861,7 +829,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             if (*proposal != oldproposal)
             {
                 proposal->fDirty = true;
-                if (fLog) LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+                if (fLog) LogPrintf("%s: Updated proposal %s votes at height %d: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), pindexNew->nHeight, proposal->nVotesYes, proposal->nVotesNo);
             }
             vSeen[proposal->hash]=true;
         }
@@ -883,7 +851,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             if (*prequest != oldprequest)
             {
                 prequest->fDirty = true;
-                if (fLog) LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+                if (fLog) LogPrintf("%s: Updated payment request %s votes at height %d: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), pindexNew->nHeight, prequest->nVotesYes, prequest->nVotesNo);
             }
             vSeen[prequest->hash]=true;
         }
@@ -891,8 +859,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
     int64_t nTimeEnd3 = GetTimeMicros();
     LogPrint("bench", "   - CFund update votes: %.2fms\n", (nTimeEnd3 - nTimeStart3) * 0.001);
-
-    std::vector<CFund::CPaymentRequest> vecPaymentRequest;
 
     int64_t nTimeStart4 = GetTimeMicros();
     CPaymentRequestMap mapPaymentRequests;
@@ -985,7 +951,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                             {
                                 pindexNew->nCFLocked -= prequest->nAmount;
                                 prequest->SetState(pindexNew, CFund::ACCEPTED);
-                                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));                                
+                                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
                                 fUpdate = true;
                             }
                         }
@@ -1008,7 +974,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             if (*prequest != oldprequest)
             {
                 prequest->fDirty = true;
-                if (fLog) LogPrintf("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
+                if (fLog) LogPrintf("%s: Updated payment request %s at height %d: %s\n", __func__, prequest->hash.ToString(),  pindexNew->nHeight, oldprequest.diff(*prequest));
             }
 
         }
@@ -1016,8 +982,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
     int64_t nTimeEnd4 = GetTimeMicros();
     LogPrint("bench", "   - CFund update payment request status: %.2fms\n", (nTimeEnd4 - nTimeStart4) * 0.001);
-
-    std::vector<CFund::CProposal> vecProposal;
 
     int64_t nTimeStart5 = GetTimeMicros();
     CProposalMap mapProposals;
@@ -1144,13 +1108,12 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             if (*proposal != oldproposal)
             {
                 proposal->fDirty = true;
-                if (fLog) LogPrintf("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
+                if (fLog) LogPrintf("%s: Updated proposal %s at height %d: %s\n", __func__, proposal->hash.ToString(), pindexNew->nHeight, oldproposal.diff(*proposal));
             }
         }
     }
 
     int64_t nTimeEnd5 = GetTimeMicros();
-
     LogPrint("bench", "   - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
 
     int64_t nTimeEnd = GetTimeMicros();

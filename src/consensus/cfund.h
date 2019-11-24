@@ -249,7 +249,6 @@ public:
     std::map<uint256, flags> mapState;
     int nVotesYes;
     int nVotesNo;
-    std::vector<uint256> vPayments;
     std::string strDZeel;
     uint256 hash;
     uint256 txblockhash;
@@ -267,7 +266,6 @@ public:
         nVotesYes = 0;
         nVotesNo = 0;
         nDeadline = 0;
-        vPayments.clear();
         strDZeel = "";
         hash = uint256();
         nVersion = 0;
@@ -283,7 +281,6 @@ public:
         std::swap(to.mapState, mapState);
         std::swap(to.nVotesYes, nVotesYes);
         std::swap(to.nVotesNo, nVotesNo);
-        std::swap(to.vPayments, vPayments);
         std::swap(to.strDZeel, strDZeel);
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
@@ -306,7 +303,6 @@ public:
                 && thisMapState == bMapState
                 && nVotesYes == b.nVotesYes
                 && nVotesNo == b.nVotesNo
-                && vPayments == b.vPayments
                 && strDZeel == b.strDZeel
                 && hash == b.hash
                 && txblockhash == b.txblockhash
@@ -332,16 +328,6 @@ public:
         }
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
         if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
-        if (vPayments != b.vPayments)
-        {
-            std::string thisStrPayments = "";
-            std::string bStrPayments = "";
-            for (auto &it:vPayments) thisStrPayments += it.ToString()+",";
-            for (auto &it:b.vPayments) bStrPayments += it.ToString()+",";
-            if (thisStrPayments.size() > 0) thisStrPayments.pop_back();
-            if (bStrPayments.size() > 0) bStrPayments.pop_back();
-            ret += strprintf("vPayments: %s => %s, ", thisStrPayments, bStrPayments);
-        }
         if (strDZeel != b.strDZeel) ret += strprintf("strDZeel: %s => %s, ", strDZeel, b.strDZeel);
         if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
         if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
@@ -403,10 +389,6 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        if (ser_action.ForRead()) {
-            const_cast<std::vector<uint256>*>(&vPayments)->clear();
-        }
-
         READWRITE(nAmount);
 
         if(ser_action.ForRead())
@@ -436,7 +418,6 @@ public:
         READWRITE(mapState);
         READWRITE(nVotesYes);
         READWRITE(nVotesNo);
-        READWRITE(*const_cast<std::vector<uint256>*>(&vPayments));
         READWRITE(strDZeel);
         READWRITE(hash);
         READWRITE(txblockhash);

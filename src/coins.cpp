@@ -462,13 +462,17 @@ uint256 CCoinsViewCache::GetCFundDBStateHash()
         for (auto &it: mapProposals)
         {
             if (!it.second.IsNull())
+            {
                 writer << it.second;
+            }
         }
 
         for (auto &it: mapPaymentRequests)
         {
             if (!it.second.IsNull())
+            {
                 writer << it.second;
+            }
         }
 
         uint256 ret = writer.GetHash();

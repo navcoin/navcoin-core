@@ -2615,7 +2615,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
             proposal->fDirty = true;
 
-            LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+            LogPrintf("%s: Updated proposal %s votes at height %d: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), pindex->nHeight, proposal->nVotesYes, proposal->nVotesNo);
 
             vSeen[pindex->vProposalVotes[i].first]=true;
         }
@@ -2635,7 +2635,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else
                 prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
 
-            LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+            LogPrintf("%s: Updated payment request %s votes at height %d: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(),  pindex->nHeight, prequest->nVotesYes, prequest->nVotesNo);
 
             prequest->fDirty = true;
 
@@ -3480,7 +3480,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 mprequest->SetState(pindex, CFund::PAID);
                 mprequest->fDirty = true;
 
-                LogPrintf("%s: Updated payment request %s: %s\n", __func__, mprequest->ToString(), mprequest->diff(prequest));
+                LogPrintf("%s: Updated payment request %s at height %d: %s\n", __func__, mprequest->ToString(), pindex->nHeight, mprequest->diff(prequest));
             }
             else
             {
