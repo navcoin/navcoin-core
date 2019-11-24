@@ -18,14 +18,17 @@ withAnswers=False):
     print('givenIHaveActivatedTheCFund: invalid parameters')
     assert(False)
 
-  slow_gen(node, 100)
-  # Verify the Community Fund is started
-  assert (get_bip9_status(node, "communityfund")["status"] == "started")
+  if (get_bip9_status(node, "communityfund")["status"] == "defined"):
+    slow_gen(node, 100)
+    # Verify the Community Fund is started
+    assert (get_bip9_status(node, "communityfund")["status"] == "started")
 
-  slow_gen(node, 100)
-  # Verify the Community Fund is locked_in
-  assert (get_bip9_status(node, "communityfund")["status"] == "locked_in")
+  if (get_bip9_status(node, "communityfund")["status"] == "started"):
+    slow_gen(node, 100)
+    # Verify the Community Fund is locked_in
+    assert (get_bip9_status(node, "communityfund")["status"] == "locked_in")
 
-  slow_gen(node, 100)
-  # Verify the Community Fund is active
-  assert (get_bip9_status(node, "communityfund")["status"] == "active")
+  if (get_bip9_status(node, "communityfund")["status"] == "locked_in"):
+    slow_gen(node, 100)
+    # Verify the Community Fund is active
+    assert (get_bip9_status(node, "communityfund")["status"] == "active")

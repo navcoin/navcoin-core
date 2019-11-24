@@ -15,8 +15,8 @@ from dao.then import *
 
 import time
 
-class CFund001ProposalExpires(NavCoinTestFramework):
-  """It should create a proposal and let it expire"""
+class CFund003ProposalAccepted(NavCoinTestFramework):
+  """It should create a proposal and the network should reject the proposal"""
 
   def __init__(self):
       super().__init__()
@@ -37,8 +37,10 @@ class CFund001ProposalExpires(NavCoinTestFramework):
       keypair = givenIHaveCreatedANewAddress(self.nodes[0])
       hash = givenIHaveCreatedAProposal(self.nodes[0], keypair["pubkey"], 5000, 60*60*24, "This is my proposal")
 
-      whenTheVotingCycleEnds(self.nodes[0], -1)
-      thenTheProposalShouldBeExpired(self.nodes[0], hash)
+      givenIHaveVotedOnTheProposal(self.nodes[0], hash, 'yes')
+
+      whenTheVotingCycleEnds(self.nodes[0], 2)
+      thenTheProposalShouldBeAccepted(self.nodes[0], hash)
 
 if __name__ == '__main__':
-    CFund001ProposalExpires().main()
+    CFund003ProposalAccepted().main()
