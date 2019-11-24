@@ -327,8 +327,8 @@ public:
         consensus.nProposalMaxVersion = 3;
         consensus.nMaxFutureDrift = 60;
         consensus.nStaticReward = 2 * COIN;
-        consensus.nHeightv451Fork = 10000;
-        consensus.nHeightv452Fork = 10000;
+        consensus.nHeightv451Fork = 100000;
+        consensus.nHeightv452Fork = 100000;
         consensus.fDaoClientActivated = true;
 
         /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
