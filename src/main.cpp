@@ -4497,21 +4497,12 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         return error("CheckBlock() : bad proof-of-stake block signature");
     }
 
-    bool fColdStakingEnabled = IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus());
-
     // Check transactions
     for(const CTransaction& tx: block.vtx)
     {
         if (!CheckTransaction(tx, state))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s\n%s", tx.GetHash().ToString(), state.GetDebugMessage(), tx.ToString()));
-
-        if (!fColdStakingEnabled)
-        {
-            for (const CTxOut& txout: tx.vout)
-                if(txout.scriptPubKey.IsColdStaking())
-                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
-        }
     }
 
     unsigned int nSigOps = 0;
@@ -4811,10 +4802,19 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                               ? pindexPrev->GetMedianTimePast()
                               : block.GetBlockTime();
 
-    // Check that all transactions are finalized
+    bool fColdStakingEnabled = IsColdStakingEnabled(pindexPrev,Params().GetConsensus());
+
+    // Check that all transactions are finalized and no early cold stake
     for(const CTransaction& tx: block.vtx) {
         if (!IsFinalTx(tx, nHeight, nLockTimeCutoff)) {
             return state.DoS(10, false, REJECT_INVALID, "bad-txns-nonfinal", false, "non-final transaction");
+        }
+
+        if (!fColdStakingEnabled)
+        {
+            for (const CTxOut& txout: tx.vout)
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
         }
     }
 
