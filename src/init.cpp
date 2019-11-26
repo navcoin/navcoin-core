@@ -1666,7 +1666,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 if (pblocktree->GetProposalIndex(vProposals))
                 {
                     CProposalMap mapProposals;
-                    pcoinsTip->GetAllProposals(mapProposals);
+                    if (!pcoinsTip->GetAllProposals(mapProposals))
+                    {
+                        strLoadError = _("Old data base structure detected");
+                        fReindexChainState = true;
+                        break;
+                    }
                     if (vProposals.size() > 0 && mapProposals.size() == 0)
                     {
                         LogPrintf("Importing %d proposals to the new CoinsDB...\n", vProposals.size());
@@ -1682,7 +1687,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 if (pblocktree->GetPaymentRequestIndex(vPaymentRequests))
                 {
                     CPaymentRequestMap mapPaymentRequest;
-                    pcoinsTip->GetAllPaymentRequests(mapPaymentRequest);
+                    if (!pcoinsTip->GetAllPaymentRequests(mapPaymentRequest))
+                    {
+                        strLoadError = _("Old data base structure detected");
+                        fReindexChainState = true;
+                        break;
+                    }
                     if (vPaymentRequests.size() > 0 && mapPaymentRequest.size() == 0)
                     {
                         LogPrintf("Importing %d payment requests to the new CoinsDB...\n", vPaymentRequests.size());
