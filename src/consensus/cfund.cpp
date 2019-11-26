@@ -658,7 +658,7 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
     ret.pushKV("description", strDZeel);
     ret.pushKV("requestedAmount", FormatMoney(nAmount));
     ret.pushKV("notPaidYet", FormatMoney(GetAvailable(coins)));
-    ret.pushKV("notRequestedYet", FormatMoney(GetAvailable(coins, true));
+    ret.pushKV("notRequestedYet", FormatMoney(GetAvailable(coins, true)));
     ret.pushKV("userPaidFee", FormatMoney(nFee));
     ret.pushKV("paymentAddress", Address);
     if(nVersion >= 2) {
