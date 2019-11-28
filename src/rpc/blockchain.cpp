@@ -240,11 +240,12 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
         }
         else
         {
-            nCountTransactions++;
             if (tx.nVersion == CTransaction::PROPOSAL_VERSION)
                 nCountProposals++;
             else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
                 nCountPaymentRequests++;
+            else
+                nCountTransactions++;
         }
 
     }
