@@ -1647,7 +1647,6 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-    { "communityfund",      "listproposals",          &listproposals,          true  },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },
