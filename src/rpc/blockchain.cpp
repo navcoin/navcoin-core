@@ -1665,7 +1665,6 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-    { "communityfund",      "listproposals",          &listproposals,          true  },
     { "communityfund",      "getcfunddbstatehash",    &getcfunddbstatehash,    true  },
 
     /* Not shown in help */

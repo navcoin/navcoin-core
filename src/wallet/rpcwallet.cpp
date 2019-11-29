@@ -3711,6 +3711,94 @@ UniValue paymentrequestvote(const UniValue& params, bool fHelp)
 
 }
 
+UniValue listproposals(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw runtime_error(
+                "listproposals \"filter\"\n"
+                "\nList the proposals and all the relating data including payment requests and status.\n"
+                "\nNote passing no argument returns all proposals regardless of state.\n"
+                "\nArguments:\n"
+                "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\" | \"mine\"\n"
+                "\nExamples:\n"
+                + HelpExampleCli("listproposal", "accepted")
+                + HelpExampleRpc("listproposal", "")
+                );
+
+    LOCK(cs_main);
+
+    UniValue ret(UniValue::VARR);
+
+    bool showAll = true;
+    bool showAccepted = false;
+    bool showRejected = false;
+    bool showExpired = false;
+    bool showPending = false;
+    bool showMine = false;
+    if(params.size() == 1) {
+        if(params[0].get_str() == "accepted") {
+            showAccepted = true;
+            showAll = false;
+        }
+        if(params[0].get_str() == "rejected") {
+            showRejected = true;
+            showAll = false;
+        }
+        if(params[0].get_str() == "expired") {
+            showAll = false;
+            showExpired = true;
+        }
+        if(params[0].get_str() == "pending") {
+            showAll = false;
+            showPending = true;
+        }
+        if(params[0].get_str() == "mine") {
+            showAll = false;
+            showMine = true;
+        }
+    }
+
+    CProposalMap mapProposals;
+
+    if(pcoinsTip->GetAllProposals(mapProposals))
+    {
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            CFund::CProposal proposal;
+            if (!pcoinsTip->GetProposal(it->first, proposal))
+                continue;
+
+            flags fLastState = proposal.GetLastState();
+
+            bool fIsMine = false;
+
+            if (showMine)
+            {
+                CTxDestination address(CNavCoinAddress(proposal.Address));
+                isminefilter mine = IsMine(*pwalletMain, address);
+                if(mine & ISMINE_SPENDABLE)
+                    fIsMine = true;
+            }
+
+
+            if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
+                            || fLastState == CFund::PENDING_VOTING_PREQ
+                            || fLastState == CFund::PENDING_FUNDS))
+                    || (showMine && fIsMine)
+                    || (showPending  && (fLastState == CFund::NIL || fLastState == CFund::PENDING_VOTING_PREQ
+                                         || fLastState == CFund::PENDING_FUNDS))
+                    || (showAccepted && (fLastState == CFund::ACCEPTED || proposal.IsAccepted()))
+                    || (showRejected && (fLastState == CFund::REJECTED || proposal.IsRejected()))
+                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
+                UniValue o(UniValue::VOBJ);
+                proposal.ToJson(o, *pcoinsTip);
+                ret.push_back(o);
+            }
+        }
+    }
+    return ret;
+}
+
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const UniValue& params, bool fHelp);
 extern UniValue dumpmnemonic(const UniValue& params, bool fHelp);
@@ -3777,6 +3865,7 @@ static const CRPCCommand commands[] =
     { "communityfund",      "proposalvotelist",         &proposalvotelist,         false },
     { "communityfund",      "paymentrequestvote",       &paymentrequestvote,       false },
     { "communityfund",      "paymentrequestvotelist",   &paymentrequestvotelist,   false },
+    { "communityfund",      "listproposals",            &listproposals,            true  },
     { "wallet",             "anonsend",                 &anonsend,                 false },
     { "wallet",             "getanondestination",       &getanondestination,       false },
     { "wallet",             "setaccount",               &setaccount,               true  },
