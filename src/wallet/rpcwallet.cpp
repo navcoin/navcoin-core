@@ -3721,6 +3721,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                 "\nArguments:\n"
                 "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\" | \"mine\"\n"
                 "\nExamples:\n"
+                + HelpExampleCli("listproposal", "mine accepted")
                 + HelpExampleCli("listproposal", "accepted")
                 + HelpExampleRpc("listproposal", "")
                 );
@@ -3735,24 +3736,24 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     bool showExpired = false;
     bool showPending = false;
     bool showMine = false;
-    if(params.size() == 1) {
-        if(params[0].get_str() == "accepted") {
+    for(unsigned int i = 0; i < params.size(); i++) {
+        if(params[i].get_str() == "accepted") {
             showAccepted = true;
             showAll = false;
         }
-        if(params[0].get_str() == "rejected") {
+        else if(params[i].get_str() == "rejected") {
             showRejected = true;
             showAll = false;
         }
-        if(params[0].get_str() == "expired") {
+        else if(params[i].get_str() == "expired") {
             showAll = false;
             showExpired = true;
         }
-        if(params[0].get_str() == "pending") {
+        else if(params[i].get_str() == "pending") {
             showAll = false;
             showPending = true;
         }
-        if(params[0].get_str() == "mine") {
+        else if(params[i].get_str() == "mine") {
             showAll = false;
             showMine = true;
         }
@@ -3768,27 +3769,25 @@ UniValue listproposals(const UniValue& params, bool fHelp)
             if (!pcoinsTip->GetProposal(it->first, proposal))
                 continue;
 
-            flags fLastState = proposal.GetLastState();
+            flags fLastState = proposal.fState;
 
             bool fIsMine = false;
 
             if (showMine)
             {
-                CTxDestination address(CNavCoinAddress(proposal.Address));
+                CTxDestination address(CNavCoinAddress(proposal.Address).Get());
                 isminefilter mine = IsMine(*pwalletMain, address);
                 if(mine & ISMINE_SPENDABLE)
                     fIsMine = true;
             }
 
 
-            if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
-                            || fLastState == CFund::PENDING_VOTING_PREQ
-                            || fLastState == CFund::PENDING_FUNDS))
+            if(showAll
                     || (showMine && fIsMine)
                     || (showPending  && (fLastState == CFund::NIL || fLastState == CFund::PENDING_VOTING_PREQ
                                          || fLastState == CFund::PENDING_FUNDS))
-                    || (showAccepted && (fLastState == CFund::ACCEPTED || proposal.IsAccepted()))
-                    || (showRejected && (fLastState == CFund::REJECTED || proposal.IsRejected()))
+                    || (showAccepted && (fLastState == CFund::ACCEPTED))
+                    || (showRejected && (fLastState == CFund::REJECTED))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o, *pcoinsTip);
