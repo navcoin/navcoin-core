@@ -3724,7 +3724,7 @@ void PruneAndFlush() {
 }
 
 /** Update chainActive and related internal data structures. */
-void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
+void static UpdateTip(CBlockIndex *pindexNew, uint256 statehash, const CChainParams& chainParams) {
     chainActive.SetTip(pindexNew);
 
     // New best block
@@ -3785,8 +3785,8 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
     }
     hashBestChain = chainActive.Tip()->GetBlockHash();
 
-    LogPrintf("%s: new best=%s height=%d version=0x%08x log2_work=%.8g tx=%lu date='%s' progress=%f cache=%.1fMiB(%utx)", __func__,
-      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), chainActive.Tip()->nVersion,
+    LogPrintf("%s: new best=%s height=%d version=0x%08x statehash=%s log2_work=%.8g tx=%lu date='%s' progress=%f cache=%.1fMiB(%utx)", __func__,
+      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), chainActive.Tip()->nVersion, statehash.ToString(),
       log(chainActive.Tip()->nChainWork.getdouble())/log(2.0), (unsigned long)chainActive.Tip()->nChainTx,
       DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()),
       Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), chainActive.Tip()), pcoinsTip->DynamicMemoryUsage() * (1.0 / (1<<20)), pcoinsTip->GetCacheSize());
@@ -3807,12 +3807,14 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         return AbortNode(state, "Failed to read block");
     // Apply the block atomically to the chain state.
     int64_t nStart = GetTimeMicros();
+    uint256 statehash;
     {
         CCoinsViewCache view(pcoinsTip);
         if (!DisconnectBlock(block, state, pindexDelete, view))
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
         CFundStep(state, pindexDelete, true, view);
         assert(view.Flush());
+        statehash = view.GetCFundDBStateHash();
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
 
@@ -3842,7 +3844,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
     }
 
     // Update chainActive and related variables.
-    UpdateTip(pindexDelete->pprev, chainparams);
+    UpdateTip(pindexDelete->pprev, statehash, chainparams);
 
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
@@ -3878,6 +3880,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     int64_t nTime3;
     int64_t nTime4;
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
+    uint256 statehash;
     {
         CCoinsViewCache view(pcoinsTip);
 
@@ -3895,6 +3898,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         CFundStep(state, pindexNew, false, view);
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
         assert(view.Flush());
+        statehash = view.GetCFundDBStateHash();
     }
     int64_t nTime5 = GetTimeMicros(); nTimeFlush += nTime5 - nTime4;
     LogPrint("bench", "  - Flush: %.2fms [%.2fs]\n", (nTime5 - nTime4) * 0.001, nTimeFlush * 0.000001);
@@ -3907,7 +3911,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     list<CTransaction> txConflicted;
     mempool.removeForBlock(pblock->vtx, pindexNew->nHeight, txConflicted, !IsInitialBlockDownload());
     // Update chainActive & related variables.
-    UpdateTip(pindexNew, chainparams);
+    UpdateTip(pindexNew, statehash, chainparams);
     // Tell wallet about transactions that went from mempool
     // to conflicted:
     for(const CTransaction &tx: txConflicted) {
