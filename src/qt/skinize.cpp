@@ -1,4 +1,4 @@
-#include "skinize.h"
+#include <qt/skinize.h>
 #include <QString>
 
 QString Skinize()

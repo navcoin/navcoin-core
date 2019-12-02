@@ -3,15 +3,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "script/standard.h"
+#include <script/standard.h>
 
-#include "pubkey.h"
-#include "script/script.h"
-#include "script/sign.h"
-#include "util.h"
-#include "utilstrencodings.h"
-
-#include <boost/foreach.hpp>
+#include <pubkey.h>
+#include <script/script.h>
+#include <script/sign.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 using namespace std;
 
@@ -42,7 +40,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_COLDSTAKING: return "cold_staking";
     case TX_POOL: return "pool_staking";
     }
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -159,7 +157,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
     // Scan templates
     const CScript& script1 = scriptPubKey;
-    BOOST_FOREACH(const PAIRTYPE(txnouttype, CScript)& tplate, mTemplates)
+    for(const PAIRTYPE(txnouttype, CScript)& tplate: mTemplates)
     {
         const CScript& script2 = tplate.second;
         vSolutionsRet.clear();
@@ -368,6 +366,12 @@ public:
         *script << OP_HASH160 << ToByteVector(scriptID) << OP_EQUAL;
         return true;
     }
+
+    bool operator()(const CScript &scriptIn) const {
+        script->clear();
+        *script += scriptIn;
+        return true;
+    }
 };
 }
 
@@ -389,7 +393,7 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
     CScript script;
 
     script << CScript::EncodeOP_N(nRequired);
-    BOOST_FOREACH(const CPubKey& key, keys)
+    for(const CPubKey& key: keys)
         script << ToByteVector(key);
     script << CScript::EncodeOP_N(keys.size()) << OP_CHECKMULTISIG;
     return script;

@@ -2,7 +2,7 @@
 
 ## Introduces OpenAlias:
 
-This PR https://github.com/NAVCoin/navcoin-core/pull/213 completes the implementation of the OpenAlias protocol into the NavCoin Core client.
+This PR https://github.com/navcoin/navcoin-core/pull/213 completes the implementation of the OpenAlias protocol into the NavCoin Core client.
 
 OpenAlias is an standard created by the Monero Core project used in the Monero wallet and some other clients like Bitcoin Electrum which allows the wallet to translate email addresses into cryptocurrency addresses using custom TXT entries in the DNS records of a domain.
 
@@ -31,7 +31,7 @@ We now clasify orphan transactions with a new "Orphan" status and show them in t
 
 ## Remove BIGNUM use
 
-This PR https://github.com/NAVCoin/navcoin-core/pull/214 completely removes the use of the OpenSSL's class BIGNUM, substituting the uses of CBigNum with the class uint256 with extended arithmetic capabilities (arith_uint256). OpenSSL deprecated some BIGNUM functions in version 1.1, making the wallet unable to compile in systems which use the newer version. This patch fixes this issue.
+This PR https://github.com/navcoin/navcoin-core/pull/214 completely removes the use of the OpenSSL's class BIGNUM, substituting the uses of CBigNum with the class uint256 with extended arithmetic capabilities (arith_uint256). OpenSSL deprecated some BIGNUM functions in version 1.1, making the wallet unable to compile in systems which use the newer version. This patch fixes this issue.
 
 # ZeroMQ Windows Patch
 

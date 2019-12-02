@@ -6,22 +6,21 @@
 #ifndef NAVCOIN_COINS_H
 #define NAVCOIN_COINS_H
 
-#include "compressor.h"
-#include "core_memusage.h"
-#include "hash.h"
-#include "memusage.h"
-#include "serialize.h"
-#include "uint256.h"
+#include <compressor.h>
+#include <core_memusage.h>
+#include <hash.h>
+#include <memusage.h>
+#include <serialize.h>
+#include <uint256.h>
 
 #include <assert.h>
 #include <stdint.h>
 
-#include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
 
 using namespace CFund;
 
-/** 
+/**
  * Pruned version of CTransaction: only retains metadata and unspent transaction outputs
  *
  * Serialized format:
@@ -124,7 +123,7 @@ public:
     }
 
     void ClearUnspendable() {
-        BOOST_FOREACH(CTxOut &txout, vout) {
+        for(CTxOut &txout: vout) {
             if (txout.scriptPubKey.IsUnspendable())
                 txout.SetNull();
         }
@@ -260,7 +259,7 @@ public:
     //! check whether the entire CCoins is spent
     //! note that only !IsPruned() CCoins can be serialized
     bool IsPruned() const {
-        BOOST_FOREACH(const CTxOut &out, vout)
+        for(const CTxOut &out: vout)
             if (!out.IsNull())
                 return false;
         return true;
@@ -268,7 +267,7 @@ public:
 
     size_t DynamicMemoryUsage() const {
         size_t ret = memusage::DynamicUsage(vout);
-        BOOST_FOREACH(const CTxOut &out, vout) {
+        for(const CTxOut &out: vout) {
             ret += RecursiveDynamicUsage(out.scriptPubKey);
         }
         return ret;
@@ -490,6 +489,8 @@ public:
      * the backing CCoinsView are made.
      */
     bool HaveCoinsInCache(const uint256 &txid) const;
+    bool HaveProposalInCache(const uint256 &pid) const;
+    bool HavePaymentRequestInCache(const uint256 &prid) const;
 
     /**
      * Return a pointer to CCoins in the cache, or NULL if not found. This is

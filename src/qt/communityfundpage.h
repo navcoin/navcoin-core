@@ -1,10 +1,11 @@
 #ifndef COMMUNITYFUNDPAGE_H
 #define COMMUNITYFUNDPAGE_H
 
-#include "communityfundpage.moc"
-#include "consensus/cfund.h"
-#include "wallet/wallet.h"
+#include <qt/communityfundpage.moc>
+#include <consensus/cfund.h>
+#include <wallet/wallet.h>
 
+#include <QMessageBox>
 #include <QWidget>
 #include <QPushButton>
 #include <QListView>

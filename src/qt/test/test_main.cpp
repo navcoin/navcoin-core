@@ -3,14 +3,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "util.h"
-#include "uritests.h"
+#include <util.h>
+#include <qt/test/uritests.h>
 
 #ifdef ENABLE_WALLET
-#include "paymentservertests.h"
+#include <qt/test/paymentservertests.h>
 #endif
 
 #include <QCoreApplication>

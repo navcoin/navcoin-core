@@ -230,25 +230,27 @@ class WalletTest (NavCoinTestFramework):
         txObjNotBroadcasted = self.nodes[0].gettransaction(txIdNotBroadcasted)
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
 
-
         #create another tx
         txIdNotBroadcasted  = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 2)
+
+        block_count = self.nodes[0].getblockcount()
 
         #restart the nodes with -walletbroadcast=1
         stop_nodes(self.nodes)
         wait_navcoinds()
-        self.nodes = start_nodes(3, self.options.tmpdir)
+        self.nodes = start_nodes(3, self.options.tmpdir, [['-staking=0'], ['-staking=0'], ['-staking=0']])
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
         connect_nodes_bi(self.nodes,2,0)
 
+        slow_gen(self.nodes[0], 2)
         self.sync_all()
-        slow_gen(self.nodes[0], 1)
-        self.sync_all()
+
+        block_count_new = self.nodes[0].getblockcount()
 
         # We need to adjust the balance since new block/s got confirmed
         # And we sent 2 NAV to it
-        node_2_bal += 2 * BLOCK_REWARD + 2
+        node_2_bal += (block_count_new - block_count) * BLOCK_REWARD + 2
 
         #tx should be added to balance because after restarting the nodes tx should be broadcastet
         assert_equal(self.nodes[2].getbalance(), node_2_bal)

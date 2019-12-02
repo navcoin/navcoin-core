@@ -1,6 +1,6 @@
 // Based on original code by Tim Kientzle, March 2009.
 
-#include "util.h"
+#include <util.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,10 +56,10 @@ create_file(char *pathname, int mode)
     std::string sFile = (GetDataDir(true) / pathname).string();
     f = fopen(sFile.c_str(), "wb+");
     fprintf(stdout, "[UNTAR] Creating file %s\n", sFile.c_str());
-    if (f == NULL) {
+    if (f == nullptr) {
         /* Try creating parent dir and then creating file. */
         char *p = strrchr(pathname, '/');
-        if (p != NULL) {
+        if (p != nullptr) {
             *p = '\0';
             create_dir(pathname, 0755);
             *p = '/';
@@ -90,7 +90,7 @@ bool
 untar(FILE *a, const char *path)
 {
     char buff[512];
-    FILE *f = NULL;
+    FILE *f = nullptr;
     size_t bytes_read;
     int filesize;
 
@@ -149,21 +149,21 @@ untar(FILE *a, const char *path)
             }
             if (filesize < 512)
                 bytes_read = filesize;
-            if (f != NULL) {
+            if (f != nullptr) {
                 if (fwrite(buff, 1, bytes_read, f)
                         != bytes_read)
                 {
                     fprintf(stderr, "[UNTAR] Failed write\n");
                     fclose(f);
-                    f = NULL;
+                    f = nullptr;
                     return false;
                 }
             }
             filesize -= bytes_read;
         }
-        if (f != NULL) {
+        if (f != nullptr) {
             fclose(f);
-            f = NULL;
+            f = nullptr;
         }
     }
     return true;

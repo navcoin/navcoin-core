@@ -1,21 +1,23 @@
-#include "communityfundcreatepaymentrequestdialog.h"
-#include "communityfundsuccessdialog.h"
-#include "sendcommunityfunddialog.h"
-#include "ui_communityfundcreatepaymentrequestdialog.h"
+#include <qt/communityfundcreatepaymentrequestdialog.h>
+#include <qt/communityfundsuccessdialog.h>
+#include <qt/sendcommunityfunddialog.h>
+#include <ui_communityfundcreatepaymentrequestdialog.h>
 
 #include <QMessageBox>
 #include <string>
 
-#include "base58.h"
-#include "consensus/cfund.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "main.cpp"
-#include "main.h"
-#include "skinize.h"
-#include "sync.h"
-#include "wallet/wallet.h"
-#include "walletmodel.h"
+#include <qt/navcoinunits.h>
+
+#include <base58.h>
+#include <consensus/cfund.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <main.cpp>
+#include <main.h>
+#include <qt/skinize.h>
+#include <sync.h>
+#include <wallet/wallet.h>
+#include <qt/walletmodel.h>
 
 std::string random_str(size_t length)
 {
@@ -192,11 +194,18 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         // Validate requested amount
         if (nReqAmount <= 0 || nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
             QMessageBox msgBox(this);
-            std::string str = "Cannot create a Payment Request for the requested amount\n";
-            msgBox.setText(tr(str.c_str()));
+            QString str = tr("Requested amount must be greater than 0 NAV (Zero)\n");
+            if (nReqAmount > proposal.GetAvailable(*pcoinsTip, true)) {
+                str = tr("Requested amount %1 is more than avaible coins in the proposal (%2)\n")
+                    .arg(
+                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, nReqAmount),
+                        NavCoinUnits::formatWithUnit(NavCoinUnits::NAV, proposal.GetAvailable(*pcoinsTip, true))
+                    );
+            }
+            msgBox.setText(str);
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle("Invalid Amount");
+            msgBox.setWindowTitle(tr("Invalid Amount"));
             msgBox.exec();
             return;
         }
@@ -275,7 +284,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
                 bool created_prequest = true;
 
-                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true, "")) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_prequest = false;
                     }

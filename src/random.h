@@ -6,8 +6,8 @@
 #ifndef NAVCOIN_RANDOM_H
 #define NAVCOIN_RANDOM_H
 
-#include "crypto/chacha20.h"
-#include "uint256.h"
+#include <crypto/chacha20.h>
+#include <uint256.h>
 
 #include <limits>
 

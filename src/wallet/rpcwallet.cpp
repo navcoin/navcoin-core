@@ -3,26 +3,26 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "amount.h"
-#include "base58.h"
-#include "chain.h"
-#include "consensus/cfund.h"
-#include "core_io.h"
-#include "init.h"
-#include "main.h"
-#include "navtech.h"
-#include "net.h"
-#include "netbase.h"
-#include "policy/rbf.h"
-#include "pos.h"
-#include "rpc/server.h"
-#include "txdb.h"
-#include "timedata.h"
-#include "util.h"
-#include "utils/dns_utils.h"
-#include "utilmoneystr.h"
-#include "wallet.h"
-#include "walletdb.h"
+#include <amount.h>
+#include <base58.h>
+#include <chain.h>
+#include <consensus/cfund.h>
+#include <core_io.h>
+#include <init.h>
+#include <main.h>
+#include <wallet/navtech.h>
+#include <net.h>
+#include <netbase.h>
+#include <policy/rbf.h>
+#include <pos.h>
+#include <rpc/server.h>
+#include <txdb.h>
+#include <timedata.h>
+#include <util.h>
+#include <utils/dns_utils.h>
+#include <utilmoneystr.h>
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
 
 #include <stdint.h>
 
@@ -85,7 +85,7 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     uint256 hash = wtx.GetHash();
     entry.pushKV("txid", hash.GetHex());
     UniValue conflicts(UniValue::VARR);
-    BOOST_FOREACH(const uint256& conflict, wtx.GetConflicts())
+    for(const uint256& conflict: wtx.GetConflicts())
         conflicts.push_back(conflict.GetHex());
     entry.pushKV("walletconflicts", conflicts);
     entry.pushKV("time", wtx.GetTxTime());
@@ -103,7 +103,7 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     }
     entry.pushKV("bip125-replaceable", rbfStatus);
 
-    BOOST_FOREACH(const PAIRTYPE(string,string)& item, wtx.mapValue)
+    for(const PAIRTYPE(string,string)& item: wtx.mapValue)
         entry.pushKV(item.first, item.second);
 }
 
@@ -113,6 +113,42 @@ string AccountFromValue(const UniValue& value)
     if (strAccount == "*")
         throw JSONRPCError(RPC_WALLET_INVALID_ACCOUNT_NAME, "Invalid account name");
     return strAccount;
+}
+
+UniValue createrawscriptaddress(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "createrawscriptaddress \"hex script\"\n"
+            "\nReturns the NavCoin address for the specified raw hex script.\n"
+            "\nArguments:\n"
+            "1. \"hex script\"        (string) The hex script to encode in the address.\n"
+            "\nResult:\n"
+            "\"navcoinaddress\"    (string) The  navcoin address\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createrawscriptaddress", "6ac4c5")
+        );
+
+    std::string data = params[0].get_str();
+
+    if (!IsHex(data))
+        throw JSONRPCError(RPC_MISC_ERROR, "the script is not expressed in hexadecimal");
+
+    std::vector<unsigned char> vData = ParseHex(data);
+
+    CScript script(vData.begin(), vData.end());
+
+    std::string strAsm = ScriptToAsmStr(script);
+
+    if (strAsm.find("[error]") != std::string::npos || strAsm.find("OP_UNKNOWN") != std::string::npos)
+        throw JSONRPCError(RPC_MISC_ERROR, "the script includes invalid or unknown op codes");
+
+    CNavCoinAddress address(script);
+
+    if (!address.IsValid())
+        throw JSONRPCError(RPC_MISC_ERROR, "the generated address is not valid");
+
+    return address.ToString();
 }
 
 UniValue getnewaddress(const UniValue& params, bool fHelp)
@@ -380,7 +416,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
 
     // Find all addresses that have the given account
     UniValue ret(UniValue::VARR);
-    BOOST_FOREACH(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
+    for(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
     {
         const CNavCoinAddress& address = item.first;
         const string& strName = item.second.name;
@@ -417,7 +453,7 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
     vecSend.push_back(recipient);
-    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, strDZeel)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true, strDZeel)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
@@ -560,6 +596,9 @@ UniValue createproposal(const UniValue& params, bool fHelp)
             + HelpExampleCli("createproposal", "\"NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ\" 12000 3600 \"Promotional stickers for everyone\" 100")
         );
 
+    if (!Params().GetConsensus().fDaoClientActivated)
+        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
+
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
@@ -654,6 +693,9 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
             "\nExamples:\n"
             + HelpExampleCli("createpaymentrequest", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" 1000 \"Invoice March 2017\"")
         );
+
+    if (!Params().GetConsensus().fDaoClientActivated)
+        throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
@@ -990,10 +1032,10 @@ UniValue listaddressgroupings(const UniValue& params, bool fHelp)
 
     UniValue jsonGroupings(UniValue::VARR);
     map<CTxDestination, CAmount> balances = pwalletMain->GetAddressBalances();
-    BOOST_FOREACH(set<CTxDestination> grouping, pwalletMain->GetAddressGroupings())
+    for(set<CTxDestination> grouping: pwalletMain->GetAddressGroupings())
     {
         UniValue jsonGrouping(UniValue::VARR);
-        BOOST_FOREACH(CTxDestination address, grouping)
+        for(CTxDestination address: grouping)
         {
             UniValue addressInfo(UniValue::VARR);
             addressInfo.push_back(CNavCoinAddress(address).ToString());
@@ -1113,7 +1155,7 @@ UniValue getreceivedbyaddress(const UniValue& params, bool fHelp)
         if (wtx.IsCoinBase() || wtx.IsCoinStake() || !CheckFinalTx(wtx))
             continue;
 
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for(const CTxOut& txout: wtx.vout)
             if (txout.scriptPubKey == scriptPubKey)
                 if (wtx.GetDepthInMainChain() >= nMinDepth)
                     nAmount += txout.nValue;
@@ -1167,7 +1209,7 @@ UniValue getreceivedbyaccount(const UniValue& params, bool fHelp)
         if (wtx.IsCoinBase() || wtx.IsCoinStake() || !CheckFinalTx(wtx))
             continue;
 
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for(const CTxOut& txout: wtx.vout)
         {
             CTxDestination address;
             if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*pwalletMain, address) && setAddress.count(address))
@@ -1238,10 +1280,10 @@ UniValue getbalance(const UniValue& params, bool fHelp)
             wtx.GetAmounts(listReceived, listSent, allFee, strSentAccount, filter);
             if (wtx.GetDepthInMainChain() >= nMinDepth)
             {
-                BOOST_FOREACH(const COutputEntry& r, listReceived)
+                for(const COutputEntry& r: listReceived)
                     nBalance += r.amount;
             }
-            BOOST_FOREACH(const COutputEntry& s, listSent)
+            for(const COutputEntry& s: listSent)
                 nBalance -= s.amount;
             nBalance -= allFee;
         }
@@ -1445,7 +1487,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
 
     CAmount totalAmount = 0;
     vector<string> keys = sendTo.getKeys();
-    BOOST_FOREACH(const string& name_, keys)
+    for(const string& name_: keys)
     {
         CNavCoinAddress address(name_);
         if (!address.IsValid())
@@ -1670,7 +1712,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
         if (nDepth < nMinDepth)
             continue;
 
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for(const CTxOut& txout: wtx.vout)
         {
             CTxDestination address;
             if (!ExtractDestination(txout.scriptPubKey, address))
@@ -1692,7 +1734,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
     // Reply
     UniValue ret(UniValue::VARR);
     map<string, tallyitem> mapAccountTally;
-    BOOST_FOREACH(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
+    for(const PAIRTYPE(CNavCoinAddress, CAddressBookData)& item: pwalletMain->mapAddressBook)
     {
         const CNavCoinAddress& address = item.first;
         const string& strAccount = item.second.name;
@@ -1731,7 +1773,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
             UniValue transactions(UniValue::VARR);
             if (it != mapTally.end())
             {
-                BOOST_FOREACH(const uint256& item, (*it).second.txids)
+                for(const uint256& item: (*it).second.txids)
                 {
                     transactions.push_back(item.GetHex());
                 }
@@ -1868,11 +1910,8 @@ void GetReceived(const COutputEntry& r, const CWalletTx& wtx, const string& strA
         {
             entry.pushKV("category", "receive");
         }
-        if (!wtx.IsCoinStake())
-            entry.pushKV("amount", ValueFromAmount(r.amount));
-        else {
-            entry.pushKV("amount", ValueFromAmount(-nFee));
-        }
+        entry.pushKV("amount", ValueFromAmount(r.amount));
+
         entry.pushKV("canStake", (::IsMine(*pwalletMain, r.destination) & ISMINE_STAKABLE ||
                                           (::IsMine(*pwalletMain, r.destination) & ISMINE_SPENDABLE &&
                                            !CNavCoinAddress(r.destination).IsColdStakingAddress(Params()))) ? true : false);
@@ -1901,7 +1940,7 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
     // Sent
     if ((!wtx.IsCoinStake())  && (!listSent.empty() || nFee != 0) && (fAllAccounts || strAccount == strSentAccount))
     {
-        BOOST_FOREACH(const COutputEntry& s, listSent)
+        for(const COutputEntry& s: listSent)
         {
             UniValue entry(UniValue::VOBJ);
             if(involvesWatchonly || (::IsMine(*pwalletMain, s.destination) & ISMINE_WATCH_ONLY))
@@ -1930,20 +1969,9 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
     // Received
     if (listReceived.size() > 0 && wtx.GetDepthInMainChain() >= nMinDepth)
     {
-        if (!wtx.IsCoinStake())
+        for(const COutputEntry& r: listReceived)
         {
-            BOOST_FOREACH(const COutputEntry& r, listReceived)
-            {
-                 GetReceived(r, wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
-            }
-        }
-        else
-        {
-            // only get the coinstake reward output
-            if (wtx.GetValueOutCFund() == 0)
-                GetReceived(listReceived.back(), wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
-            else
-                GetReceived(*std::prev(listReceived.end(),1), wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
+            GetReceived(r, wtx, strAccount, fLong, ret, nFee, fAllAccounts, involvesWatchonly);
         }
     }
 }
@@ -2135,7 +2163,7 @@ UniValue listaccounts(const UniValue& params, bool fHelp)
             includeWatchonly = includeWatchonly | ISMINE_WATCH_ONLY;
 
     map<string, CAmount> mapAccountBalances;
-    BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& entry, pwalletMain->mapAddressBook) {
+    for(const PAIRTYPE(CTxDestination, CAddressBookData)& entry: pwalletMain->mapAddressBook) {
         if (IsMine(*pwalletMain, entry.first) & includeWatchonly) // This address belongs to me
             mapAccountBalances[entry.second.name] = 0;
     }
@@ -2152,11 +2180,11 @@ UniValue listaccounts(const UniValue& params, bool fHelp)
             continue;
         wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, includeWatchonly);
         mapAccountBalances[strSentAccount] -= nFee;
-        BOOST_FOREACH(const COutputEntry& s, listSent)
+        for(const COutputEntry& s: listSent)
             mapAccountBalances[strSentAccount] -= s.amount;
         if (nDepth >= nMinDepth)
         {
-            BOOST_FOREACH(const COutputEntry& r, listReceived)
+            for(const COutputEntry& r: listReceived)
                 if (pwalletMain->mapAddressBook.count(r.destination))
                     mapAccountBalances[pwalletMain->mapAddressBook[r.destination].name] += r.amount;
                 else
@@ -2165,11 +2193,11 @@ UniValue listaccounts(const UniValue& params, bool fHelp)
     }
 
     const list<CAccountingEntry> & acentries = pwalletMain->laccentries;
-    BOOST_FOREACH(const CAccountingEntry& entry, acentries)
+    for(const CAccountingEntry& entry: acentries)
         mapAccountBalances[entry.strAccount] += entry.nCreditDebit;
 
     UniValue ret(UniValue::VOBJ);
-    BOOST_FOREACH(const PAIRTYPE(string, CAmount)& accountBalance, mapAccountBalances) {
+    for(const PAIRTYPE(string, CAmount)& accountBalance: mapAccountBalances) {
         ret.pushKV(accountBalance.first, ValueFromAmount(accountBalance.second));
     }
     return ret;
@@ -2219,7 +2247,7 @@ UniValue listsinceblock(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CBlockIndex *pindex = NULL;
+    CBlockIndex *pindex = nullptr;
     int target_confirms = 1;
     isminefilter filter = ISMINE_SPENDABLE;
 
@@ -2787,7 +2815,7 @@ UniValue listlockunspent(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VARR);
 
-    BOOST_FOREACH(COutPoint &outpt, vOutpts) {
+    for(COutPoint &outpt: vOutpts) {
         UniValue o(UniValue::VOBJ);
 
         o.pushKV("txid", outpt.hash.GetHex());
@@ -2893,7 +2921,7 @@ UniValue resendwallettransactions(const UniValue& params, bool fHelp)
 
     std::vector<uint256> txids = pwalletMain->ResendWalletTransactionsBefore(GetTime());
     UniValue result(UniValue::VARR);
-    BOOST_FOREACH(const uint256& txid, txids)
+    for(const uint256& txid: txids)
     {
         result.push_back(txid.ToString());
     }
@@ -2968,10 +2996,10 @@ UniValue listunspent(const UniValue& params, bool fHelp)
 
     UniValue results(UniValue::VARR);
     vector<COutput> vecOutputs;
-    assert(pwalletMain != NULL);
+    assert(pwalletMain != nullptr);
     LOCK2(cs_main, pwalletMain->cs_wallet);
-    pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
-    BOOST_FOREACH(const COutput& out, vecOutputs) {
+    pwalletMain->AvailableCoins(vecOutputs, false, nullptr, true);
+    for(const COutput& out: vecOutputs) {
         if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
             continue;
 
@@ -3158,7 +3186,7 @@ bool IsTxCountedAsStaked(const CWalletTx* tx)
     LOCK(cs_main);
 
     // orphan block or immature
-    if ((!tx->GetDepthInMainChain()) || (tx->GetBlocksToMaturity() > 0))
+    if ((!tx->GetDepthInMainChain()) || (tx->GetBlocksToMaturity() > 0) || !tx->IsInMainChain())
         return false;
 
     // abandoned transactions
@@ -3697,6 +3725,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "addmultisigaddress",       &addmultisigaddress,       true  },
     { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true  },
     { "wallet",             "backupwallet",             &backupwallet,             true  },
+    { "wallet",             "createrawscriptaddress",   &createrawscriptaddress,   true  },
     { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
     { "wallet",             "dumpmasterprivkey",        &dumpmasterprivkey,        true  },
     { "wallet",             "dumpmnemonic",             &dumpmnemonic,             true  },

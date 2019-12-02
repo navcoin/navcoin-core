@@ -2,17 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "transactionrecord.h"
+#include <qt/transactionrecord.h>
 
-#include "base58.h"
-#include "consensus/consensus.h"
-#include "main.h"
-#include "timedata.h"
-#include "wallet/wallet.h"
+#include <base58.h>
+#include <consensus/consensus.h>
+#include <main.h>
+#include <timedata.h>
+#include <wallet/wallet.h>
 
 #include <stdint.h>
-
-#include <boost/foreach.hpp>
 
 /* Return positive answer if transaction should be shown in list.
  */
@@ -56,21 +54,17 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         // Credit
         //
         unsigned int i = 0;
-        unsigned int rewardIdx = 0;
+        CAmount nReward = -nDebit;
         if (wtx.IsCoinStake())
         {
-            for (unsigned int j = wtx.vout.size(); j--;)
-            {
-                if (wallet->IsMine(wtx.vout[j]))
-                {
-                    rewardIdx = j;
-                    break;
-                }
-
-            }
+            for (unsigned int j = 0; j < wtx.vout.size(); j++)
+                if (wtx.vout[j].scriptPubKey == wtx.vout[1].scriptPubKey)
+                    nReward += wtx.vout[j].nValue;
         }
 
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        bool fAddedReward = false;
+
+        for(const CTxOut& txout: wtx.vout)
         {
             isminetype mine = wallet->IsMine(txout);
             if(mine)
@@ -103,14 +97,25 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Generated (proof-of-stake)
 
-                    if (i != rewardIdx)
+                    if (wtx.vout[i].scriptPubKey == wtx.vout[1].scriptPubKey)
                     {
-                        i++;
-                        continue; // only append details of the address with reward output
-                    }
+                        if (fAddedReward)
+                        {
+                            i++;
+                            continue; // only append details of the address with reward output
+                        }
+                        else
+                        {
+                            fAddedReward = true;
 
-                    sub.type = TransactionRecord::Staked;
-                    sub.credit = nNet;
+                            sub.type = TransactionRecord::Staked;
+                            sub.credit = nReward;
+                        }
+                    }
+                    else
+                    {
+                        sub.type = TransactionRecord::Staked;
+                    }
                 }
                 if(wtx.fAnon)
                 {
@@ -130,7 +135,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     {
         bool involvesWatchAddress = false;
         isminetype fAllFromMe = ISMINE_SPENDABLE;
-        BOOST_FOREACH(const CTxIn& txin, wtx.vin)
+        for(const CTxIn& txin: wtx.vin)
         {
             isminetype mine = wallet->IsMine(txin);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
@@ -138,7 +143,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
 
         isminetype fAllToMe = ISMINE_SPENDABLE;
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for(const CTxOut& txout: wtx.vout)
         {
             isminetype mine = wallet->IsMine(txout);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
@@ -230,7 +235,7 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
     // Determine transaction status
 
     // Find the block the tx is in
-    CBlockIndex* pindex = NULL;
+    CBlockIndex* pindex = nullptr;
     BlockMap::iterator mi = mapBlockIndex.find(wtx.hashBlock);
     if (mi != mapBlockIndex.end())
         pindex = (*mi).second;

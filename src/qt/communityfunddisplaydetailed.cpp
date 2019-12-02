@@ -1,12 +1,12 @@
-#include "communityfunddisplaydetailed.h"
-#include "ui_communityfunddisplaydetailed.h"
-#include "communityfundpage.h"
+#include <qt/communityfunddisplaydetailed.h>
+#include <ui_communityfunddisplaydetailed.h>
+#include <qt/communityfundpage.h>
 
-#include "main.h"
+#include <main.h>
 #include <iomanip>
 #include <sstream>
-#include "wallet/wallet.h"
-#include "base58.h"
+#include <wallet/wallet.h>
+#include <base58.h>
 
 CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFund::CProposal proposal) :
     QDialog(parent),

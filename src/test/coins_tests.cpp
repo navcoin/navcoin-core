@@ -2,14 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "coins.h"
-#include "random.h"
-#include "script/standard.h"
-#include "uint256.h"
-#include "utilstrencodings.h"
-#include "test/test_navcoin.h"
-#include "main.h"
-#include "consensus/validation.h"
+#include <coins.h>
+#include <random.h>
+#include <script/standard.h>
+#include <uint256.h>
+#include <utilstrencodings.h>
+#include <test/test_navcoin.h>
+#include <main.h>
+#include <consensus/validation.h>
 
 #include <vector>
 #include <map>
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
                     missed_an_entry = true;
                 }
             }
-            BOOST_FOREACH(const CCoinsViewCacheTest *test, stack) {
+            for(const CCoinsViewCacheTest *test: stack) {
                 test->SelfTest();
             }
         }

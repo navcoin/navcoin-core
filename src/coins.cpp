@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "coins.h"
+#include <coins.h>
 
-#include "memusage.h"
-#include "random.h"
+#include <memusage.h>
+#include <random.h>
 
 #include <assert.h>
 
@@ -34,7 +34,7 @@ void CCoins::CalcMaskSize(unsigned int &nBytes, unsigned int &nNonzeroBytes) con
     nBytes += nLastUsedByte;
 }
 
-bool CCoins::Spend(uint32_t nPos) 
+bool CCoins::Spend(uint32_t nPos)
 {
     if (nPos >= vout.size() || vout[nPos].IsNull())
         return false;
@@ -76,7 +76,7 @@ CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
-CCoinsViewCache::CCoinsViewCache(CCoinsView *baseIn) : CCoinsViewBacked(baseIn), hasModifier(false), cachedCoinsUsage(0) { }
+CCoinsViewCache::CCoinsViewCache(CCoinsView *baseIn) : CCoinsViewBacked(baseIn), hasModifier(false), cachedCoinsUsage(0) {}
 
 CCoinsViewCache::~CCoinsViewCache()
 {
@@ -109,11 +109,11 @@ CProposalMap::const_iterator CCoinsViewCache::FetchProposal(const uint256 &pid) 
     CProposalMap::iterator it = cacheProposals.find(pid);
 
     if (it != cacheProposals.end())
-        return it;
+        return it->second.IsNull() ? cacheProposals.end() : it;
 
     CProposal tmp;
 
-    if (!base->GetProposal(pid, tmp))
+    if (!base->GetProposal(pid, tmp) || tmp.IsNull())
         return cacheProposals.end();
 
     CProposalMap::iterator ret = cacheProposals.insert(std::make_pair(pid, CProposal())).first;
@@ -126,11 +126,11 @@ CPaymentRequestMap::const_iterator CCoinsViewCache::FetchPaymentRequest(const ui
     CPaymentRequestMap::iterator it = cachePaymentRequests.find(prid);
 
     if (it != cachePaymentRequests.end())
-        return it;
+        return it->second.IsNull() ? cachePaymentRequests.end() : it;
 
     CPaymentRequest tmp;
 
-    if (!base->GetPaymentRequest(prid, tmp))
+    if (!base->GetPaymentRequest(prid, tmp) || tmp.IsNull())
         return cachePaymentRequests.end();
 
     CPaymentRequestMap::iterator ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest())).first;
@@ -151,7 +151,7 @@ bool CCoinsViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
 
 bool CCoinsViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const {
     CProposalMap::const_iterator it = FetchProposal(pid);
-    if (it != cacheProposals.end()) {
+    if (it != cacheProposals.end() && !it->second.IsNull()) {
         proposal = it->second;
         return true;
     }
@@ -168,14 +168,18 @@ bool CCoinsViewCache::GetAllProposals(CProposalMap& mapProposal) {
         return false;
 
     for (CProposalMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapProposal.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapProposal.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapProposal.begin(); it != mapProposal.end();)
+        it->second.IsNull() ? mapProposal.erase(it++) : ++it;
 
     return true;
 }
 
 bool CCoinsViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &prequest) const {
     CPaymentRequestMap::const_iterator it = FetchPaymentRequest(pid);
-    if (it != cachePaymentRequests.end()) {
+    if (it != cachePaymentRequests.end() && !it->second.IsNull()) {
         prequest = it->second;
         return true;
     }
@@ -192,7 +196,11 @@ bool CCoinsViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentReques
         return false;
 
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapPaymentRequests.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapPaymentRequests.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();)
+        it->second.IsNull() ? mapPaymentRequests.erase(it++) : ++it;
 
     return true;
 }
@@ -221,14 +229,22 @@ CCoinsModifier CCoinsViewCache::ModifyCoins(const uint256 &txid) {
 CProposalModifier CCoinsViewCache::ModifyProposal(const uint256 &pid) {
     assert(!hasModifier);
     std::pair<CProposalMap::iterator, bool> ret = cacheProposals.insert(std::make_pair(pid, CProposal()));
-    ret.first->second.fDirty = true;
+    if (ret.second) {
+        if (!base->GetProposal(pid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     return CProposalModifier(*this, ret.first);
 }
 
 CPaymentRequestModifier CCoinsViewCache::ModifyPaymentRequest(const uint256 &prid) {
     assert(!hasModifier);
     std::pair<CPaymentRequestMap::iterator, bool> ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest()));
-    ret.first->second.fDirty = true;
+    if (ret.second) {
+        if (!base->GetPaymentRequest(prid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     return CPaymentRequestModifier(*this, ret.first);
 }
 
@@ -290,7 +306,7 @@ bool CCoinsViewCache::RemovePaymentRequest(const uint256 &prid) const {
 const CCoins* CCoinsViewCache::AccessCoins(const uint256 &txid) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
     if (it == cacheCoins.end()) {
-        return NULL;
+        return nullptr;
     } else {
         return &it->second.coins;
     }
@@ -318,6 +334,16 @@ bool CCoinsViewCache::HavePaymentRequest(const uint256 &id) const {
 bool CCoinsViewCache::HaveCoinsInCache(const uint256 &txid) const {
     CCoinsMap::const_iterator it = cacheCoins.find(txid);
     return it != cacheCoins.end();
+}
+
+bool CCoinsViewCache::HaveProposalInCache(const uint256 &pid) const {
+    auto it = cacheProposals.find(pid);
+    return it != cacheProposals.end() && !it->second.IsNull();
+}
+
+bool CCoinsViewCache::HavePaymentRequestInCache(const uint256 &txid) const {
+    auto it = cachePaymentRequests.find(txid);
+    return it != cachePaymentRequests.end() && !it->second.IsNull();
 }
 
 uint256 CCoinsViewCache::GetBestBlock() const {
@@ -373,29 +399,15 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
     }
 
     for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end();) {
-        if (it->second.IsNull()) {
-            CProposalMap::iterator itUs = cacheProposals.find(it->first);
-            if (itUs != cacheProposals.end()) {
-                cacheProposals.erase(itUs);
-            }
-        } else {
-            CProposal& entry = cacheProposals[it->first];
-            entry.swap(it->second);
-        }
+        CProposal& entry = cacheProposals[it->first];
+        entry.swap(it->second);
         CProposalMap::iterator itOld = it++;
         mapProposals.erase(itOld);
     }
 
     for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();) {
-        if (it->second.IsNull()) {
-            CPaymentRequestMap::iterator itUs = cachePaymentRequests.find(it->first);
-            if (itUs != cachePaymentRequests.end()) {
-                cachePaymentRequests.erase(itUs);
-            }
-        } else {
-            CPaymentRequest& entry = cachePaymentRequests[it->first];
-            entry.swap(it->second);
-        }
+        CPaymentRequest& entry = cachePaymentRequests[it->first];
+        entry.swap(it->second);
         CPaymentRequestMap::iterator itOld = it++;
         mapPaymentRequests.erase(itOld);
     }
@@ -407,6 +419,8 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
 bool CCoinsViewCache::Flush() {
     bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, hashBlock);
     cacheCoins.clear();
+    cacheProposals.clear();
+    cachePaymentRequests.clear();
     cachedCoinsUsage = 0;
     return fOk;
 }
@@ -463,7 +477,7 @@ double CCoinsViewCache::GetPriority(const CTransaction &tx, int nHeight, CAmount
     if (tx.IsCoinBase())
         return 0.0;
     double dResult = 0.0;
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    for(const CTxIn& txin: tx.vin)
     {
         const CCoins* coins = AccessCoins(txin.prevout.hash);
         assert(coins);

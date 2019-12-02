@@ -6,12 +6,12 @@
 #define NAVCOIN_CRYPTO_COMMON_H
 
 #if defined(HAVE_CONFIG_H)
-#include "navcoin-config.h"
+#include <navcoin-config.h>
 #endif
 
 #include <stdint.h>
 
-#include "compat/endian.h"
+#include <compat/endian.h>
 
 uint16_t static inline ReadLE16(const unsigned char* ptr)
 {

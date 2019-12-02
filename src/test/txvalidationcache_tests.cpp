@@ -2,16 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "consensus/validation.h"
-#include "key.h"
-#include "main.h"
-#include "miner.h"
-#include "pubkey.h"
-#include "txmempool.h"
-#include "random.h"
-#include "script/standard.h"
-#include "test/test_navcoin.h"
-#include "utiltime.h"
+#include <consensus/validation.h>
+#include <key.h>
+#include <main.h>
+#include <miner.h>
+#include <pubkey.h>
+#include <txmempool.h>
+#include <random.h>
+#include <script/standard.h>
+#include <test/test_navcoin.h>
+#include <utiltime.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -23,7 +23,7 @@ ToMemPool(CMutableTransaction& tx)
     LOCK(cs_main);
 
     CValidationState state;
-    return AcceptToMemoryPool(mempool, state, tx, false, NULL, true, 0);
+    return AcceptToMemoryPool(mempool, state, tx, false, nullptr, true, 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(tx_mempool_block_doublespend, TestChain100Setup)

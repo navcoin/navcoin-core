@@ -8,23 +8,23 @@
 #define NAVCOIN_MAIN_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "amount.h"
-#include "chain.h"
-#include "coins.h"
-#include "net.h"
-#include "script/interpreter.h"
-#include "script/script_error.h"
-#include "sync.h"
-#include "versionbits.h"
-#include "spentindex.h"
-#include "addressindex.h"
-#include "timestampindex.h"
-#include "wallet/walletdb.h"
-#include "txdb.h"
-#include "consensus/consensus.h"
+#include <amount.h>
+#include <chain.h>
+#include <coins.h>
+#include <net.h>
+#include <script/interpreter.h>
+#include <script/script_error.h>
+#include <sync.h>
+#include <versionbits.h>
+#include <spentindex.h>
+#include <addressindex.h>
+#include <timestampindex.h>
+#include <wallet/walletdb.h>
+#include <txdb.h>
+#include <consensus/consensus.h>
 
 
 #include <algorithm>
@@ -96,7 +96,7 @@ static const unsigned int UNDOFILE_CHUNK_SIZE = 0x100000; // 1 MiB
 /** Maximum number of script-checking threads allowed */
 static const int MAX_SCRIPTCHECK_THREADS = 16;
 /** -par default (number of script-checking threads, 0 = auto) */
-static const int DEFAULT_SCRIPTCHECK_THREADS = 2;
+static const int DEFAULT_SCRIPTCHECK_THREADS = 0;
 /** Number of blocks that can be requested at any given time from a single peer. */
 static const int MAX_BLOCKS_IN_TRANSIT_PER_PEER = 16;
 /** Timeout in seconds during which a peer must stall block download progress before being disconnected. */

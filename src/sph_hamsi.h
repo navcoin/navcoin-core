@@ -36,7 +36,7 @@
 #define SPH_HAMSI_H__
 
 #include <stddef.h>
-#include "sph_types.h"
+#include <sph_types.h>
 
 #ifdef __cplusplus
 extern "C"{

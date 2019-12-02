@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_AMOUNT_H
 #define NAVCOIN_AMOUNT_H
 
-#include "serialize.h"
+#include <serialize.h>
 
 #include <stdlib.h>
 #include <string>

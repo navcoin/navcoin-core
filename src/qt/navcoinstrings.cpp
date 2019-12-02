@@ -267,21 +267,18 @@ QT_TRANSLATE_NOOP("navcoin-core", ""
 "comes in the format: <USERNAME>:<SALT>$<HASH>. A canonical python script is "
 "included in share/rpcuser. This option can be specified multiple times"),
 QT_TRANSLATE_NOOP("navcoin-core", ""
-"Warning: The network does not appear to fully agree! Some miners appear to "
-"be experiencing issues."),
-QT_TRANSLATE_NOOP("navcoin-core", ""
 "Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; "
 "if your balance or transactions are incorrect you should restore from a "
 "backup."),
-QT_TRANSLATE_NOOP("navcoin-core", ""
-"Warning: We do not appear to fully agree with our peers! You may need to "
-"upgrade, or other nodes may need to upgrade."),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Whitelist peers connecting from the given netmask or IP address. Can be "
 "specified multiple times."),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "Whitelisted peers cannot be DoS banned and their transactions are always "
 "relayed, even if they are already in the mempool, useful e.g. for a gateway"),
+QT_TRANSLATE_NOOP("navcoin-core", ""
+"You are trying to import a new mnemonic but a wallet already exists. Please "
+"rename the existing wallet.dat before trying to import again."),
 QT_TRANSLATE_NOOP("navcoin-core", ""
 "You need to rebuild the database using -reindex to go back to unpruned "
 "mode.  This will redownload the entire blockchain"),
@@ -318,6 +315,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Block creation options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Cannot downgrade wallet"),
 QT_TRANSLATE_NOOP("navcoin-core", "Cannot resolve -%s address: '%s'"),
 QT_TRANSLATE_NOOP("navcoin-core", "Cannot write default address"),
+QT_TRANSLATE_NOOP("navcoin-core", "Chain selection options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Change index out of range"),
 QT_TRANSLATE_NOOP("navcoin-core", "Clock options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Connect only to the specified node(s)"),
@@ -327,6 +325,8 @@ QT_TRANSLATE_NOOP("navcoin-core", "Connection options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Copyright (C) %i-%i"),
 QT_TRANSLATE_NOOP("navcoin-core", "Copyright (c) 2014-2017, The Monero Project"),
 QT_TRANSLATE_NOOP("navcoin-core", "Corrupted block database detected"),
+QT_TRANSLATE_NOOP("navcoin-core", "Could not clean old Community Fund DB"),
+QT_TRANSLATE_NOOP("navcoin-core", "Create a new wallet out of the specified mnemonic"),
 QT_TRANSLATE_NOOP("navcoin-core", "Debugging/Testing options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Defines the staker vote to be attached to found blocks."),
 QT_TRANSLATE_NOOP("navcoin-core", "Do not load the wallet and disable wallet RPC calls"),
@@ -415,6 +415,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Sets the default sleep for the staking thread
 QT_TRANSLATE_NOOP("navcoin-core", "Show all debugging options (usage: --help -help-debug)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Shrink debug.log file on client startup (default: 1 when no -debug)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Signing transaction failed"),
+QT_TRANSLATE_NOOP("navcoin-core", "Specify a customised navcoin address to accumulate the staking rewards."),
 QT_TRANSLATE_NOOP("navcoin-core", "Specify configuration file (default: %s)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Specify connection timeout in milliseconds (minimum: 1, default: %d)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Specify data directory"),
@@ -424,6 +425,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Specify your own public address"),
 QT_TRANSLATE_NOOP("navcoin-core", "Spend unconfirmed change when sending transactions (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Synchronizing clock..."),
 QT_TRANSLATE_NOOP("navcoin-core", "The source code is available from %s."),
+QT_TRANSLATE_NOOP("navcoin-core", "The specified language does not correspond to the mnemonic."),
 QT_TRANSLATE_NOOP("navcoin-core", "The transaction amount is too small to pay the fee"),
 QT_TRANSLATE_NOOP("navcoin-core", "This is experimental software."),
 QT_TRANSLATE_NOOP("navcoin-core", "Threshold for disconnecting misbehaving peers (default: %u)"),
@@ -443,6 +445,8 @@ QT_TRANSLATE_NOOP("navcoin-core", "Unsupported argument -tor found, use -onion."
 QT_TRANSLATE_NOOP("navcoin-core", "Upgrade wallet to latest format on startup"),
 QT_TRANSLATE_NOOP("navcoin-core", "Use UPnP to map the listening port (default: %u)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Use header spam filter (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "Use the specified language for the mnemonic import"),
+QT_TRANSLATE_NOOP("navcoin-core", "Use the test chain"),
 QT_TRANSLATE_NOOP("navcoin-core", "User Agent comment (%s) contains unsafe characters."),
 QT_TRANSLATE_NOOP("navcoin-core", "Username for JSON-RPC connections"),
 QT_TRANSLATE_NOOP("navcoin-core", "Uses the devnet network"),
@@ -455,6 +459,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Wallet needed to be rewritten: restart %s to 
 QT_TRANSLATE_NOOP("navcoin-core", "Wallet options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Warning"),
 QT_TRANSLATE_NOOP("navcoin-core", "Whether to operate in a blocks only mode (default: %u)"),
+QT_TRANSLATE_NOOP("navcoin-core", "You specified a wrong mnemonic"),
 QT_TRANSLATE_NOOP("navcoin-core", "Zapping all transactions from wallet..."),
 QT_TRANSLATE_NOOP("navcoin-core", "ZeroMQ notification options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "permitted provided that the following conditions are met:"),

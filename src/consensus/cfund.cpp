@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "consensus/cfund.h"
-#include "base58.h"
-#include "main.h"
-#include "rpc/server.h"
-#include "utilmoneystr.h"
+#include <consensus/cfund.h>
+#include <base58.h>
+#include <main.h>
+#include <rpc/server.h>
+#include <utilmoneystr.h>
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
@@ -591,7 +591,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 {
     AssertLockHeld(cs_main);
 
-    const CBlockIndex* pindexDelete;
+    const CBlockIndex* pindexDelete = nullptr;
     if (fUndo)
     {
         pindexDelete = pindexNew;
@@ -614,7 +614,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
     int64_t nTimeStart2 = GetTimeMicros();
 
-    while(nBlocks > 0 && pindexblock != NULL)
+    while(nBlocks > 0 && pindexblock != nullptr)
     {
         CProposal proposal;
         CPaymentRequest prequest;
@@ -623,9 +623,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
         {
-            if(!view.GetProposal(pindexblock->vProposalVotes[i].first, proposal))
-                continue;
-
             if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0)
             {
                 if(vCacheProposalsToUpdate.count(pindexblock->vProposalVotes[i].first) == 0)
@@ -642,20 +639,6 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++)
         {
-            if(!view.GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
-                continue;
-
-            if(!view.GetProposal(prequest.proposalhash, proposal))
-                continue;
-
-            if (mapBlockIndex.count(proposal.blockhash) == 0)
-                continue;
-
-            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
-
-            if(pindexblockparent == NULL)
-                continue;
-
             if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
             {
                 if(vCachePaymentRequestToUpdate.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
@@ -683,13 +666,26 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
     std::vector<std::pair<uint256, CFund::CProposal>> vecProposalsToUpdate;
     std::vector<std::pair<uint256, CFund::CPaymentRequest>> vecPaymentRequestsToUpdate;
 
+    bool fLog = LogAcceptCategory("dao");
+
     for(it = vCacheProposalsToUpdate.begin(); it != vCacheProposalsToUpdate.end(); it++)
     {
         if (view.HaveProposal(it->first))
         {
+            CProposal tmp; CProposal oldproposal = CProposal();
+            if (fLog)
+            {
+                view.GetProposal(it->first, tmp);
+                tmp.swap(oldproposal);
+            }
             CProposalModifier proposal = view.ModifyProposal(it->first);
             proposal->nVotesYes = it->second.first;
             proposal->nVotesNo = it->second.second;
+            if (*proposal != oldproposal)
+            {
+                proposal->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+            }
             vSeen[proposal->hash]=true;
         }
     }
@@ -698,9 +694,20 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
     {
         if(view.HavePaymentRequest(it->first))
         {
+            CPaymentRequest tmp; CPaymentRequest oldprequest = CPaymentRequest();
+            if (fLog)
+            {
+                view.GetPaymentRequest(it->first, tmp);
+                tmp.swap(oldprequest);
+            }
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
             prequest->nVotesYes = it->second.first;
             prequest->nVotesNo = it->second.second;
+            if (*prequest != oldprequest)
+            {
+                prequest->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+            }
             vSeen[prequest->hash]=true;
         }
     }
@@ -721,6 +728,14 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 continue;
 
             bool fUpdate = false;
+
+            CPaymentRequest tmp; CPaymentRequest oldprequest = CPaymentRequest();
+
+            if (fLog)
+            {
+                view.GetPaymentRequest(it->first, tmp);
+                tmp.swap(oldprequest);
+            }
 
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
 
@@ -754,10 +769,10 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             if (!view.GetProposal(prequest->proposalhash, proposal))
                 continue;
 
-            auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned )(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
+            int nCreatedOnCycle = (pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nCurrentCycle = (pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, 0);
+            int nVotingCycles = std::min(nElapsedCycles, (int)Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
 
             auto oldState = prequest->fState;
             auto oldCycle = prequest->nVotingCycle;
@@ -820,7 +835,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             if (fUndo && fUpdate && prequest->fState == oldState && prequest->fState != CFund::NIL
                     && prequest->nVotingCycle != oldCycle)
+            {
                 prequest->nVotingCycle = oldCycle;
+            }
 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
@@ -830,6 +847,13 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                     prequest->nVotesNo = 0;
                 }
             }
+
+            if (*prequest != oldprequest)
+            {
+                prequest->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
+            }
+
         }
     }
 
@@ -849,6 +873,15 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 continue;
 
             bool fUpdate = false;
+
+            CProposal tmp;
+            CProposal oldproposal = CProposal();
+
+            if (fLog)
+            {
+                view.GetProposal(it->first, tmp);
+                tmp.swap(oldproposal);
+            }
 
             CProposalModifier proposal = view.ModifyProposal(it->first);
 
@@ -871,10 +904,10 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             CBlockIndex* pblockindex = mapBlockIndex[proposal->txblockhash];
 
-            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesProposalVoting + 1);
+            int nCreatedOnCycle = (pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nCurrentCycle = (pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, 0);
+            int nVotingCycles = std::min(nElapsedCycles, (int)Params().GetConsensus().nCyclesProposalVoting + 1);
 
             auto oldState = proposal->fState;
             auto oldCycle = proposal->nVotingCycle;
@@ -955,7 +988,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             }
 
             if (fUndo && fUpdate && proposal->fState == oldState && proposal->fState != CFund::NIL && proposal->nVotingCycle != oldCycle)
+            {
                 proposal->nVotingCycle = oldCycle;
+            }
 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
@@ -964,6 +999,12 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                     proposal->nVotesYes = 0;
                     proposal->nVotesNo = 0;
                 }
+            }
+
+            if (*proposal != oldproposal)
+            {
+                proposal->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
             }
         }
     }

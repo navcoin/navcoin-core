@@ -6,18 +6,18 @@
 #ifndef NAVCOIN_WALLET_WALLET_H
 #define NAVCOIN_WALLET_WALLET_H
 
-#include "amount.h"
-#include "mnemonic/mnemonic.h"
-#include "streams.h"
-#include "tinyformat.h"
-#include "ui_interface.h"
-#include "utilstrencodings.h"
-#include "validationinterface.h"
-#include "script/ismine.h"
-#include "wallet/crypter.h"
-#include "wallet/walletdb.h"
-#include "wallet/rpcwallet.h"
-#include "primitives/transaction.h"
+#include <amount.h>
+#include <mnemonic/mnemonic.h>
+#include <streams.h>
+#include <tinyformat.h>
+#include <ui_interface.h>
+#include <utilstrencodings.h>
+#include <validationinterface.h>
+#include <script/ismine.h>
+#include <wallet/crypter.h>
+#include <wallet/walletdb.h>
+#include <wallet/rpcwallet.h>
+#include <primitives/transaction.h>
 
 #include <algorithm>
 #include <map>
@@ -514,7 +514,13 @@ public:
     std::string ToString() const;
 };
 
-
+struct sortByCoinAgeDescending
+{
+    inline bool operator() (const COutput& cOutput1, const COutput& cOutput2)
+    {
+        return (cOutput1.tx->nTime > cOutput2.tx->nTime);
+    }
+};
 
 
 /** Private key that includes an expiration date in case it never gets used. */
@@ -639,7 +645,6 @@ private:
      */
     bool SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAmount& nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet, const CCoinControl *coinControl = NULL) const;
     bool SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet) const;
-    void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     CWalletDB *pwalletdbEncryption;
 
@@ -756,6 +761,7 @@ public:
      * populate vCoins with vector of available COutputs.
      */
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
+    void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     /**
      * Shuffle and select coins until nTargetValue is reached while avoiding
