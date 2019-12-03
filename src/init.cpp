@@ -1662,14 +1662,13 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 }
 
                 std::vector<CFund::CProposal> vProposals;
+                CProposalMap mapProposals;
 
                 if (pblocktree->GetProposalIndex(vProposals))
                 {
-                    CProposalMap mapProposals;
                     if (!pcoinsTip->GetAllProposals(mapProposals))
                     {
                         strLoadError = _("Old data base structure detected");
-                        fReindexChainState = true;
                         break;
                     }
                     if (vProposals.size() > 0 && mapProposals.size() == 0)
@@ -1680,17 +1679,20 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                             pcoinsTip->AddProposal(it);
                         }
                     }
+                } else if (!pcoinsTip->GetAllProposals(mapProposals))
+                {
+                    strLoadError = _("Old data base structure detected");
+                    break;
                 }
 
                 std::vector<CFund::CPaymentRequest> vPaymentRequests;
+                CPaymentRequestMap mapPaymentRequest;
 
                 if (pblocktree->GetPaymentRequestIndex(vPaymentRequests))
                 {
-                    CPaymentRequestMap mapPaymentRequest;
                     if (!pcoinsTip->GetAllPaymentRequests(mapPaymentRequest))
                     {
                         strLoadError = _("Old data base structure detected");
-                        fReindexChainState = true;
                         break;
                     }
                     if (vPaymentRequests.size() > 0 && mapPaymentRequest.size() == 0)
@@ -1701,6 +1703,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                             pcoinsTip->AddPaymentRequest(it);
                         }
                     }
+                } else if (!pcoinsTip->GetAllPaymentRequests(mapPaymentRequest))
+                {
+                    strLoadError = _("Old data base structure detected");
+                    break;
                 }
 
             } catch (const std::exception& e) {
