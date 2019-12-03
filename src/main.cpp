@@ -3785,8 +3785,8 @@ void static UpdateTip(CBlockIndex *pindexNew, uint256 statehash, const CChainPar
     }
     hashBestChain = chainActive.Tip()->GetBlockHash();
 
-    LogPrintf("%s: new best=%s height=%d version=0x%08x statehash=%s log2_work=%.8g tx=%lu date='%s' progress=%f cache=%.1fMiB(%utx)", __func__,
-      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), chainActive.Tip()->nVersion, statehash.ToString(),
+    LogPrintf("%s: new best=%s height=%d version=0x%08x %slog2_work=%.8g tx=%lu date='%s' progress=%f cache=%.1fMiB(%utx)", __func__,
+      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), chainActive.Tip()->nVersion, LogAcceptCategory("statehash") ? strprintf("statehash=%s ", statehash.ToString()) : "",
       log(chainActive.Tip()->nChainWork.getdouble())/log(2.0), (unsigned long)chainActive.Tip()->nChainTx,
       DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()),
       Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), chainActive.Tip()), pcoinsTip->DynamicMemoryUsage() * (1.0 / (1<<20)), pcoinsTip->GetCacheSize());
@@ -3813,8 +3813,9 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         if (!DisconnectBlock(block, state, pindexDelete, view))
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
         CFundStep(state, pindexDelete, true, view);
+        if (LogAcceptCategory("statehash"))
+            statehash = view.GetCFundDBStateHash();
         assert(view.Flush());
-        statehash = view.GetCFundDBStateHash();
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
 
@@ -3897,8 +3898,9 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         LogPrint("bench", "  - Connect total: %.2fms [%.2fs]\n", (nTime3 - nTime2) * 0.001, nTimeConnectTotal * 0.000001);
         CFundStep(state, pindexNew, false, view);
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
+        if (LogAcceptCategory("statehash"))
+            statehash = view.GetCFundDBStateHash();
         assert(view.Flush());
-        statehash = view.GetCFundDBStateHash();
     }
     int64_t nTime5 = GetTimeMicros(); nTimeFlush += nTime5 - nTime4;
     LogPrint("bench", "  - Flush: %.2fms [%.2fs]\n", (nTime5 - nTime4) * 0.001, nTimeFlush * 0.000001);
