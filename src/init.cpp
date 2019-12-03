@@ -1555,8 +1555,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     LogPrintf("* Using %.1fMiB for in-memory UTXO set (plus up to %.1fMiB of unused mempool space)\n", nCoinCacheUsage * (1.0 / 1024 / 1024), nMempoolSizeMax * (1.0 / 1024 / 1024));
 
     bool fLoaded = false;
+
     while (!fLoaded) {
         bool fReset = fReindex;
+        bool fNeedsReindexChainstate = false;
         std::string strLoadError;
 
         uiInterface.InitMessage(_("Loading block index..."));
@@ -1668,6 +1670,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 {
                     if (!pcoinsTip->GetAllProposals(mapProposals))
                     {
+                        fNeedsReindexChainstate = true;
                         strLoadError = _("Old data base structure detected");
                         break;
                     }
@@ -1681,6 +1684,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     }
                 } else if (!pcoinsTip->GetAllProposals(mapProposals))
                 {
+                    fNeedsReindexChainstate = true;
                     strLoadError = _("Old data base structure detected");
                     break;
                 }
@@ -1692,6 +1696,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 {
                     if (!pcoinsTip->GetAllPaymentRequests(mapPaymentRequest))
                     {
+                        fNeedsReindexChainstate = true;
                         strLoadError = _("Old data base structure detected");
                         break;
                     }
@@ -1705,6 +1710,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     }
                 } else if (!pcoinsTip->GetAllPaymentRequests(mapPaymentRequest))
                 {
+                    fNeedsReindexChainstate = true;
                     strLoadError = _("Old data base structure detected");
                     break;
                 }
@@ -1723,10 +1729,13 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             if (!fReset) {
                 bool fRet = uiInterface.ThreadSafeQuestion(
                             strLoadError + ".\n\n" + _("Do you want to rebuild the block database now?"),
-                            strLoadError + ".\nPlease restart with -reindex or -reindex-chainstate to recover.",
+                            strLoadError + ".\nPlease restart with " + (fNeedsReindexChainstate ? "" : "-reindex or ") + "-reindex-chainstate to recover.",
                             "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
                 if (fRet) {
-                    fReindex = true;
+                    if (fNeedsReindexChainstate)
+                        fReindexChainState = true;
+                    else
+                        fReindex = true;
                     fRequestShutdown = false;
                 } else {
                     LogPrintf("Aborted block database rebuild. Exiting.\n");
