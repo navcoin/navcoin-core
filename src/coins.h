@@ -483,7 +483,7 @@ public:
     bool RemoveProposal(const uint256 &pid) const;
     bool RemovePaymentRequest(const uint256 &prid) const;
 
-    uint256 GetCFundDBStateHash();
+    uint256 GetCFundDBStateHash(const CAmount& nCFLocked, const CAmount& nCFSupply);
 
     /**
      * Check if we have the given tx already loaded in this cache.

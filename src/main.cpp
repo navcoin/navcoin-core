@@ -3813,9 +3813,9 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
         if (!DisconnectBlock(block, state, pindexDelete, view))
             return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
         CFundStep(state, pindexDelete, true, view);
-        if (LogAcceptCategory("statehash"))
-            statehash = view.GetCFundDBStateHash();
         assert(view.Flush());
+        if (LogAcceptCategory("statehash"))
+            statehash = view.GetCFundDBStateHash(pindexDelete->pprev->nCFLocked, pindexDelete->pprev->nCFSupply);
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
 
@@ -3899,7 +3899,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         CFundStep(state, pindexNew, false, view);
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
         if (LogAcceptCategory("statehash"))
-            statehash = view.GetCFundDBStateHash();
+            statehash = view.GetCFundDBStateHash(pindexNew->nCFLocked, pindexNew->nCFSupply);
         assert(view.Flush());
     }
     int64_t nTime5 = GetTimeMicros(); nTimeFlush += nTime5 - nTime4;
@@ -5393,7 +5393,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     LogPrintf("Verifying last %i blocks at level %i\n", nCheckDepth, nCheckLevel);
     CCoinsViewCache coins(coinsview);
     uint256 prevStateHash;
-    if (nCheckLevel >= 4) prevStateHash = coins.GetCFundDBStateHash();
+    if (nCheckLevel >= 4) prevStateHash = coins.GetCFundDBStateHash(chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply);
     CBlockIndex* pindexState = chainActive.Tip();
     CBlockIndex* pindexFailure = nullptr;
     int nGoodTransactions = 0;
@@ -5467,7 +5467,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             CFundStep(state, pindex, false, coins);
         }
-        uint256 nowStateHash = coins.GetCFundDBStateHash();
+        uint256 nowStateHash = coins.GetCFundDBStateHash(pindex->nCFLocked, pindex->nCFSupply);
         if (prevStateHash != nowStateHash)
             return error("VerifyDB(): *** the cfund db state hash differs after reconnecting blocks. it was %d, it is %s after\n", prevStateHash.ToString(), nowStateHash.ToString());
     }

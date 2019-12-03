@@ -910,7 +910,7 @@ UniValue getcfunddbstatehash(const UniValue& params, bool fHelp)
     LOCK(cs_main);
 
     CCoinsViewCache view(pcoinsTip);
-    return view.GetCFundDBStateHash().ToString();
+    return view.GetCFundDBStateHash(chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply).ToString();
 }
 
 UniValue listproposals(const UniValue& params, bool fHelp)

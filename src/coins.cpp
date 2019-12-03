@@ -448,16 +448,20 @@ unsigned int CCoinsViewCache::GetCacheSize() const {
     return cacheCoins.size();
 }
 
-uint256 CCoinsViewCache::GetCFundDBStateHash()
+uint256 CCoinsViewCache::GetCFundDBStateHash(const CAmount& nCFLocked, const CAmount& nCFSupply)
 {
     CPaymentRequestMap mapPaymentRequests;
     CProposalMap mapProposals;
 
     int64_t nTimeStart = GetTimeMicros();
 
+    CHashWriter writer(0,0);
+
+    writer << nCFSupply;
+    writer << nCFLocked;
+
     if (GetAllProposals(mapProposals) && GetAllPaymentRequests(mapPaymentRequests))
     {
-        CHashWriter writer(0,0);
 
         for (auto &it: mapProposals)
         {
@@ -475,16 +479,13 @@ uint256 CCoinsViewCache::GetCFundDBStateHash()
             }
         }
 
-        uint256 ret = writer.GetHash();
-        int64_t nTimeEnd = GetTimeMicros();
-
-        LogPrint("bench", " Benchmark: Calculate CFundDB state hash: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
-
-        return ret;
-
     }
 
-    return uint256();
+    uint256 ret = writer.GetHash();
+    int64_t nTimeEnd = GetTimeMicros();
+    LogPrint("bench", " Benchmark: Calculate CFundDB state hash: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+
+    return ret;
 }
 
 const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
