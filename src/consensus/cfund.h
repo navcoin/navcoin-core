@@ -128,12 +128,12 @@ public:
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
         if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
         if (strDZeel != b.strDZeel) ret += strprintf("strDZeel: %s => %s, ", strDZeel, b.strDZeel);
-        if (hash != b.hash) ret += strprintf("nAnount: %d => %d, ", nAmount, b.nAmount);
-        if (proposalhash != b.proposalhash) ret += strprintf("proposalhash: %d => %d, ", proposalhash.ToString(), b.proposalhash.ToString());
-        if (paymenthash != b.paymenthash) ret += strprintf("paymenthash: %d => %d, ", paymenthash.ToString(), b.paymenthash.ToString());
-        if (txblockhash != b.txblockhash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
+        if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash, b.hash);
+        if (proposalhash != b.proposalhash) ret += strprintf("proposalhash: %s => %s, ", proposalhash.ToString(), b.proposalhash.ToString());
+        if (paymenthash != b.paymenthash) ret += strprintf("paymenthash: %s => %s, ", paymenthash.ToString(), b.paymenthash.ToString());
+        if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
         if (blockhash != b.blockhash) ret += strprintf("blockhash: %s => %s, ", blockhash.ToString(), b.blockhash.ToString());
-        if (nVersion != b.nVersion) ret += strprintf("nAnount: %d => %d, ", nVersion, b.nVersion);
+        if (nVersion != b.nVersion) ret += strprintf("nVersion: %d => %d, ", nVersion, b.nVersion);
         if (nVotingCycle != b.nVotingCycle) ret += strprintf("nVotingCycle: %s => %s, ", nVotingCycle, b.nVotingCycle);
         if (ret != "")
         {
