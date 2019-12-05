@@ -559,6 +559,7 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
     ret.pushKV("version", nVersion);
     ret.pushKV("hash", hash.ToString());
     ret.pushKV("blockHash", txblockhash.ToString());
+    ret.pushKV("proposalHash", proposalhash.ToString());
     ret.pushKV("description", strDZeel);
     ret.pushKV("requestedAmount", FormatMoney(nAmount));
     ret.pushKV("votesYes", nVotesYes);
