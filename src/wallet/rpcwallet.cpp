@@ -3769,7 +3769,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
             if (!pcoinsTip->GetProposal(it->first, proposal))
                 continue;
 
-            flags fLastState = proposal.fState;
+            flags fLastState = proposal.GetLastState();
 
             bool fIsMine = false;
 
