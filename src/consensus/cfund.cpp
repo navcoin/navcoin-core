@@ -547,7 +547,7 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
             if (prequest.proposalhash != hash)
                 continue;
 
-            prequest.ToJson(preq);
+            prequest.ToJson(preq, false);
             arr.push_back(preq);
         }
 
@@ -555,11 +555,13 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
     }
 }
 
-void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
+void CFund::CPaymentRequest::ToJson(UniValue& ret, bool root) const {
     ret.pushKV("version", nVersion);
     ret.pushKV("hash", hash.ToString());
     ret.pushKV("blockHash", txblockhash.ToString());
-    ret.pushKV("proposalHash", proposalhash.ToString());
+    if (root) {
+        ret.pushKV("proposalHash", proposalhash.ToString());
+    }
     ret.pushKV("description", strDZeel);
     ret.pushKV("requestedAmount", FormatMoney(nAmount));
     ret.pushKV("votesYes", nVotesYes);
