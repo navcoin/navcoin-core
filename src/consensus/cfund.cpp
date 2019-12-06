@@ -308,7 +308,7 @@ bool CFund::CPaymentRequest::IsExpired() const {
     if(nVersion >= 2)
     {
         flags fLastState = GetLastState();
-        return (ExceededMaxVotingCycles() && fLastState != ACCEPTED && fLastState != REJECTED);
+        return (ExceededMaxVotingCycles() && fLastState != ACCEPTED && fLastState != REJECTED && fLastState != PAID);
     }
     return false;
 }
