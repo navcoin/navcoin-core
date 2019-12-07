@@ -172,7 +172,7 @@ public:
                          paymenthash.ToString().substr(0,10), strDZeel);
     }
 
-    void ToJson(UniValue& ret) const;
+    void ToJson(UniValue& ret, bool root) const;
 
     bool IsAccepted() const;
 
