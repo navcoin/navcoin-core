@@ -1490,7 +1490,7 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VOBJ);
 
-    prequest.ToJson(ret);
+    prequest.ToJson(ret, true);
 
     return ret;
 }
