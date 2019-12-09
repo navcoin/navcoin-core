@@ -3630,7 +3630,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
                                     [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
             UniValue p(UniValue::VOBJ);
-            prequest.ToJson(p);
+            prequest.ToJson(p, false);
             if (it != vAddedPaymentRequestVotes.end()) {
                 if (it->second)
                     yesvotes.push_back(p);
