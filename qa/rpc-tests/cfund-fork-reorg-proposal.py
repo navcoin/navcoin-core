@@ -16,11 +16,12 @@ class CfundForkReorgProposal(NavCoinTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True
-        self.node_args = [['-debug=dao'], ['-debug=dao']]
         self.num_nodes = 2
 
     def setup_network(self, split=False):
-        self.nodes = self.setup_nodes()
+        self.nodes = []
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug=dao"]))
+        self.nodes.append(start_node(1, self.options.tmpdir, ["-debug=dao"]))
         connect_nodes_bi(self.nodes, 0, 1)
         self.is_network_split = False
 
