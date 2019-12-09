@@ -175,10 +175,10 @@ class CommunityFundPaymentRequestPayout(NavCoinTestFramework):
 
         time.sleep(1)
 
-        while self.nodes[0].getpaymentrequest(paymentReq)["state"] == 6:
+        while self.nodes[0].getpaymentrequest(paymentReq)["state"] != 6:
             slow_gen(self.nodes[0], 1)
 
-        while self.nodes[1].getpaymentrequest(paymentReq)["state"] == 6:
+        while self.nodes[1].getpaymentrequest(paymentReq)["state"] != 6:
             slow_gen(self.nodes[1], 1)
 
         slow_gen(self.nodes[1], 1)
