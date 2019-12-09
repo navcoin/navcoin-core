@@ -2561,10 +2561,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             if(fCFund && tx.nVersion == CTransaction::PROPOSAL_VERSION)
             {
                 view.RemoveProposal(hash);
+                LogPrintf("%s: Removed proposal %s\n", __func__, hash.ToString());
             }
             else if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
             {
                 view.RemovePaymentRequest(hash);
+                LogPrintf("%s: Removed payment request %s\n", __func__, hash.ToString());
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
             {
@@ -2728,7 +2730,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_NO)
                 proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
 
-            LogPrint("dao", "%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), proposal->ToString(view));
+            proposal->fDirty = true;
+
+            LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
 
             vSeen[pindex->vProposalVotes[i].first]=true;
         }
@@ -2762,7 +2766,9 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_NO)
                 prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
 
-            LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
+            LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+
+            prequest->fDirty = true;
 
             vSeen[pindex->vPaymentRequestVotes[i].first]=true;
         }
@@ -3563,12 +3569,18 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if (view.GetProposal(prequest.proposalhash, proposal))
                                 {
                                     if (mapBlockIndex.count(proposal.blockhash) == 0)
+                                    {
+                                        LogPrint("dao", "%s: Ignoring vote output, block %s not in main chain\n", __func__, proposal.blockhash.ToString());
                                         continue;
+                                    }
 
                                     CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
 
                                     if(pblockindex == nullptr)
+                                    {
+                                        LogPrint("dao", "%s: Ignoring vote output, block index %s is null\n", __func__, proposal.blockhash.ToString());
                                         continue;
+                                    }
 
                                     if(!((proposal.CanRequestPayments() || proposal.fState == DAOFlags::PENDING_VOTING_PREQ)
                                             && prequest.CanVote(view)
@@ -3623,6 +3635,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     continue;
                                 }
                             }
+                            else
+                            {
+                                LogPrint("dao", "%s: Ignoring vote output, could not find payment request %s\n", __func__, hash.ToString());
+                            }
+                        }
+                        else
+                        {
+                            LogPrint("dao", "%s: Ignoring duplicated vote for %s\n", __func__, hash.ToString());
                         }
                     }
                 }
@@ -4097,13 +4117,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             {
                 uint256 prid = uint256S(metadata[nPaymentRequestsCount].get_str());
 
-                if(!view.HavePaymentRequest(prid))
+                CPaymentRequest prequest;
+
+                if(!view.GetPaymentRequest(prid, prequest))
                     return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
 
-                CPaymentRequestModifier prequest = view.ModifyPaymentRequest(prid);
                 CProposal proposal;
 
-                if(!view.GetProposal(prequest->proposalhash, proposal))
+                if(!view.GetProposal(prequest.proposalhash, proposal))
                     return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
 
                 CTxDestination address;
@@ -4112,26 +4133,29 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(!fValidAddress)
                     return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
 
-                if (mapBlockIndex.count(prequest->blockhash) == 0)
-                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s", prequest->blockhash.ToString()));
+                if (mapBlockIndex.count(prequest.blockhash) == 0)
+                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s", prequest.blockhash.ToString()));
 
-                CBlockIndex* pblockindex = mapBlockIndex[prequest->blockhash];
+                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
 
                 if(pblockindex == nullptr)
-                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s.", prequest->blockhash.ToString()));
+                    return state.DoS(100, error("CheckBlock() : cant find payment request block %s.", prequest.blockhash.ToString()));
 
                 if(!(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
 
-                if(block.vtx[0].vout[i].nValue != prequest->nAmount || prequest->fState != DAOFlags::ACCEPTED || proposal.GetPaymentAddress() != CNavCoinAddress(address).ToString())
+                if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != DAOFlags::ACCEPTED || proposal.GetPaymentAddress() != CNavCoinAddress(address).ToString())
                     return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
 
-                if(prequest->paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
+                if(prequest.paymenthash != uint256() && pindex->pprev->nHeight >= Params().GetConsensus().nHeightv452Fork)
                     return state.DoS(100, error("CheckBlock() : coinbase output tries to pay an already paid payment request"));
 
-                prequest->paymenthash = block.GetHash();
+                CPaymentRequestModifier mprequest = view.ModifyPaymentRequest(prid);
 
-                LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
+                mprequest->paymenthash = block.GetHash();
+                mprequest->fDirty = true;
+
+                LogPrintf("%s: Updated payment request %s: paymenthash => %s\n", __func__, prequest.hash.ToString(), block.GetHash().ToString());
             }
             else
             {
@@ -5507,10 +5531,19 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                               ? pindexPrev->GetMedianTimePast()
                               : block.GetBlockTime();
 
-    // Check that all transactions are finalized
+    bool fColdStakingEnabled = IsColdStakingEnabled(pindexPrev,Params().GetConsensus());
+
+    // Check that all transactions are finalized and no early cold stake
     for(const CTransaction& tx: block.vtx) {
         if (!IsFinalTx(tx, nHeight, nLockTimeCutoff)) {
             return state.DoS(10, false, REJECT_INVALID, "bad-txns-nonfinal", false, "non-final transaction");
+        }
+
+        if (!fColdStakingEnabled)
+        {
+            for (const CTxOut& txout: tx.vout)
+                if(txout.scriptPubKey.IsColdStaking())
+                    return state.DoS(100, false, REJECT_INVALID, "cold-staking-not-enabled");
         }
     }
 

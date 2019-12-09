@@ -131,7 +131,7 @@ CProposalMap::const_iterator CStateViewCache::FetchProposal(const uint256 &pid) 
     CProposalMap::iterator it = cacheProposals.find(pid);
 
     if (it != cacheProposals.end())
-        return it;
+        return it->second.IsNull() ? cacheProposals.end() : it;
 
     CProposal tmp;
 
@@ -148,7 +148,7 @@ CPaymentRequestMap::const_iterator CStateViewCache::FetchPaymentRequest(const ui
     CPaymentRequestMap::iterator it = cachePaymentRequests.find(prid);
 
     if (it != cachePaymentRequests.end())
-        return it;
+        return it->second.IsNull() ? cachePaymentRequests.end() : it;
 
     CPaymentRequest tmp;
 
@@ -233,7 +233,7 @@ bool CStateViewCache::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vo
 
 bool CStateViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const {
     CProposalMap::const_iterator it = FetchProposal(pid);
-    if (it != cacheProposals.end()) {
+    if (it != cacheProposals.end() && !it->second.IsNull()) {
         proposal = it->second;
         return !proposal.IsNull();
     }
@@ -277,7 +277,11 @@ bool CStateViewCache::GetAllProposals(CProposalMap& mapProposal) {
         return false;
 
     for (CProposalMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapProposal.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapProposal.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapProposal.begin(); it != mapProposal.end();)
+        it->second.IsNull() ? mapProposal.erase(it++) : ++it;
 
     return true;
 }
@@ -292,7 +296,11 @@ bool CStateViewCache::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentReques
         return false;
 
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapPaymentRequests.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapPaymentRequests.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();)
+        it->second.IsNull() ? mapPaymentRequests.erase(it++) : ++it;
 
     return true;
 }
@@ -367,7 +375,11 @@ CCoinsModifier CStateViewCache::ModifyCoins(const uint256 &txid) {
 CProposalModifier CStateViewCache::ModifyProposal(const uint256 &pid) {
     assert(!hasModifier);
     std::pair<CProposalMap::iterator, bool> ret = cacheProposals.insert(std::make_pair(pid, CProposal()));
-    ret.first->second.fDirty = true;
+    if (ret.second) {
+        if (!base->GetProposal(pid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     return CProposalModifier(*this, ret.first);
 }
 
@@ -380,7 +392,11 @@ CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter) {
 CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &prid) {
     assert(!hasModifier);
     std::pair<CPaymentRequestMap::iterator, bool> ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest()));
-    ret.first->second.fDirty = true;
+    if (ret.second) {
+        if (!base->GetPaymentRequest(prid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     return CPaymentRequestModifier(*this, ret.first);
 }
 
@@ -562,6 +578,16 @@ bool CStateViewCache::HaveConsultationAnswer(const uint256 &cid) const {
 bool CStateViewCache::HaveCoinsInCache(const uint256 &txid) const {
     CCoinsMap::const_iterator it = cacheCoins.find(txid);
     return it != cacheCoins.end();
+}
+
+bool CStateViewCache::HaveProposalInCache(const uint256 &pid) const {
+    auto it = cacheProposals.find(pid);
+    return it != cacheProposals.end() && !it->second.IsNull();
+}
+
+bool CStateViewCache::HavePaymentRequestInCache(const uint256 &txid) const {
+    auto it = cachePaymentRequests.find(txid);
+    return it != cachePaymentRequests.end() && !it->second.IsNull();
 }
 
 uint256 CStateViewCache::GetBestBlock() const {

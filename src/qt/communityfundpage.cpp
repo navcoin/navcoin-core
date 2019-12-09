@@ -415,6 +415,17 @@ void CommunityFundPage::click_radioButtonExpired()
 
 void CommunityFundPage::click_pushButtonCreateProposal()
 {
+    if (!Params().GetConsensus().fDaoClientActivated)
+    {
+        QMessageBox msgBox(this);
+        QString str = tr("This function is temporarily disabled");
+        msgBox.setText(str);
+        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setWindowTitle(str);
+        msgBox.exec();
+        return;
+    }
     CommunityFundCreateProposalDialog dlg(this);
     dlg.setModel(walletModel);
     dlg.exec();
@@ -423,6 +434,17 @@ void CommunityFundPage::click_pushButtonCreateProposal()
 
 void CommunityFundPage::click_pushButtonCreatePaymentRequest()
 {
+    if (!Params().GetConsensus().fDaoClientActivated)
+    {
+        QMessageBox msgBox(this);
+        QString str = tr("This function is temporarily disabled");
+        msgBox.setText(str);
+        msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setWindowTitle(str);
+        msgBox.exec();
+        return;
+    }
     CommunityFundCreatePaymentRequestDialog dlg(this);
     dlg.setModel(walletModel);
     dlg.exec();

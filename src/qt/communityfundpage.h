@@ -6,6 +6,7 @@
 #include "wallet/wallet.h"
 
 #include <QCheckBox>
+#include <QMessageBox>
 #include <QWidget>
 #include <QPushButton>
 #include <QListView>

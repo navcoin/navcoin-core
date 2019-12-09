@@ -120,6 +120,7 @@ public:
         consensus.nMaxFutureDrift = 60;
         consensus.nHeightv451Fork = 2722100;
         consensus.nHeightv452Fork = 2882875;
+        consensus.fDaoClientActivated = false;
 
         consensus.nConsensusChangeMinAccept = 7500;
 
@@ -274,8 +275,8 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
-        vSeeds.push_back(CDNSSeedData("nav.community", "seed.nav.community"));
-        vSeeds.push_back(CDNSSeedData("navcoin.org", "seed.navcoin.org"));
+        vSeeds.push_back(CDNSSeedData("seed 1 nav.community", "seed.nav.community"));
+        vSeeds.push_back(CDNSSeedData("seed 2 nav.community", "seed2.nav.community"));
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
@@ -365,6 +366,7 @@ public:
         consensus.nMaxFutureDrift = 60;
         consensus.nHeightv451Fork = 100000;
         consensus.nHeightv452Fork = 100000;
+        consensus.fDaoClientActivated = true;
 
         consensus.nConsensusChangeMinAccept = 7500;
 
@@ -489,10 +491,10 @@ public:
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
     
-        uint32_t nTimestamp = 1545341312;
-        uint256 hashGenesisBlock = uint256S("0x0000a2ed763c6efc24bbb3ac8d9f1ab9e8f1e7100d5221ad80815cd7b369dc2c");
-        uint256 hashMerkleRoot = uint256S("0x02128838f2516796eb04f5b3fd143a7786001301dc5ffcfd2b2c687a2864aae9");
-        uint32_t nNonce = 2043585747;
+        uint32_t nTimestamp = 1573858751;
+        uint256 hashGenesisBlock = uint256S("0x0000814badaca9379dae4d4f91a32bb46ac0e5956426a7639508033fa46ec7bf");
+        uint256 hashMerkleRoot = uint256S("0x52724cf718f449fc73bd7a9707160f4987ec71e460304337fcf5a69724218cf8");
+        uint32_t nNonce = 2043587675;
 	    
         genesis = CreateGenesisBlockTestnet(nTimestamp, nNonce, 0x1d00ffff, 1, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -589,6 +591,7 @@ public:
         consensus.nMaxFutureDrift = 60000;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
+        consensus.fDaoClientActivated = true;
 
         consensus.nConsensusChangeMinAccept = 7500;
 
@@ -823,6 +826,7 @@ public:
         consensus.nMaxFutureDrift = 60000;
         consensus.nHeightv451Fork = 1000;
         consensus.nHeightv452Fork = 1000;
+        consensus.fDaoClientActivated = true;
 
         consensus.nConsensusChangeMinAccept = 7500;
 

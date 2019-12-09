@@ -348,9 +348,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
         {
-            if(!view.GetProposal(pindexblock->vProposalVotes[i].first, proposal))
-                continue;
-
             if(mapSeen.count(pindexblock->vProposalVotes[i].first) == 0)
             {
                 LogPrint("dao", "%s: Found vote %d for proposal %s at block height %d\n", __func__,
@@ -373,20 +370,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++)
         {
-            if(!view.GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
-                continue;
-
-            if(!view.GetProposal(prequest.proposalhash, proposal))
-                continue;
-
-            if (mapBlockIndex.count(proposal.blockhash) == 0)
-                continue;
-
-            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
-
-            if(pindexblockparent == NULL)
-                continue;
-
             if(mapSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
             {
                 LogPrint("dao", "%s: Found vote %d for payment request %s at block height %d\n", __func__,
@@ -412,7 +395,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!it.second)
                 continue;
 
-            if ((view.GetConsultation(it.first, consultation) || view.GetConsultationAnswer(it.first, answer)) && !mapSeenSupport.count(it.first))
+            if (!mapSeenSupport.count(it.first))
             {
                 LogPrint("dao", "%s: Found support vote for %s at block height %d\n", __func__,
                          it.first.ToString(),
@@ -466,15 +449,27 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeStart3 = GetTimeMicros();
 
+    bool fLog = LogAcceptCategory("dao");
+
     for(auto& it: mapCacheProposalsToUpdate)
     {
         if (view.HaveProposal(it.first))
         {
+            CProposal tmp; CProposal oldproposal = CProposal();
+            if (fLog)
+            {
+                view.GetProposal(it.first, tmp);
+                tmp.swap(oldproposal);
+            }
             CProposalModifier proposal = view.ModifyProposal(it.first);
             proposal->nVotesYes = it.second.first.first;
             proposal->nVotesAbs = it.second.second;
             proposal->nVotesNo = it.second.first.second;
-            LogPrint("dao", "%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), proposal->ToString(view));
+            proposal->fDirty = true;
+            if (*proposal != oldproposal)
+            {
+                if (fLog) LogPrintf("%s: Updated proposal %s votes: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), proposal->nVotesYes, proposal->nVotesNo);
+            }
             mapSeen[proposal->hash]=true;
         }
     }
@@ -483,10 +478,21 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         if(view.HavePaymentRequest(it.first))
         {
+            CPaymentRequest tmp; CPaymentRequest oldprequest = CPaymentRequest();
+            if (fLog)
+            {
+                view.GetPaymentRequest(it.first, tmp);
+                tmp.swap(oldprequest);
+            }
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it.first);
             prequest->nVotesYes = it.second.first.first;
             prequest->nVotesAbs = it.second.second;
             prequest->nVotesNo = it.second.first.second;
+            prequest->fDirty = true;
+            if (*prequest != oldprequest)
+            {
+                if (fLog) LogPrintf("%s: Updated payment request %s votes: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), prequest->nVotesYes, prequest->nVotesNo);
+            }
             LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
             mapSeen[prequest->hash]=true;
         }
@@ -552,6 +558,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 continue;
 
             bool fUpdate = false;
+
+            CPaymentRequest tmp; CPaymentRequest oldprequest = CPaymentRequest();
+
+            if (fLog)
+            {
+                view.GetPaymentRequest(it->first, tmp);
+                tmp.swap(oldprequest);
+            }
 
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
 
@@ -666,8 +680,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if (fUpdate)
-                LogPrint("dao", "%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), prequest->ToString());
+            prequest->fDirty = fUpdate;
+
+            if (*prequest != oldprequest)
+            {
+                if (fLog) LogPrintf("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
+            }
         }
     }
 
@@ -685,6 +703,15 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 continue;
 
             bool fUpdate = false;
+
+            CProposal tmp;
+            CProposal oldproposal = CProposal();
+
+            if (fLog)
+            {
+                view.GetProposal(it->first, tmp);
+                tmp.swap(oldproposal);
+            }
 
             CProposalModifier proposal = view.ModifyProposal(it->first);
 
@@ -807,8 +834,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if (fUpdate)
-                LogPrint("dao", "%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), proposal->ToString(view));
+            proposal->fDirty = fUpdate;
+
+            if (*proposal != oldproposal)
+            {
+                if (fLog) LogPrintf("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
+            }
         }
     }
 
@@ -1728,7 +1759,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
 
     CProposal proposal;
 
-    if(!coins.GetProposal(uint256S(Hash), proposal))
+    if(!coins.GetProposal(uint256S(Hash), proposal)  || proposal.fState != DAOFlags::ACCEPTED)
         return error("%s: Could not find parent proposal %s for payment request %s", __func__, Hash.c_str(),tx.GetHash().ToString());
 
     std::string sRandom = "";
@@ -1953,7 +1984,7 @@ bool CProposal::CanVote() const {
     if(!chainActive.Contains(pindex))
         return false;
 
-    return (fState == DAOFlags::NIL);
+    return (fState == DAOFlags::NIL) && (!ExceededMaxVotingCycles());
 }
 
 uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
@@ -2160,6 +2191,7 @@ void CPaymentRequest::ToJson(UniValue& ret) const {
     ret.pushKV("version",(uint64_t)nVersion);
     ret.pushKV("hash", hash.ToString());
     ret.pushKV("blockHash", txblockhash.ToString());
+    ret.pushKV("proposalHash", proposalhash.ToString());
     ret.pushKV("description", strDZeel);
     ret.pushKV("requestedAmount", FormatMoney(nAmount));
     ret.pushKV("votesYes", nVotesYes);

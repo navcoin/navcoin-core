@@ -131,6 +131,8 @@ struct Params {
     int nHeightv451Fork;
     int nHeightv452Fork;
 
+    bool fDaoClientActivated;
+
     /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
     int nCoinbaseMaturity;
 

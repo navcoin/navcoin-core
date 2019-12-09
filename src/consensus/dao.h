@@ -351,6 +351,49 @@ public:
         std::swap(to.fDirty, fDirty);
     }
 
+    bool operator==(const CPaymentRequest& b) const {
+        return nAmount == b.nAmount
+                && fState == b.fState
+                && hash == b.hash
+                && proposalhash == b.proposalhash
+                && txblockhash == b.txblockhash
+                && blockhash == b.blockhash
+                && paymenthash == b.paymenthash
+                && nVotesYes == b.nVotesYes
+                && nVotesNo == b.nVotesNo
+                && nVotesAbs == b.nVotesAbs
+                && strDZeel == b.strDZeel
+                && nVersion == b.nVersion
+                && nVotingCycle == b.nVotingCycle;
+    }
+
+    bool operator!=(const CPaymentRequest& b) const {
+        return !(*this == b);
+    }
+
+    std::string diff(const CPaymentRequest& b) const {
+        std::string ret = "";
+        if (nAmount != b.nAmount) ret += strprintf("nAmount: %d => %d, ", nAmount, b.nAmount);
+        if (fState != b.fState) ret += strprintf("fState: %d => %d, ", fState, b.fState);
+        if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
+        if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
+        if (nVotesAbs != b.nVotesAbs) ret += strprintf("nVotesAbs: %d => %d, ", nVotesAbs, b.nVotesAbs);
+        if (strDZeel != b.strDZeel) ret += strprintf("strDZeel: %s => %s, ", strDZeel, b.strDZeel);
+        if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
+        if (proposalhash != b.proposalhash) ret += strprintf("proposalhash: %s => %s, ", proposalhash.ToString(), b.proposalhash.ToString());
+        if (paymenthash != b.paymenthash) ret += strprintf("paymenthash: %s => %s, ", paymenthash.ToString(), b.paymenthash.ToString());
+        if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
+        if (blockhash != b.blockhash) ret += strprintf("blockhash: %s => %s, ", blockhash.ToString(), b.blockhash.ToString());
+        if (nVersion != b.nVersion) ret += strprintf("nVersion: %d => %d, ", nVersion, b.nVersion);
+        if (nVotingCycle != b.nVotingCycle) ret += strprintf("nVotingCycle: %d => %d, ", nVotingCycle, b.nVotingCycle);
+        if (ret != "")
+        {
+            ret.pop_back();
+            ret.pop_back();
+        }
+        return ret;
+    }
+
     bool IsNull() const {
         return (nAmount == 0 && fState == DAOFlags::NIL && nVotesYes == 0  && nVotesYes == 0 && nVotesAbs == 0 && strDZeel == "");
     }
@@ -506,6 +549,64 @@ public:
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
         std::swap(to.fDirty, fDirty);
+    }
+
+    bool operator==(const CProposal& b) const {
+        return nAmount == b.nAmount
+                && nFee == b.nFee
+                && ownerAddress == b.ownerAddress
+                && paymentAddress == b.paymentAddress
+                && nDeadline == b.nDeadline
+                && fState == b.fState
+                && nVotesYes == b.nVotesYes
+                && nVotesNo == b.nVotesNo
+                && nVotesAbs == b.nVotesAbs
+                && vPayments == b.vPayments
+                && strDZeel == b.strDZeel
+                && hash == b.hash
+                && txblockhash == b.txblockhash
+                && blockhash == b.blockhash
+                && nVersion == b.nVersion
+                && nVotingCycle == b.nVotingCycle;
+    }
+
+    std::string diff(const CProposal& b) const {
+        std::string ret = "";
+        if (nAmount != b.nAmount) ret += strprintf("nAmount: %d => %d, ", nAmount, b.nAmount);
+        if (nFee != b.nFee) ret += strprintf("nFee: %d => %d, ", nFee, b.nFee);
+        if (ownerAddress != b.ownerAddress) ret += strprintf("ownerAddress: %s => %s, ", ownerAddress, b.ownerAddress);
+        if (paymentAddress != b.paymentAddress) ret += strprintf("paymentAddress: %s => %s, ", paymentAddress, b.paymentAddress);
+        if (nDeadline != b.nDeadline) ret += strprintf("nDeadline: %d => %d, ", nDeadline, b.nDeadline);
+        if (fState != b.fState) ret += strprintf("fState: %d => %d, ", fState, b.fState);
+        if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
+        if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
+        if (nVotesAbs != b.nVotesAbs) ret += strprintf("nVotesAbs: %d => %d, ", nVotesAbs, b.nVotesAbs);
+        if (vPayments != b.vPayments)
+        {
+            std::string thisStrPayments = "";
+            std::string bStrPayments = "";
+            for (auto &it:vPayments) thisStrPayments += it.ToString()+",";
+            for (auto &it:b.vPayments) bStrPayments += it.ToString()+",";
+            thisStrPayments.pop_back();
+            bStrPayments.pop_back();
+            ret += strprintf("vPayments: %s => %s, ", thisStrPayments, bStrPayments);
+        }
+        if (strDZeel != b.strDZeel) ret += strprintf("strDZeel: %s => %s, ", strDZeel, b.strDZeel);
+        if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
+        if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
+        if (blockhash != b.blockhash) ret += strprintf("blockhash: %s => %s, ", blockhash.ToString(), b.blockhash.ToString());
+        if (nVersion != b.nVersion) ret += strprintf("nVersion: %d => %d, ", nVersion, b.nVersion);
+        if (nVotingCycle != b.nVotingCycle) ret += strprintf("nVotingCycle: %s => %s, ", nVotingCycle, b.nVotingCycle);
+        if (ret != "")
+        {
+            ret.pop_back();
+            ret.pop_back();
+        }
+        return ret;
+    }
+
+    bool operator!=(const CProposal& b) const {
+        return !(*this == b);
     }
 
     bool IsNull() const {
