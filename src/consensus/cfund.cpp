@@ -674,7 +674,7 @@ void CFund::CProposal::ToJson(UniValue& ret, CCoinsViewCache& coins) const {
     ret.pushKV("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesProposalVoting));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     ret.pushKV("status", GetState(chainActive.Tip()->GetBlockTime()));
-    ret.pushKV("state", (uint64_t)fState);
+    ret.pushKV("state", (uint64_t)GetLastState());
     if(blockhash != uint256())
         ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     CPaymentRequestMap mapPaymentRequests;
@@ -717,7 +717,7 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret, bool root) const {
     ret.pushKV("votingCycle", (uint64_t)std::min(nVotingCycle, Params().GetConsensus().nCyclesPaymentRequestVoting));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     ret.pushKV("status", GetState());
-    ret.pushKV("state", (uint64_t)fState);
+    ret.pushKV("state", (uint64_t)GetLastState());
     CBlockIndex* pblockindex = GetLastStateBlockIndex();
     if (pblockindex)
         ret.pushKV("stateChangedOnBlock", pblockindex->GetBlockHash().ToString());
