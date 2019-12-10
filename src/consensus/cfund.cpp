@@ -829,9 +829,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CProposalModifier proposal = view.ModifyProposal(it->first);
             proposal->nVotesYes = it->second.first;
             proposal->nVotesNo = it->second.second;
-            proposal->fDirty = true;
             if (*proposal != oldproposal)
             {
+                proposal->fDirty = true;
                 if (fLog) LogPrintf("%s: Updated proposal %s votes at height %d: yes(%d) no(%d)\n", __func__, proposal->hash.ToString(), pindexNew->nHeight, proposal->nVotesYes, proposal->nVotesNo);
             }
             vSeen[proposal->hash]=true;
@@ -851,9 +851,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
             prequest->nVotesYes = it->second.first;
             prequest->nVotesNo = it->second.second;
-            prequest->fDirty = true;
             if (*prequest != oldprequest)
             {
+                prequest->fDirty = true;
                 if (fLog) LogPrintf("%s: Updated payment request %s votes at height %d: yes(%d) no(%d)\n", __func__, prequest->hash.ToString(), pindexNew->nHeight, prequest->nVotesYes, prequest->nVotesNo);
             }
             vSeen[prequest->hash]=true;
@@ -974,10 +974,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 }
             }
 
-            prequest->fDirty = fUpdate;
-
             if (*prequest != oldprequest)
             {
+                prequest->fDirty = true;
                 if (fLog) LogPrintf("%s: Updated payment request %s at height %d: %s\n", __func__, prequest->hash.ToString(),  pindexNew->nHeight, oldprequest.diff(*prequest));
             }
 
@@ -1109,10 +1108,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
                 }
             }
 
-            proposal->fDirty = true;
-
             if (*proposal != oldproposal)
             {
+                proposal->fDirty = true;
                 if (fLog) LogPrintf("%s: Updated proposal %s at height %d: %s\n", __func__, proposal->hash.ToString(), pindexNew->nHeight, oldproposal.diff(*proposal));
             }
         }
