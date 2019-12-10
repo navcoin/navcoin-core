@@ -5394,6 +5394,30 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     CCoinsViewCache coins(coinsview);
     uint256 prevStateHash;
     if (nCheckLevel >= 4) prevStateHash = coins.GetCFundDBStateHash(chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply);
+    std::string sBefore = "";
+    if (LogAcceptCategory("dao"))
+    {
+        CProposalMap proposalMap;
+        CPaymentRequestMap paymentRequestMap;
+        if (coins.GetAllProposals(proposalMap))
+        {
+            for (auto& it: proposalMap)
+            {
+                UniValue prop(UniValue::VOBJ);
+                it.second.ToJson(prop, coins);
+                sBefore += strprintf("%s\n",prop.write());
+            }
+        }
+        if (coins.GetAllPaymentRequests(paymentRequestMap))
+        {
+            for (auto& it: paymentRequestMap)
+            {
+                UniValue preq(UniValue::VOBJ);
+                it.second.ToJson(preq, true);
+                sBefore += strprintf("%s\n",preq.write());
+            }
+        }
+    }
     CBlockIndex* pindexState = chainActive.Tip();
     CBlockIndex* pindexFailure = nullptr;
     int nGoodTransactions = 0;
@@ -5469,7 +5493,46 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
         }
         uint256 nowStateHash = coins.GetCFundDBStateHash(pindex->nCFLocked, pindex->nCFSupply);
         if (prevStateHash != nowStateHash)
-            return error("VerifyDB(): *** the cfund db state hash differs after reconnecting blocks. it was %d, it is %s after\n", prevStateHash.ToString(), nowStateHash.ToString());
+        {
+            std::string sExtra = "";
+            std::string sAfter = "";
+            if (LogAcceptCategory("dao"))
+            {
+                CProposalMap proposalMap;
+                CPaymentRequestMap paymentRequestMap;
+                if (coins.GetAllProposals(proposalMap))
+                {
+                    for (auto& it: proposalMap)
+                    {
+                        UniValue prop(UniValue::VOBJ);
+                        it.second.ToJson(prop, coins);
+                        sAfter += strprintf("%s\n",prop.write());
+                    }
+                }
+                if (coins.GetAllPaymentRequests(paymentRequestMap))
+                {
+                    for (auto& it: paymentRequestMap)
+                    {
+                        UniValue preq(UniValue::VOBJ);
+                        it.second.ToJson(preq, true);
+                        sAfter += strprintf("%s\n",preq.write());
+                    }
+                }
+                ofstream file_before;
+                ofstream file_after;
+                file_before.open((GetDataDir() / "listproposals_before.out").string().c_str());
+                file_after.open((GetDataDir() / "listproposals_after.out").string().c_str());
+                if (file_before.is_open() && file_after.is_open())
+                {
+                    file_before << sBefore;
+                    file_after << sAfter;
+                    file_before.close();
+                    file_after.close();
+                    sExtra = " You can find a dump of listproposals after and before the tests in listproposals_before.out and listproposals_after.out in your data folder.";
+                }
+            }
+            return error("VerifyDB(): *** the cfund db state hash differs after reconnecting blocks. it was %d, it is %s after.%s\n", prevStateHash.ToString(), nowStateHash.ToString(), sExtra);
+        }
     }
 
     LogPrintf("[DONE].\n");
