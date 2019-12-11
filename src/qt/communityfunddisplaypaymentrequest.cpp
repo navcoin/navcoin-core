@@ -55,8 +55,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
     ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
     uint64_t proptime = 0;
-    if (mapBlockIndex.count(prequest.blockhash) > 0) {
-        proptime = mapBlockIndex[prequest.blockhash]->GetBlockTime();
+    CBlockIndex* pblockindex = prequest.GetLastStateBlockIndex();
+    if (pblockindex) {
+        proptime = pblockindex->GetBlockTime();
     }
 
     uint64_t deadline = proptime - pindexBestHeader->GetBlockTime();
@@ -78,8 +79,10 @@ void CommunityFundDisplayPaymentRequest::refresh()
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
+    auto fLastState = prequest.GetLastState();
+
     // If prequest is accepted, show when it was accepted
-    if (prequest.fState == CFund::ACCEPTED)
+    if (fLastState == CFund::ACCEPTED)
     {
         std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
@@ -92,7 +95,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If prequest is pending show voting cycles left
-    if (prequest.fState == CFund::NIL)
+    if (fLastState == CFund::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
         std::string duration = std::to_string(prequest.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesPaymentRequestVoting);
@@ -101,7 +104,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If prequest is rejected, show when it was rejected
-    if (prequest.fState == CFund::REJECTED)
+    if (fLastState == CFund::REJECTED)
     {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
@@ -114,9 +117,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If expired show when it expired
-    if (prequest.fState == CFund::EXPIRED || status.find("expired") != string::npos)
+    if (fLastState == CFund::EXPIRED || status.find("expired") != string::npos)
     {
-        if (prequest.fState == CFund::EXPIRED)
+        if (fLastState == CFund::EXPIRED)
         {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
@@ -138,7 +141,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos)
+    if (fLastState == CFund::NIL && prequest.GetState().find("expired") == string::npos)
     {
         // Get prequest votes list
         CFund::CPaymentRequest preq = prequest;

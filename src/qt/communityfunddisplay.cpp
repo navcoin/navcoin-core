@@ -59,8 +59,9 @@ void CommunityFundDisplay::refresh()
     ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
     uint64_t proptime = 0;
-    if (mapBlockIndex.count(proposal.blockhash) > 0) {
-        proptime = mapBlockIndex[proposal.blockhash]->GetBlockTime();
+    CBlockIndex* pblockindex = proposal.GetLastStateBlockIndex();
+    if (pblockindex) {
+        proptime = pblockindex->GetBlockTime();
     }
 
     uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
@@ -83,8 +84,10 @@ void CommunityFundDisplay::refresh()
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
+    flags fLastState = proposal.GetLastState();
+
     // If proposal is pending show voting cycles left
-    if (proposal.fState == CFund::NIL)
+    if (fLastState == CFund::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
         std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesProposalVoting);
@@ -93,7 +96,7 @@ void CommunityFundDisplay::refresh()
     }
 
     // If proposal is rejected, show when it was rejected
-    if (proposal.fState == CFund::REJECTED)
+    if (fLastState == CFund::REJECTED)
     {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
@@ -106,16 +109,16 @@ void CommunityFundDisplay::refresh()
     }
 
     // If expired show when it expired
-    if (proposal.fState == CFund::EXPIRED || status.find("expired") != string::npos)
+    if (fLastState == CFund::EXPIRED || status.find("expired") != string::npos)
     {
-        if (proposal.fState == CFund::EXPIRED)
+        if (fLastState == CFund::EXPIRED)
         {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
             char buf[48];
             if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-		ss << buf;
+                ss << buf;
             ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
             ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
         }
@@ -130,7 +133,7 @@ void CommunityFundDisplay::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+    if (fLastState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
     {
         // Get proposal votes list
         CFund::CProposal prop = this->proposal;

@@ -774,11 +774,11 @@ void NavCoinGUI::updateDaoNewCount()
             if (!pcoinsTip->GetProposal(it->first, proposal))
                 continue;
 
-            if (!(proposal.fState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos))
+            if (proposal.GetLastState() != CFund::NIL)
                 continue;
 
             auto _it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                    [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
+                    [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
 
             if (_it != vAddedProposalVotes.end())
                 continue;
@@ -799,11 +799,11 @@ void NavCoinGUI::updateDaoNewCount()
             if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                 continue;
 
-            if (!(prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos))
+            if (prequest.GetLastState() != CFund::NIL)
                 continue;
 
             auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                    [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
+                    [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
 
             if (it != vAddedPaymentRequestVotes.end())
                 continue;
@@ -1860,51 +1860,6 @@ void NavCoinGUI::updateStakingStatus()
     }
     else if (nLastCoinStakeSearchInterval && nWeight)
     {
-        {
-            LOCK(cs_main);
-
-            CProposalMap mapProposals;
-
-            if(pcoinsTip->GetAllProposals(mapProposals))
-            {
-                for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
-                {
-                    CFund::CProposal proposal;
-                    if (!pcoinsTip->GetProposal(it_->first, proposal))
-                        continue;
-                    if (proposal.fState != CFund::NIL)
-                        continue;
-                    auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                            [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-                    if (it == vAddedProposalVotes.end()) {
-                        break;
-                    }
-                }
-            }
-        }
-        {
-            CPaymentRequestMap mapPaymentRequests;
-
-            if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
-            {
-                for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
-                {
-                    CFund::CPaymentRequest prequest;
-
-                    if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
-                        continue;
-
-                    if (prequest.fState != CFund::NIL)
-                        continue;
-                    auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                            [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-                    if (it == vAddedPaymentRequestVotes.end()) {
-                        break;
-                    }
-                }
-            }
-        }
-
         uint64_t nWeight = this->nWeight;
         uint64_t nNetworkWeight = GetPoSKernelPS();
         int nBestHeight = pindexBestHeader->nHeight;

@@ -343,7 +343,8 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
     {
         LOCK(cs_main);
-        if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, true))
+        CCoinsViewCache view(pcoinsTip);
+        if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, view, true))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
 
         BlockMap::iterator mi = mapBlockIndex.find(hashBlock);
@@ -429,7 +430,8 @@ UniValue gettxoutproof(const UniValue& params, bool fHelp)
     if (pblockindex == nullptr)
     {
         CTransaction tx;
-        if (!GetTransaction(oneTxid, tx, Params().GetConsensus(), hashBlock, false) || hashBlock.IsNull())
+        CCoinsViewCache view(pcoinsTip);
+        if (!GetTransaction(oneTxid, tx, Params().GetConsensus(), hashBlock, view, false) || hashBlock.IsNull())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Transaction not yet in block");
         if (!mapBlockIndex.count(hashBlock))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Transaction index corrupt");
