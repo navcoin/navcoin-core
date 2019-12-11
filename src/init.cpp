@@ -1555,8 +1555,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     LogPrintf("* Using %.1fMiB for in-memory UTXO set (plus up to %.1fMiB of unused mempool space)\n", nCoinCacheUsage * (1.0 / 1024 / 1024), nMempoolSizeMax * (1.0 / 1024 / 1024));
 
     bool fLoaded = false;
+
     while (!fLoaded) {
         bool fReset = fReindex;
+        bool fNeedsReindexChainstate = false;
         std::string strLoadError;
 
         uiInterface.InitMessage(_("Loading block index..."));
@@ -1662,11 +1664,16 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 }
 
                 std::vector<CFund::CProposal> vProposals;
+                CProposalMap mapProposals;
 
                 if (pblocktree->GetProposalIndex(vProposals))
                 {
-                    CProposalMap mapProposals;
-                    pcoinsTip->GetAllProposals(mapProposals);
+                    if (!pcoinsTip->GetAllProposals(mapProposals))
+                    {
+                        fNeedsReindexChainstate = true;
+                        strLoadError = _("Old data base structure detected");
+                        break;
+                    }
                     if (vProposals.size() > 0 && mapProposals.size() == 0)
                     {
                         LogPrintf("Importing %d proposals to the new CoinsDB...\n", vProposals.size());
@@ -1675,14 +1682,24 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                             pcoinsTip->AddProposal(it);
                         }
                     }
+                } else if (!pcoinsTip->GetAllProposals(mapProposals))
+                {
+                    fNeedsReindexChainstate = true;
+                    strLoadError = _("Old data base structure detected");
+                    break;
                 }
 
                 std::vector<CFund::CPaymentRequest> vPaymentRequests;
+                CPaymentRequestMap mapPaymentRequest;
 
                 if (pblocktree->GetPaymentRequestIndex(vPaymentRequests))
                 {
-                    CPaymentRequestMap mapPaymentRequest;
-                    pcoinsTip->GetAllPaymentRequests(mapPaymentRequest);
+                    if (!pcoinsTip->GetAllPaymentRequests(mapPaymentRequest))
+                    {
+                        fNeedsReindexChainstate = true;
+                        strLoadError = _("Old data base structure detected");
+                        break;
+                    }
                     if (vPaymentRequests.size() > 0 && mapPaymentRequest.size() == 0)
                     {
                         LogPrintf("Importing %d payment requests to the new CoinsDB...\n", vPaymentRequests.size());
@@ -1691,6 +1708,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                             pcoinsTip->AddPaymentRequest(it);
                         }
                     }
+                } else if (!pcoinsTip->GetAllPaymentRequests(mapPaymentRequest))
+                {
+                    fNeedsReindexChainstate = true;
+                    strLoadError = _("Old data base structure detected");
+                    break;
                 }
 
             } catch (const std::exception& e) {
@@ -1707,10 +1729,13 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             if (!fReset) {
                 bool fRet = uiInterface.ThreadSafeQuestion(
                             strLoadError + ".\n\n" + _("Do you want to rebuild the block database now?"),
-                            strLoadError + ".\nPlease restart with -reindex or -reindex-chainstate to recover.",
+                            strLoadError + ".\nPlease restart with " + (fNeedsReindexChainstate ? "" : "-reindex or ") + "-reindex-chainstate to recover.",
                             "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
                 if (fRet) {
-                    fReindex = true;
+                    if (fNeedsReindexChainstate)
+                        fReindexChainState = true;
+                    else
+                        fReindex = true;
                     fRequestShutdown = false;
                 } else {
                     LogPrintf("Aborted block database rebuild. Exiting.\n");

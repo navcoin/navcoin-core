@@ -157,6 +157,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     LOCK2(cs_main, mempool.cs);
     CBlockIndex* pindexPrev = chainActive.Tip();
     nHeight = pindexPrev->nHeight + 1;
+    CCoinsViewCache view(pcoinsTip);
 
     // Decide whether to include witness transactions
     // This is only needed in case the witness softfork activation is reverted
@@ -215,7 +216,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             CFund::CProposal proposal;
             bool vote = vAddedProposalVotes[i].second;
-            if(pcoinsTip->GetProposal(uint256S(vAddedProposalVotes[i].first), proposal))
+            if(view.GetProposal(uint256S(vAddedProposalVotes[i].first), proposal))
             {
                 if(proposal.CanVote() && votes.count(proposal.hash) == 0)
                 {
@@ -232,17 +233,15 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             CFund::CPaymentRequest prequest; CFund::CProposal proposal;
             bool vote = vAddedPaymentRequestVotes[i].second;
-            if(pcoinsTip->GetPaymentRequest(uint256S(vAddedPaymentRequestVotes[i].first), prequest))
+            if(view.GetPaymentRequest(uint256S(vAddedPaymentRequestVotes[i].first), prequest))
             {
-                if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+                if(!view.GetProposal(prequest.proposalhash, proposal))
                     continue;
-                if (mapBlockIndex.count(proposal.blockhash) == 0)
-                    continue;
-                CBlockIndex* pblockindex = mapBlockIndex[proposal.blockhash];
+                CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(CFund::ACCEPTED);
                 if(pblockindex == nullptr)
                     continue;
-                if((proposal.CanRequestPayments() || proposal.fState == CFund::PENDING_VOTING_PREQ)
-                        && prequest.CanVote(*pcoinsTip) && votes.count(prequest.hash) == 0 &&
+                if((proposal.CanRequestPayments() || proposal.GetLastState() == CFund::PENDING_VOTING_PREQ)
+                        && prequest.CanVote(view) && votes.count(prequest.hash) == 0 &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
@@ -256,26 +255,23 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         UniValue strDZeel(UniValue::VARR);
         CPaymentRequestMap mapPaymentRequests;
 
-        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+        if(view.GetAllPaymentRequests(mapPaymentRequests))
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
                 CFund::CPaymentRequest prequest;
 
-                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                if (!view.GetPaymentRequest(it_->first, prequest))
                     continue;
-
-                if (mapBlockIndex.count(prequest.blockhash) == 0)
-                    continue;
-                CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
+                CBlockIndex* pblockindex = prequest.GetLastStateBlockIndexForState(CFund::ACCEPTED);
                 if(pblockindex == nullptr)
                     continue;
                 if(prequest.hash == uint256())
                     continue;
-                if(prequest.fState == CFund::ACCEPTED && prequest.paymenthash == uint256() &&
+                if(prequest.GetLastState() == CFund::ACCEPTED &&
                         pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge) {
                     CFund::CProposal proposal;
-                    if(pcoinsTip->GetProposal(prequest.proposalhash, proposal)) {
+                    if(view.GetProposal(prequest.proposalhash, proposal)) {
                         CNavCoinAddress addr(proposal.Address);
                         if (!addr.IsValid())
                             continue;
@@ -980,8 +976,10 @@ bool CheckStake(CBlock* pblock, CWallet& wallet, const CChainParams& chainparams
     if (mapBlockIndex.count(pblock->hashPrevBlock) == 0)
         return error("CheckStake(): could not find previous block");
 
+    CCoinsViewCache view(pcoinsTip);
+
     // verify hash target and signature of coinstake tx
-    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], pblock->vtx[1], pblock->nBits, proofHash, hashTarget, nullptr, *pcoinsTip, false))
+    if (!CheckProofOfStake(mapBlockIndex[pblock->hashPrevBlock], pblock->vtx[1], pblock->nBits, proofHash, hashTarget, nullptr, view, false))
         return error("CheckStake() : proof-of-stake checking failed");
 
     //// debug print

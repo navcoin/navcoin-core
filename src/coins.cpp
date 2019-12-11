@@ -6,6 +6,8 @@
 
 #include <memusage.h>
 #include <random.h>
+#include <util.h>
+#include <utiltime.h>
 
 #include <assert.h>
 
@@ -267,7 +269,10 @@ bool CCoinsViewCache::AddProposal(const CProposal& proposal) const {
     if (HaveProposal(proposal.hash))
         return false;
 
-    cacheProposals.insert(std::make_pair(proposal.hash, proposal));
+    if (cacheProposals.count(proposal.hash))
+        cacheProposals[proposal.hash]=proposal;
+    else
+        cacheProposals.insert(std::make_pair(proposal.hash, proposal));
 
     return true;
 }
@@ -275,7 +280,12 @@ bool CCoinsViewCache::AddProposal(const CProposal& proposal) const {
 bool CCoinsViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
     if (HavePaymentRequest(prequest.hash))
         return false;
-    cachePaymentRequests.insert(std::make_pair(prequest.hash, prequest));
+
+    if (cachePaymentRequests.count(prequest.hash))
+        cachePaymentRequests[prequest.hash]=prequest;
+    else
+        cachePaymentRequests.insert(std::make_pair(prequest.hash, prequest));
+
     return true;
 }
 
@@ -436,6 +446,46 @@ void CCoinsViewCache::Uncache(const uint256& hash)
 
 unsigned int CCoinsViewCache::GetCacheSize() const {
     return cacheCoins.size();
+}
+
+uint256 CCoinsViewCache::GetCFundDBStateHash(const CAmount& nCFLocked, const CAmount& nCFSupply)
+{
+    CPaymentRequestMap mapPaymentRequests;
+    CProposalMap mapProposals;
+
+    int64_t nTimeStart = GetTimeMicros();
+
+    CHashWriter writer(0,0);
+
+    writer << nCFSupply;
+    writer << nCFLocked;
+
+    if (GetAllProposals(mapProposals) && GetAllPaymentRequests(mapPaymentRequests))
+    {
+
+        for (auto &it: mapProposals)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapPaymentRequests)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+    }
+
+    uint256 ret = writer.GetHash();
+    int64_t nTimeEnd = GetTimeMicros();
+    LogPrint("bench", " Benchmark: Calculate CFundDB state hash: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+
+    return ret;
 }
 
 const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const

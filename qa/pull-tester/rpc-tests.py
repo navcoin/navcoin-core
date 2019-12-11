@@ -190,7 +190,8 @@ testScripts = [
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py',
-    'createrawscriptaddress.py'
+    'createrawscriptaddress.py',
+    'cfunddb-statehash.py'
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')

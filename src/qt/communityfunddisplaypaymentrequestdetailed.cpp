@@ -21,9 +21,11 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     //update labels
     setPrequestLabels();
 
+    auto fLastState = prequest.GetLastState();
+
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (prequest.fState == CFund::NIL && prequest.GetState().find("expired") == string::npos) {
+    if (fLastState == CFund::NIL && prequest.GetState().find("expired") == string::npos) {
         // Get prequest votes list
         auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
                                 [&prequest](const std::pair<std::string, bool>& element){ return element.first == prequest.hash.ToString();} );
@@ -82,8 +84,14 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     // Payment Request Hash
     ui->labelPrequestHash->setText(QString::fromStdString(prequest.hash.ToString()));
 
+    uint256 blockhash = uint256();
+    CBlockIndex* pblockindex = prequest.GetLastStateBlockIndex();
+
+    if (pblockindex)
+        blockhash = pblockindex->GetBlockHash();
+
     // Transaction Block Hash
-    ui->labelPrequestTransactionBlockHash->setText(QString::fromStdString(prequest.blockhash.ToString()));
+    ui->labelPrequestTransactionBlockHash->setText(QString::fromStdString(blockhash.ToString()));
 
     // Transaction Hash
     ui->labelPrequestTransactionHash->setText(QString::fromStdString(prequest.txblockhash.ToString()));
@@ -97,9 +105,6 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     // Proposal Hash
     ui->labelPrequestProposalHash->setText(QString::fromStdString(prequest.proposalhash.ToString()));
 
-    // Payment Hash
-    ui->labelPrequestPaymentHash->setText(QString::fromStdString(prequest.paymenthash.ToString()));
-
     // Link
     ui->labelPrequestLink->setText(QString::fromStdString("https://www.navexplorer.com/community-fund/payment-request/" + prequest.hash.ToString()));
 
@@ -111,12 +116,13 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
 
     // Expiry
     uint64_t proptime = 0;
-    if (mapBlockIndex.count(prequest.blockhash) > 0) {
-        proptime = mapBlockIndex[prequest.blockhash]->GetBlockTime();
-    }
+    if (pblockindex)
+        proptime = pblockindex->GetBlockTime();
+
+    auto fLastState = prequest.GetLastState();
 
     // If prequest is pending show voting cycles left
-    if (prequest.fState == CFund::NIL) {
+    if (fLastState == CFund::NIL) {
         std::string duration_title = "Voting period finishes in: ";
         std::string duration = std::to_string(Params().GetConsensus().nCyclesPaymentRequestVoting-prequest.nVotingCycle) +  " voting cycles";
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
@@ -124,7 +130,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is accepted, show when it was accepted
-    if (prequest.fState == CFund::ACCEPTED) {
+    if (fLastState == CFund::ACCEPTED) {
         std::string duration_title = "Accepted on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -136,7 +142,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If prequest is rejected, show when it was rejected
-    if (prequest.fState == CFund::REJECTED) {
+    if (fLastState == CFund::REJECTED) {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -148,8 +154,8 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     }
 
     // If expired show when it expired
-    if (prequest.fState == CFund::EXPIRED || status.find("expired") != string::npos) {
-        if (prequest.fState == CFund::EXPIRED) {
+    if (fLastState == CFund::EXPIRED || status.find("expired") != string::npos) {
+        if (fLastState == CFund::EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
@@ -174,16 +180,14 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestLink->setOpenExternalLinks(true);
 
     // If prequest is pending, hide the transaction hash
-    if (prequest.fState == CFund::NIL) {
+    if (fLastState == CFund::NIL) {
         ui->labelPrequestTransactionBlockHashTitle->setVisible(false);
         ui->labelPrequestTransactionBlockHash->setVisible(false);
     }
 
     // If the prequest is not accepted, hide the payment hash
-    if (prequest.fState != CFund::ACCEPTED) {
-        ui->labelPrequestPaymentHashTitle->setVisible(false);
-        ui->labelPrequestPaymentHash->setVisible(false);
-    }
+    ui->labelPrequestPaymentHashTitle->setVisible(false);
+    ui->labelPrequestPaymentHash->setVisible(false);
 
     ui->labelPaymentRequestTitle->setText(QString::fromStdString(prequest.strDZeel.c_str()));
 
