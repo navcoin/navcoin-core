@@ -103,7 +103,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.exec();
             return;
         }
-        if(proposal.fState != CFund::ACCEPTED) {
+        if(proposal.GetLastState() != CFund::ACCEPTED) {
             QMessageBox msgBox(this);
             std::string str = "Proposals need to have been accepted to create a Payment Request for them\n";
             msgBox.setText(tr(str.c_str()));
