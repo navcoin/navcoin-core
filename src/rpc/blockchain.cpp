@@ -197,6 +197,15 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.pushKV("versionHex", strprintf("%08x", block.nVersion));
     result.pushKV("merkleroot", block.hashMerkleRoot.GetHex());
     UniValue txs(UniValue::VARR);
+    int nCountProposalVotes = 0;
+    int nCountPaymentRequestVotes = 0;
+    int nCountPaymentRequestPayouts = 0;
+    int nCountProposals = 0;
+    int nCountPaymentRequests = 0;
+    int nCountTransactions = 0;
+
+    CAmount nPOWBlockReward = block.IsProofOfWork() ? GetBlockSubsidy(blockindex->nHeight, Params().GetConsensus()) : 0;
+
     for(const CTransaction&tx: block.vtx)
     {
         if(txDetails)
@@ -207,8 +216,48 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
         }
         else
             txs.push_back(tx.GetHash().GetHex());
+        if (tx.IsCoinBase())
+        {
+            CAmount nAccValue = 0;
+            for (auto&it: tx.vout)
+            {
+                nAccValue += it.nValue;
+                if (it.IsProposalVote())
+                {
+                    nCountProposalVotes++;
+                }
+                else if(it.IsPaymentRequestVote())
+                {
+                    nCountPaymentRequestVotes++;
+                }
+                if(nAccValue > nPOWBlockReward && it.nValue > 0)
+                {
+                    nCountPaymentRequestPayouts++;
+                }
+            }
+        }
+        else if(tx.IsCoinStake())
+        {
+
+        }
+        else
+        {
+            if (tx.nVersion == CTransaction::PROPOSAL_VERSION)
+                nCountProposals++;
+            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
+                nCountPaymentRequests++;
+            else
+                nCountTransactions++;
+        }
+
     }
     result.pushKV("tx", txs);
+    result.pushKV("tx_count", nCountTransactions);
+    result.pushKV("proposal_count", nCountProposals);
+    result.pushKV("payment_request_count", nCountPaymentRequests);
+    result.pushKV("proposal_votes_count", nCountProposalVotes);
+    result.pushKV("payment_request_votes_count", nCountPaymentRequestVotes);
+    result.pushKV("payment_request_payouts_count", nCountPaymentRequestPayouts);
     result.pushKV("time", block.GetBlockTime());
     result.pushKV("mediantime", (int64_t)blockindex->GetMedianTimePast());
     result.pushKV("nonce", (uint64_t)block.nNonce);
