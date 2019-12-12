@@ -35,6 +35,9 @@ E.g: `v2.5.0-rc.1`, `v2.5.0-rc.2`, `v2.5.0-rc.3`
 
 Please note any type of network security or stability issues will be prioritized and might not have any applied stand-down period.
 
+#### Feature Lockdown
+
+During the release candidate review period, no new pull requests should be merged into master except ones designed explicity to fix any issues found during testing of the release candidate. This ensures no new issues are inadvertently introduced into new release candidate or final release versions which could force the complete restart of the testing and review process.
 
 #### Release Candidates Preparation
 
@@ -200,10 +203,47 @@ people without access to `navcoin.org` to download the binary distribution.
 Also put it into the `optional_magnetlink:` slot in the YAML file for
 navcoin.org (see below for navcoin.org update instructions).
 
-- Update navcoin.org version
+### Prepare the Release Tag
 
-- Announce the release:
+Once the release candidate is approved and promoted to a final release, a new release tag should be created with the final release notes and binaries attached.
 
--- Communicate with enough time to economic actors of the Network (exchanges):
+### Update Services
 
-- Celebrate
+Before publicly announcing the release the Bootstrap & NavPay servers should be updated to the new version.
+
+### Update The NavCoin Website
+
+Update the version number and download links on all translations of the Wallets page;
+
+https://github.com/navcoin/navcoin-org/tree/master/content/wallets
+
+Also create the notice for the release; 
+
+https://github.com/navcoin/navcoin-org/tree/master/content/notices
+
+The notice can be written manually by duplicating and modifying an existing notice, or through the admin section of the website. The admin section relies on your GitHub login having push access to the repo, so you will need to ensure you have the correct repository rights if you want to create it that way.
+
+The hero image for the release notice is usually generated with the navoin canva template to ensure it fits the social sharing spec and aligns wtih the brand guidelies.
+
+### Publicly Announce the release
+
+To ensure resonable due diligence is done to inform the communtiy of new software releases the final release should be announced on all possible NavCoin platforms;
+
+[Reddit](https://reddit.com/r/navcoin), [Twitter](https://twitter.com/navcoin), [Facebook](https://facebook.com/navcoin), [Telegram](https://t.me/navcoin), [Discord](https://discord.gg/y4Vu9jw), [BitcoinTalk](https://bitcointalk.org/index.php?topic=679791.new#new), [Medium](https://medium.com/nav-coin/), Blockfolio Signal & MailChimp.
+
+
+### Notify Exchanges, Commercial Nodes
+
+All exchanges should be notified of the update;
+
+https://navcoin.org/en/buy-navcoin
+
+Most of the exchanges have their contact emails are consolidated into a mailing list inside the admin@navcoin email account which can be set to the BCC to ensure they receive the update. For ones which are not part of the mailing list their is usually a support form on their site which needs to be filled out.
+
+Additional to exhcanges, the following wallets & services should be notified;
+
+NavExplorer, NavPool, CryptoId, Coinomi, Magnum Wallet, AtomicDex & CoinPayments.
+
+### Celebrate with the Community
+
+Take the time to celebrate the success with everyone who helped to make the release happen! Every release is another step towards a new future where we've claimed back our financial freedom.
