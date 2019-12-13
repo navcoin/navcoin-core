@@ -1,25 +1,43 @@
-# NavCoin v4.7.1 Release Notes
+# NavCoin v4.7.2 Release Notes
 
 ## Fix for Verify Chain
 
 <[Pull Request 634](https://github.com/navcoin/navcoin-core/pull/634)>
 <[Commit 049978e](https://github.com/navcoin/navcoin-core/commit/049978e246de960370f629fa38a6509fad0cf5c8)>
 
-This patch fixes 
+This patch fixes [Issue 630](https://github.com/navcoin/navcoin-core/issues/630) and introduces several important changes.
+
+- New RPC command `getcfunddbstatehash` covered by functional test `cfunddb-statehash.py`
+- New state for payment requests `6` when those are paid.
+- The payment request parameter paidOnBlock is substituted by `stateChangedOnBlock` when state is `6`
+- New structure for storing the state history of CFundDB entries. Those are stored in a map associating blockhash and state, allowing to directly revert state transitions when reorganizations are seen.
+- `verifychain` now checks for the consistency of the CFundDB state hash when level 4 is specified.
 
 ### IMPORTANT
 
 This set of changes will require older clients to reindex on launch, keeping the node offline for some hours at best. In order to reduce downtime, node operators can proceed as follows if needed:
 
-Close node with old version.
-mkdir /tmp/reindexdata; cp -rf <data_folder>/blocks /tmp/reindexdata/; cp -rf <data_folder>/chainstate /tmp/reindexdata/
-Reopen node with old version. It will be again online
-Launch in parallel a second instance of the node, this time using the new version with the parameters -reindex -datadir=/tmp/reindexdata/
-Once the reindex finishes, close both nodes and copy back the reindexed data.
-rm -rf <data_folder>/blocks <data_folder>/chainstate; cp -rf /tmp/reindexdata/* <data_folder>
-Relaunch new version of the node.
+- Close node with old version.
+- `mkdir /tmp/reindexdata; cp -rf <data_folder>/blocks /tmp/reindexdata/; cp -rf <data_folder>/chainstate /tmp/reindexdata/`
+- Reopen node with old version. It will be again online
+- Launch in parallel a second instance of the node, this time using the new version with the parameters `-reindex -datadir=/tmp/reindexdata/`
+- Once the reindex finishes, close both nodes and copy back the reindexed data.
+- `rm -rf <data_folder>/blocks <data_folder>/chainstate; cp -rf /tmp/reindexdata/* <data_folder>`
+- Relaunch new version of the node.
 
-This fix is the main purpose of the 4.7.1 patch release, while preparing this bugfix there were several other PR's merged which are also included in this release.
+## CFundDB extra log and ensure read before modify
+
+<[Pull Request 622](https://github.com/navcoin/navcoin-core/pull/622)>
+<[Commit 37fa72e](https://github.com/navcoin/navcoin-core/commit/37fa72e386ad3daff58b92ed7dda1a9b0676a43b)>
+
+This PR adds extra log for all the modifications of the CFundDB and ensures entries are read in the memory cache before being modified.
+
+## Restart testnet
+
+<[Pull Request 628](https://github.com/navcoin/navcoin-core/pull/628)>
+<[Commit b8ed018](https://github.com/navcoin/navcoin-core/commit/b8ed0180a2deaf616c8e6b38aec42385f0a73879)>
+
+This pull request starts a new NavCoin testnet. If you're running a testnet node you will need to will need to wipe your testnet data directory and connect to the new testnet nodes. A list of some of the testnet nodes operated by NavCoin Core developers can be found on [Issue 626](https://github.com/navcoin/navcoin-core/issues/626). If you need testnet coins or want to be added to the list of nodes, please comment on the issue or join the #dev-testnet channel in [Discord](https://discord.gg/y4Vu9jw).
 
 ## Full list of Merged PRs
 
