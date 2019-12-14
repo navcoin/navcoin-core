@@ -93,14 +93,38 @@
         <source>Export Address List</source>
         <translation>Exporteer Adressen Lijst</translation>
     </message>
-    </context>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>Kommagescheiden bestand (*.csv)</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Exporteren mislukt</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation>Er is een fout opgetreden bij het opslaan van het adresboek naar %1. Probeer het nogmaals.</translation>
+    </message>
+    <message>
+        <source>Private key for %1:&lt;br&gt;&lt;br&gt;%2</source>
+        <translation>Private key voor %1:&lt;br&gt;&lt;br&gt;%2</translation>
+    </message>
+</context>
 <context>
     <name>AddressTableModel</name>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
     <message>
         <source>Address</source>
         <translation>Adres</translation>
     </message>
-    </context>
+    <message>
+        <source>(no label)</source>
+        <translation>(geen label)</translation>
+    </message>
+</context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -119,7 +143,67 @@
         <source>Repeat new passphrase</source>
         <translation>Herhaal nieuwe wachtwoord</translation>
     </message>
-    </context>
+    <message>
+        <source>Unlock only for staking</source>
+        <translation>Ontgendel enkel om te staken</translation>
+    </message>
+    <message>
+        <source>Encrypt wallet</source>
+        <translation>Codeer portemonnee</translation>
+    </message>
+    <message>
+        <source>This operation needs your wallet passphrase to unlock the wallet.</source>
+        <translation>Om deze actie uit te voeren dient uw portemonnee met behulp van uw wachtwoord ontgrendeld te worden.</translation>
+    </message>
+    <message>
+        <source>Unlock wallet</source>
+        <translation>Ontgrendel portemonnee</translation>
+    </message>
+    <message>
+        <source>Unlock wallet for staking</source>
+        <translation>Ontgendel portemonnee om te staken</translation>
+    </message>
+    <message>
+        <source>Decrypt wallet</source>
+        <translation>Decodeer portemonnee</translation>
+    </message>
+    <message>
+        <source>Change passphrase</source>
+        <translation>Wijzig wachtwoord</translation>
+    </message>
+    <message>
+        <source>Confirm wallet encryption</source>
+        <translation>Bevestig coderen van portemonnee</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to encrypt your wallet?</source>
+        <translation>Weet u zeker dat u uw portemonnee wilt coderen?</translation>
+    </message>
+    <message>
+        <source>Wallet encrypted</source>
+        <translation>Portemonnee gecodeerd</translation>
+    </message>
+    <message>
+        <source>Wallet encryption failed</source>
+        <translation>Coderen van portemonnee mislukt</translation>
+    </message>
+    <message>
+        <source>The supplied passphrases do not match.</source>
+        <translation>De ingevoerde wachtwoorden komen niet overeen</translation>
+    </message>
+    <message>
+        <source>Wallet unlock failed</source>
+        <translation>Ontgrendelen van portemonnee mislukt</translation>
+    </message>
+    <message>
+        <source>Wallet decryption failed</source>
+        <translation>Decoderen van portemonnee mislukt</translation>
+    </message>
+    <message>
+        <source>Warning: The Caps Lock key is on!</source>
+        <translation>Let op: caps lock is ingeschakeld!</translation>
+    </message>
+</context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -226,8 +310,60 @@
         <translation>Kopieer transactie ID</translation>
     </message>
     <message>
+        <source>highest</source>
+        <translation>hoogste</translation>
+    </message>
+    <message>
+        <source>higher</source>
+        <translation>hoger</translation>
+    </message>
+    <message>
+        <source>high</source>
+        <translation>hoog</translation>
+    </message>
+    <message>
+        <source>medium-high</source>
+        <translation>middel-hoog</translation>
+    </message>
+    <message>
+        <source>medium</source>
+        <translation>middel</translation>
+    </message>
+    <message>
+        <source>low-medium</source>
+        <translation>laag-middel</translation>
+    </message>
+    <message>
+        <source>low</source>
+        <translation>laag</translation>
+    </message>
+    <message>
+        <source>lower</source>
+        <translation>lager</translation>
+    </message>
+    <message>
+        <source>lowest</source>
+        <translation>laagste</translation>
+    </message>
+    <message>
+        <source>(%1 locked)</source>
+        <translation>(%1 vergrendeld)</translation>
+    </message>
+    <message>
         <source>none</source>
         <translation>geen</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>ja</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>nee</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(geen label)</translation>
     </message>
     </context>
 <context>
@@ -1361,12 +1497,24 @@
         <source>Amount</source>
         <translation>Bedrag</translation>
     </message>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
     </context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
         <source>Date</source>
         <translation>Datum</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(geen label)</translation>
     </message>
     </context>
 <context>
@@ -1487,7 +1635,11 @@
         <source>Copy amount</source>
         <translation>Kopieer bedrag</translation>
     </message>
-    </context>
+    <message>
+        <source>(no label)</source>
+        <translation>(geen label)</translation>
+    </message>
+</context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1698,6 +1850,14 @@
         <source>Date</source>
         <translation>Datum</translation>
     </message>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(geen label)</translation>
+    </message>
     </context>
 <context>
     <name>TransactionView</name>
@@ -1722,6 +1882,10 @@
         <translation>Kopieer volledige transactie details</translation>
     </message>
     <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>Kommagescheiden bestand (*.csv)</translation>
+    </message>
+    <message>
         <source>Confirmed</source>
         <translation>Bevestigd</translation>
     </message>
@@ -1734,8 +1898,16 @@
         <translation>Datum</translation>
     </message>
     <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
+    <message>
         <source>Address</source>
         <translation>Adres</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Exporteren mislukt</translation>
     </message>
     </context>
 <context>
