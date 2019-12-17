@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>Клик правой кнопкой для редактирования адреса или метки</translation>
+        <translation>Клик правой кнопкой для редактирования адреса или ярлыка</translation>
     </message>
     <message>
         <source>Create a new address</source>
