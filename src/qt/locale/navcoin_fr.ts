@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>Cliquer à droite pour modifier l'adresse ou l'étiquette</translation>
+        <translation>Clique droit pour modifier l'adresse ou l'étiquette</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -20,6 +20,10 @@
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Copier</translation>
+    </message>
+    <message>
+        <source>Show Private Key</source>
+        <translation>Dévoiler la clef privée</translation>
     </message>
     <message>
         <source>C&amp;lose</source>
@@ -41,10 +45,86 @@
         <source>&amp;Delete</source>
         <translation>&amp;Supprimer</translation>
     </message>
-    </context>
+    <message>
+        <source>Choose the address to send coins to</source>
+        <translation>Choisissez l'adresse d'envoi</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation>Choisissez l'adresse de réception</translation>
+    </message>
+    <message>
+        <source>C&amp;hoose</source>
+        <translation>C&amp;hoisir</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>Adresses d'envoi</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>Adresses de réception</translation>
+    </message>
+    <message>
+        <source>These are your NavCoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Ceci est votre carnet d'adresses pour l'envoi de paiement. Veuillez vérifier attentivement le montant ainsi que l'adresse de réception avant l'envoi.</translation>
+    </message>
+    <message>
+        <source>These are your NavCoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Ce sont vos adresses pour recevoir des paiements. Il est recommandé d'utiliser une nouvelle adresse de réception pour chaque transaction.</translation>
+    </message>
+    <message>
+        <source>&amp;Copy Address</source>
+        <translation>&amp;Copier l'adresse</translation>
+    </message>
+    <message>
+        <source>Copy &amp;Label</source>
+        <translation>Copier &amp;L'étiquette</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Éditer</translation>
+    </message>
+    <message>
+        <source>Show &amp;Private Key</source>
+        <translation>Dévoiler la &amp;Clef Privée</translation>
+    </message>
+    <message>
+        <source>Export Address List</source>
+        <translation>Exporter la liste d'adresse</translation>
+    </message>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>Comma separated file (*.csv)</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Échec de l'exportation</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation>Il y a eu une erreur lors de la sauvegarde de la liste d'adresse à %1. Veuillez réessayer.</translation>
+    </message>
+    <message>
+        <source>Private key for %1:&lt;br&gt;&lt;br&gt;%2</source>
+        <translation>Clef privée pour %1:&lt;br&gt;&lt;br&gt;%2</translation>
+    </message>
+</context>
 <context>
     <name>AddressTableModel</name>
-    </context>
+    <message>
+        <source>Label</source>
+        <translation>Étiquette</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(aucune étiquette)</translation>
+    </message>
+</context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -63,7 +143,103 @@
         <source>Repeat new passphrase</source>
         <translation>Répéter la phrase de passe</translation>
     </message>
-    </context>
+    <message>
+        <source>Unlock only for staking</source>
+        <translation>Déverrouiller seulement pour staking</translation>
+    </message>
+    <message>
+        <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>Entrez le nouveau mot de passe dans le portefeuille. &lt;br/&gt;Veuillez utiliser un mot de passe de &lt;b&gt;dix caractères aléatoires ou plus&lt;/b&gt;, ou &lt;b&gt;huit mots ou plus&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Encrypt wallet</source>
+        <translation>Crypter le portefeuille</translation>
+    </message>
+    <message>
+        <source>This operation needs your wallet passphrase to unlock the wallet.</source>
+        <translation>Cette opération nécessite le mot de passe de votre portefeuille afin de le déverrouiller.</translation>
+    </message>
+    <message>
+        <source>Unlock wallet</source>
+        <translation>Déverrouiller le portefeuille</translation>
+    </message>
+    <message>
+        <source>Unlock wallet for staking</source>
+        <translation>Déverrouiller le portefeuille pour staking</translation>
+    </message>
+    <message>
+        <source>This operation needs your wallet passphrase to decrypt the wallet.</source>
+        <translation>Cette opération nécessite votre mot de passe afin de décrypter votre portefeuille</translation>
+    </message>
+    <message>
+        <source>Decrypt wallet</source>
+        <translation>Décrypter le portefeuille</translation>
+    </message>
+    <message>
+        <source>Change passphrase</source>
+        <translation>Changer le mot de passe</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase to the wallet.</source>
+        <translation>Entrer votre ancien mot de passe et le nouveau mot de passe pour le portefeuille</translation>
+    </message>
+    <message>
+        <source>Confirm wallet encryption</source>
+        <translation>Confirmez le cryptage du portefeuille</translation>
+    </message>
+    <message>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR NAVCOINS&lt;/b&gt;!</source>
+        <translation>Attention: Si vous cryptez votre portefeuille et perdez votre mot de passe, &lt;b&gt;VOUS PERDREZ TOUS VOS NAVCOINS&lt;/b&gt;!</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to encrypt your wallet?</source>
+        <translation>Êtes vous certain de vouloir crypter votre portefeuille ?</translation>
+    </message>
+    <message>
+        <source>Wallet encrypted</source>
+        <translation>Portefeuille crypté</translation>
+    </message>
+    <message>
+        <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your navcoins from being stolen by malware infecting your computer.</source>
+        <translation>%1 va fermer pour finaliser la procédure d'encryptage. Rappelez vous qu'encrypter votre portefeuille ne protègera pas entièrement vos navcoins d'être soutirés par un logiciel malveillant ayant infecté votre ordinateur.</translation>
+    </message>
+    <message>
+        <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
+        <translation>IMPORTANT: Toutes les anciennes sauvegardes que vous avez faites de votre fichier portefeuille devront être remplacées par la nouvelle, fichier de portefeuille crypté. Pour des raisons de sécurité, les anciennes sauvegardes du portefeuille non cryptées deviendront inutiles à partir du moment où vous commencez à utiliser le nouveau, celui crypté.</translation>
+    </message>
+    <message>
+        <source>Wallet encryption failed</source>
+        <translation>Échec de l'encryptage du portefeuille</translation>
+    </message>
+    <message>
+        <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
+        <translation>Échec du cryptage du portefeuille dû à une erreur interne. Votre portefeuille n'a pas été crypté.</translation>
+    </message>
+    <message>
+        <source>The supplied passphrases do not match.</source>
+        <translation>Les mots de passe ne correspondent pas.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock failed</source>
+        <translation>Échec du déverrouillage du portefeuille</translation>
+    </message>
+    <message>
+        <source>The passphrase entered for the wallet decryption was incorrect.</source>
+        <translation>Le mot de passe entré pour le décryptage du portefeuille est incorrect.</translation>
+    </message>
+    <message>
+        <source>Wallet decryption failed</source>
+        <translation>Échec du décryptage du portefeuille</translation>
+    </message>
+    <message>
+        <source>Wallet passphrase was successfully changed.</source>
+        <translation>Le mot de passe du portefeuille a été changé avec succès.</translation>
+    </message>
+    <message>
+        <source>Warning: The Caps Lock key is on!</source>
+        <translation>Attention: La fonction Verr. Maj de votre clavier est active!</translation>
+    </message>
+</context>
 <context>
     <name>BanTableModel</name>
     <message>
@@ -154,16 +330,168 @@
         <translation>Priorité</translation>
     </message>
     <message>
+        <source>Copy address</source>
+        <translation>Copier l'adresse</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Copier l'étiquette</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Copier le montant</translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Copier le numéro de transaction</translation>
+    </message>
+    <message>
+        <source>Lock unspent</source>
+        <translation>Verrouiller solde</translation>
+    </message>
+    <message>
+        <source>Unlock unspent</source>
+        <translation>Déverrouiller solde</translation>
+    </message>
+    <message>
+        <source>Copy quantity</source>
+        <translation>Copier le nombre</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Copier la taxe</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Copier la redevance</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Copier informations</translation>
+    </message>
+    <message>
+        <source>Copy priority</source>
+        <translation>Copier priorité</translation>
+    </message>
+    <message>
+        <source>Copy dust</source>
+        <translation>Copier le faible montant.</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation>Copier les changements</translation>
+    </message>
+    <message>
+        <source>highest</source>
+        <translation>maximal</translation>
+    </message>
+    <message>
+        <source>higher</source>
+        <translation>plus haut</translation>
+    </message>
+    <message>
+        <source>high</source>
+        <translation>haut</translation>
+    </message>
+    <message>
+        <source>medium-high</source>
+        <translation>moitié haute</translation>
+    </message>
+    <message>
+        <source>medium</source>
+        <translation>moitié</translation>
+    </message>
+    <message>
+        <source>low-medium</source>
+        <translation>moitié basse</translation>
+    </message>
+    <message>
+        <source>low</source>
+        <translation>bas</translation>
+    </message>
+    <message>
+        <source>lower</source>
+        <translation>plus bas</translation>
+    </message>
+    <message>
+        <source>lowest</source>
+        <translation>minimal</translation>
+    </message>
+    <message>
         <source>none</source>
         <translation>aucune</translation>
     </message>
-    </context>
+    <message>
+        <source>yes</source>
+        <translation>oui</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>non</translation>
+    </message>
+    <message>
+        <source>This label turns red if the transaction size is greater than 1000 bytes.</source>
+        <translation>Cette étiquette devient rouge si la taille de la transaction est supérieure à 1000 octets.</translation>
+    </message>
+    <message>
+        <source>This means a fee of at least %1 per kB is required.</source>
+        <translation>Cela veut dire que des frais d'au moins %1 par Ko sont requis.</translation>
+    </message>
+    <message>
+        <source>Can vary +/- 1 byte per input.</source>
+        <translation>Peut varier +/- 1 octet par entrée.</translation>
+    </message>
+    <message>
+        <source>Transactions with higher priority are more likely to get included into a block.</source>
+        <translation>Les transactions à priorité haute sont plus susceptible d'être inclus dans un bloc.</translation>
+    </message>
+    <message>
+        <source>This label turns red if the priority is smaller than "medium".</source>
+        <translation>Cette étiquette devient rouge si la priorité est plus petite que "moyenne".</translation>
+    </message>
+    <message>
+        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
+        <translation>Cette étiquette devient rouge si le destinataire reçoit un montant inférieur au seuil des frais de transaction.</translation>
+    </message>
+    <message>
+        <source>Can vary +/- %1 satoshi(s) per input.</source>
+        <translation>Peut varier de +/- %1 satoshi(s) par entrée.</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(aucune étiquette)</translation>
+    </message>
+    <message>
+        <source>change from %1 (%2)</source>
+        <translation>passer de %1 (%2)</translation>
+    </message>
+    <message>
+        <source>(change)</source>
+        <translation>(changer)</translation>
+    </message>
+</context>
 <context>
     <name>ColdStakingAddressPage</name>
-    </context>
+    <message>
+        <source>Generated address</source>
+        <translation>Adresse générée</translation>
+    </message>
+    <message>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation>Si l'URI résultante est trop longue, essayez de réduire le texte de l'étiquette/du message.</translation>
+    </message>
+    <message>
+        <source>Error encoding URI into QR Code.</source>
+        <translation>Erreur d'encodage d'URI dans le QR Code.</translation>
+    </message>
+</context>
 <context>
     <name>ColdStakingWizard</name>
-    </context>
+    <message>
+        <source>Create a Cold Staking address</source>
+        <translation>Créer une adresse de Cold Staking</translation>
+    </message>
+</context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -186,13 +514,69 @@
         <source>&amp;Address</source>
         <translation>&amp;Adresse</translation>
     </message>
-    </context>
+    <message>
+        <source>New receiving address</source>
+        <translation>Nouvelle adresse de réception</translation>
+    </message>
+    <message>
+        <source>New sending address</source>
+        <translation>Nouvelle adresse d'envoi</translation>
+    </message>
+    <message>
+        <source>Edit receiving address</source>
+        <translation>Modifier l'adresse de réception</translation>
+    </message>
+    <message>
+        <source>Edit sending address</source>
+        <translation>Modifier l'adresse d'envoi</translation>
+    </message>
+    <message>
+        <source>The entered address "%1" is not a valid NavCoin address.</source>
+        <translation>L'adresse spécifiée "%1" n'est pas valide comme adresse NavCoin.</translation>
+    </message>
+    <message>
+        <source>The entered address "%1" is already in the address book.</source>
+        <translation>L'adresse spécifiée "%1" est déjà dans le carnet d'adresse.</translation>
+    </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Impossible de déverrouiller le portefeuille.</translation>
+    </message>
+    <message>
+        <source>New key generation failed.</source>
+        <translation>Échec de la génération de la nouvelle clef.</translation>
+    </message>
+</context>
 <context>
     <name>FreespaceChecker</name>
-    </context>
+    <message>
+        <source>NavCoin will try to import an old wallet.dat file.</source>
+        <translation>NavCoin va essayer d'importer un ancien fichier wallet.dat.</translation>
+    </message>
+    <message>
+        <source>You must choose a wallet.dat file.</source>
+        <translation>Vous devez choisir un fichier wallet.dat.</translation>
+    </message>
+    <message>
+        <source>Cannot read wallet.dat file.</source>
+        <translation>Impossible de lire le fichier wallet.dat.</translation>
+    </message>
+</context>
 <context>
     <name>GetAddressesPage</name>
-    </context>
+    <message>
+        <source>Specify the addresses</source>
+        <translation>Spécifiez les adresses</translation>
+    </message>
+    <message>
+        <source>&amp;Staking Address:</source>
+        <translation>&amp;Adresse de Staking:</translation>
+    </message>
+    <message>
+        <source>S&amp;pending Address:</source>
+        <translation>A&amp;dresse de dépense:</translation>
+    </message>
+</context>
 <context>
     <name>HelpMessageDialog</name>
     <message>
@@ -259,13 +643,41 @@
         <translation>Bienvenue à %1.</translation>
     </message>
     <message>
+        <source>As this is the first time %1 is launched, there are still a few setup steps which need to be accomplished.</source>
+        <translation>Comme c'est la première fois que %1 est lancé, il y a encore quelques configurations nécessaires à terminer. </translation>
+    </message>
+    <message>
+        <source>%1 will download and store a copy of the NavCoin block chain. At least %2GB of data will be stored in your computer, and it will grow over time. A wallet is needed to store your coins.</source>
+        <translation>%1 va télécharger et conserver une copie de la block chain NavCoin. Au moins %2GB de données vont êtres stockées dans votre ordinateur, et augmentera au fil du temps. Un portefeuille est nécessaire pour stocker votre monnaie.</translation>
+    </message>
+    <message>
+        <source>Create a new wallet.</source>
+        <translation>Créer un nouveau portefeuille.</translation>
+    </message>
+    <message>
+        <source>Import an old 3.x wallet:</source>
+        <translation>Importer une ancienne version de portefeuille 3.x :</translation>
+    </message>
+    <message>
+        <source>Error creating data folder.</source>
+        <translation>Erreur lors de la création du dossier de données.</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
 </context>
 <context>
     <name>IntroPage</name>
-    </context>
+    <message>
+        <source>Introduction</source>
+        <translation>Introduction</translation>
+    </message>
+    <message>
+        <source>This wizard will help you generating a cold staking&lt;br&gt;address where you can safely store coins while&lt;br&gt;staking them.&lt;br&gt;Two addresses will be required:&lt;br&gt; - an spending address: authorised to spend the coins&lt;br&gt;      sent to the cold staking address&lt;br&gt; - an staking address: authorised to stake the coins&lt;br&gt;      sent to the cold staking address&lt;br&gt;As a result a new address will be given.</source>
+        <translation>Ce tutoriel va vous aider à générer une adresse en cold staking&lt;br&gt;où vous pourrez stocker votre monnaie de manière sécurisée tout en &lt;br&gt;les stakant.&lt;br&gt;Deux adresses sont requises:&lt;br&gt; - une adresse de dépense: qui autorise la dépense de la monnaie&lt;br&gt;envoyée à l'adresse de cold staking&lt;br&gt; - une adresse de staking: qui autorise le staking de la monnaie&lt;br&gt; envoyée à l'adresse de cold staking&lt;br&gt;à la fin une nouvelle adresse vous sera donnée. </translation>
+    </message>
+</context>
 <context>
     <name>NavCoinGUI</name>
     <message>
@@ -285,6 +697,18 @@
         <translation>Nœud</translation>
     </message>
     <message>
+        <source>Staking is turned off.</source>
+        <translation>Le staking est désactivé.</translation>
+    </message>
+    <message>
+        <source>Repair wallet</source>
+        <translation>Réparer le portefeuille</translation>
+    </message>
+    <message>
+        <source>Wallet has been repaired.</source>
+        <translation>Le portefeuille à été réparé.</translation>
+    </message>
+    <message>
         <source>Show general overview of wallet</source>
         <translation>Afficher une vue d’ensemble du porte-monnaie</translation>
     </message>
@@ -295,6 +719,26 @@
     <message>
         <source>Browse transaction history</source>
         <translation>Parcourir l'historique des transactions</translation>
+    </message>
+    <message>
+        <source>Turn Off &amp;Staking</source>
+        <translation>Arrêter Le &amp;Staking</translation>
+    </message>
+    <message>
+        <source>Turn Off Staking</source>
+        <translation>Arrêter Le Staking</translation>
+    </message>
+    <message>
+        <source>Turn On &amp;Staking</source>
+        <translation>Démarrer Le &amp;Staking</translation>
+    </message>
+    <message>
+        <source>Turn On Staking</source>
+        <translation>Démarrer Le Staking</translation>
+    </message>
+    <message>
+        <source>Update exchange prices</source>
+        <translation>Mettre à jour les prix des plateformes d'échange</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
@@ -333,6 +777,14 @@
         <translation>&amp;Chiffrer le porte-monnaie...</translation>
     </message>
     <message>
+        <source>&amp;Unlock Wallet for Staking...</source>
+        <translation>&amp;Déverrouiller le portefeuille pour Staking...</translation>
+    </message>
+    <message>
+        <source>Unlock wallet for Staking</source>
+        <translation>Déverrouiller le portefeuille pour Staking</translation>
+    </message>
+    <message>
         <source>&amp;Backup Wallet...</source>
         <translation>Sauvegarder le &amp;porte-monnaie...</translation>
     </message>
@@ -349,16 +801,116 @@
         <translation>Adresses de &amp;réception...</translation>
     </message>
     <message>
+        <source>&amp;Repair wallet</source>
+        <translation>&amp;Réparer le portefeuille</translation>
+    </message>
+    <message>
+        <source>Repair wallet transactions</source>
+        <translation>Réparer les transactions du portefeuille</translation>
+    </message>
+    <message>
+        <source>&amp;Import private key</source>
+        <translation>&amp;Importer une clef privée</translation>
+    </message>
+    <message>
+        <source>Import private key</source>
+        <translation>Importer une clef privée</translation>
+    </message>
+    <message>
+        <source>Show &amp;master private key</source>
+        <translation>Dévoiler la $clef privée principale</translation>
+    </message>
+    <message>
+        <source>Show master private key</source>
+        <translation>Dévoiler la clef privée principale</translation>
+    </message>
+    <message>
         <source>Open &amp;URI...</source>
         <translation>Ouvrir un &amp;URI...</translation>
+    </message>
+    <message>
+        <source>Currency</source>
+        <translation>Devise</translation>
+    </message>
+    <message>
+        <source>Client restart required to repair the wallet.</source>
+        <translation>Le redémarrage du client nécessite une réparation du portefeuille.</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
         <translation>Le client sera arrêté. Voulez-vous continuer ?</translation>
     </message>
+    <message numerus="yes">
+        <source>%n active connections.</source>
+        <translation><numerusform>%n connexions actives.</numerusform><numerusform>%n connexions actives.</numerusform></translation>
+    </message>
     <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Réindexation des blocs sur le disque...</translation>
+    </message>
+    <message>
+        <source>Toggle staking</source>
+        <translation>Basculer staking</translation>
+    </message>
+    <message>
+        <source>Client restart required to </source>
+        <translation>Le redémarrage du client nécessite de </translation>
+    </message>
+    <message>
+        <source>deactivate</source>
+        <translation>Désactiver</translation>
+    </message>
+    <message>
+        <source>activate</source>
+        <translation>Activer</translation>
+    </message>
+    <message>
+        <source> staking.</source>
+        <translation>staking.</translation>
+    </message>
+    <message>
+        <source>Client will be shut down and should be started again. Do you want to proceed?</source>
+        <translation>Le client va s'éteindre et devrait se relancer à nouveau. Voulez vous continuer ?</translation>
+    </message>
+    <message>
+        <source>Network vote.</source>
+        <translation>Vote du réseau.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Expected time to earn reward is %n minute(s)</source>
+        <translation><numerusform>Le temps estimé pour recevoir une récompense est %n minute(s)</numerusform><numerusform>Le temps estimé pour recevoir une récompense est %n minute(s)</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>Expected time to earn reward is %n hour(s)</source>
+        <translation><numerusform>Le temps estimé pour recevoir une récompense est %n heure(s)</numerusform><numerusform>Le temps estimé pour recevoir une récompense est %n heure(s)</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>Expected time to earn reward is %n day(s)</source>
+        <translation><numerusform>Le temps estimé pour recevoir une récompense est %n jour(s)</numerusform><numerusform>Le temps estimé pour recevoir une récompense est %n jour(s)</numerusform></translation>
+    </message>
+    <message>
+        <source>You are staking</source>
+        <translation>Staking actif</translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is locked</source>
+        <translation>Portefeuille verrouillé, staking inactif</translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is offline</source>
+        <translation>Portefeuille hors ligne, staking inactif</translation>
+    </message>
+    <message>
+        <source>Not staking because wallet is syncing</source>
+        <translation>Portefeuille en synchronisation, staking inactif </translation>
+    </message>
+    <message>
+        <source>Not staking because you don't have mature coins</source>
+        <translation>Vous n'avez pas de pièces de monnaie matures, staking inactif</translation>
+    </message>
+    <message>
+        <source>Not staking, please wait</source>
+        <translation>Staking inactif, veuillez patienter</translation>
     </message>
     <message>
         <source>Send coins to a NavCoin address</source>
@@ -473,6 +1025,18 @@
         <translation><numerusform>%n bloc d'historique transactionnel a été traité</numerusform><numerusform>%n blocs d'historique transactionnel ont été traités</numerusform></translation>
     </message>
     <message numerus="yes">
+        <source>Last block: %n</source>
+        <translation><numerusform>Dernier bloc: %n</numerusform><numerusform>Dernier bloc: %n</numerusform></translation>
+    </message>
+    <message>
+        <source>Connected to NavCoin network.</source>
+        <translation>Connecté au réseau NavCoin.</translation>
+    </message>
+    <message>
+        <source>Connecting to NavCoin network...</source>
+        <translation>Connexion au réseau NavCoin...</translation>
+    </message>
+    <message numerus="yes">
         <source>%n hour(s)</source>
         <translation><numerusform>%n heure</numerusform><numerusform>%n heures</numerusform></translation>
     </message>
@@ -503,6 +1067,14 @@
     <message>
         <source>Transactions after this will not yet be visible.</source>
         <translation>Les transactions après ceci ne sont pas encore visibles.</translation>
+    </message>
+    <message>
+        <source>Important network notice.</source>
+        <translation>Notification importante du réseau.</translation>
+    </message>
+    <message>
+        <source>The Nav Coin Network is currently voting on introducing changes on the consensus protocol. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. &lt;br&gt;&lt;br&gt;For more information on the proposal, please visit &lt;a href="https://navcoin.org/community-fund"&gt;this link&lt;/a&gt;&lt;br&gt;&lt;br&gt;Would you like the Nav Coin Network to update the staking rewards to setup a decentralised community fund that will help grow the network?</source>
+        <translation>Le réseau NavCoin vote pour l'introduction de changement sur le protocole du consensus. En tant que participant dans notre réseau, nous estimons votre contribution et la décision finale vous reviens. Veuillez exprimer votre vote. &lt;br&gt;&lt;br&gt;Pour plus d'information sur la proposition, veuillez cliquer sur &lt;a href="https://navcoin.org/community-fund"&gt;ce lien&lt;/a&gt;&lt;br&gt;&lt;br&gt;Souhaitez vous que le réseau NavCoin mette à jour le système de récompenses par le staking pour configurer un fond communautaire qui aidera à l'évolution du réseau ?</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -579,6 +1151,10 @@
         <translation>Transaction entrante</translation>
     </message>
     <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked for staking only&lt;/b&gt;</source>
+        <translation>Le portefeuille est &lt;b&gt;crypté&lt;/b&gt;et actuellement &lt;b&gt;débloqué pour le staking seulement&lt;/b&gt;</translation>
+    </message>
+    <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
         <translation>Le porte-monnaie est &lt;b&gt;chiffré&lt;/b&gt; et est actuellement &lt;b&gt;déverrouillé&lt;/b&gt;</translation>
     </message>
@@ -605,7 +1181,11 @@
         <source>Select payment request file</source>
         <translation>Choisir le fichier de demande de paiement</translation>
     </message>
-    </context>
+    <message>
+        <source>Select payment request file to open</source>
+        <translation>Sélectionner un fichier de demande de paiement pour ouvrir</translation>
+    </message>
+</context>
 <context>
     <name>OptionsDialog</name>
     <message>
@@ -665,6 +1245,14 @@
         <translation>Options actives de ligne de commande qui annulent les options ci-dessus :</translation>
     </message>
     <message>
+        <source>Open the %1 configuration file from the working directory.</source>
+        <translation>Ouvrir le %1 fichier de configuration depuis le répertoire de travail.</translation>
+    </message>
+    <message>
+        <source>Open Configuration File</source>
+        <translation>Ouvrir le Ficher de Configuration</translation>
+    </message>
+    <message>
         <source>Reset all client options to default.</source>
         <translation>Réinitialiser toutes les options du client aux valeurs par défaut.</translation>
     </message>
@@ -679,6 +1267,10 @@
     <message>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
         <translation>(0 = auto, &lt; 0 = laisser ce nombre de cœurs inutilisés)</translation>
+    </message>
+    <message>
+        <source>Your Staker vote</source>
+        <translation>Votre vote de staker</translation>
     </message>
     <message>
         <source>W&amp;allet</source>
@@ -833,6 +1425,14 @@
         <translation>Le client sera arrêté. Voulez-vous continuer ?</translation>
     </message>
     <message>
+        <source>Configuration options</source>
+        <translation>Options de configuration</translation>
+    </message>
+    <message>
+        <source>The configuration is used to specify advanced user options less any command-line or Qt options. Any command-line options will override this configuration file.</source>
+        <translation>La configuration est utilisée pour spécifier les options avancées de l'utilisateur moins les options de ligne de commande ou de Qt. Toutes les options de ligne de commande remplaceront ce fichier de configuration.</translation>
+    </message>
+    <message>
         <source>This change would require a client restart.</source>
         <translation>Ce changement demanderait un redémarrage du client.</translation>
     </message>
@@ -848,6 +1448,74 @@
         <translation>Formulaire</translation>
     </message>
     <message>
+        <source>Balance</source>
+        <translation>Solde</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation>TexteÉtiquette </translation>
+    </message>
+    <message>
+        <source>Immature</source>
+        <translation>Immature</translation>
+    </message>
+    <message>
+        <source>Total</source>
+        <translation>Total</translation>
+    </message>
+    <message>
+        <source>labelTotal</source>
+        <translation>étiquetteTotal</translation>
+    </message>
+    <message>
+        <source>Staking</source>
+        <translation>Staking</translation>
+    </message>
+    <message>
+        <source>24H:</source>
+        <translation>24H:</translation>
+    </message>
+    <message>
+        <source>87 312.312 123 NAV</source>
+        <translation>87 312.312 123 NAV</translation>
+    </message>
+    <message>
+        <source>7D</source>
+        <translation>7J</translation>
+    </message>
+    <message>
+        <source>1 312.312 NAV</source>
+        <translation>1 312.312 NAV</translation>
+    </message>
+    <message>
+        <source>30D</source>
+        <translation>30J</translation>
+    </message>
+    <message>
+        <source>132 431.41 NAV</source>
+        <translation>132 431.41 NAV</translation>
+    </message>
+    <message>
+        <source>Cold Staking</source>
+        <translation>Cold Staking</translation>
+    </message>
+    <message>
+        <source>Transactions</source>
+        <translation>Transactions</translation>
+    </message>
+    <message>
+        <source>Connecting to NavCoin network...</source>
+        <translation>Connexion au réseau NavCoin...</translation>
+    </message>
+    <message>
+        <source>32 active connections.</source>
+        <translation>32 connexions actives.</translation>
+    </message>
+    <message>
+        <source>Last block: 800000</source>
+        <translation>Dernier bloc: 800000</translation>
+    </message>
+    <message>
         <source>Available:</source>
         <translation>Disponible :</translation>
     </message>
@@ -858,7 +1526,131 @@
 </context>
 <context>
     <name>PaymentServer</name>
-    </context>
+    <message>
+        <source>Verify address</source>
+        <translation>Vérifier l'adresse</translation>
+    </message>
+    <message>
+        <source>The provided address is invalid.</source>
+        <translation>L'adresse fournie est invalide.</translation>
+    </message>
+    <message>
+        <source>Please check the address and try again.</source>
+        <translation>Veuillez vérifier l'adresse et réessayer à nouveau.</translation>
+    </message>
+    <message>
+        <source>The provided address does not refer to a key.</source>
+        <translation>L'adresse fournie ne fait référence à aucune clef.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock was cancelled.</source>
+        <translation>Le déverrouillage du portefeuille a été interrompu.</translation>
+    </message>
+    <message>
+        <source>Private key for the provided address is not available.</source>
+        <translation>La clef privée pour l'adresse fournie n'est pas valide.</translation>
+    </message>
+    <message>
+        <source>Message signing failed.</source>
+        <translation>Échec de la signature du message.</translation>
+    </message>
+    <message>
+        <source>URI handling</source>
+        <translation>Traitement URI</translation>
+    </message>
+    <message>
+        <source>Payment request fetch URL is invalid: %1</source>
+        <translation>L'URL fetch de la demande de paiement est invalide: %1</translation>
+    </message>
+    <message>
+        <source>Invalid OpenAlias address %1</source>
+        <translation>L'adresse OpenAlias est invalide %1</translation>
+    </message>
+    <message>
+        <source>OpenAlias address %1 does not support DNS Sec</source>
+        <translation>L'adresse OpenAlias %1 ne prend pas en charge DNS Sec</translation>
+    </message>
+    <message>
+        <source>Invalid payment address %1</source>
+        <translation>Adresse de paiement invalide %1</translation>
+    </message>
+    <message>
+        <source>URI cannot be parsed! This can be caused by an invalid NavCoin address or malformed URI parameters.</source>
+        <translation>URI ne peut pas être analysé! Cela peut être causé par une adresse NavCoin invalide ou des paramètres URI mal paramétrés.</translation>
+    </message>
+    <message>
+        <source>Payment request file handling</source>
+        <translation>Traitement du fichier de demande de paiement</translation>
+    </message>
+    <message>
+        <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
+        <translation>La demande de paiement ne peut pas être lu! Ceci peut être causé par un fichier de demande de paiement invalide.</translation>
+    </message>
+    <message>
+        <source>Payment request rejected</source>
+        <translation>Demande de paiement rejetée</translation>
+    </message>
+    <message>
+        <source>Payment request network doesn't match client network.</source>
+        <translation>La demande de paiement du réseau ne correspond pas avec celle du réseau client.</translation>
+    </message>
+    <message>
+        <source>Payment request expired.</source>
+        <translation>Demande de paiement expirée.</translation>
+    </message>
+    <message>
+        <source>Payment request error</source>
+        <translation>Erreur de la demande de paiement</translation>
+    </message>
+    <message>
+        <source>Payment request is not initialized.</source>
+        <translation>La demande de paiement n'est pas initialisée.</translation>
+    </message>
+    <message>
+        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
+        <translation>Les demandes de paiement non vérifiées pour des scripts de paiement personnalisés ne sont pas supportées.</translation>
+    </message>
+    <message>
+        <source>Invalid payment request.</source>
+        <translation>Demande de paiement invalide.</translation>
+    </message>
+    <message>
+        <source>Requested payment amount of %1 is too small (considered dust).</source>
+        <translation>Le montant du paiement demandé de %1 est trop petite (considéré faible).</translation>
+    </message>
+    <message>
+        <source>Refund from %1</source>
+        <translation>Remboursement de %1</translation>
+    </message>
+    <message>
+        <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
+        <translation>La demande de paiement %1 est trop grande (%2 octets, autorisés %3 octets).</translation>
+    </message>
+    <message>
+        <source>Error communicating with %1: %2</source>
+        <translation>Erreur de communication avec %1: %2</translation>
+    </message>
+    <message>
+        <source>Message signed.</source>
+        <translation>Message signé.</translation>
+    </message>
+    <message>
+        <source>Something went wrong.</source>
+        <translation>Erreur inattendue. </translation>
+    </message>
+    <message>
+        <source>Payment request cannot be parsed!</source>
+        <translation>La demande de paiement ne peut pas être analysée!</translation>
+    </message>
+    <message>
+        <source>Network request error</source>
+        <translation>Erreur de la requête du réseau</translation>
+    </message>
+    <message>
+        <source>Payment acknowledged</source>
+        <translation>Paiement confirmé</translation>
+    </message>
+</context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -919,7 +1711,19 @@
         <source>&amp;Save Image...</source>
         <translation>&amp;Sauvegarder l'image...</translation>
     </message>
-    </context>
+    <message>
+        <source>&amp;Copy Image</source>
+        <translation>&amp;Copier l'image</translation>
+    </message>
+    <message>
+        <source>Save QR Code</source>
+        <translation>Sauvegarder le QR code</translation>
+    </message>
+    <message>
+        <source>PNG Image (*.png)</source>
+        <translation>Image PNG (*.png)</translation>
+    </message>
+</context>
 <context>
     <name>RPCConsole</name>
     <message>
@@ -1281,7 +2085,19 @@
         <source>Remove</source>
         <translation>Enlever</translation>
     </message>
-    </context>
+    <message>
+        <source>Copy label</source>
+        <translation>Copier l'étiquette</translation>
+    </message>
+    <message>
+        <source>Copy message</source>
+        <translation>Copier le message</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Copier le montant</translation>
+    </message>
+</context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
@@ -1301,17 +2117,73 @@
         <translation>&amp;Sauvegarder l'image...</translation>
     </message>
     <message>
+        <source>Request payment to %1</source>
+        <translation>Demande de paiement à %1</translation>
+    </message>
+    <message>
+        <source>Payment information</source>
+        <translation>Information de paiement</translation>
+    </message>
+    <message>
+        <source>URI</source>
+        <translation>URI</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
         <source>Amount</source>
         <translation>Montant</translation>
     </message>
-    </context>
+    <message>
+        <source>Label</source>
+        <translation>Étiquette</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Message</translation>
+    </message>
+    <message>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation>Si l'URI résultante est trop longue, essayez de réduire le texte de l'étiquette/du message.</translation>
+    </message>
+    <message>
+        <source>Error encoding URI into QR Code.</source>
+        <translation>Erreur d'encodage d'URI dans le QR Code.</translation>
+    </message>
+</context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
         <source>Date</source>
         <translation>Date</translation>
     </message>
-    </context>
+    <message>
+        <source>Label</source>
+        <translation>Étiquette</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Message</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(aucune étiquette)</translation>
+    </message>
+    <message>
+        <source>(no message)</source>
+        <translation>(aucun message)</translation>
+    </message>
+    <message>
+        <source>(no amount requested)</source>
+        <translation>(aucun montant requis)</translation>
+    </message>
+    <message>
+        <source>Requested</source>
+        <translation>Requis</translation>
+    </message>
+</context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
@@ -1399,6 +2271,22 @@
         <translation>(Les frais intelligents ne sont pas encore initialisés. Ceci prend habituellement quelques blocs...)</translation>
     </message>
     <message>
+        <source>You don't have any NAVTech server added. </source>
+        <translation>Vous n'avez aucun serveur NAVTech ajouté.</translation>
+    </message>
+    <message>
+        <source>Private payment</source>
+        <translation>Paiement anonyme</translation>
+    </message>
+    <message>
+        <source>Manage NAVTech servers</source>
+        <translation>Configurer les serveurs NAVTech</translation>
+    </message>
+    <message>
+        <source>Use full amount</source>
+        <translation>Utiliser le montant total</translation>
+    </message>
+    <message>
         <source>Confirmation time:</source>
         <translation>Temps de confirmation :</translation>
     </message>
@@ -1426,7 +2314,163 @@
         <source>S&amp;end</source>
         <translation>E&amp;nvoyer</translation>
     </message>
-    </context>
+    <message>
+        <source>Copy quantity</source>
+        <translation>Copier le nombre</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Copier le montant</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Copier la taxe</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Copier la redevance</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Copier informations</translation>
+    </message>
+    <message>
+        <source>Copy priority</source>
+        <translation>Copier priorité</translation>
+    </message>
+    <message>
+        <source>Copy dust</source>
+        <translation>Copier le faible montant.</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation>Copier les changements</translation>
+    </message>
+    <message>
+        <source>NAVTech server returned a different number of addresses.</source>
+        <translation>Le serveur NAVTech a décelé un nombre différent d'adresses.</translation>
+    </message>
+    <message>
+        <source>Something went wrong:</source>
+        <translation>Erreur inattendue :</translation>
+    </message>
+    <message>
+        <source>Do a normal transaction</source>
+        <translation>Effectuer une transaction normale</translation>
+    </message>
+    <message>
+        <source>Abort</source>
+        <translation>Abandonner</translation>
+    </message>
+    <message>
+        <source>Switch to normal transaction</source>
+        <translation>Basculer vers une transaction normale</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to do a normal transaction instead of a private payment?</source>
+        <translation>Êtes vous certain de vouloir effectuer une transaction normale au lieu d'un paiement anonyme ?</translation>
+    </message>
+    <message>
+        <source>Details of the payment would be publicly exposed on the blockchain.</source>
+        <translation>Les détails concernant le paiement seront visibles publiquement sur la blockchain.</translation>
+    </message>
+    <message>
+        <source>This transaction will spend coins stored in a cold staking address.&lt;br&gt;You did not set any cold staking address as custom change destination, so those coins won't be locked anymore by the cold staking smart contract.&lt;br&gt;&lt;br&gt;Do you still want to send this transaction?</source>
+        <translation>Cette transaction va dépenser de la monnaie stockée dans une adresse de cold staking.&lt;br&gt;Vous n'avez pas défini d'adresse en cold staking en destination de changement personnalisé, dont cette monnaie ne sera plus verrouillée par le cold staking smart contract.&lt;br&gt;&lt;br&gt; Souhaitez-vous toujours envoyer cette transaction ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to send?</source>
+        <translation>Êtes-vous sûrs de vouloir envoyer ?</translation>
+    </message>
+    <message>
+        <source>%1 to %2</source>
+        <translation>%1 à %2</translation>
+    </message>
+    <message>
+        <source>added as transaction fee</source>
+        <translation>ajouté en tant que frais de transaction</translation>
+    </message>
+    <message>
+        <source>The following fee will be deducted</source>
+        <translation>La taxe suivante sera déduite</translation>
+    </message>
+    <message>
+        <source>Navtech server fee:</source>
+        <translation>Taxe du serveur NAVTech :</translation>
+    </message>
+    <message>
+        <source>will be deducted as Navtech fee.</source>
+        <translation>sera déduit pour la taxe de NAVTech.</translation>
+    </message>
+    <message>
+        <source>Total Amount %1</source>
+        <translation>Montant Total %1</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>ou</translation>
+    </message>
+    <message>
+        <source>Confirm send coins</source>
+        <translation>Confirmer l'envoi de crypto-monnaie</translation>
+    </message>
+    <message>
+        <source>The recipient address is not valid. Please recheck.</source>
+        <translation>L'adresse du destinataire est incorrecte. Veuillez revérifier.</translation>
+    </message>
+    <message>
+        <source>The amount to pay must be larger than 0.</source>
+        <translation>La montant à payer doit être supérieur à 0.</translation>
+    </message>
+    <message>
+        <source>The amount exceeds your balance.</source>
+        <translation>Le montant excède votre solde.</translation>
+    </message>
+    <message>
+        <source>The total exceeds your balance when the %1 transaction fee is included.</source>
+        <translation>Le montant total excède votre solde lorsque la taxe de transaction %1 est incluse.</translation>
+    </message>
+    <message>
+        <source>Duplicate address found: addresses should only be used once each.</source>
+        <translation>Adresse en double trouvée: Les adresses ne devraient être utilisées qu'une seule fois seulement.</translation>
+    </message>
+    <message>
+        <source>Transaction creation failed!</source>
+        <translation>Échec de la création de la transaction!</translation>
+    </message>
+    <message>
+        <source>The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of wallet.dat and coins were spent in the copy but not marked as spent here.</source>
+        <translation>La transaction a été rejetée! Cela peut arriver si de la monnaie dans votre portefeuille a déjà été dépensée.</translation>
+    </message>
+    <message>
+        <source>A fee higher than %1 is considered an absurdly high fee.</source>
+        <translation>Des frais supérieurs à %1 sont considérés comme trop élevés.</translation>
+    </message>
+    <message>
+        <source>Payment request expired.</source>
+        <translation>Demande de paiement expirée.</translation>
+    </message>
+    <message>
+        <source>Pay only the required fee of %1</source>
+        <translation>Payer uniquement les frais requis de %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>Estimated to begin confirmation within %n block(s).</source>
+        <translation><numerusform>Début de confirmation estimée sous %n bloc(s).</numerusform><numerusform>Début de confirmation estimée sous %n bloc(s).</numerusform></translation>
+    </message>
+    <message>
+        <source>Warning: Invalid NavCoin address</source>
+        <translation>Attention: Adresse Navcoin invalide</translation>
+    </message>
+    <message>
+        <source>Warning: Unknown change address</source>
+        <translation>Attention: Changement d'adresse inconnu</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(aucune étiquette)</translation>
+    </message>
+</context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1486,6 +2530,14 @@
         <translation>Un message qui était joint à l'URI NavCoin et qui sera stocké avec la transaction pour référence. Note : ce message ne sera pas envoyé par le réseau NavCoin.</translation>
     </message>
     <message>
+        <source>Save in Address Book</source>
+        <translation>Sauvegarder dans le Carnet d'adresse</translation>
+    </message>
+    <message>
+        <source>A&amp;mount (NAV):</source>
+        <translation>M&amp;ontant (NAV):</translation>
+    </message>
+    <message>
         <source>Pay To:</source>
         <translation>Payer à :</translation>
     </message>
@@ -1493,7 +2545,11 @@
         <source>Memo:</source>
         <translation>Mémo :</translation>
     </message>
-    </context>
+    <message>
+        <source>Enter a label for this address to add it to your address book</source>
+        <translation>Entrer une étiquette pour cette adresse pour l'ajouter à votre carnet d'adresse.</translation>
+    </message>
+</context>
 <context>
     <name>SendConfirmationDialog</name>
     <message>
@@ -1520,7 +2576,7 @@
     </message>
     <message>
         <source>&amp;Sign Message</source>
-        <translation>&amp;Signer un message</translation>
+        <translation>&amp;Signer le message</translation>
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive navcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
@@ -1598,7 +2654,59 @@
         <source>Reset all verify message fields</source>
         <translation>Réinitialiser tous les champs de vérification de message</translation>
     </message>
-    </context>
+    <message>
+        <source>Click "Sign Message" to generate signature</source>
+        <translation>Cliquer "Signer le message" pour générer une signature</translation>
+    </message>
+    <message>
+        <source>The entered address is invalid.</source>
+        <translation>L'adresse entrée est invalide.</translation>
+    </message>
+    <message>
+        <source>Please check the address and try again.</source>
+        <translation>Veuillez vérifier l'adresse et réessayer à nouveau.</translation>
+    </message>
+    <message>
+        <source>The entered address does not refer to a key.</source>
+        <translation>L'adresse spécifiée ne réfère pas à une clef.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock was cancelled.</source>
+        <translation>Le déverrouillage du portefeuille à été interrompu.</translation>
+    </message>
+    <message>
+        <source>Private key for the entered address is not available.</source>
+        <translation>La clef privée correspondant à l'adresse entrée n'est pas disponible.</translation>
+    </message>
+    <message>
+        <source>Message signing failed.</source>
+        <translation>Échec de la signature du message.</translation>
+    </message>
+    <message>
+        <source>Message signed.</source>
+        <translation>Message signé.</translation>
+    </message>
+    <message>
+        <source>The signature could not be decoded.</source>
+        <translation>La signature ne peut pas être décodée.</translation>
+    </message>
+    <message>
+        <source>Please check the signature and try again.</source>
+        <translation>Veuillez vérifier la signature et essayer de nouveau.</translation>
+    </message>
+    <message>
+        <source>The signature did not match the message digest.</source>
+        <translation>La signature ne correspond pas à la forme du message.</translation>
+    </message>
+    <message>
+        <source>Message verification failed.</source>
+        <translation>Échec de la vérification du message.</translation>
+    </message>
+    <message>
+        <source>Message verified.</source>
+        <translation>Message vérifié.</translation>
+    </message>
+</context>
 <context>
     <name>SplashScreen</name>
     <message>
@@ -1615,40 +2723,472 @@
 </context>
 <context>
     <name>TransactionDesc</name>
+    <message numerus="yes">
+        <source>Open for %n more block(s)</source>
+        <translation><numerusform>Ouvert pour %n bloc(s) supplémentaire</numerusform><numerusform>Ouvert pour %n bloc(s) supplémentaire</numerusform></translation>
+    </message>
+    <message>
+        <source>Open until %1</source>
+        <translation>Ouvrir jusqu'à %1</translation>
+    </message>
+    <message>
+        <source>conflicted with a transaction with %1 confirmations</source>
+        <translation>En conflit avec une transaction avec %1 confirmations</translation>
+    </message>
+    <message>
+        <source>%1/offline</source>
+        <translation>%1/hors ligne</translation>
+    </message>
+    <message>
+        <source>0/unconfirmed, %1</source>
+        <translation>0/non confirmé, %1</translation>
+    </message>
+    <message>
+        <source>in memory pool</source>
+        <translation>dans le pool de mémoire</translation>
+    </message>
+    <message>
+        <source>not in memory pool</source>
+        <translation>pas dans le pool de mémoire</translation>
+    </message>
+    <message>
+        <source>abandoned</source>
+        <translation>abandonné</translation>
+    </message>
+    <message>
+        <source>%1/unconfirmed</source>
+        <translation>%1/non confirmé</translation>
+    </message>
+    <message>
+        <source>%1 confirmations</source>
+        <translation>%1 confirmations</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Statut</translation>
+    </message>
+    <message>
+        <source>, has not been successfully broadcast yet</source>
+        <translation>, n'a pas encore été transmis avec succès</translation>
+    </message>
+    <message numerus="yes">
+        <source>, broadcast through %n node(s)</source>
+        <translation><numerusform>, transmission à travers %n nœud(s)</numerusform><numerusform>, transmission à travers %n nœud(s)</numerusform></translation>
+    </message>
     <message>
         <source>Date</source>
         <translation>Date</translation>
     </message>
     <message>
+        <source>Source</source>
+        <translation>Source</translation>
+    </message>
+    <message>
+        <source>Generated</source>
+        <translation>Générés</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation>De</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>inconnu</translation>
+    </message>
+    <message>
+        <source>To</source>
+        <translation>À</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation>adresse personnelle</translation>
+    </message>
+    <message>
+        <source>watch-only</source>
+        <translation>Lecture seule</translation>
+    </message>
+    <message>
+        <source>label</source>
+        <translation>étiquette</translation>
+    </message>
+    <message>
+        <source>Credit</source>
+        <translation>Crédit</translation>
+    </message>
+    <message numerus="yes">
+        <source>matures in %n more block(s)</source>
+        <translation><numerusform>matures dans %n bloc(s) supplémentaire</numerusform><numerusform>matures dans %n bloc(s) supplémentaire</numerusform></translation>
+    </message>
+    <message>
+        <source>not accepted</source>
+        <translation>non accepté</translation>
+    </message>
+    <message>
+        <source>Debit</source>
+        <translation>Débit</translation>
+    </message>
+    <message>
+        <source>Total debit</source>
+        <translation>Total débit</translation>
+    </message>
+    <message>
+        <source>Total credit</source>
+        <translation>Total crédit</translation>
+    </message>
+    <message>
+        <source>Transaction fee</source>
+        <translation>Frais de transaction</translation>
+    </message>
+    <message>
+        <source>Net amount</source>
+        <translation>Montant net</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Message</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation>Commenter</translation>
+    </message>
+    <message>
+        <source>Transaction ID</source>
+        <translation>ID de transaction</translation>
+    </message>
+    <message>
+        <source>Output index</source>
+        <translation>Index de sortie</translation>
+    </message>
+    <message>
+        <source>Merchant</source>
+        <translation>Marchand</translation>
+    </message>
+    <message>
+        <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
+        <translation>La monnaie générée doit être mature %1 blocs restant avant qu'elle soit dépensable. Lorsque vous aurez généré ce bloc, il aura été diffusé au réseau pour être ajouté à la blockchain. S'il échoue à rejoindre la chain, son état changera en "Non accepté" et ne sera pas dépensable. Cela peut arriver lorsqu'un autre nœud a généré un bloc quelques secondes avant le votre.</translation>
+    </message>
+    <message>
+        <source>Debug information</source>
+        <translation>Débug information</translation>
+    </message>
+    <message>
+        <source>Transaction</source>
+        <translation>Transaction</translation>
+    </message>
+    <message>
+        <source>Inputs</source>
+        <translation>entrées</translation>
+    </message>
+    <message>
         <source>Amount</source>
         <translation>Montant</translation>
     </message>
-    </context>
+    <message>
+        <source>true</source>
+        <translation>vrai</translation>
+    </message>
+    <message>
+        <source>false</source>
+        <translation>faux</translation>
+    </message>
+</context>
 <context>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Ce panneau affiche une description détaillée de la transaction</translation>
     </message>
-    </context>
+    <message>
+        <source>Details for %1</source>
+        <translation>Détails pour %1</translation>
+    </message>
+</context>
 <context>
     <name>TransactionTableModel</name>
     <message>
         <source>Date</source>
         <translation>Date</translation>
     </message>
-    </context>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Étiquette</translation>
+    </message>
+    <message numerus="yes">
+        <source>Open for %n more block(s)</source>
+        <translation><numerusform>Ouvert pour %n bloc(s) supplémentaires</numerusform><numerusform>Ouvert pour %n bloc(s) supplémentaires</numerusform></translation>
+    </message>
+    <message>
+        <source>Open until %1</source>
+        <translation>Ouvrir jusqu'à %1</translation>
+    </message>
+    <message>
+        <source>Offline</source>
+        <translation>Hors ligne</translation>
+    </message>
+    <message>
+        <source>Unconfirmed</source>
+        <translation>non confirmées</translation>
+    </message>
+    <message>
+        <source>Abandoned</source>
+        <translation>abandonnées</translation>
+    </message>
+    <message>
+        <source>Confirming (%1 of %2 recommended confirmations)</source>
+        <translation>Confirmation en cours (%1 de %2 confirmations recommandées)</translation>
+    </message>
+    <message>
+        <source>Confirmed (%1 confirmations)</source>
+        <translation>Confirmé (%1 confirmations)</translation>
+    </message>
+    <message>
+        <source>Conflicted</source>
+        <translation>Contradictoire</translation>
+    </message>
+    <message>
+        <source>Immature (%1 confirmations, will be available after %2)</source>
+        <translation>Immature (%1 confirmations, sera disponible après %2)</translation>
+    </message>
+    <message>
+        <source>This block was not received by any other nodes and will probably not be accepted!</source>
+        <translation>Ce bloc n'a été reçu par aucun autre nœud et ne sera probablement pas accepté!</translation>
+    </message>
+    <message>
+        <source>Generated but not accepted</source>
+        <translation>généré mais pas accepté</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>Envoyer à</translation>
+    </message>
+    <message>
+        <source>Community Fund Payment</source>
+        <translation>Paiement du Fond Communautaire</translation>
+    </message>
+    <message>
+        <source>Private Payment</source>
+        <translation>Paiement anonyme</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>Reçu avec</translation>
+    </message>
+    <message>
+        <source>Received from</source>
+        <translation>Reçu de</translation>
+    </message>
+    <message>
+        <source>Payment to yourself</source>
+        <translation>Paiement à vous-même</translation>
+    </message>
+    <message>
+        <source>Staked</source>
+        <translation>Stackés</translation>
+    </message>
+    <message>
+        <source>watch-only</source>
+        <translation>Lecture seule</translation>
+    </message>
+    <message>
+        <source>Community Fund Contribution</source>
+        <translation>Apport au fond communautaire</translation>
+    </message>
+    <message>
+        <source>(n/a)</source>
+        <translation>(n/a)</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(aucune étiquette)</translation>
+    </message>
+    <message>
+        <source>Transaction status. Hover over this field to show number of confirmations.</source>
+        <translation>Statut de la transaction. Survoler le champs pour voir le nombre de confirmations.</translation>
+    </message>
+    <message>
+        <source>Date and time that the transaction was received.</source>
+        <translation>Date et heure à laquelle la transaction a été reçue.</translation>
+    </message>
+    <message>
+        <source>Type of transaction.</source>
+        <translation>Type de transaction.</translation>
+    </message>
+    <message>
+        <source>Whether or not a watch-only address is involved in this transaction.</source>
+        <translation>Que ce soit le cas ou non, une adresse en lecture seule est impliquée dans cette transaction.</translation>
+    </message>
+    <message>
+        <source>User-defined intent/purpose of the transaction.</source>
+        <translation>Intention/objectif de la transaction défini par l'utilisateur.</translation>
+    </message>
+    <message>
+        <source>Amount removed from or added to balance.</source>
+        <translation>Montant ajouté ou retiré au solde.</translation>
+    </message>
+</context>
 <context>
     <name>TransactionView</name>
+    <message>
+        <source>All</source>
+        <translation>Total</translation>
+    </message>
+    <message>
+        <source>Today</source>
+        <translation>Aujourd'hui</translation>
+    </message>
+    <message>
+        <source>This week</source>
+        <translation>Cette semaine</translation>
+    </message>
+    <message>
+        <source>This month</source>
+        <translation>Ce mois</translation>
+    </message>
+    <message>
+        <source>Last month</source>
+        <translation>Dernier mois</translation>
+    </message>
+    <message>
+        <source>This year</source>
+        <translation>Cette année</translation>
+    </message>
+    <message>
+        <source>Range...</source>
+        <translation>Plage...</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>Reçu avec</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>Envoyer à</translation>
+    </message>
+    <message>
+        <source>To yourself</source>
+        <translation>À vous-même</translation>
+    </message>
+    <message>
+        <source>Staked</source>
+        <translation>Stakez</translation>
+    </message>
+    <message>
+        <source>Community Fund</source>
+        <translation>Fond communautaire</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>Autre</translation>
+    </message>
+    <message>
+        <source>Enter address or label to search</source>
+        <translation>Entrer l'adresse ou l'étiquette pour rechercher</translation>
+    </message>
+    <message>
+        <source>Min amount</source>
+        <translation>Montant min</translation>
+    </message>
+    <message>
+        <source>Abandon transaction</source>
+        <translation>Abandonner la transaction</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Copier l'adresse</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Copier l'étiquette</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Copier le montant</translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Copier le numéro de transaction</translation>
+    </message>
+    <message>
+        <source>Copy raw transaction</source>
+        <translation>Copier la transaction brute</translation>
+    </message>
+    <message>
+        <source>Copy full transaction details</source>
+        <translation>Copier la totalité des détails de transaction</translation>
+    </message>
+    <message>
+        <source>Edit label</source>
+        <translation>Éditer étiquette</translation>
+    </message>
+    <message>
+        <source>Show transaction details</source>
+        <translation>Montrer les détails de la transaction</translation>
+    </message>
+    <message>
+        <source>Export Transaction History</source>
+        <translation>Exporter l'historique de transaction</translation>
+    </message>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>comma separated file (*.csv)</translation>
+    </message>
     <message>
         <source>Confirmed</source>
         <translation>Confirmée</translation>
     </message>
     <message>
+        <source>Watch-only</source>
+        <translation>Lecture seule</translation>
+    </message>
+    <message>
         <source>Date</source>
         <translation>Date</translation>
     </message>
-    </context>
+    <message>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Étiquette</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Adresse</translation>
+    </message>
+    <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Échec de l'exportation</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the transaction history to %1.</source>
+        <translation>Il y a eu une erreur dans la sauvegarde de l'historique de transaction à %1.</translation>
+    </message>
+    <message>
+        <source>Exporting Successful</source>
+        <translation>Exportation réussie</translation>
+    </message>
+    <message>
+        <source>The transaction history was successfully saved to %1.</source>
+        <translation>L'historique de transaction à été correctement sauvegardé à %1.</translation>
+    </message>
+    <message>
+        <source>Range:</source>
+        <translation>Plage:</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>à</translation>
+    </message>
+</context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
@@ -1658,7 +3198,11 @@
 </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>No wallet has been loaded.</source>
+        <translation>Aucun portefeuille n'a été chargé.</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     <message>
@@ -1676,7 +3220,75 @@
         <source>Export the data in the current tab to a file</source>
         <translation>Exporter les données de l'onglet actuel vers un fichier</translation>
     </message>
-    </context>
+    <message>
+        <source>Backup Wallet</source>
+        <translation>Sauvegarder portefeuille</translation>
+    </message>
+    <message>
+        <source>Wallet Data (*.dat)</source>
+        <translation>Données portefeuille (*.dat)</translation>
+    </message>
+    <message>
+        <source>Backup Failed</source>
+        <translation>Échec de la sauvegarde</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the wallet data to %1.</source>
+        <translation>Il y a eu une erreur lors de la sauvegarde des données du portefeuille à %1.</translation>
+    </message>
+    <message>
+        <source>Backup Successful</source>
+        <translation>Sauvegarde réussie</translation>
+    </message>
+    <message>
+        <source>Wallet is not a HD wallet.</source>
+        <translation>Le portefeuille n'est pas un portefeuille HD.</translation>
+    </message>
+    <message>
+        <source>Show Master Private Key</source>
+        <translation>Dévoiler la Clef Privée Principale</translation>
+    </message>
+    <message>
+        <source>Master Private Key:&lt;br&gt;&lt;br&gt;%1</source>
+        <translation>Clef Privée Principale:&lt;br&gt;&lt;br&gt;%1</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve HD master private key</source>
+        <translation>Impossible de récupérer la clef privée principale HD</translation>
+    </message>
+    <message>
+        <source>Import Private Key</source>
+        <translation>Importez une Clef Privée</translation>
+    </message>
+    <message>
+        <source>Private Key:</source>
+        <translation>Clef privée:</translation>
+    </message>
+    <message>
+        <source>Invalid private key encoding.</source>
+        <translation>L'encodage de la clef privée n'est pas valide.</translation>
+    </message>
+    <message>
+        <source>Private key outside allowed range.</source>
+        <translation>La clef privée dépasse la limite autorisée.</translation>
+    </message>
+    <message>
+        <source>Address already added.</source>
+        <translation>Adresse déjà ajoutée.</translation>
+    </message>
+    <message>
+        <source>Error adding key to wallet.</source>
+        <translation>Erreur d'ajout de la clef au portefeuille.</translation>
+    </message>
+    <message>
+        <source>NavCoin needs to scan the chain... Please, wait.</source>
+        <translation>NavCoin à besoin d'analyser la blockchain... Veuillez attendre.</translation>
+    </message>
+    <message>
+        <source>Private key correctly added!</source>
+        <translation>Clef privée correctement ajoutée!</translation>
+    </message>
+</context>
 <context>
     <name>getAddressToReceive</name>
     <message>
@@ -1684,10 +3296,46 @@
         <translation>Formulaire</translation>
     </message>
     <message>
+        <source>Use the following address to receive NavCoins:</source>
+        <translation>Utiliser l'adresse suivante pour recevoir des Navcoins:</translation>
+    </message>
+    <message>
         <source>QR Code</source>
         <translation>Code QR</translation>
     </message>
-    </context>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Copier dans le presse-papier</translation>
+    </message>
+    <message>
+        <source>Generate a new address</source>
+        <translation>Générer une nouvelle adresse</translation>
+    </message>
+    <message>
+        <source>Create a Cold Staking address</source>
+        <translation>Créer une adresse en cold staking</translation>
+    </message>
+    <message>
+        <source>Request payment</source>
+        <translation>Demande de paiement</translation>
+    </message>
+    <message>
+        <source>List old addresses</source>
+        <translation>Liste de toutes les adresses</translation>
+    </message>
+    <message>
+        <source>Action not available</source>
+        <translation>Action non disponible</translation>
+    </message>
+    <message>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation>Si l'URI résultante est trop longue, essayez de réduire le texte de l'étiquette/du message.</translation>
+    </message>
+    <message>
+        <source>Error encoding URI into QR Code.</source>
+        <translation>Erreur d'encodage d'URI dans le QR Code.</translation>
+    </message>
+</context>
 <context>
     <name>navcoin-core</name>
     <message>
@@ -1759,6 +3407,10 @@
         <translation>NavCoin Core</translation>
     </message>
     <message>
+        <source>The %s developers</source>
+        <translation>Les développeurs de %s</translation>
+    </message>
+    <message>
         <source>-fallbackfee is set very high! This is the transaction fee you may pay when fee estimates are not available.</source>
         <translation>La valeur -fallbackfee est très élevée ! Elle représente les frais de transaction que vous pourriez acquitter si aucune estimation de frais n'est proposée.</translation>
     </message>
@@ -1767,12 +3419,24 @@
         <translation>Un taux de frais (en %s/Ko) qui sera utilisé si l'estimation de frais ne possède pas suffisamment de données (par défaut : %s)</translation>
     </message>
     <message>
+        <source>A new version of the wallet has been released. Please update as soon as possible.</source>
+        <translation>Une nouvelle version du portefeuille est disponible. Veuillez mettre à jour celle-ci dès que possible.</translation>
+    </message>
+    <message>
         <source>Accept relayed transactions received from whitelisted peers even when not relaying transactions (default: %d)</source>
         <translation>Accepter les transactions relayées reçues de pairs de la liste blanche même si le nœud ne relaie pas les transactions (par défaut : %d)</translation>
     </message>
     <message>
+        <source>Add a ntp server to connect to and attempt to use to synchronize the clock</source>
+        <translation>Ajouter un serveur ntp auquel se connecter et tenter de l'utiliser pour synchroniser l'horloge</translation>
+    </message>
+    <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
         <translation>Se lier à l'adresse donnée et toujours l'écouter. Utilisez la notation [host]:port pour l'IPv6</translation>
+    </message>
+    <message>
+        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
+        <translation>Impossible d'obtenir un verrouillage sur le répertoire de données %s. %s est surement en fonctionnement.</translation>
     </message>
     <message>
         <source>Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup</source>
@@ -1783,16 +3447,36 @@
         <translation>Distribué sous la licence MIT d'utilisation d'un logiciel. Consultez le fichier joint COPYING ou &lt;http://www.opensource.org/licenses/mit-license.php&gt;.</translation>
     </message>
     <message>
+        <source>Equivalent bytes per sigop in transactions for relay and mining (default: %u)</source>
+        <translation>Octets équivalents par sigop dans les transactions de relais et de minage (par défaut : %u)</translation>
+    </message>
+    <message>
         <source>Error loading %s: You can't enable HD on a already existing non-HD wallet</source>
         <translation>Erreur de chargement de %s : vous ne pouvez pas activer HD sur un porte-monnaie non HD existant</translation>
+    </message>
+    <message>
+        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
+        <translation>Erreur de lecture %s! Toutes les clefs sont lues correctement, mais la transaction de données et les entrées du carnet d'adresses doivent être manquantes ou incorrectes.</translation>
     </message>
     <message>
         <source>Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)</source>
         <translation>Exécuter la commande lorsqu'une transaction de porte-monnaie change (%s dans la commande est remplacée par TxID)</translation>
     </message>
     <message>
+        <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation</source>
+        <translation>Frais (en %s/Ko) plus faible que cela sont considérés comme zéro frais pour la transmission, le minage et la création de transaction.</translation>
+    </message>
+    <message>
+        <source>Force relay of transactions from whitelisted peers even they violate local relay policy (default: %d)</source>
+        <translation>Forcer la transmission des transactions pour les contacts sur liste blanche même s'ils violent  les termes contractuels de la transmission (default: %d)</translation>
+    </message>
+    <message>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
         <translation>Réglage moyen maximal autorisé de décalage de l'heure d'un pair. La perspective locale du temps peut être influencée par les pairs, en avance ou en retard, de cette valeur. (Par défaut : %u secondes)</translation>
+    </message>
+    <message>
+        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation>Veuillez vérifier que la date et l'heure de votre ordinateur sont correctes! Si votre horloge est incorrecte, %s ne fonctionnera pas correctement.</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
@@ -1803,8 +3487,16 @@
         <translation>Définir le nombre d'exétrons de vérification des scripts (%u à %d, 0 = auto, &lt; 0 = laisser ce nombre de cœurs inutilisés, par défaut : %d)</translation>
     </message>
     <message>
+        <source>Sets the interval in miliseconds to update the fiat price from CoinMarketcap. Min. 120000</source>
+        <translation>Fixez l'intervalle en millisecondes pour la mise à jour du prix fiduciaire de CoinMarketcap. Min. 120000</translation>
+    </message>
+    <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
         <translation>La base de données de blocs contient un bloc qui semble provenir du futur. Cela pourrait être causé par la date et l'heure erronées de votre ordinateur. Ne reconstruisez la base de données de blocs que si vous êtes certain que la date et l'heure de votre ordinateur sont justes.</translation>
+    </message>
+    <message>
+        <source>The community fund database looks to be corrupted. You will need to rebuild the block database.</source>
+        <translation>La base de données du fond communautaire semble corrompue. Vous allez avoir besoin de reconstruire le bloc de la base de données.</translation>
     </message>
     <message>
         <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
@@ -1831,6 +3523,18 @@
         <translation>Pairs de la liste blanche se connectant à partir du masque réseau ou de l'IP donné. Peut être spécifié plusieurs fois.</translation>
     </message>
     <message>
+        <source>You need to rebuild the database using -reindex-chainstate to change -addressindex</source>
+        <translation>Vous devez reconstruire la base de données en utilisant -reindex-chainstate pour changer -addressindex</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex-chainstate to change -spentindex</source>
+        <translation>Vous devez reconstruire la base de données en utilisant -reindex-chainstate pour changer -spentindex</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex-chainstate to change -timestampindex</source>
+        <translation>Vous devez reconstruire la base de données en utilisant -reindex-chainstate pour changer -timestampindex</translation>
+    </message>
+    <message>
         <source>You need to rebuild the database using -reindex-chainstate to change -txindex</source>
         <translation>Vous devez reconstruire la base de données avec -reindex-chainstate pour changer -txindex</translation>
     </message>
@@ -1845,6 +3549,14 @@
     <message>
         <source>&lt;category&gt; can be:</source>
         <translation>&lt;category&gt; peut être :</translation>
+    </message>
+    <message>
+        <source>Add a NavTech node to use for private transactions</source>
+        <translation>Ajouter un nœud NavTech à utiliser pour les transactions anonymes</translation>
+    </message>
+    <message>
+        <source>Adds a ntp server to use for clock syncronization</source>
+        <translation>Ajouter un serveur NTP à utiliser pour la synchronisation d'horloge</translation>
     </message>
     <message>
         <source>Append comment to the user agent string</source>
@@ -1867,6 +3579,10 @@
         <translation>L'index de changement est hors échelle</translation>
     </message>
     <message>
+        <source>Clock options:</source>
+        <translation>Options d'horloge:</translation>
+    </message>
+    <message>
         <source>Connect only to the specified node(s)</source>
         <translation>Ne se connecter qu'au(x) nœud(s) spécifié(s)</translation>
     </message>
@@ -1885,6 +3601,10 @@
     <message>
         <source>Debugging/Testing options:</source>
         <translation>Options de débogage/de test :</translation>
+    </message>
+    <message>
+        <source>Defines the staker vote to be attached to found blocks.</source>
+        <translation>Défini le vote du staker comme étant lié aux blocs trouvés.</translation>
     </message>
     <message>
         <source>Do not load the wallet and disable wallet RPC calls</source>
@@ -1909,6 +3629,14 @@
     <message>
         <source>Enable publish raw transaction in &lt;address&gt;</source>
         <translation>Activer la publication de la transaction brute dans &lt;address&gt;</translation>
+    </message>
+    <message>
+        <source>Enable transaction replacement in the memory pool (default: %u)</source>
+        <translation>Activer le remplacement de la transaction dans le pool de mémoire (par défaut: %u)</translation>
+    </message>
+    <message>
+        <source>Enables or disables the staking thread.</source>
+        <translation>Active ou désactive le staking thread.</translation>
     </message>
     <message>
         <source>Error initializing block database</source>
@@ -1951,12 +3679,20 @@
         <translation>Échec de l'écoute sur un port quelconque. Utilisez -listen=0 si vous voulez ceci.</translation>
     </message>
     <message>
+        <source>GUI options:</source>
+        <translation>options GUI:</translation>
+    </message>
+    <message>
         <source>Importing...</source>
         <translation>Importation...</translation>
     </message>
     <message>
         <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
         <translation>Bloc de genèse incorrect ou introuvable. Mauvais répertoire de données pour le réseau ?</translation>
+    </message>
+    <message>
+        <source>Initialization sanity check failed. %s is shutting down.</source>
+        <translation>Le test d'initialisation a échoué. %s se ferme.</translation>
     </message>
     <message>
         <source>Invalid -onion address: '%s'</source>
@@ -1981,6 +3717,14 @@
     <message>
         <source>Location of the auth cookie (default: data dir)</source>
         <translation>Emplacement du fichier témoin auth (par défaut : data dir)</translation>
+    </message>
+    <message>
+        <source>Max number of seconds allowed as clock offset for a peer (default: %u)</source>
+        <translation>Nombre maximal de secondes autorisées de décalage d'horloge pour un peer (par défaut: %u)</translation>
+    </message>
+    <message>
+        <source>Min. number of valid requests to NTP servers (default: %u)</source>
+        <translation>Nombre minimal de requêtes validées par les serveurs NTP (par défaut %u)</translation>
     </message>
     <message>
         <source>Not enough file descriptors available.</source>
@@ -2015,6 +3759,10 @@
         <translation>Reconstruire l'état de la chaîne à partir des blocs indexés actuellement</translation>
     </message>
     <message>
+        <source>Requires DNS Sec for OpenAlias requests (default: true)</source>
+        <translation>DNS Sec est requis pour les requêtes OpenAlias (par défaut: vrai)</translation>
+    </message>
+    <message>
         <source>Rewinding blocks...</source>
         <translation>Rebobinage des blocs...</translation>
     </message>
@@ -2031,12 +3779,24 @@
         <translation>Définir la taille minimale de bloc en octets (par défaut : %d)</translation>
     </message>
     <message>
+        <source>Sets the default sleep for the staking thread (default: %u)</source>
+        <translation>Définit le sleep par défaut pour la continuité du staking (par défaut: %u)</translation>
+    </message>
+    <message>
         <source>Specify wallet file (within data directory)</source>
         <translation>Spécifiez le fichier de porte-monnaie (dans le répertoire de données)</translation>
     </message>
     <message>
+        <source>Synchronizing clock...</source>
+        <translation>Synchronisation de l'horloge...</translation>
+    </message>
+    <message>
         <source>The source code is available from %s.</source>
         <translation>Le code source est disponible sur %s.</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation>Impossible de lier %s sur cet ordinateur. %s est probablement déjà en cours de fonctionnement.</translation>
     </message>
     <message>
         <source>Unsupported argument -benchmark ignored, use -debug=bench.</source>
@@ -2059,6 +3819,10 @@
         <translation>Le commentaire d'agent utilisateur (%s) contient des caractères dangereux.</translation>
     </message>
     <message>
+        <source>Uses the devnet network</source>
+        <translation>Utilise le réseau devnet</translation>
+    </message>
+    <message>
         <source>Verifying blocks...</source>
         <translation>Vérification des blocs en cours...</translation>
     </message>
@@ -2073,6 +3837,10 @@
     <message>
         <source>Wallet debugging/testing options:</source>
         <translation>Options de débogage/de test du porte-monnaie :</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation>Le portefeuille a besoin d'être réécrit: redémarrer %s pour finaliser</translation>
     </message>
     <message>
         <source>Wallet options:</source>
@@ -2115,8 +3883,36 @@
         <translation>Montant invalide pour -maxtxfee=&lt;amount&gt; : « %s » (doit être au moins les frais minrelay de %s pour prévenir le blocage des transactions)</translation>
     </message>
     <message>
+        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u or devnet: %u)</source>
+        <translation>Écoute des connexions JSON-RPC activées &lt;port&gt;(par défaut: %u ou testnet: %u ou devnet: %u)</translation>
+    </message>
+    <message>
+        <source>Listen for connections on &lt;port&gt; (default: %u or testnet: %u or devnet: %u)</source>
+        <translation>Écoute des connexions activées &lt;port&gt; (par défaut: %u ou testnet: %u ou devnet: %u)</translation>
+    </message>
+    <message>
+        <source>Maintain a full address index, used to query for the balance, txids and unspent outputs for addresses (default: %u)</source>
+        <translation>Maintenir un index complet des adresses, utilisé pour rechercher le solde, les id de transactions et les sorties non dépensées pour les adresses (par défaut : %u).</translation>
+    </message>
+    <message>
+        <source>Maintain a full spent index, used to query the spending txid and input index for an outpoint (default: %u)</source>
+        <translation>Maintenir un index complet des dépenses, utilisé pour interroger les id de transactions des dépenses et l'index d'entrée pour un point de sortie (par défaut : %u).</translation>
+    </message>
+    <message>
+        <source>Maintain a timestamp index for block hashes, used to query blocks hashes by a range of timestamps (default: %u)</source>
+        <translation>Maintenir un index d'horodatage pour les hachages de blocs, utilisé pour interroger les hachages de blocs par une plage d'horodatages (par défaut : %u)</translation>
+    </message>
+    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Quantité maximale de données dans les transactions du porteur de données que nous relayons et minons (par défaut : %u)</translation>
+    </message>
+    <message>
+        <source>Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions</source>
+        <translation>Maximum total des frais (en %s) à utiliser dans une seule transaction de portefeuille ou pour une transaction simple; entrer une valeur trop faible pourrait annuler une transaction volumineuse.</translation>
+    </message>
+    <message>
+        <source>Number of seconds to wait for a response from a NTP server (default: %u)</source>
+        <translation>Nombre de secondes à attendre pour une réponse du serveur NTP (default: %u)</translation>
     </message>
     <message>
         <source>Query for peer addresses via DNS lookup, if low on addresses (default: 1 unless -connect)</source>
@@ -2460,7 +4256,7 @@
     </message>
     <message>
         <source>Loading block index...</source>
-        <translation>Chargement de l’index des blocs…</translation>
+        <translation>Indexation des blocs...</translation>
     </message>
     <message>
         <source>Add a node to connect to and attempt to keep the connection open</source>
