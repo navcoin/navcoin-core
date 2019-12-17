@@ -3775,9 +3775,9 @@ void static UpdateTip(CBlockIndex *pindexNew, uint256 statehash, const CChainPar
             strMiscWarning = _("A new version of the wallet has been released. Please update as soon as possible.");
             warningMessages.push_back("A new version of the wallet has been released. Please update as soon as possible.");
             if (!fWarned) {
-                uiInterface.ThreadSafeMessageBox(
+                /*uiInterface.ThreadSafeMessageBox(
                     strMiscWarning,
-                    "", CClientUIInterface::MSG_WARNING);
+                    "", CClientUIInterface::MSG_WARNING);*/
                 AlertNotify(strMiscWarning);
                 fWarned = true;
             }
