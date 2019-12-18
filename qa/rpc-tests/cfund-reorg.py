@@ -63,7 +63,7 @@ class CommunityFundProposalReorg(NavCoinTestFramework):
 
         assert_equal(self.nodes[0].getproposal(hash)['status'], 'accepted')
 
-        rawpaymentrequest = self.nodes[0].createpaymentrequest(hash, 10, "paymentReq1", True)["raw"]
+        rawpaymentrequest = self.nodes[0].createpaymentrequest(hash, 10, "paymentReq1", 1, True)["raw"]
 
         # disconnect the nodes and generate the proposal on each node
         url = urllib.parse.urlparse(self.nodes[1].url)

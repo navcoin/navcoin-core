@@ -557,9 +557,24 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!view.HavePaymentRequest(it->first))
                 continue;
 
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
+
+            if (prequest->txblockhash == uint256())
+                continue;
+
+            CBlockIndex* pblockindex = mapBlockIndex[prequest->txblockhash];
+
             bool fUpdate = false;
 
-            CPaymentRequest tmp; CPaymentRequest oldprequest = CPaymentRequest();
+            uint64_t nCreatedOnCycle = (pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nCurrentCycle = (pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
+            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) + 1);
+
+            auto oldCycle = prequest->nVotingCycle;
+
+            CPaymentRequest tmp;
+            CPaymentRequest oldprequest = CPaymentRequest();
 
             if (fLog)
             {
@@ -567,124 +582,79 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 tmp.swap(oldprequest);
             }
 
-            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
-
-            if(fUndo && prequest->paymenthash == pindexDelete->GetBlockHash())
-            {
-                prequest->paymenthash = uint256();
-                fUpdate = true;
-            }
-
-            if(fUndo && prequest->blockhash == pindexDelete->GetBlockHash())
-            {
-                prequest->blockhash = uint256();
-                prequest->fState = DAOFlags::NIL;
-                fUpdate = true;
-            }
-
-            if (prequest->txblockhash == uint256())
-                continue;
-
-            if (mapBlockIndex.count(prequest->txblockhash) == 0)
-            {
-                LogPrintf("%s: Can't find block %s of payment request %s\n",
-                          __func__, prequest->txblockhash.ToString(), prequest->hash.ToString());
-                continue;
-            }
-
-            CBlockIndex* pblockindex = mapBlockIndex[prequest->txblockhash];
-
             CProposal proposal;
 
             if (!view.GetProposal(prequest->proposalhash, proposal))
                 continue;
 
-            uint64_t nCreatedOnCycle = (pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            uint64_t nCurrentCycle = (pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) + 1);
-
-            auto oldState = prequest->fState;
-            auto oldCycle = prequest->nVotingCycle;
-
-            if((prequest->fState == DAOFlags::NIL || fUndo) && nVotingCycles != prequest->nVotingCycle)
+            if(fUndo)
             {
-                prequest->nVotingCycle = nVotingCycles;
+                prequest->ClearState(pindexDelete);
+                if(prequest->GetLastState() == DAOFlags::NIL)
+                    prequest->nVotingCycle = nVotingCycles;
                 fUpdate = true;
             }
-
-            if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
+            else
             {
-                if((!prequest->IsExpired() && prequest->fState == DAOFlags::EXPIRED) ||
-                        (!prequest->IsRejected() && prequest->fState == DAOFlags::REJECTED))
+                auto oldState = prequest->GetLastState();
+
+                if(oldState == DAOFlags::NIL && nVotingCycles != prequest->nVotingCycle)
                 {
-                    prequest->fState = DAOFlags::NIL;
-                    prequest->blockhash = uint256();
+                    prequest->nVotingCycle = nVotingCycles;
                     fUpdate = true;
                 }
 
-                if(!prequest->IsAccepted() && prequest->fState == DAOFlags::ACCEPTED)
+                if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
                 {
-                    prequest->fState = DAOFlags::NIL;
-                    prequest->blockhash = uint256();
-                    fUpdate = true;
-                }
-
-                if(prequest->IsExpired())
-                {
-                    if (prequest->fState != DAOFlags::EXPIRED)
+                    if(prequest->IsExpired())
                     {
-                        prequest->fState = DAOFlags::EXPIRED;
-                        prequest->blockhash = pindexNew->GetBlockHash();
-                        fUpdate = true;
-                    }
-                }
-                else if(prequest->IsRejected())
-                {
-                    if (prequest->fState != DAOFlags::REJECTED)
-                    {
-                        prequest->fState = DAOFlags::REJECTED;
-                        prequest->blockhash = pindexNew->GetBlockHash();
-                        fUpdate = true;
-                    }
-                }
-                else if(prequest->fState == DAOFlags::NIL)
-                {
-                    if((proposal.fState == DAOFlags::ACCEPTED || proposal.fState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())
-                    {
-                        if(prequest->nAmount <= pindexNew->nCFLocked && prequest->nAmount <= proposal.GetAvailable(view))
+                        if (oldState != DAOFlags::EXPIRED)
                         {
-                            pindexNew->nCFLocked -= prequest->nAmount;
-                            prequest->fState = DAOFlags::ACCEPTED;
-                            prequest->blockhash = pindexNew->GetBlockHash();
+                            prequest->SetState(pindexNew, DAOFlags::EXPIRED);
                             fUpdate = true;
+                        }
+                    }
+                    else if(prequest->IsRejected())
+                    {
+                        if (oldState != DAOFlags::REJECTED)
+                        {
+                            prequest->SetState(pindexNew, DAOFlags::REJECTED);
+                            fUpdate = true;
+                        }
+                    }
+                    else if(oldState == DAOFlags::NIL)
+                    {
+                        flags proposalOldState = proposal.GetLastState();
+                        if((proposalOldState == DAOFlags::ACCEPTED || proposalOldState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())
+                        {
+                            if(prequest->nAmount <= pindexNew->nCFLocked && prequest->nAmount <= proposal.GetAvailable(view))
+                            {
+                                pindexNew->nCFLocked -= prequest->nAmount;
+                                prequest->SetState(pindexNew, DAOFlags::ACCEPTED);
+                                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                                fUpdate = true;
+                            }
                         }
                     }
                 }
             }
 
-            if (fUndo && fUpdate && prequest->fState == oldState && prequest->fState != DAOFlags::NIL
-                    && prequest->nVotingCycle != oldCycle)
-            {
-                prequest->nVotingCycle = oldCycle;
-                fUpdate = true;
-            }
-
             if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
-                if (!mapSeen.count(prequest->hash) && prequest->fState == DAOFlags::NIL &&
-                    !((proposal.fState == DAOFlags::ACCEPTED || proposal.fState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())){
+                flags proposalState = proposal.GetLastState();
+
+                if (!mapSeen.count(prequest->hash) && prequest->GetLastState() == DAOFlags::NIL &&
+                        !((proposalState == DAOFlags::ACCEPTED || proposalState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted())){
                     prequest->nVotesYes = 0;
                     prequest->nVotesNo = 0;
                     fUpdate = true;
                 }
             }
 
-            prequest->fDirty = fUpdate;
-
             if (*prequest != oldprequest)
             {
-                if (fLog) LogPrintf("%s: Updated payment request %s: %s\n", __func__, prequest->hash.ToString(), oldprequest.diff(*prequest));
+                prequest->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated payment request %s at height %d: %s\n", __func__, prequest->hash.ToString(),  pindexNew->nHeight, oldprequest.diff(*prequest));
             }
         }
     }
@@ -702,17 +672,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!view.HaveProposal(it->first))
                 continue;
 
-            bool fUpdate = false;
-
-            CProposal tmp;
-            CProposal oldproposal = CProposal();
-
-            if (fLog)
-            {
-                view.GetProposal(it->first, tmp);
-                tmp.swap(oldproposal);
-            }
-
             CProposalModifier proposal = view.ModifyProposal(it->first);
 
             if (proposal->txblockhash == uint256())
@@ -725,120 +684,110 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 continue;
             }
 
-            if(fUndo && proposal->blockhash == pindexDelete->GetBlockHash())
-            {
-                proposal->blockhash = uint256();
-                proposal->fState = DAOFlags::NIL;
-                fUpdate = true;
-            }
-
             CBlockIndex* pblockindex = mapBlockIndex[proposal->txblockhash];
+
+            bool fUpdate = false;
 
             uint64_t nCreatedOnCycle = (pblockindex->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
             uint64_t nCurrentCycle = (pindexNew->nHeight / GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
             uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES) + 1);
+            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) + 1);
 
-            auto oldState = proposal->fState;
             auto oldCycle = proposal->nVotingCycle;
 
-            if((proposal->fState == DAOFlags::NIL || fUndo) && nVotingCycles != proposal->nVotingCycle)
+            CProposal tmp;
+            CProposal oldproposal = CProposal();
+
+            if (fLog)
             {
-                proposal->nVotingCycle = nVotingCycles;
-                fUpdate = true;
+                view.GetProposal(it->first, tmp);
+                tmp.swap(oldproposal);
             }
 
-            if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
+            if(fUndo)
             {
-                if((!proposal->IsExpired(pindexNew->GetBlockTime()) && (proposal->fState == DAOFlags::EXPIRED || proposal->fState == DAOFlags::PENDING_VOTING_PREQ)) ||
-                   (!proposal->IsRejected() && proposal->fState == DAOFlags::REJECTED))
+                proposal->ClearState(pindexDelete);
+                if(proposal->GetLastState() == DAOFlags::NIL)
+                    proposal->nVotingCycle = nVotingCycles;
+                fUpdate = true;
+            }
+            else
+            {
+                auto oldState = proposal->GetLastState();
+
+                if(oldState == DAOFlags::NIL)
                 {
-                    proposal->fState = DAOFlags::NIL;
-                    proposal->blockhash = uint256();
+                    proposal->nVotingCycle = nVotingCycles;
                     fUpdate = true;
                 }
 
-                if(!proposal->IsAccepted() && (proposal->fState == DAOFlags::ACCEPTED || proposal->fState == DAOFlags::PENDING_FUNDS))
+                if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
                 {
-                    proposal->fState = DAOFlags::NIL;
-                    proposal->blockhash = uint256();
-                    fUpdate = true;
-                }
-
-                if(proposal->IsExpired(pindexNew->GetBlockTime()))
-                {
-                    if (proposal->fState != DAOFlags::EXPIRED)
+                    if(proposal->IsExpired(pindexNew->GetBlockTime()))
                     {
-                        if (proposal->HasPendingPaymentRequests(view))
+                        if (oldState != DAOFlags::EXPIRED)
                         {
-                            proposal->fState = DAOFlags::PENDING_VOTING_PREQ;
-                            fUpdate = true;
-                        }
-                        else
-                        {
-                            if(proposal->fState == DAOFlags::ACCEPTED || proposal->fState == DAOFlags::PENDING_VOTING_PREQ)
+                            if (proposal->HasPendingPaymentRequests(view))
                             {
-                                pindexNew->nCFSupply += proposal->GetAvailable(view);
-                                pindexNew->nCFLocked -= proposal->GetAvailable(view);
+                                proposal->SetState(pindexNew, DAOFlags::PENDING_VOTING_PREQ);
+                                fUpdate = true;
                             }
-                            proposal->fState = DAOFlags::EXPIRED;
-                            proposal->blockhash = pindexNew->GetBlockHash();
+                            else
+                            {
+                                if(oldState == DAOFlags::ACCEPTED || oldState == DAOFlags::PENDING_VOTING_PREQ)
+                                {
+                                    pindexNew->nCFSupply += proposal->GetAvailable(view);
+                                    pindexNew->nCFLocked -= proposal->GetAvailable(view);
+                                    LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                                }
+                                proposal->SetState(pindexNew, DAOFlags::EXPIRED);
+                                fUpdate = true;
+                            }
+                        }
+                    }
+                    else if(proposal->IsRejected())
+                    {
+                        if(oldState != DAOFlags::REJECTED)
+                        {
+                            proposal->SetState(pindexNew, DAOFlags::REJECTED);
                             fUpdate = true;
+                        }
+                    } else if(proposal->IsAccepted())
+                    {
+                        if((oldState == DAOFlags::NIL || oldState == DAOFlags::PENDING_FUNDS))
+                        {
+                            if(pindexNew->nCFSupply >= proposal->GetAvailable(view))
+                            {
+                                pindexNew->nCFSupply -= proposal->GetAvailable(view);
+                                pindexNew->nCFLocked += proposal->GetAvailable(view);
+                                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                                proposal->SetState(pindexNew, DAOFlags::ACCEPTED);
+                                fUpdate = true;
+                            }
+                            else if(oldState != DAOFlags::PENDING_FUNDS)
+                            {
+                                proposal->SetState(pindexNew, DAOFlags::PENDING_FUNDS);
+                                fUpdate = true;
+                            }
                         }
                     }
                 }
-                else if(proposal->IsRejected())
-                {
-                    if(proposal->fState != DAOFlags::REJECTED)
-                    {
-                        proposal->fState = DAOFlags::REJECTED;
-                        proposal->blockhash = pindexNew->GetBlockHash();
-                        fUpdate = true;
-                    }
-                } else if(proposal->IsAccepted())
-                {
-                    if((proposal->fState == DAOFlags::NIL || proposal->fState == DAOFlags::PENDING_FUNDS))
-                    {
-                        if(pindexNew->nCFSupply >= proposal->GetAvailable(view))
-                        {
-                            pindexNew->nCFSupply -= proposal->GetAvailable(view);
-                            pindexNew->nCFLocked += proposal->GetAvailable(view);
-                            proposal->fState = DAOFlags::ACCEPTED;
-                            proposal->blockhash = pindexNew->GetBlockHash();
-                            fUpdate = true;
-                        }
-                        else if(proposal->fState != DAOFlags::PENDING_FUNDS)
-                        {
-                            proposal->fState = DAOFlags::PENDING_FUNDS;
-                            proposal->blockhash = uint256();
-                            fUpdate = true;
-                        }
-                    }
-                }
-            }
-
-            if (fUndo && fUpdate && proposal->fState == oldState && proposal->fState != DAOFlags::NIL && proposal->nVotingCycle != oldCycle)
-            {
-                fUpdate = true;
-                proposal->nVotingCycle = oldCycle;
             }
 
             if((pindexNew->nHeight) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
-                if (!mapSeen.count(proposal->hash) && proposal->fState == DAOFlags::NIL)
+                if (!mapSeen.count(proposal->hash) && proposal->GetLastState() == DAOFlags::NIL)
                 {
                     proposal->nVotesYes = 0;
-                    proposal->nVotesAbs = 0;
                     proposal->nVotesNo = 0;
                     fUpdate = true;
                 }
             }
 
-            proposal->fDirty = fUpdate;
-
             if (*proposal != oldproposal)
             {
-                if (fLog) LogPrintf("%s: Updated proposal %s: %s\n", __func__, proposal->hash.ToString(), oldproposal.diff(*proposal));
+                proposal->fDirty = true;
+                if (fLog) LogPrintf("%s: Updated proposal %s at height %d: %s\n", __func__, proposal->hash.ToString(), pindexNew->nHeight, oldproposal.diff(*proposal));
             }
         }
     }
@@ -1759,7 +1708,7 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
 
     CProposal proposal;
 
-    if(!coins.GetProposal(uint256S(Hash), proposal)  || proposal.fState != DAOFlags::ACCEPTED)
+    if(!coins.GetProposal(uint256S(Hash), proposal)  || proposal.GetLastState() != DAOFlags::ACCEPTED)
         return error("%s: Could not find parent proposal %s for payment request %s", __func__, Hash.c_str(),tx.GetHash().ToString());
 
     std::string sRandom = "";
@@ -1812,28 +1761,95 @@ bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMa
 
 }
 
+flags CPaymentRequest::GetLastState() const {
+    flags ret = NIL;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = it.second;
+        }
+    }
+    return ret;
+}
+
+CBlockIndex* CPaymentRequest::GetLastStateBlockIndex() const {
+    CBlockIndex* ret = nullptr;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = mapBlockIndex[it.first];
+        }
+    }
+    return ret;
+}
+
+CBlockIndex* CPaymentRequest::GetLastStateBlockIndexForState(flags state) const {
+    CBlockIndex* ret = nullptr;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (it.second != state)
+            continue;
+
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = mapBlockIndex[it.first];
+        }
+    }
+    return ret;
+}
+
+bool CPaymentRequest::SetState(const CBlockIndex* pindex, flags state) {
+    mapState[pindex->GetBlockHash()] = state;
+    return true;
+}
+
+bool CPaymentRequest::ClearState(const CBlockIndex* pindex) {
+    mapState.erase(pindex->GetBlockHash());
+    return true;
+}
+
 bool CPaymentRequest::CanVote(CStateViewCache& coins) const
 {
     AssertLockHeld(cs_main);
-
-    CBlockIndex* pindex;
-    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
-        return false;
-
-    pindex = mapBlockIndex[txblockhash];
-    if(!chainActive.Contains(pindex))
-        return false;
 
     CProposal proposal;
     if(!coins.GetProposal(proposalhash, proposal))
         return false;
 
-    return nAmount <= proposal.GetAvailable(coins) && fState != DAOFlags::ACCEPTED && fState != DAOFlags::REJECTED && fState != DAOFlags::EXPIRED;
+    flags fLastState = GetLastState();
+
+    return nAmount <= proposal.GetAvailable(coins) && fLastState == NIL && !ExceededMaxVotingCycles();
 }
 
 bool CPaymentRequest::IsExpired() const {
     if(nVersion >= BASE_VERSION)
-        return (ExceededMaxVotingCycles() && fState != DAOFlags::ACCEPTED && fState != DAOFlags::REJECTED);
+    {
+        flags fLastState = GetLastState();
+        return (ExceededMaxVotingCycles() && fLastState != ACCEPTED && fLastState != REJECTED && fLastState != PAID);
+    }
     return false;
 }
 
@@ -1913,8 +1929,8 @@ bool CPaymentRequest::IsAccepted() const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesYes >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT) / 10000.0));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT) / 10000.0));
 }
 
 bool CPaymentRequest::IsRejected() const {
@@ -1927,12 +1943,12 @@ bool CPaymentRequest::IsRejected() const {
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesNo >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT) / 10000.0));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT) / 10000.0));
 }
 
 bool CPaymentRequest::ExceededMaxVotingCycles() const {
-    return nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
+    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
 }
 
 bool CProposal::IsAccepted() const
@@ -1946,8 +1962,8 @@ bool CProposal::IsAccepted() const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesYes >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT) / 10000.0));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesYes > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT) / 10000.0));
 }
 
 bool CProposal::IsRejected() const
@@ -1961,8 +1977,8 @@ bool CProposal::IsRejected() const
     if (nVersion & ABSTAIN_VOTE_VERSION)
         nTotalVotes += nVotesAbs;
 
-    return nTotalVotes >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
-           && ((float)nVotesNo >= ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/ 10000.0));
+    return nTotalVotes > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum
+           && ((float)nVotesNo > ((float)(nTotalVotes) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/ 10000.0));
 }
 
 std::string CProposal::GetOwnerAddress() const {
@@ -1976,22 +1992,14 @@ std::string CProposal::GetPaymentAddress() const {
 bool CProposal::CanVote() const {
     AssertLockHeld(cs_main);
 
-    CBlockIndex* pindex;
-    if(txblockhash == uint256() || !mapBlockIndex.count(txblockhash))
-        return false;
-
-    pindex = mapBlockIndex[txblockhash];
-    if(!chainActive.Contains(pindex))
-        return false;
-
-    return (fState == DAOFlags::NIL) && (!ExceededMaxVotingCycles());
+    return (GetLastState() == NIL) && (!ExceededMaxVotingCycles());
 }
 
 uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
 {
     if(nVersion & BASE_VERSION) {
-        if (mapBlockIndex.count(blockhash) > 0) {
-            CBlockIndex* pblockindex = mapBlockIndex[blockhash];
+        CBlockIndex* pblockindex = GetLastStateBlockIndexForState(ACCEPTED);
+        if (pblockindex) {
             return currentTime - (pblockindex->GetBlockTime() + nDeadline);
         }
     }
@@ -2000,18 +2008,19 @@ uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
 
 bool CProposal::IsExpired(uint32_t currentTime) const {
     if(nVersion & BASE_VERSION) {
-        if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-            CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
-            return (pBlockIndex->GetBlockTime() + nDeadline < currentTime);
+        CBlockIndex* pblockindex = GetLastStateBlockIndexForState(ACCEPTED);
+        flags fLastState = GetLastState();
+        if (fLastState == ACCEPTED && pblockindex) {
+            return (pblockindex->GetBlockTime() + nDeadline < currentTime);
         }
-        return (fState == DAOFlags::EXPIRED) || (fState == DAOFlags::PENDING_VOTING_PREQ) || (ExceededMaxVotingCycles() && fState == DAOFlags::NIL);
+        return (fLastState == EXPIRED) || (fLastState == PENDING_VOTING_PREQ) || (ExceededMaxVotingCycles() && fLastState == NIL);
     } else {
         return (nDeadline < currentTime);
     }
 }
 
 bool CProposal::ExceededMaxVotingCycles() const {
-    return nVotingCycle >= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
+    return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
 }
 
 CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) const
@@ -2033,16 +2042,9 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
             if (prequest.proposalhash != hash)
                 continue;
 
-            if (!coins.HaveCoins(prequest.hash))
-            {
-                CBlockIndex* pindex;
-                if(prequest.txblockhash == uint256() || !mapBlockIndex.count(prequest.txblockhash))
-                    continue;
-                pindex = mapBlockIndex[prequest.txblockhash];
-                if(!chainActive.Contains(pindex))
-                    continue;
-            }
-            if((fIncludeRequests && prequest.fState != DAOFlags::REJECTED && prequest.fState != DAOFlags::EXPIRED) || (!fIncludeRequests && prequest.fState == DAOFlags::ACCEPTED))
+            flags fLastState = prequest.GetLastState();
+
+            if((fIncludeRequests && fLastState != DAOFlags::REJECTED && fLastState != DAOFlags::EXPIRED) || (!fIncludeRequests && (fLastState == DAOFlags::ACCEPTED || fLastState == DAOFlags::PAID)))
                 initial -= prequest.nAmount;
         }
     }
@@ -2052,14 +2054,16 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
 std::string CProposal::ToString(CStateViewCache& coins, uint32_t currentTime) const {
     AssertLockHeld(cs_main);
 
+    uint256 blockhash;
+    CBlockIndex* pblockindex = GetLastStateBlockIndex();
+    if (pblockindex) blockhash = pblockindex->GetBlockHash();
+
     std::string str;
     str += strprintf("CProposal(hash=%s, nVersion=%i, nAmount=%f, available=%f, nFee=%f, ownerAddress=%s, paymentAddress=%s, nDeadline=%u, nVotesYes=%u, "
                      "nVotesAbs=%u, nVotesNo=%u, nVotingCycle=%u, fState=%s, strDZeel=%s, blockhash=%s)",
                      hash.ToString(), nVersion, (float)nAmount/COIN, (float)GetAvailable(coins)/COIN, (float)nFee/COIN, ownerAddress, paymentAddress, nDeadline,
                      nVotesYes, nVotesAbs, nVotesNo, nVotingCycle, GetState(currentTime), strDZeel, blockhash.ToString().substr(0,10));
     CPaymentRequestMap mapPaymentRequests;
-
-    CStateViewCache view(pcoinsTip);
 
     if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
@@ -2084,13 +2088,13 @@ bool CProposal::HasPendingPaymentRequests(CStateViewCache& coins) const {
 
     CPaymentRequestMap mapPaymentRequests;
 
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
             CPaymentRequest prequest;
 
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)
@@ -2105,6 +2109,7 @@ bool CProposal::HasPendingPaymentRequests(CStateViewCache& coins) const {
 
 std::string CProposal::GetState(uint32_t currentTime) const {
     std::string sFlags = "pending";
+    flags fState = GetLastState();
     if(IsAccepted()) {
         sFlags = "accepted";
         if(fState == DAOFlags::PENDING_FUNDS)
@@ -2129,8 +2134,83 @@ std::string CProposal::GetState(uint32_t currentTime) const {
     return sFlags;
 }
 
+flags CProposal::GetLastState() const {
+    flags ret = NIL;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = it.second;
+        }
+    }
+    return ret;
+}
+
+CBlockIndex* CProposal::GetLastStateBlockIndex() const {
+    CBlockIndex* ret = nullptr;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = mapBlockIndex[it.first];
+        }
+    }
+    return ret;
+}
+
+CBlockIndex* CProposal::GetLastStateBlockIndexForState(flags state) const {
+    CBlockIndex* ret = nullptr;
+    int nHeight = 0;
+    for (auto& it: mapState)
+    {
+        if (it.second != state)
+            continue;
+
+        if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
+            continue;
+
+        if (mapBlockIndex[it.first]->nHeight > nHeight)
+        {
+            nHeight = mapBlockIndex[it.first]->nHeight;
+            ret = mapBlockIndex[it.first];
+        }
+    }
+    return ret;
+}
+
+bool CProposal::SetState(const CBlockIndex* pindex, flags state) {
+    mapState[pindex->GetBlockHash()] = state;
+    return true;
+}
+
+bool CProposal::ClearState(const CBlockIndex* pindex) {
+    mapState.erase(pindex->GetBlockHash());
+    return true;
+}
+
 void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     AssertLockHeld(cs_main);
+
+    flags fState = GetLastState();
+    uint256 blockhash;
+    CBlockIndex* pblockindex = GetLastStateBlockIndex();
+    if (pblockindex) blockhash = pblockindex->GetBlockHash();
 
     ret.pushKV("version", (uint64_t)nVersion);
     ret.pushKV("hash", hash.ToString());
@@ -2138,14 +2218,14 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("description", strDZeel);
     ret.pushKV("requestedAmount", FormatMoney(nAmount));
     ret.pushKV("notPaidYet", FormatMoney(GetAvailable(coins)));
+    ret.pushKV("notRequestedYet", FormatMoney(GetAvailable(coins, true)));
     ret.pushKV("userPaidFee", FormatMoney(nFee));
     ret.pushKV("ownerAddress", ownerAddress);
     ret.pushKV("paymentAddress", paymentAddress);
     if(nVersion & BASE_VERSION) {
         ret.pushKV("proposalDuration", (uint64_t)nDeadline);
-        if (fState == DAOFlags::ACCEPTED && mapBlockIndex.count(blockhash) > 0) {
-            CBlockIndex* pBlockIndex = mapBlockIndex[blockhash];
-            ret.pushKV("expiresOn", pBlockIndex->GetBlockTime() + (uint64_t)nDeadline);
+        if ((fState == DAOFlags::ACCEPTED || fState == DAOFlags::PAID) && mapBlockIndex.count(blockhash) > 0) {
+            ret.pushKV("expiresOn", pblockindex->GetBlockTime() + (uint64_t)nDeadline);
         }
     } else {
         ret.pushKV("expiresOn", (uint64_t)nDeadline);
@@ -2157,13 +2237,11 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     ret.pushKV("status", GetState(chainActive.Tip()->GetBlockTime()));
     ret.pushKV("state", (uint64_t)fState);
-    if(fState == DAOFlags::ACCEPTED)
+    if(blockhash != uint256())
         ret.pushKV("stateChangedOnBlock", blockhash.ToString());
     CPaymentRequestMap mapPaymentRequests;
 
-    CStateViewCache view(pcoinsTip);
-
-    if(view.GetAllPaymentRequests(mapPaymentRequests))
+    if(coins.GetAllPaymentRequests(mapPaymentRequests))
     {
         UniValue preq(UniValue::VOBJ);
         UniValue arr(UniValue::VARR);
@@ -2173,7 +2251,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
         {
             CPaymentRequest prequest;
 
-            if (!view.GetPaymentRequest(it_->first, prequest))
+            if (!coins.GetPaymentRequest(it_->first, prequest))
                 continue;
 
             if (prequest.proposalhash != hash)
@@ -2185,6 +2263,19 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
 
         ret.pushKV("paymentRequests", arr);
     }
+}
+
+std::string CPaymentRequest::ToString() const {
+    uint256 blockhash = uint256();
+    CBlockIndex* pblockindex = GetLastStateBlockIndex();
+
+    if (pblockindex)
+        blockhash = pblockindex->GetBlockHash();
+
+    return strprintf("CPaymentRequest(hash=%s, nVersion=%d, nAmount=%f, fState=%s, nVotesYes=%u, nVotesNo=%u, nVotesAbs=%u, nVotingCycle=%u, "
+                     " proposalhash=%s, blockhash=%s, strDZeel=%s)",
+                     hash.ToString(), nVersion, (float)nAmount/COIN, GetState(), nVotesYes, nVotesNo, nVotesAbs,
+                     nVotingCycle, proposalhash.ToString(), blockhash.ToString().substr(0,10), strDZeel);
 }
 
 void CPaymentRequest::ToJson(UniValue& ret) const {
@@ -2200,9 +2291,8 @@ void CPaymentRequest::ToJson(UniValue& ret) const {
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     ret.pushKV("status", GetState());
-    ret.pushKV("state", (uint64_t)fState);
-    ret.pushKV("stateChangedOnBlock", blockhash.ToString());
-    if(fState == DAOFlags::ACCEPTED) {
-        ret.pushKV("paidOnBlock", paymenthash.ToString());
-    }
+    ret.pushKV("state", (uint64_t)GetLastState());
+    CBlockIndex* pblockindex = GetLastStateBlockIndex();
+    if (pblockindex)
+        ret.pushKV("stateChangedOnBlock", pblockindex->GetBlockHash().ToString());
 }

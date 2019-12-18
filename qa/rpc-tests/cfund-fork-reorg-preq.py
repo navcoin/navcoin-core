@@ -17,7 +17,9 @@ class CfundForkReorgPreq(NavCoinTestFramework):
         self.num_nodes = 2
 
     def setup_network(self, split=False):
-        self.nodes = self.setup_nodes()
+        self.nodes = []
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug=dao"]))
+        self.nodes.append(start_node(1, self.options.tmpdir, ["-debug=dao"]))
         connect_nodes_bi(self.nodes, 0, 1)
         self.is_network_split = False
 
@@ -76,6 +78,8 @@ class CfundForkReorgPreq(NavCoinTestFramework):
         slow_gen(self.nodes[1], 1)
         end_cycle(self.nodes[1])
 
+        assert_equal(self.nodes[1].getpaymentrequest(paymentHash0)["status"], "accepted")
+
         # Now make sure that both nodes are on different chains
         assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
 
@@ -83,7 +87,7 @@ class CfundForkReorgPreq(NavCoinTestFramework):
         best_block = self.nodes[1].getbestblockhash()
 
         self.stop_node(0)
-        self.nodes[0] = start_node(0, self.options.tmpdir, [])
+        self.nodes[0] = start_node(0, self.options.tmpdir, ["-debug=dao"])
 
         # Reconnect the nodes
         connect_nodes_bi(self.nodes, 0, 1)
@@ -92,16 +96,18 @@ class CfundForkReorgPreq(NavCoinTestFramework):
         sync_blocks(self.nodes)
 
         # Now check that the hash for both nodes are the same
+        assert_equal(self.nodes[0].getpaymentrequest(paymentHash0)["status"], "accepted")
         assert_equal(self.nodes[0].getbestblockhash(), best_block)
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(paymentHash0)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(paymentHash0)["blockHash"]))
         assert_equal(self.nodes[0].getpaymentrequest(paymentHash0), self.nodes[1].getpaymentrequest(paymentHash0))
 
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
+        slow_gen(self.nodes[0], 1)
+        end_cycle(self.nodes[0])
         sync_blocks(self.nodes)
 
-        assert_equal(self.nodes[0].getpaymentrequest(paymentHash0)["status"], "accepted")
-        assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(paymentHash0)["paidOnBlock"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(paymentHash0)["paidOnBlock"]))
+        assert_equal(self.nodes[0].getpaymentrequest(paymentHash0)["status"], "paid")
+        assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(paymentHash0)["stateChangedOnBlock"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(paymentHash0)["stateChangedOnBlock"]))
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(paymentHash0)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(paymentHash0)["blockHash"]))
         assert_equal(self.nodes[0].getpaymentrequest(paymentHash0), self.nodes[1].getpaymentrequest(paymentHash0))
@@ -117,10 +123,10 @@ class CfundForkReorgPreq(NavCoinTestFramework):
             [],
             {"6ac1": 1},
             json.dumps({
-              "v": 2, 
-              "h": proposal_hash, 
-              "n": amount, 
-              "s": signature, 
+              "v": 2,
+              "h": proposal_hash,
+              "n": amount,
+              "s": signature,
               "i": description,
               })
         )

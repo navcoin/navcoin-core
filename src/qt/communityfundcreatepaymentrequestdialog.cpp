@@ -55,7 +55,7 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
     {
         for (auto& it: proposalMap)
         {
-            if (it.second.fState != DAOFlags::ACCEPTED)
+            if (it.second.GetLastState() != DAOFlags::ACCEPTED)
                 continue;
 
             ui->comboBoxProposalHash->insertItem(0, QString::fromStdString(it.second.strDZeel), QString::fromStdString(it.second.hash.ToString()));
@@ -120,7 +120,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             msgBox.exec();
             return;
         }
-        if(proposal.fState != DAOFlags::ACCEPTED) {
+        if(proposal.GetLastState() != DAOFlags::ACCEPTED) {
             QMessageBox msgBox(this);
             std::string str = "Proposals need to have been accepted to create a Payment Request for them\n";
             msgBox.setText(tr(str.c_str()));

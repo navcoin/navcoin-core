@@ -582,6 +582,8 @@ public:
     bool RemoveConsultationAnswer(const uint256 &cid) const;
 
 
+    uint256 GetCFundDBStateHash(const CAmount& nCFLocked, const CAmount& nCFSupply);
+
     /**
      * Check if we have the given tx already loaded in this cache.
      * The semantics are the same as HaveCoins(), but no calls to

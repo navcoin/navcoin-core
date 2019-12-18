@@ -5,9 +5,11 @@
 
 #include <coins.h>
 
+#include <main.h>
 #include <memusage.h>
 #include <random.h>
 #include <util.h>
+#include <utiltime.h>
 
 #include <assert.h>
 
@@ -433,7 +435,10 @@ bool CStateViewCache::AddProposal(const CProposal& proposal) const {
     if (HaveProposal(proposal.hash))
         return false;
 
-    cacheProposals.insert(std::make_pair(proposal.hash, proposal));
+    if (cacheProposals.count(proposal.hash))
+        cacheProposals[proposal.hash]=proposal;
+    else
+        cacheProposals.insert(std::make_pair(proposal.hash, proposal));
 
     return true;
 }
@@ -450,7 +455,12 @@ bool CStateViewCache::AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vo
 bool CStateViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
     if (HavePaymentRequest(prequest.hash))
         return false;
-    cachePaymentRequests.insert(std::make_pair(prequest.hash, prequest));
+
+    if (cachePaymentRequests.count(prequest.hash))
+        cachePaymentRequests[prequest.hash]=prequest;
+    else
+        cachePaymentRequests.insert(std::make_pair(prequest.hash, prequest));
+
     return true;
 }
 
@@ -757,6 +767,79 @@ void CStateViewCache::Uncache(const uint256& hash)
 
 unsigned int CStateViewCache::GetCacheSize() const {
     return cacheCoins.size();
+}
+
+uint256 CStateViewCache::GetCFundDBStateHash(const CAmount& nCFLocked, const CAmount& nCFSupply)
+{
+    CPaymentRequestMap mapPaymentRequests;
+    CProposalMap mapProposals;
+    CConsultationMap mapConsultations;
+    CConsultationAnswerMap mapAnswers;
+    CVoteMap mapVotes;
+
+    int64_t nTimeStart = GetTimeMicros();
+
+    CHashWriter writer(0,0);
+
+    writer << nCFSupply;
+    writer << nCFLocked;
+
+    if (GetAllProposals(mapProposals) && GetAllPaymentRequests(mapPaymentRequests) && GetAllConsultations(mapConsultations) && GetAllVotes(mapVotes) && GetAllConsultationAnswers(mapAnswers))
+    {
+
+        for (auto &it: mapProposals)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapPaymentRequests)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapConsultations)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapVotes)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapAnswers)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (unsigned int i = 0; i < Consensus::MAX_CONSENSUS_PARAMS; i++)
+        {
+            Consensus::ConsensusParamsPos id = (Consensus::ConsensusParamsPos)i;
+            writer << GetConsensusParameter(id);
+        }
+
+    }
+
+    uint256 ret = writer.GetHash();
+    int64_t nTimeEnd = GetTimeMicros();
+    LogPrint("bench", " Benchmark: Calculate CFundDB state hash: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+
+    return ret;
 }
 
 const CTxOut &CStateViewCache::GetOutputFor(const CTxIn& input) const

@@ -55,8 +55,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
     ui->labelRequested->setText(QString::fromStdString(nav_amount));
 
     uint64_t proptime = 0;
-    if (mapBlockIndex.count(prequest.blockhash) > 0) {
-        proptime = mapBlockIndex[prequest.blockhash]->GetBlockTime();
+    CBlockIndex* pblockindex = prequest.GetLastStateBlockIndex();
+    if (pblockindex) {
+        proptime = pblockindex->GetBlockTime();
     }
 
     uint64_t deadline = proptime - pindexBestHeader->GetBlockTime();
@@ -75,8 +76,10 @@ void CommunityFundDisplayPaymentRequest::refresh()
         ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
+    auto fLastState = prequest.GetLastState();
+
     // If prequest is accepted, show when it was accepted
-    if (prequest.fState == DAOFlags::ACCEPTED)
+    if (fLastState == DAOFlags::ACCEPTED)
     {
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -86,14 +89,14 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If prequest is pending show voting cycles left
-    if (prequest.fState == DAOFlags::NIL)
+    if (fLastState == DAOFlags::NIL)
     {
         ui->labelTitleDuration->setText(tr("Voting Cycle: "));
         ui->labelDuration->setText(QString::number(prequest.nVotingCycle) + tr(" of ") + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
     }
 
     // If prequest is rejected, show when it was rejected
-    if (prequest.fState == DAOFlags::REJECTED)
+    if (fLastState == DAOFlags::REJECTED)
     {
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -103,9 +106,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
     }
 
     // If expired show when it expired
-    if (prequest.fState == DAOFlags::EXPIRED || status.find("expired") != string::npos)
+    if (fLastState == DAOFlags::EXPIRED || status.find("expired") != string::npos)
     {
-        if (prequest.fState == DAOFlags::EXPIRED)
+        if (fLastState == DAOFlags::EXPIRED)
         {
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
@@ -122,7 +125,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (prequest.fState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
+    if (fLastState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
     {
         // Get prequest votes list
         CPaymentRequest preq = prequest;

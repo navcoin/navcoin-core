@@ -130,7 +130,7 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
 
         # Proposal must be accepted waiting for fund now
         assert(self.nodes[0].getproposal(proposalid0)["state"] == 4)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted waiting for enough coins in fund")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted, waiting for enough coins in fund")
 
         # Check the available and locked funds
         assert(self.nodes[0].cfundstats()["funds"]["available"] == self.nodes[0].cfundstats()["consensus"]["proposalMinimalFee"])
@@ -171,13 +171,13 @@ class CommunityFundProposalStateTest(NavCoinTestFramework):
         while int(self.nodes[0].getblock(blocks[0])["time"]) <= expires_on:
             blocks=slow_gen(self.nodes[0], 1, 0.5)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
 
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
 
         slow_gen(self.nodes[0], 1)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
 
         start_new_cycle(self.nodes[0])
 

@@ -330,12 +330,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+21"/>
+        <source>View Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
         <source>Proposal Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+43"/>
         <source>Amount:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -432,7 +437,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+12"/>
         <source>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</source>
         <translation type="unfinished"></translation>
     </message>
@@ -467,7 +472,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+28"/>
+        <source>Do you support this proposal?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -528,12 +538,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+25"/>
         <source>Payment Request Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+28"/>
+        <source>View details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+41"/>
         <source>Amount:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -577,12 +592,12 @@
         <location line="+15"/>
         <location line="+48"/>
         <location line="+48"/>
-        <location line="+242"/>
+        <location line="+252"/>
         <source>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-305"/>
+        <location line="-315"/>
         <source>Transaction Block Hash:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -617,7 +632,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+12"/>
         <source>1 Voting Cycle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -637,7 +652,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+45"/>
         <source>Link to Payment Request:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -647,7 +662,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+37"/>
+        <source>Do you support this payment request?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -689,6 +709,11 @@
     <message>
         <location line="+34"/>
         <source>Payment Requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Consultations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1320,7 +1345,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+180"/>
+        <location line="+80"/>
+        <source>Set up Staking Rewards</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+107"/>
         <source>Transactions</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1340,7 +1370,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1110"/>
+        <location line="-1117"/>
         <source>Available:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2283,7 +2313,7 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <location filename="../navcoinstrings.cpp" line="+387"/>
+        <location filename="../navcoinstrings.cpp" line="+388"/>
         <source>Options:</source>
         <translation>Options:</translation>
     </message>
@@ -2293,17 +2323,17 @@
         <translation>Specify data directory</translation>
     </message>
     <message>
-        <location line="-98"/>
+        <location line="-99"/>
         <source>Connect to a node to retrieve peer addresses, and disconnect</source>
         <translation>Connect to a node to retrieve peer addresses, and disconnect</translation>
     </message>
     <message>
-        <location line="+101"/>
+        <location line="+102"/>
         <source>Specify your own public address</source>
         <translation>Specify your own public address</translation>
     </message>
     <message>
-        <location line="-122"/>
+        <location line="-123"/>
         <source>Accept command line and JSON-RPC commands</source>
         <translation>Accept command line and JSON-RPC commands</translation>
     </message>
@@ -2333,7 +2363,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+148"/>
+        <location line="+147"/>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2343,7 +2373,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+42"/>
         <source>Pruning blockstore...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2358,7 +2388,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-137"/>
+        <location line="-138"/>
         <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
         <translation>Accept connections from outside (default: 1 if no -proxy or -connect)</translation>
     </message>
@@ -2614,11 +2644,6 @@
     </message>
     <message>
         <location line="+1"/>
-        <source>Could not clean old Community Fund DB</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Create a new wallet out of the specified mnemonic</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2773,7 +2798,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Max number of seconds allowed as clock offset for a peer (default: %u)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2786,6 +2811,11 @@
         <location line="+3"/>
         <source>Not enough file descriptors available.</source>
         <translation>Not enough file descriptors available.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Old data base structure detected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2978,7 +3008,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-390"/>
+        <location line="-391"/>
         <source>Allow JSON-RPC connections from specified source. Valid for &lt;ip&gt; are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3233,7 +3263,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+26"/>
         <source>Error reading from database, shutting down.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3263,7 +3293,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+7"/>
+        <source>Maintain all indexes supported (default: %u)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3273,7 +3308,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>RPC server options:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3393,7 +3428,7 @@
         <translation>Password for JSON-RPC connections</translation>
     </message>
     <message>
-        <location line="-268"/>
+        <location line="-269"/>
         <source>Execute command when the best block changes (%s in cmd is replaced by block hash)</source>
         <translation>Execute command when the best block changes (%s in cmd is replaced by block hash)</translation>
     </message>
@@ -3403,12 +3438,12 @@
         <translation>Allow DNS lookups for -addnode, -seednode and -connect</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+62"/>
         <source>Loading addresses...</source>
         <translation>Loading addresses...</translation>
     </message>
     <message>
-        <location line="-327"/>
+        <location line="-326"/>
         <source>(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3503,7 +3538,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+45"/>
         <source>How many blocks to check at startup (default: %u, 0 = all)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3518,7 +3553,7 @@
         <translation>Invalid -proxy address: &apos;%s&apos;</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Maintain at most &lt;n&gt; connections to peers (default: %u)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3538,7 +3573,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Prepend debug output with timestamp (default: %u)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3593,7 +3628,7 @@
         <translation>Unknown network specified in -onlynet: &apos;%s&apos;</translation>
     </message>
     <message>
-        <location line="-78"/>
+        <location line="-80"/>
         <source>Insufficient funds</source>
         <translation>Insufficient funds</translation>
     </message>
@@ -3603,17 +3638,17 @@
         <translation>Loading block index...</translation>
     </message>
     <message>
-        <location line="-68"/>
+        <location line="-67"/>
         <source>Add a node to connect to and attempt to keep the connection open</source>
         <translation>Add a node to connect to and attempt to keep the connection open</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+68"/>
         <source>Loading wallet...</source>
         <translation>Loading wallet...</translation>
     </message>
     <message>
-        <location line="-60"/>
+        <location line="-59"/>
         <source>Cannot downgrade wallet</source>
         <translation>Cannot downgrade wallet</translation>
     </message>
@@ -3623,12 +3658,12 @@
         <translation>Cannot write default address</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+88"/>
         <source>Rescanning...</source>
         <translation>Rescanning...</translation>
     </message>
     <message>
-        <location line="-70"/>
+        <location line="-72"/>
         <source>Done loading</source>
         <translation>Done loading</translation>
     </message>

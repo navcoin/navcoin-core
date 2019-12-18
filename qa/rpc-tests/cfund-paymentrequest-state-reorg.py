@@ -60,7 +60,7 @@ class CFundPaymentRequestStateReorg(NavCoinTestFramework):
         assert(self.nodes[1].getproposal(proposal_id)["state"] == 1)
         assert(self.nodes[1].getproposal(proposal_id)["status"] == "accepted")
 
-        raw_preq = self.nodes[0].createpaymentrequest(proposal_id, 100, "preq", True)["raw"]
+        raw_preq = self.nodes[0].createpaymentrequest(proposal_id, 100, "preq", 1, True)["raw"]
         self.sync_all()
 
         # Disconnect Nodes 0 and 1

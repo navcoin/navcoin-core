@@ -19,7 +19,9 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         self.num_nodes = 2
 
     def setup_network(self, split=False):
-        self.nodes = self.setup_nodes()
+        self.nodes = []
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug=dao"]))
+        self.nodes.append(start_node(1, self.options.tmpdir, ["-debug=dao"]))
         connect_nodes_bi(self.nodes, 0, 1)
         self.is_network_split = False
 
@@ -47,7 +49,7 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         time.sleep(2) # Wait for the nodes to disconnect
 
         # Create the proposal and save the id/hash
-        proposalHex = self.nodes[0].createproposal(paymentAddress, proposalAmount, proposalDeadline, "test", 1, True)
+        proposalHex = self.nodes[0].createproposal(paymentAddress, proposalAmount, proposalDeadline, "test", 1, True)["raw"]
 
         # Broadcast on node 0
         slow_gen(self.nodes[0], 1)
@@ -59,11 +61,11 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         slow_gen(self.nodes[1], 1)
 
         # Assert that both hashes for payment request are identical
-        assert(proposalHash0 == proposalHash1)    
+        assert(proposalHash0 == proposalHash1)
 
         # Assert that both payment requests have been included in different block hashes
         assert(self.nodes[0].getproposal(proposalHash0)["blockHash"] != self.nodes[1].getproposal(proposalHash1)["blockHash"])
-    
+
         # Make the node vote yes
         self.nodes[1].proposalvote(proposalHash0, "yes")
 
@@ -71,7 +73,7 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         slow_gen(self.nodes[1], 1)
         end_cycle(self.nodes[1])
 
-        # End cycle 1        
+        # End cycle 1
         slow_gen(self.nodes[1], 1)
         end_cycle(self.nodes[1])
 
@@ -96,7 +98,7 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         assert_equal(self.nodes[0].getblock(self.nodes[0].getproposal(proposalHash0)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getproposal(proposalHash0)["blockHash"]))
         assert_equal(self.nodes[0].getproposal(proposalHash0), self.nodes[1].getproposal(proposalHash0))
 
-        # End cycle 2        
+        # End cycle 2
         slow_gen(self.nodes[1], 1)
         end_cycle(self.nodes[1])
         sync_blocks(self.nodes)
@@ -132,14 +134,14 @@ class CfundForkReorgProposal(NavCoinTestFramework):
 
         # Verify both nodes accpeted the payment
 
-        assert_equal(self.nodes[0].getpaymentrequest(preqHash)["status"], "accepted")
-        assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["paidOnBlock"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(preqHash)["paidOnBlock"]))
+        assert_equal(self.nodes[0].getpaymentrequest(preqHash)["status"], "paid")
+        assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["stateChangedOnBlock"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(preqHash)["stateChangedOnBlock"]))
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
         assert_equal(self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["blockHash"]), self.nodes[1].getblock(self.nodes[1].getpaymentrequest(preqHash)["blockHash"]))
         assert_equal(self.nodes[0].getpaymentrequest(preqHash), self.nodes[1].getpaymentrequest(preqHash))
 
         # Verify the payment was actually received
-        paidBlock = self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["paidOnBlock"])
+        paidBlock = self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["stateChangedOnBlock"])
         unspent = self.nodes[0].listunspent(0, 80)
 
         assert_equal(unspent[0]['address'], paymentAddress)

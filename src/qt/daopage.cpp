@@ -532,7 +532,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             (uint64_t)mapBlockIndex[proposal.txblockhash]->GetBlockTime()
         };
 
-        switch (proposal.fState)
+        switch (proposal.GetLastState())
         {
         case DAOFlags::NIL:
         {
@@ -635,7 +635,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             (uint64_t)mapBlockIndex[prequest.txblockhash]->GetBlockTime()
         };
 
-        switch (prequest.fState)
+        switch (prequest.GetLastState())
         {
         case DAOFlags::NIL:
         {
@@ -2168,7 +2168,9 @@ void DaoChart::updateView() {
             title = QString::fromStdString(proposal.strDZeel);
             state = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime()));
 
-            if (proposal.fState == DAOFlags::ACCEPTED || proposal.fState == DAOFlags::REJECTED  || proposal.fState == DAOFlags::EXPIRED)
+            auto fState = proposal.GetLastState();
+
+            if (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED  || fState == DAOFlags::EXPIRED)
                 fShouldShowCycleInfo = false;
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(proposal.nVotesYes) + ")"), proposal.nVotesYes));
@@ -2182,7 +2184,9 @@ void DaoChart::updateView() {
             title = QString::fromStdString(prequest.strDZeel);
             state = QString::fromStdString(prequest.GetState());
 
-            if (prequest.fState == DAOFlags::ACCEPTED || prequest.fState == DAOFlags::REJECTED  || prequest.fState == DAOFlags::EXPIRED)
+            auto fState = prequest.GetLastState();
+
+            if (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED  || fState == DAOFlags::EXPIRED)
                 fShouldShowCycleInfo = false;
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(prequest.nVotesYes) + ")"), prequest.nVotesYes));

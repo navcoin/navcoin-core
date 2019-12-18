@@ -120,7 +120,7 @@ public:
         consensus.nMaxFutureDrift = 60;
         consensus.nHeightv451Fork = 2722100;
         consensus.nHeightv452Fork = 2882875;
-        consensus.fDaoClientActivated = false;
+        consensus.fDaoClientActivated = true;
 
         consensus.nConsensusChangeMinAccept = 7500;
 

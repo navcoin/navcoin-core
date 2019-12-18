@@ -353,6 +353,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (setCoins.empty())
         return false;
 
+    CStateViewCache view(pcoinsTip);
+
     int64_t nCredit = 0;
     CScript scriptPubKeyKernel;
     for(PAIRTYPE(const CWalletTx*, unsigned int) pcoin: setCoins)
@@ -366,7 +368,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
             int64_t nBlockTime;
-            if (CheckKernel(pindexPrev, nBits, txNew.nTime - n, prevoutStake, &nBlockTime))
+            if (CheckKernel(pindexPrev, nBits, txNew.nTime - n, prevoutStake, view, &nBlockTime))
             {
                 // Found a kernel
                 LogPrint("coinstake", "CreateCoinStake : kernel found\n");
@@ -469,7 +471,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             // Do not add input that is still too young
             if (nTimeWeight < Params().GetConsensus().nStakeMinAge)
                 continue;
-            if (!GetTransaction(pcoin.first->GetHash(), txPrev, Params().GetConsensus(), hashBlock, true))
+
+            if (!GetTransaction(pcoin.first->GetHash(), txPrev, Params().GetConsensus(), hashBlock, view, true))
                 continue;
 
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
@@ -483,7 +486,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         uint64_t nCoinAge;
         CTransaction ptxNew = CTransaction(txNew);
-        if (!TransactionGetCoinAge(ptxNew, nCoinAge))
+        if (!TransactionGetCoinAge(ptxNew, nCoinAge, view))
             return error("CreateCoinStake : failed to calculate coin age");
 
         nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees, chainActive.Tip());

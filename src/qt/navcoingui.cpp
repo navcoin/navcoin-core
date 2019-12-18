@@ -1825,8 +1825,7 @@ void NavCoinGUI::updateStakingStatus()
 
                         if (!pcoinsTip->GetProposal(it_->first, proposal))
                             continue;
-
-                        if (proposal.fState != DAOFlags::NIL)
+                        if (proposal.GetLastState() != DAOFlags::NIL)
                             continue;
 
                         auto it = mapAddedVotes.find(proposal.hash);
@@ -1851,7 +1850,7 @@ void NavCoinGUI::updateStakingStatus()
                         if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
                             continue;
 
-                        if (prequest.fState != DAOFlags::NIL)
+                        if (prequest.GetLastState() != DAOFlags::NIL)
                             continue;
 
                         auto it = mapAddedVotes.find(prequest.hash);

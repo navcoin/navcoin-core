@@ -17,7 +17,8 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = self.setup_nodes()
+        self.nodes = []
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-debug=dao"]))
         self.is_network_split = split
 
     def run_test(self):
@@ -65,13 +66,13 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
             blocks=slow_gen(self.nodes[0], 1)
             time.sleep(1)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
 
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
 
         slow_gen(self.nodes[0], 1)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0], 1)
@@ -136,7 +137,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "pending")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired pending voting of payment requests")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, pending voting of payment requests")
 
         # Vote enough quorum and enough positive votes
 
@@ -150,7 +151,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].paymentrequestvote(paymentrequestid0, "remove")
 
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 0)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted, waiting for end of voting period")
+        assert_equal(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"], "accepted waiting for end of voting period")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
 
         time.sleep(0.2)
@@ -185,7 +186,6 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         end_cycle(self.nodes[0])
 
         # Locked amount should be 0, as this was the only payment request and the proposal was expired
-        print(self.nodes[0].cfundstats())
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired")
 

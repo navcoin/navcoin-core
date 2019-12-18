@@ -78,9 +78,9 @@ class PaymentRequest452(NavCoinTestFramework):
         start_new_cycle(self.nodes[0])
 
         assert(self.nodes[0].getpaymentrequest(paymentReq)["state"] == 1)
-        assert(self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000")
+        assert(self.nodes[0].getpaymentrequest(paymentReq)["stateChangedOnBlock"] != "0000000000000000000000000000000000000000000000000000000000000000")
 
-        while self.nodes[0].getpaymentrequest(paymentReq)["paidOnBlock"] == "0000000000000000000000000000000000000000000000000000000000000000":
+        while self.nodes[0].getpaymentrequest(paymentReq)["state"] != 6:
             blocks = slow_gen(self.nodes[0], 1)
 
         slow_gen(self.nodes[0], 1)
