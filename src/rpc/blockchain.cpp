@@ -1019,11 +1019,12 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VARR);
 
-    bool showNotEnoughAnswers = true;
-    bool showLookingForSupport = true;
-    bool showReflection = true;
-    bool showVoting = true;
-    bool showFinished = true;
+    bool showNotEnoughAnswers = false;
+    bool showLookingForSupport = false;
+    bool showReflection = false;
+    bool showVoting = false;
+    bool showFinished = false;
+    bool showAll = params.size() == 0;
 
     if(params.size() >= 1)
     {
@@ -1096,7 +1097,8 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
                (showLookingForSupport && consultation.fState == DAOFlags::NIL) ||
                (showReflection && consultation.fState == DAOFlags::REFLECTION) ||
                (showReflection && consultation.fState == DAOFlags::ACCEPTED) ||
-               (showFinished && consultation.fState == DAOFlags::EXPIRED)) {
+               (showFinished && consultation.fState == DAOFlags::EXPIRED) ||
+                showAll) {
                 UniValue o(UniValue::VOBJ);
                 consultation.ToJson(o, view);
                 ret.push_back(o);
