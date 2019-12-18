@@ -41,6 +41,8 @@ This pull request starts a new NavCoin testnet. If you're running a testnet node
 
 ## Full list of Merged PRs
 
+* [`Pull Request 652`](https://github.com/navcoin/navcoin-core/pull/652) [`Commit 0cde809`](https://github.com/navcoin/navcoin-core/commit/0cde80954fd2bdca1859c0e90dfcc3243dba6c61) Remove new version popup
+* [`Pull Request 651`](https://github.com/navcoin/navcoin-core/pull/651) [`Commit 95b524e`](https://github.com/navcoin/navcoin-core/commit/95b524eefbfb87190a9038397d6c6a2c8ea081c9) Update translations
 * [`Pull Request 648`](https://github.com/navcoin/navcoin-core/pull/648) [`Commit 09f0531`](https://github.com/navcoin/navcoin-core/commit/09f053152761aa254dae27a9da3e338e2e31e671) Update QT strings
 * [`Pull Request 647`](https://github.com/navcoin/navcoin-core/pull/647) [`Commit 0eafc3b`](https://github.com/navcoin/navcoin-core/commit/0eafc3b404503c985993a7069bc8cb160100911d) Reactivate CFund
 * [`Pull Request 641`](https://github.com/navcoin/navcoin-core/pull/641) [`Commit 494d4e2`](https://github.com/navcoin/navcoin-core/commit/494d4e2d598ad114c407d609d7b8141e4ab54f50) Add extra stats to getblock
