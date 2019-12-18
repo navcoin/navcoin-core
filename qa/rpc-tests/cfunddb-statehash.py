@@ -6,6 +6,7 @@
 
 from test_framework.test_framework import NavCoinTestFramework
 from test_framework.util import *
+from test_framework.cfund_util import *
 import urllib.parse
 
 class CFundDBStateHash(NavCoinTestFramework):
@@ -46,7 +47,7 @@ class CFundDBStateHash(NavCoinTestFramework):
 
         assert_equal(self.nodes[1].getinfo()['errors'],"")
 
-        raw_preq = self.nodes[1].createpaymentrequest(hash, 100, "preq", True)["raw"]
+        raw_preq = self.nodes[1].createpaymentrequest(hash, 100, "preq", 1, True)["raw"]
 
         # Disconnect Nodes 0 and 1
         url = urllib.parse.urlparse(self.nodes[1].url)
@@ -68,6 +69,91 @@ class CFundDBStateHash(NavCoinTestFramework):
 
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
         assert_equal(self.nodes[0].getcfunddbstatehash(), self.nodes[1].getcfunddbstatehash())
+
+        self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
+
+        self.nodes[0].createconsultation("test",1)
+
+        self.nodes[0].generate(5)
+
+        assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
+        assert(self.nodes[0].getcfunddbstatehash() != self.nodes[1].getcfunddbstatehash())
+
+
+        connect_nodes(self.nodes[0], 1)
+
+        self.sync_all()
+
+        assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
+        assert_equal(self.nodes[0].getcfunddbstatehash(), self.nodes[1].getcfunddbstatehash())
+
+        self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
+
+        self.nodes[0].createconsultationwithanswers("test",["one","two"])
+
+        self.nodes[0].generate(5)
+
+        assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
+        assert(self.nodes[0].getcfunddbstatehash() != self.nodes[1].getcfunddbstatehash())
+
+
+        connect_nodes(self.nodes[0], 1)
+
+        self.sync_all()
+
+        assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
+        assert_equal(self.nodes[0].getcfunddbstatehash(), self.nodes[1].getcfunddbstatehash())
+
+        self.nodes[0].disconnectnode(url.hostname+":"+str(p2p_port(1)))
+
+        proposal = self.nodes[0].proposeconsensuschange(21, 300000000)['hash']
+
+        slow_gen(self.nodes[0] , 1)
+
+        first_answer = self.nodes[0].getconsultation(proposal)['answers'][0]['hash']
+
+        self.nodes[0].support(first_answer)
+
+        end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0] , 1)
+
+        #cycle 1
+
+        end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0] , 1)
+
+        #cycle 2
+
+        end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0] , 1)
+
+        #cycle 3
+
+        end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0] , 1)
+
+        #cycle 4
+
+        self.nodes[0].consultationvote(first_answer, "yes")
+
+        end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0], 1)
+
+        #cycle 4
+
+        assert(self.nodes[0].getconsultation(proposal)["status"] == "passed")
+        assert(self.nodes[0].getconsensusparameters() != self.nodes[1].getconsensusparameters())
+        assert(self.nodes[0].getbestblockhash() != self.nodes[1].getbestblockhash())
+        assert(self.nodes[0].getcfunddbstatehash() != self.nodes[1].getcfunddbstatehash())
+
+
+        connect_nodes(self.nodes[0], 1)
+
+        self.sync_all()
+
+        assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
+        assert_equal(self.nodes[0].getcfunddbstatehash(), self.nodes[1].getcfunddbstatehash())
+
 
 if __name__ == '__main__':
     CFundDBStateHash().main()
