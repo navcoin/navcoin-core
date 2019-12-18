@@ -4455,7 +4455,7 @@ bool static DisconnectTip(CValidationState& state, const CChainParams& chainpara
             return error("DisconnectTip(): VoteStep failed");
         assert(view.Flush());
         if (LogAcceptCategory("statehash"))
-            statehash = view.GetCFundDBStateHash(pindexDelete->pprev->nCFLocked, pindexDelete->pprev->nCFSupply);
+            statehash = GetCFundDBStateHash(view, pindexDelete->pprev->nCFLocked, pindexDelete->pprev->nCFSupply);
     }
     LogPrint("bench", "- Disconnect block: %.2fms\n", (GetTimeMicros() - nStart) * 0.001);
 
@@ -4540,7 +4540,7 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
             return error("ConnectTip(): VoteStep failed");
         nTime4 = GetTimeMicros(); nTimeConnectTotal += nTime4 - nTime3;
         if (LogAcceptCategory("statehash"))
-            statehash = view.GetCFundDBStateHash(pindexNew->nCFLocked, pindexNew->nCFSupply);
+            statehash = GetCFundDBStateHash(view, pindexNew->nCFLocked, pindexNew->nCFSupply);
         assert(view.Flush());
     }
     int64_t nTime5 = GetTimeMicros(); nTimeFlush += nTime5 - nTime4;
@@ -6086,7 +6086,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
     LogPrintf("Verifying last %i blocks at level %i\n", nCheckDepth, nCheckLevel);
     CStateViewCache coins(coinsview);
     uint256 prevStateHash;
-    if (nCheckLevel >= 4) prevStateHash = coins.GetCFundDBStateHash(chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply);
+    if (nCheckLevel >= 4) prevStateHash = GetCFundDBStateHash(coins, chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply);
     std::string sBefore = "";
     if (LogAcceptCategory("dao"))
     {
@@ -6184,7 +6184,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             VoteStep(state, pindex, false, coins);
         }
-        uint256 nowStateHash = coins.GetCFundDBStateHash(pindex->nCFLocked, pindex->nCFSupply);
+        uint256 nowStateHash = GetCFundDBStateHash(coins, pindex->nCFLocked, pindex->nCFSupply);
         if (prevStateHash != nowStateHash)
         {
             std::string sExtra = "";

@@ -2296,3 +2296,76 @@ void CPaymentRequest::ToJson(UniValue& ret) const {
     if (pblockindex)
         ret.pushKV("stateChangedOnBlock", pblockindex->GetBlockHash().ToString());
 }
+
+uint256 GetCFundDBStateHash(CStateViewCache& view, const CAmount& nCFLocked, const CAmount& nCFSupply)
+{
+    CPaymentRequestMap mapPaymentRequests;
+    CProposalMap mapProposals;
+    CConsultationMap mapConsultations;
+    CConsultationAnswerMap mapAnswers;
+    CVoteMap mapVotes;
+
+    int64_t nTimeStart = GetTimeMicros();
+
+    CHashWriter writer(0,0);
+
+    writer << nCFSupply;
+    writer << nCFLocked;
+
+    if (view.GetAllProposals(mapProposals) && view.GetAllPaymentRequests(mapPaymentRequests) && view.GetAllConsultations(mapConsultations) && view.GetAllVotes(mapVotes) && view.GetAllConsultationAnswers(mapAnswers))
+    {
+
+        for (auto &it: mapProposals)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapPaymentRequests)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapConsultations)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapVotes)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (auto &it: mapAnswers)
+        {
+            if (!it.second.IsNull())
+            {
+                writer << it.second;
+            }
+        }
+
+        for (unsigned int i = 0; i < Consensus::MAX_CONSENSUS_PARAMS; i++)
+        {
+            Consensus::ConsensusParamsPos id = (Consensus::ConsensusParamsPos)i;
+            writer << GetConsensusParameter(id);
+        }
+
+    }
+
+    uint256 ret = writer.GetHash();
+    int64_t nTimeEnd = GetTimeMicros();
+    LogPrint("bench", " Benchmark: Calculate CFundDB state hash: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
+
+    return ret;
+}
