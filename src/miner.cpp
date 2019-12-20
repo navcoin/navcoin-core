@@ -984,6 +984,7 @@ void ApplyCommunityFundToCoinBase(CTransaction &coinbaseTx, const CChainParams& 
     PoolUpdatePaymentRequestVotes(stakingAddress);
 
     CBlockIndex* pindexPrev = chainActive.Tip();
+    CCoinsViewCache view(pcoinsTip);
 
     if(IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus()))
     {
