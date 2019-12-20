@@ -2,31 +2,29 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "transactiontablemodel.h"
+#include <qt/transactiontablemodel.h>
 
-#include "addresstablemodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "transactiondesc.h"
-#include "transactionrecord.h"
-#include "walletmodel.h"
+#include <qt/addresstablemodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/transactiondesc.h>
+#include <qt/transactionrecord.h>
+#include <qt/walletmodel.h>
 
-#include "core_io.h"
-#include "main.h"
-#include "sync.h"
-#include "uint256.h"
-#include "util.h"
-#include "wallet/wallet.h"
+#include <core_io.h>
+#include <main.h>
+#include <sync.h>
+#include <uint256.h>
+#include <util.h>
+#include <wallet/wallet.h>
 
 #include <QColor>
 #include <QDateTime>
 #include <QDebug>
 #include <QIcon>
 #include <QList>
-
-#include <boost/foreach.hpp>
 
 // Amount column is right-aligned it contains numbers
 static int column_alignments[] = {
@@ -145,7 +143,7 @@ public:
                 {
                     parent->beginInsertRows(QModelIndex(), lowerIndex, lowerIndex+toInsert.size()-1);
                     int insert_idx = lowerIndex;
-                    Q_FOREACH(const TransactionRecord &rec, toInsert)
+                    for(const TransactionRecord &rec: toInsert)
                     {
                         cachedWallet.insert(insert_idx, rec);
                         insert_idx += 1;

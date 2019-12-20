@@ -2,16 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "checkpoints.h"
+#include <checkpoints.h>
 
-#include "chain.h"
-#include "chainparams.h"
-#include "main.h"
-#include "uint256.h"
+#include <chain.h>
+#include <chainparams.h>
+#include <main.h>
+#include <uint256.h>
 
 #include <stdint.h>
 
-#include <boost/foreach.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace Checkpoints {
 
@@ -69,14 +69,14 @@ namespace Checkpoints {
     {
         const MapCheckpoints& checkpoints = data.mapCheckpoints;
 
-        BOOST_REVERSE_FOREACH(const MapCheckpoints::value_type& i, checkpoints)
+        for(const MapCheckpoints::value_type& i: boost::adaptors::reverse(checkpoints))
         {
             const uint256& hash = i.second;
             BlockMap::const_iterator t = mapBlockIndex.find(hash);
             if (t != mapBlockIndex.end())
                 return t->second;
         }
-        return NULL;
+        return nullptr;
     }
 
 } // namespace Checkpoints

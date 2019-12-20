@@ -1,7 +1,7 @@
 #ifndef NAVTECHSETUP_H
 #define NAVTECHSETUP_H
 
-#include "wallet/navtech.h"
+#include <wallet/navtech.h>
 
 #include <QDialog>
 #include <QVBoxLayout>

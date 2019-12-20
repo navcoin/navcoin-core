@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "consensus/cfund.h"
-#include "base58.h"
-#include "main.h"
-#include "rpc/server.h"
-#include "utilmoneystr.h"
+#include <consensus/cfund.h>
+#include <base58.h>
+#include <main.h>
+#include <rpc/server.h>
+#include <utilmoneystr.h>
 
 void CFund::SetScriptForCommunityFundContribution(CScript &script)
 {
@@ -619,7 +619,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 {
     AssertLockHeld(cs_main);
 
-    const CBlockIndex* pindexDelete;
+    const CBlockIndex* pindexDelete = nullptr;
     if (fUndo)
     {
         pindexDelete = pindexNew;
@@ -642,7 +642,7 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
     int64_t nTimeStart2 = GetTimeMicros();
 
-    while(nBlocks > 0 && pindexblock != NULL)
+    while(nBlocks > 0 && pindexblock != nullptr)
     {
         CProposal proposal;
         CPaymentRequest prequest;
@@ -765,10 +765,10 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             if (!view.GetProposal(prequest->proposalhash, proposal))
                 continue;
 
-            auto nCreatedOnCycle = (unsigned )(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned )(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
+            int nCreatedOnCycle = (pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nCurrentCycle = (pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, 0);
+            int nVotingCycles = std::min(nElapsedCycles, (int)Params().GetConsensus().nCyclesPaymentRequestVoting + 1);
 
             auto oldState = prequest->fState;
             auto oldCycle = prequest->nVotingCycle;
@@ -831,7 +831,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             if (fUndo && fUpdate && prequest->fState == oldState && prequest->fState != CFund::NIL
                     && prequest->nVotingCycle != oldCycle)
+            {
                 prequest->nVotingCycle = oldCycle;
+            }
 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {
@@ -882,10 +884,10 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
 
             CBlockIndex* pblockindex = mapBlockIndex[proposal->txblockhash];
 
-            auto nCreatedOnCycle = (unsigned int)(pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nCurrentCycle = (unsigned int)(pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
-            auto nElapsedCycles = nCurrentCycle - nCreatedOnCycle;
-            auto nVotingCycles = std::min(nElapsedCycles, Params().GetConsensus().nCyclesProposalVoting + 1);
+            int nCreatedOnCycle = (pblockindex->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nCurrentCycle = (pindexNew->nHeight / Params().GetConsensus().nBlocksPerVotingCycle);
+            int nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, 0);
+            int nVotingCycles = std::min(nElapsedCycles, (int)Params().GetConsensus().nCyclesProposalVoting + 1);
 
             auto oldState = proposal->fState;
             auto oldCycle = proposal->nVotingCycle;
@@ -966,7 +968,9 @@ void CFund::CFundStep(const CValidationState& state, CBlockIndex *pindexNew, con
             }
 
             if (fUndo && fUpdate && proposal->fState == oldState && proposal->fState != CFund::NIL && proposal->nVotingCycle != oldCycle)
+            {
                 proposal->nVotingCycle = oldCycle;
+            }
 
             if((pindexNew->nHeight) % Params().GetConsensus().nBlocksPerVotingCycle == 0)
             {

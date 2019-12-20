@@ -3,11 +3,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "addrman.h"
+#include <addrman.h>
 
-#include "hash.h"
-#include "serialize.h"
-#include "streams.h"
+#include <hash.h>
+#include <serialize.h>
+#include <streams.h>
 
 int CAddrInfo::GetTriedBucket(const uint256& nKey) const
 {
@@ -76,13 +76,13 @@ CAddrInfo* CAddrMan::Find(const CNetAddr& addr, int* pnId)
 {
     std::map<CNetAddr, int>::iterator it = mapAddr.find(addr);
     if (it == mapAddr.end())
-        return NULL;
+        return nullptr;
     if (pnId)
         *pnId = (*it).second;
     std::map<int, CAddrInfo>::iterator it2 = mapInfo.find((*it).second);
     if (it2 != mapInfo.end())
         return &(*it2).second;
-    return NULL;
+    return nullptr;
 }
 
 CAddrInfo* CAddrMan::Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId)

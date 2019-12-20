@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "walletmodeltransaction.h"
+#include <qt/walletmodeltransaction.h>
 
-#include "policy/policy.h"
-#include "wallet/wallet.h"
-#include "util.h"
+#include <policy/policy.h>
+#include <wallet/wallet.h>
+#include <util.h>
 
 WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &recipients) :
     recipients(recipients),
@@ -89,7 +89,7 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet, CWalletTx* wTx, 
 CAmount WalletModelTransaction::getTotalTransactionAmount()
 {
     CAmount totalTransactionAmount = 0;
-    Q_FOREACH(const SendCoinsRecipient &rcp, recipients)
+    for(const SendCoinsRecipient &rcp: recipients)
     {
         totalTransactionAmount += rcp.amount;
     }

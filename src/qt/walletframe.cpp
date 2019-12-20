@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "walletframe.h"
-#include "skinize.h"
+#include <qt/walletframe.h>
+#include <qt/skinize.h>
 
-#include "navcoingui.h"
-#include "walletview.h"
-#include "util.h"
+#include <qt/navcoingui.h>
+#include <qt/walletview.h>
+#include <util.h>
 
 #include <cstdio>
 
@@ -212,6 +212,13 @@ void WalletFrame::setVotingStatus(QString text)
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->setVotingStatus(text);
+}
+
+void WalletFrame::splitRewards()
+{
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->splitRewards();
 }
 
 void WalletFrame::gotoHistoryPage()

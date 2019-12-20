@@ -3,46 +3,46 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "main.h"
-#include "navcoingui.h"
-#include "navcoinunits.h"
-#include "clientversion.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "modaloverlay.h"
-#include "networkstyle.h"
-#include "notificator.h"
-#include "openuridialog.h"
-#include "optionsdialog.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "rpcconsole.h"
-#include "utilitydialog.h"
-#include "walletmodel.h"
-#include "wallet/rpcwallet.h"
+#include <main.h>
+#include <qt/navcoingui.h>
+#include <qt/navcoinunits.h>
+#include <clientversion.h>
+#include <qt/clientmodel.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/modaloverlay.h>
+#include <qt/networkstyle.h>
+#include <qt/notificator.h>
+#include <qt/openuridialog.h>
+#include <qt/optionsdialog.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/rpcconsole.h>
+#include <qt/utilitydialog.h>
+#include <qt/walletmodel.h>
+#include <wallet/rpcwallet.h>
 
 #ifdef ENABLE_WALLET
-#include "walletframe.h"
-#include "walletmodel.h"
-#include "walletview.h"
-#include "wallet/wallet.h"
+#include <qt/walletframe.h>
+#include <qt/walletmodel.h>
+#include <qt/walletview.h>
+#include <wallet/wallet.h>
 #endif // ENABLE_WALLET
 
 #ifdef Q_OS_MAC
-#include "macdockiconhandler.h"
+#include <qt/macdockiconhandler.h>
 #endif
 
-#include "chainparams.h"
-#include "init.h"
-#include "miner.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "pos.h"
-#include "main.h"
+#include <chainparams.h>
+#include <init.h>
+#include <miner.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <pos.h>
+#include <main.h>
 
 #include <iostream>
 #include <thread>
@@ -153,6 +153,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unlockWalletAction(0),
     lockWalletAction(0),
     toggleStakingAction(0),
+    splitRewardAction(0),
     lastDialogShown(0),
     platformStyle(platformStyle),
     updatePriceAction(0),
@@ -253,7 +254,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     unitDisplayControl = new QComboBox();
     unitDisplayControl->setEditable(true);
     unitDisplayControl->setInsertPolicy(QComboBox::NoInsert);
-    Q_FOREACH(NavCoinUnits::Unit u, NavCoinUnits::availableUnits())
+    for(NavCoinUnits::Unit u: NavCoinUnits::availableUnits())
     {
         unitDisplayControl->addItem(QString(NavCoinUnits::name(u)), u);
     }
@@ -403,6 +404,9 @@ void NavCoinGUI::createActions()
     toggleStakingAction = new QAction(tr("Toggle &Staking"), this);
     toggleStakingAction->setStatusTip(tr("Toggle Staking"));
 
+    splitRewardAction = new QAction(tr("Set up staking rewards"), this);
+    splitRewardAction->setStatusTip(tr("Configure how to split the staking rewards"));
+
     historyAction = new QAction(platformStyle->SingleColorIcon(":/icons/history"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
@@ -431,6 +435,7 @@ void NavCoinGUI::createActions()
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(toggleStakingAction, SIGNAL(triggered()), this, SLOT(toggleStaking()));
+    connect(splitRewardAction, SIGNAL(triggered()), this, SLOT(splitRewards()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->TextColorIcon(":/icons/quit"), tr("E&xit"), this);
@@ -569,6 +574,7 @@ void NavCoinGUI::createMenuBar()
         settings->addAction(changePassphraseAction);
         settings->addSeparator();
         settings->addAction(toggleStakingAction);
+        settings->addAction(splitRewardAction);
         settings->addSeparator();
         settings->addAction(updatePriceAction);
     }
@@ -1329,7 +1335,7 @@ void NavCoinGUI::message(const QString &title, const QString &message, unsigned 
         showNormalIfMinimized();
         QMessageBox mBox((QMessageBox::Icon)nMBoxIcon, strTitle, message, buttons, this);
         int r = mBox.exec();
-        if (ret != NULL)
+        if (ret != nullptr)
             *ret = r == QMessageBox::Ok;
     }
     else
@@ -1409,7 +1415,7 @@ void NavCoinGUI::dropEvent(QDropEvent *event)
 {
     if(event->mimeData()->hasUrls())
     {
-        Q_FOREACH(const QUrl &uri, event->mimeData()->urls())
+        for(const QUrl &uri: event->mimeData()->urls())
         {
             Q_EMIT receivedURI(uri.toString());
         }
@@ -1630,6 +1636,11 @@ void NavCoinGUI::toggleStaking()
 
     Q_EMIT message(tr("Staking"), GetStaking() ? tr("Staking has been enabled") : tr("Staking has been disabled"),
                    CClientUIInterface::MSG_INFORMATION);
+}
+
+void NavCoinGUI::splitRewards()
+{
+    walletFrame->splitRewards();
 }
 
 #ifdef ENABLE_WALLET

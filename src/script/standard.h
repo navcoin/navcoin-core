@@ -6,8 +6,8 @@
 #ifndef NAVCOIN_SCRIPT_STANDARD_H
 #define NAVCOIN_SCRIPT_STANDARD_H
 
-#include "script/interpreter.h"
-#include "uint256.h"
+#include <script/interpreter.h>
+#include <uint256.h>
 
 #include <boost/variant.hpp>
 
@@ -76,7 +76,7 @@ public:
  *  * Pair of two CKeyID: TX_COLDSTAKING destination
  *  A CTxDestination is the internal data type encoded in a CNavCoinAddress
  */
-typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>> CTxDestination;
+typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, CScript> CTxDestination;
 
 const char* GetTxnOutputType(txnouttype t);
 

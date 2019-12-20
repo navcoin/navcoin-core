@@ -5,12 +5,12 @@
 #ifndef NAVCOIN_CFUND_H
 #define NAVCOIN_CFUND_H
 
-#include "amount.h"
-#include "script/script.h"
-#include "serialize.h"
-#include "tinyformat.h"
-#include "univalue/include/univalue.h"
-#include "uint256.h"
+#include <amount.h>
+#include <script/script.h>
+#include <serialize.h>
+#include <tinyformat.h>
+#include <univalue/include/univalue.h>
+#include <uint256.h>
 
 using namespace std;
 

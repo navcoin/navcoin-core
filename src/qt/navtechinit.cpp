@@ -1,8 +1,8 @@
-#include "navtechinit.h"
-#include "ui_navtechinit.h"
-#include "net.h"
-#include "util.h"
-#include "skinize.h"
+#include <qt/navtechinit.h>
+#include <qt/ui_navtechinit.h>
+#include <net.h>
+#include <util.h>
+#include <qt/skinize.h>
 
 #include <string>
 #include <iostream>

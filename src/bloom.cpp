@@ -2,19 +2,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "bloom.h"
+#include <bloom.h>
 
-#include "primitives/transaction.h"
-#include "hash.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "random.h"
-#include "streams.h"
+#include <primitives/transaction.h>
+#include <hash.h>
+#include <script/script.h>
+#include <script/standard.h>
+#include <random.h>
+#include <streams.h>
 
 #include <math.h>
 #include <stdlib.h>
-
-#include <boost/foreach.hpp>
 
 #define LN2SQUARED 0.4804530139182014246671025263266649717305529515945455
 #define LN2 0.6931471805599453094172321214581765680755001343602552
@@ -151,7 +149,7 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
         const CTxOut& txout = tx.vout[i];
         // Match if the filter contains any arbitrary script data element in any scriptPubKey in tx
         // If this matches, also add the specific output that was matched.
-        // This means clients don't have to update the filter themselves when a new relevant tx 
+        // This means clients don't have to update the filter themselves when a new relevant tx
         // is discovered in order to find spending transactions, which avoids round-tripping and race conditions.
         CScript::const_iterator pc = txout.scriptPubKey.begin();
         vector<unsigned char> data;
@@ -181,7 +179,7 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
     if (fFound)
         return true;
 
-    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    for(const CTxIn& txin: tx.vin)
     {
         // Match if the filter contains an outpoint tx spends
         if (contains(txin.prevout))

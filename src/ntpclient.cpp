@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "init.h"
-#include "ntpclient.h"
-#include "random.h"
-#include "timedata.h"
-#include "util.h"
+#include <init.h>
+#include <ntpclient.h>
+#include <random.h>
+#include <timedata.h>
+#include <util.h>
 
 #include <sstream>
 #include <iomanip>

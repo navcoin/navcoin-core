@@ -6,10 +6,10 @@
 #define NAVCOIN_QT_NAVCOINGUI_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/navcoin-config.h"
+#include <config/navcoin-config.h>
 #endif
 
-#include "amount.h"
+#include <amount.h>
 
 #include <QLabel>
 #include <QMainWindow>
@@ -136,6 +136,7 @@ private:
     QAction *unlockWalletAction;
     QAction *lockWalletAction;
     QAction *toggleStakingAction;
+    QAction *splitRewardAction;
     QPushButton *topMenu1; // Home
     QPushButton *topMenu2; // Send
     QPushButton *topMenu3; // Recieve
@@ -275,6 +276,7 @@ private Q_SLOTS:
     void updateDisplayUnit(int unit);
     /** Toggle Staking **/
     void toggleStaking();
+    void splitRewards();
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);

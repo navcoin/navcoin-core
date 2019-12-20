@@ -7,16 +7,16 @@
 #ifndef NAVCOIN_MINER_H
 #define NAVCOIN_MINER_H
 
-#include "primitives/block.h"
-#include "txmempool.h"
-#include "pos.h"
+#include <primitives/block.h>
+#include <txmempool.h>
+#include <pos.h>
 
 #include <stdint.h>
 #include <string>
 #include <memory>
-#include "boost/multi_index_container.hpp"
-#include "boost/multi_index/ordered_index.hpp"
-#include "wallet/wallet.h"
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <wallet/wallet.h>
 
 class CBlockIndex;
 class CChainParams;

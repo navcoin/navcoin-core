@@ -3,8 +3,8 @@
 
 #include <QWidget>
 #include <QAbstractButton>
-#include "consensus/cfund.h"
-#include "wallet/wallet.h"
+#include <consensus/cfund.h>
+#include <wallet/wallet.h>
 
 namespace Ui {
 class CommunityFundDisplayPaymentRequest;

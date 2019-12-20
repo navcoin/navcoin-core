@@ -27,20 +27,20 @@ class StakingAddressTest(NavCoinTestFramework):
         ## Test stake to a single address ##
         # Get new address for receiving the staking rewards
         receive_addr_A = self.nodes[0].getnewaddress()
-        
+
         print("Restart node with staking address option ...")
         self.stop_node(0)
         self.nodes[0] = start_node(0, self.options.tmpdir, [self.node_args[0] + receive_addr_A])
-        
+
         # Activate static rewards
         activate_staticr(self.nodes[0])
 
         # Wait for a stake
-        stake_tx, reward_vout = self.get_stake_tx()
+        stake_tx, reward_vout, index = self.get_stake_tx()
 
         # check that the staking reward was sent to the receiving address
-        assert_equal(self.nodes[0].gettransaction(stake_tx)["details"][0]["amount"], 2)
-        assert_equal(self.nodes[0].gettransaction(stake_tx)["details"][0]["address"], receive_addr_A)
+        assert_equal(self.nodes[0].getrawtransaction(stake_tx, True)["vout"][index]['valueSat'], 200000000)
+        assert_equal(self.nodes[0].getrawtransaction(stake_tx, True)["vout"][index]['scriptPubKey']['addresses'][0], receive_addr_A)
         assert_equal(reward_vout["scriptPubKey"]["addresses"][0], receive_addr_A)
 
 
@@ -74,11 +74,11 @@ class StakingAddressTest(NavCoinTestFramework):
 
         # Wait for a new block to be staked from the large utxo sent to staking_addr_B
         self.nodes[0].staking(True)
-        stake_tx, reward_vout = self.get_stake_tx(total_fee)
+        stake_tx, reward_vout, index = self.get_stake_tx(total_fee)
 
         # check that the staking reward was sent to the receiving address
-        assert_equal(float(self.nodes[0].gettransaction(stake_tx)["details"][0]["amount"]), (2.0 * SATOSHI + total_fee) / SATOSHI)
-        assert_equal(self.nodes[0].gettransaction(stake_tx)["details"][0]["address"], receive_addr_B)
+        assert_equal(self.nodes[0].getrawtransaction(stake_tx, True)["vout"][index]['valueSat'], 200000000 + total_fee)
+        assert_equal(self.nodes[0].getrawtransaction(stake_tx, True)["vout"][index]['scriptPubKey']['addresses'][0], receive_addr_B)
         assert_equal(reward_vout["scriptPubKey"]["addresses"][0], receive_addr_B)
 
 
@@ -92,11 +92,11 @@ class StakingAddressTest(NavCoinTestFramework):
         self.nodes[0] = start_node(0, self.options.tmpdir, [self.node_args[0] + staking_map])
 
         # Wait for a stake
-        stake_tx, reward_vout = self.get_stake_tx()
+        stake_tx, reward_vout, index = self.get_stake_tx()
 
         # check that the staking reward was sent to the receiving address
-        assert_equal(self.nodes[0].gettransaction(stake_tx)["details"][0]["amount"], 2)
-        assert_equal(self.nodes[0].gettransaction(stake_tx)["details"][0]["address"], receive_addr_C)
+        assert_equal(self.nodes[0].getrawtransaction(stake_tx, True)["vout"][index]['valueSat'], 200000000)
+        assert_equal(self.nodes[0].getrawtransaction(stake_tx, True)["vout"][index]['scriptPubKey']['addresses'][0], receive_addr_C)
         assert_equal(reward_vout["scriptPubKey"]["addresses"][0], receive_addr_C)
 
 
@@ -118,7 +118,7 @@ class StakingAddressTest(NavCoinTestFramework):
             i -= 1
             reward_vout = stake_vouts[i]
 
-        return stake_tx, reward_vout
+        return stake_tx, reward_vout, i
 
 if __name__ == '__main__':
     StakingAddressTest().main()

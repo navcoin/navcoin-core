@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "bench.h"
+#include <bench/bench.h>
 
 #include <iostream>
 #include <iomanip>
@@ -14,7 +14,7 @@ std::map<std::string, BenchFunction> BenchRunner::benchmarks;
 
 static double gettimedouble(void) {
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
     return tv.tv_usec * 0.000001 + tv.tv_sec;
 }
 

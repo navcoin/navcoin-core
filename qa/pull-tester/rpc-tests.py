@@ -162,6 +162,7 @@ testScripts = [
     'cfund-paymentrequest-state-expired.py',
     'cfund-proposal-state-accept.py',
     'cfund-proposal-state-expired.py',
+    'cfund-reorg.py',
     'cfund-rawtx-create-proposal.py',
     'cfund-rawtx-paymentrequest-create.py',
     'cfund-rawtx-paymentrequest-vote.py',
@@ -187,6 +188,7 @@ testScripts = [
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py',
+    'createrawscriptaddress.py'
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')

@@ -2,13 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "chain.h"
-#include "random.h"
-#include "versionbits.h"
-#include "test/test_navcoin.h"
-#include "chainparams.h"
-#include "main.h"
-#include "consensus/params.h"
+#include <chain.h>
+#include <random.h>
+#include <versionbits.h>
+#include <test/test_navcoin.h>
+#include <chainparams.h>
+#include <main.h>
+#include <consensus/params.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -69,7 +69,7 @@ public:
         while (vpblock.size() < height) {
             CBlockIndex* pindex = new CBlockIndex();
             pindex->nHeight = vpblock.size();
-            pindex->pprev = vpblock.size() > 0 ? vpblock.back() : NULL;
+            pindex->pprev = vpblock.size() > 0 ? vpblock.back() : nullptr;
             pindex->nTime = nTime;
             pindex->nVersion = nVersion;
             pindex->BuildSkip();
@@ -128,7 +128,7 @@ public:
         return *this;
     }
 
-    CBlockIndex * Tip() { return vpblock.size() ? vpblock.back() : NULL; }
+    CBlockIndex * Tip() { return vpblock.size() ? vpblock.back() : nullptr; }
 };
 
 BOOST_FIXTURE_TEST_SUITE(versionbits_tests, TestingSetup)
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
 
     // Before MedianTimePast of the chain has crossed nStartTime, the bit
     // should not be set.
-    CBlockIndex *lastBlock = NULL;
+    CBlockIndex *lastBlock = nullptr;
     lastBlock = firstChain.Mine(2016, nTime, VERSIONBITS_LAST_OLD_BLOCK_VERSION).Tip();
     BOOST_CHECK_EQUAL(ComputeBlockVersion(lastBlock, mainnetParams) & (1<<bit), 0);
 

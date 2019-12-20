@@ -6,7 +6,7 @@
 #ifndef NAVCOIN_SUPPORT_ALLOCATORS_SECURE_H
 #define NAVCOIN_SUPPORT_ALLOCATORS_SECURE_H
 
-#include "support/pagelocker.h"
+#include <support/pagelocker.h>
 
 #include <string>
 
