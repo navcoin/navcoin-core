@@ -84,7 +84,7 @@ bool CCoinsViewDB::GetAllProposals(CProposalMap& map) {
                 map.insert(make_pair(key.second, proposal));
                 pcursor->Next();
             } else {
-                return error("GetProposalIndex() : failed to read value");
+                return error("GetAllProposals() : failed to read value");
             }
         } else {
             break;
@@ -110,7 +110,7 @@ bool CCoinsViewDB::GetAllPaymentRequests(CPaymentRequestMap &map) {
                 map.insert(make_pair(key.second, prequest));
                 pcursor->Next();
             } else {
-                return error("GetPaymentRequestIndex() : failed to read value");
+                return error("GetAllPaymentRequests() : failed to read value");
             }
         } else {
             break;

@@ -5,6 +5,7 @@
 #include <consensus/cfund.h>
 #include <wallet/wallet.h>
 
+#include <QMessageBox>
 #include <QWidget>
 #include <QPushButton>
 #include <QListView>

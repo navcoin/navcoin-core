@@ -29,10 +29,10 @@ class StakeImmatureBalance(NavCoinTestFramework):
     def run_test(self):
         addr = self.nodes[1].getnewaddress()
         activate_staticr(self.nodes[0])
-        self.nodes[0].sendtoaddress(addr, satoshi_round(float(self.nodes[0].getbalance()) - SENDING_FEE))
+        self.nodes[0].sendtoaddress(addr, satoshi_round(self.nodes[0].getbalance()), "", "", "", True)
         slow_gen(self.nodes[0], 1)
         logging.info('Checking stake weight')
-        assert(self.nodes[0].getbalance() - BLOCK_REWARD < 1), 'Wallet balance not sent'
+        assert(self.nodes[0].getbalance() - BLOCK_REWARD == 0), 'Wallet balance not sent'
         assert(self.nodes[0].getwalletinfo()['immature_balance'] > 0), 'No immature balance'
         assert(self.nodes[0].getstakinginfo()['weight'] == 0), 'Immature balance affecting staking weight'
 

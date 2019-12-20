@@ -57,6 +57,8 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("bits", strprintf("%08x", blockindex->nBits));
     result.pushKV("difficulty", GetDifficulty(blockindex));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
+    result.pushKV("ncfsupply", FormatMoney(blockindex->nCFSupply));
+    result.pushKV("ncflocked", FormatMoney(blockindex->nCFLocked));
     result.pushKV("flags", strprintf("%s%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work", blockindex->GeneratedStakeModifier()? " stake-modifier": ""));
     result.pushKV("proofhash", blockindex->hashProof.GetHex());
     result.pushKV("entropybit", (int)blockindex->GetStakeEntropyBit());
@@ -195,6 +197,15 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.pushKV("versionHex", strprintf("%08x", block.nVersion));
     result.pushKV("merkleroot", block.hashMerkleRoot.GetHex());
     UniValue txs(UniValue::VARR);
+    int nCountProposalVotes = 0;
+    int nCountPaymentRequestVotes = 0;
+    int nCountPaymentRequestPayouts = 0;
+    int nCountProposals = 0;
+    int nCountPaymentRequests = 0;
+    int nCountTransactions = 0;
+
+    CAmount nPOWBlockReward = block.IsProofOfWork() ? GetBlockSubsidy(blockindex->nHeight, Params().GetConsensus()) : 0;
+
     for(const CTransaction&tx: block.vtx)
     {
         if(txDetails)
@@ -205,8 +216,48 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
         }
         else
             txs.push_back(tx.GetHash().GetHex());
+        if (tx.IsCoinBase())
+        {
+            CAmount nAccValue = 0;
+            for (auto&it: tx.vout)
+            {
+                nAccValue += it.nValue;
+                if (it.IsProposalVote())
+                {
+                    nCountProposalVotes++;
+                }
+                else if(it.IsPaymentRequestVote())
+                {
+                    nCountPaymentRequestVotes++;
+                }
+                if(nAccValue > nPOWBlockReward && it.nValue > 0)
+                {
+                    nCountPaymentRequestPayouts++;
+                }
+            }
+        }
+        else if(tx.IsCoinStake())
+        {
+
+        }
+        else
+        {
+            if (tx.nVersion == CTransaction::PROPOSAL_VERSION)
+                nCountProposals++;
+            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
+                nCountPaymentRequests++;
+            else
+                nCountTransactions++;
+        }
+
     }
     result.pushKV("tx", txs);
+    result.pushKV("tx_count", nCountTransactions);
+    result.pushKV("proposal_count", nCountProposals);
+    result.pushKV("payment_request_count", nCountPaymentRequests);
+    result.pushKV("proposal_votes_count", nCountProposalVotes);
+    result.pushKV("payment_request_votes_count", nCountPaymentRequestVotes);
+    result.pushKV("payment_request_payouts_count", nCountPaymentRequestPayouts);
     result.pushKV("time", block.GetBlockTime());
     result.pushKV("mediantime", (int64_t)blockindex->GetMedianTimePast());
     result.pushKV("nonce", (uint64_t)block.nNonce);
@@ -892,73 +943,23 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
-UniValue listproposals(const UniValue& params, bool fHelp)
+UniValue getcfunddbstatehash(const UniValue& params, bool fHelp)
 {
-    if (fHelp)
+    if (fHelp || params.size() != 0)
         throw runtime_error(
-                "listproposals \"filter\"\n"
-                "\nList the proposals and all the relating data including payment requests and status.\n"
-                "\nNote passing no argument returns all proposals regardless of state.\n"
-                "\nArguments:\n"
-                "\n1. \"filter\" (string, optional)   \"accepted\" | \"rejected\" | \"expired\" | \"pending\"\n"
-                "\nExamples:\n"
-                + HelpExampleCli("listproposal", "accepted")
-                + HelpExampleRpc("listproposal", "")
+                "getcfunddbstatehash\n"
+                "\nReturns the hash of the Cfund DB current state.\n"
+                "\nResult\n"
+                "\"hex\"      (string) the hash hex encoded\n"
+                "\nExamples\n"
+                + HelpExampleCli("getcfunddbstatehash", "")
+                + HelpExampleRpc("getcfunddbstatehash", "")
                 );
 
     LOCK(cs_main);
 
-    UniValue ret(UniValue::VARR);
-
-    bool showAll = true;
-    bool showAccepted = false;
-    bool showRejected = false;
-    bool showExpired = false;
-    bool showPending = false;
-    if(params.size() == 1) {
-        if(params[0].get_str() == "accepted") {
-            showAccepted = true;
-            showAll = false;
-        }
-        if(params[0].get_str() == "rejected") {
-            showRejected = true;
-            showAll = false;
-        }
-        if(params[0].get_str() == "expired") {
-            showAll = false;
-            showExpired = true;
-        }
-        if(params[0].get_str() == "pending") {
-            showAll = false;
-            showPending = true;
-        }
-    }
-
-    CProposalMap mapProposals;
-
-    if(pcoinsTip->GetAllProposals(mapProposals))
-    {
-        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
-        {
-            CFund::CProposal proposal;
-            if (!pcoinsTip->GetProposal(it->first, proposal))
-                continue;
-
-            if((showAll && (!proposal.IsExpired(pindexBestHeader->GetBlockTime())
-                            || proposal.fState == CFund::PENDING_VOTING_PREQ
-                            || proposal.fState == CFund::PENDING_FUNDS))
-                    || (showPending  && (proposal.fState == CFund::NIL || proposal.fState == CFund::PENDING_VOTING_PREQ
-                                         || proposal.fState == CFund::PENDING_FUNDS))
-                    || (showAccepted && (proposal.fState == CFund::ACCEPTED || proposal.IsAccepted()))
-                    || (showRejected && (proposal.fState == CFund::REJECTED || proposal.IsRejected()))
-                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
-                UniValue o(UniValue::VOBJ);
-                proposal.ToJson(o, *pcoinsTip);
-                ret.push_back(o);
-            }
-        }
-    }
-    return ret;
+    CCoinsViewCache view(pcoinsTip);
+    return view.GetCFundDBStateHash(chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply).ToString();
 }
 
 UniValue cfundstats(const UniValue& params, bool fHelp)
@@ -1005,11 +1006,6 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
             if(!pcoinsTip->GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
             if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
-                continue;
-            if (mapBlockIndex.count(proposal.blockhash) == 0)
-                continue;
-            CBlockIndex* pindexblockparent = mapBlockIndex[proposal.blockhash];
-            if(pindexblockparent == nullptr)
                 continue;
             if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
                 if(vCachePaymentRequestRPC.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
@@ -1543,7 +1539,7 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VOBJ);
 
-    prequest.ToJson(ret);
+    prequest.ToJson(ret, true);
 
     return ret;
 }
@@ -1647,7 +1643,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-    { "communityfund",      "listproposals",          &listproposals,          true  },
+    { "communityfund",      "getcfunddbstatehash",    &getcfunddbstatehash,    true  },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },

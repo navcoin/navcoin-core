@@ -152,6 +152,8 @@ testScripts = [
      'importprunedfunds.py',
      'signmessages.py',
     'cfund-donate.py',
+    'cfund-fork-reorg-preq.py',
+    'cfund-fork-reorg-proposal.py',
     'cfund-listproposals.py',
     'cfund-paymentrequest-extract-funds.py',
     'cfund-paymentrequest-payout.py',
@@ -188,7 +190,8 @@ testScripts = [
     'sendtoaddress.py',
     'stakeimmaturebalance.py',
     'rpc-help.py',
-    'createrawscriptaddress.py'
+    'createrawscriptaddress.py',
+    'cfunddb-statehash.py'
 ]
 #if ENABLE_ZMQ:
 #    testScripts.append('zmq_test.py')
