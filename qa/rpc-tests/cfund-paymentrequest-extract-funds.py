@@ -112,7 +112,7 @@ class CommunityFundPaymentRequestExtractFundsTest(NavCoinTestFramework):
         # the 5 payment requests should be accepted
         allAccepted = True
         for paymentReq in paymentRequests:
-            if self.nodes[0].getpaymentrequest(paymentReq)["state"] != 1:
+            if self.nodes[0].getpaymentrequest(paymentReq)["state"] != 6:
                 allAccepted = False
 
         # all the payment requests should have been validated

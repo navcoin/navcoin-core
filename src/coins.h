@@ -310,7 +310,7 @@ struct CCacheEntry
 typedef CCacheEntry<CCoins> CCoinsCacheEntry;
 typedef boost::unordered_map<uint256, CCoinsCacheEntry, SaltedTxidHasher> CCoinsMap;
 typedef std::map<uint256, CProposal> CProposalMap;
-typedef boost::unordered_map<uint256, CPaymentRequest, SaltedTxidHasher> CPaymentRequestMap;
+typedef std::map<uint256, CPaymentRequest> CPaymentRequestMap;
 
 /** Cursor for iterating over CoinsView state */
 class CCoinsViewCursor
@@ -483,12 +483,16 @@ public:
     bool RemoveProposal(const uint256 &pid) const;
     bool RemovePaymentRequest(const uint256 &prid) const;
 
+    uint256 GetCFundDBStateHash(const CAmount& nCFLocked, const CAmount& nCFSupply);
+
     /**
      * Check if we have the given tx already loaded in this cache.
      * The semantics are the same as HaveCoins(), but no calls to
      * the backing CCoinsView are made.
      */
     bool HaveCoinsInCache(const uint256 &txid) const;
+    bool HaveProposalInCache(const uint256 &pid) const;
+    bool HavePaymentRequestInCache(const uint256 &prid) const;
 
     /**
      * Return a pointer to CCoins in the cache, or NULL if not found. This is
