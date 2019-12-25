@@ -192,7 +192,7 @@ testScripts = [
     'rpc-help.py',
     'dao-consultations.py',
     'dao-consultation-consensus.py',
-    'createrawscriptaddress.py'
+    'createrawscriptaddress.py',
     'cfunddb-statehash.py'
 ]
 #if ENABLE_ZMQ:
