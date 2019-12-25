@@ -56,6 +56,7 @@ class ConsultationsTest(NavCoinTestFramework):
         created_answers["one_of_two_not_supported"].append(self.nodes[0].proposeanswer(created_consultations["one_of_two_not_supported"],"two")["hash"])
         created_answers["range_one_one_hundred"] = []
 
+        end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         for consultation in self.nodes[0].listconsultations():
@@ -69,44 +70,62 @@ class ConsultationsTest(NavCoinTestFramework):
             self.nodes[0].support(consultation)
         self.nodes[0].support(created_consultations["range_one_one_hundred"])
 
-        end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 1
 
-        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] , "waiting for support")
-        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"] , "waiting for support, waiting for having enough supported answers")
-        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"] , "waiting for support, waiting for having enough supported answers")
-        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] , "waiting for support")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"], "found support, waiting for end of voting period")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"], "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"], "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"], "found support, waiting for end of voting period")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["votingCycle"], 1)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["votingCycle"], 1)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["votingCycle"], 1)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["votingCycle"], 1)
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 2
 
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] == "found support, waiting for end of voting period")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] == "found support, waiting for end of voting period")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"], "found support")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"], "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"], "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"], "found support")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["votingCycle"], 2)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["votingCycle"], 2)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["votingCycle"], 2)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["votingCycle"], 2)
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 3
 
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] == "reflection phase")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] == "reflection phase")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"], "reflection phase")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"], "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"], "waiting for support, waiting for having enough supported answers")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"], "reflection phase")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["votingCycle"], 3)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["votingCycle"], 3)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["votingCycle"], 3)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["votingCycle"], 3)
 
         end_cycle(self.nodes[0])
+        slow_gen(self.nodes[0],1)
 
         #cycle 4
 
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"] == "voting started")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"] == "waiting for support, waiting for having enough supported answers")
-        assert(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"] == "voting started")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["status"], "voting started")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["status"], "expiring, waiting for end of voting period")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["status"], "expiring, waiting for end of voting period")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["status"], "voting started")
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two"])["votingCycle"], 4)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_enough_answers"])["votingCycle"], 4)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["one_of_two_not_supported"])["votingCycle"], 4)
+        assert_equal(self.nodes[0].getconsultation(created_consultations["range_one_one_hundred"])["votingCycle"], 4)
+
+        end_cycle(self.nodes[0])
 
         try:
             self.nodes[0].consultationvote(created_consultations["one_of_two"],"yes")
@@ -143,7 +162,7 @@ class ConsultationsTest(NavCoinTestFramework):
 
         self.nodes[0].consultationvote(created_consultations["range_one_one_hundred"],"value",50)
 
-        slow_gen(self.nodes[0] , 5)
+        slow_gen(self.nodes[0], 5)
 
         valid = 0
         finished = 0
@@ -201,9 +220,11 @@ class ConsultationsTest(NavCoinTestFramework):
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['support'], 4)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['support'], 4)
 
-        for i in range(self.nodes[0].getconsensusparameters()[2] + self.nodes[0].getconsensusparameters()[5] + 1):
+        for i in range(self.nodes[0].getconsensusparameters()[3] + self.nodes[0].getconsensusparameters()[6] + 1):
             end_cycle(self.nodes[0])
             slow_gen(self.nodes[0] , 1)
+
+        consultation = self.nodes[0].getconsultation(hash)
 
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'yes')
         self.nodes[0].generate(1)
@@ -217,11 +238,11 @@ class ConsultationsTest(NavCoinTestFramework):
         self.nodes[0].generate(1)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 2)
 
-        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'yes')
         self.nodes[0].generate(1)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
 
         self.nodes[0].consultationvote(consultation["answers"][0]['hash'], 'remove')
+        self.nodes[0].consultationvote(consultation["answers"][1]['hash'], 'yes')
         self.nodes[0].generate(1)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][0]['votes'], 3)
         assert_equal(self.nodes[0].getconsultation(hash)["answers"][1]['votes'], 1)

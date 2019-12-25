@@ -3121,7 +3121,6 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
             answer.fDirty = true;
 
             vAnswers.push_back(answer);
-            consultation.vAnswers.push_back(answer.hash);
         }
     }
 
@@ -4019,10 +4018,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         {
                             pindex->mapSupport.insert(make_pair(it.first, true));
                             LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
-                        }
-                        else
-                        {
-                            LogPrint("dao", "%s: Ignoring support vote for %s from staker %s in block index %d\n", __func__, it.first.ToString(), HexStr(stakerScript), pindex->nHeight);
+//                        }
+//                        else
+//                        {
+//                            LogPrint("dao", "%s: Ignoring support vote for %s from staker %s in block index %d\n", __func__, it.first.ToString(), HexStr(stakerScript), pindex->nHeight);
                         }
                     }
                     else if (fDAOConsultations)
