@@ -80,9 +80,13 @@ public:
         std::swap(to.nValue, nValue);
     }
 
-    std::string ToString()
+    std::string ToString() const
     {
         return strprintf("CVote(nValue=%d, fNull=%b)", nValue, fNull);
+    }
+
+    bool operator==(const CVote& b) const {
+        return nValue == b.nValue && fNull == b.fNull;
     }
 
     ADD_SERIALIZE_METHODS;
@@ -166,6 +170,21 @@ public:
         return true;
     }
 
+    std::string diff(const CVoteList& b) const {
+        std::string ret = "";
+        if (list != b.list)
+            ret = strprintf("list: %s => %s", ToString(), b.ToString());
+        return ret;
+    }
+
+    bool operator==(const CVoteList &b) const {
+        return list == b.list;
+    }
+
+    bool operator!=(const CVoteList& b) const {
+        return !(*this == b);
+    }
+
     bool Set(const int& height, const uint256& hash, CVote vote)
     {
         if (!Clear(height, hash))
@@ -247,7 +266,7 @@ public:
         return &list;
     }
 
-    std::string ToString()
+    std::string ToString() const
     {
         std::string sList;
         for (auto& it:list)
@@ -255,7 +274,7 @@ public:
             sList += strprintf("{height %d => {", it.first);
             for (auto&it2: it.second)
             {
-                sList += strprintf("%s => %d, ", it2.first.ToString(), it2.second.ToString());
+                sList += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second.ToString());
             }
             sList += strprintf("}},");
         }
@@ -347,7 +366,7 @@ public:
         std::swap(to.fDirty, fDirty);
     }
 
-    bool operator==(const CPaymentRequest& b) const {
+    bool operator==(const CPaymentRequest &b) const {
         std::string thisMapState = "";
         std::string bMapState = "";
 
@@ -725,12 +744,11 @@ public:
     std::string sAnswer;
     int nVotes;
     int nSupport;
-    int fState;
+    std::map<uint256, flags> mapState;
     uint256 hash;
     uint256 parent;
     uint256 txblockhash;
     uint256 txhash;
-    uint256 blockhash;
     bool fDirty;
 
     CConsultationAnswer() { SetNull(); }
@@ -740,35 +758,88 @@ public:
         std::swap(to.sAnswer, sAnswer);
         std::swap(to.nVotes, nVotes);
         std::swap(to.nSupport, nSupport);
-        std::swap(to.fState, fState);
+        std::swap(to.mapState, mapState);
         std::swap(to.fDirty, fDirty);
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
-        std::swap(to.blockhash, blockhash);
         std::swap(to.parent, parent);
         std::swap(to.txhash, txhash);
     }
 
+    std::string diff(const CConsultationAnswer& b) const {
+        std::string ret = "";
+        if (nVersion != b.nVersion) ret += strprintf("nVersion: %d => %d, ", nVersion, b.nVersion);
+        if (sAnswer != b.sAnswer) ret += strprintf("sAnswer: %d => %d, ", sAnswer, b.sAnswer);
+        if (nVotes != b.nVotes) ret += strprintf("nVotes: %d => %d, ", nVotes, b.nVotes);
+        if (nSupport != b.nSupport) ret += strprintf("nSupport: %d => %d, ", nSupport, b.nSupport);
+        if (mapState != b.mapState)
+        {
+            std::string thisMapState = "";
+            std::string bMapState = "";
+            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
+            if (thisMapState.size() > 0) thisMapState.pop_back();
+            if (bMapState.size() > 0) bMapState.pop_back();
+            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
+        }
+        if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
+        if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
+        if (parent != b.parent) ret += strprintf("parent: %d => %d, ", parent.ToString(), b.parent.ToString());
+        if (txhash != b.txhash) ret += strprintf("txhash: %d => %d, ", txhash.ToString(), b.txhash.ToString());
+        if (ret != "")
+        {
+            ret.pop_back();
+            ret.pop_back();
+        }
+        return ret;
+    }
+
+
+    bool operator==(const CConsultationAnswer& b) const {
+        return nVersion == b.nVersion
+                && sAnswer == b.sAnswer
+                && nVotes == b.nVotes
+                && nSupport == b.nSupport
+                && mapState == b.mapState
+                && hash == b.hash
+                && txblockhash == b.txblockhash
+                && parent == b.parent
+                && txhash == b.txhash;
+    }
+
+    bool operator!=(const CConsultationAnswer& b) const {
+        return !(*this == b);
+    }
+
     bool IsNull() const
     {
-        return (sAnswer == "" && nVotes == 0 && nSupport == 0 && fState == 0 && nVersion == 0 &&
-                hash == uint256() && txhash == uint256() && blockhash == uint256() && parent == uint256() && txblockhash == uint256());
+        return (sAnswer == "" && nVotes == 0 && nSupport == 0 && nVersion == 0 && mapState.size() == 0 &&
+                hash == uint256() && txhash == uint256() && parent == uint256() && txblockhash == uint256());
     };
 
     void SetNull()
     {
         sAnswer = "";
         nVotes = 0;
-        fState = 0;
+        mapState.clear();
         nVersion = 0;
         nSupport = 0;
         hash = uint256();
         parent = uint256();
         txblockhash = uint256();
-        blockhash = uint256();
         txhash = uint256();
         fDirty = false;
     };
+
+    flags GetLastState() const;
+
+    CBlockIndex* GetLastStateBlockIndex() const;
+
+    CBlockIndex* GetLastStateBlockIndexForState(flags state) const;
+
+    bool SetState(const CBlockIndex* pindex, flags state);
+
+    bool ClearState(const CBlockIndex* pindex);
 
     void Vote();
     void DecVote();
@@ -791,12 +862,11 @@ public:
         READWRITE(sAnswer);
         READWRITE(nVotes);
         READWRITE(nSupport);
-        READWRITE(fState);
+        READWRITE(mapState);
         READWRITE(hash);
         READWRITE(parent);
         READWRITE(txblockhash);
         READWRITE(txhash);
-        READWRITE(blockhash);
         if (ser_action.ForRead())
             fDirty = false;
     }
@@ -811,13 +881,9 @@ public:
     static const uint64_t CONSENSUS_PARAMETER_VERSION  = 1<<3;
     static const uint64_t ALL_VERSION = BASE_VERSION | ANSWER_IS_A_RANGE_VERSION | MORE_ANSWERS_VERSION | CONSENSUS_PARAMETER_VERSION;
 
-    flags fState;
+    std::map<uint256, flags> mapState;
     uint256 hash;
     uint256 txblockhash;
-    uint256 reflectionblockhash;
-    uint256 expiredblockhash;
-    uint256 supportedblockhash;
-    uint256 blockhash;
     uint64_t nVersion;
     unsigned int nVotingCycle;
     bool fDirty;
@@ -826,17 +892,14 @@ public:
     uint64_t nMin;
     uint64_t nMax;
     map<uint64_t, uint64_t> mapVotes;
+    std::vector<uint256> vAnswers;
 
     CConsultation() { SetNull(); }
 
     void swap(CConsultation &to) {
-        std::swap(to.fState, fState);
+        std::swap(to.mapState, mapState);
         std::swap(to.hash, hash);
         std::swap(to.txblockhash, txblockhash);
-        std::swap(to.blockhash, blockhash);
-        std::swap(to.reflectionblockhash, reflectionblockhash);
-        std::swap(to.expiredblockhash, expiredblockhash);
-        std::swap(to.supportedblockhash, supportedblockhash);
         std::swap(to.nVersion, nVersion);
         std::swap(to.nVotingCycle, nVotingCycle);
         std::swap(to.fDirty, fDirty);
@@ -845,22 +908,19 @@ public:
         std::swap(to.nMin, nMin);
         std::swap(to.nMax, nMax);
         std::swap(to.mapVotes, mapVotes);
+        std::swap(to.vAnswers, vAnswers);
     };
 
     bool IsNull() const {
-        return (hash == uint256() && fState == DAOFlags::NIL && txblockhash == uint256() && blockhash == uint256()
+        return (hash == uint256() && txblockhash == uint256() && mapState.size() == 0
                 && nVersion == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0 && mapVotes.size() == 0
-                && nMin == 0 && nMax == 0);
+                && nMin == 0 && nMax == 0 && vAnswers.size() == 0);
     };
 
     void SetNull() {
-        fState = DAOFlags::NIL;
         hash = uint256();
         txblockhash = uint256();
-        blockhash = uint256();
-        expiredblockhash = uint256();
-        reflectionblockhash = uint256();
-        supportedblockhash = uint256();
+        mapState.clear();
         nVersion = 0;
         nVotingCycle = 0;
         fDirty = false;
@@ -869,7 +929,86 @@ public:
         nMin = 0;
         nMax = 0;
         mapVotes.clear();
+        vAnswers.clear();
     };
+
+    std::string diff(const CConsultation& b) const {
+        std::string ret = "";
+        if (mapState != b.mapState)
+        {
+            std::string thisMapState = "";
+            std::string bMapState = "";
+            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
+            if (thisMapState.size() > 0) thisMapState.pop_back();
+            if (bMapState.size() > 0) bMapState.pop_back();
+            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
+        }
+        if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
+        if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
+        if (nVersion != b.nVersion) ret += strprintf("nVersion: %d => %d, ", nVersion, b.nVersion);
+        if (nVotingCycle != b.nVotingCycle) ret += strprintf("nVotingCycle: %d => %d, ", nVotingCycle, b.nVotingCycle);
+        if (strDZeel != b.strDZeel) ret += strprintf("strDZeel: %d => %d, ", strDZeel, b.strDZeel);
+        if (nSupport != b.nSupport) ret += strprintf("nSupport: %d => %d, ", nSupport, b.nSupport);
+        if (nMin != b.nMin) ret += strprintf("nMin: %s => %s, ", nMin, b.nMin);
+        if (nMax != b.nMax) ret += strprintf("nMax: %d => %d, ", nMax, b.nMax);
+        if (mapVotes != b.mapVotes)
+        {
+            std::string thisMapState = "";
+            std::string bMapState = "";
+            for (auto &it:mapVotes) thisMapState += to_string(it.first)+":"+to_string(it.second)+",";
+            for (auto &it:b.mapVotes) bMapState += to_string(it.first)+":"+to_string(it.second)+",";
+            if (thisMapState.size() > 0) thisMapState.pop_back();
+            if (bMapState.size() > 0) bMapState.pop_back();
+            ret += strprintf("mapVotes: %s => %s, ", thisMapState, bMapState);
+        }
+        if (vAnswers != b.vAnswers)
+        {
+            std::string thisvAnswers = "";
+            std::string bvAnswers = "";
+            for (auto &it:vAnswers) thisvAnswers += it.ToString()+",";
+            for (auto &it:b.vAnswers) bvAnswers += it.ToString()+",";
+            if (thisvAnswers.size() > 0) thisvAnswers.pop_back();
+            if (bvAnswers.size() > 0) bvAnswers.pop_back();
+            ret += strprintf("vAnswers: %s => %s, ", thisvAnswers, bvAnswers);
+        }
+        if (ret != "")
+        {
+            ret.pop_back();
+            ret.pop_back();
+        }
+        return ret;
+    }
+
+
+    bool operator==(const CConsultation& b) const {
+        return mapState == b.mapState
+                && hash == b.hash
+                && txblockhash == b.txblockhash
+                && mapVotes == b.mapVotes
+                && nVersion == b.nVersion
+                && nVotingCycle == b.nVotingCycle
+                && strDZeel == b.strDZeel
+                && nSupport == b.nSupport
+                && nVotingCycle == b.nVotingCycle
+                && nMin == b.nMin
+                && nMax == b.nMax
+                && vAnswers == vAnswers;
+    }
+
+    bool operator!=(const CConsultation& b) const {
+        return !(*this == b);
+    }
+
+    flags GetLastState() const;
+
+    CBlockIndex* GetLastStateBlockIndex() const;
+
+    CBlockIndex* GetLastStateBlockIndexForState(flags state) const;
+
+    bool SetState(const CBlockIndex* pindex, flags state);
+
+    bool ClearState(const CBlockIndex* pindex);
 
     std::string GetState(const CBlockIndex* pindex) const;
     std::string ToString(const CBlockIndex* pindex) const;
@@ -894,19 +1033,16 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(this->nVersion);
-        READWRITE(fState);
+        READWRITE(mapState);
         READWRITE(nSupport);
         READWRITE(nMin);
         READWRITE(nMax);
         READWRITE(nVotingCycle);
         READWRITE(hash);
-        READWRITE(blockhash);
         READWRITE(strDZeel);
         READWRITE(txblockhash);
-        READWRITE(expiredblockhash);
-        READWRITE(reflectionblockhash);
-        READWRITE(supportedblockhash);
         READWRITE(mapVotes);
+        READWRITE(vAnswers);
         if (ser_action.ForRead())
             fDirty = false;
     }

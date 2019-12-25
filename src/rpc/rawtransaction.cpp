@@ -253,6 +253,52 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     }
 }
 
+UniValue getstakerscript(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "getstakerscript \"txid\"\n"
+                "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
+                "or there is an unspent output in the utxo for this transaction. To make it always work,\n"
+                "you need to maintain a transaction index, using the -txindex command line option.\n"
+                "\nReturn the raw transaction data.\n"
+                "\nIf verbose=0, returns a string that is serialized, hex-encoded data for 'txid'.\n"
+                "If verbose is non-zero, returns an Object with information about 'txid'.\n"
+
+                "\nArguments:\n"
+                "1. \"txid\"      (string, required) The transaction id\n"
+                "\nExamples:\n"
+                + HelpExampleCli("getstakerscript", "\"mytxid\"")
+                );
+
+    uint256 hash = ParseHashV(params[0], "parameter 1");
+
+    CTransaction tx;
+    CTransaction txPrev;
+    std::vector<unsigned char> stakerScript;
+
+    uint256 hashBlock;
+
+    {
+        LOCK(cs_main);
+        CStateViewCache view(pcoinsTip);
+        if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, view, true))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+
+        if (!GetTransaction(tx.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, view, true))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about previous transaction");
+
+        if(!txPrev.vout[tx.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid script");
+    }
+
+    string strHex = HexStr(stakerScript);
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("hex", strHex);
+    return result;
+}
+
 UniValue getrawtransaction(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
@@ -1093,6 +1139,7 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "sendrawtransaction",     &sendrawtransaction,     false },
     { "rawtransactions",    "signrawtransaction",     &signrawtransaction,     false }, /* uses wallet if enabled */
 
+    { "blockchain",         "getstakercript",         &getstakerscript,        true  },
     { "blockchain",         "gettxoutproof",          &gettxoutproof,          true  },
     { "blockchain",         "verifytxoutproof",       &verifytxoutproof,       true  },
 };

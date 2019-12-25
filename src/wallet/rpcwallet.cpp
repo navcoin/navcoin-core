@@ -1176,7 +1176,9 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
 
     CConsultation consultation;
 
-    if(!pcoinsTip->GetConsultation(uint256S(params[0].get_str()), consultation))
+    CStateViewCache view(pcoinsTip);
+
+    if(!view.GetConsultation(uint256S(params[0].get_str()), consultation))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid consultation.");
 
     if(!consultation.CanHaveNewAnswers())
@@ -4526,13 +4528,14 @@ UniValue listproposals(const UniValue& params, bool fHelp)
     }
 
     CProposalMap mapProposals;
+    CStateViewCache view(pcoinsTip);
 
-    if(pcoinsTip->GetAllProposals(mapProposals))
+    if(view.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
             CProposal proposal;
-            if (!pcoinsTip->GetProposal(it->first, proposal))
+            if (!view.GetProposal(it->first, proposal))
                 continue;
 
             flags fLastState = proposal.GetLastState();
@@ -4556,7 +4559,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                     || (showRejected && (fLastState == DAOFlags::REJECTED))
                     || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
                 UniValue o(UniValue::VOBJ);
-                proposal.ToJson(o, *pcoinsTip);
+                proposal.ToJson(o, view);
                 ret.push_back(o);
             }
         }

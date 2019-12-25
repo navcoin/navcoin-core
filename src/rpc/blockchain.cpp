@@ -1079,25 +1079,23 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
             if (!chainActive.Contains(pindex))
                 continue;
 
-            CConsultationAnswerMap mapAnswers;
             std::vector<CConsultationAnswer> vAnswers;
 
-            if(view.GetAllConsultationAnswers(mapAnswers))
+            for (auto& it: consultation.vAnswers)
             {
-                for (CConsultationAnswerMap::iterator it = mapAnswers.begin(); it != mapAnswers.end(); it++)
-                {
-                    CConsultationAnswer answer;
-                    if (!view.GetConsultationAnswer(it->first, answer) || answer.parent != consultation.hash)
-                        continue;
-                    vAnswers.push_back(answer);
-                }
+                CConsultationAnswer answer;
+                if (!view.GetConsultationAnswer(it, answer) || answer.parent != consultation.hash)
+                    continue;
+                vAnswers.push_back(answer);
             }
 
-            if((showNotEnoughAnswers && consultation.fState == DAOFlags::NIL && vAnswers.size() < 2) ||
-               (showLookingForSupport && consultation.fState == DAOFlags::NIL) ||
-               (showReflection && consultation.fState == DAOFlags::REFLECTION) ||
-               (showReflection && consultation.fState == DAOFlags::ACCEPTED) ||
-               (showFinished && consultation.fState == DAOFlags::EXPIRED) ||
+            flags fState = consultation.GetLastState();
+
+            if((showNotEnoughAnswers && fState == DAOFlags::NIL && vAnswers.size() < 2) ||
+               (showLookingForSupport && fState == DAOFlags::NIL) ||
+               (showReflection && fState == DAOFlags::REFLECTION) ||
+               (showReflection && fState == DAOFlags::ACCEPTED) ||
+               (showFinished && fState == DAOFlags::EXPIRED) ||
                 showAll) {
                 UniValue o(UniValue::VOBJ);
                 consultation.ToJson(o, view);
@@ -1701,13 +1699,13 @@ UniValue getproposal(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
+    CStateViewCache view(pcoinsTip);
+
     CProposal proposal;
-    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
+    if(!view.GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not found");
 
-    CStateViewCache view(pcoinsTip);
     UniValue ret(UniValue::VOBJ);
-
     proposal.ToJson(ret, view);
 
     return ret;
@@ -1726,12 +1724,12 @@ UniValue getconsultation(const UniValue& params, bool fHelp)
     LOCK(cs_main);
 
     CConsultation consultation;
-    if(!pcoinsTip->GetConsultation(uint256S(params[0].get_str()), consultation))
+    CStateViewCache view(pcoinsTip);
+
+    if(!view.GetConsultation(uint256S(params[0].get_str()), consultation))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation not found");
 
     UniValue ret(UniValue::VOBJ);
-    CStateViewCache view(pcoinsTip);
-
     consultation.ToJson(ret, view);
 
     return ret;
@@ -1750,7 +1748,9 @@ UniValue getconsultationanswer(const UniValue& params, bool fHelp)
     LOCK(cs_main);
 
     CConsultationAnswer answer;
-    if(!pcoinsTip->GetConsultationAnswer(uint256S(params[0].get_str()), answer))
+    CStateViewCache view(pcoinsTip);
+
+    if(!view.GetConsultationAnswer(uint256S(params[0].get_str()), answer))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation answer not found");
 
     UniValue ret(UniValue::VOBJ);
@@ -1773,7 +1773,9 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
     LOCK(cs_main);
 
     CPaymentRequest prequest;
-    if(!pcoinsTip->GetPaymentRequest(uint256S(params[0].get_str()), prequest))
+    CStateViewCache view(pcoinsTip);
+
+    if(!view.GetPaymentRequest(uint256S(params[0].get_str()), prequest))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Payment request not found");
 
     UniValue ret(UniValue::VOBJ);

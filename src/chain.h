@@ -267,7 +267,7 @@ public:
         vPaymentRequestVotes.clear();
         mapSupport.clear();
         mapConsultationVotes.clear();
-        mapConsultationVotes.clear();
+        mapConsensusParameters.clear();
     }
 
     CBlockIndex()

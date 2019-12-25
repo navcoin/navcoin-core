@@ -455,6 +455,7 @@ private:
     CStateViewCache& cache;
     CProposalMap::iterator it;
     CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_);
+    CProposal prev;
 
 public:
     CProposal* operator->() { return &it->second; }
@@ -470,6 +471,7 @@ private:
     CStateViewCache& cache;
     CPaymentRequestMap::iterator it;
     CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_);
+    CPaymentRequest prev;
 
 public:
     CPaymentRequest* operator->() { return &it->second; }
@@ -484,6 +486,7 @@ private:
     CStateViewCache& cache;
     CVoteMap::iterator it;
     CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_);
+    CVoteList prev;
 
 public:
     CVoteMapValue* operator->() { return &it->second; }
@@ -498,6 +501,7 @@ private:
     CStateViewCache& cache;
     CConsultationMap::iterator it;
     CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_);
+    CConsultation prev;
 
 public:
     CConsultation* operator->() { return &it->second; }
@@ -512,6 +516,7 @@ private:
     CStateViewCache& cache;
     CConsultationAnswerMap::iterator it;
     CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_);
+    CConsultationAnswer prev;
 
 public:
     CConsultationAnswer* operator->() { return &it->second; }
@@ -564,6 +569,7 @@ public:
     bool GetAllVotes(CVoteMap& map);
     bool GetAllConsultations(CConsultationMap& map);
     bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
+    bool GetAnswersForConsultation(CConsultationAnswerMap& map, const uint256& parent);
     uint256 GetBestBlock() const;
     void SetBestBlock(const uint256 &hashBlock);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
@@ -574,12 +580,12 @@ public:
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool AddConsultation(const CConsultation& consultation) const;
-    bool AddConsultationAnswer(const CConsultationAnswer& answer) const;
+    bool AddConsultationAnswer(const CConsultationAnswer& answer);
     bool RemoveProposal(const uint256 &pid) const;
     bool RemovePaymentRequest(const uint256 &prid) const;
     bool RemoveCachedVoter(const CVoteMapKey &voter) const;
-    bool RemoveConsultation(const uint256 &cid) const;
-    bool RemoveConsultationAnswer(const uint256 &cid) const;
+    bool RemoveConsultation(const uint256 &cid);
+    bool RemoveConsultationAnswer(const uint256 &cid);
 
     /**
      * Check if we have the given tx already loaded in this cache.

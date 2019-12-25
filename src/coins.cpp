@@ -186,11 +186,12 @@ CConsultationMap::const_iterator CStateViewCache::FetchConsultation(const uint25
 
     if (it != cacheConsultations.end())
         return it;
+    
     CConsultation tmp;
 
     if (!base->GetConsultation(cid, tmp) || tmp.IsNull())
         return cacheConsultations.end();
-
+    
     CConsultationMap::iterator ret = cacheConsultations.insert(std::make_pair(cid, CConsultation())).first;
     tmp.swap(ret->second);
 
@@ -226,9 +227,9 @@ bool CStateViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
 
 bool CStateViewCache::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const {
     CVoteMap::const_iterator it = FetchVote(voter);
-    if (it != cacheVotes.end()) {
+    if (it != cacheVotes.end() && !it->second.IsNull()) {
         vote = it->second;
-        return !vote.IsNull();
+        return true;
     }
     return false;
 }
@@ -237,16 +238,16 @@ bool CStateViewCache::GetProposal(const uint256 &pid, CProposal &proposal) const
     CProposalMap::const_iterator it = FetchProposal(pid);
     if (it != cacheProposals.end() && !it->second.IsNull()) {
         proposal = it->second;
-        return !proposal.IsNull();
+        return true;
     }
     return false;
 }
 
 bool CStateViewCache::GetPaymentRequest(const uint256 &pid, CPaymentRequest &prequest) const {
     CPaymentRequestMap::const_iterator it = FetchPaymentRequest(pid);
-    if (it != cachePaymentRequests.end()) {
+    if (it != cachePaymentRequests.end() && !it->second.IsNull()) {
         prequest = it->second;
-        return !prequest.IsNull();
+        return true;
     }
     return false;
 }
@@ -255,16 +256,16 @@ bool CStateViewCache::GetConsultation(const uint256 &cid, CConsultation &consult
     CConsultationMap::const_iterator it = FetchConsultation(cid);
     if (it != cacheConsultations.end()) {
         consultation = it->second;
-        return !consultation.IsNull();
+        return !it->second.IsNull();
     }
     return false;
 }
 
 bool CStateViewCache::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const {
     CConsultationAnswerMap::const_iterator it = FetchConsultationAnswer(cid);
-    if (it != cacheAnswers.end()) {
+    if (it != cacheAnswers.end() && !it->second.IsNull()) {
         answer = it->second;
-        return !answer.IsNull();
+        return true;
     }
     return false;
 }
@@ -317,7 +318,11 @@ bool CStateViewCache::GetAllVotes(CVoteMap& mapVotes) {
         return false;
 
     for (CVoteMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapVotes.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapVotes.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapVotes.begin(); it != mapVotes.end();)
+        it->second.IsNull() ? mapVotes.erase(it++) : ++it;
 
     return true;
 }
@@ -332,7 +337,11 @@ bool CStateViewCache::GetAllConsultations(CConsultationMap& mapConsultations) {
         return false;
 
     for (CConsultationMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapConsultations.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapConsultations.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapConsultations.begin(); it != mapConsultations.end();)
+        it->second.IsNull() ? mapConsultations.erase(it++) : ++it;
 
     return true;
 }
@@ -347,11 +356,14 @@ bool CStateViewCache::GetAllConsultationAnswers(CConsultationAnswerMap& mapAnswe
         return false;
 
     for (CConsultationAnswerMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
-        mapAnswers.insert(make_pair(it->first, it->second));
+        if (!it->second.IsNull())
+            mapAnswers.insert(make_pair(it->first, it->second));
+
+    for (auto it = mapAnswers.begin(); it != mapAnswers.end();)
+        it->second.IsNull() ? mapAnswers.erase(it++) : ++it;
 
     return true;
 }
-
 
 CCoinsModifier CStateViewCache::ModifyCoins(const uint256 &txid) {
     assert(!hasModifier);
@@ -388,6 +400,11 @@ CProposalModifier CStateViewCache::ModifyProposal(const uint256 &pid) {
 CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter) {
     assert(!hasModifier);
     std::pair<CVoteMap::iterator, bool> ret = cacheVotes.insert(std::make_pair(voter, CVoteList()));
+    if (ret.second) {
+        if (!base->GetCachedVoter(voter, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     return CVoteModifier(*this, ret.first);
 }
 
@@ -405,6 +422,11 @@ CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &pri
 CConsultationModifier CStateViewCache::ModifyConsultation(const uint256 &cid) {
     assert(!hasModifier);
     std::pair<CConsultationMap::iterator, bool> ret = cacheConsultations.insert(std::make_pair(cid, CConsultation()));
+    if (ret.second) {
+        if (!base->GetConsultation(cid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     ret.first->second.fDirty = true;
     return CConsultationModifier(*this, ret.first);
 }
@@ -412,6 +434,11 @@ CConsultationModifier CStateViewCache::ModifyConsultation(const uint256 &cid) {
 CConsultationAnswerModifier CStateViewCache::ModifyConsultationAnswer(const uint256 &cid) {
     assert(!hasModifier);
     std::pair<CConsultationAnswerMap::iterator, bool> ret = cacheAnswers.insert(std::make_pair(cid, CConsultationAnswer()));
+    if (ret.second) {
+        if (!base->GetConsultationAnswer(cid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
     ret.first->second.fDirty = true;
     return CConsultationAnswerModifier(*this, ret.first);
 }
@@ -447,7 +474,10 @@ bool CStateViewCache::AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vo
     if (HaveCachedVoter(voter))
         return false;
 
-    cacheVotes.insert(std::make_pair(voter, vote));
+    if (cacheVotes.count(voter))
+        cacheVotes[voter]=vote;
+    else
+        cacheVotes.insert(std::make_pair(voter, vote));
 
     return true;
 }
@@ -467,14 +497,28 @@ bool CStateViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
 bool CStateViewCache::AddConsultation(const CConsultation& consultation) const {
     if (HaveConsultation(consultation.hash))
         return false;
-    cacheConsultations.insert(std::make_pair(consultation.hash, consultation));
+
+    if (cacheConsultations.count(consultation.hash))
+        cacheConsultations[consultation.hash]=consultation;
+    else
+        cacheConsultations.insert(std::make_pair(consultation.hash, consultation));
+
     return true;
 }
 
-bool CStateViewCache::AddConsultationAnswer(const CConsultationAnswer& answer) const {
+bool CStateViewCache::AddConsultationAnswer(const CConsultationAnswer& answer) {
     if (HaveConsultationAnswer(answer.hash))
         return false;
-    cacheAnswers.insert(std::make_pair(answer.hash, answer));
+
+    CConsultationModifier mConsultation = ModifyConsultation(answer.parent);
+    mConsultation->vAnswers.push_back(answer.hash);
+    mConsultation->fDirty = true;
+
+    if (cacheAnswers.count(answer.hash))
+        cacheAnswers[answer.hash]=answer;
+    else
+        cacheAnswers.insert(std::make_pair(answer.hash, answer));
+
     return true;
 }
 
@@ -514,9 +558,16 @@ bool CStateViewCache::RemoveCachedVoter(const CVoteMapKey &voter) const {
     return true;
 }
 
-bool CStateViewCache::RemoveConsultation(const uint256 &cid) const {
-    if (!HaveConsultation(cid))
+bool CStateViewCache::RemoveConsultation(const uint256 &cid) {
+    CConsultation consultation;
+
+    if (!GetConsultation(cid, consultation))
         return false;
+
+    for (auto &it: consultation.vAnswers)
+    {
+        RemoveConsultationAnswer(it);
+    }
 
     cacheConsultations[cid] = CConsultation();
     cacheConsultations[cid].SetNull();
@@ -526,9 +577,17 @@ bool CStateViewCache::RemoveConsultation(const uint256 &cid) const {
     return true;
 }
 
-bool CStateViewCache::RemoveConsultationAnswer(const uint256 &cid) const {
-    if (!HaveConsultationAnswer(cid))
+bool CStateViewCache::RemoveConsultationAnswer(const uint256 &cid) {
+    CConsultationAnswer answer;
+    if (!GetConsultationAnswer(cid, answer))
         return false;
+
+    CConsultationModifier mConsultation = ModifyConsultation(answer.parent);
+    vector<uint256>::iterator it;
+    for (it = mConsultation->vAnswers.begin(); it < mConsultation->vAnswers.end(); it++)
+        if (*it == cid)
+            mConsultation->vAnswers.erase(it);
+    mConsultation->fDirty = true;
 
     cacheAnswers[cid] = CConsultationAnswer();
     cacheAnswers[cid].SetNull();
@@ -669,73 +728,22 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
     }
 
     for (CVoteMap::iterator it = mapVotes.begin(); it != mapVotes.end();){
-        std::vector<unsigned char> voter = it->first;
-        if (it->second.IsNull())
-        {
-            cacheVotes[voter].SetNull();
-        }
-        else if (it->second.fDirty)
-        { // Ignore non-dirty entries (optimization).
-            CVoteMap::iterator itUs = cacheVotes.find(voter);
-            if (itUs != cacheVotes.end())
-            { // Parent has it
-                std::map<int, std::map<uint256, CVote>>* list= it->second.GetFullList();
-                for (auto& it: *list)
-                {
-                    for (auto& it2: it.second)
-                    {
-                        if (it2.second.IsNull()) // We must remove from parent
-                        {
-                            if (!cacheVotes[voter].Clear(it.first, it2.first))
-                                return error("Could not remove vote for %s", it2.first.ToString());
-                        }
-                        else // We need to add to parent
-                        {
-                            int64_t val;
-                            if (it2.second.GetValue(val))
-                            {
-                                if (!cacheVotes[voter].Set(it.first, it2.first, val))
-                                    return error("Could not add vote for %s", it2.first.ToString());
-                            }
-                        }
-                    }
-                }
-            }
-            else // It's unknown to parent, we must add it
-            {
-                CVoteList& entry = cacheVotes[voter];
-                entry.swap(it->second);
-                entry.fDirty = true;
-            }
-        }
+        CVoteList& entry = cacheVotes[it->first];
+        entry.swap(it->second);
         CVoteMap::iterator itOld = it++;
         mapVotes.erase(itOld);
     }
 
     for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end();) {
-        if (it->second.IsNull()) {
-            CConsultationMap::iterator itUs = cacheConsultations.find(it->first);
-            if (itUs != cacheConsultations.end()) {
-                cacheConsultations.erase(itUs);
-            }
-        } else {
-            CConsultation& entry = cacheConsultations[it->first];
-            entry.swap(it->second);
-        }
+        CConsultation& entry = cacheConsultations[it->first];
+        entry.swap(it->second);
         CConsultationMap::iterator itOld = it++;
         mapConsultations.erase(itOld);
     }
 
     for (CConsultationAnswerMap::iterator it = mapAnswers.begin(); it != mapAnswers.end();) {
-        if (it->second.IsNull()) {
-            CConsultationAnswerMap::iterator itUs = cacheAnswers.find(it->first);
-            if (itUs != cacheAnswers.end()) {
-                cacheAnswers.erase(itUs);
-            }
-        } else {
-            CConsultationAnswer& entry = cacheAnswers[it->first];
-            entry.swap(it->second);
-        }
+        CConsultationAnswer& entry = cacheAnswers[it->first];
+        entry.swap(it->second);
         CConsultationAnswerMap::iterator itOld = it++;
         mapAnswers.erase(itOld);
     }
@@ -843,6 +851,7 @@ CCoinsModifier::~CCoinsModifier()
 CProposalModifier::CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
+    prev = it->second;
 }
 
 CProposalModifier::~CProposalModifier()
@@ -853,11 +862,18 @@ CProposalModifier::~CProposalModifier()
     if (it->second.IsNull()) {
         cache.cacheProposals[it->first].SetNull();
     }
+
+    if (prev != it->second)
+    {
+        it->second.fDirty = true;
+        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
+    }
 }
 
 CPaymentRequestModifier::CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
+    prev = it->second;
 }
 
 CPaymentRequestModifier::~CPaymentRequestModifier()
@@ -868,11 +884,18 @@ CPaymentRequestModifier::~CPaymentRequestModifier()
     if (it->second.IsNull()) {
         cache.cacheProposals[it->first].SetNull();
     }
+
+    if (prev != it->second)
+    {
+        it->second.fDirty = true;
+        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
+    }
 }
 
 CVoteModifier::CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
+    prev = it->second;
 }
 
 CVoteModifier::~CVoteModifier()
@@ -883,11 +906,18 @@ CVoteModifier::~CVoteModifier()
     if (it->second.IsNull()) {
         cache.cacheVotes[it->first].SetNull();
     }
+
+    if (prev != it->second)
+    {
+        it->second.fDirty = true;
+        LogPrint("dao", "%s: Modified %s: %s\n", __func__, HexStr(it->first), prev.diff(it->second));
+    }
 }
 
 CConsultationModifier::CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
+    prev = it->second;
 }
 
 CConsultationModifier::~CConsultationModifier()
@@ -898,11 +928,18 @@ CConsultationModifier::~CConsultationModifier()
     if (it->second.IsNull()) {
         cache.cacheConsultations[it->first].SetNull();
     }
+
+    if (prev != it->second)
+    {
+        it->second.fDirty = true;
+        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
+    }
 }
 
 CConsultationAnswerModifier::CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_) : cache(cache_), it(it_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
+    prev = it->second;
 }
 
 CConsultationAnswerModifier::~CConsultationAnswerModifier()
@@ -912,6 +949,12 @@ CConsultationAnswerModifier::~CConsultationAnswerModifier()
 
     if (it->second.IsNull()) {
         cache.cacheAnswers[it->first].SetNull();
+    }
+
+    if (prev != it->second)
+    {
+        it->second.fDirty = true;
+        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
     }
 }
 

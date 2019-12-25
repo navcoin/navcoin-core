@@ -1969,7 +1969,6 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, const Consensus::P
     if (fAllowSlow) { // use coin database to locate block that contains transaction, and scan it
         int nHeight = -1;
         {
-            const CStateViewCache& view = *pcoinsTip;
             const CCoins* coins = view.AccessCoins(hash);
             if (coins)
                 nHeight = coins->nHeight;
@@ -2571,10 +2570,16 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
             {
                 view.RemoveConsultation(hash);
+                LogPrintf("%s: Removed consultation %s\n", __func__, hash.ToString());
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION)
             {
-                view.RemoveConsultationAnswer(hash);
+                CConsultationAnswer answer;
+                if (TxToConsultationAnswer(tx.strDZeel, hash, block.GetHash(), answer))
+                {
+                    view.RemoveConsultationAnswer(answer.hash);
+                    LogPrintf("%s: Removed consultation answer %s at block %d\n", __func__, answer.hash.ToString(), pindex->nHeight);
+                }
             }
         }
 
@@ -2770,7 +2775,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 CConsultationModifier consultation = view.ModifyConsultation(it.first);
                 consultation->nSupport = max(consultation->nSupport - 1, 0);
-                LogPrint("dao", "%s: Updated consultation %s: %s\n", __func__, consultation->hash.ToString(), consultation->ToString(pindex));
+                consultation->fDirty = true;
                 vSeen[it.first] = true;
             }
         }
@@ -2780,7 +2785,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             {
                 CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
                 answer->nSupport = max(answer->nSupport - 1, 0);
-                LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, answer->hash.ToString(), answer->ToString());
+                answer->fDirty = true;
                 vSeen[it.first] = true;
             }
         }
@@ -2792,13 +2797,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         {
             CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
             mConsultation->mapVotes[it.second] = mConsultation->mapVotes[it.second] - 1;
-            LogPrint("dao", "%s: Updated consultation %s: %s\n", __func__, mConsultation->hash.ToString(), mConsultation->ToString(pindex));
+            mConsultation->fDirty = true;
         }
         else if (view.HaveConsultationAnswer(it.first))
         {
             CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
             mConsultationAnswer->nVotes = mConsultationAnswer->nVotes - 1;
-            LogPrint("dao", "%s: Updated consultation answer %s: %s\n", __func__, mConsultationAnswer->hash.ToString(), mConsultationAnswer->ToString());
+            mConsultationAnswer->fDirty = true;
         }
     }
 
@@ -2820,6 +2825,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             view.GetCachedVoter(it.first, pVoteList);
             CVoteModifier mVote = view.ModifyVote(it.first);
             mVote->Clear(pindex->nHeight);
+            mVote->fDirty = true;
         }
     }
 
@@ -3115,6 +3121,7 @@ bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockha
             answer.fDirty = true;
 
             vAnswers.push_back(answer);
+            consultation.vAnswers.push_back(answer.hash);
         }
     }
 
@@ -3212,7 +3219,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->vProposalVotes.clear();
     pindex->vPaymentRequestVotes.clear();
     pindex->mapConsultationVotes.clear();
-    pindex->mapSupport.clear();
 
     if (block.IsProofOfStake())
     {
@@ -3496,6 +3502,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 {
                                     CVoteModifier mVote = view.ModifyVote(stakerScript);
                                     mVote->Set(pindex->nHeight, hash, vote);
+                                    mVote->fDirty = true;
                                     LogPrint("dao", "%s: Setting consultation vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                                 }
                                 else
@@ -3536,6 +3543,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 votes[hash] = vote;
                                 CVoteModifier mVote = view.ModifyVote(stakerScript);
                                 mVote->Set(pindex->nHeight, hash, vote);
+                                mVote->fDirty = true;
                                 LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
                             }
                         }
@@ -3868,7 +3876,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
                     if (view.AddProposal(proposal))
-                        LogPrint("dao","New proposal %s\n", proposal.ToString(view, block.nTime));
+                        LogPrint("dao","%s: New proposal %s\n", __func__, proposal.ToString(view, block.nTime));
                 }
                 else
                 {
@@ -3884,7 +3892,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (view.GetProposal(prequest.proposalhash, proposal) && proposal.GetLastState() == DAOFlags::ACCEPTED)
                     {
                         if (view.AddPaymentRequest(prequest))
-                            LogPrint("dao","New payment request %s\n", prequest.ToString());
+                            LogPrint("dao","%s: New payment request %s\n", __func__, prequest.ToString());
                     }
                 }
                 else
@@ -3900,13 +3908,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 {
                     if (view.AddConsultation(consultation))
                     {
-                        LogPrint("dao","New consultation %s\n", consultation.ToString(pindex));
+                        LogPrint("dao","%s: New consultation %s\n", __func__, consultation.ToString(pindex));
                         if (!consultation.IsRange())
                         {
                             for (CConsultationAnswer& ans: vAnswers)
                             {
                                 if (view.AddConsultationAnswer(ans))
-                                    LogPrint("dao","New consultation answer %s\n", ans.ToString());
+                                    LogPrint("dao","%s: New child consultation answer %s\n", __func__, ans.ToString());
                             }
                         }
                     }
@@ -3916,21 +3924,27 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     return false;
                 }
             }
-            else if(fDAOConsultations && tx.nVersion == CTransaction::ANSWER_VERSION && IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
+            if(fDAOConsultations && (tx.nVersion == CTransaction::ANSWER_VERSION))
             {
-                CConsultationAnswer answer;
-                if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), block.GetHash(), answer))
+                if (IsValidConsultationAnswer(tx, view, nVersionMaskConsultationAnswer, pindex->pprev))
                 {
-                    CConsultation consultation;
-                    if (view.GetConsultation(answer.parent, consultation) && consultation.CanHaveNewAnswers() && !view.HaveConsultationAnswer(answer.hash))
+                    CConsultationAnswer answer;
+                    if (TxToConsultationAnswer(tx.strDZeel, tx.GetHash(), block.GetHash(), answer))
                     {
-                        if (view.AddConsultationAnswer(answer))
-                            LogPrint("dao","New consultation answer %s\n", answer.ToString());
+                        CConsultation consultation;
+                        if (view.GetConsultation(answer.parent, consultation) && consultation.CanHaveNewAnswers() && !view.HaveConsultationAnswer(answer.hash))
+                        {
+                            if (view.AddConsultationAnswer(answer))
+                                LogPrint("dao","%s: New consultation answer %s\n", __func__, answer.ToString());
+                        }
+                    }
+                    else
+                    {
+                        return error("%s: Could not convert transaction %s into consultation answer", __func__, tx.GetHash().ToString());
                     }
                 }
-                else
-                {
-                    return false;
+                else {
+                    LogPrint("dao","%s: Wrong consultation answer %s\n", __func__, tx.GetHash().ToString());
                 }
             }
         }
@@ -3988,7 +4002,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     && prequest.CanVote(view)
                                     && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                                 continue;
-
                         }
                         else
                         {
@@ -4009,7 +4022,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         }
                         else
                         {
-                            LogPrint("dao", "%s: Ignoring support vote for staker %s in block index %d\n", __func__, HexStr(stakerScript), pindex->nHeight);
+                            LogPrint("dao", "%s: Ignoring support vote for %s from staker %s in block index %d\n", __func__, it.first.ToString(), HexStr(stakerScript), pindex->nHeight);
                         }
                     }
                     else if (fDAOConsultations)
@@ -4118,8 +4131,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 mprequest->SetState(pindex, DAOFlags::PAID);
                 mprequest->fDirty = true;
-
-                LogPrintf("%s: Updated payment request %s at height %d: %s\n", __func__, mprequest->ToString(), pindex->nHeight, mprequest->diff(prequest));
             }
             else
             {
@@ -6090,24 +6101,59 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
     std::string sBefore = "";
     if (LogAcceptCategory("dao"))
     {
+        sBefore += strprintf("Height -> %d\nnCFLocked -> %d\nnCFSupply -> %d\n\n", chainActive.Tip()->nHeight, chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply);
         CProposalMap proposalMap;
         CPaymentRequestMap paymentRequestMap;
-        if (coins.GetAllProposals(proposalMap))
+        CConsultationMap mapConsultations;
+        CConsultationAnswerMap mapAnswers;
+        CVoteMap mapVotes;
+
+        if (coins.GetAllProposals(proposalMap) && coins.GetAllPaymentRequests(paymentRequestMap) && coins.GetAllConsultations(mapConsultations) && coins.GetAllVotes(mapVotes) && coins.GetAllConsultationAnswers(mapAnswers))
         {
             for (auto& it: proposalMap)
             {
-                UniValue prop(UniValue::VOBJ);
-                it.second.ToJson(prop, coins);
-                sBefore += strprintf("%s\n",prop.write());
+                if (!it.second.IsNull())
+                {
+                    UniValue prop(UniValue::VOBJ);
+                    it.second.ToJson(prop, coins);
+                    sBefore += strprintf("%s\n",prop.write(1));
+                }
             }
-        }
-        if (coins.GetAllPaymentRequests(paymentRequestMap))
-        {
             for (auto& it: paymentRequestMap)
             {
-                UniValue preq(UniValue::VOBJ);
-                it.second.ToJson(preq);
-                sBefore += strprintf("%s\n",preq.write());
+                if (!it.second.IsNull())
+                {
+                    UniValue preq(UniValue::VOBJ);
+                    it.second.ToJson(preq);
+                    sBefore += strprintf("%s\n",preq.write(1));
+                }
+            }
+            for (auto &it: mapConsultations)
+            {
+                if (!it.second.IsNull())
+                {
+                    UniValue c(UniValue::VOBJ);
+                    it.second.ToJson(c, coins);
+                    sBefore += strprintf("%s\n",c.write(1));
+                }
+            }
+
+            for (auto &it: mapAnswers)
+            {
+                if (!it.second.IsNull())
+                {
+                    UniValue a(UniValue::VOBJ);
+                    it.second.ToJson(a);
+                    sBefore += strprintf("%s\n",a.write(1));
+                }
+            }
+
+            for (auto &it: mapVotes)
+            {
+                if (!it.second.IsNull())
+                {
+                    sBefore += strprintf("%s -> %s\n", HexStr(it.first), it.second.ToString());
+                }
             }
         }
     }
@@ -6191,37 +6237,74 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
             std::string sAfter = "";
             if (LogAcceptCategory("dao"))
             {
+                sAfter += strprintf("Height -> %d\nnCFLocked -> %d\nnCFSupply -> %d\n\n", pindex->nHeight, pindex->nCFLocked, pindex->nCFSupply);
                 CProposalMap proposalMap;
                 CPaymentRequestMap paymentRequestMap;
-                if (coins.GetAllProposals(proposalMap))
+                CConsultationMap mapConsultations;
+                CConsultationAnswerMap mapAnswers;
+                CVoteMap mapVotes;
+
+                if (coins.GetAllProposals(proposalMap) && coins.GetAllPaymentRequests(paymentRequestMap) && coins.GetAllConsultations(mapConsultations) && coins.GetAllVotes(mapVotes) && coins.GetAllConsultationAnswers(mapAnswers))
                 {
                     for (auto& it: proposalMap)
                     {
-                        UniValue prop(UniValue::VOBJ);
-                        it.second.ToJson(prop, coins);
-                        sAfter += strprintf("%s\n",prop.write());
+                        if (!it.second.IsNull())
+                        {
+                            UniValue prop(UniValue::VOBJ);
+                            it.second.ToJson(prop, coins);
+                            sAfter += strprintf("%s\n",prop.write(1));
+                        }
                     }
-                }
-                if (coins.GetAllPaymentRequests(paymentRequestMap))
-                {
+
                     for (auto& it: paymentRequestMap)
                     {
-                        UniValue preq(UniValue::VOBJ);
-                        it.second.ToJson(preq);
-                        sAfter += strprintf("%s\n",preq.write());
+                        if (!it.second.IsNull())
+                        {
+                            UniValue preq(UniValue::VOBJ);
+                            it.second.ToJson(preq);
+                            sAfter += strprintf("%s\n",preq.write(1));
+                        }
+                    }
+
+                    for (auto &it: mapConsultations)
+                    {
+                        if (!it.second.IsNull())
+                        {
+                            UniValue c(UniValue::VOBJ);
+                            it.second.ToJson(c, coins);
+                            sAfter += strprintf("%s\n",c.write(1));
+                        }
+                    }
+
+                    for (auto &it: mapAnswers)
+                    {
+                        if (!it.second.IsNull())
+                        {
+                            UniValue a(UniValue::VOBJ);
+                            it.second.ToJson(a);
+                            sAfter += strprintf("%s\n",a.write(1));
+                        }
+                    }
+
+                    for (auto &it: mapVotes)
+                    {
+                        if (!it.second.IsNull())
+                        {
+                            sAfter += strprintf("%s -> %s\n", HexStr(it.first), it.second.ToString());
+                        }
                     }
                 }
                 ofstream file_before;
                 ofstream file_after;
-                file_before.open((GetDataDir() / "listproposals_before.out").string().c_str());
-                file_after.open((GetDataDir() / "listproposals_after.out").string().c_str());
+                file_before.open((GetDataDir() / "dao_before.out").string().c_str());
+                file_after.open((GetDataDir() / "dao_after.out").string().c_str());
                 if (file_before.is_open() && file_after.is_open())
                 {
                     file_before << sBefore;
                     file_after << sAfter;
                     file_before.close();
                     file_after.close();
-                    sExtra = " You can find a dump of listproposals after and before the tests in listproposals_before.out and listproposals_after.out in your data folder.";
+                    sExtra = " You can find a dump of dao entries after and before the tests in dao_before.out and dao_after.out in your data folder.";
                 }
             }
             return error("VerifyDB(): *** the cfund db state hash differs after reconnecting blocks. it was %d, it is %s after.%s\n", prevStateHash.ToString(), nowStateHash.ToString(), sExtra);

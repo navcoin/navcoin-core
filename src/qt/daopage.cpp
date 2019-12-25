@@ -698,6 +698,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             myVotes << tr("Abstain");
         }
 
+        flags fState = consultation.GetLastState();
+
         if (!consultation.IsRange())
         {
             for (auto& it2: consultationAnswerMap)
@@ -710,7 +712,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 if (answer.parent != consultation.hash)
                     continue;
 
-                if (!answer.IsSupported() && consultation.fState != DAOFlags::NIL)
+
+                if (!answer.IsSupported() && fState != DAOFlags::NIL)
                     continue;
 
                 if (!consultation.IsRange())
@@ -733,7 +736,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                     QString::fromStdString(answer.GetState()),
                     answer.CanBeVoted(coins),
                     answer.CanBeSupported(coins),
-                    (answer.CanBeSupported(coins) || consultation.fState == DAOFlags::SUPPORTED) && mapSupported.count(answer.hash) ? tr("Supported") : tr("")
+                    (answer.CanBeSupported(coins) || fState == DAOFlags::SUPPORTED) && mapSupported.count(answer.hash) ? tr("Supported") : tr("")
                 };
 
                 answers << a;
@@ -742,7 +745,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         bool fSupported = mapSupported.count(consultation.hash);
 
-        if (consultation.fState == DAOFlags::SUPPORTED || consultation.CanBeSupported())
+        if (fState == DAOFlags::SUPPORTED || consultation.CanBeSupported())
         {
             if (fSupported)
                 myVotes << tr("Supported");
@@ -771,7 +774,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         if (!consultation.IsRange())
         {
-            fCanVote = consultation.fState == DAOFlags::ACCEPTED;
+            fCanVote = fState == DAOFlags::ACCEPTED;
 
             for (ConsultationAnswerEntry &a: answers)
             {
@@ -814,7 +817,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             "",
             consultation.nVotingCycle,
             sState,
-            consultation.fState,
+            fState,
             fCanVote,
             myVotes,
             (uint64_t)mapBlockIndex[consultation.txblockhash]->GetBlockTime(),
@@ -824,7 +827,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             consultation.CanBeSupported()
         };
 
-        switch (consultation.fState)
+        switch (fState)
         {
         case DAOFlags::NIL:
         {
@@ -846,7 +849,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         if (consultation.IsAboutConsensusParameter())
             continue;
 
-        if (consultation.fState == DAOFlags::ACCEPTED &&
+        if (fState == DAOFlags::ACCEPTED &&
           ((nVote == -10000 && consultation.IsRange()) || (!consultation.IsRange() && myVotes.size() == 0)))
             nBadgeConsultations++;
 
@@ -859,16 +862,16 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         }
         if (nFilter2 != FILTER2_ALL)
         {
-            if (nFilter2 == FILTER2_IN_PROGRESS && consultation.fState != DAOFlags::ACCEPTED)
+            if (nFilter2 == FILTER2_IN_PROGRESS && fState != DAOFlags::ACCEPTED)
                 continue;
-            if (nFilter2 == FILTER2_FINISHED && consultation.fState != DAOFlags::EXPIRED)
+            if (nFilter2 == FILTER2_FINISHED && fState != DAOFlags::EXPIRED)
                 continue;
             if ((consultation.CanBeSupported() && nFilter2 != FILTER2_LOOKING_FOR_SUPPORT) ||
                 (!consultation.CanBeSupported() && nFilter2 == FILTER2_LOOKING_FOR_SUPPORT))
                 continue;
         }
 
-        if (fExclude && (consultation.fState == DAOFlags::EXPIRED || consultation.fState == DAOFlags::PASSED))
+        if (fExclude && (fState == DAOFlags::EXPIRED || fState == DAOFlags::PASSED))
             continue;
 
         consultationModel << p;
@@ -1003,16 +1006,18 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         if (mapConsultationConsensus.count(i))
             consultation = mapConsultationConsensus[i];
 
-        bool fHasConsultation = !consultation.consultation.IsNull() && consultation.consultation.fState != DAOFlags::EXPIRED && consultation.consultation.fState != DAOFlags::PASSED;
+        flags fState = consultation.consultation.GetLastState();
 
-        if (fHasConsultation && (consultation.consultation.CanBeSupported() || consultation.consultation.fState == DAOFlags::SUPPORTED || consultation.consultation.fState == DAOFlags::REFLECTION))
+        bool fHasConsultation = !consultation.consultation.IsNull() && fState != DAOFlags::EXPIRED && fState != DAOFlags::PASSED;
+
+        if (fHasConsultation && (consultation.consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED || fState == DAOFlags::REFLECTION))
             status = tr("change proposed") + ", " + QString::fromStdString(consultation.consultation.GetState(chainActive.Tip()));
-        else if (fHasConsultation && consultation.consultation.fState == DAOFlags::ACCEPTED)
+        else if (fHasConsultation && fState == DAOFlags::ACCEPTED)
             status = tr("voting");
 
         status.replace(", ","\n");
 
-        if (fHasConsultation && consultation.myVotes.size() == 0 && consultation.consultation.fState == DAOFlags::ACCEPTED)
+        if (fHasConsultation && consultation.myVotes.size() == 0 && fState == DAOFlags::ACCEPTED)
             nBadgeConsensus++;
 
         if (nFilter != FILTER_ALL)
@@ -1042,10 +1047,10 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             consultation.answers,
             0,
             status,
-            consultation.consultation.fState,
+            fState,
             fHasConsultation,
             consultation.myVotes,
-            fHasConsultation && (consultation.consultation.CanBeSupported() || consultation.consultation.fState == DAOFlags::SUPPORTED),
+            fHasConsultation && (consultation.consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED),
             Consensus::vConsensusParamsType[id],
             i
         };
@@ -2097,10 +2102,12 @@ void DaoChart::updateView() {
             state = QString::fromStdString(consultation.GetState(chainActive.Tip()));
             nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES);
 
-            if (consultation.fState == DAOFlags::EXPIRED || consultation.fState == DAOFlags::PASSED)
+            flags fState = consultation.GetLastState();
+
+            if (fState == DAOFlags::EXPIRED || fState == DAOFlags::PASSED)
                 fShouldShowCycleInfo = false;
 
-            if (consultation.CanBeSupported() || consultation.fState == DAOFlags::SUPPORTED)
+            if (consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED)
             {
                 nCurrentCycle = consultation.nVotingCycle;
                 nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES);
@@ -2108,18 +2115,22 @@ void DaoChart::updateView() {
             }
             else
             {
-                if (mapBlockIndex.count(consultation.blockhash) > 0) {
-                    auto nCreated = (unsigned int)(mapBlockIndex[consultation.blockhash]->nHeight / nVotingLength);
+                if (mapBlockIndex.count(consultation.txblockhash) > 0) {
+                    auto nCreated = (unsigned int)(mapBlockIndex[consultation.txblockhash]->nHeight / nVotingLength);
                     auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
                     nCurrentCycle = nCurrent - nCreated;
                 }
 
-                if (consultation.fState == DAOFlags::REFLECTION)
+                if (fState == DAOFlags::REFLECTION)
                 {
-                    auto nCreated = (unsigned int)(mapBlockIndex[consultation.reflectionblockhash]->nHeight / nVotingLength);
-                    auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
-                    nCurrentCycle = nCurrent - nCreated;
-                    nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH);
+                    CBlockIndex* pblockindex = consultation.GetLastStateBlockIndexForState(DAOFlags::REFLECTION);
+                    if(pblockindex)
+                    {
+                        auto nCreated = (unsigned int)(pblockindex->nHeight / nVotingLength);
+                        auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
+                        nCurrentCycle = nCurrent - nCreated;
+                        nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH);
+                    }
                 }
 
                 if (consultation.mapVotes.count(VoteFlags::VOTE_ABSTAIN))
@@ -2128,7 +2139,7 @@ void DaoChart::updateView() {
 
             if (consultation.IsRange())
             {
-                if (consultation.CanBeSupported() || consultation.fState == DAOFlags::SUPPORTED)
+                if (consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED)
                 {
                     mapVotes.insert(make_pair(tr("Showed support") + " (" + QString::number(consultation.nSupport) + ")", consultation.nSupport));
                     mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(nCurrentBlock-consultation.nSupport) + ")", nCurrentBlock-consultation.nSupport));
@@ -2151,10 +2162,11 @@ void DaoChart::updateView() {
                     for (auto&it: consultationAnswerMap)
                     {
                         CConsultationAnswer answer = it.second;
+                        flags fAnswerState = answer.GetLastState();
 
                         if (answer.parent == consultation.hash)
                         {
-                            uint64_t nAmount = (consultation.CanBeSupported() || consultation.fState == DAOFlags::SUPPORTED) ? answer.nSupport : answer.nVotes;
+                            uint64_t nAmount = (consultation.CanBeSupported() || fAnswerState == DAOFlags::SUPPORTED) ? answer.nSupport : answer.nVotes;
                             mapVotes.insert(make_pair(QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, answer.sAnswer) : answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/nVotingLength)+ "%)",nAmount));
                         }
                     }
