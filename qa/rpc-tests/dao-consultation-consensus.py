@@ -40,6 +40,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         third_answer_not_supported = self.nodes[0].proposeanswer(proposal, "400000000")["hash"]
 
         slow_gen(self.nodes[0] , 1)
+        end_cycle(self.nodes[0])
 
         for consultation in self.nodes[0].listconsultations():
             answers = []
@@ -51,33 +52,36 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         self.nodes[0].support(first_answer)
         self.nodes[0].support(second_answer)
 
-        end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 1
 
-        assert(self.nodes[0].getconsultation(proposal)["status"] == "waiting for support")
+        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "found support, waiting for end of voting period")
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 1)
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 2
 
-        assert(self.nodes[0].getconsultation(proposal)["status"] == "found support, waiting for end of voting period")
+        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "found support")
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 2)
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 3
 
-        assert(self.nodes[0].getconsultation(proposal)["status"] == "reflection phase")
+        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "reflection phase")
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 3)
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 4
 
-        assert(self.nodes[0].getconsultation(proposal)["status"] == "voting started")
+        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "voting started")
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 4)
 
 
         try:
@@ -116,7 +120,14 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
 
         slow_gen(self.nodes[0] , 1)
 
-        assert ( self.nodes[0].listconsultations()[0]['hash'] == proposal)
+        found = False
+        list = self.nodes[0].listconsultations()
+
+        for c in list:
+            if c['hash'] == proposal:
+                found = True
+
+        assert(found)
 
         first_answer = self.nodes[0].getconsultation(proposal)['answers'][0]['hash']
 
@@ -128,24 +139,24 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         except JSONRPCException as e:
             pass
 
+        end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         self.nodes[0].support(first_answer)
         self.nodes[0].support(second_answer)
 
-        end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 1
 
-        assert(self.nodes[0].getconsultation(proposal)["status"] == "waiting for support")
+        assert_equal(self.nodes[0].getconsultation(proposal)["status"], "found support, waiting for end of voting period")
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
 
         #cycle 2
 
-        assert(self.nodes[0].getconsultation(proposal)["status"] == "found support, waiting for end of voting period")
+        assert(self.nodes[0].getconsultation(proposal)["status"] == "found support")
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
