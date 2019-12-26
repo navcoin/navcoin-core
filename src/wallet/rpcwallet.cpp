@@ -4330,23 +4330,19 @@ UniValue getstakervote(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find staker script ")+HexStr(stakerScript));
     }
 
-    std::map<int, std::map<uint256, CVote>>* list= pVoteList.GetFullList();
+    std::map<int, std::map<uint256, int64_t>>* list= pVoteList.GetFullList();
 
     for (auto& it: *list)
     {
         for (auto& it2: it.second)
         {
-            if (!it2.second.IsNull())
-            {
-                int64_t val;
-                it2.second.GetValue(val);
+            int64_t val = it2.second;
 
-                UniValue entry(UniValue::VOBJ);
-                entry.pushKV("height", it.first);
-                entry.pushKV("hash", it2.first.ToString());
-                entry.pushKV("val", val);
-                ret.push_back(entry);
-            }
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV("height", it.first);
+            entry.pushKV("hash", it2.first.ToString());
+            entry.pushKV("val", val);
+            ret.push_back(entry);
         }
     }
 

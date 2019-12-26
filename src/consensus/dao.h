@@ -46,62 +46,6 @@ uint256 GetCFundDBStateHash(CStateViewCache& view, const CAmount& nCFLocked, con
 
 void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask, uint64_t& nConsultationMask, uint64_t& nConsultatioAnswernMask, CBlockIndex* pindex);
 
-class CVote
-{
-public:
-    CVote() { SetNull(); }
-
-    void SetNull()
-    {
-        fNull = true;
-    }
-
-    bool IsNull() const
-    {
-        return (fNull == true);
-    }
-
-    bool GetValue(int64_t& nVal) const
-    {
-        if (fNull)
-            return false;
-        nVal = nValue;
-        return true;
-    }
-
-    void SetValue(const int64_t& nVal)
-    {
-        fNull = false;
-        nValue = nVal;
-    }
-
-    void swap(CVote &to) {
-        std::swap(to.fNull, fNull);
-        std::swap(to.nValue, nValue);
-    }
-
-    std::string ToString() const
-    {
-        return strprintf("CVote(nValue=%d, fNull=%b)", nValue, fNull);
-    }
-
-    bool operator==(const CVote& b) const {
-        return nValue == b.nValue && fNull == b.fNull;
-    }
-
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(nValue);
-        READWRITE(fNull);
-    }
-
-private:
-    int64_t nValue;
-    bool fNull;
-};
-
 class CVoteList
 {
 public:
@@ -119,19 +63,16 @@ public:
     {
         for (auto& it: list)
         {
-            for (auto& it2: it.second)
-            {
-                if (!it2.second.IsNull())
-                    return false;
-            }
+            if (it.second.size() > 0)
+                return false;
         }
 
         return true;
     }
 
-    CVote* Get(const uint256& hash)
+    bool Get(const uint256& hash, int64_t& val)
     {
-        CVote* ret = nullptr;
+        bool ret = false;
         int nHeight = 0;
         for (auto& it: list)
         {
@@ -140,34 +81,15 @@ public:
 
             for (auto& it2: it.second)
             {
-                if (it.first > nHeight && it2.first == hash && !it2.second.IsNull())
+                if (it.first > nHeight && it2.first == hash)
                 {
-                    ret = &it2.second;
+                    ret = true;
+                    val = it2.second;
                     nHeight = it.first;
                 }
             }
         }
         return ret;
-    }
-
-    bool Set(const int& height, const uint256& hash, int64_t vote)
-    {
-        if (!Clear(height, hash))
-            return false;
-
-        if (list.count(height) == 0)
-        {
-            std::map<uint256, CVote> mapVote;
-            mapVote.insert(std::make_pair(hash, CVote()));
-            list.insert(std::make_pair(height, mapVote));
-        }
-        else if (list[height].count(hash) == 0)
-            list[height].insert(std::make_pair(hash, CVote()));
-
-        list[height][hash].SetValue(vote);
-        fDirty = true;
-
-        return true;
     }
 
     std::string diff(const CVoteList& b) const {
@@ -185,14 +107,11 @@ public:
         return !(*this == b);
     }
 
-    bool Set(const int& height, const uint256& hash, CVote vote)
+    bool Set(const int& height, const uint256& hash, int64_t vote)
     {
-        if (!Clear(height, hash))
-            return false;
-
         if (list.count(height) == 0)
         {
-            std::map<uint256, CVote> mapVote;
+            std::map<uint256, int64_t> mapVote;
             mapVote.insert(std::make_pair(hash, vote));
             list.insert(std::make_pair(height, mapVote));
         }
@@ -208,18 +127,11 @@ public:
 
     bool Clear(const int& height, const uint256& hash)
     {
-        if (list.count(height) == 0)
+        if (list[height].count(hash) == 0)
         {
-            std::map<uint256, CVote> mapVote;
-            mapVote.insert(std::make_pair(hash, CVote()));
-            list.insert(std::make_pair(height, mapVote));
+            list[height].erase(hash);
+            fDirty = true;
         }
-        else if (list[height].count(hash) == 0)
-            list[height].insert(std::make_pair(hash, CVote()));
-        else
-            list[height][hash].SetNull();
-
-        fDirty = true;
 
         return true;
     }
@@ -227,33 +139,27 @@ public:
     bool Clear(const int& height)
     {
         if (list.count(height) == 0)
-            return true;
-
-        for (auto &it: list[height])
         {
+            list.erase(height);
             fDirty = true;
-            it.second.SetNull();
         }
         return true;
     }
 
-    std::map<uint256, CVote> GetList()
+    std::map<uint256, int64_t> GetList()
     {
-        std::map<uint256, CVote> ret;
+        std::map<uint256, int64_t> ret;
         std::map<uint256, int> mapCacheHeight;
         for (auto &it: list)
         {
             for (auto &it2: it.second)
             {
-                if (!it2.second.IsNull())
+                if (mapCacheHeight.count(it2.first) == 0)
+                    mapCacheHeight[it2.first] = 0;
+                if (it.first > mapCacheHeight[it2.first])
                 {
-                    if (mapCacheHeight.count(it2.first) == 0)
-                        mapCacheHeight[it2.first] = 0;
-                    if (it.first > mapCacheHeight[it2.first])
-                    {
-                        ret[it2.first] = it2.second;
-                        mapCacheHeight[it2.first] = it.first;
-                    }
+                    ret[it2.first] = it2.second;
+                    mapCacheHeight[it2.first] = it.first;
                 }
             }
         }
@@ -261,7 +167,7 @@ public:
     }
 
 
-    std::map<int, std::map<uint256, CVote>>* GetFullList()
+    std::map<int, std::map<uint256, int64_t>>* GetFullList()
     {
         return &list;
     }
@@ -274,7 +180,7 @@ public:
             sList += strprintf("{height %d => {", it.first);
             for (auto&it2: it.second)
             {
-                sList += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second.ToString());
+                sList += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second);
             }
             sList += strprintf("}},");
         }
@@ -294,7 +200,7 @@ public:
     }
 
 private:
-    std::map<int, std::map<uint256, CVote>> list;
+    std::map<int, std::map<uint256, int64_t>> list;
 };
 
 bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);

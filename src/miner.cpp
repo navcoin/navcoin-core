@@ -1036,7 +1036,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   LogPrint("dao", "%s: Reviewing vote outputs for stake script %s\n", __func__, HexStr(stakerScript));
                   CVoteList pVoteList;
                   view.GetCachedVoter(stakerScript, pVoteList);
-                  std::map<uint256, CVote> list = pVoteList.GetList();
+                  std::map<uint256, int64_t> list = pVoteList.GetList();
 
                   std::map<uint256, int> mapCountAnswers;
                   std::map<uint256, int> mapCacheMaxAnswers;
@@ -1047,9 +1047,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   for (auto& it: list)
                   {
                       uint256 hash = it.first;
-                      int64_t val;
-
-                      it.second.GetValue(val);
+                      int64_t val = it.second;
 
                       bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
                       bool fParent = false;
@@ -1096,17 +1094,14 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           int64_t vote;
                           out.scriptPubKey.ExtractVote(hash, vote);
 
-                          if (list.count(hash) > 0 && !list[hash].IsNull())
+                          if (list.count(hash) > 0)
                           {
-                              int64_t nval;
-                              if (list[hash].GetValue(nval))
+                              int64_t nval = list[hash];
+                              if (nval == vote)
                               {
-                                  if (nval == vote)
-                                  {
-                                      LogPrint("dao", "%s: Removing vote output %s because it is already in the voting cache\n", __func__, out.ToString());
-                                      it = pblock->vtx[0].vout.erase(it);
-                                      continue;
-                                  }
+                                  LogPrint("dao", "%s: Removing vote output %s because it is already in the voting cache\n", __func__, out.ToString());
+                                  it = pblock->vtx[0].vout.erase(it);
+                                  continue;
                               }
                           }
                       }
@@ -1124,17 +1119,15 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           int64_t vote;
                           out.scriptPubKey.ExtractSupportVote(hash, vote);
 
-                          if (list.count(hash) > 0 && !list[hash].IsNull())
+                          if (list.count(hash) > 0)
                           {
-                              int64_t nval;
-                              if (list[hash].GetValue(nval))
+                              int64_t nval = list[hash];
+
+                              if (nval == vote)
                               {
-                                  if (nval == vote)
-                                  {
-                                      LogPrint("dao", "%s: Removing support vote output %s because it is already in the voting cache\n", __func__, out.ToString());
-                                      it = pblock->vtx[0].vout.erase(it);
-                                      continue;
-                                  }
+                                  LogPrint("dao", "%s: Removing support vote output %s because it is already in the voting cache\n", __func__, out.ToString());
+                                  it = pblock->vtx[0].vout.erase(it);
+                                  continue;
                               }
                           }
                       }
@@ -1166,17 +1159,15 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                               }
                           }
 
-                          if (list.count(hash) > 0 && !list[hash].IsNull())
+                          if (list.count(hash) > 0)
                           {
-                              int64_t nval;
-                              if (list[hash].GetValue(nval))
+                              int64_t nval = list[hash];
+
+                              if (nval == vote)
                               {
-                                  if (nval == vote)
-                                  {
-                                      LogPrint("dao", "%s: Removing consultation vote output %s because it is already in the voting cache\n", __func__, out.ToString());
-                                      it = pblock->vtx[0].vout.erase(it);
-                                      continue;
-                                  }
+                                  LogPrint("dao", "%s: Removing consultation vote output %s because it is already in the voting cache\n", __func__, out.ToString());
+                                  it = pblock->vtx[0].vout.erase(it);
+                                  continue;
                               }
                           }
                       }
@@ -1189,14 +1180,12 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   for (auto& it: list)
                   {
                       uint256 hash = it.first;
-                      int64_t val;
-
-                      it.second.GetValue(val);
+                      int64_t val = it.second;
 
                       bool fProposal = view.HaveProposal(hash);
                       bool fPaymentRequest = view.HavePaymentRequest(hash);
 
-                      if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && !it.second.IsNull() && (fProposal || fPaymentRequest))
+                      if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest))
                       {
                           pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
 
@@ -1213,7 +1202,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                       bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation);
                       bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
 
-                      if (!it.second.IsNull() && (fConsultation || fAnswer))
+                      if (fConsultation || fAnswer)
                       {
                           if (val == VoteFlags::SUPPORT && mapSupported.count(hash) == 0 && supports.count(hash) == 0)
                           {

@@ -2395,7 +2395,8 @@ uint256 GetCFundDBStateHash(CStateViewCache& view, const CAmount& nCFLocked, con
         {
             if (!it.second.IsNull())
             {
-                writer << it.second;
+                writer << it.first;
+                writer << it.second.GetList();
             }
         }
 

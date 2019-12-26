@@ -3972,90 +3972,86 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (view.GetCachedVoter(stakerScript, pVoteList))
         {
-            std::map<uint256, CVote> list = pVoteList.GetList();
+            std::map<uint256, int64_t> list = pVoteList.GetList();
 
             for (auto& it: list)
             {
-                if (!it.second.IsNull())
+                int64_t val = it.second;
+
+                if (val == VoteFlags::SUPPORT_REMOVE || val == VoteFlags::VOTE_REMOVE)
+                    continue;
+
+                if (fCFund && view.HaveProposal(it.first) && view.GetProposal(it.first, proposal) && proposal.CanVote())
                 {
-                    int64_t val;
-                    it.second.GetValue(val);
+                    pindex->vProposalVotes.push_back(make_pair(it.first, val));
+                    LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                }
+                else if (fCFund && view.HavePaymentRequest(it.first) && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
+                {
+                    if (view.GetProposal(prequest.proposalhash, proposal))
+                    {
+                        CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(DAOFlags::ACCEPTED);
+                        if(pblockindex == nullptr)
+                            continue;
 
-                    if (val == VoteFlags::SUPPORT_REMOVE || val == VoteFlags::VOTE_REMOVE)
+                        if(!((proposal.CanRequestPayments() || proposal.GetLastState() == DAOFlags::PENDING_VOTING_PREQ)
+                             && prequest.CanVote(view)
+                             && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
+                            continue;
+                    }
+                    else
+                    {
                         continue;
-
-                    if (fCFund && view.HaveProposal(it.first) && view.GetProposal(it.first, proposal) && proposal.CanVote())
-                    {
-                        pindex->vProposalVotes.push_back(make_pair(it.first, val));
-                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                     }
-                    else if (fCFund && view.HavePaymentRequest(it.first) && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
+
+                    pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
+                    LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                }
+                else if (val == VoteFlags::SUPPORT)
+                {
+                    if (fDAOConsultations &&
+                            ((view.GetConsultation(it.first, consultation) && consultation.CanBeSupported()) ||
+                             (view.GetConsultationAnswer(it.first, answer) && answer.CanBeSupported(view))))
                     {
-                        if (view.GetProposal(prequest.proposalhash, proposal))
-                        {
-                            CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(DAOFlags::ACCEPTED);
-                            if(pblockindex == nullptr)
-                                continue;
-
-                            if(!((proposal.CanRequestPayments() || proposal.GetLastState() == DAOFlags::PENDING_VOTING_PREQ)
-                                    && prequest.CanVote(view)
-                                    && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
-                                continue;
-                        }
-                        else
-                        {
-                            continue;
-                        }
-
-                        pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
-                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                        pindex->mapSupport.insert(make_pair(it.first, true));
+                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            LogPrint("dao", "%s: Ignoring support vote for %s from staker %s in block index %d\n", __func__, it.first.ToString(), HexStr(stakerScript), pindex->nHeight);
                     }
-                    else if (val == VoteFlags::SUPPORT)
-                    {
-                        if (fDAOConsultations &&
-                                ((view.GetConsultation(it.first, consultation) && consultation.CanBeSupported()) ||
-                                 (view.GetConsultationAnswer(it.first, answer) && answer.CanBeSupported(view))))
-                        {
-                            pindex->mapSupport.insert(make_pair(it.first, true));
-                            LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
-//                        }
-//                        else
-//                        {
-//                            LogPrint("dao", "%s: Ignoring support vote for %s from staker %s in block index %d\n", __func__, it.first.ToString(), HexStr(stakerScript), pindex->nHeight);
-                        }
-                    }
-                    else if (fDAOConsultations)
-                    {
-                        bool fValidConsultation = view.GetConsultation(it.first, consultation);
-                        bool fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer);
+                }
+                else if (fDAOConsultations)
+                {
+                    bool fValidConsultation = view.GetConsultation(it.first, consultation);
+                    bool fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer);
 
-                        if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(val)) || val == VoteFlags::VOTE_ABSTAIN)) ||
+                    if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(val)) || val == VoteFlags::VOTE_ABSTAIN)) ||
                             (fValidConsultationAnswer && answer.CanBeVoted(view)))
+                    {
+                        if (val != VoteFlags::VOTE_REMOVE)
                         {
-                            if (val != VoteFlags::VOTE_REMOVE)
+                            if (fValidConsultationAnswer)
                             {
-                                if (fValidConsultationAnswer)
+                                CConsultation parentConsultation;
+                                if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                    mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
+                                mapCountAnswers[answer.parent]++;
+                                if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                                 {
-                                    CConsultation parentConsultation;
-                                    if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
-                                        mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
-                                    mapCountAnswers[answer.parent]++;
-                                    if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
-                                    {
-                                        LogPrint("dao", "%s: Ignoring vote for staker %s - it exceeded max allowed of answers- hash: %s vote: %d\n", __func__, HexStr(stakerScript), it.first.ToString(), val);
-                                        continue;
-                                    }
+                                    LogPrint("dao", "%s: Ignoring vote for staker %s - it exceeded max allowed of answers- hash: %s vote: %d\n", __func__, HexStr(stakerScript), it.first.ToString(), val);
+                                    continue;
                                 }
-                                LogPrint("dao", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
-                                pindex->mapConsultationVotes.insert(make_pair(it.first, val));
                             }
+                            LogPrint("dao", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                            pindex->mapConsultationVotes.insert(make_pair(it.first, val));
                         }
-                        else
-                        {
-                            continue;
-                        }
-
                     }
+                    else
+                    {
+                        continue;
+                    }
+
                 }
             }
         }
@@ -6151,7 +6147,12 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
             {
                 if (!it.second.IsNull())
                 {
-                    sBefore += strprintf("%s -> %s\n", HexStr(it.first), it.second.ToString());
+                    sBefore += strprintf("Votes from staker %s:\n", HexStr(it.first));
+                    auto list = it.second.GetList();
+                    for (auto &it2: list)
+                    {
+                        sBefore += strprintf("\t%s -> %d\n", it2.first.ToString(), it2.second);
+                    }
                 }
             }
         }
@@ -6289,7 +6290,12 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
                     {
                         if (!it.second.IsNull())
                         {
-                            sAfter += strprintf("%s -> %s\n", HexStr(it.first), it.second.ToString());
+                            sAfter += strprintf("Votes from staker %s:\n", HexStr(it.first));
+                            auto list = it.second.GetList();
+                            for (auto &it2: list)
+                            {
+                                sAfter += strprintf("\t%s -> %d\n", it2.first.ToString(), it2.second);
+                            }
                         }
                     }
                 }
