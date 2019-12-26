@@ -283,7 +283,7 @@ public:
     CNodeHeaders():
         maxSize(0)
     {
-        maxSize = GetArg("-headerspamfiltermaxsize", MAX_HEADERS_RESULTS*4);
+        maxSize = GetArg("-headerspamfiltermaxsize", MAX_HEADERS_RESULTS*2);
     }
 
     bool addHeaders(std::vector<uint256> hashes)
