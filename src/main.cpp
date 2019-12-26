@@ -305,7 +305,7 @@ public:
             }
         }
 
-        LogPrint("headerspam", "%s: Current size: %d Max size: %d",
+        LogPrint("headerspam", "%s: Current size: %d Max size: %d\n",
                  __func__, points.size(), maxSize);
 
         if(points.size() > maxSize)
