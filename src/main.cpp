@@ -293,6 +293,8 @@ public:
 
     bool updateState(CValidationState& state, bool ret)
     {
+        int64_t nTime1 = GetTimeMicros();
+
         for (auto it = points.begin(); it != points.end();)
         {
             if (mapBlockIndex.count(*it) && mapBlockIndex[*it]->nStatus & BLOCK_VALID_SCRIPTS)
@@ -314,6 +316,9 @@ public:
             points.clear();
             return state.DoS(100, false, REJECT_INVALID, "header-spam", false, "ban node for sending spam");
         }
+
+        int64_t nTime2 = GetTimeMicros();
+        LogPrint("bench", "%s: Anti header spam took: %.2fms\n", __func__, 0.001 * (nTime2 - nTime1));
 
         return ret;
     }
