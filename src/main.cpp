@@ -283,7 +283,7 @@ public:
     CNodeHeaders():
         maxSize(0)
     {
-        maxSize = GetArg("-headerspamfiltermaxsize", MAX_BLOCKS_IN_TRANSIT_PER_PEER*4);
+        maxSize = GetArg("-headerspamfiltermaxsize", MAX_HEADERS_RESULTS*4);
     }
 
     bool addHeaders(std::vector<uint256> hashes)
@@ -365,6 +365,7 @@ struct CNodeState {
     //! When the first entry in vBlocksInFlight started downloading. Don't care when vBlocksInFlight is empty.
     int64_t nDownloadingSince;
     int nBlocksInFlight;
+    int nHeadersInFlight;
     int nBlocksInFlightValidHeaders;
     //! Whether we consider this a preferred download peer.
     bool fPreferredDownload;
@@ -390,6 +391,7 @@ struct CNodeState {
         nStallingSince = 0;
         nDownloadingSince = 0;
         nBlocksInFlight = 0;
+        nHeadersInFlight = 0;
         nBlocksInFlightValidHeaders = 0;
         fPreferredDownload = false;
         fPreferHeaders = false;
