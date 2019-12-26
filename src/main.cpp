@@ -297,7 +297,7 @@ public:
 
         for (auto it = points.begin(); it != points.end();)
         {
-            if (mapBlockIndex.count(*it) && mapBlockIndex[*it]->nStatus & BLOCK_VALID_SCRIPTS)
+            if (mapBlockIndex.count(*it) && (mapBlockIndex[*it]->nStatus & BLOCK_VALID_SCRIPTS) == BLOCK_VALID_SCRIPTS)
             {
                 it = points.erase(it);
             }
