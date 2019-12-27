@@ -288,7 +288,8 @@ public:
 
     bool addHeaders(std::vector<uint256> hashes)
     {
-        std::copy(hashes.begin(), hashes.end(), std::inserter(points, points.end()));
+        for (auto& it: hashes)
+            points.insert(it);
     }
 
     bool updateState(CValidationState& state, bool ret)
