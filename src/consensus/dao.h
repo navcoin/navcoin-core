@@ -833,7 +833,7 @@ public:
     bool IsRange() const;
     bool CanHaveNewAnswers() const;
     bool CanHaveAnswers() const;
-    bool HaveEnoughAnswers() const;
+    bool HaveEnoughAnswers(const CStateViewCache& view) const;
     bool IsAboutConsensusParameter() const;
     bool IsFinished() const;
 

@@ -1006,9 +1006,12 @@ bool CVoteList::Set(const int& height, const uint256& hash, int64_t vote)
 
 bool CVoteList::Clear(const int& height, const uint256& hash)
 {
-    auto it = list[height].find(hash);
-    if (it != list[height].end())
-        list[height].erase(it);
+    if (list.count(height))
+    {
+        auto it = list[height].find(hash);
+        if (it != list[height].end())
+            list[height].erase(it);
+    }
 
     return true;
 }
@@ -1331,7 +1334,7 @@ bool CConsultation::IsAboutConsensusParameter() const
     return (nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION);
 }
 
-bool CConsultation::HaveEnoughAnswers() const {
+bool CConsultation::HaveEnoughAnswers(const CStateViewCache& view) const {
     AssertLockHeld(cs_main);
 
     int nSupportedAnswersCount = 0;
@@ -1342,7 +1345,6 @@ bool CConsultation::HaveEnoughAnswers() const {
     }
     else
     {        
-        CStateViewCache view(pcoinsTip);
         CConsultationAnswer answer;
 
         for (auto& it: vAnswers)
@@ -1369,6 +1371,9 @@ flags CConsultation::GetLastState() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -1443,13 +1448,13 @@ std::string CConsultation::GetState(const CBlockIndex* pindex) const {
     std::string sFlags = "waiting for support";
     flags fState = GetLastState();
 
-    if (!HaveEnoughAnswers())
+    if (!HaveEnoughAnswers(view))
         sFlags += ", waiting for having enough supported answers";
 
     if(IsSupported(view))
     {
         sFlags = "found support";
-        if (!HaveEnoughAnswers())
+        if (!HaveEnoughAnswers(view))
             sFlags += ", waiting for having enough supported answers";
         if(fState != DAOFlags::SUPPORTED)
             sFlags += ", waiting for end of voting period";
@@ -1480,7 +1485,7 @@ bool CConsultation::IsSupported(CStateViewCache& view) const
         return nSupport > GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumSupport;
     }
     else
-        return HaveEnoughAnswers();
+        return HaveEnoughAnswers(view);
 }
 
 bool CConsultation::CanMoveInReflection() const
@@ -1690,6 +1695,9 @@ flags CConsultationAnswer::GetLastState() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -1933,6 +1941,9 @@ flags CPaymentRequest::GetLastState() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -2306,6 +2317,9 @@ flags CProposal::GetLastState() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
+            continue;
+
+        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)

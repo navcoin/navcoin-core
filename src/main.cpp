@@ -3489,7 +3489,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CVoteList pVoteList;
                             view.GetCachedVoter(stakerScript, pVoteList);
 
-                            LogPrint("dao", "%s: Looking for votes to add in the cache.\n", __func__);
+                            LogPrint("dao", "%s: Looking for votes to add in the cache at height %d.\n", __func__, pindex->nHeight);
 
                             if (fDAOConsultations && fConsultation)
                             {
