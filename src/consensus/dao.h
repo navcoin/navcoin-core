@@ -70,27 +70,7 @@ public:
         return true;
     }
 
-    bool Get(const uint256& hash, int64_t& val)
-    {
-        bool ret = false;
-        int nHeight = 0;
-        for (auto& it: list)
-        {
-            if (it.first < nHeight)
-                continue;
-
-            for (auto& it2: it.second)
-            {
-                if (it.first > nHeight && it2.first == hash)
-                {
-                    ret = true;
-                    val = it2.second;
-                    nHeight = it.first;
-                }
-            }
-        }
-        return ret;
-    }
+    bool Get(const uint256& hash, int64_t& val);
 
     std::string diff(const CVoteList& b) const {
         std::string ret = "";
@@ -107,81 +87,17 @@ public:
         return !(*this == b);
     }
 
-    bool Set(const int& height, const uint256& hash, int64_t vote)
-    {
-        if (list.count(height) == 0)
-        {
-            std::map<uint256, int64_t> mapVote;
-            mapVote.insert(std::make_pair(hash, vote));
-            list.insert(std::make_pair(height, mapVote));
-        }
-        else if (list[height].count(hash) == 0)
-            list[height].insert(std::make_pair(hash, vote));
-        else
-            list[height][hash] = vote;
+    bool Set(const int& height, const uint256& hash, int64_t vote);
 
-        return true;
-    }
+    bool Clear(const int& height, const uint256& hash);
 
-    bool Clear(const int& height, const uint256& hash)
-    {
-        if (list[height].count(hash) == 0)
-        {
-            list[height].erase(hash);
-        }
+    bool Clear(const int& height);
 
-        return true;
-    }
+    std::map<uint256, int64_t> GetList();
 
-    bool Clear(const int& height)
-    {
-        if (list.count(height) == 0)
-        {
-            list.erase(height);
-        }
-        return true;
-    }
+    std::map<int, std::map<uint256, int64_t>>* GetFullList();
 
-    std::map<uint256, int64_t> GetList()
-    {
-        std::map<uint256, int64_t> ret;
-        std::map<uint256, int> mapCacheHeight;
-        for (auto &it: list)
-        {
-            for (auto &it2: it.second)
-            {
-                if (mapCacheHeight.count(it2.first) == 0)
-                    mapCacheHeight[it2.first] = 0;
-                if (it.first > mapCacheHeight[it2.first])
-                {
-                    ret[it2.first] = it2.second;
-                    mapCacheHeight[it2.first] = it.first;
-                }
-            }
-        }
-        return ret;
-    }
-
-
-    std::map<int, std::map<uint256, int64_t>>* GetFullList()
-    {
-        return &list;
-    }
-
-    std::string ToString() const
-    {
-        std::string sList;
-        for (auto& it:list)
-        {
-            sList += strprintf("{height %d => {", it.first);
-            for (auto&it2: it.second)
-            {
-                sList += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second);
-            }
-            sList += strprintf("}},");
-        }
-        return strprintf("CVoteList([%s])", sList);
-    }
+    std::string ToString() const;
 
     void swap(CVoteList &to) {
         std::swap(to.fDirty, fDirty);

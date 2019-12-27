@@ -931,6 +931,105 @@ bool IsValidDaoTxVote(const CTransaction& tx, CBlockIndex* pindex)
     return tx.nVersion == CTransaction::VOTE_VERSION && fHasVote && nAmountContributed >= GetConsensusParameter(Consensus::CONSENSUS_PARAMS_DAO_VOTE_LIGHT_MIN_FEE, pindex);
 }
 
+// VOTES
+
+bool CVoteList::Get(const uint256& hash, int64_t& val)
+{
+    bool ret = false;
+    int nHeight = 0;
+    for (auto& it: list)
+    {
+        if (it.first < nHeight)
+            continue;
+
+        for (auto& it2: it.second)
+        {
+            if (it.first > nHeight && it2.first == hash)
+            {
+                ret = true;
+                val = it2.second;
+                nHeight = it.first;
+            }
+        }
+    }
+    return ret;
+}
+
+bool CVoteList::Set(const int& height, const uint256& hash, int64_t vote)
+{
+    if (list.count(height) == 0)
+    {
+        std::map<uint256, int64_t> mapVote;
+        mapVote.insert(std::make_pair(hash, vote));
+        list.insert(std::make_pair(height, mapVote));
+    }
+    else if (list[height].count(hash) == 0)
+        list[height].insert(std::make_pair(hash, vote));
+    else
+        list[height][hash] = vote;
+
+    return true;
+}
+
+bool CVoteList::Clear(const int& height, const uint256& hash)
+{
+    auto it = list[height].find(hash);
+    if (it != list[height].end())
+        list[height].erase(it);
+
+    return true;
+}
+
+bool CVoteList::Clear(const int& height)
+{
+    auto it = list.find(height);
+    if (it != list.end())
+        list.erase(it);
+
+    return true;
+}
+
+std::map<uint256, int64_t> CVoteList::GetList()
+{
+    std::map<uint256, int64_t> ret;
+    std::map<uint256, int> mapCacheHeight;
+    for (auto &it: list)
+    {
+        for (auto &it2: it.second)
+        {
+            if (mapCacheHeight.count(it2.first) == 0)
+                mapCacheHeight[it2.first] = 0;
+            if (it.first > mapCacheHeight[it2.first])
+            {
+                ret[it2.first] = it2.second;
+                mapCacheHeight[it2.first] = it.first;
+            }
+        }
+    }
+    return ret;
+}
+
+
+std::map<int, std::map<uint256, int64_t>>* CVoteList::GetFullList()
+{
+    return &list;
+}
+
+std::string CVoteList::ToString() const
+{
+    std::string sList;
+    for (auto& it:list)
+    {
+        sList += strprintf("{height %d => {", it.first);
+        for (auto&it2: it.second)
+        {
+            sList += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second);
+        }
+        sList += strprintf("}},");
+    }
+    return strprintf("CVoteList([%s])", sList);
+}
+
 // CONSULTATIONS
 
 bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex)
