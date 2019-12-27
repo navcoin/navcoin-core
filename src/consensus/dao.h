@@ -120,8 +120,6 @@ public:
         else
             list[height][hash] = vote;
 
-        fDirty = true;
-
         return true;
     }
 
@@ -130,7 +128,6 @@ public:
         if (list[height].count(hash) == 0)
         {
             list[height].erase(hash);
-            fDirty = true;
         }
 
         return true;
@@ -141,7 +138,6 @@ public:
         if (list.count(height) == 0)
         {
             list.erase(height);
-            fDirty = true;
         }
         return true;
     }
@@ -254,7 +250,7 @@ public:
         strDZeel = "";
         nVersion = 0;
         nVotingCycle = 0;
-        fDirty = false;
+        fDirty = true;
     }
 
     void swap(CPaymentRequest &to) {
@@ -408,9 +404,6 @@ public:
 
         if(nVersion & ABSTAIN_VOTE_VERSION)
            READWRITE(nVotesAbs);
-
-        if (ser_action.ForRead())
-            fDirty = false;
     }
 
 };
@@ -456,7 +449,7 @@ public:
         hash = uint256();
         nVersion = 0;
         nVotingCycle = 0;
-        fDirty = false;
+        fDirty = true;
     }
 
     void swap(CProposal &to) {
@@ -630,10 +623,6 @@ public:
         if(nVersion & PAYMENT_ADDRESS_VERSION) {
             READWRITE(paymentAddress);
         }
-
-        if (ser_action.ForRead())
-            fDirty = false;
-
     }
 };
 
@@ -734,7 +723,7 @@ public:
         parent = uint256();
         txblockhash = uint256();
         txhash = uint256();
-        fDirty = false;
+        fDirty = true;
     };
 
     flags GetLastState() const;
@@ -773,8 +762,6 @@ public:
         READWRITE(parent);
         READWRITE(txblockhash);
         READWRITE(txhash);
-        if (ser_action.ForRead())
-            fDirty = false;
     }
 };
 
@@ -949,8 +936,6 @@ public:
         READWRITE(txblockhash);
         READWRITE(mapVotes);
         READWRITE(vAnswers);
-        if (ser_action.ForRead())
-            fDirty = false;
     }
 };
 

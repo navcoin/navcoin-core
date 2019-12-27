@@ -459,7 +459,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             proposal->nVotesYes = it.second.first.first;
             proposal->nVotesAbs = it.second.second;
             proposal->nVotesNo = it.second.first.second;
-            proposal->fDirty = true;
             mapSeen[proposal->hash]=true;
         }
     }
@@ -472,7 +471,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             prequest->nVotesYes = it.second.first.first;
             prequest->nVotesAbs = it.second.second;
             prequest->nVotesNo = it.second.first.second;
-            prequest->fDirty = true;
             mapSeen[prequest->hash]=true;
         }
     }
@@ -483,14 +481,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             CConsultationModifier consultation = view.ModifyConsultation(it.first, pindexNew->nHeight);
             consultation->nSupport = it.second;
-            consultation->fDirty = true;
             mapSeenSupport[consultation->hash]=true;
         }
         else if (view.HaveConsultationAnswer(it.first))
         {
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first, pindexNew->nHeight);
             answer->nSupport = it.second;
-            answer->fDirty = true;
             mapSeenSupport[answer->hash]=true;
         }
     }
@@ -508,7 +504,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             {
                 mapAlreadyCleared[it.first.first] = true;
                 consultation->mapVotes.clear();
-                consultation->fDirty = true;
             }
             consultation->mapVotes[it.first.second] = it.second;
             mapSeen[it.first.first]=true;
@@ -517,7 +512,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first.first, pindexNew->nHeight);
             answer->nVotes = it.second;
-            answer->fDirty = true;
             mapSeen[it.first.first]=true;
             mapSeen[answer->parent]=true;
         }
@@ -755,7 +749,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if(fUndo)
             {
                 answer->ClearState(pindexDelete);
-                answer->fDirty = true;
             }
             else if((pindexNew->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) == 0)
             {
@@ -767,7 +760,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     if(oldState == DAOFlags::NIL)
                     {
                         answer->SetState(pindexNew, DAOFlags::ACCEPTED);
-                        answer->fDirty = true;
                     }
                 }
 
@@ -780,7 +772,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         fParentPassed = parent.GetLastState() == DAOFlags::PASSED;
                         pindexNew->mapConsensusParameters[(Consensus::ConsensusParamsPos)parent.nMin] = stoll(answer->sAnswer);
                         answer->SetState(pindexNew, DAOFlags::PASSED);
-                        answer->fDirty = true;
                     }
                 }
             }
@@ -790,7 +781,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if (answer->GetLastState() == DAOFlags::NIL && !mapSeenSupport.count(answer->hash))
                 {
                     answer->nSupport = 0;
-                    answer->fDirty = true;
                 }
             }
         }
@@ -854,7 +844,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         if (oldState != DAOFlags::EXPIRED)
                         {
                             consultation->SetState(pindexNew, DAOFlags::EXPIRED);
-                            consultation->fDirty = true;
                         }
                     }
                     else if(consultation->IsSupported(view))
@@ -862,23 +851,19 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         if(oldState == DAOFlags::NIL)
                         {
                             consultation->SetState(pindexNew, DAOFlags::SUPPORTED);
-                            consultation->fDirty = true;
                         }
                         else if(oldState == DAOFlags::SUPPORTED && consultation->CanMoveInReflection())
                         {
                             consultation->SetState(pindexNew, DAOFlags::REFLECTION);
-                            consultation->fDirty = true;
                         }
                         else if(oldState == DAOFlags::REFLECTION && consultation->IsReflectionOver(pindexNew))
                         {
                             consultation->SetState(pindexNew, DAOFlags::ACCEPTED);
-                            consultation->fDirty = true;
                         }
                     }
                     if (consultation->IsAboutConsensusParameter() && pindexNew->mapConsensusParameters.count((Consensus::ConsensusParamsPos)consultation->nMin))
                     {
                         consultation->SetState(pindexNew, DAOFlags::PASSED);
-                        consultation->fDirty = true;
                     }
                 }
 
@@ -891,14 +876,12 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 if (newState == DAOFlags::NIL && !mapSeenSupport.count(consultation->hash))
                 {
                     consultation->nSupport = 0;
-                    consultation->fDirty = true;
                 }
                 if (newState == DAOFlags::ACCEPTED)
                 {
                     if (!mapSeen.count(consultation->hash))
                     {
                         consultation->mapVotes.clear();
-                        consultation->fDirty = true;
                     }
                     if (!consultation->IsRange())
                         vClearAnswers.push_back(consultation->hash);
@@ -919,7 +902,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
             answer->nVotes = 0;
-            answer->fDirty = true;
         }
     }
 
