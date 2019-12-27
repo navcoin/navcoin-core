@@ -732,7 +732,7 @@ public:
         mapState.clear();
         nVersion = 0;
         nVotingCycle = 0;
-        fDirty = false;
+        fDirty = true;
         strDZeel = "";
         nSupport = 0;
         nMin = 0;

@@ -460,6 +460,8 @@ bool CStateViewCache::AddProposal(const CProposal& proposal) const {
     if (HaveProposal(proposal.hash))
         return false;
 
+    assert(proposal.fDirty == true);
+
     if (cacheProposals.count(proposal.hash))
         cacheProposals[proposal.hash]=proposal;
     else
@@ -471,6 +473,8 @@ bool CStateViewCache::AddProposal(const CProposal& proposal) const {
 bool CStateViewCache::AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const {
     if (HaveCachedVoter(voter))
         return false;
+
+    assert(vote.fDirty == true);
 
     if (cacheVotes.count(voter))
         cacheVotes[voter]=vote;
@@ -484,6 +488,8 @@ bool CStateViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
     if (HavePaymentRequest(prequest.hash))
         return false;
 
+    assert(prequest.fDirty == true);
+
     if (cachePaymentRequests.count(prequest.hash))
         cachePaymentRequests[prequest.hash]=prequest;
     else
@@ -495,6 +501,8 @@ bool CStateViewCache::AddPaymentRequest(const CPaymentRequest& prequest) const {
 bool CStateViewCache::AddConsultation(const CConsultation& consultation) const {
     if (HaveConsultation(consultation.hash))
         return false;
+
+    assert(consultation.fDirty == true);
 
     if (cacheConsultations.count(consultation.hash))
         cacheConsultations[consultation.hash]=consultation;
@@ -510,6 +518,8 @@ bool CStateViewCache::AddConsultationAnswer(const CConsultationAnswer& answer) {
 
     CConsultationModifier mConsultation = ModifyConsultation(answer.parent);
     mConsultation->vAnswers.push_back(answer.hash);
+
+    assert(answer.fDirty == true);
 
     if (cacheAnswers.count(answer.hash))
         cacheAnswers[answer.hash]=answer;
@@ -858,7 +868,6 @@ CProposalModifier::CProposalModifier(CStateViewCache& cache_, CProposalMap::iter
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
-    it->second.fDirty = false;
 }
 
 CProposalModifier::~CProposalModifier()
@@ -881,7 +890,6 @@ CPaymentRequestModifier::CPaymentRequestModifier(CStateViewCache& cache_, CPayme
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
-    it->second.fDirty = false;
 }
 
 CPaymentRequestModifier::~CPaymentRequestModifier()
@@ -904,7 +912,6 @@ CVoteModifier::CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_, in
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
-    it->second.fDirty = false;
 }
 
 CVoteModifier::~CVoteModifier()
@@ -927,7 +934,6 @@ CConsultationModifier::CConsultationModifier(CStateViewCache& cache_, CConsultat
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
-    it->second.fDirty = false;
 }
 
 CConsultationModifier::~CConsultationModifier()
@@ -950,7 +956,6 @@ CConsultationAnswerModifier::CConsultationAnswerModifier(CStateViewCache& cache_
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
-    it->second.fDirty = false;
 }
 
 CConsultationAnswerModifier::~CConsultationAnswerModifier()
