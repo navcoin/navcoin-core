@@ -75,7 +75,29 @@ public:
     std::string diff(const CVoteList& b) const {
         std::string ret = "";
         if (list != b.list)
-            ret = strprintf("list: %s => %s", ToString(), b.ToString());
+        {
+            std::string sList;
+            for (auto& it:list)
+            {
+                sList += strprintf("{height %d => {", it.first);
+                for (auto&it2: it.second)
+                {
+                    sList += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second);
+                }
+                sList += strprintf("}},");
+            }
+            std::string sListb;
+            for (auto& it:b.list)
+            {
+                sListb += strprintf("{height %d => {", it.first);
+                for (auto&it2: it.second)
+                {
+                    sListb += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second);
+                }
+                sListb += strprintf("}},");
+            }
+            ret = strprintf("list: %s => %s", sList, sListb);
+        }
         return ret;
     }
 
