@@ -455,7 +455,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         if (view.HaveProposal(it.first))
         {
-            CProposalModifier proposal = view.ModifyProposal(it.first);
+            CProposalModifier proposal = view.ModifyProposal(it.first, pindexNew->nHeight);
             proposal->nVotesYes = it.second.first.first;
             proposal->nVotesAbs = it.second.second;
             proposal->nVotesNo = it.second.first.second;
@@ -468,7 +468,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         if(view.HavePaymentRequest(it.first))
         {
-            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it.first);
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it.first, pindexNew->nHeight);
             prequest->nVotesYes = it.second.first.first;
             prequest->nVotesAbs = it.second.second;
             prequest->nVotesNo = it.second.first.second;
@@ -481,14 +481,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         if (view.HaveConsultation(it.first))
         {
-            CConsultationModifier consultation = view.ModifyConsultation(it.first);
+            CConsultationModifier consultation = view.ModifyConsultation(it.first, pindexNew->nHeight);
             consultation->nSupport = it.second;
             consultation->fDirty = true;
             mapSeenSupport[consultation->hash]=true;
         }
         else if (view.HaveConsultationAnswer(it.first))
         {
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first, pindexNew->nHeight);
             answer->nSupport = it.second;
             answer->fDirty = true;
             mapSeenSupport[answer->hash]=true;
@@ -502,7 +502,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         if (view.HaveConsultation(it.first.first))
         {
-            CConsultationModifier consultation = view.ModifyConsultation(it.first.first);
+            CConsultationModifier consultation = view.ModifyConsultation(it.first.first, pindexNew->nHeight);
 
             if (mapAlreadyCleared.count(it.first.first) == 0)
             {
@@ -515,7 +515,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         }
         else if (view.HaveConsultationAnswer(it.first.first))
         {
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first.first);
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first.first, pindexNew->nHeight);
             answer->nVotes = it.second;
             answer->fDirty = true;
             mapSeen[it.first.first]=true;
@@ -536,7 +536,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!view.HavePaymentRequest(it->first))
                 continue;
 
-            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first);
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
 
             if (prequest->txblockhash == uint256())
                 continue;
@@ -628,7 +628,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!view.HaveProposal(it->first))
                 continue;
 
-            CProposalModifier proposal = view.ModifyProposal(it->first);
+            CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
 
             if (proposal->txblockhash == uint256())
                 continue;
@@ -740,7 +740,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             bool fParentExpired = false;
             bool fParentPassed = false;
 
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
 
             if (answer->txblockhash == uint256())
                 continue;
@@ -812,7 +812,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!view.HaveConsultation(it->first))
                 continue;
 
-            CConsultationModifier consultation = view.ModifyConsultation(it->first);
+            CConsultationModifier consultation = view.ModifyConsultation(it->first, pindexNew->nHeight);
 
             if (consultation->txblockhash == uint256())
                 continue;
@@ -917,7 +917,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (std::find(vClearAnswers.begin(), vClearAnswers.end(), it->second.parent) == vClearAnswers.end())
                 continue;
 
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first);
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
             answer->nVotes = 0;
             answer->fDirty = true;
         }

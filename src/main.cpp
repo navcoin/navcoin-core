@@ -2724,7 +2724,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if(!view.HaveProposal(pindex->vProposalVotes[i].first))
             continue;
 
-        CProposalModifier proposal = view.ModifyProposal(pindex->vProposalVotes[i].first);
+        CProposalModifier proposal = view.ModifyProposal(pindex->vProposalVotes[i].first, pindex->nHeight);
 
         if(vSeen.count(proposal->hash) == 0)
         {
@@ -2748,7 +2748,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if(!view.HavePaymentRequest(pindex->vPaymentRequestVotes[i].first))
             continue;
 
-        CPaymentRequestModifier prequest = view.ModifyPaymentRequest(pindex->vPaymentRequestVotes[i].first);
+        CPaymentRequestModifier prequest = view.ModifyPaymentRequest(pindex->vPaymentRequestVotes[i].first, pindex->nHeight);
 
         if(vSeen.count(prequest->hash) == 0)
         {
@@ -2773,7 +2773,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         {
             if(vSeen.count(it.first) == 0)
             {
-                CConsultationModifier consultation = view.ModifyConsultation(it.first);
+                CConsultationModifier consultation = view.ModifyConsultation(it.first, pindex->nHeight);
                 consultation->nSupport = max(consultation->nSupport - 1, 0);
                 consultation->fDirty = true;
                 vSeen[it.first] = true;
@@ -2783,7 +2783,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         {
             if(vSeen.count(it.first) == 0)
             {
-                CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first);
+                CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first, pindex->nHeight);
                 answer->nSupport = max(answer->nSupport - 1, 0);
                 answer->fDirty = true;
                 vSeen[it.first] = true;
@@ -2795,13 +2795,13 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     {
         if (view.HaveConsultation(it.first))
         {
-            CConsultationModifier mConsultation = view.ModifyConsultation(it.first);
+            CConsultationModifier mConsultation = view.ModifyConsultation(it.first, pindex->nHeight);
             mConsultation->mapVotes[it.second] = mConsultation->mapVotes[it.second] - 1;
             mConsultation->fDirty = true;
         }
         else if (view.HaveConsultationAnswer(it.first))
         {
-            CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first);
+            CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first, pindex->nHeight);
             mConsultationAnswer->nVotes = mConsultationAnswer->nVotes - 1;
             mConsultationAnswer->fDirty = true;
         }
@@ -2823,7 +2823,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         {
             CVoteList pVoteList;
             view.GetCachedVoter(it.first, pVoteList);
-            CVoteModifier mVote = view.ModifyVote(it.first);
+            CVoteModifier mVote = view.ModifyVote(it.first, pindex->nHeight);
             mVote->Clear(pindex->nHeight);
             mVote->fDirty = true;
         }
@@ -3499,7 +3499,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    CVoteModifier mVote = view.ModifyVote(stakerScript);
+                                    CVoteModifier mVote = view.ModifyVote(stakerScript, pindex->nHeight);
                                     mVote->Set(pindex->nHeight, hash, vote);
                                     mVote->fDirty = true;
                                     LogPrint("dao", "%s: Setting consultation vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
@@ -3540,7 +3540,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 }
 
                                 votes[hash] = vote;
-                                CVoteModifier mVote = view.ModifyVote(stakerScript);
+                                CVoteModifier mVote = view.ModifyVote(stakerScript, pindex->nHeight);
                                 mVote->Set(pindex->nHeight, hash, vote);
                                 mVote->fDirty = true;
                                 LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
@@ -4122,7 +4122,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if(fv452Fork && !(pindex->pprev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
                     return state.DoS(100, error("CheckBlock() : payment request not mature enough."));
 
-                CPaymentRequestModifier mprequest = view.ModifyPaymentRequest(prid);
+                CPaymentRequestModifier mprequest = view.ModifyPaymentRequest(prid, pindex->nHeight);
 
                 mprequest->SetState(pindex, DAOFlags::PAID);
                 mprequest->fDirty = true;

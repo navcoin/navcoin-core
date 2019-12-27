@@ -454,8 +454,9 @@ class CProposalModifier
 private:
     CStateViewCache& cache;
     CProposalMap::iterator it;
-    CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_);
+    CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_, int height=0);
     CProposal prev;
+    int height;
 
 public:
     CProposal* operator->() { return &it->second; }
@@ -470,8 +471,9 @@ class CPaymentRequestModifier
 private:
     CStateViewCache& cache;
     CPaymentRequestMap::iterator it;
-    CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_);
+    CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_, int height=0);
     CPaymentRequest prev;
+    int height;
 
 public:
     CPaymentRequest* operator->() { return &it->second; }
@@ -485,8 +487,9 @@ class CVoteModifier
 private:
     CStateViewCache& cache;
     CVoteMap::iterator it;
-    CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_);
+    CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_, int height=0);
     CVoteList prev;
+    int height;
 
 public:
     CVoteMapValue* operator->() { return &it->second; }
@@ -500,8 +503,9 @@ class CConsultationModifier
 private:
     CStateViewCache& cache;
     CConsultationMap::iterator it;
-    CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_);
+    CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_, int height=0);
     CConsultation prev;
+    int height;
 
 public:
     CConsultation* operator->() { return &it->second; }
@@ -515,8 +519,9 @@ class CConsultationAnswerModifier
 private:
     CStateViewCache& cache;
     CConsultationAnswerMap::iterator it;
-    CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_);
+    CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_, int height=0);
     CConsultationAnswer prev;
+    int height;
 
 public:
     CConsultationAnswer* operator->() { return &it->second; }
@@ -610,11 +615,11 @@ public:
      */
     CCoinsModifier ModifyCoins(const uint256 &txid);
 
-    CProposalModifier ModifyProposal(const uint256 &pid);
-    CPaymentRequestModifier ModifyPaymentRequest(const uint256 &prid);
-    CVoteModifier ModifyVote(const CVoteMapKey &voter);
-    CConsultationModifier ModifyConsultation(const uint256 &cid);
-    CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid);
+    CProposalModifier ModifyProposal(const uint256 &pid, int nHeight = 0);
+    CPaymentRequestModifier ModifyPaymentRequest(const uint256 &prid, int nHeight = 0);
+    CVoteModifier ModifyVote(const CVoteMapKey &voter, int nHeight = 0);
+    CConsultationModifier ModifyConsultation(const uint256 &cid, int nHeight = 0);
+    CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid, int nHeight = 0);
 
     bool ClearCacheVotes();
 

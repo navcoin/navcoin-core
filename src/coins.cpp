@@ -386,7 +386,7 @@ CCoinsModifier CStateViewCache::ModifyCoins(const uint256 &txid) {
     return CCoinsModifier(*this, ret.first, cachedCoinUsage);
 }
 
-CProposalModifier CStateViewCache::ModifyProposal(const uint256 &pid) {
+CProposalModifier CStateViewCache::ModifyProposal(const uint256 &pid, int nHeight) {
     assert(!hasModifier);
     std::pair<CProposalMap::iterator, bool> ret = cacheProposals.insert(std::make_pair(pid, CProposal()));
     if (ret.second) {
@@ -394,10 +394,10 @@ CProposalModifier CStateViewCache::ModifyProposal(const uint256 &pid) {
             ret.first->second.SetNull();
         }
     }
-    return CProposalModifier(*this, ret.first);
+    return CProposalModifier(*this, ret.first, nHeight);
 }
 
-CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter) {
+CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter, int nHeight) {
     assert(!hasModifier);
     std::pair<CVoteMap::iterator, bool> ret = cacheVotes.insert(std::make_pair(voter, CVoteList()));
     if (ret.second) {
@@ -405,10 +405,10 @@ CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter) {
             ret.first->second.SetNull();
         }
     }
-    return CVoteModifier(*this, ret.first);
+    return CVoteModifier(*this, ret.first, nHeight);
 }
 
-CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &prid) {
+CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &prid, int nHeight) {
     assert(!hasModifier);
     std::pair<CPaymentRequestMap::iterator, bool> ret = cachePaymentRequests.insert(std::make_pair(prid, CPaymentRequest()));
     if (ret.second) {
@@ -416,10 +416,10 @@ CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &pri
             ret.first->second.SetNull();
         }
     }
-    return CPaymentRequestModifier(*this, ret.first);
+    return CPaymentRequestModifier(*this, ret.first, nHeight);
 }
 
-CConsultationModifier CStateViewCache::ModifyConsultation(const uint256 &cid) {
+CConsultationModifier CStateViewCache::ModifyConsultation(const uint256 &cid, int nHeight) {
     assert(!hasModifier);
     std::pair<CConsultationMap::iterator, bool> ret = cacheConsultations.insert(std::make_pair(cid, CConsultation()));
     if (ret.second) {
@@ -428,10 +428,10 @@ CConsultationModifier CStateViewCache::ModifyConsultation(const uint256 &cid) {
         }
     }
     ret.first->second.fDirty = true;
-    return CConsultationModifier(*this, ret.first);
+    return CConsultationModifier(*this, ret.first, nHeight);
 }
 
-CConsultationAnswerModifier CStateViewCache::ModifyConsultationAnswer(const uint256 &cid) {
+CConsultationAnswerModifier CStateViewCache::ModifyConsultationAnswer(const uint256 &cid, int nHeight) {
     assert(!hasModifier);
     std::pair<CConsultationAnswerMap::iterator, bool> ret = cacheAnswers.insert(std::make_pair(cid, CConsultationAnswer()));
     if (ret.second) {
@@ -440,7 +440,7 @@ CConsultationAnswerModifier CStateViewCache::ModifyConsultationAnswer(const uint
         }
     }
     ret.first->second.fDirty = true;
-    return CConsultationAnswerModifier(*this, ret.first);
+    return CConsultationAnswerModifier(*this, ret.first, nHeight);
 }
 
 // ModifyNewCoins has to know whether the new outputs its creating are for a
@@ -848,7 +848,7 @@ CCoinsModifier::~CCoinsModifier()
     }
 }
 
-CProposalModifier::CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_) : cache(cache_), it(it_) {
+CProposalModifier::CProposalModifier(CStateViewCache& cache_, CProposalMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
@@ -866,11 +866,11 @@ CProposalModifier::~CProposalModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
+        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
-CPaymentRequestModifier::CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_) : cache(cache_), it(it_) {
+CPaymentRequestModifier::CPaymentRequestModifier(CStateViewCache& cache_, CPaymentRequestMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
@@ -888,11 +888,11 @@ CPaymentRequestModifier::~CPaymentRequestModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
+        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
-CVoteModifier::CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_) : cache(cache_), it(it_) {
+CVoteModifier::CVoteModifier(CStateViewCache& cache_, CVoteMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
@@ -910,11 +910,11 @@ CVoteModifier::~CVoteModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s: %s\n", __func__, HexStr(it->first), prev.diff(it->second));
+        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"", HexStr(it->first), prev.diff(it->second));
     }
 }
 
-CConsultationModifier::CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_) : cache(cache_), it(it_) {
+CConsultationModifier::CConsultationModifier(CStateViewCache& cache_, CConsultationMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
@@ -932,11 +932,11 @@ CConsultationModifier::~CConsultationModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
+        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
-CConsultationAnswerModifier::CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_) : cache(cache_), it(it_) {
+CConsultationAnswerModifier::CConsultationAnswerModifier(CStateViewCache& cache_, CConsultationAnswerMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
     assert(!cache.hasModifier);
     cache.hasModifier = true;
     prev = it->second;
@@ -954,7 +954,7 @@ CConsultationAnswerModifier::~CConsultationAnswerModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s: %s\n", __func__, it->first.ToString(), prev.diff(it->second));
+        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
