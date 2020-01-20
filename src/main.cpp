@@ -3442,12 +3442,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                     if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, view, true))
                     {
-                        return error("%s: Could not find %s to read staker script.\n", __func__, tx.vin[0].prevout.hash.ToString());
+                        return error("%s: Could not find %s to read staker script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
                     }
 
                     if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
                     {
-                        return error("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[tx.vin[0].prevout.n].scriptPubKey));
+                        return error("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey));
                     }
                 }
 
