@@ -286,7 +286,7 @@ public:
         maxSize = GetArg("-headerspamfiltermaxsize", MAX_HEADERS_RESULTS*2);
     }
 
-    bool addHeaders(std::vector<uint256> hashes)
+    void addHeaders(std::vector<uint256> hashes)
     {
         for (auto& it: hashes)
             points.insert(it);
