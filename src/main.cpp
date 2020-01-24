@@ -75,6 +75,7 @@ CConditionVariable cvBlockChange;
 int nScriptCheckThreads = 0;
 bool fImporting = false;
 bool fReindex = false;
+bool fVerifyChain = false;
 bool fTxIndex = false;
 bool fAddressIndex = false;
 bool fTimestampIndex = false;
@@ -96,6 +97,7 @@ CAmount maxTxFee = DEFAULT_TRANSACTION_MAXFEE;
 
 uint256 hashBestChain = uint256();
 CBlockIndex* pindexBest = nullptr;
+CBlockIndex* pindexVerifyChainTip = nullptr;
 
 set<pair<COutPoint, unsigned int> > setStakeSeen;
 
@@ -3131,7 +3133,9 @@ uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, CBlockIndex* p
 {
     uint64_t ret = Params().GetConsensus().vParameters[pos].value;
 
-    CBlockIndex* pindexIter = (pindex == nullptr) ? chainActive.Tip() : pindex;
+    CBlockIndex* pindexTip = fVerifyChain ? pindexVerifyChainTip : chainActive.Tip();
+
+    CBlockIndex* pindexIter = (pindex == nullptr) ? pindexTip : pindex;
 
     while (pindexIter)
     {
@@ -6165,6 +6169,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
     LogPrintf("[0%]...");
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev)
     {
+        pindexVerifyChainTip = pindex;
         boost::this_thread::interruption_point();
         int percentageDone = std::max(1, std::min(99, (int)(((double)(chainActive.Height() - pindex->nHeight)) / (double)nCheckDepth * (nCheckLevel >= 4 ? 50 : 100))));
         if (reportDone < percentageDone/10) {
@@ -6219,6 +6224,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
     // check level 4: try reconnecting blocks
     if (nCheckLevel >= 4) {
         CBlockIndex *pindex = pindexState;
+        pindexVerifyChainTip = pindex;
         while (pindex != chainActive.Tip()) {
             boost::this_thread::interruption_point();
             uiInterface.ShowProgress(_("Verifying blocks..."), std::max(1, std::min(99, 100 - (int)(((double)(chainActive.Height() - pindex->nHeight)) / (double)nCheckDepth * 50))));
