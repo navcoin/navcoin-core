@@ -1116,7 +1116,7 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
         hashAnswer << sAnswer;
 
         if(coins.HaveConsultationAnswer(hashAnswer.GetHash()))
-            return error("%s: Duplicated answers are forbidden.", __func__);
+            return error("%s: Duplicated answers are forbidden, we already have %s.", __func__, hashAnswer.GetHash().ToString());
 
         if(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
             return error("%s: The consultation %s does not admit new answers", __func__, Hash.c_str());
@@ -1124,7 +1124,7 @@ bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t
         if(consultation.nVersion & CConsultation::CONSENSUS_PARAMETER_VERSION && !IsValidConsensusParameterProposal((Consensus::ConsensusParamsPos)consultation.nMin, sAnswer, pindex, coins))
             return error("%s: Invalid consultation %s. The proposed parameter %s is not valid", __func__, Hash, sAnswer);
 
-        CAmount nContribution;
+        CAmount nContribution = 0;
 
         for(unsigned int i=0;i<tx.vout.size();i++)
             if(tx.vout[i].IsCommunityFundContribution())
