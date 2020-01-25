@@ -15,7 +15,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_FIXTURE_TEST_SUITE(coins_tests, BasicTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(cfunddb_tests, BasicTestingSetup)
 
 static const unsigned int NUM_SIMULATION_ITERATIONS = 250;
 

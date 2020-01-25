@@ -191,6 +191,7 @@ testScripts = [
     'stakeimmaturebalance.py',
     'rpc-help.py',
     'createrawscriptaddress.py',
+    'cfunddb-statehash.py',
     'dao/001-proposal-expired.py',
     'dao/002-proposal-rejected.py',
     'dao/003-proposal-accepted.py',

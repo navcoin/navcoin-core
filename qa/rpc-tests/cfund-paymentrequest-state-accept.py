@@ -26,7 +26,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         self.nodes[0].donatefund(100)
 
         # Create a proposal and accept by voting
-        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 3600, "test")["hash"]        
+        proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 10, 3600, "test")["hash"]
         locked_before = self.nodes[0].cfundstats()["funds"]["locked"]
         end_cycle(self.nodes[0])
 
@@ -151,15 +151,15 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_after_payment)
 
-        # Check that paymentrequest remains in accepted state after the max number of cycles
+        # Check that paymentrequest moves to paid state
 
         cycles_to_expire = self.nodes[0].cfundstats()["consensus"]["maxCountVotingCyclePaymentRequests"]
 
         for idx in range(cycles_to_expire):
             end_cycle(self.nodes[0])
 
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 1)
-        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "accepted")
+        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["state"] == 6)
+        assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "paid")
 
         # Create multiple payment requests
 
