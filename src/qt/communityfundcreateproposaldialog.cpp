@@ -26,6 +26,8 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     ui->setupUi(this);
     GUIUtil::setupAddressWidget(ui->lineEditNavcoinAddress, this);
 
+    CStateViewCache view(pcoinsTip);
+
     ui->spinBoxDays->setRange(0, 999999999);
     ui->spinBoxHours->setRange(0, 24);
     ui->spinBoxMinutes->setRange(0, 60);
@@ -54,7 +56,7 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
                 }
     });
 
-    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE));
+    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
     string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
     ui->labelWarning->setText(QString::fromStdString(warning));
 }
@@ -117,6 +119,8 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
     {
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
+        CStateViewCache view(pcoinsTip);
+
         CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
         CWalletTx wtx;
@@ -173,9 +177,9 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         // Check balance
         CAmount curBalance = pwalletMain->GetBalance();
-        if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE)) {
+        if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)) {
             QMessageBox msgBox(this);
-            string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE));
+            string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
             std::string str = tr("You require at least %1 NAV mature and available to create a proposal\n").arg(QString::fromStdString(fee)).toStdString();
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
@@ -210,7 +214,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 std::string strError;
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
-                CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE);
+                CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
                 CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
                 vecSend.push_back(recipient);
 

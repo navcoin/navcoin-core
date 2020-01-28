@@ -639,10 +639,12 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     if (pwalletMain)
         nWeight = pwalletMain->GetStakeWeight();
 
+    CStateViewCache view(pcoinsTip);
+
     uint64_t nNetworkWeight = GetPoSKernelPS();
     bool staking = nLastCoinStakeSearchInterval && nWeight;
     uint64_t nExpectedTime = staking ? (GetTargetSpacing(pindexBestHeader->nHeight) * nNetworkWeight / nWeight) : 0;
-    CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetStakingRewardPerBlock(chainActive.Tip()) : 0.0;
+    CAmount nExpectedDailyReward = staking ? ((double) 86400 / (nExpectedTime + 1)) * GetStakingRewardPerBlock(view) : 0.0;
 
     UniValue obj(UniValue::VOBJ);
 
@@ -699,9 +701,9 @@ UniValue getstakesubsidy(const UniValue& params, bool fHelp)
         CStateViewCache view(pcoinsTip);
         if (!TransactionGetCoinAge(tx, nCoinAge, view))
             throw JSONRPCError(RPC_MISC_ERROR, "GetCoinAge failed");
+        return (uint64_t)GetProofOfStakeReward(pindexBestHeader->nHeight, nCoinAge, 0, pindexBestHeader, view);
     }
 
-    return (uint64_t)GetProofOfStakeReward(pindexBestHeader->nHeight, nCoinAge, 0, pindexBestHeader);
 }
 
 static const CRPCCommand commands[] =

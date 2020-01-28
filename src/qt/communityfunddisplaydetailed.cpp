@@ -17,6 +17,9 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
     ui->detailsWidget->setVisible(false);
     adjustSize();
 
+    LOCK(cs_main);
+    CStateViewCache view(pcoinsTip);
+
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
@@ -31,7 +34,7 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (proposal.GetLastState() == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
+    if (proposal.GetLastState() == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == string::npos) {
         // Get proposal votes list
         auto it = mapAddedVotes.find(proposal.hash);
 
@@ -70,13 +73,10 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
 
     ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
 
+    //hide ui voting elements on proposals which are not allowed vote states
+    if(!proposal.CanVote(view))
     {
-        LOCK(cs_main);
-        //hide ui voting elements on proposals which are not allowed vote states
-        if(!proposal.CanVote())
-        {
-            ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
-        }
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
     // Hide ability to vote is the status is expired
@@ -94,6 +94,8 @@ void CommunityFundDisplayDetailed::onDetails()
 
 void CommunityFundDisplayDetailed::setProposalLabels()
 {
+    CStateViewCache view(pcoinsTip);
+
     ui->labelProposalTitle->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelAddress->setText(QString::fromStdString(proposal.GetPaymentAddress()));
 
@@ -113,7 +115,7 @@ void CommunityFundDisplayDetailed::setProposalLabels()
     if (fLastState == DAOFlags::NIL) {
         std::string expiry_title = "Voting period finishes in: ";
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-        std::string expiry = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES) - proposal.nVotingCycle) +  " voting cycles";
+        std::string expiry = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view) - proposal.nVotingCycle) +  " voting cycles";
         ui->labelExpiresIn->setText(QString::fromStdString(expiry));
     }
     if (fLastState == DAOFlags::ACCEPTED) {
@@ -139,7 +141,7 @@ void CommunityFundDisplayDetailed::setProposalLabels()
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
         ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
-    if (fLastState== DAOFlags::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) {
+    if (fLastState== DAOFlags::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") != string::npos) {
         if (fLastState == DAOFlags::EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
@@ -153,7 +155,7 @@ void CommunityFundDisplayDetailed::setProposalLabels()
             ui->labelExpiresIn->setText(tr("At end of voting period"));
         }
     }
-    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
+    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime(), view)));
     ui->labelNumberOfYesVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesYes)));
     ui->labelNumberOfNoVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesNo)));
     ui->labelTransactionBlockHash->setText(QString::fromStdString(pblockindex ? pblockindex->GetBlockHash().ToString() : ""));

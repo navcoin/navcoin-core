@@ -26,6 +26,8 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
 
+    CStateViewCache view(pcoinsTip);
+
     auto *topBox = new QFrame;
     auto *topBoxLayout = new QHBoxLayout;
     topBoxLayout->setContentsMargins(QMargins());
@@ -53,7 +55,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     cycleProgressBar = new QProgressBar();
 
     cycleProgressBar->setMinimum(0);
-    cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+    cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
     cycleProgressBar->setTextVisible(true);
     cycleProgressBar->setFormat("%v/%m");
 
@@ -204,14 +206,15 @@ void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
 {
     int unit = DEFAULT_UNIT;
 
-    {
     LOCK(cs_main);
 
     if (pcoinsTip == nullptr)
         return;
 
-    if (!pcoinsTip->GetAllProposals(proposalMap) || !pcoinsTip->GetAllPaymentRequests(paymentRequestMap) ||
-            !pcoinsTip->GetAllConsultations(consultationMap) || !pcoinsTip->GetAllConsultationAnswers(consultationAnswerMap))
+    CStateViewCache view(pcoinsTip);
+
+    if (!view.GetAllProposals(proposalMap) || !view.GetAllPaymentRequests(paymentRequestMap) ||
+            !view.GetAllConsultations(consultationMap) || !view.GetAllConsultationAnswers(consultationAnswerMap))
         return;
 
     if (clientModel)
@@ -223,10 +226,9 @@ void DaoPage::refresh(bool force, bool updateFilterIfEmpty)
             unit = optionsModel->getDisplayUnit();
         }
     }
-    }
 
-    cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
-    cycleProgressBar->setValue((chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+1);
+    cycleProgressBar->setMaximum(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
+    cycleProgressBar->setValue((chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view))+1);
 
     if (!force && unit == nCurrentUnit && nFilter == nCurrentFilter && nFilter2 == nCurrentFilter2 &&
             ((nCurrentView == VIEW_PROPOSALS && proposalMap.size() == proposalModel.size()) ||
@@ -469,7 +471,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             nVote = v->second;
         }
 
-        if (proposal.CanVote() && nVote == -10000)
+        if (proposal.CanVote(coins) && nVote == -10000)
             nBadgeProposals++;
 
         if (!filterHash.isEmpty())
@@ -488,14 +490,14 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
             if (nFilter2 != FILTER2_ALL)
             {
-                if (nFilter2 == FILTER2_IN_PROGRESS && !proposal.CanVote())
+                if (nFilter2 == FILTER2_IN_PROGRESS && !proposal.CanVote(coins))
                     continue;
-                if (nFilter2 == FILTER2_FINISHED && proposal.CanVote())
+                if (nFilter2 == FILTER2_FINISHED && proposal.CanVote(coins))
                     continue;
             }
         }
 
-        if (fExclude && proposal.IsExpired(chainActive.Tip()->GetBlockTime()))
+        if (fExclude && proposal.IsExpired(chainActive.Tip()->GetBlockTime(), coins))
             continue;
 
         if (mapBlockIndex.count(proposal.txblockhash) == 0)
@@ -513,7 +515,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         else
             s_deadline = std::to_string(deadline_d) + std::string(" Days\n") + std::to_string(deadline_h) + std::string(" Hours\n") + std::to_string(deadline_m) + std::string(" Minutes");
 
-        QString status = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime())).replace(", ","\n");
+        QString status = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime(), coins)).replace(", ","\n");
 
         ProposalEntry p = {
             it.first,
@@ -527,7 +529,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             proposal.nVotesAbs ? proposal.nVotesAbs : 0,
             proposal.nVotingCycle,
             status,
-            proposal.CanVote(),
+            proposal.CanVote(coins),
             nVote,
             (uint64_t)mapBlockIndex[proposal.txblockhash]->GetBlockTime()
         };
@@ -608,7 +610,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
         }
 
-        if (fExclude && prequest.IsExpired())
+        if (fExclude && prequest.IsExpired(coins))
             continue;
 
         if (mapBlockIndex.count(prequest.txblockhash) == 0)
@@ -617,7 +619,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         if (!coins.GetProposal(prequest.proposalhash, proposal))
             continue;
 
-        QString status = QString::fromStdString(prequest.GetState()).replace(", ","\n");
+        QString status = QString::fromStdString(prequest.GetState(coins)).replace(", ","\n");
 
         PaymentRequestEntry p = {
             it.first,
@@ -706,14 +708,14 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             {
                 CConsultationAnswer answer;
 
-                if (!pcoinsTip->GetConsultationAnswer(it2.first, answer))
+                if (!coins.GetConsultationAnswer(it2.first, answer))
                     continue;
 
                 if (answer.parent != consultation.hash)
                     continue;
 
 
-                if (!answer.IsSupported() && fState != DAOFlags::NIL)
+                if (!answer.IsSupported(coins) && fState != DAOFlags::NIL)
                     continue;
 
                 if (!consultation.IsRange())
@@ -733,7 +735,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                     answer.hash,
                     QString::fromStdString(answer.sAnswer),
                     answer.nVotes,
-                    QString::fromStdString(answer.GetState()),
+                    QString::fromStdString(answer.GetState(coins)),
                     answer.CanBeVoted(coins),
                     answer.CanBeSupported(coins),
                     (answer.CanBeSupported(coins) || fState == DAOFlags::SUPPORTED) && mapSupported.count(answer.hash) ? tr("Supported") : tr("")
@@ -807,7 +809,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
         }
 
-        QString sState = QString::fromStdString(consultation.GetState(chainActive.Tip())).replace(", ","\n");
+        QString sState = QString::fromStdString(consultation.GetState(chainActive.Tip(), coins)).replace(", ","\n");
 
         ConsultationEntry p = {
             it.first,
@@ -1011,7 +1013,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         bool fHasConsultation = !consultation.consultation.IsNull() && fState != DAOFlags::EXPIRED && fState != DAOFlags::PASSED;
 
         if (fHasConsultation && (consultation.consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED || fState == DAOFlags::REFLECTION))
-            status = tr("change proposed") + ", " + QString::fromStdString(consultation.consultation.GetState(chainActive.Tip()));
+            status = tr("change proposed") + ", " + QString::fromStdString(consultation.consultation.GetState(chainActive.Tip(), coins));
         else if (fHasConsultation && fState == DAOFlags::ACCEPTED)
             status = tr("voting");
 
@@ -1043,7 +1045,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             fHasConsultation ? consultation.consultation.hash : uint256(),
             "#6666ff",
             QString::fromStdString(Consensus::sConsensusParamsDesc[id]),
-            GetConsensusParameter(id),
+            GetConsensusParameter(id, coins),
             consultation.answers,
             0,
             status,
@@ -1951,6 +1953,8 @@ void DaoPage::showContextMenu(const QPoint& pt) {
     if (hashItem) {
         LOCK(cs_main);
 
+        CStateViewCache view(pcoinsTip);
+
         CConsultation consultation;
         CProposal proposal;
         CPaymentRequest prequest;
@@ -1968,17 +1972,17 @@ void DaoPage::showContextMenu(const QPoint& pt) {
 
         proposeChange->setDisabled(false);
 
-        if (nCurrentView != VIEW_CONSENSUS && pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation))
+        if (nCurrentView != VIEW_CONSENSUS && view.GetConsultation(uint256S(contextHash.toStdString()), consultation))
         {
             contextMenu->removeAction(proposeChange);
         }
-        else if (pcoinsTip->GetProposal(uint256S(contextHash.toStdString()), proposal))
+        else if (view.GetProposal(uint256S(contextHash.toStdString()), proposal))
         {
             contextMenu->addAction(seePaymentRequestsAction);
             contextMenu->removeAction(seeProposalAction);
             contextMenu->removeAction(proposeChange);
         }
-        else if (pcoinsTip->GetPaymentRequest(uint256S(contextHash.toStdString()), prequest))
+        else if (view.GetPaymentRequest(uint256S(contextHash.toStdString()), prequest))
         {
             contextMenu->addAction(seeProposalAction);
             contextMenu->removeAction(seePaymentRequestsAction);
@@ -1988,7 +1992,7 @@ void DaoPage::showContextMenu(const QPoint& pt) {
         {
             contextId = table->item(contextItem->row(), CP_COLUMN_ID)->data(Qt::DisplayRole).toInt();
             contextMenu->addAction(proposeChange);
-            if (pcoinsTip->GetConsultation(uint256S(contextHash.toStdString()), consultation) && !consultation.CanHaveAnswers())
+            if (view.GetConsultation(uint256S(contextHash.toStdString()), consultation) && !consultation.CanHaveAnswers())
                 contextMenu->removeAction(proposeChange);
         }
         else
@@ -2019,10 +2023,11 @@ void DaoPage::onSeeProposal() {
         return;
 
     LOCK(cs_main);
+    CStateViewCache view(pcoinsTip);
 
     CPaymentRequest prequest;
 
-    if (pcoinsTip->GetPaymentRequest(uint256S(contextHash.toStdString()), prequest))
+    if (view.GetPaymentRequest(uint256S(contextHash.toStdString()), prequest))
     {
         filterHash = QString::fromStdString(prequest.proposalhash.ToString());
     }
@@ -2087,20 +2092,22 @@ void DaoChart::updateView() {
     QString title = "";
     QString state = "";
 
+    CStateViewCache view(pcoinsTip);
+
     auto nMaxCycles = 0;
-    auto nVotingLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH);
+    auto nVotingLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view);
     auto nCurrentCycle = 0;
-    auto nCurrentBlock = (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH))+1;
+    auto nCurrentBlock = (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view))+1;
 
     bool fShouldShowCycleInfo = true;
 
     {
         LOCK(cs_main);
-        if (pcoinsTip->GetConsultation(hash, consultation))
+        if (view.GetConsultation(hash, consultation))
         {
             title = QString::fromStdString(consultation.strDZeel);
-            state = QString::fromStdString(consultation.GetState(chainActive.Tip()));
-            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES);
+            state = QString::fromStdString(consultation.GetState(chainActive.Tip(), view));
+            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view);
 
             flags fState = consultation.GetLastState();
 
@@ -2110,7 +2117,7 @@ void DaoChart::updateView() {
             if (consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED)
             {
                 nCurrentCycle = consultation.nVotingCycle;
-                nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES);
+                nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, view);
                 title += " - Showing support";
             }
             else
@@ -2129,7 +2136,7 @@ void DaoChart::updateView() {
                         auto nCreated = (unsigned int)(pblockindex->nHeight / nVotingLength);
                         auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
                         nCurrentCycle = nCurrent - nCreated;
-                        nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH);
+                        nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH, view);
                     }
                 }
 
@@ -2157,7 +2164,7 @@ void DaoChart::updateView() {
             else
             {       
                 CConsultationAnswerMap consultationAnswerMap;
-                if (pcoinsTip->GetAllConsultationAnswers(consultationAnswerMap))
+                if (view.GetAllConsultationAnswers(consultationAnswerMap))
                 {
                     for (auto&it: consultationAnswerMap)
                     {
@@ -2173,12 +2180,12 @@ void DaoChart::updateView() {
                 }
             }
         }
-        else if (pcoinsTip->GetProposal(hash, proposal))
+        else if (view.GetProposal(hash, proposal))
         {
             nCurrentCycle = proposal.nVotingCycle;
-            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
+            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view);
             title = QString::fromStdString(proposal.strDZeel);
-            state = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime()));
+            state = QString::fromStdString(proposal.GetState(chainActive.Tip()->GetBlockTime(), view));
 
             auto fState = proposal.GetLastState();
 
@@ -2189,12 +2196,12 @@ void DaoChart::updateView() {
             mapVotes.insert(make_pair(QString("No (" + QString::number(proposal.nVotesNo) + ")"), proposal.nVotesNo));
             mapVotes.insert(make_pair(QString("Abstain (" + QString::number(proposal.nVotesAbs) + ")"), proposal.nVotesAbs));
         }
-        else if (pcoinsTip->GetPaymentRequest(hash, prequest))
+        else if (view.GetPaymentRequest(hash, prequest))
         {
             nCurrentCycle = prequest.nVotingCycle;
-            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
+            nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view);
             title = QString::fromStdString(prequest.strDZeel);
-            state = QString::fromStdString(prequest.GetState());
+            state = QString::fromStdString(prequest.GetState(view));
 
             auto fState = prequest.GetLastState();
 
@@ -2226,7 +2233,7 @@ void DaoChart::updateView() {
     {
         title += tr("Block %1 of %2")
                 .arg(nCurrentBlock)
-                .arg(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+                .arg(GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
         title += " / ";
         title += tr("Cycle %1 of %2").arg(std::min(nMaxCycles,nCurrentCycle)).arg(nMaxCycles);
     }

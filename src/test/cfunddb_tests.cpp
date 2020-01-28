@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(cfunddb_state)
         std::string strDZeel = "{\"n\":5000000000,\"a\":\"NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N\",\"d\":604800,\"s\":\"test\",\"v\":2}";
         uint256 hash = GetRandHash();
         uint256 blockhash = GetRandHash();
-        CAmount nFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE);
+        CAmount nFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
 
         BOOST_CHECK(TxToProposal(strDZeel, hash, blockhash, nFee, validProposal));
         BOOST_CHECK(validProposal.hash == hash);

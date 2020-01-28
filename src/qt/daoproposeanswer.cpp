@@ -14,6 +14,8 @@ DaoProposeAnswer::DaoProposeAnswer(QWidget *parent, CConsultation consultation, 
     this->setLayout(layout);
     this->setStyleSheet(Skinize());
 
+    CStateViewCache view(pcoinsTip);
+
     auto *bottomBox = new QFrame;
     auto *bottomBoxLayout = new QHBoxLayout;
     bottomBoxLayout->setContentsMargins(QMargins());
@@ -33,7 +35,7 @@ DaoProposeAnswer::DaoProposeAnswer(QWidget *parent, CConsultation consultation, 
     warningLbl->setObjectName("warning");
     warningLbl->setVisible(false);
 
-    QString fee = QString::fromStdString(FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE)));
+    QString fee = QString::fromStdString(FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)));
 
     layout->addSpacing(15);
     layout->addWidget(new QLabel(tr("Submit an answer proposal for:<br>%1").arg(QString::fromStdString(consultation.strDZeel))));
@@ -65,6 +67,7 @@ void DaoProposeAnswer::onPropose()
         return;
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
 
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
@@ -103,9 +106,9 @@ void DaoProposeAnswer::onPropose()
 
     // Check balance
     CAmount curBalance = pwalletMain->GetBalance();
-    if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE)) {
+    if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)) {
         QMessageBox msgBox(this);
-        string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE));
+        string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view));
         std::string str = tr("You require at least %1 NAV mature and available to propose an answer.\n").arg(QString::fromStdString(fee)).toStdString();
         msgBox.setText(tr(str.c_str()));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
@@ -124,7 +127,7 @@ void DaoProposeAnswer::onPropose()
     std::string strError;
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE);
+    CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view);
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
     vecSend.push_back(recipient);
 

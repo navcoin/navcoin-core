@@ -183,6 +183,8 @@ void DaoConsultationCreate::onCreate()
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
+    CStateViewCache view(pcoinsTip);
+
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     CWalletTx wtx;
@@ -230,7 +232,7 @@ void DaoConsultationCreate::onCreate()
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
 
-    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answers.size();
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE,view) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view) * answers.size();
 
     // Ensure wallet is unlocked
     WalletModel::UnlockContext ctx(model->requestUnlock());
@@ -242,7 +244,7 @@ void DaoConsultationCreate::onCreate()
 
     // Check balance
     CAmount curBalance = pwalletMain->GetBalance();
-    if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) {
+    if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) {
         QMessageBox msgBox(this);
         string fee = FormatMoney(nMinFee);
         std::string str = tr("You require at least %1 NAV mature and available to create a consultation.\n").arg(QString::fromStdString(fee)).toStdString();
@@ -330,6 +332,7 @@ void DaoConsultationCreate::onCreateConsensus()
     int64_t nMax = 1;
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
 
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
@@ -385,7 +388,7 @@ void DaoConsultationCreate::onCreateConsensus()
     wtx.strDZeel = strDZeel.write();
     wtx.nCustomVersion = CTransaction::CONSULTATION_VERSION;
 
-    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) * answers.size();
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view) * answers.size();
 
     // Ensure wallet is unlocked
     WalletModel::UnlockContext ctx(model->requestUnlock());

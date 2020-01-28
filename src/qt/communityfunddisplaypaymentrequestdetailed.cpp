@@ -15,6 +15,9 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
     ui->setupUi(this);
     //ui->detailsWidget->setVisible(false);
 
+    LOCK(cs_main);
+    CStateViewCache coins(pcoinsTip);
+
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote_2, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose_2, SIGNAL(clicked()), this, SLOT(reject()));
@@ -29,7 +32,7 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (fLastState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos) {
+    if (fLastState == DAOFlags::NIL && prequest.GetState(coins).find("expired") == string::npos) {
         // Get prequest votes list
         auto it = mapAddedVotes.find(prequest.hash);
         if (it != mapAddedVotes.end())
@@ -64,15 +67,10 @@ CommunityFundDisplayPaymentRequestDetailed::CommunityFundDisplayPaymentRequestDe
         }
     }
 
+    //hide ui voting elements on prequests which are not allowed vote states
+    if(!prequest.CanVote(coins))
     {
-        LOCK(cs_main);
-        CStateViewCache coins(pcoinsTip);
-
-        //hide ui voting elements on prequests which are not allowed vote states
-        if(!prequest.CanVote(coins))
-        {
-            ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
-        }
+        ui->buttonBoxYesNoVote_2->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
     ui->buttonBoxYesNoVote_2->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
@@ -85,6 +83,8 @@ void CommunityFundDisplayPaymentRequestDetailed::onDetails()
 
 void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
 {
+    CStateViewCache view(pcoinsTip);
+
     // Title
     ui->labelPaymentRequestTitle->setText(QString::fromStdString(prequest.strDZeel));
 
@@ -94,7 +94,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     ui->labelPrequestAmount->setText(QString::fromStdString(amount));
 
     // Status
-    ui->labelPrequestStatus->setText(QString::fromStdString(prequest.GetState()));
+    ui->labelPrequestStatus->setText(QString::fromStdString(prequest.GetState(view)));
 
     // Yes Votes
     ui->labelPrequestYes->setText(QString::fromStdString(std::to_string(prequest.nVotesYes)));
@@ -145,7 +145,7 @@ void CommunityFundDisplayPaymentRequestDetailed::setPrequestLabels() const
     // If prequest is pending show voting cycles left
     if (fLastState == DAOFlags::NIL) {
         std::string duration_title = "Voting period finishes in: ";
-        std::string duration = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)-prequest.nVotingCycle) +  " voting cycles";
+        std::string duration = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)-prequest.nVotingCycle) +  " voting cycles";
         ui->labelPrequestExpiryTitle->setText(QString::fromStdString(duration_title));
         ui->labelPrequestExpiry->setText(QString::fromStdString(duration));
     }

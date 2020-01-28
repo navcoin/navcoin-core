@@ -641,7 +641,7 @@ int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd);
 // Convenient for searching a kernel
 bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, const COutPoint& prevout, const CStateViewCache& view, int64_t* pBlockTime = NULL);
 
-int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev);
+int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlockIndex* pindexPrev, const CStateViewCache& view);
 bool CheckBlockSignature(const CBlock& block);
 
 unsigned int ComputeMaxBits(arith_uint256 bnTargetLimit, unsigned int nBase, int64_t nTime);
@@ -661,8 +661,8 @@ bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& block
 bool TxToConsultation(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultation& consultation, std::vector<CConsultationAnswer>& answers);
 bool TxToConsultationAnswer(std::string strDZeel, uint256 hash, const uint256& blockhash, CConsultationAnswer& answer);
 
-uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, CBlockIndex* pindex = nullptr);
-uint64_t GetFundContributionPerBlock(CBlockIndex* pindex);
-uint64_t GetStakingRewardPerBlock(CBlockIndex* pindex);
+uint64_t GetConsensusParameter(Consensus::ConsensusParamsPos pos, const CStateViewCache& view);
+uint64_t GetFundContributionPerBlock(const CStateViewCache& view);
+uint64_t GetStakingRewardPerBlock(const CStateViewCache& view);
 
 #endif // NAVCOIN_MAIN_H

@@ -112,12 +112,14 @@ public:
     bool HaveConsultation(const uint256 &cid) const;
     bool GetConsultationAnswer(const uint256 &aid, CConsultationAnswer& answer) const;
     bool HaveConsultationAnswer(const uint256 &aid) const;
+    bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
+    bool HaveConsensusParameter(const int &pid) const;
 
     uint256 GetBestBlock() const;
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    const uint256 &hashBlock);
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock);
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap &map);

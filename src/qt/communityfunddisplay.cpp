@@ -48,9 +48,12 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CProposal proposal) 
 
 void CommunityFundDisplay::refresh()
 {
+    LOCK(cs_main);
+    CStateViewCache view(pcoinsTip);
+
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
-    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
+    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime(), view)));
 
     string nav_amount;
     nav_amount = wallet->formatDisplayAmount(proposal.nAmount);
@@ -88,7 +91,7 @@ void CommunityFundDisplay::refresh()
     if (fLastState == DAOFlags::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
-        std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES));
+        std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view));
         ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
         ui->labelDuration->setText(QString::fromStdString(duration));
     }
@@ -126,7 +129,7 @@ void CommunityFundDisplay::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (fLastState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+    if (fLastState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == string::npos)
     {
         // Get proposal votes list
         CProposal prop = this->proposal;
@@ -174,12 +177,9 @@ void CommunityFundDisplay::refresh()
         ui->labelDuration->setText(QString::fromStdString("After payment request voting"));
     }
 
-    {
-        LOCK(cs_main);
-        //hide ui voting elements on proposals which are not allowed vote states
-        if(!proposal.CanVote())
-            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
-    }
+    //hide ui voting elements on proposals which are not allowed vote states
+    if(!proposal.CanVote(view))
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
 
     // Prevent overflow of title
     std::string title_string = proposal.strDZeel;

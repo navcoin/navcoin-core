@@ -152,76 +152,76 @@ BOOST_AUTO_TEST_CASE(cfund_proposals)
 
     p.nVotingCycle = 0;
 
-    BOOST_CHECK(!p.ExceededMaxVotingCycles());
+    BOOST_CHECK(!p.ExceededMaxVotingCycles(view));
     // Status is accepted so can't get votes
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[812], DAOFlags::REJECTED);
     // Status is rejected so can't get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::REJECTED);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[813], DAOFlags::EXPIRED);
     // Status is expired so can't get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::EXPIRED);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[814], DAOFlags::PAID);
     // Status is paid so can't get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::PAID);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[815], DAOFlags::NIL);
     // Status is nil so can get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::NIL);
-    BOOST_CHECK(p.CanVote());
+    BOOST_CHECK(p.CanVote(view));
 
-    auto nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES);
+    auto nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view);
 
     p.nVotingCycle = nMaxCycles;
 
-    BOOST_CHECK(!p.ExceededMaxVotingCycles());
-    BOOST_CHECK(!p.IsExpired(chainActive.Tip()->GetBlockTime()));
+    BOOST_CHECK(!p.ExceededMaxVotingCycles(view));
+    BOOST_CHECK(!p.IsExpired(chainActive.Tip()->GetBlockTime(),view));
     // Status is nil so can't get votes
-    BOOST_CHECK(p.CanVote());
+    BOOST_CHECK(p.CanVote(view));
 
     p.SetState(chainActive[816], DAOFlags::REJECTED);
     // Status is rejected so can't get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::REJECTED);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[817], DAOFlags::EXPIRED);
-    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime()));
+    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime(), view));
     // Status is expired so can't get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::EXPIRED);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.nVotingCycle = nMaxCycles+1;
 
     // Should be expired
-    BOOST_CHECK(p.ExceededMaxVotingCycles());
-    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime()));
+    BOOST_CHECK(p.ExceededMaxVotingCycles(view));
+    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime(), view));
     // Status is expired so can't get votes
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[817], DAOFlags::ACCEPTED);
-    BOOST_CHECK(p.ExceededMaxVotingCycles());
-    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime()));
+    BOOST_CHECK(p.ExceededMaxVotingCycles(view));
+    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime(), view));
 
     // Proposal accepted 10 blocks (10 seconds) before the tip, should not be expired yet (deadline was 10)
     p.SetState(chainActive[990], DAOFlags::ACCEPTED);
-    BOOST_CHECK(p.ExceededMaxVotingCycles());
-    BOOST_CHECK(!p.IsExpired(chainActive.Tip()->GetBlockTime()));
+    BOOST_CHECK(p.ExceededMaxVotingCycles(view));
+    BOOST_CHECK(!p.IsExpired(chainActive.Tip()->GetBlockTime(), view));
 
     // Proposal accepted 11 blocks (11 seconds) before the tip, should be expired
     p.ClearState(chainActive[990]);
     p.SetState(chainActive[989], DAOFlags::ACCEPTED);
-    BOOST_CHECK(p.ExceededMaxVotingCycles());
-    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime()));
+    BOOST_CHECK(p.ExceededMaxVotingCycles(view));
+    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime(), view));
 
     // Even being in the range of allowed cycles, it is still expired
     p.nVotingCycle = nMaxCycles;
-    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime()));
+    BOOST_CHECK(p.IsExpired(chainActive.Tip()->GetBlockTime(), view));
     p.nVotingCycle = nMaxCycles+1;
 
     p.ClearState(chainActive[991]);
@@ -229,89 +229,89 @@ BOOST_AUTO_TEST_CASE(cfund_proposals)
 
     // Status is accepted so can't get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::ACCEPTED);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[819], DAOFlags::EXPIRED);
     // Status is expired so can't get votes
     BOOST_CHECK(p.GetLastState() == DAOFlags::EXPIRED);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[820], DAOFlags::NIL);
     // Status is nil but can't get votes because it ran out of cycles
     BOOST_CHECK(p.GetLastState() == DAOFlags::NIL);
-    BOOST_CHECK(!p.CanVote());
+    BOOST_CHECK(!p.CanVote(view));
 
     // Can we know when a proposal is accepted or rejected
 
-    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM)/10000.0;
-    auto nMinSumVotes = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum;
-    auto nMinYesVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT)/10000.0;
-    auto nMinNoVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/10000.0;
+    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM, view)/10000.0;
+    auto nMinSumVotes = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum;
+    auto nMinYesVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT, view)/10000.0;
+    auto nMinNoVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT, view)/10000.0;
 
     BOOST_CHECK(p.nVotesYes == 0);
     BOOST_CHECK(p.nVotesNo == 0);
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinSumVotes - nMinNoVotes;
     p.nVotesNo = nMinNoVotes - 1;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinYesVotes - 1;
     p.nVotesNo = nMinSumVotes - nMinYesVotes;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinSumVotes - nMinNoVotes - 1;
     p.nVotesNo = nMinNoVotes + 1;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinYesVotes + 1;
     p.nVotesNo = nMinSumVotes - nMinYesVotes - 1;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinSumVotes - nMinNoVotes + 1;
     p.nVotesNo = nMinNoVotes - 1;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinYesVotes - 1;
     p.nVotesNo = nMinSumVotes - nMinYesVotes + 1;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinSumVotes - nMinNoVotes;
     p.nVotesNo = nMinNoVotes;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinYesVotes;
     p.nVotesNo = nMinSumVotes - nMinYesVotes;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 
     p.nVotesYes = nMinSumVotes - nMinNoVotes;
     p.nVotesNo = nMinNoVotes + 1;
 
-    BOOST_CHECK(!p.IsAccepted());
-    BOOST_CHECK(p.IsRejected());
+    BOOST_CHECK(!p.IsAccepted(view));
+    BOOST_CHECK(p.IsRejected(view));
 
     p.nVotesYes = nMinYesVotes + 1;
     p.nVotesNo = nMinSumVotes - nMinYesVotes;
 
-    BOOST_CHECK(p.IsAccepted());
-    BOOST_CHECK(!p.IsRejected());
+    BOOST_CHECK(p.IsAccepted(view));
+    BOOST_CHECK(!p.IsRejected(view));
 }
 
 BOOST_AUTO_TEST_CASE(cfund_prequests)
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE(cfund_prequests)
 
     pr.nVotingCycle = 0;
 
-    BOOST_CHECK(!pr.IsExpired());
+    BOOST_CHECK(!pr.IsExpired(view));
 
     pr.SetState(chainActive[812], DAOFlags::REJECTED);
     // Status is rejected so can't get votes
@@ -435,11 +435,11 @@ BOOST_AUTO_TEST_CASE(cfund_prequests)
 
     pr.nAmount = p.nAmount;
 
-    auto nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES);
+    auto nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view);
 
     pr.nVotingCycle = nMaxCycles;
 
-    BOOST_CHECK(!pr.IsExpired());
+    BOOST_CHECK(!pr.IsExpired(view));
     // Status is nil so can't get votes
     BOOST_CHECK(pr.CanVote(view));
 
@@ -460,7 +460,7 @@ BOOST_AUTO_TEST_CASE(cfund_prequests)
     BOOST_CHECK(!pr.CanVote(view));
 
     pr.SetState(chainActive[815], DAOFlags::REJECTED);
-    BOOST_CHECK(!pr.IsExpired());
+    BOOST_CHECK(!pr.IsExpired(view));
 
     // Status is rejected so can't get votes
     BOOST_CHECK(pr.GetLastState() == DAOFlags::REJECTED);
@@ -474,83 +474,83 @@ BOOST_AUTO_TEST_CASE(cfund_prequests)
     pr.nVotingCycle = nMaxCycles+1;
 
     // Should be expired
-    BOOST_CHECK(pr.ExceededMaxVotingCycles());
-    BOOST_CHECK(pr.IsExpired());
+    BOOST_CHECK(pr.ExceededMaxVotingCycles(view));
+    BOOST_CHECK(pr.IsExpired(view));
     // Status is expired so can't get votes
     BOOST_CHECK(!pr.CanVote(view));
 
     // Can we know when a proposal is accepted or rejected
 
-    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_QUORUM)/10000.0;
-    auto nMinSumVotes = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * nMinimumQuorum;
-    auto nMinYesVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT)/10000.0;
-    auto nMinNoVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT)/10000.0;
+    float nMinimumQuorum = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_QUORUM, view)/10000.0;
+    auto nMinSumVotes = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * nMinimumQuorum;
+    auto nMinYesVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT, view)/10000.0;
+    auto nMinNoVotes = nMinSumVotes * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT, view)/10000.0;
 
 
     BOOST_CHECK(pr.nVotesYes == 0);
     BOOST_CHECK(pr.nVotesNo == 0);
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinSumVotes - nMinNoVotes;
     pr.nVotesNo = nMinNoVotes - 1;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinYesVotes - 1;
     pr.nVotesNo = nMinSumVotes - nMinYesVotes;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinSumVotes - nMinNoVotes - 1;
     pr.nVotesNo = nMinNoVotes + 1;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinYesVotes + 1;
     pr.nVotesNo = nMinSumVotes - nMinYesVotes - 1;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinSumVotes - nMinNoVotes + 1;
     pr.nVotesNo = nMinNoVotes - 1;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinYesVotes - 1;
     pr.nVotesNo = nMinSumVotes - nMinYesVotes + 1;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinSumVotes - nMinNoVotes;
     pr.nVotesNo = nMinNoVotes;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinYesVotes;
     pr.nVotesNo = nMinSumVotes - nMinYesVotes;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
     pr.nVotesYes = nMinSumVotes - nMinNoVotes;
     pr.nVotesNo = nMinNoVotes + 1;
 
-    BOOST_CHECK(!pr.IsAccepted());
-    BOOST_CHECK(pr.IsRejected());
+    BOOST_CHECK(!pr.IsAccepted(view));
+    BOOST_CHECK(pr.IsRejected(view));
 
     pr.nVotesYes = nMinYesVotes + 1;
     pr.nVotesNo = nMinSumVotes - nMinYesVotes;
 
-    BOOST_CHECK(pr.IsAccepted());
-    BOOST_CHECK(!pr.IsRejected());
+    BOOST_CHECK(pr.IsAccepted(view));
+    BOOST_CHECK(!pr.IsRejected(view));
 
 }
 

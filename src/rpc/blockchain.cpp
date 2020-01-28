@@ -92,17 +92,6 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     }
     result.pushKV("dao_votes", daovotes);
 
-    UniValue consensusvotes(UniValue::VARR);
-    for (auto& it: blockindex->mapConsensusParameters)
-    {
-        UniValue entry(UniValue::VOBJ);
-        entry.pushKV("id", it.first);
-        entry.pushKV("name",  Consensus::sConsensusParamsDesc[(Consensus::ConsensusParamsPos)it.first]);
-        entry.pushKV("value", it.second);
-        consensusvotes.push_back(entry);
-    }
-    result.pushKV("consensus_changes", consensusvotes);
-
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     CBlockIndex *pnext = chainActive.Next(blockindex);
@@ -1121,7 +1110,9 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
     CProposal proposal; CPaymentRequest prequest;
 
-    int nBlocks = (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)) + 1;
+    CStateViewCache view(pcoinsTip);
+
+    int nBlocks = (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view)) + 1;
     CBlockIndex* pindexblock = chainActive.Tip();
 
     std::map<uint256, bool> vSeen;
@@ -1130,8 +1121,6 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
     vCacheProposalsRPC.clear();
     vCachePaymentRequestRPC.clear();
-
-    CStateViewCache view(pcoinsTip);
 
     while(nBlocks > 0 && pindexblock != nullptr) {
         vSeen.clear();
@@ -1191,32 +1180,32 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
     ret.pushKV("funds", cf);
 
     UniValue vp(UniValue::VOBJ);
-    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
 
     vp.pushKV("starting",       starting);
-    vp.pushKV("ending",         starting+GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH)-1);
+    vp.pushKV("ending",         starting+GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view)-1);
     vp.pushKV("current",        chainActive.Tip()->nHeight);
 
     UniValue consensus(UniValue::VOBJ);
 
-    consensus.pushKV("blocksPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH));
+    consensus.pushKV("blocksPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
 
     if (!IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
-        consensus.pushKV("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM)/10000.0);
+        consensus.pushKV("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM, view)/10000.0);
     else
     {
-        consensus.pushKV("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * Params().GetConsensus().nMinimumQuorumFirstHalf);
-        consensus.pushKV("minSumVotesPerVotingCycleSecondHalf",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH) * Params().GetConsensus().nMinimumQuorumSecondHalf);
+        consensus.pushKV("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * Params().GetConsensus().nMinimumQuorumFirstHalf);
+        consensus.pushKV("minSumVotesPerVotingCycleSecondHalf",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * Params().GetConsensus().nMinimumQuorumSecondHalf);
     }
 
-    consensus.pushKV("maxCountVotingCycleProposals",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES));
-    consensus.pushKV("maxCountVotingCyclePaymentRequests",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES));
-    consensus.pushKV("votesAcceptProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT)/100);
-    consensus.pushKV("votesRejectProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT)/100);
-    consensus.pushKV("votesAcceptPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT)/100);
-    consensus.pushKV("votesRejectPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT)/100);
-    consensus.pushKV("proposalMinimalFee",ValueFromAmount(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE)));
-    consensus.pushKV("paymentRequestMinimalFee",ValueFromAmount(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE)));
+    consensus.pushKV("maxCountVotingCycleProposals",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view));
+    consensus.pushKV("maxCountVotingCyclePaymentRequests",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view));
+    consensus.pushKV("votesAcceptProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT, view)/100);
+    consensus.pushKV("votesRejectProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT, view)/100);
+    consensus.pushKV("votesAcceptPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT, view)/100);
+    consensus.pushKV("votesRejectPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT, view)/100);
+    consensus.pushKV("proposalMinimalFee",ValueFromAmount(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)));
+    consensus.pushKV("paymentRequestMinimalFee",ValueFromAmount(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, view)));
     ret.pushKV("consensus", consensus);
 
     UniValue votesProposals(UniValue::VARR);
@@ -1759,7 +1748,7 @@ UniValue getconsultationanswer(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VOBJ);
 
-    answer.ToJson(ret);
+    answer.ToJson(ret, view);
 
     return ret;
 }
@@ -1784,7 +1773,7 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VOBJ);
 
-    prequest.ToJson(ret);
+    prequest.ToJson(ret, view);
 
     return ret;
 }

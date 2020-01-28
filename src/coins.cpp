@@ -51,12 +51,14 @@ bool CStateView::GetPaymentRequest(const uint256 &prid, CPaymentRequest &preques
 bool CStateView::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const { return false; }
 bool CStateView::GetConsultation(const uint256 &cid, CConsultation& consultation) const { return false; }
 bool CStateView::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const { return false; }
+bool CStateView::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return false; }
 bool CStateView::HaveCoins(const uint256 &txid) const { return false; }
 bool CStateView::HaveProposal(const uint256 &pid) const { return false; }
 bool CStateView::HavePaymentRequest(const uint256 &prid) const { return false; }
 bool CStateView::HaveCachedVoter(const CVoteMapKey &voter) const { return false; }
 bool CStateView::HaveConsultation(const uint256 &cid) const { return false; }
 bool CStateView::HaveConsultationAnswer(const uint256 &cid) const { return false; }
+bool CStateView::HaveConsensusParameter(const int &pid) const { return false; }
 bool CStateView::GetAllProposals(CProposalMap& map) { return false; }
 bool CStateView::GetAllPaymentRequests(CPaymentRequestMap& map) { return false; }
 bool CStateView::GetAllVotes(CVoteMap& map) { return false; }
@@ -66,7 +68,7 @@ uint256 CStateView::GetBestBlock() const { return uint256(); }
 bool CStateView::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                            const uint256 &hashBlock) { return false; }
+                            CConsensusParameterMap& mapConsensus, const uint256 &hashBlock) { return false; }
 CStateViewCursor *CStateView::Cursor() const { return 0; }
 
 
@@ -76,12 +78,14 @@ bool CStateViewBacked::GetProposal(const uint256 &pid, CProposal &proposal) cons
 bool CStateViewBacked::GetPaymentRequest(const uint256 &prid, CPaymentRequest &prequest) const { return base->GetPaymentRequest(prid, prequest); }
 bool CStateViewBacked::GetConsultation(const uint256 &cid, CConsultation &consultation) const { return base->GetConsultation(cid, consultation); }
 bool CStateViewBacked::GetConsultationAnswer(const uint256 &cid, CConsultationAnswer &answer) const { return base->GetConsultationAnswer(cid, answer); }
+bool CStateViewBacked::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const { return base->GetConsensusParameter(pid, cparameter); }
 bool CStateViewBacked::HaveCoins(const uint256 &txid) const { return base->HaveCoins(txid); }
 bool CStateViewBacked::HaveProposal(const uint256 &pid) const { return base->HaveProposal(pid); }
 bool CStateViewBacked::HavePaymentRequest(const uint256 &prid) const { return base->HavePaymentRequest(prid); }
 bool CStateViewBacked::HaveCachedVoter(const CVoteMapKey &voter) const { return base->HaveCachedVoter(voter); }
 bool CStateViewBacked::HaveConsultation(const uint256 &cid) const { return base->HaveConsultation(cid); }
 bool CStateViewBacked::HaveConsultationAnswer(const uint256 &cid) const { return base->HaveConsultationAnswer(cid); }
+bool CStateViewBacked::HaveConsensusParameter(const int &pid) const { return base->HaveConsensusParameter(pid); }
 bool CStateViewBacked::GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const { return base->GetCachedVoter(voter, vote); }
 bool CStateViewBacked::GetAllProposals(CProposalMap& map) { return base->GetAllProposals(map); }
 bool CStateViewBacked::GetAllPaymentRequests(CPaymentRequestMap& map) { return base->GetAllPaymentRequests(map); }
@@ -93,18 +97,19 @@ void CStateViewBacked::SetBackend(CStateView &viewIn) { base = &viewIn; }
 bool CStateViewBacked::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                                   CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                                   CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                                  const uint256 &hashBlock) {
-    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, hashBlock);
+                                  CConsensusParameterMap& mapConsensus, const uint256 &hashBlock) {
+    return base->BatchWrite(mapCoins, mapProposals, mapPaymentRequests, mapVotes, mapConsultations, mapAnswers, mapConsensus, hashBlock);
 }
 CStateViewCursor *CStateViewBacked::Cursor() const { return base->Cursor(); }
 
 SaltedTxidHasher::SaltedTxidHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
-CStateViewCache::CStateViewCache(CStateView *baseIn) : CStateViewBacked(baseIn), hasModifier(false), cachedCoinsUsage(0) { }
+CStateViewCache::CStateViewCache(CStateView *baseIn) : CStateViewBacked(baseIn), hasModifier(false), hasModifierConsensus(false), cachedCoinsUsage(0) { }
 
 CStateViewCache::~CStateViewCache()
 {
     assert(!hasModifier);
+    assert(!hasModifierConsensus);
 }
 
 size_t CStateViewCache::DynamicMemoryUsage() const {
@@ -215,6 +220,23 @@ CConsultationAnswerMap::const_iterator CStateViewCache::FetchConsultationAnswer(
     return ret;
 }
 
+CConsensusParameterMap::const_iterator CStateViewCache::FetchConsensusParameter(const int &pid) const {
+    CConsensusParameterMap::iterator it = cacheConsensus.find(pid);
+
+    if (it != cacheConsensus.end())
+        return it;
+
+    CConsensusParameter tmp;
+
+    if (!base->GetConsensusParameter(pid, tmp) || tmp.IsNull())
+        return cacheConsensus.end();
+
+    CConsensusParameterMap::iterator ret = cacheConsensus.insert(std::make_pair(pid, CConsensusParameter())).first;
+    tmp.swap(ret->second);
+
+    return ret;
+}
+
 
 bool CStateViewCache::GetCoins(const uint256 &txid, CCoins &coins) const {
     CCoinsMap::const_iterator it = FetchCoins(txid);
@@ -265,6 +287,15 @@ bool CStateViewCache::GetConsultationAnswer(const uint256 &cid, CConsultationAns
     CConsultationAnswerMap::const_iterator it = FetchConsultationAnswer(cid);
     if (it != cacheAnswers.end() && !it->second.IsNull()) {
         answer = it->second;
+        return true;
+    }
+    return false;
+}
+
+bool CStateViewCache::GetConsensusParameter(const int &pid, CConsensusParameter &cparameter) const {
+    CConsensusParameterMap::const_iterator it = FetchConsensusParameter(pid);
+    if (it != cacheConsensus.end() && !it->second.IsNull()) {
+        cparameter = it->second;
         return true;
     }
     return false;
@@ -406,6 +437,17 @@ CVoteModifier CStateViewCache::ModifyVote(const CVoteMapKey &voter, int nHeight)
         }
     }
     return CVoteModifier(*this, ret.first, nHeight);
+}
+
+CConsensusParameterModifier CStateViewCache::ModifyConsensusParameter(const int &pid, int nHeight) {
+    assert(!hasModifierConsensus);
+    std::pair<CConsensusParameterMap::iterator, bool> ret = cacheConsensus.insert(std::make_pair(pid, CConsensusParameter()));
+    if (ret.second) {
+        if (!base->GetConsensusParameter(pid, ret.first->second)) {
+            ret.first->second.SetNull();
+        }
+    }
+    return CConsensusParameterModifier(*this, ret.first, nHeight);
 }
 
 CPaymentRequestModifier CStateViewCache::ModifyPaymentRequest(const uint256 &prid, int nHeight) {
@@ -631,6 +673,11 @@ bool CStateViewCache::HavePaymentRequest(const uint256 &id) const {
     return (it != cachePaymentRequests.end() && !it->second.IsNull());
 }
 
+bool CStateViewCache::HaveConsensusParameter(const int &pid) const {
+    CConsensusParameterMap::const_iterator it = FetchConsensusParameter(pid);
+    return (it != cacheConsensus.end() && !it->second.IsNull());
+}
+
 bool CStateViewCache::HaveCachedVoter(const CVoteMapKey &voter) const {
     CVoteMap::const_iterator it = FetchVote(voter);
     // We're using vtx.empty() instead of IsPruned here for performance reasons,
@@ -677,8 +724,9 @@ void CStateViewCache::SetBestBlock(const uint256 &hashBlockIn) {
 
 bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals, CPaymentRequestMap &mapPaymentRequests,
                                  CVoteMap& mapVotes, CConsultationMap& mapConsultations, CConsultationAnswerMap& mapAnswers,
-                                 const uint256 &hashBlockIn) {
+                                 CConsensusParameterMap& mapConsensus, const uint256 &hashBlockIn) {
     assert(!hasModifier);
+    assert(!hasModifierConsensus);
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end();) {
         if (it->second.flags & CCoinsCacheEntry::DIRTY) { // Ignore non-dirty entries (optimization).
             CCoinsMap::iterator itUs = cacheCoins.find(it->first);
@@ -764,18 +812,28 @@ bool CStateViewCache::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals
         mapAnswers.erase(itOld);
     }
 
+    for (CConsensusParameterMap::iterator it = mapConsensus.begin(); it != mapConsensus.end();) {
+        if (it->second.fDirty) { // Ignore non-dirty entries (optimization).
+            CConsensusParameter& entry = cacheConsensus[it->first];
+            entry.swap(it->second);
+        }
+        CConsensusParameterMap::iterator itOld = it++;
+        mapConsensus.erase(itOld);
+    }
+
     hashBlock = hashBlockIn;
     return true;
 }
 
 bool CStateViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, hashBlock);
+    bool fOk = base->BatchWrite(cacheCoins, cacheProposals, cachePaymentRequests, cacheVotes, cacheConsultations, cacheAnswers, cacheConsensus, hashBlock);
     cacheCoins.clear();
     cacheProposals.clear();
     cachePaymentRequests.clear();
     cacheVotes.clear();
     cacheConsultations.clear();
     cacheAnswers.clear();
+    cacheConsensus.clear();
     cachedCoinsUsage = 0;
     return fOk;
 }
@@ -971,6 +1029,28 @@ CConsultationAnswerModifier::~CConsultationAnswerModifier()
     {
         it->second.fDirty = true;
         LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
+    }
+}
+
+CConsensusParameterModifier::CConsensusParameterModifier(CStateViewCache& cache_, CConsensusParameterMap::iterator it_, int height_) : cache(cache_), it(it_), height(height_) {
+    assert(!cache.hasModifierConsensus);
+    cache.hasModifierConsensus = true;
+    prev = it->second;
+}
+
+CConsensusParameterModifier::~CConsensusParameterModifier()
+{
+    assert(cache.hasModifierConsensus);
+    cache.hasModifierConsensus = false;
+
+    if (it->second.IsNull()) {
+        cache.cacheConsensus[it->first].SetNull();
+    }
+
+    if (prev != it->second)
+    {
+        it->second.fDirty = true;
+        LogPrint("dao", "%s: Modified %sconsensus parameter %d: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first, prev.diff(it->second));
     }
 }
 

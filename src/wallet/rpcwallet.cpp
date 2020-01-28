@@ -593,10 +593,13 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
     if (fHelp || params.size() < 4)
         throw runtime_error(
             "createproposal \"navcoinaddress\" \"amount\" duration \"desc\" ( fee dump_raw )\n"
-            "\nCreates a proposal for the community fund. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE)) + "NAV is required.\n"
+            "\nCreates a proposal for the community fund. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"navcoinaddress\"       (string, required) The navcoin address where coins would be sent if proposal is approved.\n"
@@ -617,13 +620,11 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (!Params().GetConsensus().fDaoClientActivated)
         throw JSONRPCError(RPC_WALLET_ERROR, "This command is temporarily disabled");
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
-    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE);
-    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE))
+    CAmount nAmount = params.size() == 5 ? AmountFromValue(params[4]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == 6 ? params[5].getBool() : false;
@@ -705,6 +706,9 @@ UniValue getconsensusparameters(const UniValue& params, bool fHelp)
 
         );
 
+    LOCK(cs_main);
+    CStateViewCache view(pcoinsTip);
+
     UniValue ret(UniValue::VARR);
     for (unsigned int i = 0; i < Consensus::MAX_CONSENSUS_PARAMS; i++)
     {
@@ -717,12 +721,12 @@ UniValue getconsensusparameters(const UniValue& params, bool fHelp)
             entry.pushKV("id", (uint64_t)i);
             entry.pushKV("desc", sDesc);
             entry.pushKV("type", type);
-            entry.pushKV("value", GetConsensusParameter(id));
+            entry.pushKV("value", GetConsensusParameter(id, view));
             ret.push_back(entry);
         }
         else
         {
-            ret.push_back(GetConsensusParameter(id));
+            ret.push_back(GetConsensusParameter(id, view));
         }
     }
     return ret;
@@ -733,7 +737,10 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE);
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
+    CAmount nMinFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view);
 
     if (fHelp || params.size() < 2 || !params[0].isNum() || !params[1].isNum())
         throw runtime_error(
@@ -751,8 +758,6 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
             "\nExamples:\n"
             + HelpExampleCli("proposeconsensuschange", "1 10")
         );
-
-    LOCK2(cs_main, pwalletMain->cs_wallet);
 
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
@@ -821,10 +826,13 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
     if (fHelp || params.size() < 1)
         throw runtime_error(
             "createconsultation \"question\" ( min max range fee dump_raw )\n"
-            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) + "NAV is required.\n"
+            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"question\"       (string, required) The question of the new consultation.\n"
@@ -841,15 +849,13 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
             + HelpExampleCli("createconsultation", "\"How much should NavCoin's CEO earn per month? /s\" 1000 5000 true")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     bool fRange = params.size() >= 4 && params[3].isBool() ? params[3].getBool() : false;
 
     // Amount
-    CAmount nAmount = params.size() >= (fRange ? 5 : 4) ? AmountFromValue(params[(fRange ? 4 : 3)]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
-    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE))
+    CAmount nAmount = params.size() >= (fRange ? 5 : 4) ? AmountFromValue(params[(fRange ? 4 : 3)]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == (fRange ? 6 : 5) ? params[(fRange ? 5 : 4)].getBool() : false;
@@ -910,10 +916,13 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
     if (fHelp || params.size() < 2)
         throw runtime_error(
             "createconsultationwithanswers \"question\" \"[answers]\" ( maxanswers admitsanswerproposals fee dump_raw )\n"
-            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE)) + "NAV is required.\n"
+            "\nCreates a consultation for the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"question\"            (string, required) The question of the new consultation.\n"
@@ -929,13 +938,11 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
             + HelpExampleCli("createconsultationwithanswers", "\"Who should be the CEO of NavCoin? /s\" \"[\\\"Craig Wright\\\",\\\"Loomdart\\\"]\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     bool fRange = false;
     UniValue answers = params[1].get_array();
-    CAmount nMinFee = answers.size() * GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE);
+    CAmount nMinFee = answers.size() * GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view) + GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MIN_FEE, view);
     CAmount nAmount = params.size() >= 5 ? AmountFromValue(params[4]) : nMinFee;
 
     // Amount
@@ -1068,8 +1075,8 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     std::string id = params[2].get_str();
 
     // Amount
-    CAmount nAmount = params.size() == 4 ? AmountFromValue(params[3]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE);
-    if (nAmount < 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE))
+    CAmount nAmount = params.size() == 4 ? AmountFromValue(params[3]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, view);
+    if (nAmount < 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, view))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     bool fDump = params.size() == 5 ? params[4].getBool() : false;
@@ -1145,10 +1152,13 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CStateViewCache view(pcoinsTip);
+
     if (fHelp || params.size() < 2)
         throw runtime_error(
             "proposeanswer \"hash\" \"answer\" ( fee dump_raw )\n"
-            "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE)) + "NAV is required.\n"
+            "\nProposes an answer for an already existing consultation of the DAO. Min fee of " + FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)) + "NAV is required.\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
             "1. \"hash\"         (string, required) The hash of the already existing consultation.\n"
@@ -1165,18 +1175,14 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
             + HelpExampleCli("proposeanswer", "\"196a4c2115d3c1c1dce1156eb2404ad77f3c5e9f668882c60cb98d638313dbd3\" \"Riccardo Fluffypony\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
-
     CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
     // Amount
-    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE);
-    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE))
+    CAmount nAmount = params.size() >= 3 ? AmountFromValue(params[2]) : GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view);
+    if (nAmount <= 0 || nAmount < GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for fee");
 
     CConsultation consultation;
-
-    CStateViewCache view(pcoinsTip);
 
     if(!view.GetConsultation(uint256S(params[0].get_str()), consultation))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid consultation.");
@@ -4372,7 +4378,6 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
     UniValue absvotes(UniValue::VARR);
     UniValue nullvotes(UniValue::VARR);
 
-    CStateViewCache coins(pcoinsTip);
     CPaymentRequestMap mapPaymentRequests;
     CStateViewCache view(pcoinsTip);
 
@@ -4391,7 +4396,7 @@ UniValue paymentrequestvotelist(const UniValue& params, bool fHelp)
             auto it = mapAddedVotes.find(prequest.hash);
 
             UniValue p(UniValue::VOBJ);
-            prequest.ToJson(p);
+            prequest.ToJson(p, view);
 
             if (it != mapAddedVotes.end())
             {
@@ -4553,7 +4558,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                                          || fLastState == DAOFlags::PENDING_FUNDS))
                     || (showAccepted && (fLastState == DAOFlags::ACCEPTED))
                     || (showRejected && (fLastState == DAOFlags::REJECTED))
-                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime()))) {
+                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime(), view))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o, view);
                 ret.push_back(o);

@@ -24,6 +24,7 @@ class CConsultation;
 class CPaymentRequest;
 class CProposal;
 class CVoteList;
+class CConsensusParameter;
 
 /**
  * Pruned version of CTransaction: only retains metadata and unspent transaction outputs
@@ -321,6 +322,7 @@ typedef std::map<uint256, CProposal> CProposalMap;
 typedef std::map<uint256, CPaymentRequest> CPaymentRequestMap;
 typedef std::map<uint256, CConsultation> CConsultationMap;
 typedef std::map<uint256, CConsultationAnswer> CConsultationAnswerMap;
+typedef std::map<int, CConsensusParameter> CConsensusParameterMap;
 
 /** Cursor for iterating over CoinsView state */
 class CStateViewCursor
@@ -374,6 +376,9 @@ public:
     virtual bool HaveConsultationAnswer(const uint256 &cid) const;
     virtual bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
 
+    virtual bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
+    virtual bool HaveConsensusParameter(const int &pid) const;
+
     //! Retrieve the block hash whose state this CStateView currently represents
     virtual uint256 GetBestBlock() const;
 
@@ -382,7 +387,7 @@ public:
     virtual bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                             CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                             CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                            const uint256 &hashBlock);
+                            CConsensusParameterMap& mapConsensus, const uint256 &hashBlock);
 
     //! Get a cursor to iterate over the whole state
     virtual CStateViewCursor *Cursor() const;
@@ -417,12 +422,14 @@ public:
     bool HaveConsultation(const uint256 &cid) const;
     bool HaveConsultationAnswer(const uint256 &cid) const;
     bool GetAllConsultationAnswers(CConsultationAnswerMap& map);
+    bool GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const;
+    bool HaveConsensusParameter(const int &pid) const;
     uint256 GetBestBlock() const;
     void SetBackend(CStateView &viewIn);
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    const uint256 &hashBlock);
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock);
     CStateViewCursor *Cursor() const;
 };
 
@@ -514,6 +521,22 @@ public:
     friend class CStateViewCache;
 };
 
+class CConsensusParameterModifier
+{
+private:
+    CStateViewCache& cache;
+    CConsensusParameterMap::iterator it;
+    CConsensusParameterModifier(CStateViewCache& cache_, CConsensusParameterMap::iterator it_, int height=0);
+    CConsensusParameter prev;
+    int height;
+
+public:
+    CConsensusParameter* operator->() { return &it->second; }
+    CConsensusParameter& operator*() { return it->second; }
+    ~CConsensusParameterModifier();
+    friend class CStateViewCache;
+};
+
 class CConsultationAnswerModifier
 {
 private:
@@ -536,6 +559,7 @@ class CStateViewCache : public CStateViewBacked
 protected:
     /* Whether this cache has an active modifier. */
     bool hasModifier;
+    bool hasModifierConsensus;
 
     /**
      * Make mutable so that we can "fill the cache" even from Get-methods
@@ -548,6 +572,7 @@ protected:
     mutable CVoteMap cacheVotes;
     mutable CConsultationMap cacheConsultations;
     mutable CConsultationAnswerMap cacheAnswers;
+    mutable CConsensusParameterMap cacheConsensus;
 
     /* Cached dynamic memory usage for the inner CCoins objects. */
     mutable size_t cachedCoinsUsage;
@@ -564,11 +589,13 @@ public:
     bool HaveCachedVoter(const CVoteMapKey &voter) const;
     bool HaveConsultation(const uint256 &cid) const;
     bool HaveConsultationAnswer(const uint256 &cid) const;
+    bool HaveConsensusParameter(const int& pid) const;
     bool GetProposal(const uint256 &txid, CProposal &proposal) const;
     bool GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const;
     bool GetCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
     bool GetConsultation(const uint256 &cid, CConsultation& consultation) const;
     bool GetConsultationAnswer(const uint256 &cid, CConsultationAnswer& answer) const;
+    bool GetConsensusParameter(const int& pid, CConsensusParameter& cparameter) const;
     bool GetAllProposals(CProposalMap& map);
     bool GetAllPaymentRequests(CPaymentRequestMap& map);
     bool GetAllVotes(CVoteMap& map);
@@ -580,7 +607,7 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                     CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                     CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
-                    const uint256 &hashBlockIn);
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlockIn);
     bool AddProposal(const CProposal& proposal) const;
     bool AddPaymentRequest(const CPaymentRequest& prequest) const;
     bool AddCachedVoter(const CVoteMapKey &voter, CVoteMapValue& vote) const;
@@ -620,8 +647,7 @@ public:
     CVoteModifier ModifyVote(const CVoteMapKey &voter, int nHeight = 0);
     CConsultationModifier ModifyConsultation(const uint256 &cid, int nHeight = 0);
     CConsultationAnswerModifier ModifyConsultationAnswer(const uint256 &cid, int nHeight = 0);
-
-    bool ClearCacheVotes();
+    CConsensusParameterModifier ModifyConsensusParameter(const int &pid, int nHeight = 0);
 
     /**
      * Return a modifiable reference to a CCoins. Assumes that no entry with the given
@@ -681,6 +707,7 @@ public:
     friend class CVoteModifier;
     friend class CConsultationModifier;
     friend class CConsultationAnswerModifier;
+    friend class CConsensusParameterModifier;
 
 private:
     CCoinsMap::iterator FetchCoins(const uint256 &txid);
@@ -690,6 +717,7 @@ private:
     CVoteMap::const_iterator FetchVote(const CVoteMapKey &voter) const;
     CConsultationMap::const_iterator FetchConsultation(const uint256 &cid) const;
     CConsultationAnswerMap::const_iterator FetchConsultationAnswer(const uint256 &cid) const;
+    CConsensusParameterMap::const_iterator FetchConsensusParameter(const int &pid) const;
 
     /**
      * By making the copy constructor private, we prevent accidentally using it when one intends to create a cache on top of a base cache.

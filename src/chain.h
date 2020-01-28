@@ -219,7 +219,6 @@ public:
     std::vector<std::pair<uint256, int>> vPaymentRequestVotes;
     std::map<uint256, bool> mapSupport;
     std::map<uint256, uint64_t> mapConsultationVotes;
-    std::map<Consensus::ConsensusParamsPos, uint64_t> mapConsensusParameters;
 
     std::string strDZeel;
 
@@ -267,7 +266,6 @@ public:
         vPaymentRequestVotes.clear();
         mapSupport.clear();
         mapConsultationVotes.clear();
-        mapConsensusParameters.clear();
     }
 
     CBlockIndex()
@@ -571,10 +569,6 @@ public:
         {
             READWRITE(mapSupport);
             READWRITE(mapConsultationVotes);
-        }
-        if (this->nVersion & 0x02000000)
-        {
-            READWRITE(mapConsensusParameters);
         }
     }
 

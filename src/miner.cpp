@@ -324,7 +324,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
             if(coins.GetProposal(it.first, proposal))
             {
-                if(proposal.CanVote())
+                if(proposal.CanVote(coins))
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
                     SetScriptForProposalVote(coinbaseTx.vout[coinbaseTx.vout.size()-1].scriptPubKey,proposal.hash, vote);

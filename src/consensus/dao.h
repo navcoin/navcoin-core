@@ -137,16 +137,89 @@ private:
     std::map<int, std::map<uint256, int64_t>> list;
 };
 
-bool IsBeginningCycle(const CBlockIndex* pindex, CChainParams params);
+class CConsensusParameter
+{
+public:
+    bool fDirty;
+
+    CConsensusParameter() { SetNull(); }
+
+    void SetNull()
+    {
+        list.clear();
+        fDirty = true;
+    }
+
+    bool IsNull() const
+    {
+        return list.size() == 0;
+    }
+
+    bool Get(uint64_t& val);
+
+    int GetHeight() const;
+
+    std::string diff(const CConsensusParameter& b) const {
+        std::string ret = "";
+        if (list != b.list)
+        {
+            std::string sList;
+            for (auto& it:list)
+            {
+                sList += strprintf("{height %d => %d},", it.first, it.second);
+            }
+            std::string sListb;
+            for (auto& it:b.list)
+            {
+                sListb += strprintf("{height %d => %d},", it.first, it.second);
+            }
+            ret = strprintf("list: %s => %s", sList, sListb);
+        }
+        return ret;
+    }
+
+    bool operator==(const CConsensusParameter &b) const {
+        return list == b.list;
+    }
+
+    bool operator!=(const CConsensusParameter& b) const {
+        return !(*this == b);
+    }
+
+    bool Set(const int& height, const uint64_t& val);
+
+    bool Clear(const int& height);
+
+    std::map<int, uint64_t>* GetFullList();
+
+    std::string ToString() const;
+
+    void swap(CConsensusParameter &to) {
+        std::swap(to.fDirty, fDirty);
+        std::swap(to.list, list);
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(list);
+    }
+
+private:
+    std::map<int, uint64_t> list;
+};
+
+bool IsBeginningCycle(const CBlockIndex* pindex, const CStateViewCache& coins);
 bool IsEndCycle(const CBlockIndex* pindex, CChainParams params);
 bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& coins);
 
 bool IsValidPaymentRequest(CTransaction tx, CStateViewCache& coins, uint64_t nMaxVersion);
-bool IsValidProposal(CTransaction tx, uint64_t nMaxVersion);
+bool IsValidProposal(CTransaction tx, const CStateViewCache& view, uint64_t nMaxVersion);
 bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
 bool IsValidConsultationAnswer(CTransaction tx, CStateViewCache& coins, uint64_t nMaskVersion, CBlockIndex* pindex);
 bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::string proposal, CBlockIndex *pindex, CStateViewCache& coins);
-bool IsValidDaoTxVote(const CTransaction& tx, CBlockIndex* pindex);
+bool IsValidDaoTxVote(const CTransaction& tx, const CStateViewCache& view);
 
 std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string);
 std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::string string);
@@ -264,20 +337,20 @@ public:
         return (nAmount == 0 && nVotesYes == 0 && nVotesNo == 0 && strDZeel == "" && mapState.size() == 0);
     }
 
-    std::string GetState() const {
+    std::string GetState(const CStateViewCache& view) const {
         flags fState = GetLastState();
         std::string sFlags = "pending";
-        if(IsAccepted()) {
+        if(IsAccepted(view)) {
             sFlags = "accepted";
             if(fState != DAOFlags::ACCEPTED)
                 sFlags += " waiting for end of voting period";
         }
-        if(IsRejected()) {
+        if(IsRejected(view)) {
             sFlags = "rejected";
             if(fState != DAOFlags::REJECTED)
                 sFlags += " waiting for end of voting period";
         }
-        if(IsExpired())
+        if(IsExpired(view))
             sFlags = "expired";
         if (fState == PAID)
             sFlags = "paid";
@@ -289,17 +362,17 @@ public:
     CBlockIndex* GetLastStateBlockIndexForState(flags state) const;
     bool SetState(const CBlockIndex* pindex, flags state);
     bool ClearState(const CBlockIndex* pindex);
-    std::string ToString() const;
+    std::string ToString(const CStateViewCache& view) const;
 
-    void ToJson(UniValue& ret) const;
+    void ToJson(UniValue& ret, const CStateViewCache& view) const;
 
-    bool IsAccepted() const;
+    bool IsAccepted(const CStateViewCache& view) const;
 
-    bool IsRejected() const;
+    bool IsRejected(const CStateViewCache& view) const;
 
-    bool IsExpired() const;
+    bool IsExpired(const CStateViewCache& view) const;
 
-    bool ExceededMaxVotingCycles() const;
+    bool ExceededMaxVotingCycles(const CStateViewCache& view) const;
 
     bool CanVote(CStateViewCache& coins) const;
 
@@ -484,21 +557,21 @@ public:
     }
 
     std::string ToString(CStateViewCache& coins, uint32_t currentTime = 0) const;
-    std::string GetState(uint32_t currentTime) const;
+    std::string GetState(uint32_t currentTime, const CStateViewCache& view) const;
 
     void ToJson(UniValue& ret, CStateViewCache& coins) const;
 
-    bool IsAccepted() const;
+    bool IsAccepted(const CStateViewCache& view) const;
 
-    bool IsRejected() const;
+    bool IsRejected(const CStateViewCache& view) const;
 
-    bool IsExpired(uint32_t currentTime) const;
+    bool IsExpired(uint32_t currentTime, const CStateViewCache& view) const;
 
-    bool ExceededMaxVotingCycles() const;
+    bool ExceededMaxVotingCycles(const CStateViewCache& view) const;
 
     uint64_t getTimeTillExpired(uint32_t currentTime) const;
 
-    bool CanVote() const;
+    bool CanVote(const CStateViewCache& view) const;
 
     bool CanRequestPayments() const {
         return GetLastState() == DAOFlags::ACCEPTED;
@@ -678,14 +751,14 @@ public:
     void DecVote();
     void ClearVotes();
     int GetVotes() const;
-    std::string GetState() const;
+    std::string GetState(const CStateViewCache& view) const;
     std::string GetText() const;
-    bool CanBeVoted(CStateViewCache& view) const;
-    bool CanBeSupported(CStateViewCache& view) const;
-    bool IsSupported() const;
-    bool IsConsensusAccepted() const;
+    bool CanBeVoted(const CStateViewCache& view) const;
+    bool CanBeSupported(const CStateViewCache& view) const;
+    bool IsSupported(const CStateViewCache& view) const;
+    bool IsConsensusAccepted(const CStateViewCache& view) const;
     std::string ToString() const;
-    void ToJson(UniValue& ret) const;
+    void ToJson(UniValue& ret, const CStateViewCache& view) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -841,17 +914,17 @@ public:
 
     bool ClearState(const CBlockIndex* pindex);
 
-    std::string GetState(const CBlockIndex* pindex) const;
-    std::string ToString(const CBlockIndex* pindex) const;
-    void ToJson(UniValue& ret, CStateViewCache& view) const;
+    std::string GetState(const CBlockIndex* pindex, const CStateViewCache& view) const;
+    std::string ToString(const CBlockIndex* pindex, const CStateViewCache& view) const;
+    void ToJson(UniValue& ret, const CStateViewCache& view) const;
     bool CanBeSupported() const;
     bool CanBeVoted() const;
-    bool IsSupported(CStateViewCache& view) const;
-    bool CanMoveInReflection() const;
-    bool IsExpired(const CBlockIndex* pindex) const;
-    bool IsReflectionOver(const CBlockIndex* pindex) const;
+    bool IsSupported(const CStateViewCache& view) const;
+    bool CanMoveInReflection(const CStateViewCache& view) const;
+    bool IsExpired(const CBlockIndex* pindex, const CStateViewCache& view) const;
+    bool IsReflectionOver(const CBlockIndex* pindex, const CStateViewCache& view) const;
     bool IsValidVote(int64_t vote) const;
-    bool ExceededMaxVotingCycles() const;
+    bool ExceededMaxVotingCycles(const CStateViewCache& view) const;
     bool IsRange() const;
     bool CanHaveNewAnswers() const;
     bool CanHaveAnswers() const;

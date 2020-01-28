@@ -24,6 +24,8 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* pro
     connect(ui->pushButtonYes, SIGNAL(clicked()), this, SLOT(accept()));
     connect(ui->pushButtonCancel, SIGNAL(clicked()), this, SLOT(reject()));
 
+    CStateViewCache view(pcoinsTip);
+
     ui->pushButtonCancel->setDefault(true);
     updateYesButton();
 
@@ -56,7 +58,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* pro
     ui->labelDescription->setText(QString::fromStdString(finalDescription));
     ui->labelDuration->setText(GUIUtil::formatDurationStr(int(proposal->nDeadline)));
 
-    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE));
+    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
     string warning = tr("By submitting the proposal a %1 NAV deduction will occur from your wallet ").arg(QString::fromStdString(fee)).toStdString();
     ui->labelWarning->setText(QString::fromStdString(warning));
 }

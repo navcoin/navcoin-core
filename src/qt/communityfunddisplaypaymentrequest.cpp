@@ -46,9 +46,12 @@ CommunityFundDisplayPaymentRequest::CommunityFundDisplayPaymentRequest(QWidget *
 
 void CommunityFundDisplayPaymentRequest::refresh()
 {
+    LOCK(cs_main);
+    CStateViewCache coins(pcoinsTip);
+
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(prequest.strDZeel));
-    ui->labelStatus->setText(QString::fromStdString(prequest.GetState()));
+    ui->labelStatus->setText(QString::fromStdString(prequest.GetState(coins)));
 
     string nav_amount;
     nav_amount = wallet->formatDisplayAmount(prequest.nAmount);
@@ -92,7 +95,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
     if (fLastState == DAOFlags::NIL)
     {
         ui->labelTitleDuration->setText(tr("Voting Cycle: "));
-        ui->labelDuration->setText(QString::number(prequest.nVotingCycle) + tr(" of ") + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)));
+        ui->labelDuration->setText(QString::number(prequest.nVotingCycle) + tr(" of ") + QString::number(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, coins)));
     }
 
     // If prequest is rejected, show when it was rejected
@@ -125,7 +128,7 @@ void CommunityFundDisplayPaymentRequest::refresh()
 
     // Shade in yes/no buttons is user has voted
     // If the prequest is pending and not prematurely expired (ie can be voted on):
-    if (fLastState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
+    if (fLastState == DAOFlags::NIL && prequest.GetState(coins).find("expired") == string::npos)
     {
         // Get prequest votes list
         CPaymentRequest preq = prequest;
@@ -166,14 +169,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
         }
     }
 
-    {
-        LOCK(cs_main);
-        CStateViewCache coins(pcoinsTip);
-
-        //hide ui voting elements on proposals which are not allowed vote states
-        if(!prequest.CanVote(coins))
-            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
-    }
+    //hide ui voting elements on proposals which are not allowed vote states
+    if(!prequest.CanVote(coins))
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
 
     std::string title_string = prequest.strDZeel;
     std::replace( title_string.begin(), title_string.end(), '\n', ' ');

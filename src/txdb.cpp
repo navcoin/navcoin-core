@@ -31,6 +31,7 @@ static const char DB_BLOCK_INDEX = 'b';
 static const char DB_VOTEINDEX = 'C';
 static const char DB_CONSULTINDEX = 'K';
 static const char DB_ANSWERINDEX = 'A';
+static const char DB_CONSENSUSINDEX = 'p';
 
 static const char DB_BEST_BLOCK = 'B';
 static const char DB_FLAG = 'F';
@@ -87,6 +88,14 @@ bool CStateViewDB::GetConsultationAnswer(const uint256 &aid, CConsultationAnswer
 
 bool CStateViewDB::HaveConsultationAnswer(const uint256 &aid) const {
     return db.Exists(make_pair(DB_ANSWERINDEX, aid));
+}
+
+bool CStateViewDB::GetConsensusParameter(const int &pid, CConsensusParameter& cparameter) const {
+    return db.Read(make_pair(DB_CONSENSUSINDEX, pid), cparameter);
+}
+
+bool CStateViewDB::HaveConsensusParameter(const int &pid) const {
+    return db.Exists(make_pair(DB_CONSENSUSINDEX, pid));
 }
 
 uint256 CStateViewDB::GetBestBlock() const {
@@ -229,6 +238,7 @@ bool CStateViewDB::GetAllConsultationAnswers(CConsultationAnswerMap &map) {
 bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
                               CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
                               CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                              CConsensusParameterMap &mapConsensus,
                               const uint256 &hashBlock) {
 
     CDBBatch batch(db);
@@ -257,6 +267,18 @@ bool CStateViewDB::BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
         }
         CProposalMap::iterator itOld = it++;
         mapProposals.erase(itOld);
+    }
+
+    for (CConsensusParameterMap::iterator it = mapConsensus.begin(); it != mapConsensus.end();) {
+        if (it->second.fDirty)
+        {
+            if (it->second.IsNull())
+                batch.Erase(make_pair(DB_CONSENSUSINDEX, it->first));
+            else
+                batch.Write(make_pair(DB_CONSENSUSINDEX, it->first), it->second);
+        }
+        CConsensusParameterMap::iterator itOld = it++;
+        mapConsensus.erase(itOld);
     }
 
     for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end();) {
@@ -733,8 +755,6 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->mapSupport     = diskindex.mapSupport;
                 pindexNew->mapConsultationVotes
                                           = diskindex.mapConsultationVotes;
-                pindexNew->mapConsensusParameters
-                                          = diskindex.mapConsensusParameters;
 
                 pcursor->Next();
             } else {

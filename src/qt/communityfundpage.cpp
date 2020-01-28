@@ -108,6 +108,8 @@ void CommunityFundPage::refresh(bool all, int proposal)
 {
     reset();
 
+    CStateViewCache view(pcoinsTip);
+
     // Format avaliable amount in the community fund
     string available;
     available = wallet->formatDisplayAmount(pindexBestHeader->nCFSupply);
@@ -122,13 +124,13 @@ void CommunityFundPage::refresh(bool all, int proposal)
         int64_t spent_nav = 0;
         CPaymentRequestMap mapPaymentRequests;
 
-        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+        if(view.GetAllPaymentRequests(mapPaymentRequests))
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
                 CPaymentRequest prequest;
 
-                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                if (!view.GetPaymentRequest(it_->first, prequest))
                     continue;
 
                 if(prequest.GetLastState() == DAOFlags::ACCEPTED)
@@ -147,12 +149,12 @@ void CommunityFundPage::refresh(bool all, int proposal)
     {
         CProposalMap mapProposals;
 
-        if(pcoinsTip->GetAllProposals(mapProposals))
+        if(view.GetAllProposals(mapProposals))
         {
             for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
             {
                 CProposal proposal;
-                if (!pcoinsTip->GetProposal(it->first, proposal))
+                if (!view.GetProposal(it->first, proposal))
                     continue;
 
                 // If wanting to view all proposals
@@ -164,7 +166,7 @@ void CommunityFundPage::refresh(bool all, int proposal)
                     // If the filter is set to my vote, filter to only pending proposals which have been voted for
                     if (viewing_voted)
                     {
-                        if (fLastState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+                        if (fLastState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == string::npos)
                         {
                             auto it = mapAddedVotes.find(proposal.hash);
 
@@ -184,7 +186,7 @@ void CommunityFundPage::refresh(bool all, int proposal)
                     // If the filter is set to no vote, filter to only pending proposals which have been not been voted for yet
                     else if (viewing_unvoted)
                     {
-                        if (fLastState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+                        if (fLastState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == string::npos)
                         {
                             auto it = mapAddedVotes.find(proposal.hash);
 
@@ -204,22 +206,22 @@ void CommunityFundPage::refresh(bool all, int proposal)
                     else
                     {
                         // If the flag is expired, be sure to display proposals without the expired state if they have expired before the end of the voting cycle
-                        if (fLastState != DAOFlags::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos && flag == DAOFlags::EXPIRED)
+                        if (fLastState != DAOFlags::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") != string::npos && flag == DAOFlags::EXPIRED)
                         {
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // If the proposal is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
-                        if (flag == DAOFlags::ACCEPTED && fLastState != DAOFlags::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) {
+                        if (flag == DAOFlags::ACCEPTED && fLastState != DAOFlags::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("accepted") != string::npos) {
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // If the proposal is rejected and waiting for funds or the end of the voting cycle, show in the rejected filter
-                        if (flag == DAOFlags::REJECTED && fLastState != DAOFlags::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos) {
+                        if (flag == DAOFlags::REJECTED && fLastState != DAOFlags::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("rejected") != string::npos) {
                             append(new CommunityFundDisplay(0, proposal));
                         }
                         // Display proposals with the appropriate flag and have not expired before the voting cycle has ended
-                        if (fLastState != flag || ((flag != DAOFlags::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) ||
-                                                        (flag != DAOFlags::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("accepted") != string::npos) ||
-                                                         (flag != DAOFlags::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime()).find("rejected") != string::npos)))
+                        if (fLastState != flag || ((flag != DAOFlags::EXPIRED && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") != string::npos) ||
+                                                        (flag != DAOFlags::ACCEPTED && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("accepted") != string::npos) ||
+                                                         (flag != DAOFlags::REJECTED && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("rejected") != string::npos)))
                             continue;
                         append(new CommunityFundDisplay(0, proposal));
                     }
@@ -231,13 +233,13 @@ void CommunityFundPage::refresh(bool all, int proposal)
     { //Payment request listings
         CPaymentRequestMap mapPaymentRequests;
 
-        if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+        if(view.GetAllPaymentRequests(mapPaymentRequests))
         {
             for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
             {
                 CPaymentRequest prequest;
 
-                if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+                if (!view.GetPaymentRequest(it_->first, prequest))
                     continue;
 
                 // If wanting to view all prequests
@@ -251,7 +253,7 @@ void CommunityFundPage::refresh(bool all, int proposal)
                     // If the filter is set to my vote, filter to only pending prequests which have been voted for
                     if (viewing_voted)
                     {
-                        if (fLastState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
+                        if (fLastState == DAOFlags::NIL && prequest.GetState(view).find("expired") == string::npos)
                         {
                             auto it = mapAddedVotes.find(prequest.hash);
                             if (it != mapAddedVotes.end())
@@ -271,7 +273,7 @@ void CommunityFundPage::refresh(bool all, int proposal)
                     // If the filter is set to no vote, filter to only pending prequests which have not been voted for yet
                     else if (viewing_unvoted)
                     {
-                        if (fLastState == DAOFlags::NIL && prequest.GetState().find("expired") == string::npos)
+                        if (fLastState == DAOFlags::NIL && prequest.GetState(view).find("expired") == string::npos)
                         {
                             auto it = mapAddedVotes.find(prequest.hash);
                             if (it != mapAddedVotes.end())
@@ -290,22 +292,22 @@ void CommunityFundPage::refresh(bool all, int proposal)
                     else
                     {
                         // If the flag is expired, be sure to display prequests without the expired state if they have expired before the end of the voting cycle
-                        if (fLastState != DAOFlags::EXPIRED && prequest.GetState().find("expired") != string::npos && flag == DAOFlags::EXPIRED)
+                        if (fLastState != DAOFlags::EXPIRED && prequest.GetState(view).find("expired") != string::npos && flag == DAOFlags::EXPIRED)
                         {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // If the prequest is accepted and waiting for funds or the end of the voting cycle, show in the accepted filter
-                        if (flag == DAOFlags::ACCEPTED && fLastState != DAOFlags::ACCEPTED && prequest.GetState().find("accepted") != string::npos) {
+                        if (flag == DAOFlags::ACCEPTED && fLastState != DAOFlags::ACCEPTED && prequest.GetState(view).find("accepted") != string::npos) {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // If the prequest is rejected and waiting for funds or the end of the voting cycle, show in the rejected filter
-                        if (flag == DAOFlags::REJECTED && fLastState != DAOFlags::REJECTED && prequest.GetState().find("rejected") != string::npos) {
+                        if (flag == DAOFlags::REJECTED && fLastState != DAOFlags::REJECTED && prequest.GetState(view).find("rejected") != string::npos) {
                             append(new CommunityFundDisplayPaymentRequest(0, prequest));
                         }
                         // Display prequests with the appropriate flag and have not expired before the voting cycle has ended
-                        if (fLastState != flag || ((flag != DAOFlags::EXPIRED && prequest.GetState().find("expired") != string::npos) ||
-                                                        (flag != DAOFlags::ACCEPTED && prequest.GetState().find("accepted") != string::npos) ||
-                                                        (flag != DAOFlags::REJECTED && prequest.GetState().find("rejected") != string::npos)))
+                        if (fLastState != flag || ((flag != DAOFlags::EXPIRED && prequest.GetState(view).find("expired") != string::npos) ||
+                                                        (flag != DAOFlags::ACCEPTED && prequest.GetState(view).find("accepted") != string::npos) ||
+                                                        (flag != DAOFlags::REJECTED && prequest.GetState(view).find("rejected") != string::npos)))
                             continue;
                         append(new CommunityFundDisplayPaymentRequest(0, prequest));
                     }

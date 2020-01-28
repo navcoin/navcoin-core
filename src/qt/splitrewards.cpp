@@ -107,6 +107,7 @@ void SplitRewardsDialog::showFor(QString sin)
 
     QJsonObject j;
     QJsonObject jDup;
+    CStateViewCache view(pcoinsTip);
 
     if (jsonObject.contains(currentAddress))
     {
@@ -114,7 +115,7 @@ void SplitRewardsDialog::showFor(QString sin)
     }
 
     availableAmount = 100;
-    CAmount nCFundContribution = GetFundContributionPerBlock(chainActive.Tip());
+    CAmount nCFundContribution = GetFundContributionPerBlock(view);
 
     QStringList descs;
 
@@ -313,5 +314,6 @@ void SplitRewardsDialog::onQuit()
 
 CAmount PercentageToNav(int percentage)
 {
-    return GetStakingRewardPerBlock(chainActive.Tip()) * percentage / 100;
+    CStateViewCache view(pcoinsTip);
+    return GetStakingRewardPerBlock(view) * percentage / 100;
 }
