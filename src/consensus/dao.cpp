@@ -2464,8 +2464,8 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("notPaidYet", FormatMoney(GetAvailable(coins)));
     ret.pushKV("notRequestedYet", FormatMoney(GetAvailable(coins, true)));
     ret.pushKV("userPaidFee", FormatMoney(nFee));
-    ret.pushKV("ownerAddress", ownerAddress);
-    ret.pushKV("paymentAddress", paymentAddress);
+    ret.pushKV("ownerAddress", GetOwnerAddress());
+    ret.pushKV("paymentAddress", GetPaymentAddress());
     if(nVersion & BASE_VERSION) {
         ret.pushKV("proposalDuration", (uint64_t)nDeadline);
         if ((fState == DAOFlags::ACCEPTED || fState == DAOFlags::PAID) && mapBlockIndex.count(blockhash) > 0) {
