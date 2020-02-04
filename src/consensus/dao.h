@@ -391,7 +391,7 @@ public:
             }
             else
             {
-                nVersion = 1;
+                this->nVersion = 1;
             }
         }
         else
@@ -410,10 +410,10 @@ public:
         READWRITE(strDZeel);
 
         // Version-based read/write
-        if(nVersion & BASE_VERSION)
+        if(this->nVersion & BASE_VERSION)
            READWRITE(nVotingCycle);
 
-        if(nVersion & ABSTAIN_VOTE_VERSION)
+        if(this->nVersion & ABSTAIN_VOTE_VERSION)
            READWRITE(nVotesAbs);
     }
 
@@ -602,7 +602,7 @@ public:
             }
             else
             {
-                nVersion = 1;
+                this->nVersion = 1;
             }
         }
         else
@@ -623,15 +623,15 @@ public:
         READWRITE(txblockhash);
 
         // Version-based read/write
-        if(nVersion & BASE_VERSION) {
+        if(this->nVersion & BASE_VERSION) {
             READWRITE(nVotingCycle);
         }
 
-        if(nVersion & ABSTAIN_VOTE_VERSION) {
+        if(this->nVersion & ABSTAIN_VOTE_VERSION) {
            READWRITE(nVotesAbs);
         }
 
-        if(nVersion & PAYMENT_ADDRESS_VERSION) {
+        if(this->nVersion & PAYMENT_ADDRESS_VERSION) {
             READWRITE(paymentAddress);
         }
     }
@@ -763,8 +763,8 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion_) {
-        READWRITE(nVersion);
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(this->nVersion);
         READWRITE(sAnswer);
         READWRITE(nVotes);
         READWRITE(nSupport);
