@@ -490,8 +490,8 @@ public:
 
         return nAmount == b.nAmount
                 && nFee == b.nFee
-                && GetOwnerAddress() == b.GetOwnerAddress()
-                && GetPaymentAddress() == b.GetPaymentAddress()
+                && ownerAddress == b.ownerAddress
+                && ((nVersion & PAYMENT_ADDRESS_VERSION) ? paymentAddress : ownerAddress) == ((b.Version & PAYMENT_ADDRESS_VERSION) ? b.paymentAddress : b.ownerAddress)
                 && nDeadline == b.nDeadline
                 && thisMapState == bMapState
                 && nVotesYes == b.nVotesYes
