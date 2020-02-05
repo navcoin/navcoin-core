@@ -308,13 +308,13 @@ public:
         if (nAmount != b.nAmount) ret += strprintf("nAmount: %d => %d, ", nAmount, b.nAmount);
         if (mapState != b.mapState)
         {
-            std::string thisMapState = "";
-            std::string bMapState = "";
-            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            if (thisMapState.size() > 0) thisMapState.pop_back();
-            if (bMapState.size() > 0) bMapState.pop_back();
-            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
+            std::string sAdded = "";
+            std::string sRemoved = "";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            if (sRemoved.size() > 0) sRemoved.pop_back();
+            if (sAdded.size() > 0) sAdded.pop_back();
+            ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);
         }
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
         if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
@@ -513,13 +513,13 @@ public:
         if (nDeadline != b.nDeadline) ret += strprintf("nDeadline: %d => %d, ", nDeadline, b.nDeadline);
         if (mapState != b.mapState)
         {
-            std::string thisMapState = "";
-            std::string bMapState = "";
-            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            if (thisMapState.size() > 0) thisMapState.pop_back();
-            if (bMapState.size() > 0) bMapState.pop_back();
-            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
+            std::string sAdded = "";
+            std::string sRemoved = "";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            if (sRemoved.size() > 0) sRemoved.pop_back();
+            if (sAdded.size() > 0) sAdded.pop_back();
+            ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);
         }
         if (nVotesYes != b.nVotesYes) ret += strprintf("nVotesYes: %d => %d, ", nVotesYes, b.nVotesYes);
         if (nVotesNo != b.nVotesNo) ret += strprintf("nVotesNo: %d => %d, ", nVotesNo, b.nVotesNo);
@@ -680,13 +680,13 @@ public:
         if (nSupport != b.nSupport) ret += strprintf("nSupport: %d => %d, ", nSupport, b.nSupport);
         if (mapState != b.mapState)
         {
-            std::string thisMapState = "";
-            std::string bMapState = "";
-            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            if (thisMapState.size() > 0) thisMapState.pop_back();
-            if (bMapState.size() > 0) bMapState.pop_back();
-            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
+            std::string sAdded = "";
+            std::string sRemoved = "";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            if (sRemoved.size() > 0) sRemoved.pop_back();
+            if (sAdded.size() > 0) sAdded.pop_back();
+            ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);
         }
         if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
         if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
@@ -840,13 +840,13 @@ public:
         std::string ret = "";
         if (mapState != b.mapState)
         {
-            std::string thisMapState = "";
-            std::string bMapState = "";
-            for (auto &it:mapState) thisMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            for (auto &it:b.mapState) bMapState += it.first.ToString()+":"+to_string(it.second)+",";
-            if (thisMapState.size() > 0) thisMapState.pop_back();
-            if (bMapState.size() > 0) bMapState.pop_back();
-            ret += strprintf("mapState: %s => %s, ", thisMapState, bMapState);
+            std::string sAdded = "";
+            std::string sRemoved = "";
+            for (auto &it:mapState) if (b.mapState.count(it.first) == 0) sRemoved += it.first.ToString()+":"+to_string(it.second)+",";
+            for (auto &it:b.mapState) if (mapState.count(it.first) == 0) sAdded += it.first.ToString()+":"+to_string(it.second)+",";
+            if (sRemoved.size() > 0) sRemoved.pop_back();
+            if (sAdded.size() > 0) sAdded.pop_back();
+            ret += strprintf("mapState: added: %s - removed: %s, ", sAdded, sRemoved);
         }
         if (hash != b.hash) ret += strprintf("hash: %s => %s, ", hash.ToString(), b.hash.ToString());
         if (txblockhash != b.txblockhash) ret += strprintf("txblockhash: %s => %s, ", txblockhash.ToString(), b.txblockhash.ToString());
@@ -858,23 +858,23 @@ public:
         if (nMax != b.nMax) ret += strprintf("nMax: %d => %d, ", nMax, b.nMax);
         if (mapVotes != b.mapVotes)
         {
-            std::string thisMapState = "";
-            std::string bMapState = "";
-            for (auto &it:mapVotes) thisMapState += to_string(it.first)+":"+to_string(it.second)+",";
-            for (auto &it:b.mapVotes) bMapState += to_string(it.first)+":"+to_string(it.second)+",";
-            if (thisMapState.size() > 0) thisMapState.pop_back();
-            if (bMapState.size() > 0) bMapState.pop_back();
-            ret += strprintf("mapVotes: %s => %s, ", thisMapState, bMapState);
+            std::string sAdded = "";
+            std::string sRemoved = "";
+            for (auto &it:mapVotes) if (b.mapVotes.count(it.first) == 0) sRemoved += to_string(it.first)+":"+to_string(it.second)+",";
+            for (auto &it:b.mapVotes) if (mapVotes.count(it.first) == 0) sAdded += to_string(it.first)+":"+to_string(it.second)+",";
+            if (sRemoved.size() > 0) sRemoved.pop_back();
+            if (sAdded.size() > 0) sAdded.pop_back();
+            ret += strprintf("mapVotes: added: %s - removed: %s, ", sAdded, sRemoved);
         }
         if (vAnswers != b.vAnswers)
         {
-            std::string thisvAnswers = "";
-            std::string bvAnswers = "";
-            for (auto &it:vAnswers) thisvAnswers += it.ToString()+",";
-            for (auto &it:b.vAnswers) bvAnswers += it.ToString()+",";
-            if (thisvAnswers.size() > 0) thisvAnswers.pop_back();
-            if (bvAnswers.size() > 0) bvAnswers.pop_back();
-            ret += strprintf("vAnswers: %s => %s, ", thisvAnswers, bvAnswers);
+            std::string sAdded = "";
+            std::string sRemoved = "";
+            for (auto &it:vAnswers)  if (std::find(b.vAnswers.begin(), b.vAnswers.end(), it) == b.vAnswers.end()) sRemoved += it.ToString()+",";
+            for (auto &it:b.vAnswers) if (std::find(vAnswers.begin(), vAnswers.end(), it) == vAnswers.end()) sAdded += it.ToString()+",";
+            if (sRemoved.size() > 0) sRemoved.pop_back();
+            if (sAdded.size() > 0) sAdded.pop_back();
+            ret += strprintf("vAnswers: added: %s - removed: %s, ", sAdded, sRemoved);
         }
         if (ret != "")
         {
