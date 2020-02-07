@@ -2278,10 +2278,7 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest;
-
-            if (!coins.GetPaymentRequest(it_->first, prequest))
-                continue;
+            CPaymentRequest prequest = it_->second;
 
             if (prequest.proposalhash != hash)
                 continue;
@@ -2313,10 +2310,7 @@ std::string CProposal::ToString(CStateViewCache& coins, uint32_t currentTime) co
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest;
-
-            if (!coins.GetPaymentRequest(it_->first, prequest))
-                continue;
+            CPaymentRequest prequest = it_->second;
 
             if (prequest.proposalhash != hash)
                 continue;
@@ -2336,10 +2330,7 @@ bool CProposal::HasPendingPaymentRequests(CStateViewCache& coins) const {
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest;
-
-            if (!coins.GetPaymentRequest(it_->first, prequest))
-                continue;
+            CPaymentRequest prequest = it_->second;
 
             if (prequest.proposalhash != hash)
                 continue;
@@ -2496,10 +2487,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
 
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest;
-
-            if (!coins.GetPaymentRequest(it_->first, prequest))
-                continue;
+            CPaymentRequest prequest = it_->second;
 
             if (prequest.proposalhash != hash)
                 continue;
