@@ -1701,7 +1701,7 @@ bool CConsultation::IsReflectionOver(const CBlockIndex* pindex, const CStateView
 bool CConsultation::CanBeSupported() const
 {
     flags fState = GetLastState();
-    return (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED);
+    return fState == DAOFlags::NIL && IsRange();
 }
 
 bool CConsultation::CanBeVoted() const
@@ -1866,6 +1866,9 @@ bool CConsultationAnswer::CanBeVoted(const CStateViewCache& view) const {
     flags fState = GetLastState();
 
     if (!view.GetConsultation(parent, consultation))
+            return false;
+
+    if (consultation.IsRange())
             return false;
 
     flags fConsultationState = consultation.GetLastState();
