@@ -1279,9 +1279,6 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
                     {
                         if (mapBlockIndex.count(consultation.txblockhash) == 0)
                             continue;
-
-                        if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
-                            continue;
                     }
 
                     if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == nMin)
@@ -1376,9 +1373,6 @@ bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::s
                 {
                     if (mapBlockIndex.count(consultation.txblockhash) == 0)
                         continue;
-
-                    if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
-                        continue;
                 }
 
                 if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == lookFor)
@@ -1440,9 +1434,6 @@ flags CConsultation::GetLastState() const {
         if (mapBlockIndex.count(it.first) == 0)
             continue;
 
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
-            continue;
-
         if (mapBlockIndex[it.first]->nHeight > nHeight)
         {
             nHeight = mapBlockIndex[it.first]->nHeight;
@@ -1458,9 +1449,6 @@ CBlockIndex* CConsultation::GetLastStateBlockIndex() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -1481,9 +1469,6 @@ CBlockIndex* CConsultation::GetLastStateBlockIndexForState(flags state) const {
             continue;
 
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -1761,9 +1746,6 @@ flags CConsultationAnswer::GetLastState() const {
         if (mapBlockIndex.count(it.first) == 0)
             continue;
 
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
-            continue;
-
         if (mapBlockIndex[it.first]->nHeight > nHeight)
         {
             nHeight = mapBlockIndex[it.first]->nHeight;
@@ -1779,9 +1761,6 @@ CBlockIndex* CConsultationAnswer::GetLastStateBlockIndex() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -1802,9 +1781,6 @@ CBlockIndex* CConsultationAnswer::GetLastStateBlockIndexForState(flags state) co
             continue;
 
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -2010,9 +1986,6 @@ flags CPaymentRequest::GetLastState() const {
         if (mapBlockIndex.count(it.first) == 0)
             continue;
 
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
-            continue;
-
         if (mapBlockIndex[it.first]->nHeight > nHeight)
         {
             nHeight = mapBlockIndex[it.first]->nHeight;
@@ -2028,9 +2001,6 @@ CBlockIndex* CPaymentRequest::GetLastStateBlockIndex() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -2051,9 +2021,6 @@ CBlockIndex* CPaymentRequest::GetLastStateBlockIndexForState(flags state) const 
             continue;
 
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -2278,7 +2245,10 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest = it_->second;
+            CPaymentRequest prequest;
+
+            if (!coins.GetPaymentRequest(it_->first, prequest))
+                continue;
 
             if (prequest.proposalhash != hash)
                 continue;
@@ -2310,7 +2280,10 @@ std::string CProposal::ToString(CStateViewCache& coins, uint32_t currentTime) co
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest = it_->second;
+            CPaymentRequest prequest;
+
+            if (!coins.GetPaymentRequest(it_->first, prequest))
+                continue;
 
             if (prequest.proposalhash != hash)
                 continue;
@@ -2330,7 +2303,10 @@ bool CProposal::HasPendingPaymentRequests(CStateViewCache& coins) const {
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest = it_->second;
+            CPaymentRequest prequest;
+
+            if (!coins.GetPaymentRequest(it_->first, prequest))
+                continue;
 
             if (prequest.proposalhash != hash)
                 continue;
@@ -2377,9 +2353,6 @@ flags CProposal::GetLastState() const {
         if (mapBlockIndex.count(it.first) == 0)
             continue;
 
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
-            continue;
-
         if (mapBlockIndex[it.first]->nHeight > nHeight)
         {
             nHeight = mapBlockIndex[it.first]->nHeight;
@@ -2395,9 +2368,6 @@ CBlockIndex* CProposal::GetLastStateBlockIndex() const {
     for (auto& it: mapState)
     {
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -2418,9 +2388,6 @@ CBlockIndex* CProposal::GetLastStateBlockIndexForState(flags state) const {
             continue;
 
         if (mapBlockIndex.count(it.first) == 0)
-            continue;
-
-        if (!chainActive.Contains(mapBlockIndex[it.first]))
             continue;
 
         if (mapBlockIndex[it.first]->nHeight > nHeight)
@@ -2487,7 +2454,10 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
 
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CPaymentRequest prequest = it_->second;
+            CPaymentRequest prequest;
+
+            if (!coins.GetPaymentRequest(it_->first, prequest))
+                continue;
 
             if (prequest.proposalhash != hash)
                 continue;
