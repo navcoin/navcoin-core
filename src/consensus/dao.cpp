@@ -335,8 +335,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         nBlocks = 1;
     }
 
-    auto LastCycleLength = nCycleLength;
-
+    nLastCycleLength = nCycleLength;
 
     int64_t nTimeStart2 = GetTimeMicros();
 
