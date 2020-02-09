@@ -322,6 +322,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     int nBlocks = (pindexNew->nHeight % nCycleLength) + 1;
     const CBlockIndex* pindexblock = pindexNew;
 
+    bool fScanningWholeCycle = false;
+
     std::map<uint256, bool> mapSeen;
     std::map<uint256, bool> mapSeenSupport;
 
@@ -331,6 +333,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         mapCachePaymentRequestToUpdate.clear();
         mapCacheSupportToUpdate.clear();
         mapCacheConsultationToUpdate.clear();
+        fScanningWholeCycle = true;
     } else {
         nBlocks = 1;
     }
@@ -612,7 +615,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if((pindexNew->nHeight) % nCycleLength == 0)
+            if(fScanningWholeCycle)
             {
                 flags proposalState = proposal.GetLastState();
 
@@ -729,7 +732,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if((pindexNew->nHeight) % nCycleLength == 0)
+            if(fScanningWholeCycle)
             {
                 if (!mapSeen.count(proposal->hash) && proposal->GetLastState() == DAOFlags::NIL)
                 {
@@ -804,7 +807,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
             }
 
-            if((pindexNew->nHeight) % nCycleLength == 0)
+            if(fScanningWholeCycle)
             {
                 if (answer->GetLastState() == DAOFlags::NIL && !mapSeenSupport.count(answer->hash))
                 {
@@ -909,7 +912,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             auto newState = consultation->GetLastState();
 
-            if((pindexNew->nHeight) % nCycleLength == 0 )
+            if(fScanningWholeCycle)
             {
                 if (newState == DAOFlags::NIL && !mapSeenSupport.count(consultation->hash))
                 {
