@@ -80,24 +80,57 @@ public:
             std::string sList;
             for (auto& it:list)
             {
-                sList += strprintf("{height %d => {", it.first);
-                for (auto&it2: it.second)
+                if (b.list.count(it.first) == 0)
                 {
-                    sList += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second);
+                    sList += strprintf("removed height %d => {", it.first);
+                    for (auto&it2: it.second)
+                    {
+                        sList += strprintf("%s => %d, ", it2.first.ToString(), it2.second);
+                    }
+                    sList += strprintf("}, ");
                 }
-                sList += strprintf("}},");
+                else if (b.list.at(it.first) != it.second)
+                {
+                    sList += strprintf("modified height %d => {", it.first);
+                    for (auto&it2: it.second)
+                    {
+                        if (b.list.at(it.first).count(it2.first) == 0)
+                        {
+                            sList += strprintf("removed %s => %d, ", it2.first.ToString(), it2.second);
+                        }
+                        else if (b.list.at(it.first).at(it2.first) != it2.second)
+                        {
+                            sList += strprintf("%s => %d, ", it2.first.ToString(), it2.second);
+                        }
+                    }
+                    sList += strprintf("}, ");
+                }
             }
-            std::string sListb;
             for (auto& it:b.list)
             {
-                sListb += strprintf("{height %d => {", it.first);
-                for (auto&it2: it.second)
+                if (list.count(it.first) == 0)
                 {
-                    sListb += strprintf("\n\t%s => %d,", it2.first.ToString(), it2.second);
+                    sList += strprintf("added height %d => {", it.first);
+                    for (auto&it2: it.second)
+                    {
+                        sList += strprintf("%s => %d, ", it2.first.ToString(), it2.second);
+                    }
+                    sList += strprintf("}, ");
                 }
-                sListb += strprintf("}},");
+                else if (list.at(it.first) != it.second)
+                {
+                    sList += strprintf("modified height %d => {", it.first);
+                    for (auto&it2: it.second)
+                    {
+                        if (list.at(it.first).count(it2.first) == 0)
+                        {
+                            sList += strprintf("added %s => %d, ", it2.first.ToString(), it2.second);
+                        }
+                    }
+                    sList += strprintf("}, ");
+                }
             }
-            ret = strprintf("list: %s => %s", sList, sListb);
+            ret = strprintf("list: %s", sList);
         }
         return ret;
     }
