@@ -344,7 +344,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeStart2 = GetTimeMicros();
 
-    LogPrint("dao", "%s: Scanning %d block(s) starting at %d\n", __func__, nBlocks, pindexblock->nHeight);
+    LogPrint("dao", "%s: Scanning %d block(s) starting at %d (fUndo=%d fScanningWholeCycle=%d consensusChanged=%d). We are in block %d inside of the cycle.\n",
+             __func__, nBlocks, pindexblock->nHeight, fUndo, fScanningWholeCycle, lastConsensusStateHash != consensusStateHash,
+             (pindexNew->nHeight % nCycleLength) + 1);
 
     while(nBlocks > 0 && pindexblock != NULL)
     {
