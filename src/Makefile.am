@@ -94,6 +94,7 @@ NAVCOIN_CORE_H = \
   compat/sanity.h \
   compressor.h \
   consensus/dao.h \
+  consensus/daoconsensusparams.h \
   daoversionbit.h \
   consensus/consensus.h \
   core_io.h \
