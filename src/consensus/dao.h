@@ -42,7 +42,8 @@ bool RemoveVote(uint256 hash);
 bool Support(uint256 hash, bool &duplicate);
 bool RemoveSupport(string str);
 
-uint256 GetCFundDBStateHash(CStateViewCache& view, const CAmount& nCFLocked, const CAmount& nCFSupply);
+uint256 GetDAOStateHash(CStateViewCache& view, const CAmount& nCFLocked, const CAmount& nCFSupply);
+uint256 GetConsensusStateHash(CStateViewCache& view);
 
 void GetVersionMask(uint64_t& nProposalMask, uint64_t& nPaymentRequestMask, uint64_t& nConsultationMask, uint64_t& nConsultatioAnswernMask, CBlockIndex* pindex);
 

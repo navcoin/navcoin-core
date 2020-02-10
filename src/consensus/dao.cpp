@@ -303,7 +303,7 @@ std::map<uint256, std::pair<std::pair<int, int>, int>> mapCacheProposalsToUpdate
 std::map<uint256, std::pair<std::pair<int, int>, int>> mapCachePaymentRequestToUpdate;
 std::map<uint256, int> mapCacheSupportToUpdate;
 std::map<std::pair<uint256, int64_t>, int> mapCacheConsultationToUpdate;
-uint64_t nLastCycleLength;
+uint256 lastConsensusStateHash;
 
 bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool fUndo, CStateViewCache& view)
 {
@@ -327,7 +327,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     std::map<uint256, bool> mapSeen;
     std::map<uint256, bool> mapSeenSupport;
 
-    if (fUndo || nLastCycleLength != nCycleLength || nBlocks == 1 ||
+    uint256 consensusStateHash = GetConsensusStateHash(view);
+
+    if (fUndo || lastConsensusStateHash != consensusStateHash || nBlocks == 1 ||
        (mapCacheProposalsToUpdate.empty() && mapCachePaymentRequestToUpdate.empty() && mapCacheSupportToUpdate.empty() && mapCacheConsultationToUpdate.empty())) {
         mapCacheProposalsToUpdate.clear();
         mapCachePaymentRequestToUpdate.clear();
@@ -338,7 +340,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         nBlocks = 1;
     }
 
-    nLastCycleLength = nCycleLength;
+    lastConsensusStateHash = consensusStateHash;
 
     int64_t nTimeStart2 = GetTimeMicros();
 
@@ -2510,7 +2512,22 @@ void CPaymentRequest::ToJson(UniValue& ret, const CStateViewCache& view) const {
         ret.pushKV("stateChangedOnBlock", pblockindex->GetBlockHash().ToString());
 }
 
-uint256 GetCFundDBStateHash(CStateViewCache& view, const CAmount& nCFLocked, const CAmount& nCFSupply)
+uint256 GetConsensusStateHash(CStateViewCache& view)
+{
+    CHashWriter writer(0,0);
+
+    for (unsigned int i = 0; i < Consensus::MAX_CONSENSUS_PARAMS; i++)
+    {
+        Consensus::ConsensusParamsPos id = (Consensus::ConsensusParamsPos)i;
+        writer << GetConsensusParameter(id, view);
+    }
+
+    uint256 ret = writer.GetHash();
+
+    return ret;
+}
+
+uint256 GetDAOStateHash(CStateViewCache& view, const CAmount& nCFLocked, const CAmount& nCFSupply)
 {
     CPaymentRequestMap mapPaymentRequests;
     CProposalMap mapProposals;
