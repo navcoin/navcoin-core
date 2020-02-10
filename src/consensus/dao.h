@@ -104,7 +104,7 @@ public:
                         }
                     }
                     if (sBuf != "")
-                        sList += strprintf("modified height %d => {%s}, ", sBuf);
+                        sList += strprintf("modified height %d => {%s}, ", it.first, sBuf);
                 }
             }
             for (auto& it:b.list)
@@ -129,7 +129,7 @@ public:
                         }
                     }
                     if (sBuf != "")
-                        sList += strprintf("modified height %d => {%s}, ", sBuf);
+                        sList += strprintf("modified height %d => {%s}, ", it.first, sBuf);
                 }
             }
             ret = strprintf("list: %s", sList);
