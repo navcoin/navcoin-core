@@ -3483,29 +3483,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 (fDAOConsultations && fSupport && ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported())
                                         || (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view)))))
                             {
-                                if (fPaymentRequest)
-                                {
-                                    if (view.GetProposal(prequest.proposalhash, proposal))
-                                    {
-                                        CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(DAOFlags::ACCEPTED);
-                                        if(pblockindex == nullptr)
-                                            continue;
-
-                                        if(!((proposal.CanRequestPayments() || proposal.GetLastState() == DAOFlags::PENDING_VOTING_PREQ)
-                                                && prequest.CanVote(view)
-                                                && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
-                                        {
-                                            LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
-                                            continue;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)\n", __func__, tx.vout[j].ToString());
-                                        continue;
-                                    }
-                                }
-
                                 votes[hash] = vote;
                                 CVoteModifier mVote = view.ModifyVote(stakerScript, pindex->nHeight);
                                 mVote->Set(pindex->nHeight, hash, vote);
