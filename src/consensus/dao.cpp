@@ -574,17 +574,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         if (!view.GetProposal(prequest->proposalhash, proposal))
             continue;
 
-
-        if(fScanningWholeCycle)
+        if(fUndo)
         {
-            if(fUndo)
-                prequest->ClearState(pindexDelete);
+            prequest->ClearState(pindexDelete);
             if(prequest->GetLastState() == DAOFlags::NIL)
                 prequest->nVotingCycle = nVotingCycles;
             prequest->fDirty = true;
         }
-
-        if (!fUndo)
+        else
         {
             auto oldState = prequest->GetLastState();
 
@@ -661,16 +658,14 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
         auto oldCycle = proposal->nVotingCycle;
 
-        if(fScanningWholeCycle)
+        if(fUndo)
         {
-            if(fUndo)
-                proposal->ClearState(pindexDelete);
+            proposal->ClearState(pindexDelete);
             if(proposal->GetLastState() == DAOFlags::NIL)
                 proposal->nVotingCycle = nVotingCycles;
             proposal->fDirty = true;
         }
-
-        if (!fUndo)
+        else
         {
             auto oldState = proposal->GetLastState();
 
@@ -826,17 +821,15 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
         uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view) + 1);
 
-        if(fScanningWholeCycle)
+        if(fUndo)
         {
-            if(fUndo)
-                consultation->ClearState(pindexDelete);
+            consultation->ClearState(pindexDelete);
             auto newState = consultation->GetLastState();
             if (newState != DAOFlags::EXPIRED && newState != DAOFlags::PASSED)
                 consultation->nVotingCycle = nVotingCycles;
             consultation->fDirty = true;
         }
-
-        if (!fUndo)
+        else
         {
             auto oldState = consultation->GetLastState();
 
