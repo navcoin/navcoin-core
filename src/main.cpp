@@ -3955,22 +3955,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
                 else if (fCFund && view.HavePaymentRequest(it.first) && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
                 {
-                    if (view.GetProposal(prequest.proposalhash, proposal))
-                    {
-                        CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(DAOFlags::ACCEPTED);
-                        if(pblockindex == nullptr)
-                            continue;
-
-                        if(!((proposal.CanRequestPayments() || proposal.GetLastState() == DAOFlags::PENDING_VOTING_PREQ)
-                             && prequest.CanVote(view)
-                             && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
-                            continue;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-
                     pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
                     LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                 }
@@ -3982,10 +3966,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     {
                         pindex->mapSupport.insert(make_pair(it.first, true));
                         LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
-                        //                        }
-                        //                        else
-                        //                        {
-                        //                            LogPrint("dao", "%s: Ignoring support vote for %s from staker %s in block index %d\n", __func__, it.first.ToString(), HexStr(stakerScript), pindex->nHeight);
                     }
                 }
                 else if (fDAOConsultations)
