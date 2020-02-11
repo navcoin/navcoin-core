@@ -3480,7 +3480,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             }
                             else if ((fCFund && ((fProposal && view.GetProposal(hash, proposal) && proposal.CanVote(view))
                                         || (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))) ||
-                                (fDAOConsultations && fSupport && ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported())
+                                    (fDAOConsultations && fSupport && ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported())
                                         || (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view)))))
                             {
                                 votes[hash] = vote;
@@ -3501,27 +3501,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             }
                             else if (fCFund && (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))
                             {
-                                if (view.GetProposal(prequest.proposalhash, proposal))
-                                {
-                                    CBlockIndex* pblockindex = proposal.GetLastStateBlockIndexForState(DAOFlags::ACCEPTED);
-
-                                    if(pblockindex == nullptr)
-                                        continue;
-
-                                    if(!((proposal.CanRequestPayments() || proposal.GetLastState() == DAOFlags::PENDING_VOTING_PREQ)
-                                            && prequest.CanVote(view)
-                                            && pindex->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge))
-                                    {
-                                        LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
-                                        continue;
-                                    }
-                                }
-                                else
-                                {
-                                    LogPrint("dao", "%s: Ignoring invalid vote output %s (missing parent)\n", __func__, tx.vout[j].ToString());
-                                    continue;
-                                }
-
                                 LogPrint("dao", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                             }
