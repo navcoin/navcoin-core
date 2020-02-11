@@ -622,6 +622,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if(fScanningWholeCycle)
             {
                 flags proposalState = proposal.GetLastState();
+                flags prState = prequest->GetLastState();
+
+                LogPrintf("%s: %s: should i reset !%d && %d && !((%d || %d) && %d) - pr st %d p st %d\n", __func__, prequest->hash.ToString(), mapSeen.count(prequest->hash), prState == DAOFlags::NIL,
+                          proposalState == DAOFlags::ACCEPTED, proposalState == DAOFlags::PENDING_VOTING_PREQ, prequest->IsAccepted(view), prState, proposalState);
 
                 if (!mapSeen.count(prequest->hash) && prequest->GetLastState() == DAOFlags::NIL &&
                         !((proposalState == DAOFlags::ACCEPTED || proposalState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted(view))){
@@ -738,7 +742,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if(fScanningWholeCycle)
             {
-                if (!mapSeen.count(proposal->hash) && proposal->GetLastState() == DAOFlags::NIL)
+                flags proposalState = proposal->GetLastState();
+
+                LogPrintf("%s: %s: should i reset !%d && %d - p st %d\n", __func__, proposal->hash.ToString(), mapSeen.count(proposal->hash), proposalState == DAOFlags::NIL, proposalState);
+
+                if (!mapSeen.count(proposal->hash) && proposalState == DAOFlags::NIL)
                 {
                     proposal->nVotesYes = 0;
                     proposal->nVotesNo = 0;
@@ -813,7 +821,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if(fScanningWholeCycle)
             {
-                if (answer->GetLastState() == DAOFlags::NIL && !mapSeenSupport.count(answer->hash))
+                flags answerState = answer->GetLastState();
+
+                LogPrintf("%s: %s: should i reset !%d && %d - p st %d\n", __func__, answer->hash.ToString(), mapSeenSupport.count(answer->hash), answerState == DAOFlags::NIL, answerState);
+
+                if (answerState == DAOFlags::NIL && !mapSeenSupport.count(answer->hash))
                 {
                     answer->nSupport = 0;
                     answer->fDirty = true;
@@ -917,7 +929,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             auto newState = consultation->GetLastState();
 
             if(fScanningWholeCycle)
-            {
+            {                
+                LogPrintf("%s: %s: should i reset support !%d && %d - p st %d - votes from children: %d\n", __func__, consultation->hash.ToString(), mapSeenSupport.count(consultation->hash), newState == DAOFlags::NIL, newState, consultation->IsRange());
+
+
                 if (newState == DAOFlags::NIL && !mapSeenSupport.count(consultation->hash))
                 {
                     consultation->nSupport = 0;
