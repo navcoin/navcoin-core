@@ -539,99 +539,89 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     LogPrint("bench", "   - CFund update votes: %.2fms\n", (nTimeEnd3 - nTimeStart3) * 0.001);
 
     int64_t nTimeStart4 = GetTimeMicros();
+
     CPaymentRequestMap mapPaymentRequests;
+    CProposalMap mapProposals;
+    CConsultationAnswerMap mapConsultationAnswers;
+    CConsultationMap mapConsultations;
 
-    if(view.GetAllPaymentRequests(mapPaymentRequests))
+    if(!view.GetAllConsultationAnswers(mapConsultationAnswers) || !view.GetAllConsultations(mapConsultations) || !view.GetAllProposals(mapProposals) || !view.GetAllPaymentRequests(mapPaymentRequests))
     {
-        for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
+        return false;
+    }
+
+    for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
+    {
+        if (!view.HavePaymentRequest(it->first))
+            continue;
+
+        CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
+
+        if (prequest->txblockhash == uint256())
+            continue;
+
+        CBlockIndex* pblockindex = mapBlockIndex[prequest->txblockhash];
+
+        uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
+        uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
+        uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
+        uint64_t nVotingCycles = std::min(nElapsedCycles, nCycleLength + 1);
+
+        auto oldCycle = prequest->nVotingCycle;
+
+        CProposal proposal;
+
+        if (!view.GetProposal(prequest->proposalhash, proposal))
+            continue;
+
+        if(fUndo)
         {
-            if (!view.HavePaymentRequest(it->first))
-                continue;
+            prequest->ClearState(pindexDelete);
+            if(prequest->GetLastState() == DAOFlags::NIL)
+                prequest->nVotingCycle = nVotingCycles;
+            prequest->fDirty = true;
+        }
+        else
+        {
+            auto oldState = prequest->GetLastState();
 
-            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
-
-            if (prequest->txblockhash == uint256())
-                continue;
-
-            CBlockIndex* pblockindex = mapBlockIndex[prequest->txblockhash];
-
-            uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
-            uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
-            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-            uint64_t nVotingCycles = std::min(nElapsedCycles, nCycleLength + 1);
-
-            auto oldCycle = prequest->nVotingCycle;
-
-            CProposal proposal;
-
-            if (!view.GetProposal(prequest->proposalhash, proposal))
-                continue;
-
-            if(fUndo)
+            if(oldState == DAOFlags::NIL && nVotingCycles != prequest->nVotingCycle)
             {
-                prequest->ClearState(pindexDelete);
-                if(prequest->GetLastState() == DAOFlags::NIL)
-                    prequest->nVotingCycle = nVotingCycles;
+                prequest->nVotingCycle = nVotingCycles;
                 prequest->fDirty = true;
             }
-            else
+
+            if((pindexNew->nHeight + 1) % nCycleLength == 0)
             {
-                auto oldState = prequest->GetLastState();
-
-                if(oldState == DAOFlags::NIL && nVotingCycles != prequest->nVotingCycle)
+                if(prequest->IsExpired(view))
                 {
-                    prequest->nVotingCycle = nVotingCycles;
-                    prequest->fDirty = true;
-                }
-
-                if((pindexNew->nHeight + 1) % nCycleLength == 0)
-                {
-                    if(prequest->IsExpired(view))
+                    if (oldState != DAOFlags::EXPIRED)
                     {
-                        if (oldState != DAOFlags::EXPIRED)
-                        {
-                            prequest->SetState(pindexNew, DAOFlags::EXPIRED);
-                            prequest->fDirty = true;
-                        }
-                    }
-                    else if(prequest->IsRejected(view))
-                    {
-                        if (oldState != DAOFlags::REJECTED)
-                        {
-                            prequest->SetState(pindexNew, DAOFlags::REJECTED);
-                            prequest->fDirty = true;
-                        }
-                    }
-                    else if(oldState == DAOFlags::NIL)
-                    {
-                        flags proposalOldState = proposal.GetLastState();
-                        if((proposalOldState == DAOFlags::ACCEPTED || proposalOldState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted(view))
-                        {
-                            if(prequest->nAmount <= pindexNew->nCFLocked && prequest->nAmount <= proposal.GetAvailable(view))
-                            {
-                                pindexNew->nCFLocked -= prequest->nAmount;
-                                prequest->SetState(pindexNew, DAOFlags::ACCEPTED);
-                                prequest->fDirty = true;
-                                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
-                            }
-                        }
+                        prequest->SetState(pindexNew, DAOFlags::EXPIRED);
+                        prequest->fDirty = true;
                     }
                 }
-            }
-
-            if(fScanningWholeCycle)
-            {
-                flags proposalState = proposal.GetLastState();
-                flags prState = prequest->GetLastState();
-
-                LogPrintf("%s: %s: should i reset !%d && %d && !((%d || %d) && %d) - pr st %d p st %d\n", __func__, prequest->hash.ToString(), mapSeen.count(prequest->hash), prState == DAOFlags::NIL,
-                          proposalState == DAOFlags::ACCEPTED, proposalState == DAOFlags::PENDING_VOTING_PREQ, prequest->IsAccepted(view), prState, proposalState);
-
-                if (!mapSeen.count(prequest->hash) && prequest->GetLastState() == DAOFlags::NIL &&
-                        !((proposalState == DAOFlags::ACCEPTED || proposalState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted(view))){
-                    prequest->nVotesYes = 0;
-                    prequest->nVotesNo = 0;
-                    prequest->fDirty = true;
+                else if(prequest->IsRejected(view))
+                {
+                    if (oldState != DAOFlags::REJECTED)
+                    {
+                        prequest->SetState(pindexNew, DAOFlags::REJECTED);
+                        prequest->fDirty = true;
+                    }
+                }
+                else if(oldState == DAOFlags::NIL)
+                {
+                    flags proposalOldState = proposal.GetLastState();
+                    if((proposalOldState == DAOFlags::ACCEPTED || proposalOldState == DAOFlags::PENDING_VOTING_PREQ) && prequest->IsAccepted(view))
+                    {
+                        if(prequest->nAmount <= pindexNew->nCFLocked && prequest->nAmount <= proposal.GetAvailable(view))
+                        {
+                            pindexNew->nCFLocked -= prequest->nAmount;
+                            prequest->SetState(pindexNew, DAOFlags::ACCEPTED);
+                            prequest->fDirty = true;
+                            LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                        }
+                    }
                 }
             }
         }
@@ -641,116 +631,98 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     LogPrint("bench", "   - CFund update payment request status: %.2fms\n", (nTimeEnd4 - nTimeStart4) * 0.001);
 
     int64_t nTimeStart5 = GetTimeMicros();
-    CProposalMap mapProposals;
 
-    if(view.GetAllProposals(mapProposals))
+    for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
     {
-        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        if (!view.HaveProposal(it->first))
+            continue;
+
+        CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
+
+        if (proposal->txblockhash == uint256())
+            continue;
+
+        if (mapBlockIndex.count(proposal->txblockhash) == 0)
         {
-            if (!view.HaveProposal(it->first))
-                continue;
+            LogPrintf("%s: Can't find block %s of proposal %s\n",
+                      __func__, proposal->txblockhash.ToString(), proposal->hash.ToString());
+            continue;
+        }
 
-            CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
+        CBlockIndex* pblockindex = mapBlockIndex[proposal->txblockhash];
 
-            if (proposal->txblockhash == uint256())
-                continue;
+        uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
+        uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
+        uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
+        uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view) + 1);
 
-            if (mapBlockIndex.count(proposal->txblockhash) == 0)
+        auto oldCycle = proposal->nVotingCycle;
+
+        if(fUndo)
+        {
+            proposal->ClearState(pindexDelete);
+            if(proposal->GetLastState() == DAOFlags::NIL)
+                proposal->nVotingCycle = nVotingCycles;
+            proposal->fDirty = true;
+        }
+        else
+        {
+            auto oldState = proposal->GetLastState();
+
+            if(oldState == DAOFlags::NIL)
             {
-                LogPrintf("%s: Can't find block %s of proposal %s\n",
-                          __func__, proposal->txblockhash.ToString(), proposal->hash.ToString());
-                continue;
-            }
-
-            CBlockIndex* pblockindex = mapBlockIndex[proposal->txblockhash];
-
-            uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
-            uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
-            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view) + 1);
-
-            auto oldCycle = proposal->nVotingCycle;
-
-            if(fUndo)
-            {
-                proposal->ClearState(pindexDelete);
-                if(proposal->GetLastState() == DAOFlags::NIL)
-                    proposal->nVotingCycle = nVotingCycles;
+                proposal->nVotingCycle = nVotingCycles;
                 proposal->fDirty = true;
             }
-            else
+
+            if((pindexNew->nHeight + 1) % nCycleLength == 0)
             {
-                auto oldState = proposal->GetLastState();
-
-                if(oldState == DAOFlags::NIL)
+                if(proposal->IsExpired(pindexNew->GetBlockTime(), view))
                 {
-                    proposal->nVotingCycle = nVotingCycles;
-                    proposal->fDirty = true;
-                }
-
-                if((pindexNew->nHeight + 1) % nCycleLength == 0)
-                {
-                    if(proposal->IsExpired(pindexNew->GetBlockTime(), view))
+                    if (oldState != DAOFlags::EXPIRED)
                     {
-                        if (oldState != DAOFlags::EXPIRED)
+                        if (proposal->HasPendingPaymentRequests(view))
                         {
-                            if (proposal->HasPendingPaymentRequests(view))
-                            {
-                                proposal->SetState(pindexNew, DAOFlags::PENDING_VOTING_PREQ);
-                                proposal->fDirty = true;
-                            }
-                            else
-                            {
-                                if(oldState == DAOFlags::ACCEPTED || oldState == DAOFlags::PENDING_VOTING_PREQ)
-                                {
-                                    pindexNew->nCFSupply += proposal->GetAvailable(view);
-                                    pindexNew->nCFLocked -= proposal->GetAvailable(view);
-                                    LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
-                                }
-                                proposal->SetState(pindexNew, DAOFlags::EXPIRED);
-                                proposal->fDirty = true;
-                            }
+                            proposal->SetState(pindexNew, DAOFlags::PENDING_VOTING_PREQ);
+                            proposal->fDirty = true;
                         }
-                    }
-                    else if(proposal->IsRejected(view))
-                    {
-                        if(oldState != DAOFlags::REJECTED)
+                        else
                         {
-                            proposal->SetState(pindexNew, DAOFlags::REJECTED);
-                        }
-                    } else if(proposal->IsAccepted(view))
-                    {
-                        if((oldState == DAOFlags::NIL || oldState == DAOFlags::PENDING_FUNDS))
-                        {
-                            if(pindexNew->nCFSupply >= proposal->GetAvailable(view))
+                            if(oldState == DAOFlags::ACCEPTED || oldState == DAOFlags::PENDING_VOTING_PREQ)
                             {
-                                pindexNew->nCFSupply -= proposal->GetAvailable(view);
-                                pindexNew->nCFLocked += proposal->GetAvailable(view);
+                                pindexNew->nCFSupply += proposal->GetAvailable(view);
+                                pindexNew->nCFLocked -= proposal->GetAvailable(view);
                                 LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
-                                proposal->SetState(pindexNew, DAOFlags::ACCEPTED);
-                                proposal->fDirty = true;
                             }
-                            else if(oldState != DAOFlags::PENDING_FUNDS)
-                            {
-                                proposal->SetState(pindexNew, DAOFlags::PENDING_FUNDS);
-                                proposal->fDirty = true;
-                            }
+                            proposal->SetState(pindexNew, DAOFlags::EXPIRED);
+                            proposal->fDirty = true;
                         }
                     }
                 }
-            }
-
-            if(fScanningWholeCycle)
-            {
-                flags proposalState = proposal->GetLastState();
-
-                LogPrintf("%s: %s: should i reset !%d && %d - p st %d\n", __func__, proposal->hash.ToString(), mapSeen.count(proposal->hash), proposalState == DAOFlags::NIL, proposalState);
-
-                if (!mapSeen.count(proposal->hash) && proposalState == DAOFlags::NIL)
+                else if(proposal->IsRejected(view))
                 {
-                    proposal->nVotesYes = 0;
-                    proposal->nVotesNo = 0;
-                    proposal->fDirty = true;
+                    if(oldState != DAOFlags::REJECTED)
+                    {
+                        proposal->SetState(pindexNew, DAOFlags::REJECTED);
+                    }
+                } else if(proposal->IsAccepted(view))
+                {
+                    if((oldState == DAOFlags::NIL || oldState == DAOFlags::PENDING_FUNDS))
+                    {
+                        if(pindexNew->nCFSupply >= proposal->GetAvailable(view))
+                        {
+                            pindexNew->nCFSupply -= proposal->GetAvailable(view);
+                            pindexNew->nCFLocked += proposal->GetAvailable(view);
+                            LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                            proposal->SetState(pindexNew, DAOFlags::ACCEPTED);
+                            proposal->fDirty = true;
+                        }
+                        else if(oldState != DAOFlags::PENDING_FUNDS)
+                        {
+                            proposal->SetState(pindexNew, DAOFlags::PENDING_FUNDS);
+                            proposal->fDirty = true;
+                        }
+                    }
                 }
             }
         }
@@ -761,73 +733,56 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     LogPrint("bench", "   - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
 
     int64_t nTimeStart6 = GetTimeMicros();
-    CConsultationAnswerMap mapConsultationAnswers;
 
-    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
+    for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
     {
-        for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
+        if (!view.HaveConsultationAnswer(it->first))
+            continue;
+
+        bool fParentExpired = false;
+        bool fParentPassed = false;
+
+        CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
+
+        if (answer->txblockhash == uint256())
+            continue;
+
+        if (mapBlockIndex.count(answer->txblockhash) == 0)
         {
-            if (!view.HaveConsultationAnswer(it->first))
-                continue;
+            LogPrintf("%s: Can't find block %s of answer %s\n",
+                      __func__, answer->txblockhash.ToString(), answer->hash.ToString());
+            continue;
+        }
 
-            bool fParentExpired = false;
-            bool fParentPassed = false;
+        if(fUndo)
+        {
+            answer->ClearState(pindexDelete);
+            answer->fDirty = true;
+        }
+        else if((pindexNew->nHeight + 1) % nCycleLength == 0)
+        {
 
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
+            flags oldState = answer->GetLastState();
 
-            if (answer->txblockhash == uint256())
-                continue;
-
-            if (mapBlockIndex.count(answer->txblockhash) == 0)
+            if(answer->IsSupported(view))
             {
-                LogPrintf("%s: Can't find block %s of answer %s\n",
-                          __func__, answer->txblockhash.ToString(), answer->hash.ToString());
-                continue;
-            }
-
-            if(fUndo)
-            {
-                answer->ClearState(pindexDelete);
-                answer->fDirty = true;
-            }
-            else if((pindexNew->nHeight + 1) % nCycleLength == 0)
-            {
-
-                flags oldState = answer->GetLastState();
-
-                if(answer->IsSupported(view))
+                if(oldState == DAOFlags::NIL)
                 {
-                    if(oldState == DAOFlags::NIL)
-                    {
-                        answer->SetState(pindexNew, DAOFlags::ACCEPTED);
-                        answer->fDirty = true;
-                    }
-                }
-
-                if (answer->IsConsensusAccepted(view) && oldState != DAOFlags::PASSED)
-                {
-                    CConsultation parent;
-                    if (view.GetConsultation(answer->parent, parent) && parent.IsAboutConsensusParameter())
-                    {
-                        fParentExpired = parent.IsExpired(pindexNew, view);
-                        fParentPassed = parent.GetLastState() == DAOFlags::PASSED;
-                        CConsensusParameterModifier mcparameter = view.ModifyConsensusParameter(parent.nMin, pindexNew->nHeight);
-                        mcparameter->Set(pindexNew->nHeight, stoll(answer->sAnswer));
-                        answer->SetState(pindexNew, DAOFlags::PASSED);
-                        answer->fDirty = true;
-                    }
+                    answer->SetState(pindexNew, DAOFlags::ACCEPTED);
+                    answer->fDirty = true;
                 }
             }
 
-            if(fScanningWholeCycle)
+            if (answer->IsConsensusAccepted(view) && oldState != DAOFlags::PASSED)
             {
-                flags answerState = answer->GetLastState();
-
-                LogPrintf("%s: %s: should i reset !%d && %d - p st %d\n", __func__, answer->hash.ToString(), mapSeenSupport.count(answer->hash), answerState == DAOFlags::NIL, answerState);
-
-                if (answerState == DAOFlags::NIL && !mapSeenSupport.count(answer->hash))
+                CConsultation parent;
+                if (view.GetConsultation(answer->parent, parent) && parent.IsAboutConsensusParameter())
                 {
-                    answer->nSupport = 0;
+                    fParentExpired = parent.IsExpired(pindexNew, view);
+                    fParentPassed = parent.GetLastState() == DAOFlags::PASSED;
+                    CConsensusParameterModifier mcparameter = view.ModifyConsensusParameter(parent.nMin, pindexNew->nHeight);
+                    mcparameter->Set(pindexNew->nHeight, stoll(answer->sAnswer));
+                    answer->SetState(pindexNew, DAOFlags::PASSED);
                     answer->fDirty = true;
                 }
             }
@@ -839,12 +794,123 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     LogPrint("bench", "   - CFund update consultation answer status: %.2fms\n", (nTimeEnd6 - nTimeStart6) * 0.001);
 
     int64_t nTimeStart7 = GetTimeMicros();
-    CConsultationMap mapConsultations;
 
     std::vector<uint256> vClearAnswers;
 
-    if(view.GetAllConsultations(mapConsultations))
+    for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
     {
+        if (!view.HaveConsultation(it->first))
+            continue;
+
+        CConsultationModifier consultation = view.ModifyConsultation(it->first, pindexNew->nHeight);
+
+        if (consultation->txblockhash == uint256())
+            continue;
+
+        if (mapBlockIndex.count(consultation->txblockhash) == 0)
+        {
+            LogPrintf("%s: Can't find block %s of consultation %s\n",
+                      __func__, consultation->txblockhash.ToString(), consultation->hash.ToString());
+            continue;
+        }
+
+        CBlockIndex* pblockindex = mapBlockIndex[consultation->txblockhash];
+
+        uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
+        uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
+        uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
+        uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view) + 1);
+
+        if(fUndo)
+        {
+            consultation->ClearState(pindexDelete);
+            auto newState = consultation->GetLastState();
+            if (newState != DAOFlags::EXPIRED && newState != DAOFlags::PASSED)
+                consultation->nVotingCycle = nVotingCycles;
+            consultation->fDirty = true;
+        }
+        else
+        {
+            auto oldState = consultation->GetLastState();
+
+            if (oldState != DAOFlags::EXPIRED && oldState != DAOFlags::PASSED)
+            {
+                consultation->nVotingCycle = nVotingCycles;
+                consultation->fDirty = true;
+            }
+
+            if((pindexNew->nHeight + 1) % nCycleLength == 0)
+            {
+                if(consultation->IsExpired(pindexNew, view))
+                {
+                    if (oldState != DAOFlags::EXPIRED)
+                    {
+                        consultation->SetState(pindexNew, DAOFlags::EXPIRED);
+                        consultation->fDirty = true;
+                    }
+                }
+                else if(consultation->IsSupported(view))
+                {
+                    if(oldState == DAOFlags::NIL)
+                    {
+                        consultation->SetState(pindexNew, DAOFlags::SUPPORTED);
+                        consultation->fDirty = true;
+                    }
+                    else if(oldState == DAOFlags::SUPPORTED && consultation->CanMoveInReflection(view))
+                    {
+                        consultation->SetState(pindexNew, DAOFlags::REFLECTION);
+                        consultation->fDirty = true;
+                    }
+                    else if(oldState == DAOFlags::REFLECTION && consultation->IsReflectionOver(pindexNew, view))
+                    {
+                        consultation->SetState(pindexNew, DAOFlags::ACCEPTED);
+                        consultation->fDirty = true;
+                    }
+                }
+                CConsensusParameter cparameter;
+
+                if (consultation->IsAboutConsensusParameter() && view.GetConsensusParameter(consultation->nMin, cparameter) && cparameter.GetHeight() == pindexNew->nHeight)
+                {
+                    consultation->SetState(pindexNew, DAOFlags::PASSED);
+                    consultation->fDirty = true;
+                }
+            }
+
+        }
+    }
+
+    if(fScanningWholeCycle)
+    {
+        for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
+        {
+            if (!view.HavePaymentRequest(it->first))
+                continue;
+
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
+
+            if (!mapSeen.count(prequest->hash) && prequest->CanVote(view))
+            {
+                prequest->nVotesYes = 0;
+                prequest->nVotesNo = 0;
+                prequest->fDirty = true;
+            }
+        }
+
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            if (!view.HaveProposal(it->first))
+                continue;
+
+            CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
+
+            if (!mapSeen.count(proposal->hash) && proposal->CanVote(view))
+            {
+                proposal->nVotesYes = 0;
+                proposal->nVotesNo = 0;
+                proposal->fDirty = true;
+            }
+        }
+
         for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
         {
             if (!view.HaveConsultation(it->first))
@@ -852,121 +918,45 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             CConsultationModifier consultation = view.ModifyConsultation(it->first, pindexNew->nHeight);
 
-            if (consultation->txblockhash == uint256())
-                continue;
-
-            if (mapBlockIndex.count(consultation->txblockhash) == 0)
+            if (consultation->CanBeSupported() && !mapSeenSupport.count(consultation->hash))
             {
-                LogPrintf("%s: Can't find block %s of consultation %s\n",
-                          __func__, consultation->txblockhash.ToString(), consultation->hash.ToString());
-                continue;
-            }
-
-            CBlockIndex* pblockindex = mapBlockIndex[consultation->txblockhash];
-
-            uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
-            uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
-            uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-            uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view) + 1);
-
-            if(fUndo)
-            {
-                consultation->ClearState(pindexDelete);
-                auto newState = consultation->GetLastState();
-                if (newState != DAOFlags::EXPIRED && newState != DAOFlags::PASSED)
-                    consultation->nVotingCycle = nVotingCycles;
+                consultation->nSupport = 0;
                 consultation->fDirty = true;
             }
-            else
+
+            if (consultation->GetLastState() == DAOFlags::ACCEPTED)
             {
-                auto oldState = consultation->GetLastState();
-
-                if (oldState != DAOFlags::EXPIRED && oldState != DAOFlags::PASSED)
+                if (!mapSeen.count(consultation->hash))
                 {
-                    consultation->nVotingCycle = nVotingCycles;
+                    consultation->mapVotes.clear();
                     consultation->fDirty = true;
                 }
-
-                if((pindexNew->nHeight + 1) % nCycleLength == 0)
-                {
-                    if(consultation->IsExpired(pindexNew, view))
-                    {
-                        if (oldState != DAOFlags::EXPIRED)
-                        {
-                            consultation->SetState(pindexNew, DAOFlags::EXPIRED);
-                            consultation->fDirty = true;
-                        }
-                    }
-                    else if(consultation->IsSupported(view))
-                    {
-                        if(oldState == DAOFlags::NIL)
-                        {
-                            consultation->SetState(pindexNew, DAOFlags::SUPPORTED);
-                            consultation->fDirty = true;
-                        }
-                        else if(oldState == DAOFlags::SUPPORTED && consultation->CanMoveInReflection(view))
-                        {
-                            consultation->SetState(pindexNew, DAOFlags::REFLECTION);
-                            consultation->fDirty = true;
-                        }
-                        else if(oldState == DAOFlags::REFLECTION && consultation->IsReflectionOver(pindexNew, view))
-                        {
-                            consultation->SetState(pindexNew, DAOFlags::ACCEPTED);
-                            consultation->fDirty = true;
-                        }
-                    }
-                    CConsensusParameter cparameter;
-
-                    if (consultation->IsAboutConsensusParameter() && view.GetConsensusParameter(consultation->nMin, cparameter) && cparameter.GetHeight() == pindexNew->nHeight)
-                    {
-                        consultation->SetState(pindexNew, DAOFlags::PASSED);
-                        consultation->fDirty = true;
-                    }
-                }
-
-            }
-
-            auto newState = consultation->GetLastState();
-
-            if(fScanningWholeCycle)
-            {                
-                LogPrintf("%s: %s: should i reset support !%d && %d - p st %d - votes from children: %d\n", __func__, consultation->hash.ToString(), mapSeenSupport.count(consultation->hash), newState == DAOFlags::NIL, newState, consultation->IsRange());
-
-
-                if (newState == DAOFlags::NIL && !mapSeenSupport.count(consultation->hash))
-                {
-                    consultation->nSupport = 0;
-                    consultation->fDirty = true;
-                }
-                if (newState == DAOFlags::ACCEPTED)
-                {
-                    if (!mapSeen.count(consultation->hash))
-                    {
-                        consultation->mapVotes.clear();
-                        consultation->fDirty = true;
-                    }
-                    if (!consultation->IsRange())
-                        vClearAnswers.push_back(consultation->hash);
-                }
+                if (!consultation->IsRange())
+                    vClearAnswers.push_back(consultation->hash);
             }
         }
-    }
 
-    if(view.GetAllConsultationAnswers(mapConsultationAnswers))
-    {
         for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
         {
             if (!view.HaveConsultationAnswer(it->first) || mapSeen.count(it->first))
                 continue;
 
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
+
+            if (answer->CanBeSupported(view) && !mapSeenSupport.count(answer->hash))
+            {
+                answer->nSupport = 0;
+                answer->fDirty = true;
+            }
+
             if (std::find(vClearAnswers.begin(), vClearAnswers.end(), it->second.parent) == vClearAnswers.end())
                 continue;
 
-            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
             answer->nVotes = 0;
             answer->fDirty = true;
         }
     }
+
 
     int64_t nTimeEnd7 = GetTimeMicros();
     LogPrint("bench", "   - CFund update consultation status: %.2fms\n", (nTimeEnd7 - nTimeStart7) * 0.001);
@@ -2078,8 +2068,10 @@ bool CPaymentRequest::CanVote(CStateViewCache& coins) const
         return false;
 
     flags fLastState = GetLastState();
+    flags fProposalLastState = proposal.GetLastState();
 
-    return nAmount <= proposal.GetAvailable(coins) && fLastState == NIL && !ExceededMaxVotingCycles(coins);
+    return nAmount <= proposal.GetAvailable(coins) && fLastState == NIL && !ExceededMaxVotingCycles(coins) &&
+            (fProposalLastState == DAOFlags::ACCEPTED || fProposalLastState == DAOFlags::PENDING_VOTING_PREQ);
 }
 
 bool CPaymentRequest::IsExpired(const CStateViewCache& view) const {

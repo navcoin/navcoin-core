@@ -6170,7 +6170,8 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
             bool fClean = true;
             if (!DisconnectBlock(block, state, pindex, coins, &fClean))
                 return error("VerifyDB(): *** irrecoverable inconsistency in block data at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
-            VoteStep(state, pindex, true, coins);
+            if (!VoteStep(state, pindex, true, coins))
+                return error("VerifyDB(): *** VoteStep failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             pindexState = pindex->pprev;
             if (!fClean) {
                 nGoodTransactions = 0;
@@ -6197,7 +6198,8 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CStateView *coinsview,
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             if (!ConnectBlock(block, state, pindex, coins, chainparams))
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
-            VoteStep(state, pindex, false, coins);
+            if (!VoteStep(state, pindex, false, coins))
+                return error("VerifyDB(): *** VoteStep failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         }
         uint256 nowStateHash = GetDAOStateHash(coins, pindex->nCFLocked, pindex->nCFSupply);
         if (prevStateHash != nowStateHash)
