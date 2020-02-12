@@ -2070,7 +2070,13 @@ bool CPaymentRequest::CanVote(CStateViewCache& coins) const
     flags fLastState = GetLastState();
     flags fProposalLastState = proposal.GetLastState();
 
-    return nAmount <= proposal.GetAvailable(coins) && fLastState == NIL && !ExceededMaxVotingCycles(coins) &&
+    bool fExceededMaxVotingCyles = ExceededMaxVotingCycles(coins);
+    auto nProposalAvailable = proposal.GetAvailable(coins);
+
+    LogPrintf("%s: %s %d <= %d fLast %d fExceeded %d fProposalLast %d\n", __func__, hash.ToString(), nAmount,
+              nProposalAvailable, fLastState, fExceededMaxVotingCyles, fProposalLastState);
+
+    return nAmount <= nProposalAvailable && fLastState == NIL && !fExceededMaxVotingCyles &&
             (fProposalLastState == DAOFlags::ACCEPTED || fProposalLastState == DAOFlags::PENDING_VOTING_PREQ);
 }
 
@@ -2178,6 +2184,7 @@ bool CPaymentRequest::IsRejected(const CStateViewCache& view) const {
 }
 
 bool CPaymentRequest::ExceededMaxVotingCycles(const CStateViewCache& view) const {
+    LogPrintf("%s: %s %d > %d\n", __func__, hash.ToString(), nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view));
     return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view);
 }
 
@@ -2273,6 +2280,8 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
                 continue;
 
             flags fLastState = prequest.GetLastState();
+
+            LogPrintf("%s: %s %s %d %d %d\n", __func__, hash.ToString(), prequest.hash.ToString(), fIncludeRequests, fLastState, prequest.nAmount);
 
             if((fIncludeRequests && fLastState != DAOFlags::REJECTED && fLastState != DAOFlags::EXPIRED) || (!fIncludeRequests && (fLastState == DAOFlags::ACCEPTED || fLastState == DAOFlags::PAID)))
                 initial -= prequest.nAmount;
