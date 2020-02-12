@@ -1866,6 +1866,8 @@ bool CConsultationAnswer::CanBeVoted(const CStateViewCache& view) const {
 
     flags fConsultationState = consultation.GetLastState();
 
+    LogPrintf("%s: %s fState %d fConsultationState %d\n", __func__, hash.ToString(), fState, fConsultationState);
+
     return fState == DAOFlags::ACCEPTED && fConsultationState == DAOFlags::ACCEPTED &&
             !(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION);
 }
@@ -2229,7 +2231,12 @@ std::string CProposal::GetPaymentAddress() const {
 bool CProposal::CanVote(const CStateViewCache& view) const {
     AssertLockHeld(cs_main);
 
-    return (GetLastState() == NIL) && (!ExceededMaxVotingCycles(view));
+    bool fExceededMaxVotingCycles = ExceededMaxVotingCycles(view);
+    auto fLastState = GetLastState();
+
+    LogPrintf("%s: %s fState %d fExceeded %d\n", __func__, hash.ToString(), fLastState, fExceededMaxVotingCycles);
+
+    return (fLastState == NIL) && (!fExceededMaxVotingCycles);
 }
 
 uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
