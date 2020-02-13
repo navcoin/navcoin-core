@@ -965,7 +965,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     for (auto &it: mapConsensusToChange)
     {
         CConsensusParameterModifier mcparameter = view.ModifyConsensusParameter(it.first, pindexNew->nHeight);
-        mcparameter->Set(pindexNew->nHeight+1, it.second);
+        mcparameter->Set(pindexNew->nHeight, it.second);
     }
 
     int64_t nTimeEnd8 = GetTimeMicros();
