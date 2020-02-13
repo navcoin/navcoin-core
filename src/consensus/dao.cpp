@@ -734,6 +734,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeStart6 = GetTimeMicros();
 
+    std::map<uint64_t, uint64_t> mapConsensusToChange;
+
     for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
     {
         if (!view.HaveConsultationAnswer(it->first))
@@ -778,10 +780,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 CConsultation parent;
                 if (view.GetConsultation(answer->parent, parent) && parent.IsAboutConsensusParameter())
                 {
-                    fParentExpired = parent.IsExpired(pindexNew, view);
-                    fParentPassed = parent.GetLastState() == DAOFlags::PASSED;
-                    CConsensusParameterModifier mcparameter = view.ModifyConsensusParameter(parent.nMin, pindexNew->nHeight);
-                    mcparameter->Set(pindexNew->nHeight, stoll(answer->sAnswer));
+                    mapConsensusToChange.insert(std::make_pair(parent.nMin, stoll(answer->sAnswer)));
                     answer->SetState(pindexNew, DAOFlags::PASSED);
                     answer->fDirty = true;
                 }
@@ -869,7 +868,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 }
                 CConsensusParameter cparameter;
 
-                if (consultation->IsAboutConsensusParameter() && view.GetConsensusParameter(consultation->nMin, cparameter) && cparameter.GetHeight() == pindexNew->nHeight)
+                if (consultation->IsAboutConsensusParameter() && mapConsensusToChange.count(consultation->nMin))
                 {
                     consultation->SetState(pindexNew, DAOFlags::PASSED);
                     consultation->fDirty = true;
@@ -960,6 +959,17 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeEnd7 = GetTimeMicros();
     LogPrint("bench", "   - CFund update consultation status: %.2fms\n", (nTimeEnd7 - nTimeStart7) * 0.001);
+
+    int64_t nTimeStart8 = GetTimeMicros();
+
+    for (auto &it: mapConsensusToChange)
+    {
+        CConsensusParameterModifier mcparameter = view.ModifyConsensusParameter(it.first, pindexNew->nHeight);
+        mcparameter->Set(pindexNew->nHeight, it.second);
+    }
+
+    int64_t nTimeEnd8 = GetTimeMicros();
+    LogPrint("bench", "   - CFund update consensus parameter status: %.2fms\n", (nTimeEnd8 - nTimeStart8) * 0.001);
 
     int64_t nTimeEnd = GetTimeMicros();
     LogPrint("bench", "  - CFund total VoteStep() function: %.2fms\n", (nTimeEnd - nTimeStart) * 0.001);
