@@ -340,13 +340,13 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         nBlocks = 1;
     }
 
-    lastConsensusStateHash = consensusStateHash;
-
     int64_t nTimeStart2 = GetTimeMicros();
 
     LogPrint("dao", "%s: Scanning %d block(s) starting at %d (fUndo=%d fScanningWholeCycle=%d consensusChanged=%d). We are in block %d inside of the cycle.\n",
              __func__, nBlocks, pindexblock->nHeight, fUndo, fScanningWholeCycle, lastConsensusStateHash != consensusStateHash,
              (pindexNew->nHeight % nCycleLength) + 1);
+
+    lastConsensusStateHash = consensusStateHash;
 
     while(nBlocks > 0 && pindexblock != NULL)
     {
@@ -585,7 +585,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             auto oldState = prequest->GetLastState();
 
-            if(oldState == DAOFlags::NIL && nVotingCycles != prequest->nVotingCycle)
+            if(oldState == DAOFlags::NIL)
             {
                 prequest->nVotingCycle = nVotingCycles;
                 prequest->fDirty = true;
