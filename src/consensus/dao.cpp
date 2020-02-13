@@ -468,6 +468,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         if (view.HaveProposal(it.first))
         {
             CProposalModifier proposal = view.ModifyProposal(it.first, pindexNew->nHeight);
+
+            if (!proposal->CanVote(view))
+                continue;
+
             proposal->nVotesYes = it.second.first.first;
             proposal->nVotesAbs = it.second.second;
             proposal->nVotesNo = it.second.first.second;
@@ -481,6 +485,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         if(view.HavePaymentRequest(it.first))
         {
             CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it.first, pindexNew->nHeight);
+
+            if (!prequest->CanVote(view))
+                continue;
+
             prequest->nVotesYes = it.second.first.first;
             prequest->nVotesAbs = it.second.second;
             prequest->nVotesNo = it.second.first.second;
@@ -494,6 +502,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         if (view.HaveConsultation(it.first))
         {
             CConsultationModifier consultation = view.ModifyConsultation(it.first, pindexNew->nHeight);
+
+            if (!consultation->CanBeSupported())
+                continue;
+
             consultation->nSupport = it.second;
             consultation->fDirty = true;
             mapSeenSupport[consultation->hash]=true;
@@ -501,6 +513,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         else if (view.HaveConsultationAnswer(it.first))
         {
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first, pindexNew->nHeight);
+
+            if (!answer->CanBeSupported(view))
+                continue;
+
             answer->nSupport = it.second;
             answer->fDirty = true;
             mapSeenSupport[answer->hash]=true;
@@ -516,6 +532,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             CConsultationModifier consultation = view.ModifyConsultation(it.first.first, pindexNew->nHeight);
 
+            if (!consultation->CanBeVoted())
+                continue;
+
             if (mapAlreadyCleared.count(it.first.first) == 0)
             {
                 mapAlreadyCleared[it.first.first] = true;
@@ -528,6 +547,10 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         else if (view.HaveConsultationAnswer(it.first.first))
         {
             CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first.first, pindexNew->nHeight);
+
+            if (!answer->CanBeVoted(view))
+                continue;
+
             answer->nVotes = it.second;
             answer->fDirty = true;
             mapSeen[it.first.first]=true;
@@ -1039,7 +1062,6 @@ bool CConsensusParameter::Clear(const int& height)
     auto it = list.find(height);
     if (it != list.end())
         list.erase(it);
-
     return true;
 }
 
