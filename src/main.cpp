@@ -281,83 +281,52 @@ class CNodeHeaders
 {
 public:
     CNodeHeaders():
-        maxSize(0),
-        maxAvg(0)
+        maxSize(0)
     {
-        maxSize = GetArg("-headerspamfiltermaxsize", DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE);
-        maxAvg = GetArg("-headerspamfiltermaxavg", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG);
+        maxSize = GetArg("-headerspamfiltermaxsize", MAX_HEADERS_RESULTS*2);
     }
 
-    bool addHeaders(int nBegin, int nEnd)
+    void addHeaders(std::vector<uint256> hashes)
     {
-
-        if(nBegin > 0 && nEnd > 0 && maxSize && maxAvg)
-        {
-
-            for(int point = nBegin; point<= nEnd; point++)
-            {
-                addPoint(point);
-            }
-
-            return true;
-        }
-
-        return false;
+        for (auto& it: hashes)
+            points.insert(it);
     }
 
     bool updateState(CValidationState& state, bool ret)
     {
-        // No headers
-        size_t size = points.size();
-        if(size == 0)
-            return ret;
+        int64_t nTime1 = GetTimeMicros();
 
-        // Compute the number of the received headers
-        size_t nHeaders = 0;
-        for(auto point : points)
+        for (auto it = points.begin(); it != points.end();)
         {
-            nHeaders += point.second;
+            if (mapBlockIndex.count(*it) && (mapBlockIndex[*it]->nStatus & BLOCK_VALID_SCRIPTS) == BLOCK_VALID_SCRIPTS)
+            {
+                it = points.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
 
-        // Compute the average value per height
-        double nAvgValue = (double)nHeaders / size;
+        LogPrint("headerspam", "%s: Current size: %d Max size: %d\n",
+                 __func__, points.size(), maxSize);
 
-        // Ban the node if try to spam
-        bool banNode = (nAvgValue >= 1.5 * maxAvg && size >= maxAvg) ||
-                (nAvgValue >= maxAvg && nHeaders >= maxSize) ||
-                (nHeaders >= maxSize * 3);
-        if(banNode)
+        if(points.size() > maxSize)
         {
             // Clear the points and ban the node
             points.clear();
             return state.DoS(100, false, REJECT_INVALID, "header-spam", false, "ban node for sending spam");
         }
 
+        int64_t nTime2 = GetTimeMicros();
+        LogPrint("bench", "%s: Anti header spam took: %.2fms\n", __func__, 0.001 * (nTime2 - nTime1));
+
         return ret;
     }
 
-private:
-    void addPoint(int height)
-    {
-        // Erace the last element in the list
-        if(points.size() == maxSize)
-        {
-            points.erase(points.begin());
-        }
-
-        // Add the point to the list
-        int occurrence = 0;
-        auto mi = points.find(height);
-         if (mi != points.end())
-             occurrence = (*mi).second;
-         occurrence++;
-         points[height] = occurrence;
-     }
-
  private:
-     std::map<int,int> points;
+     std::set<uint256> points;
      size_t maxSize;
-     size_t maxAvg;
  };
 
 /**
@@ -7309,6 +7278,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         CBlockIndex *pindexLast = nullptr;
 
+        std::vector<uint256> vHeaderHashes;
+
         for(const CBlock& header: headers) {
             CValidationState state;
             if (pindexLast != NULL && header.hashPrevBlock != pindexLast->GetBlockHash()) {
@@ -7328,6 +7299,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                     break;
                 }
             }
+            vHeaderHashes.push_back(pblockheader.GetHash());
             if (pindexLast) {
                 nLast = pindexLast->nHeight;
                 if (bFirst){
@@ -7343,7 +7315,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             CValidationState state;
             CNodeState *nodestate = State(pfrom->GetId());
             CNodeHeaders& headers = ServiceHeaders(nodestate->address);
-            headers.addHeaders(nFirst, nLast);
+            headers.addHeaders(vHeaderHashes);
             int nDoS;
             ret = headers.updateState(state, ret);
             if (state.IsInvalid(nDoS)) {
@@ -7443,6 +7415,27 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         LogPrint("net", "received block %s peer=%d\n%s\n", block.GetHash().ToString(), pfrom->id, block.ToString());
 
+        bool ret = true;
+
+        if(GetBoolArg("-headerspamfilter", DEFAULT_HEADER_SPAM_FILTER) && !IsInitialBlockDownload())
+        {
+            LOCK(cs_main);
+            CValidationState state;
+            CNodeState *nodestate = State(pfrom->GetId());
+            CNodeHeaders& headers = ServiceHeaders(nodestate->address);
+            CBlockHeader pblockheader = CBlockHeader(block);
+            headers.addHeaders({pblockheader.GetHash()});
+            int nDoS;
+            ret = headers.updateState(state, ret);
+            if (state.IsInvalid(nDoS))
+            {
+                if (nDoS > 0)
+                    Misbehaving(pfrom->GetId(), nDoS);
+
+                return error("header spam protection");
+            }
+        }
+
         CValidationState state;
         // Process all blocks from whitelisted peers, even if not requested,
         // unless we're still syncing with the network.
@@ -7460,7 +7453,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                 Misbehaving(pfrom->GetId(), nDoS);
             }
         }
-
     }
 
 
