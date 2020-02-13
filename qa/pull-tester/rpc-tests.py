@@ -192,6 +192,7 @@ testScripts = [
     'rpc-help.py',
     'dao-consultations.py',
     'dao-consultation-consensus.py',
+    'dao-consultation-consensus-cycle-length.py',
     'createrawscriptaddress.py',
     'cfunddb-statehash.py'
 ]

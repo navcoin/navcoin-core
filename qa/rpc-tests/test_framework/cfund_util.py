@@ -39,7 +39,7 @@ def activate_softfork(node, what):
 
 def end_cycle(node):
     # Move to the end of the cycle
-    slow_gen(node, node.cfundstats()["votingPeriod"]["ending"] - node.cfundstats()["votingPeriod"][
+    return slow_gen(node, node.cfundstats()["votingPeriod"]["ending"] - node.cfundstats()["votingPeriod"][
         "current"])
 
 def start_new_cycle(node):
