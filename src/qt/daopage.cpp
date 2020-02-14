@@ -1424,7 +1424,7 @@ void DaoPage::setData(QVector<ConsultationEntry> data)
         widget->setLayout(boxLayout);
 
         // Only show vote button if proposal voting is in progress
-        if (entry.fCanVote || (entry.fState == DAOFlags::NIL && entry.fCanSupport)) {
+        if (entry.fCanVote || ((entry.fState == DAOFlags::NIL || entry.fState == DAOFlags::SUPPORTED) && entry.fCanSupport)) {
             auto *button = new QPushButton;
             if (entry.fCanSupport)
                 button->setText(entry.myVotes.size() == 0 ? tr("Support") : tr("Unsupport"));
