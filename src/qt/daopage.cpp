@@ -747,7 +747,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         bool fSupported = mapSupported.count(consultation.hash);
 
-        if (fState == DAOFlags::SUPPORTED || consultation.CanBeSupported())
+        if (fState == DAOFlags::SUPPORTED || fState == DAOFlags::NIL)
         {
             if (fSupported)
                 myVotes << tr("Supported");
@@ -826,7 +826,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             consultation.IsRange(),
             consultation.nMin,
             consultation.nMax,
-            consultation.CanBeSupported()
+            fState == DAOFlags::SUPPORTED || fState == DAOFlags::NIL
         };
 
         switch (fState)
@@ -868,8 +868,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 continue;
             if (nFilter2 == FILTER2_FINISHED && fState != DAOFlags::EXPIRED)
                 continue;
-            if ((consultation.CanBeSupported() && nFilter2 != FILTER2_LOOKING_FOR_SUPPORT) ||
-                (!consultation.CanBeSupported() && nFilter2 == FILTER2_LOOKING_FOR_SUPPORT))
+            if ((fState == DAOFlags::NIL && nFilter2 != FILTER2_LOOKING_FOR_SUPPORT) ||
+                (fState != DAOFlags::NIL && nFilter2 == FILTER2_LOOKING_FOR_SUPPORT))
                 continue;
         }
 
@@ -1012,7 +1012,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         bool fHasConsultation = !consultation.consultation.IsNull() && fState != DAOFlags::EXPIRED && fState != DAOFlags::PASSED;
 
-        if (fHasConsultation && (consultation.consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED || fState == DAOFlags::REFLECTION))
+        if (fHasConsultation && (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED || fState == DAOFlags::REFLECTION))
             status = tr("change proposed") + ", " + QString::fromStdString(consultation.consultation.GetState(chainActive.Tip(), coins));
         else if (fHasConsultation && fState == DAOFlags::ACCEPTED)
             status = tr("voting");
@@ -1050,9 +1050,9 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             0,
             status,
             fState,
-            fHasConsultation,
+            fHasConsultation && fState == DAOFlags::ACCEPTED,
             consultation.myVotes,
-            fHasConsultation && (consultation.consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED),
+            fHasConsultation && (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED),
             Consensus::vConsensusParamsType[id],
             i
         };
@@ -1662,7 +1662,7 @@ void DaoPage::onVote() {
         }
         else if (coins.GetConsultation(hash, consultation))
         {
-            if (consultation.CanBeSupported())
+            if (consultation.GetLastState() == DAOFlags::NIL)
             {
                 if (consultation.IsRange())
                 {
@@ -2114,7 +2114,7 @@ void DaoChart::updateView() {
             if (fState == DAOFlags::EXPIRED || fState == DAOFlags::PASSED)
                 fShouldShowCycleInfo = false;
 
-            if (consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED)
+            if (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED)
             {
                 nCurrentCycle = consultation.nVotingCycle;
                 nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, view);
@@ -2146,7 +2146,7 @@ void DaoChart::updateView() {
 
             if (consultation.IsRange())
             {
-                if (consultation.CanBeSupported() || fState == DAOFlags::SUPPORTED)
+                if (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED)
                 {
                     mapVotes.insert(make_pair(tr("Showed support") + " (" + QString::number(consultation.nSupport) + ")", consultation.nSupport));
                     mapVotes.insert(make_pair(tr("Did not show support") + " (" + QString::number(nCurrentBlock-consultation.nSupport) + ")", nCurrentBlock-consultation.nSupport));
