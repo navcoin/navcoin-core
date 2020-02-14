@@ -2231,13 +2231,12 @@ bool CPaymentRequest::CanVote(CStateViewCache& coins) const
     flags fLastState = GetLastState();
     flags fProposalLastState = proposal.GetLastState();
 
-    bool fExceededMaxVotingCyles = ExceededMaxVotingCycles(coins);
     auto nProposalAvailable = proposal.GetAvailable(coins);
 
-    LogPrintf("%s: %s %d <= %d fLast %d fExceeded %d fProposalLast %d\n", __func__, hash.ToString(), nAmount,
-              nProposalAvailable, fLastState, fExceededMaxVotingCyles, fProposalLastState);
+    LogPrintf("%s: %s %d <= %d fLast %d fProposalLast %d\n", __func__, hash.ToString(), nAmount,
+              nProposalAvailable, fLastState, fProposalLastState);
 
-    return nAmount <= nProposalAvailable && fLastState == NIL && !fExceededMaxVotingCyles &&
+    return nAmount <= nProposalAvailable && fLastState == NIL &&
             (fProposalLastState == DAOFlags::ACCEPTED || fProposalLastState == DAOFlags::PENDING_VOTING_PREQ);
 }
 
@@ -2390,12 +2389,11 @@ std::string CProposal::GetPaymentAddress() const {
 bool CProposal::CanVote(const CStateViewCache& view) const {
     AssertLockHeld(cs_main);
 
-    bool fExceededMaxVotingCycles = ExceededMaxVotingCycles(view);
     auto fLastState = GetLastState();
 
-    LogPrintf("%s: %s fState %d fExceeded %d\n", __func__, hash.ToString(), fLastState, fExceededMaxVotingCycles);
+    LogPrintf("%s: %s fState %d\n", __func__, hash.ToString(), fLastState);
 
-    return (fLastState == NIL) && (!fExceededMaxVotingCycles);
+    return (fLastState == NIL);
 }
 
 uint64_t CProposal::getTimeTillExpired(uint32_t currentTime) const
