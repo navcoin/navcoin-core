@@ -22,6 +22,10 @@
         <translation>&amp;Menyalin</translation>
     </message>
     <message>
+        <source>Show Private Key</source>
+        <translation>Tunjukkan Private Key</translation>
+    </message>
+    <message>
         <source>C&amp;lose</source>
         <translation>T&amp;utup</translation>
     </message>
@@ -41,10 +45,70 @@
         <source>&amp;Delete</source>
         <translation>&amp;Hapus</translation>
     </message>
+    <message>
+        <source>Choose the address to send coins to</source>
+        <translation>Pilih alamat tujuan untuk pengiriman koin</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation>Pilih address untuk menerima koin</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>Mengirim address</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>Menerima address</translation>
+    </message>
+    <message>
+        <source>These are your NavCoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Ini adalah alamat NavCoin Anda untuk mengirim pembayaran. Selalu periksa jumlah dan address penerima sebelum mengirim koin.</translation>
+    </message>
+    <message>
+        <source>These are your NavCoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Ini adalah alamat NavCoin Anda untuk menerima pembayaran. Disarankan untuk menggunakan alamat penerima baru untuk setiap transaksi.</translation>
+    </message>
+    <message>
+        <source>&amp;Copy Address</source>
+        <translation>&amp;Salin Address</translation>
+    </message>
+    <message>
+        <source>Copy &amp;Label</source>
+        <translation>Salin &amp;Label</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Sunting</translation>
+    </message>
+    <message>
+        <source>Show &amp;Private Key</source>
+        <translation>Tunjukkan &amp;Private Key</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Gagal Mengekspor</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation>Ada error ketika mencoba menyimpan alamat kedalam daftar %1. Silahkan coba lagi.</translation>
+    </message>
     </context>
 <context>
     <name>AddressTableModel</name>
-    </context>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Address</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(tanpa label)</translation>
+    </message>
+</context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
@@ -62,6 +126,30 @@
     <message>
         <source>Repeat new passphrase</source>
         <translation>Ulangi kata kunci baru</translation>
+    </message>
+    <message>
+        <source>Unlock only for staking</source>
+        <translation>Buka kunci hanya untuk staking</translation>
+    </message>
+    <message>
+        <source>Encrypt wallet</source>
+        <translation>Enkripsi wallet</translation>
+    </message>
+    <message>
+        <source>Wallet encrypted</source>
+        <translation>Wallet terenkripsi</translation>
+    </message>
+    <message>
+        <source>Wallet encryption failed</source>
+        <translation>Enkripsi wallet gagal</translation>
+    </message>
+    <message>
+        <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
+        <translation>Enkripsi wallet gagal disebabkan internal error. Wallet anda belum terenkripsi.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock failed</source>
+        <translation>Buka kunci wallet gagal</translation>
     </message>
     </context>
 <context>
@@ -156,6 +244,10 @@
     <message>
         <source>none</source>
         <translation>tidak satupun</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(tanpa label)</translation>
     </message>
     </context>
 <context>
@@ -1058,8 +1150,16 @@
         <translation>&amp;Simpan Gambaran...</translation>
     </message>
     <message>
+        <source>Address</source>
+        <translation>Address</translation>
+    </message>
+    <message>
         <source>Amount</source>
         <translation>Nilai</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
     </message>
     </context>
 <context>
@@ -1067,6 +1167,14 @@
     <message>
         <source>Date</source>
         <translation>Tanggal</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(tanpa label)</translation>
     </message>
     </context>
 <context>
@@ -1155,7 +1263,11 @@
         <source>S&amp;end</source>
         <translation>K&amp;irim</translation>
     </message>
-    </context>
+    <message>
+        <source>(no label)</source>
+        <translation>(tanpa label)</translation>
+    </message>
+</context>
 <context>
     <name>SendCoinsEntry</name>
     <message>
@@ -1318,9 +1430,21 @@
         <source>Date</source>
         <translation>Tanggal</translation>
     </message>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(tanpa label)</translation>
+    </message>
     </context>
 <context>
     <name>TransactionView</name>
+    <message>
+        <source>Today</source>
+        <translation>Hari ini</translation>
+    </message>
     <message>
         <source>Confirmed</source>
         <translation>Terkonfirmasi</translation>
@@ -1328,6 +1452,18 @@
     <message>
         <source>Date</source>
         <translation>Tanggal</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Label</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Address</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Gagal Mengekspor</translation>
     </message>
     </context>
 <context>
