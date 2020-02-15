@@ -58,12 +58,12 @@
 
 #SplashVersionLabel {
     padding: 2pt;
-    font-size: 8pt;
+    font-size: 7pt;
 }
 
 #SplashStatusLabel {
     padding: 5pt;
-    font-size: 13pt;
+    font-size: 12pt;
 }
 
 #SplashBar {
