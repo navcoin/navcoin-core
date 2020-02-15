@@ -59,7 +59,7 @@ public:
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
 
-        painter->setPen(QColor(60,60,60));
+        painter->setPen(foreground);
         QRect boundingRect;
         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address, &boundingRect);
 
@@ -76,7 +76,7 @@ public:
         }
         else if(!confirmed)
         {
-            foreground = COLOR_UNCONFIRMED;
+            foreground = COLOR_GREY;
         }
         else
         {
@@ -90,7 +90,7 @@ public:
         }
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, amountText);
 
-        painter->setPen(COLOR_BAREADDRESS);
+        painter->setPen(option.palette.color(QPalette::Text));
         painter->drawText(dateRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
