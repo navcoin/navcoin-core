@@ -41,19 +41,18 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     QHBoxLayout* headLayout = new QHBoxLayout();
     headLayout->setContentsMargins(0,0,0,0);
     headLayout->setSpacing(0);
-    headLayout->setAlignment(Qt::AlignCenter);
     headerLayout->addLayout(headLayout);
 
-    balanceLayout = new QHBoxLayout();
+    balanceLayout = new QVBoxLayout();
     balanceLayout->setContentsMargins(0, 0, 0, 0);
     balanceLayout->setSpacing(0);
-    headLayout->setAlignment(Qt::AlignTop | Qt::AlignRight);
+    balanceLayout->setAlignment(Qt::AlignLeft);
     headLayout->addLayout(balanceLayout);
 
     statusLayout = new QHBoxLayout();
     statusLayout->setContentsMargins(0, 0, 0, 0);
     statusLayout->setSpacing(5 * GUIUtil::scale());
-    statusLayout->setAlignment(Qt::AlignCenter | Qt::AlignRight);
+    statusLayout->setAlignment(Qt::AlignRight);
     headLayout->addLayout(statusLayout);
 
     menuLayout = new QVBoxLayout();

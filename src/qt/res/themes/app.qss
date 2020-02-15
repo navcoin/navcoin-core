@@ -51,6 +51,15 @@
     padding: 0 0.25em 0 0.25em;
 }
 
+#balanceTotal {
+    font-size: 14pt;
+}
+
+#balanceAvail,
+#balanceStake {
+    font-size: 10pt;
+}
+
 #unlockStakingButton {
     border-image: url(:/icons/lock_closed) 0 0 0 0 stretch stretch;
     border: 0;

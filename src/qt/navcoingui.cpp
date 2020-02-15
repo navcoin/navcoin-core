@@ -116,6 +116,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
+    balanceTotal(0),
+    balanceAvail(0),
+    balanceStake(0),
     appMenuBar(0),
     overviewAction(0),
     historyAction(0),
@@ -621,6 +624,32 @@ void NavCoinGUI::createHeaderWidgets()
         notificationLayout->addWidget(notifications[i]);
     }
 
+    // Create our balance labels
+    balanceTotal = new QLabel();
+    balanceTotal->setObjectName("balanceTotal");
+    balanceTotal->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    balanceAvail = new QLabel();
+    balanceAvail->setObjectName("balanceAvail");
+    balanceAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    balanceStake = new QLabel();
+    balanceStake->setObjectName("balanceStaking");
+    balanceStake->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    // Sub layout
+    QHBoxLayout* balanceSubLayout = new QHBoxLayout();
+    balanceSubLayout->setContentsMargins(0, 0, 0, 0);
+    balanceSubLayout->setSpacing(0);
+    balanceSubLayout->addWidget(balanceAvail);
+    balanceSubLayout->addWidget(balanceStake);
+
+    // Balance sub
+    QWidget* balanceSub = new QWidget();
+    balanceSub->setLayout(balanceSubLayout);
+
+    // Add the total and sub
+    walletFrame->balanceLayout->addWidget(balanceTotal);
+    walletFrame->balanceLayout->addWidget(balanceSub);
+
     // Add the header spacer and header bar
     walletFrame->headerLayout->addWidget(headerSpacer);
 }
@@ -742,6 +771,17 @@ void NavCoinGUI::setActiveMenu(int index)
     {
         menuBtns[i]->setDisabled(i == index);
     }
+}
+
+void NavCoinGUI::setBalance(const CAmount &total, const CAmount &avail, const CAmount &stake)
+{
+    if (!walletFrame || !clientModel || !clientModel->getOptionsModel())
+        return;
+
+    int unit = clientModel->getOptionsModel()->getDisplayUnit();
+    balanceTotal->setText(tr("Balance: %1").arg(NavCoinUnits::formatWithUnit(unit, total, false, NavCoinUnits::separatorAlways)));
+    balanceAvail->setText(tr("Available: %1 | ").arg(NavCoinUnits::formatWithUnit(unit, avail, false, NavCoinUnits::separatorAlways)));
+    balanceStake->setText(tr("Staking: %1").arg(NavCoinUnits::formatWithUnit(unit, stake, false, NavCoinUnits::separatorAlways)));
 }
 
 void NavCoinGUI::updateDaoNewCount()
@@ -1636,12 +1676,19 @@ static void UpdateDaoNewCount(NavCoinGUI *gui)
     gui->updateDaoNewCount();
 }
 
+void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &stake)
+{
+    // Call our instance method
+    gui->setBalance(total, avail, stake);
+}
+
 void NavCoinGUI::subscribeToCoreSignals()
 {
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
     uiInterface.UpdateDaoNewCount.connect(boost::bind(UpdateDaoNewCount, this));
+    uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3));
 }
 
 void NavCoinGUI::unsubscribeFromCoreSignals()
@@ -1650,6 +1697,7 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
     uiInterface.UpdateDaoNewCount.disconnect(boost::bind(UpdateDaoNewCount, this));
+    uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3));
 }
 
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */

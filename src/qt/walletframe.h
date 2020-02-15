@@ -45,7 +45,7 @@ public:
     QVBoxLayout *menuLayout;
     QVBoxLayout *headerLayout;
     QHBoxLayout *headLayout;
-    QHBoxLayout *balanceLayout;
+    QVBoxLayout *balanceLayout;
     QHBoxLayout *statusLayout;
 
 Q_SIGNALS:

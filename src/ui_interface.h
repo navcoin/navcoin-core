@@ -12,6 +12,8 @@
 #include <boost/signals2/last_value.hpp>
 #include <boost/signals2/signal.hpp>
 
+#include <amount.h>
+
 class CBasicKeyStore;
 class CWallet;
 class uint256;
@@ -75,6 +77,9 @@ public:
 
     /** Update the dao new counter. */
     boost::signals2::signal<void ()> UpdateDaoNewCount;
+
+    /** Update the balance in the wallet header. */
+    boost::signals2::signal<void (const CAmount &total, const CAmount &avail, const CAmount &stake)> SetBalance;
 
     /** Show message box. */
     boost::signals2::signal<bool (const std::string& message, const std::string& caption, unsigned int style), boost::signals2::last_value<bool> > ThreadSafeMessageBox;

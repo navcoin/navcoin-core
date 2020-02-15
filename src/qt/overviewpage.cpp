@@ -187,6 +187,8 @@ void OverviewPage::setBalance(
     ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, currentTotalBalance + currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
 
     updateStakeReportNow();
+
+    uiInterface.SetBalance(currentTotalBalance, balance, stakingBalance);
 }
 
 // show/hide watch-only labels

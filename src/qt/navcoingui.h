@@ -84,6 +84,9 @@ public:
     /** Updates the count of new Dao entries */
     void updateDaoNewCount();
 
+    /** Sets the balance for the wallet GUI header */
+    void setBalance(const CAmount &total, const CAmount &avail, const CAmount &stake);
+
     /** Set the bubble counter on menubtns */
     void setMenuBubble(int index, int drak);
 
@@ -125,6 +128,10 @@ private:
     QLabel *progressBarLabel;
     GUIUtil::ClickableProgressBar* progressBar;
     QProgressDialog *progressDialog;
+
+    QLabel* balanceTotal;
+    QLabel* balanceAvail;
+    QLabel* balanceStake;
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
