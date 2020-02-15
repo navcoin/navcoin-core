@@ -12,13 +12,13 @@
 }
 
 .alert-danger {
-    border: 0.15em solid #f5c6cb;
+    border-color: #f5c6cb;
     background: #f8d7da;
     color: #721c24;
 }
 
 .alert-warning {
-    border: 0.15em solid #ffeeba;
+    border: #ffeeba;
     background: #fff3cd;
     color: #856404;
 }
@@ -53,7 +53,7 @@
 
 #unlockStakingButton {
     border-image: url(:/icons/lock_closed) 0 0 0 0 stretch stretch;
-    border: 0px;
+    border: 0;
 }
 
 #SplashVersionLabel {
