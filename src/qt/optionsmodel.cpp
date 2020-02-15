@@ -143,6 +143,12 @@ void OptionsModel::Init(bool resetSettings)
 
     theme = settings.value("theme").toString();
 
+    // UI Scaling
+    if (!settings.contains("nScaling"))
+        settings.setValue("nScaling", 100);
+
+    nScaling = settings.value("nScaling").toInt();
+
     // Display
     if (!settings.contains("language"))
         settings.setValue("language", "");
@@ -230,6 +236,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return strThirdPartyTxUrls;
         case Theme:
             return theme;
+        case Scaling:
+            return nScaling;
         case Language:
             return settings.value("language");
         case CoinControlFeatures:
@@ -363,6 +371,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             if (theme != value.toString()) {
                 theme = value.toString();
                 settings.setValue("theme", value);
+                setRestartRequired(true);
+            }
+            break;
+        case Scaling:
+            if (nScaling != value.toInt()) {
+                nScaling = value.toInt();
+                settings.setValue("nScaling", value);
                 setRestartRequired(true);
             }
             break;

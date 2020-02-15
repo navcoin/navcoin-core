@@ -83,9 +83,15 @@ float scale()
     if (scale != 0.0f)
         return scale;
 
+    // Get an instance of settings
+    QSettings settings;
+
+    // What theme are we using? DEFAULT: light
+    float scaling = (settings.value("nScaling").toFloat() - 100) / 100;
+
     // Calculate the scale
     // Give back the scale value
-    return scale = (float) (new QWidget())->logicalDpiX() / 96;
+    return scale = (float) ((new QWidget())->logicalDpiX() / 96) + scaling;
 }
 
 QString dateTimeStr(const QDateTime &date)

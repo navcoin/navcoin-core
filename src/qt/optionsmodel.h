@@ -41,6 +41,7 @@ public:
         DisplayUnit,            // NavCoinUnits::Unit
         ThirdPartyTxUrls,       // QString
         Theme,                  // QString
+        Scaling,                // int
         Language,               // QString
         CoinControlFeatures,    // bool
         ThreadsScriptVerif,     // int
@@ -79,6 +80,7 @@ private:
     bool fMinimizeToTray;
     bool fMinimizeOnClose;
     QString theme;
+    int nScaling;
     QString language;
     int nDisplayUnit;
     QString strThirdPartyTxUrls;
