@@ -621,14 +621,8 @@ void NavCoinGUI::createHeaderWidgets()
         notificationLayout->addWidget(notifications[i]);
     }
 
-    // Create the header by with gradient
-    QWidget* headerBar = new QWidget();
-    headerBar->setObjectName("HeaderBar");
-    headerBar->setMinimumSize(1, 9 * scale());
-
     // Add the header spacer and header bar
     walletFrame->headerLayout->addWidget(headerSpacer);
-    walletFrame->headerLayout->addWidget(headerBar);
 }
 
 void NavCoinGUI::createToolBars()
