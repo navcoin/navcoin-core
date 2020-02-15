@@ -159,6 +159,7 @@ NAVCOIN_CORE_H = \
   wallet/walletdb.h \
   mnemonic/dictionary.h \
   mnemonic/mnemonic.h \
+  mnemonic/generateseed.h \
   mnemonic/arrayslice.h \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
@@ -235,6 +236,7 @@ libnavcoin_wallet_a_SOURCES = \
   consensus/cfund.cpp \
   mnemonic/dictionary.cpp \
   mnemonic/mnemonic.cpp \
+  mnemonic/generateseed.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/navtech.cpp \

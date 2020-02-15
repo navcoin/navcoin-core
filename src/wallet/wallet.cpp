@@ -3949,7 +3949,7 @@ std::string CWallet::GetWalletHelpString(bool showDebug)
     return strUsage;
 }
 
-bool CWallet::InitLoadWallet()
+bool CWallet::InitLoadWallet(const std::string& wordlist)
 {
     std::string walletFile = GetArg("-wallet", DEFAULT_WALLET_DAT);
 
@@ -4021,8 +4021,13 @@ bool CWallet::InitLoadWallet()
             // generate a new master key
             CKey key;
             CPubKey masterPubKey;
-            if (GetArg("-importmnemonic","") != "") {
-                word_list words = sentence_to_word_list(GetArg("-importmnemonic",""));
+            word_list words;
+            if (GetArg("-importmnemonic","") != "" || !wordlist.empty()) {
+                if (!wordlist.empty()) {
+                    words = sentence_to_word_list(wordlist);
+                } else {
+                    words = sentence_to_word_list(GetArg("-importmnemonic",""));
+                }
                 dictionary lexicon = string_to_lexicon(GetArg("-mnemoniclanguage","english"));
                 if (!validate_mnemonic(words, lexicon)) {
                     if (validate_mnemonic(words, language::all))
