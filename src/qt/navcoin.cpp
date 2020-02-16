@@ -612,27 +612,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /// 5. Now that settings and translations are available, ask user for data directory
-    // User language is set up: pick a data directory
-    Intro::pickDataDirectory();
-
-    /// 6. Determine availability of data directory and parse navcoin.conf
-    /// - Do not call GetDataDir(true) before this step finishes
-    if (!boost::filesystem::is_directory(GetDataDir(false)))
-    {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
-        return 1;
-    }
-    try {
-        ReadConfigFile(mapArgs, mapMultiArgs);
-    } catch (const std::exception& e) {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
-        return 1;
-    }
-
-    /// 7. Determine network (and switch to network specific options)
+    /// 5. Determine network (and switch to network specific options)
     // - Do not call Params() before this step
     // - Do this after parsing the configuration file, as the network can be switched there
     // - QSettings() will use the new application name after this, resulting in network-specific settings
@@ -660,6 +640,26 @@ int main(int argc, char *argv[])
     // Load the application styles
     // Needs to be loaded after setting the app name from networkStyle
     app.loadTheme();
+
+    /// 6. Now that settings and translations are available, ask user for data directory
+    // User language is set up: pick a data directory
+    Intro::pickDataDirectory();
+
+    /// 7. Determine availability of data directory and parse navcoin.conf
+    /// - Do not call GetDataDir(true) before this step finishes
+    if (!boost::filesystem::is_directory(GetDataDir(false)))
+    {
+        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
+        return 1;
+    }
+    try {
+        ReadConfigFile(mapArgs, mapMultiArgs);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
+        return 1;
+    }
 
 #ifdef ENABLE_WALLET
     /// 8. URI IPC sending

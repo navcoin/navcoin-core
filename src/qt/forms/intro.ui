@@ -13,15 +13,9 @@
   <property name="windowTitle">
    <string>Welcome</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="welcomeLabel">
-     <property name="styleSheet">
-      <string notr="true">QLabel { font-style:italic; }</string>
-     </property>
      <property name="text">
       <string>Welcome to %1.</string>
      </property>
@@ -113,10 +107,6 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLineEdit" name="dataDirectory">
-           <property name="styleSheet">
-            <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px
-</string>
-           </property>
           </widget>
          </item>
          <item>
@@ -203,9 +193,6 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
