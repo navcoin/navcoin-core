@@ -90,8 +90,14 @@ float scale()
     float scaling = (settings.value("nScaling").toFloat() - 100) / 100;
 
     // Calculate the scale
+    scale = (float) ((new QWidget())->logicalDpiX() / 96) + scaling;
+
+    // Check if we have less than 90% or greater than 150% and reset to 100%
+    if (scale < 0.9f || scale > 1.5f)
+        scale = 1.0f;
+
     // Give back the scale value
-    return scale = (float) ((new QWidget())->logicalDpiX() / 96) + scaling;
+    return scale;
 }
 
 QString dateTimeStr(const QDateTime &date)

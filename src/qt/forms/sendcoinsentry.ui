@@ -16,16 +16,10 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <property name="currentIndex">
    <number>0</number>
   </property>
   <widget class="QFrame" name="SendCoins">
-   <property name="toolTip">
-    <string>This is a normal payment.</string>
-   </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
    </property>
@@ -60,17 +54,8 @@
     </item>
     <item row="3" column="2">
      <widget class="QLineEdit" name="addAsLabel">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="toolTip">
        <string>Enter a label for this address to add it to the list of used addresses</string>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
       </property>
      </widget>
     </item>
@@ -107,9 +92,6 @@
      <widget class="QLabel" name="messageTextLabel">
       <property name="toolTip">
        <string>A message that was attached to the navcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the NavCoin network.</string>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
@@ -157,15 +139,6 @@
      <layout class="QHBoxLayout" name="horizontalLayoutAmount" stretch="0">
       <item>
        <widget class="NavCoinAmountField" name="payAmount">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
        </widget>
       </item>
      </layout>
@@ -197,40 +170,19 @@
       </property>
       <item>
        <widget class="QValidatedLineEdit" name="payTo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
         <property name="toolTip">
          <string>The NavCoin address to send the payment to</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="addressBookButton">
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">border:0;background:transparent</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
+       <widget class="QPushButton" name="addressBookButton">
         <property name="icon">
          <iconset resource="../navcoin.qrc">
           <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
         </property>
-        <property name="iconSize">
-         <size>
-          <width>22</width>
-          <height>22</height>
-         </size>
+        <property name="flat">
+         <bool>true</bool>
         </property>
         <property name="shortcut">
          <string>Alt+A</string>
@@ -278,6 +230,9 @@
       <property name="text">
        <string>Save in Address Book</string>
       </property>
+      <property name="toolTip">
+       <string>Save this address in the address book for later reference.</string>
+      </property>
      </widget>
     </item>
     <item row="6" column="1">
@@ -297,6 +252,9 @@
       </property>
       <property name="buddy">
        <cstring>payAmount</cstring>
+      </property>
+      <property name="toolTip">
+       <string>How much do you want to send?</string>
       </property>
      </widget>
     </item>
@@ -791,9 +749,6 @@
       </property>
       <item>
        <widget class="QLabel" name="payTo_is">
-        <property name="styleSheet">
-         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
-        </property>
        </widget>
       </item>
       <item>
@@ -824,9 +779,6 @@
     </item>
     <item row="1" column="1">
      <widget class="QLabel" name="memoTextLabel_is">
-      <property name="styleSheet">
-       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
-      </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
@@ -849,9 +801,6 @@
      <widget class="NavCoinAmountField" name="payAmount_is">
       <property name="acceptDrops">
        <bool>false</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
       </property>
      </widget>
     </item>
@@ -1306,9 +1255,6 @@
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
-   <property name="styleSheet">
-    <string notr="true">background: #eff1f4; border: 0</string>
-   </property>
    <property name="frameShape">
     <enum>QFrame::NoFrame</enum>
    </property>
@@ -1333,9 +1279,6 @@
       </property>
       <item>
        <widget class="QLabel" name="payTo_s">
-        <property name="styleSheet">
-         <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
-        </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
         </property>
@@ -1369,9 +1312,6 @@
     </item>
     <item row="1" column="1">
      <widget class="QLabel" name="memoTextLabel_s">
-      <property name="styleSheet">
-       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
-      </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
@@ -1394,9 +1334,6 @@
      <widget class="NavCoinAmountField" name="payAmount_s">
       <property name="acceptDrops">
        <bool>false</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background: #fff; border-radius: 4px; border: 1px solid #000; padding:2px</string>
       </property>
      </widget>
     </item>

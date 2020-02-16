@@ -26,7 +26,6 @@ class AmountSpinBox: public QAbstractSpinBox
 public:
     explicit AmountSpinBox(QWidget *parent):
         QAbstractSpinBox(parent),
-        currentUnit(NavCoinUnits::NAV),
         singleStep(100000) // satoshis
     {
         setAlignment(Qt::AlignRight);
@@ -50,7 +49,7 @@ public:
         CAmount val = parse(input, &valid);
         if(valid)
         {
-            input = NavCoinUnits::format(currentUnit, val, false, NavCoinUnits::separatorAlways);
+            input = NavCoinUnits::format(NavCoinUnits::NAV, val, false, NavCoinUnits::separatorAlways);
             lineEdit()->setText(input);
         }
     }
@@ -60,9 +59,9 @@ public:
         return parse(text(), valid_out);
     }
 
-    void setValue(const CAmount& value)
+    void setValue(CAmount val)
     {
-        lineEdit()->setText(NavCoinUnits::format(currentUnit, value, false, NavCoinUnits::separatorAlways));
+        lineEdit()->setText(NavCoinUnits::format(NavCoinUnits::NAV, val, false, NavCoinUnits::separatorAlways));
         Q_EMIT valueChanged();
     }
 
@@ -73,19 +72,6 @@ public:
         val = val + steps * singleStep;
         val = qMin(qMax(val, CAmount(0)), NavCoinUnits::maxMoney());
         setValue(val);
-    }
-
-    void setDisplayUnit(int unit)
-    {
-        bool valid = false;
-        CAmount val = value(&valid);
-
-        //currentUnit = unit;
-
-        if(valid)
-            setValue(val);
-        else
-            clear();
     }
 
     void setSingleStep(const CAmount& step)
@@ -127,7 +113,6 @@ public:
     }
 
 private:
-    int currentUnit;
     CAmount singleStep;
     mutable QSize cachedMinimumSizeHint;
 
@@ -139,7 +124,7 @@ private:
     CAmount parse(const QString &text, bool *valid_out=0) const
     {
         CAmount val = 0;
-        bool valid = NavCoinUnits::parse(0, text, &val);
+        bool valid = NavCoinUnits::parse(NavCoinUnits::NAV, text, &val);
         if(valid)
         {
             if(val < 0 || val > NavCoinUnits::maxMoney())
@@ -200,13 +185,11 @@ NavCoinAmountField::NavCoinAmountField(QWidget *parent) :
     amount = new AmountSpinBox(this);
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
-    amount->setMaximumWidth(170);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QLabel(this);
     layout->addWidget(unit);
-    layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);
@@ -217,13 +200,11 @@ NavCoinAmountField::NavCoinAmountField(QWidget *parent) :
     // If one if the widgets changes, the combined content changes as well
     connect(amount, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
     connect(amount, SIGNAL(valueChanged()), this, SLOT(valueDidChange()));
-
 }
 
 void NavCoinAmountField::clear()
 {
     amount->clear();
-    unit->setText("0 EUR / 0 USD / 0 BTC");
 }
 
 void NavCoinAmountField::setEnabled(bool fEnabled)
@@ -274,28 +255,24 @@ void NavCoinAmountField::setValue(const CAmount& value)
     amount->setValue(value);
 }
 
-void NavCoinAmountField::valueDidChange()
-{
-    QSettings settings;
-    bool valid;
-    unit->setText(QString("%1 EUR / ").arg(value(&valid) / settings.value("eurFactor", 0).toFloat()).append("%2 USD / ").arg(value(&valid) / settings.value("usdFactor", 0).toFloat()).append("%3 BTC").arg(value(&valid) / settings.value("btcFactor", 0).toFloat()));
-}
-
 void NavCoinAmountField::setReadOnly(bool fReadOnly)
 {
     amount->setReadOnly(fReadOnly);
 }
 
-void NavCoinAmountField::unitChanged(int idx)
-{
-
-}
-
 void NavCoinAmountField::setDisplayUnit(int newUnit)
 {
-    amount->setDisplayUnit(newUnit);
+    nCurrentUnit = newUnit;
+    valueDidChange();
 }
 
+void NavCoinAmountField::valueDidChange()
+{
+    if (nCurrentUnit != NavCoinUnits::NAV)
+        unit->setText(" " + tr("or") + " " + NavCoinUnits::formatWithUnit(nCurrentUnit, value()));
+    else
+        unit->setText(" " + tr("or") + " " + NavCoinUnits::formatWithUnit(NavCoinUnits::BTC, value()));
+}
 
 void NavCoinAmountField::setSingleStep(const CAmount& step)
 {
