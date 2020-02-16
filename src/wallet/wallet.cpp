@@ -1443,7 +1443,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
     // Can't mark abandoned if confirmed or in mempool
     assert(mapWallet.count(hashTx));
     CWalletTx& origtx = mapWallet[hashTx];
-    if (origtx.GetDepthInMainChain() > 0 || origtx.InMempool()) {
+    if (origtx.GetDepthInMainChain() > 0 || origtx.InMempool() || origtx.InStempool()) {
         LogPrintf("AbandonTransaction : Could not abandon transaction.%s%s",origtx.InMempool()?" Tx in Mempool":"",origtx.GetDepthInMainChain() > 0?" Tx already confirmed":"");
         return false;
     }
@@ -1463,6 +1463,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
         if (currentconfirm == 0 && !wtx.isAbandoned()) {
             // If the orig tx was not in block/mempool, none of its spends can be in mempool
             assert(!wtx.InMempool());
+            assert(!wtx.InStempool());
             wtx.nIndex = -1;
             wtx.setAbandoned();
             wtx.MarkDirty();
@@ -2021,20 +2022,35 @@ void CWallet::ReacceptWalletTransactions()
     {
         CWalletTx& wtx = *(item.second);
 
-        LOCK(mempool.cs);
+        LOCK2(stempool.cs, mempool.cs);
         wtx.AcceptToMemoryPool(false, maxTxFee);
+        // If Dandelion enabled, relay transaction once again.
+        if (GetBoolArg("-dandelion", true)) {
+            wtx.RelayWalletTransaction();
+        }
     }
 }
 
 bool CWalletTx::RelayWalletTransaction()
 {
     assert(pwallet->GetBroadcastTransactions());
-    if (!(IsCoinBase() || IsCoinStake()))
-    {
-        if (GetDepthInMainChain() == 0 && !isAbandoned() && InMempool()) {
-            LogPrintf("Relaying wtx %s\n", GetHash().ToString());
-            RelayTransaction((CTransaction)*this);
-            return true;
+    if (!IsCoinBase() && !isAbandoned() && GetDepthInMainChain() == 0) {
+        CValidationState state;
+        /* GetDepthInMainChain already catches known conflicts. */
+        if (InMempool() || InStempool()) {
+            // If Dandelion enabled, push inventory item to just one destination.
+            if (GetBoolArg("-dandelion", true)) {
+                int64_t nCurrTime = GetTimeMicros();
+                int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
+                InsertDandelionEmbargo(GetHash(),nEmbargo);
+                LogPrint("dandelion", "dandeliontx %s embargoed for %d seconds\n", GetHash().ToString(), (nEmbargo-nCurrTime)/1000000);
+                CInv inv(MSG_DANDELION_TX, GetHash());
+                return LocalDandelionDestinationPushInventory(inv);
+            } else {
+                LogPrintf("Relaying wtx %s\n", GetHash().ToString());
+                RelayTransaction((CTransaction)*this);
+                return true;
+            }
         }
     }
     return false;
@@ -2274,6 +2290,16 @@ bool CWalletTx::InMempool() const
     return false;
 }
 
+
+bool CWalletTx::InStempool() const
+{
+    LOCK(stempool.cs);
+    if (stempool.exists(GetHash())) {
+        return true;
+    }
+    return false;
+}
+
 bool CWalletTx::IsTrusted() const
 {
     // Quick answer in most cases
@@ -2288,7 +2314,7 @@ bool CWalletTx::IsTrusted() const
         return false;
 
     // Don't trust unconfirmed transactions from us unless they are in the mempool.
-    if (!InMempool())
+    if (!InMempool() && !InStempool())
         return false;
 
     // Trusted if all inputs are from us and are in the mempool:
@@ -2412,7 +2438,7 @@ CAmount CWallet::GetUnconfirmedBalance() const
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
-            if (!pcoin->IsTrusted() && pcoin->GetDepthInMainChain() == 0 && pcoin->InMempool())
+            if (!pcoin->IsTrusted() && pcoin->GetDepthInMainChain() == 0 && (pcoin->InMempool() || pcoin->InStempool()))
                 nTotal += pcoin->GetAvailableCredit();
         }
     }
@@ -2457,7 +2483,7 @@ CAmount CWallet::GetUnconfirmedWatchOnlyBalance() const
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
-            if (!pcoin->IsTrusted() && pcoin->GetDepthInMainChain() == 0 && pcoin->InMempool())
+            if (!pcoin->IsTrusted() && pcoin->GetDepthInMainChain() == 0 && (pcoin->InMempool() || pcoin->InStempool()))
                 nTotal += pcoin->GetAvailableWatchOnlyCredit();
         }
     }
@@ -2504,7 +2530,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
 
             // We should not consider coins which aren't at least in our mempool
             // It's possible for these to be conflicted via ancestors which we may never be able to detect
-            if (nDepth == 0 && !pcoin->InMempool())
+            if (nDepth == 0 && !(pcoin->InMempool() || pcoin->InStempool()))
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
@@ -4309,5 +4335,17 @@ int CMerkleTx::GetBlocksToMaturity() const
 bool CMerkleTx::AcceptToMemoryPool(bool fLimitFree, CAmount nAbsurdFee)
 {
     CValidationState state;
-    return ::AcceptToMemoryPool(mempool, state, *this, fLimitFree, nullptr, false, nAbsurdFee);
+    bool ret;
+    if (GetBoolArg("-dandelion", true)) {
+        ret = ::AcceptToMemoryPool(stempool, state, *this, fLimitFree /* pfMissingInputs */,
+                                   nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
+    } else {
+        ret = ::AcceptToMemoryPool(mempool, state, *this, fLimitFree /* pfMissingInputs */,
+                                   nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
+        // Changes to mempool should also be made to Dandelion stempool
+        CValidationState dummyState;
+        ret &= ::AcceptToMemoryPool(stempool, dummyState, *this, fLimitFree /* pfMissingInputs */,
+                                   nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
+    }
+    return ret;
 }

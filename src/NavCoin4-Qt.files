@@ -63,6 +63,8 @@ core_read.cpp
 core_write.cpp
 crypto/aes.cpp
 crypto/aes.h
+crypto/chacha20.cpp
+crypto/chacha20.h
 crypto/common.h
 crypto/ctaes/bench.c
 crypto/ctaes/ctaes.c

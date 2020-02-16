@@ -471,6 +471,7 @@ public:
 
 
     bool InMempool() const;
+    bool InStempool() const;
     bool IsTrusted() const;
 
     int64_t GetTxTime() const;
