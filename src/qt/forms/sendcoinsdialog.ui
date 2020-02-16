@@ -590,39 +590,6 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <property name="spacing">
-        <number>3</number>
-       </property>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_11">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <spacer name="horizontalSpacer_7">
@@ -641,20 +608,17 @@
         <widget class="QPushButton" name="sendButton">
          <property name="minimumSize">
           <size>
-           <width>150</width>
-           <height>0</height>
+           <width>180</width>
+           <height>30</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <pointsize>11</pointsize>
+           <pointsize>13</pointsize>
           </font>
          </property>
          <property name="toolTip">
           <string>Confirm the send action</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
          </property>
          <property name="text">
           <string>S&amp;end</string>

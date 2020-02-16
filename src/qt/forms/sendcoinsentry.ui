@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>SendCoinsEntry</class>
  <widget class="QStackedWidget" name="SendCoinsEntry">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>710</width>
-    <height>223</height>
-   </rect>
-  </property>
   <property name="focusPolicy">
    <enum>Qt::TabFocus</enum>
   </property>
@@ -67,7 +59,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>40</height>
+        <height>10</height>
        </size>
       </property>
      </spacer>
@@ -215,7 +207,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>40</height>
+        <height>10</height>
        </size>
       </property>
      </spacer>
@@ -266,7 +258,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>40</height>
+        <height>10</height>
        </size>
       </property>
      </spacer>
@@ -304,6 +296,9 @@
    </layout>
   </widget>
   <widget class="QFrame" name="SendCoins_UnauthenticatedPaymentRequest">
+   <property name="visible">
+    <bool>false</bool>
+   </property>
    <property name="palette">
     <palette>
      <active>
@@ -807,6 +802,9 @@
    </layout>
   </widget>
   <widget class="QFrame" name="SendCoins_AuthenticatedPaymentRequest">
+   <property name="visible">
+    <bool>false</bool>
+   </property>
    <property name="palette">
     <palette>
      <active>
