@@ -599,7 +599,7 @@ void NavCoinGUI::createHeaderWidgets()
     // Notifications layout vertical
     QVBoxLayout* notificationLayout = new QVBoxLayout();
     notificationLayout->setContentsMargins(0, 0, 0, 0);
-    notificationLayout->setSpacing(2 * scale());
+    notificationLayout->setSpacing(0);
     notificationLayout->setAlignment(Qt::AlignVCenter);
 
     // Add a spacer to header to create a background
