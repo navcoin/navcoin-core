@@ -45,6 +45,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->deleteButton_is, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
+    connect(ui->checkboxUseFullAmount, SIGNAL(clicked()), this, SLOT(useFullAmount()));
 
     ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
     ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
@@ -55,15 +56,19 @@ SendCoinsEntry::~SendCoinsEntry()
     delete ui;
 }
 
-
 void SendCoinsEntry::setTotalAmount(const CAmount& amount)
 {
     totalAmount = amount;
+
+    if (ui->checkboxUseFullAmount->isChecked()) {
+        useFullAmount();
+    }
 }
 
 void SendCoinsEntry::useFullAmount()
 {
     ui->payAmount->setValue(totalAmount);
+    ui->payAmount->setDisabled(ui->checkboxUseFullAmount->isChecked());
 }
 
 void SendCoinsEntry::updateAddressBook()

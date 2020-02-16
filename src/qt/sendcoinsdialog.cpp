@@ -74,7 +74,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     connect(clipboardPriorityAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardPriority()));
     connect(clipboardLowOutputAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardLowOutput()));
     connect(clipboardChangeAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardChange()));
-    connect(ui->fullAmountBtn,  SIGNAL(clicked()), this, SLOT(useFullAmount()));
 
     ui->labelCoinControlQuantity->addAction(clipboardQuantityAction);
     ui->labelCoinControlAmount->addAction(clipboardAmountAction);
@@ -506,23 +505,6 @@ void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfir
             entry->setTotalAmount(balance);
         }
     }
-
-    if(model && model->getOptionsModel())
-    {
-        ui->labelBalance->setText(NavCoinUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
-    }
-}
-
-void SendCoinsDialog::useFullAmount()
-{
-  for(int i = 0; i < ui->entries->count(); ++i)
-  {
-      SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-      if(entry)
-      {
-          entry->useFullAmount();
-      }
-  }
 }
 
 void SendCoinsDialog::updateDisplayUnit()
@@ -585,14 +567,8 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
 
 void SendCoinsDialog::minimizeFeeSection(bool fMinimize)
 {
-    //ui->labelFeeMinimized->setVisible(fMinimize);
-    //ui->buttonChooseFee  ->setVisible(fMinimize);
-    //ui->buttonMinimizeFee->setVisible(!fMinimize);
     ui->frameFeeSelection->setVisible(!fMinimize);
     ui->sendButton       ->setVisible(fMinimize);
-    ui->label            ->setVisible(fMinimize);
-    ui->labelBalance     ->setVisible(fMinimize);
-    //ui->horizontalLayoutSmartFee->setContentsMargins(0, (fMinimize ? 0 : 6), 0, 0);
 
     fFeeMinimized = fMinimize;
 }
@@ -637,19 +613,6 @@ void SendCoinsDialog::updateGlobalFeeVariables()
     }
 }
 
-void SendCoinsDialog::updateFeeMinimizedLabel()
-{
-    if(!model || !model->getOptionsModel())
-        return;
-
-  //  if (ui->radioSmartFee->isChecked())
-  //      ui->labelFeeMinimized->setText(ui->labelSmartFee->text());
-  //  else {
-  //      ui->labelFeeMinimized->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), ui->customFee->value()) +
-  //          ((ui->radioCustomPerKilobyte->isChecked()) ? "/kB" : ""));
-  //  }
-}
-
 void SendCoinsDialog::updateMinFeeLabel()
 {
     if (model && model->getOptionsModel())
@@ -680,8 +643,6 @@ void SendCoinsDialog::updateSmartFeeLabel()
         ui->labelSmartFee2->hide();
         ui->labelFeeEstimation->setText(tr("Estimated to begin confirmation within %n block(s).", "", estimateFoundAtBlocks));
     }
-
-    updateFeeMinimizedLabel();
 }
 
 // Coin Control: copy label "Quantity" to clipboard

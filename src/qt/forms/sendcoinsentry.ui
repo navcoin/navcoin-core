@@ -314,6 +314,21 @@
      </spacer>
     </item>
     <item row="7" column="2">
+     <widget class="QCheckBox" name="checkboxUseFullAmount">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>Should we use all available balance to send?</string>
+      </property>
+      <property name="text">
+       <string>Send &amp;available coins</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="2">
      <widget class="QCheckBox" name="checkboxSubtractFeeFromAmount">
       <property name="font">
        <font>
