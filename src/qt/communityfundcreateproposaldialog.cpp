@@ -1,5 +1,6 @@
 #include <qt/communityfundcreateproposaldialog.h>
 #include <qt/communityfundsuccessdialog.h>
+#include <qt/optionsmodel.h>
 #include <qt/sendcommunityfunddialog.h>
 #include <ui_communityfundcreateproposaldialog.h>
 
@@ -62,6 +63,8 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
 void CommunityFundCreateProposalDialog::setModel(WalletModel *model)
 {
     this->model = model;
+
+    ui->lineEditRequestedAmount->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
 }
 
 // Validate input fields

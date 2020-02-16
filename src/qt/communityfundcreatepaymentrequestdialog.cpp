@@ -1,5 +1,6 @@
 #include <qt/communityfundcreatepaymentrequestdialog.h>
 #include <qt/communityfundsuccessdialog.h>
+#include <qt/optionsmodel.h>
 #include <qt/sendcommunityfunddialog.h>
 #include <ui_communityfundcreatepaymentrequestdialog.h>
 
@@ -48,6 +49,8 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
 void CommunityFundCreatePaymentRequestDialog::setModel(WalletModel *model)
 {
     this->model = model;
+
+    ui->lineEditRequestedAmount->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
 }
 
 bool CommunityFundCreatePaymentRequestDialog::validate()
