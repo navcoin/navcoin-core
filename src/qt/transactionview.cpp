@@ -49,14 +49,14 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     hlayout->addSpacing(23 * GUIUtil::scale());
 
     watchOnlyWidget = new QComboBox(this);
-    watchOnlyWidget->setFixedWidth(24);
+    watchOnlyWidget->setFixedWidth(WATCHONLY_COLUMN_WIDTH * GUIUtil::scale());
     watchOnlyWidget->addItem("", TransactionFilterProxy::WatchOnlyFilter_All);
     watchOnlyWidget->addItem(platformStyle->Icon(":/icons/eye_plus"), "", TransactionFilterProxy::WatchOnlyFilter_Yes);
     watchOnlyWidget->addItem(platformStyle->Icon(":/icons/eye_minus"), "", TransactionFilterProxy::WatchOnlyFilter_No);
     hlayout->addWidget(watchOnlyWidget);
 
     dateWidget = new QComboBox(this);
-    dateWidget->setFixedWidth(120 * GUIUtil::scale());
+    dateWidget->setFixedWidth(DATE_COLUMN_WIDTH * GUIUtil::scale());
     dateWidget->addItem(tr("All"), All);
     dateWidget->addItem(tr("Today"), Today);
     dateWidget->addItem(tr("This week"), ThisWeek);
@@ -67,7 +67,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     hlayout->addWidget(dateWidget);
 
     typeWidget = new QComboBox(this);
-    typeWidget->setFixedWidth(120 * GUIUtil::scale());
+    typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH * GUIUtil::scale());
 
     typeWidget->addItem(tr("All"), TransactionFilterProxy::ALL_TYPES);
     typeWidget->addItem(tr("Received with"), TransactionFilterProxy::TYPE(TransactionRecord::RecvWithAddress) |
@@ -91,7 +91,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     amountWidget = new QLineEdit(this);
     amountWidget->setPlaceholderText(tr("Min amount"));
-    amountWidget->setFixedWidth(120 * GUIUtil::scale());
+    amountWidget->setFixedWidth(AMOUNT_MINIMUM_COLUMN_WIDTH * GUIUtil::scale());
     amountWidget->setValidator(new QDoubleValidator(0, 1e20, 8, this));
     hlayout->addWidget(amountWidget);
 
