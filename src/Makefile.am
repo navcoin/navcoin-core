@@ -196,6 +196,7 @@ libnavcoin_server_a_SOURCES = \
   policy/policy.cpp \
   pow.cpp \
   pos.cpp \
+  random.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
   rpc/mining.cpp \
@@ -249,6 +250,8 @@ crypto_libnavcoin_crypto_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 crypto_libnavcoin_crypto_a_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
+  crypto/chacha20.cpp \
+  crypto/chacha20.h \
   crypto/common.h \
   crypto/hmac_sha256.cpp \
   crypto/hmac_sha256.h \

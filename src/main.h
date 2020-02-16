@@ -181,6 +181,7 @@ struct BlockHasher
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CTxMemPool mempool;
+extern CTxMemPool stempool;
 typedef boost::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
 extern BlockMap mapBlockIndex;
 extern uint64_t nLastBlockTx;
@@ -227,6 +228,11 @@ static const unsigned int MIN_BLOCKS_TO_KEEP = 288;
 
 static const signed int DEFAULT_CHECKBLOCKS = MIN_BLOCKS_TO_KEEP;
 static const unsigned int DEFAULT_CHECKLEVEL = 4;
+
+/** Fixed delay for Dandelion embargo in seconds */
+static const int64_t EMBARGO_FIXED_DELAY = 10;
+/** Mean delay for Dandelion embargo in seconds, after the fixed delay */
+static const int64_t EMBARGO_MEAN_DELAY = 30;
 
 // Require that user allocate at least 550MB for block & undo files (blk???.dat and rev???.dat)
 // At 1MB per block, 288 blocks = 288MB.
@@ -647,5 +653,8 @@ bool IsSigHFEnabled(const Consensus::Params &consensus, const CBlockIndex *pinde
 
 bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, const CAmount& nProposalFee, CFund::CProposal& proposal);
 bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
+
+static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom);
+static void CheckDandelionEmbargoes();
 
 #endif // NAVCOIN_MAIN_H
