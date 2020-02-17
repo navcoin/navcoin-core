@@ -19,7 +19,7 @@
 }
 
 .alert-warning {
-    border: #ffeeba;
+    border-color: #ffeeba;
     background: #fff3cd;
     color: #856404;
 }
