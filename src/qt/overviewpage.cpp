@@ -188,7 +188,7 @@ void OverviewPage::setBalance(
 
     updateStakeReportNow();
 
-    uiInterface.SetBalance(currentTotalBalance, balance, stakingBalance);
+    uiInterface.SetBalance(currentTotalBalance, balance, stakingBalance + coldStakingBalance);
 }
 
 // show/hide watch-only labels
