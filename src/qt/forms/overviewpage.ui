@@ -272,6 +272,13 @@
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="showStakingSetup">
        <property name="text">
         <string>Set up Staking Rewards</string>
