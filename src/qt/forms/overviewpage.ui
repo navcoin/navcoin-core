@@ -44,10 +44,10 @@
          <enum>QLayout::SetNoConstraint</enum>
         </property>
         <property name="labelAlignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="formAlignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignRight|Qt::AlignVCenter</set>
         </property>
         <item row="0" column="0">
          <widget class="QLabel" name="labelAvailableText">
@@ -62,7 +62,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -79,7 +79,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -96,7 +96,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -113,7 +113,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -130,7 +130,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -147,7 +147,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -164,7 +164,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -178,10 +178,10 @@
        </property>
        <layout class="QFormLayout" name="formLayout_2">
         <property name="labelAlignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="formAlignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignRight|Qt::AlignVCenter</set>
         </property>
         <item row="2" column="0">
          <widget class="QLabel" name="label7dStakingStatsText">
@@ -196,7 +196,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -213,7 +213,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -230,7 +230,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -247,7 +247,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -264,7 +264,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
