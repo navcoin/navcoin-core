@@ -972,7 +972,7 @@ void DownloadBlockchain(std::string url)
 /** Initialize navcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
-bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
+bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std::string& wordlist)
 {
     // ********************************************************* Step 0: download bootstrap
     std::string sBootstrap = GetArg("-bootstrap","");
@@ -1774,7 +1774,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         pwalletMain = nullptr;
         LogPrintf("Wallet disabled!\n");
     } else {
-        CWallet::InitLoadWallet();
+        CWallet::InitLoadWallet(wordlist);
         if (!pwalletMain)
             return false;
     }

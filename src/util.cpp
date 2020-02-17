@@ -585,6 +585,17 @@ static boost::filesystem::path pathCached;
 static boost::filesystem::path pathCachedNetSpecific;
 static CCriticalSection csPathCached;
 
+bool CheckIfWalletDatExists(bool fNetSpecific) {
+
+    namespace fs = boost::filesystem;
+
+    boost::filesystem::path path("wallet.dat");
+    if (!path.is_complete())
+        path = GetDataDir(fNetSpecific) / path;
+
+    return fs::exists(path);
+}
+
 const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
