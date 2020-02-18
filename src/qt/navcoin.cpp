@@ -25,6 +25,7 @@
 
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
+#include <startoptionsmain.h>
 #include <qt/walletmodel.h>
 #endif
 
@@ -153,7 +154,7 @@ class NavCoinCore: public QObject
 {
     Q_OBJECT
 public:
-    explicit NavCoinCore();
+    explicit NavCoinCore(std::string& wordlist);
 
 public Q_SLOTS:
     void initialize();
@@ -170,6 +171,7 @@ private:
 
     /// Pass fatal exception message to UI thread
     void handleRunawayException(const std::exception *e);
+    std::string words;
 };
 
 /** Main NavCoin application object */
@@ -192,9 +194,12 @@ public:
     /// Create options model
     void createOptionsModel(bool resetSettings);
     /// Create main window
-    void createWindow(const NetworkStyle *networkStyle);
+    bool createWindow(const NetworkStyle *networkStyle);
     /// Create splash screen
     void createSplashScreen(const NetworkStyle *networkStyle);
+
+    /// Get mnemonic words on first startup
+    bool setupMnemonicWords(std::string& wordlist);
 
     /// Request core initialization
     void requestInitialize();
@@ -229,6 +234,7 @@ private:
     PaymentServer* paymentServer;
     WalletModel *walletModel;
 #endif
+    std::string wordlist;
     int returnValue;
     const PlatformStyle *platformStyle;
     std::unique_ptr<QWidget> shutdownWindow;
@@ -238,8 +244,8 @@ private:
 
 #include <qt/navcoin.moc>
 
-NavCoinCore::NavCoinCore():
-    QObject()
+NavCoinCore::NavCoinCore(std::string& wordlist):
+    QObject(), words(wordlist)
 {
 }
 
@@ -254,7 +260,7 @@ void NavCoinCore::initialize()
     try
     {
         qDebug() << __func__ << ": Running AppInit2 in thread";
-        int rv = AppInit2(threadGroup, scheduler);
+        int rv = AppInit2(threadGroup, scheduler, words);
         Q_EMIT initializeResult(rv);
     } catch (const std::exception& e) {
         handleRunawayException(&e);
@@ -385,13 +391,40 @@ void NavCoinApplication::createOptionsModel(bool resetSettings)
     optionsModel = new OptionsModel(NULL, resetSettings);
 }
 
-void NavCoinApplication::createWindow(const NetworkStyle *networkStyle)
+// this will be used to get mnemonic words
+bool NavCoinApplication::setupMnemonicWords(std::string& wordlist) {
+    namespace fs = boost::filesystem;
+    if (GetBoolArg("-disablewallet", false)) {
+        LogPrintf("Wallet disabled!\n");
+    }
+
+    if (GetBoolArg("-skipmnemonicbackup",false)) {
+        return true;
+    }
+
+    std::string walletFile = GetArg("-wallet", "wallet.dat");
+    if (fs::exists(walletFile)) return true;
+	
+	if (CheckIfWalletDatExists()) return true;
+
+    StartOptionsMain dlg(nullptr);
+    dlg.exec();
+    wordlist = dlg.getWords();
+    return false;
+}
+
+bool NavCoinApplication::createWindow(const NetworkStyle *networkStyle)
 {
+    if (!setupMnemonicWords(wordlist)) {
+        if (wordlist.empty()) return false;
+    }
+
     window = new NavCoinGUI(platformStyle, networkStyle, 0);
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
     pollShutdownTimer->start(200);
+    return true;
 }
 
 void NavCoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
@@ -409,7 +442,7 @@ void NavCoinApplication::startThread()
     if(coreThread)
         return;
     coreThread = new QThread(this);
-    NavCoinCore *executor = new NavCoinCore();
+    NavCoinCore *executor = new NavCoinCore(wordlist);
     executor->moveToThread(coreThread);
 
     /*  communication to and from thread */
@@ -698,7 +731,9 @@ int main(int argc, char *argv[])
 
     try
     {
-        app.createWindow(networkStyle.data());
+        if (!app.createWindow(networkStyle.data())) {
+            return EXIT_FAILURE;
+        }
         app.requestInitialize();
 #if defined(Q_OS_WIN)
         WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("%1 didn't yet exit safely...").arg(QObject::tr(PACKAGE_NAME)), (HWND)app.getMainWinId());

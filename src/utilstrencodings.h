@@ -144,4 +144,8 @@ bool TimingResistantEqual(const T& a, const T& b)
  */
 bool ParseFixedPoint(const std::string &val, int decimals, int64_t *amount_out);
 
+// Join words with separator
+std::string join(const std::vector<std::string>& words, const std::string &separator = ", ", const std::string &concluder = "");
+
+
 #endif // NAVCOIN_UTILSTRENCODINGS_H

@@ -92,6 +92,12 @@ QT_TS = \
 QT_FORMS_UI = \
 	qt/forms/addressbookpage.ui \
 	qt/forms/askpassphrasedialog.ui \
+    qt/forms/startoptionsdialog.ui \
+    qt/forms/startoptions.ui \
+    qt/forms/startoptionsrestore.ui \
+    qt/forms/startoptionssort.ui \
+    qt/forms/startoptionsrevealed.ui \
+    qt/forms/startoptionsmain.ui \
 	qt/forms/coincontroldialog.ui \
 	qt/forms/communityfundcreatepaymentrequestdialog.ui \
 	qt/forms/communityfundcreateproposaldialog.ui \
@@ -124,6 +130,12 @@ QT_MOC_CPP = \
 	qt/moc_askpassphrasedialog.cpp \
 	qt/moc_bantablemodel.cpp \
 	qt/moc_clientmodel.cpp \
+    qt/moc_startoptionsdialog.cpp \
+    qt/moc_startoptions.cpp \
+    qt/moc_startoptionsrestore.cpp \
+    qt/moc_startoptionssort.cpp \
+    qt/moc_startoptionsrevealed.cpp \
+    qt/moc_startoptionsmain.cpp \
 	qt/moc_coincontroldialog.cpp \
 	qt/moc_coincontroltreewidget.cpp \
 	qt/moc_coldstakingwizard.cpp \
@@ -217,6 +229,12 @@ NAVCOIN_QT_H = \
 	qt/askpassphrasedialog.h \
 	qt/bantablemodel.h \
 	qt/clientmodel.h \
+    qt/startoptionsdialog.h \
+    qt/startoptions.h \
+    qt/startoptionsrestore.h \
+    qt/startoptionssort.h \
+    qt/startoptionsrevealed.h \
+    qt/startoptionsmain.h \
 	qt/coincontroldialog.h \
 	qt/coincontroltreewidget.h \
 	qt/coldstakingwizard.h \
@@ -448,6 +466,12 @@ NAVCOIN_QT_CPP = \
 	qt/styles/dark.cpp \
 	qt/styles/light.cpp \
 	qt/trafficgraphwidget.cpp \
+    qt/startoptionsdialog.cpp \
+    qt/startoptions.cpp \
+    qt/startoptionsrestore.cpp \
+    qt/startoptionssort.cpp \
+    qt/startoptionsrevealed.cpp \
+    qt/startoptionsmain.cpp \
 	qt/utilitydialog.cpp
 
 if TARGET_WINDOWS
