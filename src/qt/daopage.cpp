@@ -2173,7 +2173,8 @@ void DaoChart::updateView() {
 
                         if (answer.parent == consultation.hash)
                         {
-                            uint64_t nAmount = (consultation.CanBeSupported() || consultation.GetLastState() == DAOFlags::SUPPORTED || fAnswerState == DAOFlags::SUPPORTED) ? answer.nSupport : answer.nVotes;
+                            auto fState = consultation.GetLastState();
+                            uint64_t nAmount = (!consultation.IsSupported(view) || fState == DAOFlags::SUPPORTED || fState == DAOFlags::REFLECTION || fState == DAOFlags::NIL) ? answer.nSupport : answer.nVotes;
                             mapVotes.insert(make_pair(QString::fromStdString(consultation.IsAboutConsensusParameter() ? FormatConsensusParameter((Consensus::ConsensusParamsPos)consultation.nMin, answer.sAnswer) : answer.sAnswer) + " (" + QString::number(nAmount) + ", " + QString::number(nAmount*100/nVotingLength)+ "%)",nAmount));
                         }
                     }
