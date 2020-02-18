@@ -13,6 +13,7 @@
 #include <util.h>
 #include <utils/dns_utils.h>
 #include <qt/walletmodel.h>
+#include <qt/coincontroldialog.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -46,6 +47,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
     connect(ui->checkboxUseFullAmount, SIGNAL(clicked()), this, SLOT(useFullAmount()));
+    connect(ui->checkboxCoinControl, SIGNAL(toggled(bool)), this, SLOT(coinControlFeatureChanged(bool)));
 
     ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
     ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
@@ -99,8 +101,12 @@ void SendCoinsEntry::setModel(WalletModel *model)
 {
     this->model = model;
 
-    if (model && model->getOptionsModel())
+    if (model && model->getOptionsModel()) {
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+        connect(model->getOptionsModel(), SIGNAL(coinControlFeatureChanged(bool)), this, SLOT(coinControlFeatureChanged(bool)));
+
+        ui->checkboxCoinControl->setChecked(model->getOptionsModel()->getCoinControlFeatures());
+    }
 
     clear();
 }
@@ -126,6 +132,12 @@ void SendCoinsEntry::clear()
 
     // update the display unit, to not use the default ("NAV")
     updateDisplayUnit();
+}
+
+void SendCoinsEntry::coinControlFeatureChanged(bool checked)
+{
+    ui->checkboxCoinControl->setChecked(checked);
+    model->getOptionsModel()->setCoinControlFeatures(checked);
 }
 
 void SendCoinsEntry::deleteClicked()

@@ -59,6 +59,7 @@ public:
     bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
     /** Updates current unit in memory, settings and emits displayUnitChanged(newUnit) signal */
     void setDisplayUnit(const QVariant &value);
+    void setCoinControlFeatures(const bool enabled);
 
     /* Explicit getters */
     bool getHideTrayIcon() { return fHideTrayIcon; }

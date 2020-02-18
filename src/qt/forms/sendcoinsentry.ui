@@ -293,6 +293,16 @@
       </property>
      </widget>
     </item>
+    <item row="10" column="2">
+     <widget class="QCheckBox" name="checkboxCoinControl">
+      <property name="toolTip">
+       <string>Whether to show coin control features or not.</string>
+      </property>
+      <property name="text">
+       <string>Enable coin &amp;control features</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QFrame" name="SendCoins_UnauthenticatedPaymentRequest">

@@ -432,6 +432,17 @@ void OptionsModel::setDisplayUnit(const QVariant &value)
     }
 }
 
+void OptionsModel::setCoinControlFeatures(const bool enabled)
+{
+    if (enabled == getCoinControlFeatures())
+        return;
+
+    QSettings settings;
+    fCoinControlFeatures = enabled;
+    settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
+    Q_EMIT coinControlFeaturesChanged(enabled);
+}
+
 bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
 {
     // Directly query current base proxy, because
