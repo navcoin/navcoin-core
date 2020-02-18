@@ -17,7 +17,7 @@ StartOptions::StartOptions(QWidget *parent)
     ui->setupUi(this);
 
     // Size of the icon
-    QSize iconSize(600 * GUIUtil::scale(), 145 * GUIUtil::scale());
+    QSize iconSize(400 * GUIUtil::scale(), 95 * GUIUtil::scale());
 
     // Load the icon
     QPixmap icon = QPixmap(":icons/navcoin_full").scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
