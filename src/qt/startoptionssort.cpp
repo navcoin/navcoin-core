@@ -162,8 +162,6 @@ StartOptionsSort::StartOptionsSort(std::vector<std::string> Words, int rows,
         itemListWidget->setMaximumSize(QSize(118, 180));
         itemListWidget->setDragEnabled(true);
         itemListWidget->setFocusPolicy(Qt::NoFocus);
-        itemListWidget->setStyleSheet(
-                "QWidget{font-size:18px; font-style:bold; color:#7578A2;}");
         itemListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         labelsList.push_back(itemListWidget);
         ui->gridLayoutRevealed->addWidget(itemListWidget, 2, k, Qt::AlignCenter);

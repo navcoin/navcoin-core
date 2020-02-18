@@ -32,9 +32,6 @@
   <property name="windowTitle">
    <string>StartOptionsSort Dialog</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">
     <enum>QLayout::SetNoConstraint</enum>

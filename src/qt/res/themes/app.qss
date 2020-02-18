@@ -18,6 +18,16 @@
     color: #721c24;
 }
 
+.error-border {
+    border: 0.06em solid red;
+    border-radius: 0.1em;
+}
+
+.highlight-border {
+    border: 0.06em solid palette(highlight);
+    border-radius: 0.1em;
+}
+
 .alert-warning {
     border-color: #ffeeba;
     background: #fff3cd;
@@ -91,4 +101,45 @@
 #progressContent {
     background: palette(alternate-base);
     border-radius: 0.8em;
+}
+
+#startOptions QListView {
+    border: 0;
+    background:transparent;
+}
+#startOptions QListView::item {
+    color:      palette(text);
+    height:     3em;
+    background: transparent;
+    border:     0;
+}
+#startOptions QListView::item:hover {
+    color: palette(highlight);
+}
+#startOptions QListWidget {
+    border:     0;
+    font-size:  14pt;
+    font-style: bold;
+}
+#startOptions QLabel {
+    font: normal normal 10pt/12pt;
+}
+#startOptions QLabel.reveal {
+    background-color: transparent;
+    margin-bottom:    0.3em;
+    border-radius:    0;
+    color:            palette(highlight);
+    border-bottom:    0.15em solid palette(highlight);
+    text-align:       center;
+    font: normal normal 12pt/15pt;
+}
+#startOptions QGraphicsView {
+    font: normal normal 10pt/12pt;
+    background-color: palette(base);
+    border: 0.2em solid palette(highlight);
+    color: palette(highlight);
+}
+#startOptions QGraphicsScene {
+    background-color: palette(base);
+    color: palette(highlight);
 }
