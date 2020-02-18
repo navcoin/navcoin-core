@@ -539,8 +539,8 @@ public:
             std::vector<std::pair<uint256, bool>> vPaymentRequestVotesProxy;
             if (ser_action.ForRead())
             {
-                READWRITE(vProposalVotesProxy);
                 READWRITE(vPaymentRequestVotesProxy);
+                READWRITE(vProposalVotesProxy);
                 for (auto& it: vProposalVotesProxy)
                 {
                     vProposalVotes.push_back(std::make_pair(it.first, (uint64_t)it.second));
@@ -560,8 +560,8 @@ public:
                 {
                     vPaymentRequestVotesProxy.push_back(std::make_pair(it.first, it.second == 1 ? true : false));
                 }
-                READWRITE(vProposalVotesProxy);
                 READWRITE(vPaymentRequestVotesProxy);
+                READWRITE(vProposalVotesProxy);
             }
         }
 
