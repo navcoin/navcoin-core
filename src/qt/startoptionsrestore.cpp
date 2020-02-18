@@ -43,7 +43,7 @@ void StartOptionsRestore::textChanged(const QString &text) {
             label->setProperty("class", "error-border");
         }
     }
-    label->setStyleSheet(label->styleSheet()); // It's a hack I know :P
+    qApp->setStyleSheet(qApp->styleSheet()); // It's a hack I know :P
 }
 
 std::vector<std::string> StartOptionsRestore::getOrderedStrings() {

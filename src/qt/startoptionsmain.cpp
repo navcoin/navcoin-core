@@ -59,8 +59,8 @@ void StartOptionsMain::on_NewWallet_clicked() {
     ui->Next->setVisible(true);
     rows = startOptions->getRows();
 
-   //Generate mnemonic phrase from fresh entropy
-           mnemonic = "";
+    //Generate mnemonic phrase from fresh entropy
+    mnemonic = "";
     navcoin::GenerateNewMnemonicSeed(mnemonic, "english");
 
     std::stringstream ss(mnemonic);
