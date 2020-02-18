@@ -1662,7 +1662,8 @@ void DaoPage::onVote() {
         }
         else if (coins.GetConsultation(hash, consultation))
         {
-            if (consultation.GetLastState() == DAOFlags::NIL)
+            auto fState = consultation.GetLastState();
+            if (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED)
             {
                 if (consultation.IsRange())
                 {
