@@ -47,7 +47,7 @@ public:
         int ypad = 1;
         int halfheight = (mainRect.height() - 3*ypad - 4)/3 ;
         QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, 150, DECORATION_SIZE);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad, 300, DECORATION_SIZE);
+        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad, 400, DECORATION_SIZE);
         QRect dateRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight*2, 150, DECORATION_SIZE);
         icon = platformStyle->Icon(icon);
         icon.paint(painter, decorationRect);
