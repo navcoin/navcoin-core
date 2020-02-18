@@ -213,8 +213,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     std::map<uint256, bool> votes;
     CStateViewCache coins(pcoinsTip);
 
-    bool fDAOConsultations = IsConsultationsEnabled(pindexPrev, chainparams.GetConsensus());
-    bool fAbstain = IsAbstainVoteEnabled(pindexPrev, chainparams.GetConsensus());
+    bool fDAOConsultations = IsDAOEnabled(pindexPrev, chainparams.GetConsensus());
     bool fCFund = IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus());
 
     if(fDAOConsultations)
@@ -264,7 +263,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             int64_t vote = it.second;
 
-            if (!fAbstain && vote == VoteFlags::VOTE_ABSTAIN)
+            if (!fDAOConsultations && vote == VoteFlags::VOTE_ABSTAIN)
                 continue;
 
             if (votes.count(it.first) != 0)
@@ -316,7 +315,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         {
             int64_t vote = it.second;
 
-            if (!fAbstain && vote == VoteFlags::VOTE_ABSTAIN)
+            if (!fDAOConsultations && vote == VoteFlags::VOTE_ABSTAIN)
                 continue;
 
             if (votes.count(it.first) != 0)
@@ -1020,7 +1019,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                           sCoinStakeStrDZeel;
 
               bool fCFund = IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus());
-              bool fDAOConsultations = IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus());
+              bool fDAOConsultations = IsDAOEnabled(chainActive.Tip(), Params().GetConsensus());
               bool fColdStakingv2 = IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus());
               bool fStakerIsColdStakingv2 = false;
               if (txCoinStake.vout[1].scriptPubKey.IsColdStakingv2())

@@ -1240,7 +1240,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (!IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion == CTransaction::PROPOSAL_VERSION || tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION))
         return state.DoS(100, false, REJECT_INVALID, "too-early-cfund");
 
-    if (!IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion == CTransaction::CONSULTATION_VERSION || tx.nVersion == CTransaction::ANSWER_VERSION))
+    if (!IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion == CTransaction::CONSULTATION_VERSION || tx.nVersion == CTransaction::ANSWER_VERSION))
         return state.DoS(100, false, REJECT_INVALID, "too-early-consultation");
 
     if (!IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus()) && tx.nVersion == CTransaction::VOTE_VERSION)
@@ -1321,7 +1321,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     }
 
     bool fCFund = IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus());
-    bool fDAOConsultations = IsConsultationsEnabled(chainActive.Tip(), Params().GetConsensus());
+    bool fDAOConsultations = IsDAOEnabled(chainActive.Tip(), Params().GetConsensus());
 
     {
         CStateView dummy;
@@ -2514,7 +2514,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
     std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
-    bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
+    bool fDAOConsultations = IsDAOEnabled(pindex->pprev, Params().GetConsensus());
 
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
@@ -2903,8 +2903,8 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     if(pindexPrev->nHeight >= Params().GetConsensus().nHeightv452Fork)
         nVersion |= nV452ForkMask;
 
-    if(IsConsultationsEnabled(pindexPrev,Params().GetConsensus()))
-        nVersion |= nConsultationsVersionMask;
+    if(IsDAOEnabled(pindexPrev,Params().GetConsensus()))
+        nVersion |= nDAOVersionMask;
 
     if(IsDaoConsensusEnabled(pindexPrev,Params().GetConsensus()))
         nVersion |= nDaoConsensusVersionMask;
@@ -3368,7 +3368,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     bool fStakerScript = false;
     bool fStakerIsColdStakingv2 = false;
     bool fCFund = IsCommunityFundEnabled(pindex->pprev, Params().GetConsensus());
-    bool fDAOConsultations = IsConsultationsEnabled(pindex->pprev, Params().GetConsensus());
+    bool fDAOConsultations = IsDAOEnabled(pindex->pprev, Params().GetConsensus());
     bool fColdStakingv2 = IsColdStakingv2Enabled(pindex->pprev, Params().GetConsensus());
 
     CAmount nFundContributionPerBlock = GetFundContributionPerBlock(view);
@@ -5211,19 +5211,13 @@ bool IsColdStakingv2Enabled(const CBlockIndex* pindexPrev, const Consensus::Para
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING_V2, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsAbstainVoteEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
-    LOCK(cs_main);
-    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_ABSTAIN_VOTE, versionbitscache) == THRESHOLD_ACTIVE);
-}
-
 bool IsVoteCacheStateEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_VOTE_STATE_CACHE, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
-bool IsConsultationsEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+bool IsDAOEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_CONSULTATIONS, versionbitscache) == THRESHOLD_ACTIVE);
@@ -5374,7 +5368,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected, block version isn't v4.5.2");
 
-    if((block.nVersion & nConsultationsVersionMask) != nConsultationsVersionMask && IsConsultationsEnabled(pindexPrev,Params().GetConsensus()))
+    if((block.nVersion & nDAOVersionMask) != nDAOVersionMask && IsDAOEnabled(pindexPrev,Params().GetConsensus()))
         return state.Invalid(false, REJECT_OBSOLETE, strprintf("bad-version(0x%08x)", block.nVersion),
                          "rejected no consultations block");
 

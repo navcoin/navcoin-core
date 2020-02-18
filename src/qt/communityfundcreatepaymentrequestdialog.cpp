@@ -239,7 +239,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
         if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CPaymentRequest::REDUCED_QUORUM_VERSION;
 
-        if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
+        if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
         strDZeel.pushKV("h",ui->comboBoxProposalHash->currentData().toString().toStdString());

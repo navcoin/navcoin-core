@@ -215,11 +215,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
 
-        // Deployment of ABSTAIN VOTING for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
-
         // Deployment of VOTING STATE CACHE for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
@@ -448,11 +443,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1622548800; // Jun 1st, 2021
 
-        // Deployment of ABSTAIN VOTING for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
-
         // Deployment of VOTING STATE CACHE for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].nStartTime = 1559390400; // Jun 1st, 2019
@@ -672,11 +662,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1651363200; // May 1st, 2022
-
-        // Deployment of ABSTAIN VOTING for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of VOTING STATE CACHE for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;
@@ -907,11 +892,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].bit = 17;
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nStartTime = 1543622400; // Dec 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_QUORUM_CFUND].nTimeout = 1575158400; // Dec 1st, 2019
-
-        // Deployment of ABSTAIN VOTING for the Community Fund
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].bit = 19;
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nStartTime = 1559390400; // Jun 1st, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_ABSTAIN_VOTE].nTimeout = 1622548800; // Jun 1st, 2021
 
         // Deployment of VOTING STATE CACHE for the Community Fund
         consensus.vDeployments[Consensus::DEPLOYMENT_VOTE_STATE_CACHE].bit = 22;

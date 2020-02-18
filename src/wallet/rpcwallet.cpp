@@ -657,7 +657,7 @@ UniValue createproposal(const UniValue& params, bool fHelp)
     if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CProposal::REDUCED_QUORUM_VERSION;
 
-    if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
+    if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
     strDZeel.pushKV("n",nReqAmount);
@@ -1111,7 +1111,7 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CPaymentRequest::REDUCED_QUORUM_VERSION;
 
-    if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
+    if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
         nVersion |= CPaymentRequest::ABSTAIN_VOTE_VERSION;
 
     strDZeel.pushKV("h",params[0].get_str());

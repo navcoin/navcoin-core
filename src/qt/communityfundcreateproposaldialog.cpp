@@ -144,7 +144,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CProposal::REDUCED_QUORUM_VERSION;
 
-        if (IsAbstainVoteEnabled(chainActive.Tip(), Params().GetConsensus()))
+        if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
             nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
         strDZeel.pushKV("n",nReqAmount);

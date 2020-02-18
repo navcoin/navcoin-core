@@ -11,7 +11,7 @@
 void GetVersionMask(uint64_t &nProposalMask, uint64_t &nPaymentRequestMask, uint64_t &nConsultationMask, uint64_t &nConsultationAnswerMask, CBlockIndex* pindex)
 {
     bool fReducedQuorum = IsReducedCFundQuorumEnabled(pindex, Params().GetConsensus());
-    bool fAbstainVote = IsAbstainVoteEnabled(pindex, Params().GetConsensus());
+    bool fAbstainVote = IsDAOEnabled(pindex, Params().GetConsensus());
 
     nProposalMask = Params().GetConsensus().nProposalMaxVersion;
     nPaymentRequestMask = Params().GetConsensus().nPaymentRequestMaxVersion;
