@@ -884,7 +884,7 @@
 <context>
     <name>NavCoinGUI</name>
     <message>
-        <location filename="../navcoin.cpp" line="+486"/>
+        <location filename="../navcoin.cpp" line="+519"/>
         <source>A fatal error occurred. NavCoin can no longer continue safely and will quit.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1358,7 +1358,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../navcoin.cpp" line="+166"/>
+        <location filename="../navcoin.cpp" line="+168"/>
         <source>%1 didn&apos;t yet exit safely...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1366,7 +1366,7 @@
 <context>
     <name>QObject::QObject</name>
     <message>
-        <location line="-82"/>
+        <location line="-84"/>
         <source>Error: Specified data directory &quot;%1&quot; does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2235,6 +2235,74 @@
     </message>
 </context>
 <context>
+    <name>StartOptions</name>
+    <message>
+        <location filename="../forms/startoptions.ui" line="+26"/>
+        <source>StartOptions Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsDialog</name>
+    <message>
+        <location filename="../forms/startoptionsdialog.ui" line="+26"/>
+        <source>StartOptions Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsMain</name>
+    <message>
+        <location filename="../forms/startoptionsmain.ui" line="+26"/>
+        <source>StartOptionsMain Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Restore Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Create New Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsRestore</name>
+    <message>
+        <location filename="../forms/startoptionsrestore.ui" line="+26"/>
+        <source>StartOptionsRestore Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsRevealed</name>
+    <message>
+        <location filename="../forms/startoptionsrevealed.ui" line="+32"/>
+        <source>StartOptionsRevealed Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsSort</name>
+    <message>
+        <location filename="../forms/startoptionssort.ui" line="+33"/>
+        <source>StartOptionsSort Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <location filename="../forms/transactiondescdialog.ui" line="+23"/>
@@ -2288,7 +2356,7 @@
 <context>
     <name>navcoin-core</name>
     <message>
-        <location filename="../navcoinstrings.cpp" line="+387"/>
+        <location filename="../navcoinstrings.cpp" line="+388"/>
         <source>Options:</source>
         <translation>Options:</translation>
     </message>
@@ -2298,17 +2366,17 @@
         <translation>Specify data directory</translation>
     </message>
     <message>
-        <location line="-98"/>
+        <location line="-99"/>
         <source>Connect to a node to retrieve peer addresses, and disconnect</source>
         <translation>Connect to a node to retrieve peer addresses, and disconnect</translation>
     </message>
     <message>
-        <location line="+101"/>
+        <location line="+102"/>
         <source>Specify your own public address</source>
         <translation>Specify your own public address</translation>
     </message>
     <message>
-        <location line="-122"/>
+        <location line="-123"/>
         <source>Accept command line and JSON-RPC commands</source>
         <translation>Accept command line and JSON-RPC commands</translation>
     </message>
@@ -2348,7 +2416,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+42"/>
         <source>Pruning blockstore...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2363,7 +2431,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-137"/>
+        <location line="-138"/>
         <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
         <translation>Accept connections from outside (default: 1 if no -proxy or -connect)</translation>
     </message>
@@ -2789,6 +2857,11 @@
     </message>
     <message>
         <location line="+1"/>
+        <source>Old data base structure detected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Only connect to nodes in network &lt;net&gt; (ipv4, ipv6 or onion)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2978,7 +3051,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-390"/>
+        <location line="-391"/>
         <source>Allow JSON-RPC connections from specified source. Valid for &lt;ip&gt; are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3278,7 +3351,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>RPC server options:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3398,7 +3471,7 @@
         <translation>Password for JSON-RPC connections</translation>
     </message>
     <message>
-        <location line="-268"/>
+        <location line="-269"/>
         <source>Execute command when the best block changes (%s in cmd is replaced by block hash)</source>
         <translation>Execute command when the best block changes (%s in cmd is replaced by block hash)</translation>
     </message>
@@ -3543,7 +3616,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Prepend debug output with timestamp (default: %u)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3598,7 +3671,7 @@
         <translation>Unknown network specified in -onlynet: &apos;%s&apos;</translation>
     </message>
     <message>
-        <location line="-79"/>
+        <location line="-80"/>
         <source>Insufficient funds</source>
         <translation>Insufficient funds</translation>
     </message>
@@ -3628,12 +3701,12 @@
         <translation>Cannot write default address</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+88"/>
         <source>Rescanning...</source>
         <translation>Rescanning...</translation>
     </message>
     <message>
-        <location line="-71"/>
+        <location line="-72"/>
         <source>Done loading</source>
         <translation>Done loading</translation>
     </message>

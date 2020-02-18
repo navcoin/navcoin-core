@@ -383,6 +383,7 @@ QT_TRANSLATE_NOOP("navcoin-core", "Min. number of valid requests to NTP servers 
 QT_TRANSLATE_NOOP("navcoin-core", "Need to specify a port with -whitebind: '%s'"),
 QT_TRANSLATE_NOOP("navcoin-core", "Node relay options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Not enough file descriptors available."),
+QT_TRANSLATE_NOOP("navcoin-core", "Old data base structure detected"),
 QT_TRANSLATE_NOOP("navcoin-core", "Only connect to nodes in network <net> (ipv4, ipv6 or onion)"),
 QT_TRANSLATE_NOOP("navcoin-core", "Options:"),
 QT_TRANSLATE_NOOP("navcoin-core", "Password for JSON-RPC connections"),
