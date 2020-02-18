@@ -47,7 +47,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *pare
     connect(ui->deleteButton_s, SIGNAL(clicked()), this, SLOT(deleteClicked()));
     connect(ui->addressBookCheckBox, SIGNAL(clicked()), this, SLOT(updateAddressBook()));
     connect(ui->checkboxUseFullAmount, SIGNAL(clicked()), this, SLOT(useFullAmount()));
-    connect(ui->checkboxCoinControl, SIGNAL(toggled(bool)), this, SLOT(coinControlFeatureChanged(bool)));
+    connect(ui->checkboxCoinControl, SIGNAL(toggled(bool)), this, SLOT(_coinControlFeaturesChanged(bool)));
 
     ui->labellLabel->setVisible(ui->addressBookCheckBox->isChecked());
     ui->addAsLabel->setVisible(ui->addressBookCheckBox->isChecked());
@@ -103,7 +103,7 @@ void SendCoinsEntry::setModel(WalletModel *model)
 
     if (model && model->getOptionsModel()) {
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
-        connect(model->getOptionsModel(), SIGNAL(coinControlFeatureChanged(bool)), this, SLOT(coinControlFeatureChanged(bool)));
+        connect(model->getOptionsModel(), SIGNAL(coinControlFeaturesChanged(bool)), this, SLOT(coinControlFeaturesChanged(bool)));
 
         ui->checkboxCoinControl->setChecked(model->getOptionsModel()->getCoinControlFeatures());
     }
@@ -134,10 +134,16 @@ void SendCoinsEntry::clear()
     updateDisplayUnit();
 }
 
-void SendCoinsEntry::coinControlFeatureChanged(bool checked)
+void SendCoinsEntry::coinControlFeaturesChanged(bool enabled)
 {
-    ui->checkboxCoinControl->setChecked(checked);
-    model->getOptionsModel()->setCoinControlFeatures(checked);
+    if (enabled == ui->checkboxCoinControl->isChecked())
+        return;
+
+    ui->checkboxCoinControl->setChecked(enabled);
+}
+
+void SendCoinsEntry::_coinControlFeaturesChanged(bool enabled) {
+    model->getOptionsModel()->setCoinControlFeatures(enabled);
 }
 
 void SendCoinsEntry::deleteClicked()

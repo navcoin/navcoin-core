@@ -65,7 +65,8 @@ private Q_SLOTS:
     void updateDisplayUnit();
     void updateAddressBook();
     void useFullAmount();
-    void coinControlFeatureChanged(bool checked);
+    void coinControlFeaturesChanged(bool enabled);
+    void _coinControlFeaturesChanged(bool enabled);
 
 private:
     SendCoinsRecipient recipient;

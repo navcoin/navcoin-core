@@ -388,9 +388,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             }
             break;
         case CoinControlFeatures:
-            fCoinControlFeatures = value.toBool();
-            settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
-            Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
+            setCoinControlFeatures(value.toBool());
             break;
         case DatabaseCache:
             if (settings.value("nDatabaseCache") != value) {
@@ -434,13 +432,13 @@ void OptionsModel::setDisplayUnit(const QVariant &value)
 
 void OptionsModel::setCoinControlFeatures(const bool enabled)
 {
-    if (enabled == getCoinControlFeatures())
+    if (enabled == fCoinControlFeatures)
         return;
 
     QSettings settings;
     fCoinControlFeatures = enabled;
     settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
-    Q_EMIT coinControlFeaturesChanged(enabled);
+    Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
 }
 
 bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
