@@ -2025,8 +2025,6 @@ bool CConsultationAnswer::CanBeVoted(const CStateViewCache& view) const {
 
     flags fConsultationState = consultation.GetLastState();
 
-    LogPrintf("%s: %s fState %d fConsultationState %d\n", __func__, hash.ToString(), fState, fConsultationState);
-
     return fState == DAOFlags::ACCEPTED && fConsultationState == DAOFlags::ACCEPTED &&
             !(consultation.nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION);
 }
@@ -2233,9 +2231,6 @@ bool CPaymentRequest::CanVote(CStateViewCache& coins) const
 
     auto nProposalAvailable = proposal.GetAvailable(coins);
 
-    LogPrintf("%s: %s %d <= %d fLast %d fProposalLast %d\n", __func__, hash.ToString(), nAmount,
-              nProposalAvailable, fLastState, fProposalLastState);
-
     return nAmount <= nProposalAvailable && fLastState == NIL &&
             (fProposalLastState == DAOFlags::ACCEPTED || fProposalLastState == DAOFlags::PENDING_VOTING_PREQ);
 }
@@ -2344,7 +2339,6 @@ bool CPaymentRequest::IsRejected(const CStateViewCache& view) const {
 }
 
 bool CPaymentRequest::ExceededMaxVotingCycles(const CStateViewCache& view) const {
-    LogPrintf("%s: %s %d > %d\n", __func__, hash.ToString(), nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view));
     return nVotingCycle > GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view);
 }
 
@@ -2390,8 +2384,6 @@ bool CProposal::CanVote(const CStateViewCache& view) const {
     AssertLockHeld(cs_main);
 
     auto fLastState = GetLastState();
-
-    LogPrintf("%s: %s fState %d\n", __func__, hash.ToString(), fLastState);
 
     return (fLastState == NIL);
 }
@@ -2444,8 +2436,6 @@ CAmount CProposal::GetAvailable(CStateViewCache& coins, bool fIncludeRequests) c
                 continue;
 
             flags fLastState = prequest.GetLastState();
-
-            LogPrintf("%s: %s %s %d %d %d\n", __func__, hash.ToString(), prequest.hash.ToString(), fIncludeRequests, fLastState, prequest.nAmount);
 
             if((fIncludeRequests && fLastState != DAOFlags::REJECTED && fLastState != DAOFlags::EXPIRED) || (!fIncludeRequests && (fLastState == DAOFlags::ACCEPTED || fLastState == DAOFlags::PAID)))
                 initial -= prequest.nAmount;
@@ -2728,9 +2718,6 @@ uint256 GetDAOStateHash(CStateViewCache& view, const CAmount& nCFLocked, const C
         view.GetAllConsultations(mapConsultations) && view.GetAllVotes(mapVotes) &&
         view.GetAllConsultationAnswers(mapAnswers))
     {
-
-        LogPrint("dao","%s: mapProposals size %d mapPaymentRequests size %d mapConsultations size %d mapAnswers size %d mapVotes size %d\n",
-                  __func__, mapProposals.size(), mapPaymentRequests.size(), mapConsultations.size(), mapAnswers.size(), mapVotes.size());
 
         for (auto &it: mapProposals)
         {
