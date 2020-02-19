@@ -143,3 +143,7 @@
     background-color: palette(base);
     color: palette(highlight);
 }
+
+#listTransactions {
+    background: transparent;
+}
