@@ -576,12 +576,8 @@ bool CScript::GetStakerScript(std::vector<unsigned char>& script) const
         script = std::vector<unsigned char>(this->begin()+2, this->begin()+22);
         return true;
     }
-    else if (IsColdStaking() || IsPayToPublicKey())
-    {
-        script = std::vector<unsigned char>(this->begin(),this->end());
-        return true;
-    }
-    return false;
+    script = std::vector<unsigned char>(this->begin(),this->end());
+    return true;
 }
 
 std::string CScriptWitness::ToString() const
