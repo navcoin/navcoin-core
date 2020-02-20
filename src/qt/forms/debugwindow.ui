@@ -582,17 +582,6 @@
            <property name="text">
             <string/>
            </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>:/icons/prompticon</normaloff>
-             <disabledoff>:/icons/prompticon</disabledoff>:/icons/prompticon</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>14</width>
-             <height>14</height>
-            </size>
-           </property>
            <property name="autoDefault">
             <bool>false</bool>
            </property>
@@ -668,9 +657,6 @@
            </item>
            <item>
             <widget class="QPushButton" name="btnClearTrafficGraph">
-             <property name="styleSheet">
-              <string notr="true"> background: #f6f6f6; border: 2px solid #a9adc4; border-radius: 5px; padding: 6px; text-transform: uppercase; color: #616998; font-weight: bold</string>
-             </property>
              <property name="text">
               <string>&amp;Clear</string>
              </property>

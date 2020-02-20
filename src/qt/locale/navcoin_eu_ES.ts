@@ -206,9 +206,6 @@
     </message>
 </context>
 <context>
-    <name>NavTechInit</name>
-    </context>
-<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -431,15 +428,5 @@
         <source>Done loading</source>
         <translation>Zamaketa amaitua</translation>
     </message>
-    </context>
-<context>
-    <name>navtechitem</name>
-    <message>
-        <source>Form</source>
-        <translation>Inprimakia</translation>
-    </message>
-    </context>
-<context>
-    <name>navtechsetup</name>
     </context>
 </TS>

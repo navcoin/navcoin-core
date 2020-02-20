@@ -50,6 +50,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     vbox->addWidget(transactionView);
     QPushButton *exportButton = new QPushButton(tr("&Export"), this);
     exportButton->setToolTip(tr("Export the data in the current tab to a file"));
+    exportButton->setDefault(true);
     hbox_buttons->addStretch();
     hbox_buttons->addWidget(exportButton);
     vbox->addLayout(hbox_buttons);
@@ -217,47 +218,6 @@ void WalletView::gotoSendCoinsPage(QString addr)
         sendCoinsPage->setAddress(addr);
 }
 
-void WalletView::setStatusTitleBlocks(QString text)
-{
-    overviewPage->setStatusTitleBlocks(text);
-}
-
-void WalletView::setStatusTitleConnections(QString text)
-{
-    overviewPage->setStatusTitleConnections(text);
-}
-
-void WalletView::setStatusTitle(QString text)
-{
-    overviewPage->setStatusTitle(text);
-}
-
-void WalletView::setVotingStatus(QString text)
-{
-    overviewPage->setVotingStatus(text);
-}
-
-void WalletView::setStakingStatus(QString text)
-{
-    overviewPage->setStakingStatus(text);
-}
-
-void WalletView::showStatusTitleConnections(){
-    overviewPage->showStatusTitleConnections();
-};
-void WalletView::hideStatusTitleConnections(){
-    overviewPage->hideStatusTitleConnections();
-};
-void WalletView::showStatusTitleBlocks(){
-    overviewPage->showStatusTitleBlocks();
-};
-void WalletView::hideStatusTitleBlocks(){
-    overviewPage->hideStatusTitleBlocks();
-};
-void WalletView::showLockStaking(bool status)
-{
-    overviewPage->showLockStaking(status);
-}
 void WalletView::gotoSignMessageTab(QString addr)
 {
     // calls show() in showTab_SM()
@@ -285,11 +245,6 @@ void WalletView::gotoVerifyMessageTab(QString addr)
 bool WalletView::handlePaymentRequest(const SendCoinsRecipient& recipient)
 {
     return sendCoinsPage->handlePaymentRequest(recipient);
-}
-
-void WalletView::showOutOfSyncWarning(bool fShow)
-{
-    overviewPage->showOutOfSyncWarning(fShow);
 }
 
 void WalletView::updateEncryptionStatus()

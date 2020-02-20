@@ -85,7 +85,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
     entry.pushKV("vsize", (int)::GetVirtualTransactionSize(tx));
     entry.pushKV("version", tx.nVersion);
     entry.pushKV("locktime", (int64_t)tx.nLockTime);
-    entry.pushKV("anon-destination", tx.strDZeel);
+    entry.pushKV("strdzeel", tx.strDZeel);
     UniValue vin(UniValue::VARR);
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxIn& txin = tx.vin[i];
@@ -178,7 +178,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     entry.pushKV("version", tx.nVersion);
     entry.pushKV("locktime", (int64_t)tx.nLockTime);
     entry.pushKV("time", (int64_t)tx.nTime);
-    entry.pushKV("anon-destination", tx.strDZeel);
+    entry.pushKV("strdzeel", tx.strDZeel);
 
     UniValue vin(UniValue::VARR);
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
@@ -494,7 +494,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 5)
         throw runtime_error(
-            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [anon-destination] [index] [toggle-input-dump]\n"
+            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} [strdzeel] [index] [toggle-input-dump]\n"
             "\nCreate a transaction spending the given inputs and creating new outputs.\n"
             "Outputs can be addresses or data.\n"
             "Returns hex-encoded raw transaction.\n"
@@ -517,7 +517,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             "      \"data\": x.xxx,     (string, required) The key is hex encoded data, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
             "      ...\n"
             "    }\n"
-            "3. \"anon-destination\"    (string, optional) Encrypted destination address if you're sending a NAVtech transaction \n"
+            "3. \"strdzeel\"    (string, optional) Attached string metadata \n"
             "4. \"index\"               (numeric, optional, default=-1) If greater than -1, it will only print the raw data of the output or input on the index \"index\"\n"
             "4. \"toggle-input-dump\"   (bool, optional, default=false) Sets whether the input (true) or the output (false) at the index \"index\" is dumped \n"
             "\nResult:\n"
@@ -671,7 +671,7 @@ UniValue decoderawtransaction(const UniValue& params, bool fHelp)
             "     }\n"
             "     ,...\n"
             "  ],\n"
-            "  \"anon-destination\" : \"id\",             (string) Anon destination\n"
+            "  \"strdzeel\" : \"id\",             (string) Attached string metadata\n"
             "}\n"
 
             "\nExamples:\n"

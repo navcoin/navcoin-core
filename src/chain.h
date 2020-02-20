@@ -21,6 +21,12 @@
 #define BLOCK_STAKE_ENTROPY  0x02 // entropy bit for stake modifier
 #define BLOCK_STAKE_MODIFIER 0x04
 
+/**
+ * Maximum gap between node time and block time used
+ * for the "Catching up..." mode in GUI.
+ */
+static constexpr int64_t MAX_BLOCK_TIME_GAP = 90 * 60;
+
 class CBlockFileInfo
 {
 public:

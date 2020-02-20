@@ -13,7 +13,6 @@ SplitRewardsDialog::SplitRewardsDialog(QWidget *parent) :
 
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
-    this->setStyleSheet(Skinize());
 
     std::string sJson = GetArg("-stakingaddress", "") == "" ? "{\"all\":{}}" : GetArg("-stakingaddress", "");
     QJsonDocument jsonResponse = QJsonDocument::fromJson(QString::fromStdString(sJson).toUtf8());

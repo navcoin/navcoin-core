@@ -1,5 +1,6 @@
 #include <qt/communityfundcreateproposaldialog.h>
 #include <qt/communityfundsuccessdialog.h>
+#include <qt/optionsmodel.h>
 #include <qt/sendcommunityfunddialog.h>
 #include <ui_communityfundcreateproposaldialog.h>
 
@@ -62,6 +63,8 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
 void CommunityFundCreateProposalDialog::setModel(WalletModel *model)
 {
     this->model = model;
+
+    ui->lineEditRequestedAmount->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
 }
 
 // Validate input fields
@@ -206,12 +209,12 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
                 CAmount nValue = Params().GetConsensus().nProposalMinimalFee;
-                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
                 vecSend.push_back(recipient);
 
                 bool created_proposal = true;
 
-                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true, "")) {
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_proposal = false;
                     }

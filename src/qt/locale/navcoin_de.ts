@@ -1148,32 +1148,6 @@
     </message>
 </context>
 <context>
-    <name>NavTechInit</name>
-    <message>
-        <source>NavTech Setup</source>
-        <translation>NavTech Einstellungen</translation>
-    </message>
-    <message>
-        <source>NavCoin uses an unique parallel cluster of nodes called NavTech to protect the privacy of your transactions.</source>
-        <translation>NavCoin nutzt ein einzigartiges paralleles Cluster von Netzwerkknoten, NavTech genannt, um sicherzustellen, dass deine privaten Transaktionen geschützt sind.</translation>
-    </message>
-    <message>
-        <source>You will find below the list of the NavCoin Foundation Servers. Feel free to modify this list to include your prefered servers:</source>
-        <translation>Nachstehend findest du eine Liste der NavCoin Foundation Server. Du kannst diese Liste nach belieben modifizieren um deine bevorzugten Server einzufügen.</translation>
-    </message>
-    <message>
-        <source>95.183.52.55:3000
-95.183.52.28:3000
-95.183.52.29:3000
-95.183.53.184:3000
-</source>
-        <translation>95.183.52.55:3000
-95.183.52.28:3000
-95.183.52.29:3000
-95.183.53.184:3000</translation>
-    </message>
-</context>
-<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -4191,100 +4165,6 @@
     <message>
         <source>Error</source>
         <translation>Fehler</translation>
-    </message>
-</context>
-<context>
-    <name>navtechitem</name>
-    <message>
-        <source>Form</source>
-        <translation>Formular</translation>
-    </message>
-    <message>
-        <source>Server Name</source>
-        <translation>Servername</translation>
-    </message>
-    <message>
-        <source>127.0.0.1:3000</source>
-        <translation>127.0.0.1:3000</translation>
-    </message>
-    <message>
-        <source>Get Info</source>
-        <translation>Erhalte Informationen</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
-    </message>
-</context>
-<context>
-    <name>navtechsetup</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>List of Navtech servers currently configured in your wallet to process private payments:</source>
-        <translation>Liste der Navtech-Server, die derzeit in deiner Wallet für die Verarbeitung privater Zahlungen konfiguriert sind:</translation>
-    </message>
-    <message>
-        <source>When performing a private payment, a random server from this list will be used.</source>
-        <translation>Bei einer privaten Zahlung wird ein zufälliger Server aus dieser Liste verwendet.</translation>
-    </message>
-    <message>
-        <source>Get Info</source>
-        <translation>Erhalte Informationen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Server address</source>
-        <translation>Serveradresse</translation>
-    </message>
-    <message>
-        <source>Add new</source>
-        <translation>Neue hinzufügen</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Speichern</translation>
-    </message>
-    <message>
-        <source>Remove Navtech server</source>
-        <translation>Entferne Navtech Server</translation>
-    </message>
-    <message>
-        <source>You are about to remove the following Navtech server: </source>
-        <translation>Du bist dabei, den folgenden Navtech Server zu entfernen:</translation>
-    </message>
-    <message>
-        <source>Are you sure?</source>
-        <translation>Bist du sicher?</translation>
-    </message>
-    <message>
-        <source>Removed.</source>
-        <translation>Entfernt.</translation>
-    </message>
-    <message>
-        <source>Navtech server</source>
-        <translation>Navtech Server</translation>
-    </message>
-    <message>
-        <source>Address: </source>
-        <translation>Adresse:</translation>
-    </message>
-    <message>
-        <source>Min amount: </source>
-        <translation>Mindestbetrag:</translation>
-    </message>
-    <message>
-        <source>Max amount: </source>
-        <translation>Maximalbetrag:</translation>
-    </message>
-    <message>
-        <source>Tx fee: </source>
-        <translation>Tx Gebühr:</translation>
     </message>
 </context>
 </TS>

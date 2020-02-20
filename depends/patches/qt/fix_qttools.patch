@@ -1,0 +1,62 @@
+--- a/qttools/src/linguist/linguist.pro
++++ b/qttools/src/linguist/linguist.pro
+@@ -1,9 +1,7 @@
+ TEMPLATE = subdirs
+ SUBDIRS  = \
+     lrelease \
+-    lupdate \
+-    lconvert
+-!no-png:qtHaveModule(widgets): SUBDIRS += linguist
++    lupdate
+
+ qtNomakeTools( \
+     linguist \
+--- a/qttools/src/src.pro
++++ b/qttools/src/src.pro
+@@ -1,45 +1,6 @@
+ TEMPLATE = subdirs
+
+-qtHaveModule(widgets) {
+-    no-png {
+-        message("Some graphics-related tools are unavailable without PNG support")
+-    } else {
+-        SUBDIRS = assistant \
+-                  pixeltool \
+-                  designer
+-
+-        linguist.depends = designer
+-    }
+-}
+-
+-SUBDIRS += linguist \
+-    qdoc \
+-    qtattributionsscanner
+-
+-qtConfig(library) {
+-    !android|android_app: SUBDIRS += qtplugininfo
+-}
+-
+-if(!android|android_app):!uikit: SUBDIRS += qtpaths
+-
+-mac {
+-    SUBDIRS += macdeployqt
+-}
+-
+-android {
+-    SUBDIRS += androiddeployqt
+-}
+-
+-qtHaveModule(dbus): SUBDIRS += qdbus
+-
+-win32|winrt:SUBDIRS += windeployqt
+-winrt:SUBDIRS += winrtrunner
+-qtHaveModule(gui):!android:!uikit:!qnx:!winrt: SUBDIRS += qtdiag
+-
+-qtNomakeTools( \
+-    pixeltool \
+-    macdeployqt \
+-)
++SUBDIRS += linguist
+
+ # This is necessary to avoid a race condition between toolchain.prf
+ # invocations in a module-by-module cross-build.

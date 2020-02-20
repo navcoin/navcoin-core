@@ -235,8 +235,6 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
     QSet<QString> setAddress; // Used to detect duplicates
     int nAddresses = 0;
 
-    QString anondestination;
-
     // Pre-check input data for validity
     for(const SendCoinsRecipient &rcp: recipients)
     {
@@ -266,7 +264,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         }
         else
         {   // User-entered navcoin address / amount:
-            if(!validateAddress(rcp.isanon?rcp.destaddress:rcp.address))
+            if(!validateAddress(rcp.address))
             {
                 return InvalidAddress;
             }
@@ -274,17 +272,14 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             {
                 return InvalidAmount;
             }
-            setAddress.insert(rcp.isanon?rcp.destaddress:rcp.address);
+            setAddress.insert(rcp.address);
             ++nAddresses;
 
-            CScript scriptPubKey = GetScriptForDestination(CNavCoinAddress(rcp.isanon ? rcp.destaddress.toStdString() : rcp.address.toStdString()).Get());
-            CRecipient recipient = {scriptPubKey, !rcp.fSubtractFeeFromAmount && rcp.isanon ? rcp.amount + rcp.anonfee: rcp.amount, rcp.fSubtractFeeFromAmount, rcp.anondestination.toStdString()};
+            CScript scriptPubKey = GetScriptForDestination(CNavCoinAddress(rcp.address.toStdString()).Get());
+            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
             vecSend.push_back(recipient);
 
-            if(rcp.isanon)
-                anondestination = rcp.anondestination;
-
-            total += !rcp.fSubtractFeeFromAmount && rcp.isanon ? rcp.amount + rcp.anonfee: rcp.amount;
+            total += rcp.amount;
         }
     }
     if(setAddress.size() != nAddresses)
@@ -319,7 +314,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         CWalletTx *newTx;
         newTx = new CWalletTx();
 
-        fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true, rcp.strDZeel);
+        fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true);
         if (newTx->fSpendsColdStaking)
             transaction.fSpendsColdStaking = true;
         transaction.vTransactions.push_back(*newTx);
@@ -395,7 +390,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
           std::vector<CRecipient> vec;
           vec.push_back(rcp);
 
-          wallet->CreateTransaction(vec, *wTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true, rcp.strDZeel);
+          wallet->CreateTransaction(vec, *wTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true);
 
           if(!wallet->CommitTransaction(*wTx, *keyChange))
             return TransactionCommitFailed;

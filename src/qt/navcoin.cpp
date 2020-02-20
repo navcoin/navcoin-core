@@ -19,7 +19,9 @@
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
 #include <qt/winshutdownmonitor.h>
-#include <qt/navtechsetup.h>
+
+#include <styles/dark.h>
+#include <styles/light.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
@@ -63,6 +65,8 @@ Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 #elif defined(QT_QPA_PLATFORM_COCOA)
 Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
 #endif
+Q_IMPORT_PLUGIN(QSvgPlugin);
+Q_IMPORT_PLUGIN(QSvgIconPlugin);
 #endif
 
 // Declare meta types used for QMetaObject::invokeMethod
@@ -177,6 +181,9 @@ class NavCoinApplication: public QApplication
 public:
     explicit NavCoinApplication(int &argc, char **argv);
     ~NavCoinApplication();
+
+    /** Load the stylesheet and base style for the app */
+    void loadTheme();
 
 #ifdef ENABLE_WALLET
     /// Create payment server
@@ -293,16 +300,6 @@ NavCoinApplication::NavCoinApplication(int &argc, char **argv):
     returnValue(0)
 {
     setQuitOnLastWindowClosed(false);
-
-    // UI per-platform customization
-    // This must be done inside the NavCoinApplication constructor, or after it, because
-    // PlatformStyle::instantiate requires a QApplication
-    std::string platformName;
-    platformName = GetArg("-uiplatform", NavCoinGUI::DEFAULT_UIPLATFORM);
-    platformStyle = PlatformStyle::instantiate(QString::fromStdString(platformName));
-    if (!platformStyle) // Fall back to "other" if specified name not found
-        platformStyle = PlatformStyle::instantiate("other");
-    assert(platformStyle);
 }
 
 NavCoinApplication::~NavCoinApplication()
@@ -325,6 +322,61 @@ NavCoinApplication::~NavCoinApplication()
     optionsModel = 0;
     delete platformStyle;
     platformStyle = 0;
+}
+
+void NavCoinApplication::loadTheme()
+{
+    // Get an instance of settings
+    QSettings settings;
+
+    // What theme are we using? DEFAULT: light
+    QString theme = settings.value("theme").toString();
+
+    // Check theme
+    if (theme != "light" && theme != "dark") {
+        theme = "light";
+    }
+
+    qDebug() << __func__ << ": THEME LOADED: " << settings.value("theme").toString();
+
+    // Load the style sheet
+    QFile appQss(":/themes/app");
+    QFile sharedQss(":/themes/shared");
+    QFile themeQss(":/themes/" + theme);
+
+    // Check if we can access it
+    if (
+            appQss.open(QIODevice::ReadOnly) &&    // check app specific styles
+            sharedQss.open(QIODevice::ReadOnly) && // check shared stlyes
+            themeQss.open(QIODevice::ReadOnly)     // check theme styles
+       )
+    {
+        // Create a text stream
+        QTextStream appQssStream(&appQss);
+        QTextStream sharedQssStream(&sharedQss);
+        QTextStream themeQssStream(&themeQss);
+
+        // Load the whole stylesheet into the app
+        qApp->setStyleSheet(appQssStream.readAll() + sharedQssStream.readAll() + themeQssStream.readAll());
+
+        // Check if we which theme we want
+        if (theme == "dark") {
+            qApp->setStyle(new StyleDark);
+        } else {
+            qApp->setStyle(new StyleLight);
+        }
+
+        // Close the streams
+        appQss.close();
+        sharedQss.close();
+        themeQss.close();
+    }
+
+    // UI per-platform customization
+    // This must be done inside the NavCoinApplication constructor, or after it, because
+    // PlatformStyle::instantiate requires a QApplication
+    platformStyle = PlatformStyle::instantiate();
+    assert(platformStyle);
 }
 
 #ifdef ENABLE_WALLET
@@ -485,7 +537,7 @@ void NavCoinApplication::initializeResult(int retval)
         Q_EMIT splashFinished(window);
 
         //specify a new font.
-        int id = QFontDatabase::addApplicationFont(":/icons/Roboto-Medium");
+        int id = QFontDatabase::addApplicationFont(":/icons/roboto-medium");
         QString family = QFontDatabase::applicationFontFamilies(id).at(0);
         QFont newFont(family,10);        //set font of application
         newFont.setStyleStrategy(QFont::PreferAntialias);
@@ -547,7 +599,9 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(navcoin);
     Q_INIT_RESOURCE(navcoin_locale);
 
+    // Load the app
     NavCoinApplication app(argc, argv);
+
     // Generate high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #if QT_VERSION >= 0x050600
@@ -591,33 +645,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /// 5. Now that settings and translations are available, ask user for data directory
-    // User language is set up: pick a data directory
-    Intro::pickDataDirectory();
-
-    /// 6. Determine availability of data directory and parse navcoin.conf
-    /// - Do not call GetDataDir(true) before this step finishes
-    if (!boost::filesystem::is_directory(GetDataDir(false)))
-    {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
-        return 1;
-    }
-    try {
-        ReadConfigFile(mapArgs, mapMultiArgs);
-    } catch (const std::exception& e) {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
-        return 1;
-    }
-
-    if(GetArg("-firstrun","0") == "1")
-    {
-        navtechsetup* setupNavTech = new navtechsetup();
-        setupNavTech->showNavtechIntro();
-    }
-
-    /// 7. Determine network (and switch to network specific options)
+    /// 5. Determine network (and switch to network specific options)
     // - Do not call Params() before this step
     // - Do this after parsing the configuration file, as the network can be switched there
     // - QSettings() will use the new application name after this, resulting in network-specific settings
@@ -641,6 +669,30 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(networkStyle->getAppName());
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
+
+    // Load the application styles
+    // Needs to be loaded after setting the app name from networkStyle
+    app.loadTheme();
+
+    /// 6. Now that settings and translations are available, ask user for data directory
+    // User language is set up: pick a data directory
+    Intro::pickDataDirectory();
+
+    /// 7. Determine availability of data directory and parse navcoin.conf
+    /// - Do not call GetDataDir(true) before this step finishes
+    if (!boost::filesystem::is_directory(GetDataDir(false)))
+    {
+        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
+        return 1;
+    }
+    try {
+        ReadConfigFile(mapArgs, mapMultiArgs);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
+        return 1;
+    }
 
 #ifdef ENABLE_WALLET
     /// 8. URI IPC sending

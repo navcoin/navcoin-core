@@ -30,17 +30,10 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *platformStyle, QWidg
 {
     ui->setupUi(this);
 
-    if (!platformStyle->getImagesOnButtons()) {
-        ui->clearButton->setIcon(QIcon());
-        ui->receiveButton->setIcon(QIcon());
-        ui->showRequestButton->setIcon(QIcon());
-        ui->removeRequestButton->setIcon(QIcon());
-    } else {
-        ui->clearButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->receiveButton->setIcon(platformStyle->SingleColorIcon(":/icons/receiving_addresses"));
-        ui->showRequestButton->setIcon(platformStyle->SingleColorIcon(":/icons/edit"));
-        ui->removeRequestButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-    }
+    ui->clearButton->setIcon(platformStyle->Icon(":/icons/remove"));
+    ui->receiveButton->setIcon(platformStyle->Icon(":/icons/receiving_addresses"));
+    ui->showRequestButton->setIcon(platformStyle->Icon(":/icons/edit"));
+    ui->removeRequestButton->setIcon(platformStyle->Icon(":/icons/remove"));
 
     // context menu actions
     QAction *copyLabelAction = new QAction(tr("Copy label"), this);

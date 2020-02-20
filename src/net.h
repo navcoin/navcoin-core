@@ -184,9 +184,6 @@ extern CCriticalSection cs_vAddedNodes;
 extern NodeId nLastNodeId;
 extern CCriticalSection cs_nLastNodeId;
 
-extern std::vector<std::string> vAddedAnonServers;
-extern CCriticalSection cs_vAddedAnonServers;
-
 // Public Dandelion field
 extern std::map<uint256, int64_t> mDandelionEmbargo;
 // Dandelion methods

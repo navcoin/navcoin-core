@@ -7,11 +7,13 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+
 #include <wallet/wallet.h>
 #include <base58.h>
 #include <consensus/cfund.h>
 #include <chain.h>
 #include <qt/guiutil.h>
+#include <ui_interface.h>
 
 #include <qt/communityfunddisplaydetailed.h>
 #include <qt/communityfundpage.h>
@@ -45,6 +47,9 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
 void CommunityFundDisplay::refresh()
 {
+    // Update the dao new counter
+    uiInterface.UpdateDaoNewCount();
+
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));

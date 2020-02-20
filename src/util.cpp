@@ -104,9 +104,6 @@ using namespace std;
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 
-std::vector<std::string> vAddedAnonServers;
-CCriticalSection cs_vAddedAnonServers;
-
 std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 
@@ -656,12 +653,6 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         // Don't overwrite existing settings so command line settings override navcoin.conf
         string strKey = string("-") + it->string_key;
         string strValue = it->value[0];
-
-        if(strKey == "-addanonserver")
-        {
-            vAddedAnonServers.push_back(strValue);
-            continue;
-        }
 
         if(strKey == "-addproposalvoteyes")
         {

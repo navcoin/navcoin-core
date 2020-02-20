@@ -40,11 +40,10 @@ share/qt/Info.plist
 
 src/univalue/gen
 
-src/qt/*.moc
-src/qt/moc_*.cpp
-src/qt/forms/ui_*.h
-
-src/qt/test/moc*.cpp
+# Some QT Generated files
+*.moc
+moc_*.cpp
+ui_*.h
 
 .deps
 .dirstamp
@@ -141,9 +140,11 @@ ui_*.h
 *.cxxflags
 *.creator.*
 
-craig-core.files
-craig-core.includes
-navcoin-core.code-workspace
-craig-core.config
-craig-core.creator
-navcoin-core\.code-workspace
+# QT Creator files
+*.config
+*.creator
+*.files
+*.includes
+
+# VS Code
+*.code-workspace
