@@ -9117,7 +9117,7 @@ arith_uint256 GetProofOfStakeLimit(int nHeight)
 
 bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge, const CStateViewCache& view)
 {
-    arith_uint256 bnCentSecond = 0;  // coin age in the unit of cent-seconds
+    arith_uint512 bnCentSecond = 0;  // coin age in the unit of cent-seconds
     nCoinAge = 0;
 
     if (transaction.IsCoinBase())
@@ -9144,14 +9144,14 @@ bool TransactionGetCoinAge(CTransaction& transaction, uint64_t& nCoinAge, const 
             continue; // only count coins meeting min age requirement
 
         int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
-        bnCentSecond += arith_uint256(nValueIn) * (transaction.nTime-txPrev.nTime) / CENT;
+        bnCentSecond += arith_uint512(nValueIn) * (transaction.nTime-txPrev.nTime) / CENT;
 
 
         LogPrint("coinage", "coin age nValueIn=%d nTimeDiff=%d bnCentSecond=%s\n", nValueIn, transaction.nTime - txPrev.nTime, bnCentSecond.ToString());
     }
 
 
-    arith_uint256 bnCoinDay = ((bnCentSecond * CENT) / COIN) / (24 * 60 * 60);
+    arith_uint512 bnCoinDay = ((bnCentSecond * CENT) / COIN) / (24 * 60 * 60);
     LogPrint("coinage", "coin age bnCoinDay=%s\n", bnCoinDay.ToString());
     nCoinAge = bnCoinDay.GetLow64();
 
