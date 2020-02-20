@@ -997,6 +997,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 
     }
 
+    if(!wordlist.empty())
+    {
+        SoftSetBoolArg("-rescan", true);
+    }
+
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
     // Turn off Microsoft heap dump noise
