@@ -798,7 +798,7 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
@@ -888,7 +888,7 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
@@ -981,7 +981,7 @@ UniValue createconsultationwithanswers(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
     EnsureWalletIsUnlocked();
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
@@ -1207,7 +1207,7 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(wtx.strDZeel.length() > 255)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
-    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true, fDump);
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
     {
