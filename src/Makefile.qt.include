@@ -206,7 +206,7 @@ QT_MOC_CPP = \
   qt/moc_navcoinlistwidget.cpp \
   qt/moc_navcoinpushbutton.cpp \
   qt/moc_daoproposeanswer.cpp \
-  qt/moc_daosupport.cpp
+  qt/moc_daosupport.cpp \
 	qt/styles/moc_dark.cpp \
 	qt/styles/moc_light.cpp
 
