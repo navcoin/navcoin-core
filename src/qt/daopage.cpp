@@ -29,6 +29,7 @@ DaoPage::DaoPage(const PlatformStyle *platformStyle, QWidget *parent) :
     CStateViewCache view(pcoinsTip);
 
     auto *topBox = new QFrame;
+    topBox->setObjectName("daoTopBox");
     auto *topBoxLayout = new QHBoxLayout;
     topBoxLayout->setContentsMargins(QMargins());
     topBox->setLayout(topBoxLayout);
@@ -181,6 +182,12 @@ void DaoPage::setClientModel(ClientModel *clientModel)
 void DaoPage::setActive(bool flag)
 {
     fActive = flag;
+
+    // This was added to fix the button sizes on initial load
+    if (nLoadCount < 2) {
+        nLoadCount++;
+        viewProposals(); // This was added to fix the button sizes on initial load
+    }
 }
 
 void DaoPage::setView(int view)
@@ -1716,6 +1723,18 @@ void DaoPage::onDetails() {
     }
 }
 
+void DaoPage::setActiveSection(QWidget* section)
+{
+    proposalsBtn->setProperty("class", "");
+    paymentRequestsBtn->setProperty("class", "");
+    consultationsBtn->setProperty("class", "");
+    deploymentsBtn->setProperty("class", "");
+    consensusBtn->setProperty("class", "");
+
+    section->setProperty("class", "active");
+    qApp->setStyleSheet(qApp->styleSheet()); // HACKY
+}
+
 void DaoPage::viewProposals() {
     setView(VIEW_PROPOSALS);
     if (filterHash.isEmpty())
@@ -1731,11 +1750,8 @@ void DaoPage::viewProposals() {
             onFilter2(FILTER2_ALL);
         }
     }
-    proposalsBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
-    paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consultationsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    deploymentsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consensusBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+
+    setActiveSection(proposalsBtn);
 }
 
 void DaoPage::viewPaymentRequests() {
@@ -1753,11 +1769,8 @@ void DaoPage::viewPaymentRequests() {
             onFilter2(FILTER2_ALL);
         }
     }
-    proposalsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
-    consultationsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    deploymentsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consensusBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+
+    setActiveSection(paymentRequestsBtn);
 }
 
 void DaoPage::viewConsultations() {
@@ -1772,11 +1785,8 @@ void DaoPage::viewConsultations() {
         onFilter(FILTER_ALL);
         onFilter2(FILTER2_ALL);
     }
-    proposalsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consultationsBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
-    deploymentsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consensusBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+
+    setActiveSection(consultationsBtn);
 }
 
 void DaoPage::viewDeployments() {
@@ -1791,11 +1801,8 @@ void DaoPage::viewDeployments() {
         onFilter(FILTER_ALL);
         onFilter2(FILTER2_ALL);
     }
-    proposalsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consultationsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    deploymentsBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
-    consensusBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
+
+    setActiveSection(deploymentsBtn);
 }
 
 void DaoPage::viewConsensus() {
@@ -1813,11 +1820,8 @@ void DaoPage::viewConsensus() {
             onFilter2(FILTER2_ALL);
         }
     }
-    proposalsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    paymentRequestsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consultationsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    deploymentsBtn->setStyleSheet("QPushButton { background-color: #EDF0F3; }");
-    consensusBtn->setStyleSheet("QPushButton { background-color: #DBE0E8; }");
+
+    setActiveSection(consensusBtn);
 }
 
 void DaoPage::backToFilter() {
@@ -2162,7 +2166,7 @@ void DaoChart::updateView() {
                 }
             }
             else
-            {       
+            {
                 CConsultationAnswerMap consultationAnswerMap;
                 if (view.GetAllConsultationAnswers(consultationAnswerMap))
                 {
