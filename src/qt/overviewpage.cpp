@@ -159,7 +159,7 @@ void OverviewPage::setStakingStats(QString day, QString week, QString month, QSt
 void OverviewPage::setBalance(
     const CAmount& balance,
     const CAmount& unconfirmedBalance,
-    const CAmount& stakingBalance,
+    const CAmount& stakingBalance, // This is actually staked immature
     const CAmount& immatureBalance,
     const CAmount& watchOnlyBalance,
     const CAmount& watchUnconfBalance,
@@ -179,15 +179,14 @@ void OverviewPage::setBalance(
     currentWatchOnlyTotalBalance = watchOnlyBalance + watchUnconfBalance + watchImmatureBalance;
     ui->labelBalance->setText(NavCoinUnits::formatWithUnit(unit, balance, false, NavCoinUnits::separatorAlways));
     ui->labelUnconfirmed->setText(NavCoinUnits::formatWithUnit(unit, unconfirmedBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelStaking->setText(NavCoinUnits::formatWithUnit(unit, stakingBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelColdStaking->setText(NavCoinUnits::formatWithUnit(unit, coldStakingBalance, false, NavCoinUnits::separatorAlways));
-    ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, immatureBalance, false, NavCoinUnits::separatorAlways));
+    ui->labelColdStaking->setText(NavCoinUnits::formatWithUnit(unit, currentColdStakingBalance, false, NavCoinUnits::separatorAlways));
+    ui->labelImmature->setText(NavCoinUnits::formatWithUnit(unit, currentImmatureBalance, false, NavCoinUnits::separatorAlways));
     ui->labelWatchedBalance->setText(NavCoinUnits::formatWithUnit(unit, currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
     ui->labelTotal->setText(NavCoinUnits::formatWithUnit(unit, currentTotalBalance + currentWatchOnlyTotalBalance, false, NavCoinUnits::separatorAlways));
 
     updateStakeReportNow();
 
-    uiInterface.SetBalance(currentTotalBalance, balance, stakingBalance + coldStakingBalance);
+    uiInterface.SetBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance);
 }
 
 // show/hide watch-only labels
@@ -222,8 +221,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getStake(), model->getImmatureBalance(),
                    model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(),
                    model->getColdStakingBalance());
-        connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
-        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(updateStakeReportbalanceChanged(CAmount, CAmount, CAmount,CAmount, CAmount,CAmount,CAmount)));
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(setBalance(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
+        connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)), this, SLOT(updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)));
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
@@ -269,42 +268,42 @@ extern int GetsStakeSubTotal(vStakePeriodRange_T& aRange);
 
 void OverviewPage::updateStakeReport(bool fImmediate=false)
 {
+    if (!walletModel || !walletModel->getOptionsModel())
+        return;
+
     static vStakePeriodRange_T aRange;
     int nItemCounted=0;
 
     if (fImmediate) nLastReportUpdate = 0;
 
-    if (this->isHidden())
-        return;
-
-    int64_t nTook = GetTimeMillis();
-
     // Skip report recalc if not immediate or before 5 minutes from last
     if (GetTime() - nLastReportUpdate > 300)
     {
-
+        // Load the range
         aRange = PrepareRangeForStakeReport();
 
-        // get subtotal calc
+        // Get the subtotals
         nItemCounted = GetsStakeSubTotal(aRange);
 
+        // Save the last update
         nLastReportUpdate = GetTime();
-
-        nTook = GetTimeMillis() - nTook;
-
     }
-
-    //int64_t nTook2 = GetTimeMillis();
-
-    int i=30;
 
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
 
-    ui->label24hStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->label7dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->label30dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->label1yStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
-    ui->labelallStakingStats->setText(NavCoinUnits::formatWithUnit(unit, aRange[i++].Total, false, NavCoinUnits::separatorAlways));
+    CAmount amount24h = aRange[30].Total;
+    CAmount amount7d  = aRange[31].Total;
+    CAmount amount30d = aRange[32].Total;
+    CAmount amount1y  = aRange[33].Total;
+    CAmount amountAll = aRange[34].Total;
+
+    ui->label24hStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount24h, false, NavCoinUnits::separatorAlways));
+    ui->label7dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount7d, false, NavCoinUnits::separatorAlways));
+    ui->label30dStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount30d, false, NavCoinUnits::separatorAlways));
+    ui->label1yStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amount1y, false, NavCoinUnits::separatorAlways));
+    ui->labelallStakingStats->setText(NavCoinUnits::formatWithUnit(unit, amountAll, false, NavCoinUnits::separatorAlways));
+
+    uiInterface.SetStaked(amountAll, amount24h, amount7d);
 }
 
 

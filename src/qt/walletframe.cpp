@@ -43,7 +43,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, NavCoinGUI *_gui) :
     headLayout->setSpacing(0);
     headerLayout->addLayout(headLayout);
 
-    balanceLayout = new QVBoxLayout();
+    balanceLayout = new QHBoxLayout();
     balanceLayout->setContentsMargins(0, 0, 0, 0);
     balanceLayout->setSpacing(0);
     balanceLayout->setAlignment(Qt::AlignLeft);

@@ -83,23 +83,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="labelStakingText">
-          <property name="text">
-           <string>Staking</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="labelStaking">
-          <property name="text">
-           <string>1 000.00000000 NAV</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="0">
          <widget class="QLabel" name="labelColdStakingText">
           <property name="text">

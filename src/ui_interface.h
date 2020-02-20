@@ -79,7 +79,10 @@ public:
     boost::signals2::signal<void ()> UpdateDaoNewCount;
 
     /** Update the balance in the wallet header. */
-    boost::signals2::signal<void (const CAmount &total, const CAmount &avail, const CAmount &stake)> SetBalance;
+    boost::signals2::signal<void (const CAmount &avail, const CAmount &pending, const CAmount &immat)> SetBalance;
+
+    /** Update the staked stats in the wallet header */
+    boost::signals2::signal<void (const CAmount &all, const CAmount &today, const CAmount &week)> SetStaked;
 
     /** Show message box. */
     boost::signals2::signal<bool (const std::string& message, const std::string& caption, unsigned int style), boost::signals2::last_value<bool> > ThreadSafeMessageBox;

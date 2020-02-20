@@ -116,9 +116,9 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
-    balanceTotal(0),
     balanceAvail(0),
-    balanceStake(0),
+    balancePendi(0),
+    balanceImmat(0),
     appMenuBar(0),
     overviewAction(0),
     historyAction(0),
@@ -624,31 +624,153 @@ void NavCoinGUI::createHeaderWidgets()
         notificationLayout->addWidget(notifications[i]);
     }
 
+    QWidget* balanceContainer = new QWidget();
+    balanceContainer->setObjectName("balanceContainer");
+    QWidget* stakedContainer = new QWidget();
+    stakedContainer->setObjectName("stakedContainer");
+
+    QVBoxLayout* balanceLayout = new QVBoxLayout();
+    balanceLayout->setContentsMargins(0, 0, 20 * GUIUtil::scale(), 0);
+    balanceLayout->setSpacing(5 * GUIUtil::scale());
+    balanceContainer->setLayout(balanceLayout);
+
+    QVBoxLayout* stakedLayout = new QVBoxLayout();
+    stakedLayout->setContentsMargins(20 * GUIUtil::scale(), 0, 0, 0);
+    stakedLayout->setSpacing(5 * GUIUtil::scale());
+    stakedContainer->setLayout(stakedLayout);
+
+    // Containers for the subbalance layouts
+    QWidget* balanceAvailContainer = new QWidget();
+    balanceAvailContainer->setObjectName("balanceAvailContainer");
+    QWidget* balancePendiContainer = new QWidget();
+    balancePendiContainer->setObjectName("balancePendiContainer");
+    QWidget* balanceImmatContainer = new QWidget();
+    balanceImmatContainer->setObjectName("balanceImmatContainer");
+
+    QWidget* stakedAvailContainer = new QWidget();
+    stakedAvailContainer->setObjectName("stakedAvailContainer");
+    QWidget* stakedPendiContainer = new QWidget();
+    stakedPendiContainer->setObjectName("stakedPendiContainer");
+    QWidget* stakedImmatContainer = new QWidget();
+    stakedImmatContainer->setObjectName("stakedImmatContainer");
+
+    // Layouts for the sub balance sections
+    QVBoxLayout* balanceAvailLayout = new QVBoxLayout();
+    balanceAvailLayout->setContentsMargins(0, 0, 0, 0);
+    balanceAvailLayout->setSpacing(0);
+    QVBoxLayout* balancePendiLayout = new QVBoxLayout();
+    balancePendiLayout->setContentsMargins(0, 0, 10 * GUIUtil::scale(), 0);
+    balancePendiLayout->setSpacing(0);
+    QVBoxLayout* balanceImmatLayout = new QVBoxLayout();
+    balanceImmatLayout->setContentsMargins(0, 0, 0, 0);
+    balanceImmatLayout->setSpacing(0);
+
+    // Layouts for the sub staked sections
+    QVBoxLayout* stakedAvailLayout = new QVBoxLayout();
+    stakedAvailLayout->setContentsMargins(0, 0, 0, 0);
+    stakedAvailLayout->setSpacing(0);
+    QVBoxLayout* stakedPendiLayout = new QVBoxLayout();
+    stakedPendiLayout->setContentsMargins(0, 0, 10 * GUIUtil::scale(), 0);
+    stakedPendiLayout->setSpacing(0);
+    QVBoxLayout* stakedImmatLayout = new QVBoxLayout();
+    stakedImmatLayout->setContentsMargins(0, 0, 0, 0);
+    stakedImmatLayout->setSpacing(0);
+
+    // Set the layouts for the containers
+    balanceAvailContainer->setLayout(balanceAvailLayout);
+    balancePendiContainer->setLayout(balancePendiLayout);
+    balanceImmatContainer->setLayout(balanceImmatLayout);
+    stakedAvailContainer->setLayout(stakedAvailLayout);
+    stakedPendiContainer->setLayout(stakedPendiLayout);
+    stakedImmatContainer->setLayout(stakedImmatLayout);
+
     // Create our balance labels
-    balanceTotal = new QLabel();
-    balanceTotal->setObjectName("balanceTotal");
-    balanceTotal->setTextInteractionFlags(Qt::TextSelectableByMouse);
     balanceAvail = new QLabel();
     balanceAvail->setObjectName("balanceAvail");
     balanceAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    balanceStake = new QLabel();
-    balanceStake->setObjectName("balanceStaking");
-    balanceStake->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    balancePendi = new QLabel();
+    balancePendi->setObjectName("balancePendi");
+    balancePendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    balanceImmat = new QLabel();
+    balanceImmat->setObjectName("balanceImmat");
+    balanceImmat->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    // Create our staked labels
+    stakedAvail = new QLabel();
+    stakedAvail->setObjectName("stakedAvail");
+    stakedAvail->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    stakedPendi = new QLabel();
+    stakedPendi->setObjectName("stakedPendi");
+    stakedPendi->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    stakedImmat = new QLabel();
+    stakedImmat->setObjectName("stakedImmat");
+    stakedImmat->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    // Labels above the actual values
+    QLabel* balanceAvailLabel = new QLabel();
+    balanceAvailLabel->setText(tr("Available"));
+    balanceAvailLabel->setObjectName("balanceAvailLabel");
+    QLabel* balancePendiLabel = new QLabel();
+    balancePendiLabel->setText(tr("Pending"));
+    balancePendiLabel->setObjectName("balancePendiLabel");
+    QLabel* balanceImmatLabel = new QLabel();
+    balanceImmatLabel->setText(tr("Immature"));
+    balanceImmatLabel->setObjectName("balanceImmatLabel");
+    QLabel* stakedAvailLabel = new QLabel();
+    stakedAvailLabel->setText(tr("Staked"));
+    stakedAvailLabel->setObjectName("stakedAvailLabel");
+    QLabel* stakedPendiLabel = new QLabel();
+    stakedPendiLabel->setText(tr("Last 24 Hours"));
+    stakedPendiLabel->setObjectName("stakedPendiLabel");
+    QLabel* stakedImmatLabel = new QLabel();
+    stakedImmatLabel->setText(tr("Last 7 Days"));
+    stakedImmatLabel->setObjectName("stakedImmatLabel");
+
+    // Add these to the correct container
+    balanceAvailLayout->addWidget(balanceAvailLabel);
+    balanceAvailLayout->addWidget(balanceAvail);
+    balancePendiLayout->addWidget(balancePendiLabel);
+    balancePendiLayout->addWidget(balancePendi);
+    balanceImmatLayout->addWidget(balanceImmatLabel);
+    balanceImmatLayout->addWidget(balanceImmat);
+    stakedAvailLayout->addWidget(stakedAvailLabel);
+    stakedAvailLayout->addWidget(stakedAvail);
+    stakedPendiLayout->addWidget(stakedPendiLabel);
+    stakedPendiLayout->addWidget(stakedPendi);
+    stakedImmatLayout->addWidget(stakedImmatLabel);
+    stakedImmatLayout->addWidget(stakedImmat);
 
     // Sub layout
     QHBoxLayout* balanceSubLayout = new QHBoxLayout();
     balanceSubLayout->setContentsMargins(0, 0, 0, 0);
     balanceSubLayout->setSpacing(0);
-    balanceSubLayout->addWidget(balanceAvail);
-    balanceSubLayout->addWidget(balanceStake);
+    balanceSubLayout->addWidget(balancePendiContainer);
+    balanceSubLayout->addWidget(balanceImmatContainer);
+
+    // Sub layout
+    QHBoxLayout* stakedSubLayout = new QHBoxLayout();
+    stakedSubLayout->setContentsMargins(0, 0, 0, 0);
+    stakedSubLayout->setSpacing(0);
+    stakedSubLayout->addWidget(stakedPendiContainer);
+    stakedSubLayout->addWidget(stakedImmatContainer);
 
     // Balance sub
     QWidget* balanceSub = new QWidget();
     balanceSub->setLayout(balanceSubLayout);
 
-    // Add the total and sub
-    walletFrame->balanceLayout->addWidget(balanceTotal);
-    walletFrame->balanceLayout->addWidget(balanceSub);
+    balanceLayout->addWidget(balanceAvailContainer);
+    balanceLayout->addWidget(balanceSub);
+
+    // Staked sub
+    QWidget* stakedSub = new QWidget();
+    stakedSub->setLayout(stakedSubLayout);
+
+    stakedLayout->addWidget(stakedAvailContainer);
+    stakedLayout->addWidget(stakedSub);
+
+    // The balance amd staked
+    walletFrame->balanceLayout->addWidget(balanceContainer);
+    walletFrame->balanceLayout->addWidget(stakedContainer);
 
     // Add the header spacer and header bar
     walletFrame->headerLayout->addWidget(headerSpacer);
@@ -773,15 +895,28 @@ void NavCoinGUI::setActiveMenu(int index)
     }
 }
 
-void NavCoinGUI::setBalance(const CAmount &total, const CAmount &avail, const CAmount &stake)
+void NavCoinGUI::setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat)
 {
     if (!walletFrame || !clientModel || !clientModel->getOptionsModel())
         return;
 
     int unit = clientModel->getOptionsModel()->getDisplayUnit();
-    balanceTotal->setText(tr("Balance: %1").arg(NavCoinUnits::formatWithUnit(unit, total, false, NavCoinUnits::separatorAlways)));
-    balanceAvail->setText(tr("Available: %1 | ").arg(NavCoinUnits::formatWithUnit(unit, avail, false, NavCoinUnits::separatorAlways)));
-    balanceStake->setText(tr("Staking: %1").arg(NavCoinUnits::formatWithUnit(unit, stake, false, NavCoinUnits::separatorAlways)));
+
+    balanceAvail->setText(NavCoinUnits::prettyWithUnit(unit, avail, false, NavCoinUnits::separatorAlways));
+    balancePendi->setText(NavCoinUnits::prettyWithUnit(unit, pendi, false, NavCoinUnits::separatorAlways));
+    balanceImmat->setText(NavCoinUnits::prettyWithUnit(unit, immat, false, NavCoinUnits::separatorAlways));
+}
+
+void NavCoinGUI::setStaked(const CAmount &all, const CAmount &today, const CAmount &week)
+{
+    if (!walletFrame || !clientModel || !clientModel->getOptionsModel())
+        return;
+
+    int unit = clientModel->getOptionsModel()->getDisplayUnit();
+
+    stakedAvail->setText(NavCoinUnits::prettyWithUnit(unit, all, false, NavCoinUnits::separatorAlways));
+    stakedPendi->setText(NavCoinUnits::prettyWithUnit(unit, today, false, NavCoinUnits::separatorAlways));
+    stakedImmat->setText(NavCoinUnits::prettyWithUnit(unit, week, false, NavCoinUnits::separatorAlways));
 }
 
 void NavCoinGUI::updateDaoNewCount()
@@ -1676,10 +1811,16 @@ static void UpdateDaoNewCount(NavCoinGUI *gui)
     gui->updateDaoNewCount();
 }
 
-void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &stake)
+void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat)
 {
     // Call our instance method
-    gui->setBalance(total, avail, stake);
+    gui->setBalance(total, avail, immat);
+}
+
+void SetStaked(NavCoinGUI *gui, const CAmount& all, const CAmount& today, const CAmount &week)
+{
+    // Call our instance method
+    gui->setStaked(all, today, week);
 }
 
 void NavCoinGUI::subscribeToCoreSignals()
@@ -1689,6 +1830,7 @@ void NavCoinGUI::subscribeToCoreSignals()
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
     uiInterface.UpdateDaoNewCount.connect(boost::bind(UpdateDaoNewCount, this));
     uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3));
+    uiInterface.SetStaked.connect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 
 void NavCoinGUI::unsubscribeFromCoreSignals()
@@ -1698,6 +1840,7 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
     uiInterface.UpdateDaoNewCount.disconnect(boost::bind(UpdateDaoNewCount, this));
     uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3));
+    uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */

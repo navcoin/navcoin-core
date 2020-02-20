@@ -62,13 +62,32 @@
     padding: 0 0.25em 0 0.25em;
 }
 
-#balanceTotal {
-    font-size: 14pt;
+#balanceContainer {
+    border-right: 0.15em solid palette(text);
+}
+
+#balanceAvailLabel,
+#balancePendiLabel,
+#balanceImmatLabel,
+#stakedAvailLabel,
+#stakedPendiLabel,
+#stakedImmatLabel {
+    color: palette(alternate-text);
+    font-size: 8pt;
 }
 
 #balanceAvail,
-#balanceStake {
+#balancePendi,
+#balanceImmat,
+#stakedAvail,
+#stakedPendi,
+#stakedImmat {
     font-size: 10pt;
+}
+
+#balanceAvail,
+#stakedAvail {
+    font-size: 15pt;
 }
 
 #unlockStakingButton {
