@@ -92,12 +92,12 @@ QT_TS = \
 QT_FORMS_UI = \
 	qt/forms/addressbookpage.ui \
 	qt/forms/askpassphrasedialog.ui \
-    qt/forms/startoptionsdialog.ui \
-    qt/forms/startoptions.ui \
-    qt/forms/startoptionsrestore.ui \
-    qt/forms/startoptionssort.ui \
-    qt/forms/startoptionsrevealed.ui \
-    qt/forms/startoptionsmain.ui \
+  qt/forms/startoptionsdialog.ui \
+  qt/forms/startoptions.ui \
+  qt/forms/startoptionsrestore.ui \
+  qt/forms/startoptionssort.ui \
+  qt/forms/startoptionsrevealed.ui \
+  qt/forms/startoptionsmain.ui \
 	qt/forms/coincontroldialog.ui \
 	qt/forms/communityfundcreatepaymentrequestdialog.ui \
 	qt/forms/communityfundcreateproposaldialog.ui \
@@ -130,12 +130,12 @@ QT_MOC_CPP = \
 	qt/moc_askpassphrasedialog.cpp \
 	qt/moc_bantablemodel.cpp \
 	qt/moc_clientmodel.cpp \
-    qt/moc_startoptionsdialog.cpp \
-    qt/moc_startoptions.cpp \
-    qt/moc_startoptionsrestore.cpp \
-    qt/moc_startoptionssort.cpp \
-    qt/moc_startoptionsrevealed.cpp \
-    qt/moc_startoptionsmain.cpp \
+  qt/moc_startoptionsdialog.cpp \
+  qt/moc_startoptions.cpp \
+  qt/moc_startoptionsrestore.cpp \
+  qt/moc_startoptionssort.cpp \
+  qt/moc_startoptionsrevealed.cpp \
+  qt/moc_startoptionsmain.cpp \
 	qt/moc_coincontroldialog.cpp \
 	qt/moc_coincontroltreewidget.cpp \
 	qt/moc_coldstakingwizard.cpp \
@@ -165,7 +165,7 @@ QT_MOC_CPP = \
 	qt/moc_optionsdialog.cpp \
 	qt/moc_optionsmodel.cpp \
 	qt/moc_overviewpage.cpp \
-        qt/moc_communityfundpage.cpp \
+  qt/moc_communityfundpage.cpp \
 	qt/moc_communityfunddisplay.cpp \
 	qt/moc_communityfunddisplaypaymentrequest.cpp \
 	qt/moc_communityfunddisplaypaymentrequestdetailed.cpp \
@@ -196,17 +196,17 @@ QT_MOC_CPP = \
 	qt/moc_transactiontablemodel.cpp \
 	qt/moc_transactionview.cpp \
 	qt/moc_utilitydialog.cpp \
-        qt/moc_walletframe.cpp \
-        qt/moc_walletmodel.cpp \
+  qt/moc_walletframe.cpp \
+  qt/moc_walletmodel.cpp \
 	qt/moc_walletview.cpp \
-        qt/moc_communityfunddisplaydetailed.cpp \
-        qt/moc_daopage.cpp \
-        qt/moc_daoconsultationvote.cpp \
-        qt/moc_daoconsultationcreate.cpp \
-        qt/moc_navcoinlistwidget.cpp \
-        qt/moc_navcoinpushbutton.cpp \
-        qt/moc_daoproposeanswer.cpp \
-        qt/moc_daosupport.cpp
+  qt/moc_communityfunddisplaydetailed.cpp \
+  qt/moc_daopage.cpp \
+  qt/moc_daoconsultationvote.cpp \
+  qt/moc_daoconsultationcreate.cpp \
+  qt/moc_navcoinlistwidget.cpp \
+  qt/moc_navcoinpushbutton.cpp \
+  qt/moc_daoproposeanswer.cpp \
+  qt/moc_daosupport.cpp
 	qt/styles/moc_dark.cpp \
 	qt/styles/moc_light.cpp
 
@@ -224,7 +224,7 @@ QT_MOC = \
 	qt/communityfunddisplaypaymentrequestdetailed.moc \
 	qt/communityfunddisplaydetailed.moc \
 	qt/communityfundcreateproposaldialog.moc \
-        qt/communityfundcreatepaymentrequestdialog.moc
+  qt/communityfundcreatepaymentrequestdialog.moc \
 	qt/communityfundpage.moc \
 	qt/intro.moc \
 	qt/navcoin.moc \
@@ -247,12 +247,12 @@ NAVCOIN_QT_H = \
 	qt/askpassphrasedialog.h \
 	qt/bantablemodel.h \
 	qt/clientmodel.h \
-    qt/startoptionsdialog.h \
-    qt/startoptions.h \
-    qt/startoptionsrestore.h \
-    qt/startoptionssort.h \
-    qt/startoptionsrevealed.h \
-    qt/startoptionsmain.h \
+  qt/startoptionsdialog.h \
+  qt/startoptions.h \
+  qt/startoptionsrestore.h \
+  qt/startoptionssort.h \
+  qt/startoptionsrevealed.h \
+  qt/startoptionsmain.h \
 	qt/coincontroldialog.h \
 	qt/coincontroltreewidget.h \
 	qt/coldstakingwizard.h \
@@ -491,15 +491,15 @@ NAVCOIN_QT_CPP = \
 	qt/styles/dark.cpp \
 	qt/styles/light.cpp \
 	qt/trafficgraphwidget.cpp \
-        qt/utilitydialog.cpp \
-        qt/navcoinlistwidget.cpp \
-        qt/navcoinpushbutton.cpp
-        qt/startoptionsdialog.cpp \
-        qt/startoptions.cpp \
-        qt/startoptionsrestore.cpp \
-        qt/startoptionssort.cpp \
-        qt/startoptionsrevealed.cpp \
-        qt/startoptionsmain.cpp \
+  qt/utilitydialog.cpp \
+  qt/navcoinlistwidget.cpp \
+  qt/navcoinpushbutton.cpp \
+  qt/startoptionsdialog.cpp \
+  qt/startoptions.cpp \
+  qt/startoptionsrestore.cpp \
+  qt/startoptionssort.cpp \
+  qt/startoptionsrevealed.cpp \
+  qt/startoptionsmain.cpp \
 	qt/utilitydialog.cpp
 
 if TARGET_WINDOWS
@@ -527,14 +527,14 @@ NAVCOIN_QT_CPP += \
 	qt/openuridialog.cpp \
 	qt/overviewpage.cpp \
 	qt/communityfundpage.cpp \
-        qt/communityfunddisplay.cpp \
-        qt/communityfunddisplaypaymentrequest.cpp \
+  qt/communityfunddisplay.cpp \
+  qt/communityfunddisplaypaymentrequest.cpp \
 	qt/communityfunddisplaypaymentrequestdetailed.cpp \
 	qt/communityfunddisplaydetailed.cpp \
 	qt/communityfundcreateproposaldialog.cpp \
 	qt/communityfundcreatepaymentrequestdialog.cpp \
-        qt/qjsonitem.cpp \
-        qt/qjsonmodel.cpp \
+  qt/qjsonitem.cpp \
+  qt/qjsonmodel.cpp \
 	qt/paymentrequestplus.cpp \
 	qt/paymentserver.cpp \
 	qt/qjsonitem.cpp \

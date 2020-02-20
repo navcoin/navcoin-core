@@ -18,12 +18,12 @@ $(package)_qttools_sha256_hash=a97556eb7b2f30252cdd8a598c396cfce2b2f79d2bae883af
 $(package)_qtcharts_file_name=qtcharts-$($(package)_suffix)
 $(package)_qtcharts_sha256_hash=a75f89c0081af9635b50cab335a4871d476b36abc8a11dc4f24724bd3cf42437
 
-$(package)_extra_sources  = $($(package)_qttranslations_file_name)
-$(package)_extra_sources += $($(package)_qttools_file_name)
-$(package)_extra_sources += $($(package)_qtcharts_file_name)
 $(package)_qtsvg_file_name=qtsvg-$($(package)_suffix)
 $(package)_qtsvg_sha256_hash=c15d0c4ed93b168a6473749dd70cb04b3cc8e8af584447f2701be4cf2f11c5db
 
+$(package)_extra_sources  = $($(package)_qttranslations_file_name)
+$(package)_extra_sources += $($(package)_qttools_file_name)
+$(package)_extra_sources += $($(package)_qtcharts_file_name)
 $(package)_extra_sources += $($(package)_qtsvg_file_name)
 
 define $(package)_set_vars
