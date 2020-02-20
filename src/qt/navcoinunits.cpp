@@ -300,11 +300,6 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
         quotientD = (double) n_abs / (double) coin;
     }
 
-    // Check if we want auto adjust for decimals
-    if (fPretty && (quotient >= 10 || quotientD == 0.0f)) {
-        num_decimals -= 4;
-    }
-
     std::ostringstream out;
     out << std::setprecision(num_decimals) << std::fixed
         << std::showpoint << quotientD;
@@ -328,6 +323,11 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
         quotient_str.insert(0, '-');
     else if (fPlus && n > 0)
         quotient_str.insert(0, '+');
+
+    // Check if we want auto adjust for decimals
+    if (fPretty && (quotient >= 10 || quotientD == 0.0f)) {
+        remainder_str.chop(4);
+    }
 
     return quotient_str + QString(".") + remainder_str;
 }
