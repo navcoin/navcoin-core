@@ -9,9 +9,10 @@
 #include <qt/optionsdialog.h>
 #include <ui_optionsdialog.h>
 
-#include <qt/navcoinunits.h>
 #include <qt/guiutil.h>
+#include <qt/navcoinunits.h>
 #include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
 
 #include <chainparams.h>
 #include <main.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
@@ -33,11 +34,12 @@
 #include <QSettings>
 #include <QTimer>
 
-OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
+OptionsDialog::OptionsDialog(const PlatformStyle *platformStyle, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OptionsDialog),
     model(0),
-    mapper(0)
+    mapper(0),
+    platformStyle(platformStyle)
 {
     ui->setupUi(this);
 
@@ -81,10 +83,14 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWindow));
 #endif
 
+#ifdef ENABLE_WALLET
     /* remove Wallet tab in case of -disablewallet */
-    if (!enableWallet) {
+    if (GetBoolArg("-disablewallet", false)) {
+#endif // ENABLE_WALLET
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWallet));
+#ifdef ENABLE_WALLET
     }
+#endif
 
     /* Display elements init */
     QDir translations(":translations");
