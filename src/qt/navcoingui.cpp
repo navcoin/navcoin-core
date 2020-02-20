@@ -927,6 +927,8 @@ void NavCoinGUI::updateDaoNewCount()
     if(!pcoinsTip || !pindexBestHeader)
         return;
 
+    CStateViewCache view(pcoinsTip);
+
     // Debug log
     info("[DAO] started dao count");
 
@@ -935,21 +937,19 @@ void NavCoinGUI::updateDaoNewCount()
 
     CProposalMap mapProposals;
 
-    if(pcoinsTip->GetAllProposals(mapProposals))
+    if(view.GetAllProposals(mapProposals))
     {
         for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
         {
-            CFund::CProposal proposal;
-            if (!pcoinsTip->GetProposal(it->first, proposal))
+            CProposal proposal = it->second;
+
+            if (!proposal.CanVote(view))
                 continue;
 
-            if (proposal.GetLastState() != CFund::NIL)
-                continue;
+            auto _it = std::find_if( mapAddedVotes.begin(), mapAddedVotes.end(),
+                    [&proposal](const std::pair<uint256, int>& element){ return element.first == proposal.hash;} );
 
-            auto _it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                    [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-
-            if (_it != vAddedProposalVotes.end())
+            if (_it != mapAddedVotes.end())
                 continue;
 
             // Add to the count
@@ -960,21 +960,19 @@ void NavCoinGUI::updateDaoNewCount()
     //Payment request listings
     CPaymentRequestMap mapPaymentRequests;
 
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
+    if(view.GetAllPaymentRequests(mapPaymentRequests))
     {
         for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
         {
-            CFund::CPaymentRequest prequest;
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
+            CPaymentRequest prequest = it_->second;
+
+            if (!prequest.CanVote(view))
                 continue;
 
-            if (prequest.GetLastState() != CFund::NIL)
-                continue;
+            auto it = std::find_if( mapAddedVotes.begin(), mapAddedVotes.end(),
+                    [&prequest](const std::pair<uint256, int>& element){ return element.first == prequest.hash;} );
 
-            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                    [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-
-            if (it != vAddedPaymentRequestVotes.end())
+            if (it != mapAddedVotes.end())
                 continue;
 
             // Add to the count
@@ -2057,90 +2055,11 @@ void NavCoinGUI::updateStakingStatus()
         {
             if (nEstimateTime < 60*60)
             {
-                LOCK(cs_main);
-
-                CProposalMap mapProposals;
-
-                if(pcoinsTip->GetAllProposals(mapProposals))
-                {
-                    for (CProposalMap::iterator it_ = mapProposals.begin(); it_ != mapProposals.end(); it_++)
-                    {
-                        CProposal proposal;
-
-                        if (!pcoinsTip->GetProposal(it_->first, proposal))
-                            continue;
-                        if (proposal.GetLastState() != DAOFlags::NIL)
-                            continue;
-
-                        auto it = mapAddedVotes.find(proposal.hash);
-
-                        if (it != mapAddedVotes.end())
-                        {
-                            fFoundProposal = true;
-                            break;
-                        }
-                    }
-                }
                 text = tr("Expected time to earn reward is %n minute(s)", "", nEstimateTime/60);
             }
             else if (nEstimateTime < 24*60*60)
             {
-                CPaymentRequestMap mapPaymentRequests;
-
-                if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
-                {
-                    for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
-                    {
-                        CPaymentRequest prequest;
-
-                        if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
-                            continue;
-
-                        if (prequest.GetLastState() != DAOFlags::NIL)
-                            continue;
-
-                        auto it = mapAddedVotes.find(prequest.hash);
-
-                        if (it != mapAddedVotes.end())
-                        {
-                            fFoundPaymentRequest = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if ((fFoundPaymentRequest || fFoundProposal) && !this->fDontShowAgain && (this->lastDialogShown + (60*60*24)) < GetTimeNow()) {
-                QCheckBox *cb = new QCheckBox("Don't show this notification again until wallet is restarted.");
-                QMessageBox msgbox(this);
-                msgbox.setWindowTitle("Community Fund Update");
-                QString sWhat = fFoundProposal && fFoundPaymentRequest ? tr("Proposals and Payment Requests") : (fFoundProposal ? tr("Proposals") : tr("Payment Requests"));
-                msgbox.setText(tr("There are new %1 in the Community Fund.<br><br>As a staker it's important to engage in the voting process.<br><br>Please cast your vote using the Community Fund tab!").arg(sWhat));
-                msgbox.setIcon(QMessageBox::Icon::Information);
-                msgbox.setCheckBox(cb);
-                QAbstractButton* pButtonInfo = msgbox.addButton(tr("Read about the Community Fund"), QMessageBox::YesRole);
-                QAbstractButton* pButtonOpen = msgbox.addButton(tr("Open Community Fund"), QMessageBox::YesRole);
-                QAbstractButton* pButtonClose = msgbox.addButton(tr("Close"), QMessageBox::RejectRole);
-                pButtonClose->setVisible(false);
-                this->lastDialogShown = GetTimeNow();
-
-                msgbox.exec();
-
-                if(cb->isChecked()) {
-                    this->fDontShowAgain = true;
-                } else {
-                    this->fDontShowAgain = false;
-                }
-
-                if (msgbox.clickedButton()==pButtonOpen) {
-                    gotoCommunityFundPage();
-                }
-                if (msgbox.clickedButton()==pButtonInfo) {
-                    QString link = QString("https://navcoin.org/en/community-fund/");
-                    QDesktopServices::openUrl(QUrl(link));
-                }
-=======
                 text = tr("Expected time to earn reward is %n hour(s)", "", nEstimateTime/(60*60));
->>>>>>> upstream/master
             }
             else
             {

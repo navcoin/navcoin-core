@@ -311,8 +311,6 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     QString quotient_str = QString::number(quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 
-    while (removeTrailing && remainder_str.endsWith('0')) { remainder_str.chop(1); }
-
     // Use SI-style thin space separators as these are locale independent and can't be
     // confused with the decimal marker.
     QChar thin_sp(THIN_SP_CP);
@@ -358,7 +356,7 @@ QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool pluss
 
 QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)
 {
-    QString str(formatWithUnit(unit, amount, plussign, separators, removeTrailing));
+    QString str(formatWithUnit(unit, amount, plussign, separators));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }

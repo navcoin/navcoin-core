@@ -218,7 +218,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
                 CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
-                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
                 vecSend.push_back(recipient);
 
                 bool created_proposal = true;

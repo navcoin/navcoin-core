@@ -8,7 +8,6 @@
 #include "consensus/dao.h"
 #include "daoproposeanswer.h"
 #include "main.h"
-#include "skinize.h"
 #include "walletmodel.h"
 
 #include <QCheckBox>

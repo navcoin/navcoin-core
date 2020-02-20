@@ -11,7 +11,6 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
-    this->setStyleSheet(Skinize());
 
     auto *bottomBox = new QFrame;
     auto *bottomBoxLayout = new QHBoxLayout;

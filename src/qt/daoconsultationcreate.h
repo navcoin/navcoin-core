@@ -8,7 +8,6 @@
 #include "consensus/dao.h"
 #include "main.h"
 #include "navcoinlistwidget.h"
-#include "skinize.h"
 #include "walletmodel.h"
 
 #include <QCheckBox>

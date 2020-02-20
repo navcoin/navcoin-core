@@ -19,7 +19,6 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
-    this->setStyleSheet(Skinize());
 
     auto *topBox = new QFrame;
     auto *topBoxLayout = new QHBoxLayout;
@@ -120,7 +119,6 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent, QString title, int
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
-    this->setStyleSheet(Skinize());
 
     auto *bottomBox = new QFrame;
     auto *bottomBoxLayout = new QHBoxLayout;
@@ -266,12 +264,12 @@ void DaoConsultationCreate::onCreate()
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
     CAmount nValue = nMinFee;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
 
     bool created = true;
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
             created = false;
         }
@@ -422,12 +420,12 @@ void DaoConsultationCreate::onCreateConsensus()
     vector<CRecipient> vecSend;
     int nChangePosRet = -1;
     CAmount nValue = nMinFee;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
 
     bool created = true;
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true, "")) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
             created = false;
         }

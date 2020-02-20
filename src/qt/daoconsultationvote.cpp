@@ -15,7 +15,6 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
-    this->setStyleSheet(Skinize());
 
     QFont subtitleFnt("Sans Serif", 18, QFont::Bold);
 

@@ -521,8 +521,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             it.first,
             "#6666ff",
             QString::fromStdString(proposal.strDZeel),
-            NavCoinUnits::formatWithUnit(unit, proposal.nAmount, false, NavCoinUnits::separatorAlways, true),
-            NavCoinUnits::formatWithUnit(unit, proposal.nAmount - proposal.GetAvailable(coins), false, NavCoinUnits::separatorAlways, true),
+            NavCoinUnits::formatWithUnit(unit, proposal.nAmount, false, NavCoinUnits::separatorAlways),
+            NavCoinUnits::formatWithUnit(unit, proposal.nAmount - proposal.GetAvailable(coins), false, NavCoinUnits::separatorAlways),
             QString::fromStdString(s_deadline),
             proposal.nVotesYes ? proposal.nVotesYes : 0,
             proposal.nVotesNo ? proposal.nVotesNo : 0,
@@ -626,7 +626,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             QString::fromStdString(prequest.strDZeel),
             QString::fromStdString(proposal.strDZeel),
             "#6666ff",
-            NavCoinUnits::formatWithUnit(unit, prequest.nAmount, false, NavCoinUnits::separatorAlways, true),
+            NavCoinUnits::formatWithUnit(unit, prequest.nAmount, false, NavCoinUnits::separatorAlways),
             prequest.nVotesYes ? prequest.nVotesYes : 0,
             prequest.nVotesNo ? prequest.nVotesNo : 0,
             prequest.nVotesAbs ? prequest.nVotesAbs : 0,
@@ -2065,7 +2065,6 @@ DaoChart::DaoChart(QWidget *parent, uint256 hash) :
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
-    this->setStyleSheet(Skinize());
     this->resize(800, 600);
 
     series = new QtCharts::QPieSeries();

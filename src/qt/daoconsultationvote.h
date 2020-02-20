@@ -7,7 +7,6 @@
 
 #include "consensus/dao.h"
 #include "main.h"
-#include "skinize.h"
 
 #include <QCheckBox>
 #include <QDialog>
