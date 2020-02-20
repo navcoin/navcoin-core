@@ -40,6 +40,8 @@ public:
         ProxyPortTor,           // int
         DisplayUnit,            // NavCoinUnits::Unit
         ThirdPartyTxUrls,       // QString
+        Theme,                  // QString
+        Scaling,                // int
         Language,               // QString
         CoinControlFeatures,    // bool
         ThreadsScriptVerif,     // int
@@ -57,6 +59,7 @@ public:
     bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
     /** Updates current unit in memory, settings and emits displayUnitChanged(newUnit) signal */
     void setDisplayUnit(const QVariant &value);
+    void setCoinControlFeatures(const bool enabled);
 
     /* Explicit getters */
     bool getHideTrayIcon() { return fHideTrayIcon; }
@@ -77,6 +80,8 @@ private:
     bool fHideTrayIcon;
     bool fMinimizeToTray;
     bool fMinimizeOnClose;
+    QString theme;
+    int nScaling;
     QString language;
     int nDisplayUnit;
     QString strThirdPartyTxUrls;

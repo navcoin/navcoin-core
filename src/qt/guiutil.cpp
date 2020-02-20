@@ -74,6 +74,32 @@ extern double NSAppKitVersionNumber;
 
 namespace GUIUtil {
 
+float scale()
+{
+    // Static storage of scale
+    static float scale = 0.0f;
+
+    // Check if we already have it
+    if (scale != 0.0f)
+        return scale;
+
+    // Get an instance of settings
+    QSettings settings;
+
+    // What theme are we using? DEFAULT: light
+    float scaling = (settings.value("nScaling").toFloat() - 100) / 100;
+
+    // Calculate the scale
+    scale = (float) ((new QWidget())->logicalDpiX() / 96) + scaling;
+
+    // Check if we have less than 90% or greater than 150% and reset to 100%
+    if (scale < 0.9f || scale > 1.5f)
+        scale = 1.0f;
+
+    // Give back the scale value
+    return scale;
+}
+
 QString dateTimeStr(const QDateTime &date)
 {
     return date.date().toString(Qt::SystemLocaleShortDate) + QString(" ") + date.toString("hh:mm");

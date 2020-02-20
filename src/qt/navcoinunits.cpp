@@ -280,7 +280,7 @@ int NavCoinUnits::decimals(int unit)
     }
 }
 
-QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool removeTrailing)
+QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool fPretty)
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
@@ -290,13 +290,12 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     qint64 coin = factor(unit);
     int num_decimals = decimals(unit);
     qint64 n_abs = (n > 0 ? n : -n);
-    double quotient = 0;
+    qint64 quotient = 0;
     double quotientD = 0;
     qint64 remainder;
 
     // Check if we have a coin
-    if (coin > 0)
-    {
+    if (coin > 0) {
         quotient = n_abs / coin;
         quotientD = (double) n_abs / (double) coin;
     }
@@ -309,7 +308,7 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     std::getline(in, wholePart, '.');
     in >> remainder;
 
-    QString quotient_str = QString::number((qint64)quotient);
+    QString quotient_str = QString::number(quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 
     while (removeTrailing && remainder_str.endsWith('0')) { remainder_str.chop(1); }
@@ -327,9 +326,18 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     else if (fPlus && n > 0)
         quotient_str.insert(0, '+');
 
-    return quotient_str + (remainder_str == "" ? "" : (QString(".") + remainder_str));
+    // Check if we want auto adjust for decimals
+    if (fPretty && (quotient >= 10 || quotientD == 0.0f)) {
+        remainder_str.chop(4);
+    }
+
+    return quotient_str + QString(".") + remainder_str;
 }
 
+QString NavCoinUnits::pretty(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators)
+{
+    return format(unit, nIn, fPlus, separators, true);
+}
 
 // NOTE: Using formatWithUnit in an HTML context risks wrapping
 // quantities at the thousands separator. More subtly, it also results
@@ -338,10 +346,14 @@ QString NavCoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
 //
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
-
-QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)
+QString NavCoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
-    return format(unit, amount, plussign, separators, removeTrailing) + QString(" ") + name(unit);
+    return QString("%1 %2").arg(format(unit, amount, plussign, separators), name(unit));
+}
+
+QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+{
+    return QString("%1 %2").arg(pretty(unit, amount, plussign, separators), name(unit));
 }
 
 QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)

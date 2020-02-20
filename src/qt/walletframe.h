@@ -39,11 +39,14 @@ public:
 
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 
-    void showOutOfSyncWarning(bool fShow);
     WalletView *currentWalletView();
 
     QWidget *topMenu;
-    QHBoxLayout *menuLayout;
+    QVBoxLayout *menuLayout;
+    QVBoxLayout *headerLayout;
+    QHBoxLayout *headLayout;
+    QHBoxLayout *balanceLayout;
+    QHBoxLayout *statusLayout;
 
 Q_SIGNALS:
     /** Notify that the user has requested more information about the out-of-sync warning */
@@ -94,23 +97,7 @@ public Q_SLOTS:
     void importPrivateKey();
     void exportMasterPrivateKeyAction();
 
-    void setStatusTitleBlocks(QString text);
-
-    void setStatusTitleConnections(QString text);
-
-    void setStatusTitle(QString text);
-
-    void showStatusTitleConnections();
-    void hideStatusTitleConnections();
-    void showStatusTitleBlocks();
-    void hideStatusTitleBlocks();
-
-    void showLockStaking(bool status);
-
-    void setStakingStatus(QString text);
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
-
-    void setVotingStatus(QString text);
 
     void splitRewards();
 

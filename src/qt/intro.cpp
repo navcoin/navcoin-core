@@ -7,11 +7,9 @@
 #endif
 
 #include <qt/intro.h>
-#include <ui_intro.h>
-#include <qt/skinize.h>
+#include <qt/forms/ui_intro.h>
 
 #include <qt/guiutil.h>
-#include <qt/navtechinit.h>
 
 #include <util.h>
 
@@ -184,7 +182,6 @@ void Intro::pickDataDirectory()
         Intro intro;
         intro.setDataDirectory(dataDir + QDir::separator() + "wallet.dat");
         intro.setWindowIcon(QIcon(":icons/navcoin"));
-        intro.setStyleSheet(Skinize());
 
         while(true)
         {
@@ -203,13 +200,6 @@ void Intro::pickDataDirectory()
                     SoftSetArg("-zapwallettxes","2");
                 }
                 makeDefaultConfF();
-
-                WriteConfigFile("addanonserver", "95.183.52.55:3000");
-                WriteConfigFile("addanonserver", "95.183.52.28:3000");
-                WriteConfigFile("addanonserver", "95.183.52.29:3000");
-                WriteConfigFile("addanonserver", "95.183.53.184:3000");
-                SoftSetArg("-firstrun","1");
-
                 break;
             } catch (const fs::filesystem_error&) {
                 QMessageBox::critical(0, tr(PACKAGE_NAME),
@@ -237,7 +227,7 @@ void Intro::makeDefaultConfF()
         char t[] = R"(##
 ## navcoin.conf configuration file. Lines beginning with # are comments.
 ##
- 
+
 # Network-related settings:
 
 # Run on the test network instead of the real navcoin network.
@@ -260,7 +250,7 @@ void Intro::makeDefaultConfF()
 # By default, only RPC connections from localhost are allowed.
 
 # server=1 tells NavCoin-Qt to accept JSON-RPC commands.
-# it is also read by navcoind to determine if RPC should be enabled 
+# it is also read by navcoind to determine if RPC should be enabled
 
 # Listen for RPC connections on this TCP port:
 # it's default port . turns on by below line.
@@ -277,7 +267,7 @@ void Intro::makeDefaultConfF()
 # Start NavCoin minimized
 #min=1
 
-# Minimize to the system tray 
+# Minimize to the system tray
 #minimizetotray=1)";
 
         boost::filesystem::ofstream outStream(GetConfigFile(), std::ios_base::app);

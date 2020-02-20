@@ -702,3 +702,16 @@ bool ParseFixedPoint(const std::string &val, int decimals, int64_t *amount_out)
     return true;
 }
 
+// Replaces boost::join
+std::string join(const std::vector<std::string>& words, const std::string &separator, const std::string &concluder) {
+
+    std::stringstream ss;
+    for (size_t i=0;i<words.size();i++) {
+        if (i>0) ss << separator;
+        ss << words[i];
+    }
+
+    ss << concluder;
+
+    return ss.str();
+}

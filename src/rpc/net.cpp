@@ -333,62 +333,6 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
-UniValue addanonserver(const UniValue& params, bool fHelp)
-{
-    string strCommand;
-    if (params.size() >= 2)
-        strCommand = params[1].get_str();
-    if (fHelp || params.size() > 3 ||
-        (strCommand != "add" && strCommand != "remove"))
-        throw runtime_error(
-            "addanonserver \"node\" \"add|remove\"\n"
-            "\nAttempts add or remove a node from the NAVTech server list.\n"
-            "\nArguments:\n"
-            "1. \"node\"     (string, required) The node (see getpeerinfo for nodes)\n"
-            "2. \"command\"  (string, required) 'add' to add a node to the list, 'remove' to remove a node from the list\n"
-            "3. save  (boolean, optional) add or remove the given node to your config file\n"
-            "\nExamples:\n"
-            + HelpExampleCli("addanonserver", "\"192.168.0.6:3000\" \"add\"")
-            + HelpExampleCli("addanonserver", "\"192.168.0.6:3000\" \"add\" true")
-            + HelpExampleRpc("addanonserver", "\"192.168.0.6:3000\", \"remove\"")
-            + HelpExampleRpc("addanonserver", "\"192.168.0.6:3000\", \"remove\", true")
-        );
-
-    string strNode = params[0].get_str();
-
-    LOCK(cs_vAddedAnonServers);
-    vector<string>::iterator it = vAddedAnonServers.begin();
-    for(; it != vAddedAnonServers.end(); it++)
-        if (strNode == *it)
-            break;
-
-    if (strCommand == "add")
-    {
-      if (params.size() == 3 && params[2].get_str() == "true") {
-        WriteConfigFile("addanonserver", strNode);
-        if (it == vAddedAnonServers.end())
-          vAddedAnonServers.push_back(strNode);
-      } else {
-        if (it != vAddedAnonServers.end())
-          throw JSONRPCError(RPC_CLIENT_NODE_ALREADY_ADDED, "Error: NAVTech server already added");
-        vAddedAnonServers.push_back(strNode);
-      }
-    }
-    else if(strCommand == "remove")
-    {
-      if (params.size() == 3 && params[2].get_str() == "true") {
-        RemoveConfigFile("addanonserver", strNode);
-        if (it != vAddedAnonServers.end())
-          vAddedAnonServers.erase(it);
-      } else {
-        if (it == vAddedAnonServers.end())
-          throw JSONRPCError(RPC_CLIENT_NODE_NOT_ADDED, "Error: NAVTech server has not been added.");
-        vAddedAnonServers.erase(it);
-      }
-    }
-    return NullUniValue;
-}
-
 UniValue getnettotals(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 0)
@@ -667,17 +611,6 @@ UniValue getstakinginfo(const UniValue& params, bool fHelp)
     return obj;
 }
 
-UniValue listanonservers(const UniValue& params, bool fHelp)
-{
-  UniValue obj(UniValue::VARR);
-
-  for(string vAddedAnonServer: vAddedAnonServers) {
-      obj.push_back(vAddedAnonServer);
-  }
-
-  return obj;
-}
-
 UniValue getstakesubsidy(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -715,14 +648,12 @@ static const CRPCCommand commands[] =
     { "network",            "ping",                   &ping,                   true  },
     { "network",            "getpeerinfo",            &getpeerinfo,            true  },
     { "network",            "addnode",                &addnode,                true  },
-    { "network",            "addanonserver",          &addanonserver,          true  },
     { "network",            "disconnectnode",         &disconnectnode,         true  },
     { "network",            "getaddednodeinfo",       &getaddednodeinfo,       true  },
     { "network",            "getnettotals",           &getnettotals,           true  },
     { "network",            "getnetworkinfo",         &getnetworkinfo,         true  },
     { "network",            "setban",                 &setban,                 true  },
     { "network",            "listbanned",             &listbanned,             true  },
-    { "network",            "listanonservers",        &listanonservers,        true  },
     { "network",            "clearbanned",            &clearbanned,            true  },
 };
 

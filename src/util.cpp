@@ -106,11 +106,10 @@ using namespace std;
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 
-std::vector<std::string> vAddedAnonServers;
-CCriticalSection cs_vAddedAnonServers;
-
 std::map<uint256, int64_t> mapAddedVotes;
 std::map<uint256, bool> mapSupported;
+std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
+std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -587,6 +586,17 @@ static boost::filesystem::path pathCached;
 static boost::filesystem::path pathCachedNetSpecific;
 static CCriticalSection csPathCached;
 
+bool CheckIfWalletDatExists(bool fNetSpecific) {
+
+    namespace fs = boost::filesystem;
+
+    boost::filesystem::path path("wallet.dat");
+    if (!path.is_complete())
+        path = GetDataDir(fNetSpecific) / path;
+
+    return fs::exists(path);
+}
+
 const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
@@ -648,13 +658,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         string strKey = string("-") + it->string_key;
         string strValue = it->value[0];
 
-        if(strKey == "-addanonserver")
-        {
-            vAddedAnonServers.push_back(strValue);
-            continue;
-        }
-
-        else if(strKey == "-addproposalvoteyes" || strKey == "-addpaymentrequestvoteyes" || strKey == "-voteyes")
+        if(strKey == "-addproposalvoteyes" || strKey == "-addpaymentrequestvoteyes" || strKey == "-voteyes")
         {
             mapAddedVotes[uint256S(strValue)]=1;
             continue;

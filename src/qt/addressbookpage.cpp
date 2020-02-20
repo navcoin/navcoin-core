@@ -37,17 +37,10 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode mode, 
 {
     ui->setupUi(this);
 
-    if (!platformStyle->getImagesOnButtons()) {
-        ui->newAddress->setIcon(QIcon());
-        ui->copyAddress->setIcon(QIcon());
-        ui->deleteAddress->setIcon(QIcon());
-        ui->exportButton->setIcon(QIcon());
-    } else {
-        ui->newAddress->setIcon(platformStyle->SingleColorIcon(":/icons/add"));
-        ui->copyAddress->setIcon(platformStyle->SingleColorIcon(":/icons/editcopy"));
-        ui->deleteAddress->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
-    }
+    ui->newAddress->setIcon(platformStyle->Icon(":/icons/add"));
+    ui->copyAddress->setIcon(platformStyle->Icon(":/icons/editcopy"));
+    ui->deleteAddress->setIcon(platformStyle->Icon(":/icons/remove"));
+    ui->exportButton->setIcon(platformStyle->Icon(":/icons/export"));
 
     switch(mode)
     {

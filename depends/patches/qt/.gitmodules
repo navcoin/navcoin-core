@@ -13,6 +13,10 @@
 	depends = qtbase
 	path = qtcharts
 	url = ../qtcharts.git
+[submodule "qtsvg"]
+	depends = qtbase
+	path = qtsvg
+	url = ../qtsvg.git
 	branch = 5.9.8
 	status = addon
 [submodule "qttranslations"]

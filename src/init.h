@@ -25,7 +25,7 @@ void Shutdown();
 void InitLogging();
 //!Parameter interaction: change current parameters depending on various rules
 void InitParameterInteraction();
-bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler);
+bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std::string& wordlist);
 
 /** The help message mode determines what help message to show */
 enum HelpMessageMode {
@@ -39,7 +39,5 @@ std::string HelpMessage(HelpMessageMode mode);
 std::string LicenseInfo();
 
 void AlertNotify(const std::string& strMessage);
-
-extern char *sPrivKey, *sPubKey;
 
 #endif // NAVCOIN_INIT_H

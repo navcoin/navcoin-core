@@ -30,6 +30,7 @@ public:
     explicit NavCoinAmountField(QWidget *parent = 0);
 
     CAmount value(bool *value=0) const;
+
     void setValue(const CAmount& value);
 
     /** Set single step in satoshis **/
@@ -40,6 +41,7 @@ public:
 
     /** Mark current value as invalid in UI. */
     void setValid(bool valid);
+
     /** Perform input validation, mark field as invalid if entered value is not valid. */
     bool validate();
 
@@ -67,9 +69,9 @@ protected:
 private:
     AmountSpinBox *amount;
     QLabel *unit;
+    int nCurrentUnit;
 
 private Q_SLOTS:
-    void unitChanged(int idx);
     void valueDidChange();
 
 };

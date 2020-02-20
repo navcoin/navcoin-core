@@ -29,22 +29,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+28"/>
         <source>Show Private Key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+46"/>
         <source>C&amp;lose</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-69"/>
+        <location line="-63"/>
         <source>Delete the currently selected address from the list</source>
         <translation>Delete the currently selected address from the list</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+37"/>
         <source>Export the data in the current tab to a file</source>
         <translation>Export the data in the current tab to a file</translation>
     </message>
@@ -54,7 +54,7 @@
         <translation>&amp;Export</translation>
     </message>
     <message>
-        <location line="-40"/>
+        <location line="-37"/>
         <source>&amp;Delete</source>
         <translation>&amp;Delete</translation>
     </message>
@@ -72,17 +72,17 @@
         <translation>Enter passphrase</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+14"/>
         <source>New passphrase</source>
         <translation>New passphrase</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+14"/>
         <source>Repeat new passphrase</source>
         <translation>Repeat new passphrase</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+30"/>
         <source>Unlock only for staking</source>
         <translation type="unfinished"></translation>
     </message>
@@ -702,12 +702,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+25"/>
         <source>Proposals</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+7"/>
         <source>Payment Requests</source>
         <translation type="unfinished"></translation>
     </message>
@@ -752,13 +752,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+35"/>
-        <source>Create Proposal</source>
+        <location line="+23"/>
+        <source>Add Proposal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+32"/>
-        <source>Create Payment Request</source>
+        <location line="+20"/>
+        <source>Request Payment</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -854,7 +854,7 @@
         <translation type="unfinished">Form</translation>
     </message>
     <message>
-        <location line="+119"/>
+        <location line="+55"/>
         <source>Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the navcoin network, as detailed below.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -909,35 +909,8 @@
 <context>
     <name>NavCoinGUI</name>
     <message>
-        <location filename="../navcoin.cpp" line="+486"/>
+        <location filename="../navcoin.cpp" line="+519"/>
         <source>A fatal error occurred. NavCoin can no longer continue safely and will quit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>NavTechInit</name>
-    <message>
-        <location filename="../navtechinit.ui" line="+19"/>
-        <source>NavTech Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+24"/>
-        <source>NavCoin uses an unique parallel cluster of nodes called NavTech to protect the privacy of your transactions.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+29"/>
-        <source>You will find below the list of the NavCoin Foundation Servers. Feel free to modify this list to include your prefered servers:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+23"/>
-        <source>95.183.52.55:3000
-95.183.52.28:3000
-95.183.52.29:3000
-95.183.53.184:3000
-</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1024,6 +997,16 @@
     </message>
     <message>
         <location line="+92"/>
+        <source>Wallet &amp;Theme:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>User Interface Theme (What color scheme to use for the wallet GUI?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <location line="+13"/>
         <source>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
         <translation type="unfinished"></translation>
@@ -1059,7 +1042,7 @@
         <translation>&amp;Reset Options</translation>
     </message>
     <message>
-        <location line="-544"/>
+        <location line="-568"/>
         <source>&amp;Network</source>
         <translation>&amp;Network</translation>
     </message>
@@ -1234,7 +1217,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+661"/>
+        <location line="+685"/>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
     </message>
@@ -1247,143 +1230,107 @@
 <context>
     <name>OverviewPage</name>
     <message>
-        <location filename="../forms/overviewpage.ui" line="+26"/>
+        <location filename="../forms/overviewpage.ui" line="+14"/>
         <source>Form</source>
         <translation>Form</translation>
     </message>
     <message>
-        <location line="+98"/>
-        <source>Balance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+101"/>
-        <location line="+60"/>
-        <location line="+60"/>
-        <location line="+21"/>
-        <location line="+60"/>
-        <location line="+268"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-370"/>
+        <location line="+109"/>
         <source>Immature</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+201"/>
+        <location line="+34"/>
         <source>Total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-39"/>
-        <source>labelTotal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-81"/>
+        <location line="-17"/>
         <source>Watched</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+60"/>
-        <location line="+136"/>
+        <location line="-51"/>
+        <location line="+88"/>
         <source>Staking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-39"/>
-        <source>This wallet is currently syncing. Your balance may not be accurate until it has completed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+168"/>
-        <source>24H:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+22"/>
-        <source>87 312.312 123 NAV</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+40"/>
+        <location line="+12"/>
         <source>7D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+22"/>
-        <source>1 312.312 NAV</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+40"/>
+        <location line="+17"/>
         <source>30D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+22"/>
-        <location line="+62"/>
-        <location line="+62"/>
-        <source>132 431.41 NAV</source>
+        <location line="-183"/>
+        <source>Recent Transactions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-321"/>
+        <location line="+17"/>
+        <source>Balances</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <location line="+32"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <location line="+17"/>
+        <source>1 000.00000000 NAV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-192"/>
+        <source>Pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+34"/>
         <source>Cold Staking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+237"/>
+        <location line="+117"/>
         <source>1Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+17"/>
         <source>ALL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+17"/>
+        <source>24H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Set up Staking Rewards</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+107"/>
-        <source>Transactions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+105"/>
-        <source>Connecting to NavCoin network...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+27"/>
-        <source>32 active connections.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+24"/>
-        <source>Last block: 800000</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-1117"/>
-        <source>Available:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+60"/>
-        <source>Pending:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../navcoin.cpp" line="+166"/>
+        <location filename="../navcoin.cpp" line="+168"/>
         <source>%1 didn&apos;t yet exit safely...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1391,7 +1338,7 @@
 <context>
     <name>QObject::QObject</name>
     <message>
-        <location line="-82"/>
+        <location line="-84"/>
         <source>Error: Specified data directory &quot;%1&quot; does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1401,7 +1348,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+14"/>
         <source>Error: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1420,7 +1367,7 @@
         <location line="+23"/>
         <location line="+36"/>
         <location line="+23"/>
-        <location line="+849"/>
+        <location line="+835"/>
         <location line="+23"/>
         <location line="+23"/>
         <location line="+23"/>
@@ -1441,7 +1388,7 @@
         <translation>N/A</translation>
     </message>
     <message>
-        <location line="-1508"/>
+        <location line="-1494"/>
         <source>Client version</source>
         <translation>Client version</translation>
     </message>
@@ -1516,7 +1463,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+509"/>
+        <location line="+495"/>
         <location line="+639"/>
         <source>Received</source>
         <translation type="unfinished"></translation>
@@ -1588,13 +1535,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1543"/>
-        <location line="+1173"/>
+        <location line="-1529"/>
+        <location line="+1159"/>
         <source>User Agent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-870"/>
+        <location line="-856"/>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1609,7 +1556,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+790"/>
+        <location line="+776"/>
         <source>Services</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1654,7 +1601,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1279"/>
+        <location line="-1265"/>
         <source>Last block time</source>
         <translation>Last block time</translation>
     </message>
@@ -1669,12 +1616,12 @@
         <translation>&amp;Console</translation>
     </message>
     <message>
-        <location line="+213"/>
+        <location line="+202"/>
         <source>&amp;Network Traffic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+52"/>
         <source>&amp;Clear</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1684,7 +1631,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-323"/>
+        <location line="-309"/>
         <source>Debug log file</source>
         <translation>Debug log file</translation>
     </message>
@@ -1788,12 +1735,12 @@
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <location filename="../forms/receiverequestdialog.ui" line="+32"/>
+        <location filename="../forms/receiverequestdialog.ui" line="+20"/>
         <source>QR Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+62"/>
         <source>Copy &amp;URI</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1876,7 +1823,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+605"/>
+        <location line="+563"/>
         <source>per kilobyte</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1918,22 +1865,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-449"/>
-        <source>You don&apos;t have any NAVTech server added. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+12"/>
-        <source>Private payment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+136"/>
-        <source>Manage NAVTech servers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+68"/>
+        <location line="-233"/>
         <source>Use full amount</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1953,17 +1885,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-957"/>
+        <location line="-915"/>
         <source>Dust:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+578"/>
+        <location line="+536"/>
         <source>Balance:</source>
         <translation>Balance:</translation>
     </message>
     <message>
-        <location line="-240"/>
+        <location line="-198"/>
         <source>Confirm the send action</source>
         <translation>Confirm the send action</translation>
     </message>
@@ -2260,6 +2192,74 @@
     </message>
 </context>
 <context>
+    <name>StartOptions</name>
+    <message>
+        <location filename="../forms/startoptions.ui" line="+26"/>
+        <source>StartOptions Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsDialog</name>
+    <message>
+        <location filename="../forms/startoptionsdialog.ui" line="+26"/>
+        <source>StartOptions Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsMain</name>
+    <message>
+        <location filename="../forms/startoptionsmain.ui" line="+26"/>
+        <source>StartOptionsMain Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Restore Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Create New Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsRestore</name>
+    <message>
+        <location filename="../forms/startoptionsrestore.ui" line="+26"/>
+        <source>StartOptionsRestore Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsRevealed</name>
+    <message>
+        <location filename="../forms/startoptionsrevealed.ui" line="+32"/>
+        <source>StartOptionsRevealed Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StartOptionsSort</name>
+    <message>
+        <location filename="../forms/startoptionssort.ui" line="+33"/>
+        <source>StartOptionsSort Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TransactionDescDialog</name>
     <message>
         <location filename="../forms/transactiondescdialog.ui" line="+23"/>
@@ -2270,7 +2270,7 @@
 <context>
     <name>getAddressToReceive</name>
     <message>
-        <location filename="../getaddresstoreceive.ui" line="+23"/>
+        <location filename="../forms/getaddresstoreceive.ui" line="+23"/>
         <source>Form</source>
         <translation type="unfinished">Form</translation>
     </message>
@@ -2280,33 +2280,33 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+67"/>
         <source>QR Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+79"/>
-        <source>Copy to clipboard</source>
+        <location line="+31"/>
+        <source>&amp;Copy to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+51"/>
-        <source>Generate a new address</source>
+        <location line="+10"/>
+        <source>&amp;Generate a new address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Create a Cold Staking address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-51"/>
-        <source>Request payment</source>
+        <location line="+69"/>
+        <source>&amp;Request payment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>List old addresses</source>
+        <source>&amp;List old addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>&amp;Create a Cold Staking address</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2363,7 +2363,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+147"/>
+        <location line="+146"/>
         <source>Error: A fatal internal error occurred, see debug.log for details</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2568,12 +2568,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Add a NavTech node to use for private transactions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+5"/>
         <source>Adds a ntp server to use for clock syncronization</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3253,7 +3248,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+8"/>
         <source>Automatically create Tor hidden service (default: %d)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3433,7 +3428,7 @@
         <translation>Execute command when the best block changes (%s in cmd is replaced by block hash)</translation>
     </message>
     <message>
-        <location line="+189"/>
+        <location line="+188"/>
         <source>Allow DNS lookups for -addnode, -seednode and -connect</source>
         <translation>Allow DNS lookups for -addnode, -seednode and -connect</translation>
     </message>
@@ -3443,7 +3438,7 @@
         <translation>Loading addresses...</translation>
     </message>
     <message>
-        <location line="-326"/>
+        <location line="-325"/>
         <source>(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3533,7 +3528,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+12"/>
         <source>Always query for peer addresses via DNS lookup (default: %u)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3671,77 +3666,6 @@
         <location line="+16"/>
         <source>Error</source>
         <translation>Error</translation>
-    </message>
-</context>
-<context>
-    <name>navtechitem</name>
-    <message>
-        <location filename="../navtechitem.ui" line="+26"/>
-        <source>Form</source>
-        <translation type="unfinished">Form</translation>
-    </message>
-    <message>
-        <location line="+43"/>
-        <source>Server Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+32"/>
-        <source>127.0.0.1:3000</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+32"/>
-        <source>Get Info</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+19"/>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>navtechsetup</name>
-    <message>
-        <location filename="../navtechsetup.ui" line="+14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+48"/>
-        <source>List of Navtech servers currently configured in your wallet to process private payments:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+23"/>
-        <source>When performing a private payment, a random server from this list will be used.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Get Info</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+20"/>
-        <source>Server address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Add new</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Save</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

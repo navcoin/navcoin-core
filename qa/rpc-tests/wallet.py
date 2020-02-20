@@ -16,7 +16,6 @@ class WalletTest (NavCoinTestFramework):
         self.num_nodes = 4
 
     def setup_network(self, split=False):
-        print(self.options.tmpdir)
         self.nodes = start_nodes(3, self.options.tmpdir)
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)

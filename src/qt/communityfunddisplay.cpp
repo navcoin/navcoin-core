@@ -7,11 +7,13 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+
 #include <wallet/wallet.h>
 #include <base58.h>
 #include <consensus/dao.h>
 #include <chain.h>
 #include <qt/guiutil.h>
+#include <ui_interface.h>
 
 #include <qt/communityfunddisplaydetailed.h>
 #include <qt/communityfundpage.h>
@@ -50,6 +52,9 @@ void CommunityFundDisplay::refresh()
 {
     LOCK(cs_main);
     CStateViewCache view(pcoinsTip);
+
+    // Update the dao new counter
+    uiInterface.UpdateDaoNewCount();
 
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));

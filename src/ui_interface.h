@@ -12,6 +12,8 @@
 #include <boost/signals2/last_value.hpp>
 #include <boost/signals2/signal.hpp>
 
+#include <amount.h>
+
 class CBasicKeyStore;
 class CWallet;
 class uint256;
@@ -72,6 +74,15 @@ public:
         MSG_WARNING = (ICON_WARNING | BTN_OK | MODAL),
         MSG_ERROR = (ICON_ERROR | BTN_OK | MODAL)
     };
+
+    /** Update the dao new counter. */
+    boost::signals2::signal<void ()> UpdateDaoNewCount;
+
+    /** Update the balance in the wallet header. */
+    boost::signals2::signal<void (const CAmount &avail, const CAmount &pending, const CAmount &immat)> SetBalance;
+
+    /** Update the staked stats in the wallet header */
+    boost::signals2::signal<void (const CAmount &all, const CAmount &today, const CAmount &week)> SetStaked;
 
     /** Show message box. */
     boost::signals2::signal<bool (const std::string& message, const std::string& caption, unsigned int style), boost::signals2::last_value<bool> > ThreadSafeMessageBox;

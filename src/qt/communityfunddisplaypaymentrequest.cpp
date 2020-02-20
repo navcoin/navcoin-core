@@ -49,6 +49,9 @@ void CommunityFundDisplayPaymentRequest::refresh()
     LOCK(cs_main);
     CStateViewCache coins(pcoinsTip);
 
+    // Update the dao new counter
+    uiInterface.UpdateDaoNewCount();
+
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(prequest.strDZeel));
     ui->labelStatus->setText(QString::fromStdString(prequest.GetState(coins)));

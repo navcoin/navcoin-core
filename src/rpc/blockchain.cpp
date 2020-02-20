@@ -1657,6 +1657,15 @@ UniValue mempoolInfoToJSON()
     return ret;
 }
 
+UniValue stempoolInfoToJSON()
+{
+    UniValue ret(UniValue::VOBJ);
+    ret.pushKV("size", (int64_t) stempool.size());
+    ret.pushKV("bytes", (int64_t) stempool.GetTotalTxSize());
+
+    return ret;
+}
+
 UniValue getmempoolinfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
@@ -1677,6 +1686,26 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
         );
 
     return mempoolInfoToJSON();
+}
+
+
+UniValue getstempoolinfo(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "getstempoolinfo\n"
+            "\nReturns details on the active state of the dandelion stem pool.\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"size\": xxxxx,               (numeric) Current tx count\n"
+            "  \"bytes\": xxxxx,              (numeric) Sum of all tx sizes\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getstempoolinfo", "")
+            + HelpExampleRpc("getstempoolinfo", "")
+        );
+
+    return stempoolInfoToJSON();
 }
 
 UniValue getproposal(const UniValue& params, bool fHelp)
@@ -1870,6 +1899,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getmempooldescendants",  &getmempooldescendants,  true  },
     { "blockchain",         "getmempoolentry",        &getmempoolentry,        true  },
     { "blockchain",         "getmempoolinfo",         &getmempoolinfo,         true  },
+    { "blockchain",         "getstempoolinfo",        &getstempoolinfo,        true  },
     { "communityfund",      "getproposal",            &getproposal,            true  },
     { "communityfund",      "getpaymentrequest",      &getpaymentrequest,      true  },
     { "blockchain",         "getrawmempool",          &getrawmempool,          true  },

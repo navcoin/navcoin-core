@@ -1,5 +1,6 @@
 #include <qt/communityfundcreatepaymentrequestdialog.h>
 #include <qt/communityfundsuccessdialog.h>
+#include <qt/optionsmodel.h>
 #include <qt/sendcommunityfunddialog.h>
 #include <ui_communityfundcreatepaymentrequestdialog.h>
 
@@ -15,7 +16,6 @@
 #include <qt/guiutil.h>
 #include <main.cpp>
 #include <main.h>
-#include <qt/skinize.h>
 #include <sync.h>
 #include <wallet/wallet.h>
 #include <qt/walletmodel.h>
@@ -67,6 +67,8 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
 void CommunityFundCreatePaymentRequestDialog::setModel(WalletModel *model)
 {
     this->model = model;
+
+    ui->lineEditRequestedAmount->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
 }
 
 bool CommunityFundCreatePaymentRequestDialog::validate()
@@ -305,12 +307,12 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
                 CAmount nValue = 1000;
-                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, ""};
+                CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
                 vecSend.push_back(recipient);
 
                 bool created_prequest = true;
 
-                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true, "")) {
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_prequest = false;
                     }

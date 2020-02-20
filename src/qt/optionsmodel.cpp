@@ -57,7 +57,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fHideTrayIcon", false);
     fHideTrayIcon = settings.value("fHideTrayIcon").toBool();
     Q_EMIT hideTrayIconChanged(fHideTrayIcon);
-    
+
     if (!settings.contains("fMinimizeToTray"))
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;
@@ -136,6 +136,18 @@ void OptionsModel::Init(bool resetSettings)
         addOverriddenOption("-onion");
     else if(!settings.value("fUseSeparateProxyTor").toBool() && !GetArg("-onion", "").empty())
         addOverriddenOption("-onion");
+
+    // Theme
+    if (!settings.contains("theme"))
+        settings.setValue("theme", "light");
+
+    theme = settings.value("theme").toString();
+
+    // UI Scaling
+    if (!settings.contains("nScaling"))
+        settings.setValue("nScaling", 100);
+
+    nScaling = settings.value("nScaling").toInt();
 
     // Display
     if (!settings.contains("language"))
@@ -222,6 +234,10 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return nDisplayUnit;
         case ThirdPartyTxUrls:
             return strThirdPartyTxUrls;
+        case Theme:
+            return theme;
+        case Scaling:
+            return nScaling;
         case Language:
             return settings.value("language");
         case CoinControlFeatures:
@@ -351,6 +367,20 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+        case Theme:
+            if (theme != value.toString()) {
+                theme = value.toString();
+                settings.setValue("theme", value);
+                setRestartRequired(true);
+            }
+            break;
+        case Scaling:
+            if (nScaling != value.toInt()) {
+                nScaling = value.toInt();
+                settings.setValue("nScaling", value);
+                setRestartRequired(true);
+            }
+            break;
         case Language:
             if (settings.value("language") != value) {
                 settings.setValue("language", value);
@@ -358,9 +388,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             }
             break;
         case CoinControlFeatures:
-            fCoinControlFeatures = value.toBool();
-            settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
-            Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
+            setCoinControlFeatures(value.toBool());
             break;
         case DatabaseCache:
             if (settings.value("nDatabaseCache") != value) {
@@ -400,6 +428,17 @@ void OptionsModel::setDisplayUnit(const QVariant &value)
         settings.setValue("nDisplayUnit", nDisplayUnit);
         Q_EMIT displayUnitChanged(nDisplayUnit);
     }
+}
+
+void OptionsModel::setCoinControlFeatures(const bool enabled)
+{
+    if (enabled == fCoinControlFeatures)
+        return;
+
+    QSettings settings;
+    fCoinControlFeatures = enabled;
+    settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
+    Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
 }
 
 bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const

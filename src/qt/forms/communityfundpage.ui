@@ -208,52 +208,13 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonProposals">
-           <property name="minimumSize">
-            <size>
-             <width>130</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>130</width>
-             <height>30</height>
-            </size>
-           </property>
            <property name="text">
             <string>Proposals</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>35</width>
-             <height>16</height>
-            </size>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-           <property name="default">
-            <bool>true</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonPaymentRequests">
-           <property name="minimumSize">
-            <size>
-             <width>130</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>130</width>
-             <height>30</height>
-            </size>
-           </property>
            <property name="text">
             <string>Payment Requests</string>
            </property>
@@ -555,20 +516,8 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonCreateProposal">
-           <property name="minimumSize">
-            <size>
-             <width>170</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>30</height>
-            </size>
-           </property>
            <property name="text">
-            <string>Create Proposal</string>
+            <string>Add Proposal</string>
            </property>
           </widget>
          </item>
@@ -587,20 +536,8 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButtonCreatePaymentRequest">
-           <property name="minimumSize">
-            <size>
-             <width>170</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>30</height>
-            </size>
-           </property>
            <property name="text">
-            <string>Create Payment Request</string>
+            <string>Request Payment</string>
            </property>
           </widget>
          </item>
