@@ -51,7 +51,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Proposal Hash:</string>
+        <string>Proposal:</string>
        </property>
       </widget>
      </item>
