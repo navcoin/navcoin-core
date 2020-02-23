@@ -2114,6 +2114,18 @@ void DaoChart::updateView() {
             nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view);
 
             flags fState = consultation.GetLastState();
+            CBlockIndex* pblockindex = consultation.GetLastStateBlockIndex();
+
+            if (pblockindex)
+            {
+                auto nCreated = (unsigned int)(pblockindex->nHeight / nVotingLength);
+                auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
+                nCurrentCycle = nCurrent - nCreated;
+            }
+            else
+            {
+                nCurrentCycle = consultation.nVotingCycle;
+            }
 
             if (fState == DAOFlags::EXPIRED || fState == DAOFlags::PASSED)
                 fShouldShowCycleInfo = false;
@@ -2126,22 +2138,9 @@ void DaoChart::updateView() {
             }
             else
             {
-                if (mapBlockIndex.count(consultation.txblockhash) > 0) {
-                    auto nCreated = (unsigned int)(mapBlockIndex[consultation.txblockhash]->nHeight / nVotingLength);
-                    auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
-                    nCurrentCycle = nCurrent - nCreated;
-                }
-
                 if (fState == DAOFlags::REFLECTION)
                 {
-                    CBlockIndex* pblockindex = consultation.GetLastStateBlockIndexForState(DAOFlags::REFLECTION);
-                    if(pblockindex)
-                    {
-                        auto nCreated = (unsigned int)(pblockindex->nHeight / nVotingLength);
-                        auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
-                        nCurrentCycle = nCurrent - nCreated;
-                        nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH, view);
-                    }
+                    nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH, view);
                 }
 
                 if (consultation.mapVotes.count(VoteFlags::VOTE_ABSTAIN))
