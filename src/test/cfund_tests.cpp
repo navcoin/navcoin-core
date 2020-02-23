@@ -237,9 +237,9 @@ BOOST_AUTO_TEST_CASE(cfund_proposals)
     BOOST_CHECK(!p.CanVote(view));
 
     p.SetState(chainActive[820], DAOFlags::NIL);
-    // Status is nil but can't get votes because it ran out of cycles
+    // Status is nil so it can be voted again
     BOOST_CHECK(p.GetLastState() == DAOFlags::NIL);
-    BOOST_CHECK(!p.CanVote(view));
+    BOOST_CHECK(p.CanVote(view));
 
     // Can we know when a proposal is accepted or rejected
 
