@@ -53,8 +53,9 @@ static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
     "Reduce the Quorum necessary for the last cycles of the Community Fund votings",
     "Upgrades the Community Fund with a state based cache which will save on block space as votes do not need to be broadcasted every block",
     "Enable DAO Consultations",
+    "Enables remote DAO voting from light wallets",
     "Enables the decision over consensus parameters using distributed voting",
-    "Enables remote DAO voting from light wallets"
+    "Allows staking pools to charge a fee"
 };
 
 /**
