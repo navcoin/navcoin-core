@@ -504,7 +504,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
         }
 
-        if (fExclude && proposal.IsExpired(chainActive.Tip()->GetBlockTime(), coins))
+        if (fExclude && (proposal.IsExpired(chainActive.Tip()->GetBlockTime(), coins) || proposal.GetAvailable(coins) == 0))
             continue;
 
         if (mapBlockIndex.count(proposal.txblockhash) == 0)
