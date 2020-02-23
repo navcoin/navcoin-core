@@ -236,6 +236,7 @@ private:
 
     bool fActive;
     bool fExclude;
+    int nLoadCount = 0;
     int nView;
     int nCurrentView;
     int nCurrentUnit;
@@ -337,6 +338,8 @@ private:
     };
 
 private Q_SLOTS:
+    void setActiveSection(QWidget* section);
+
     void viewProposals();
     void viewPaymentRequests();
     void viewConsultations();
