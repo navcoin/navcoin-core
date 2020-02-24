@@ -9603,8 +9603,6 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     if (pvChecks)
         pvChecks->reserve(tx.vin.size());
 
-    CStateViewCache inputs(pcoinsTip);
-
     if(fCHeckSignature)
     {
         PrecomputedTransactionData txdata(tx);
