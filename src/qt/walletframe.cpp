@@ -103,6 +103,7 @@ bool WalletFrame::addWallet(const QString& name, WalletModel *walletModel)
     // Ensure a walletView is able to show the main window
     connect(walletView, SIGNAL(showNormalIfMinimized()), gui, SLOT(showNormalIfMinimized()));
     connect(walletView, SIGNAL(openAddressHistory()), this, SLOT(usedReceivingAddresses()));
+    connect(walletView, SIGNAL(daoEntriesChanged(int)), this, SLOT(onDaoEntriesChanged(int)));
 
     return true;
 }
@@ -293,4 +294,9 @@ WalletView *WalletFrame::currentWalletView()
 void WalletFrame::outOfSyncWarningClicked()
 {
     Q_EMIT requestedSyncWarningInfo();
+}
+
+void WalletFrame::onDaoEntriesChanged(int count)
+{
+    Q_EMIT daoEntriesChanged(count);
 }

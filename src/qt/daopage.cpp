@@ -1120,6 +1120,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
     consultationsBtn->setBadge(nBadgeConsultations);
     deploymentsBtn->setBadge(nBadgeDeployments);
     consensusBtn->setBadge(nBadgeConsensus);
+    Q_EMIT daoEntriesChanged(nBadgeProposals + nBadgeConsensus + nBadgeConsultations + nBadgeDeployments + nBadgePaymentRequests);
 }
 
 void DaoPage::setData(QVector<ProposalEntry> data)

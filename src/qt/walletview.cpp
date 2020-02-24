@@ -90,6 +90,8 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     connect(transactionView, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
     connect(requestPaymentPage, SIGNAL(requestPayment()), this, SLOT(gotoReceiveCoinsPage()));
     connect(requestPaymentPage, SIGNAL(requestAddressHistory()), this, SLOT(requestAddressHistory()));
+
+    connect(daoPage, SIGNAL(daoEntriesChanged(int)), this, SLOT(onDaoEntriesChanged(int)));
 }
 
 WalletView::~WalletView()
@@ -504,3 +506,7 @@ void WalletView::requestedSyncWarningInfo()
     Q_EMIT outOfSyncWarningClicked();
 }
 
+void WalletView::onDaoEntriesChanged(int count)
+{
+    Q_EMIT daoEntriesChanged(count);
+}

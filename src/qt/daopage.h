@@ -337,6 +337,9 @@ private:
         FILTER2_LOOKING_FOR_SUPPORT
     };
 
+Q_SIGNALS:
+    void daoEntriesChanged(int count);
+
 private Q_SLOTS:
     void setActiveSection(QWidget* section);
 
