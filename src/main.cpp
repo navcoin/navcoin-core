@@ -1350,7 +1350,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
             if(fCFund && tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
                 if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
-                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");  
+                    return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
 
             if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
                 if(!IsValidConsultation(tx, view, nVersionMaskConsultation, chainActive.Tip()))
@@ -3233,6 +3233,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     arith_uint256 hashProof;
+    uint64_t nCoinAge;
 
     // Verify hash target and signature of coinstake tx
     if (block.IsProofOfStake())
@@ -3243,6 +3244,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         {
               return error("ContextualCheckBlock() : check proof-of-stake signature failed for block %s", block.GetHash().GetHex());
         }
+
+        // ppcoin: coin stake tx earns reward instead of paying fee
+        if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), nCoinAge, view))
+            return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
     }
 
     if (block.IsProofOfWork())
@@ -3401,7 +3406,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 CPaymentRequest prequest;
                 CConsultation consultation;
                 CConsultationAnswer answer;
-                std::map<uint256, int> votes;               
+                std::map<uint256, int> votes;
                 std::map<uint256, int> mapCountAnswers;
                 std::map<uint256, int> mapCacheMaxAnswers;
 
@@ -4046,11 +4051,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     if (block.IsProofOfStake())
     {
-        // ppcoin: coin stake tx earns reward instead of paying fee
-        uint64_t nCoinAge;
-        if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), nCoinAge, view))
-            return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
-
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->nHeight, nCoinAge, nFees, pindex->pprev, view);
 
         if (nStakeReward > nCalculatedStakeReward)
@@ -5243,7 +5243,7 @@ bool IsDAOEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_CONSULTATIONS, versionbitscache) == THRESHOLD_ACTIVE);
 }
-  
+
 bool IsColdStakingPoolFeeEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
     LOCK(cs_main);
