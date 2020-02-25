@@ -23,7 +23,6 @@ forms/coincontroldialog.ui
 forms/debugwindow.ui
 forms/editaddressdialog.ui
 forms/helpmessagedialog.ui
-forms/intro.ui
 forms/openuridialog.ui
 forms/optionsdialog.ui
 forms/overviewpage.ui
@@ -39,7 +38,6 @@ forms/ui_coincontroldialog.h
 forms/ui_debugwindow.h
 forms/ui_editaddressdialog.h
 forms/ui_helpmessagedialog.h
-forms/ui_intro.h
 forms/ui_openuridialog.h
 forms/ui_optionsdialog.h
 forms/ui_overviewpage.h
@@ -52,8 +50,6 @@ forms/ui_transactiondescdialog.h
 guiconstants.h
 guiutil.cpp
 guiutil.h
-intro.cpp
-intro.h
 macdockiconhandler.h
 macnotificationhandler.h
 moc_addressbookpage.cpp
@@ -66,7 +62,6 @@ moc_coincontroltreewidget.cpp
 moc_csvmodelwriter.cpp
 moc_editaddressdialog.cpp
 moc_guiutil.cpp
-moc_intro.cpp
 moc_macdockiconhandler.cpp
 moc_macnotificationhandler.cpp
 moc_navcoinaddressvalidator.cpp

@@ -111,7 +111,6 @@ QT_FORMS_UI = \
 	qt/forms/editaddressdialog.ui \
 	qt/forms/getaddresstoreceive.ui \
 	qt/forms/helpmessagedialog.ui \
-	qt/forms/intro.ui \
 	qt/forms/modaloverlay.ui \
 	qt/forms/openuridialog.ui \
 	qt/forms/optionsdialog.ui \
@@ -151,7 +150,6 @@ QT_MOC_CPP = \
 	qt/moc_editaddressdialog.cpp \
 	qt/moc_getaddresstoreceive.cpp \
 	qt/moc_guiutil.cpp \
-	qt/moc_intro.cpp \
 	qt/moc_macappnapinhibitor.cpp \
 	qt/moc_macdockiconhandler.cpp \
 	qt/moc_macnotificationhandler.cpp \
@@ -226,7 +224,6 @@ QT_MOC = \
 	qt/communityfundcreateproposaldialog.moc \
   qt/communityfundcreatepaymentrequestdialog.moc \
 	qt/communityfundpage.moc \
-	qt/intro.moc \
 	qt/navcoin.moc \
 	qt/navcoinamountfield.moc \
 	qt/overviewpage.moc \
@@ -269,7 +266,6 @@ NAVCOIN_QT_H = \
 	qt/getaddresstoreceive.h \
 	qt/guiconstants.h \
 	qt/guiutil.h \
-	qt/intro.h \
 	qt/listview.h \
 	qt/macappnapinhibitor.h \
 	qt/macdockiconhandler.h \
@@ -471,7 +467,6 @@ NAVCOIN_QT_CPP = \
 	qt/csvmodelwriter.cpp \
 	qt/getaddresstoreceive.cpp \
 	qt/guiutil.cpp \
-	qt/intro.cpp \
 	qt/navcoinaddressvalidator.cpp \
 	qt/navcoinamountfield.cpp \
 	qt/navcoingui.cpp \
