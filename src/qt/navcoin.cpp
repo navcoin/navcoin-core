@@ -12,7 +12,6 @@
 #include <qt/clientmodel.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
-#include <qt/intro.h>
 #include <qt/networkstyle.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
@@ -404,7 +403,7 @@ bool NavCoinApplication::setupMnemonicWords(std::string& wordlist) {
 
     std::string walletFile = GetArg("-wallet", "wallet.dat");
     if (fs::exists(walletFile)) return true;
-	
+
 	if (CheckIfWalletDatExists()) return true;
 
     StartOptionsMain dlg(nullptr);
@@ -593,8 +592,6 @@ int main(int argc, char *argv[])
     // Command-line options take precedence:
     ParseParameters(argc, argv);
 
-    // Do not refer to data directory yet, this can be overridden by Intro::pickDataDirectory
-
     /// 2. Basic Qt initialization (not dependent on parameters or configuration)
     Q_INIT_RESOURCE(navcoin);
     Q_INIT_RESOURCE(navcoin_locale);
@@ -645,7 +642,23 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /// 5. Determine network (and switch to network specific options)
+    /// 5. Determine availability of data directory and parse navcoin.conf
+    /// - Do not call GetDataDir(true) before this step finishes
+    if (!boost::filesystem::is_directory(GetDataDir(false)))
+    {
+        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
+        return 1;
+    }
+    try {
+        ReadConfigFile(mapArgs, mapMultiArgs);
+    } catch (const std::exception& e) {
+        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
+        return 1;
+    }
+
+    /// 6. Determine network (and switch to network specific options)
     // - Do not call Params() before this step
     // - Do this after parsing the configuration file, as the network can be switched there
     // - QSettings() will use the new application name after this, resulting in network-specific settings
@@ -674,28 +687,8 @@ int main(int argc, char *argv[])
     // Needs to be loaded after setting the app name from networkStyle
     app.loadTheme();
 
-    /// 6. Now that settings and translations are available, ask user for data directory
-    // User language is set up: pick a data directory
-    Intro::pickDataDirectory();
-
-    /// 7. Determine availability of data directory and parse navcoin.conf
-    /// - Do not call GetDataDir(true) before this step finishes
-    if (!boost::filesystem::is_directory(GetDataDir(false)))
-    {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
-        return 1;
-    }
-    try {
-        ReadConfigFile(mapArgs, mapMultiArgs);
-    } catch (const std::exception& e) {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
-        return 1;
-    }
-
 #ifdef ENABLE_WALLET
-    /// 8. URI IPC sending
+    /// 7. URI IPC sending
     // - Do this early as we don't want to bother initializing if we are just calling IPC
     // - Do this *after* setting up the data directory, as the data directory hash is used in the name
     // of the server.
@@ -709,7 +702,7 @@ int main(int argc, char *argv[])
     app.createPaymentServer();
 #endif
 
-    /// 9. Main GUI initialization
+    /// 8. Main GUI initialization
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
 #if defined(Q_OS_WIN)
