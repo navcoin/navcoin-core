@@ -105,9 +105,10 @@ void DaoProposeAnswer::onPropose()
 
     // Check balance
     CAmount curBalance = pwalletMain->GetBalance();
+    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view));
+
     if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view)) {
         QMessageBox msgBox(this);
-        string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_ANSWER_MIN_FEE, view));
         std::string str = tr("You require at least %1 NAV mature and available to propose an answer.\n").arg(QString::fromStdString(fee)).toStdString();
         msgBox.setText(tr(str.c_str()));
         msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
@@ -116,6 +117,13 @@ void DaoProposeAnswer::onPropose()
         msgBox.exec();
         return;
     }
+
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Fee"),
+                                                                  tr("Proposing a new answer requires to pay a fee of %1 NAV.").arg(QString::fromStdString(fee)) + "<br><br>" + tr("Do you want to proceed?"),
+                                                                  QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if(btnRetVal == QMessageBox::Cancel)
+        return;
 
     CScript scriptPubKey;
     SetScriptForCommunityFundContribution(scriptPubKey);

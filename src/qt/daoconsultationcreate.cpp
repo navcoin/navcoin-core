@@ -254,6 +254,13 @@ void DaoConsultationCreate::onCreate()
         return;
     }
 
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Fee"),
+                                                                  tr("Creating this consultation would require to pay a fee of %1 NAV.").arg(QString::fromStdString(FormatMoney(nMinFee))) + "<br><br>" + tr("Do you want to proceed?"),
+                                                                  QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if(btnRetVal == QMessageBox::Cancel)
+        return;
+
     CScript scriptPubKey;
     SetScriptForCommunityFundContribution(scriptPubKey);
 
@@ -409,6 +416,13 @@ void DaoConsultationCreate::onCreateConsensus()
         msgBox.exec();
         return;
     }
+
+    QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Fee"),
+                                                                  tr("Creating this consultation would require to pay a fee of %1 NAV.").arg(QString::fromStdString(FormatMoney(nMinFee))) + "<br><br>" + tr("Do you want to proceed?"),
+                                                                  QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if(btnRetVal == QMessageBox::Cancel)
+        return;
 
     CScript scriptPubKey;
     SetScriptForCommunityFundContribution(scriptPubKey);
