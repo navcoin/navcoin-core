@@ -2210,7 +2210,7 @@ void DaoChart::updateView() {
 
             auto fState = prequest.GetLastState();
 
-            if (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED  || fState == DAOFlags::EXPIRED)
+            if (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED  || fState == DAOFlags::EXPIRED || fState == DAOFlags::PAID)
                 fShouldShowCycleInfo = false;
 
             mapVotes.insert(make_pair(QString("Yes (" + QString::number(prequest.nVotesYes) + ")"), prequest.nVotesYes));
