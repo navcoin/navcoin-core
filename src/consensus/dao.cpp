@@ -1471,6 +1471,15 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         std::map<std::string, bool> mapSeen;
         UniValue answersArray = answers.get_array();
 
+
+        if (!fAcceptMoreAnswers)
+        {
+            if (nMax > answersArray.size())
+            {
+                return error("%s: Invalid consultation %s. Wrong number of max answers %d.", __func__, tx.GetHash().ToString(), nMax);
+            }
+        }
+
         for (unsigned int i = 0; i < answersArray.size(); i++)
         {
             if (!answersArray[i].isStr())
