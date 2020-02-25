@@ -171,7 +171,18 @@ void StartOptionsMain::on_Next_clicked() {
             }
             rtrim(words_empty_str);
             rtrim(words_mnemonic);
-            if (words_empty_str != words_mnemonic) {
+
+            if (words_empty_str == "") {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText("Are you sure you want to skip seed confirmation?");
+                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                msgBox.setDefaultButton(QMessageBox::Cancel);
+                if (msgBox.exec() == QMessageBox::Ok) {
+                    wordsDone = join(words, " ");
+                    QApplication::quit();
+                }
+            } else if (words_empty_str != words_mnemonic) {
                 QString error = tr("Unfortunately, your words are in the wrong "
                                 "order. Please try again.");
                 StartOptionsDialog dlg(error, this);
