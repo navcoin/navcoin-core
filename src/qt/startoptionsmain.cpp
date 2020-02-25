@@ -114,6 +114,7 @@ void StartOptionsMain::on_Back_clicked() {
             pageNum = CreateOrRestorePage;
             ui->QStackTutorialContainer->addWidget(startOptionsRevealed);
             ui->QStackTutorialContainer->setCurrentWidget(startOptionsRevealed);
+            ui->Next->setText(tr("Next"));
             break;
         }
         case CheckWordsPage: {
@@ -148,6 +149,7 @@ void StartOptionsMain::on_Next_clicked() {
             startOptionsSort = new StartOptionsSort(words, rows, this);
             ui->QStackTutorialContainer->addWidget(startOptionsSort);
             ui->QStackTutorialContainer->setCurrentWidget(startOptionsSort);
+            ui->Next->setText(tr("Skip/Next"));
             break;
         }
         case OrderWordsPage: {
