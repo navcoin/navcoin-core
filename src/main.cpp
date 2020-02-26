@@ -1741,7 +1741,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         LogPrintf("%s: Successfully added txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
     else
     {
-        LogPrintf("%s: FAILED to add txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
+        LogPrintf("%s: FAILED to add txn %s to %s (%s).\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool", state.GetRejectReason());
         for(const uint256& hashTx: vHashTxToUncache)
                 pcoinsTip->Uncache(hashTx);
     }
