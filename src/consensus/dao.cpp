@@ -643,7 +643,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 consultation->fDirty = true;
             }
 
-            if (!consultation->CanBeVoted())
+            if (!((consultation->CanBeVoted() && consultation->IsValidVote(it.first.second)) || it.first.second == VoteFlags::VOTE_ABSTAIN))
                 continue;
 
             if (mapAlreadyCleared.count(it.first.first) == 0)
