@@ -114,6 +114,7 @@ void StartOptionsMain::on_Back_clicked() {
             pageNum = CreateOrRestorePage;
             ui->QStackTutorialContainer->addWidget(startOptionsRevealed);
             ui->QStackTutorialContainer->setCurrentWidget(startOptionsRevealed);
+            ui->Next->setText(tr("Next"));
             break;
         }
         case CheckWordsPage: {
@@ -148,6 +149,7 @@ void StartOptionsMain::on_Next_clicked() {
             startOptionsSort = new StartOptionsSort(words, rows, this);
             ui->QStackTutorialContainer->addWidget(startOptionsSort);
             ui->QStackTutorialContainer->setCurrentWidget(startOptionsSort);
+            ui->Next->setText(tr("Skip/Next"));
             break;
         }
         case OrderWordsPage: {
@@ -171,7 +173,18 @@ void StartOptionsMain::on_Next_clicked() {
             }
             rtrim(words_empty_str);
             rtrim(words_mnemonic);
-            if (words_empty_str != words_mnemonic) {
+
+            if (words_empty_str == "") {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText("Are you sure you want to skip seed confirmation?");
+                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                msgBox.setDefaultButton(QMessageBox::Cancel);
+                if (msgBox.exec() == QMessageBox::Ok) {
+                    wordsDone = join(words, " ");
+                    QApplication::quit();
+                }
+            } else if (words_empty_str != words_mnemonic) {
                 QString error = tr("Unfortunately, your words are in the wrong "
                                 "order. Please try again.");
                 StartOptionsDialog dlg(error, this);
