@@ -552,7 +552,6 @@ void NavCoinApplication::initializeResult(int retval)
         connect(paymentServer, SIGNAL(message(QString,QString,unsigned int)),
                          window, SLOT(message(QString,QString,unsigned int)));
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
-        QTimer::singleShot(500, window, SLOT(startVotingCounter()));
 #endif
     } else {
         quit(); // Exit main loop

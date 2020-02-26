@@ -23,7 +23,6 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CPro
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui->labelLinkToProposal, SIGNAL(linkActivated()), this, SLOT(go_to_explorer()));
     connect(ui->detailsBtn, SIGNAL(clicked()), this, SLOT(onDetails()));
 
     ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
