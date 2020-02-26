@@ -504,7 +504,9 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
         }
 
-        if (fExclude && (proposal.IsExpired(chainActive.Tip()->GetBlockTime(), coins) || proposal.GetAvailable(coins) == 0))
+        flags fState = proposal.GetLastState();
+
+        if (fExclude && (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED || fState == DAOFlags::EXPIRED || proposal.GetAvailable(coins) == 0))
             continue;
 
         if (mapBlockIndex.count(proposal.txblockhash) == 0)
@@ -617,7 +619,9 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             }
         }
 
-        if (fExclude && prequest.IsExpired(coins))
+        flags fState = prequest.GetLastState();
+
+        if (fExclude && (fState == DAOFlags::PAID || fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED || fState == DAOFlags::EXPIRED))
             continue;
 
         if (mapBlockIndex.count(prequest.txblockhash) == 0)
