@@ -17,8 +17,8 @@ class CFundDBStateHash(NavCoinTestFramework):
 
     def setup_network(self):
         self.nodes = []
-        self.nodes.append(start_node(0, self.options.tmpdir, ["-headerspamfilter=0"]))
-        self.nodes.append(start_node(1, self.options.tmpdir, ["-headerspamfilter=0"]))
+        self.nodes.append(start_node(0, self.options.tmpdir, ["-headerspamfilter=0", "-debug=dao"]))
+        self.nodes.append(start_node(1, self.options.tmpdir, ["-headerspamfilter=0", "-debug=dao"]))
         connect_nodes(self.nodes[0], 1)
         self.is_network_split = False
 
