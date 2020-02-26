@@ -1056,8 +1056,8 @@ bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp, bool 
     }
     else {
         // pcoinsTip contains the UTXO set for chainActive.Tip()
-        CStateViewMemPool viewMemPool(pcoinsTip, mempool);
-        CStateViewMemPool viewStemPool(pcoinsTip, stempool);
+        CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+        CCoinsViewMemPool viewStemPool(pcoinsTip, stempool);
         std::vector<int> prevheights;
         prevheights.resize(tx.vin.size());
         for (size_t txinIndex = 0; txinIndex < tx.vin.size(); txinIndex++) {
