@@ -286,7 +286,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 excludeBox->setVisible(false);
                 backToFilterBtn->setVisible(true);
                 childFilterLbl->setVisible(true);
-                childFilterLbl->setText(tr("Showing proposal %1").arg(filterHash));
+                childFilterLbl->setText(tr("Showing proposal %1...").arg(filterHash.left(16)));
             }
             else
             {
@@ -336,7 +336,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
                 excludeBox->setVisible(false);
                 backToFilterBtn->setVisible(true);
                 childFilterLbl->setVisible(true);
-                childFilterLbl->setText(tr("Showing payment requests of %1").arg(filterHash));
+                childFilterLbl->setText(tr("Showing payment requests of %1...").arg(filterHash.left(16)));
             }
             else
             {
