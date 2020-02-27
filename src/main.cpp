@@ -1059,13 +1059,17 @@ bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp, bool 
     else {
         // pcoinsTip contains the UTXO set for chainActive.Tip()
         CStateViewMemPool viewMemPool(pcoinsTip, mempool);
+        CStateViewMemPool viewStemPool(pcoinsTip, stempool);
         std::vector<int> prevheights;
         prevheights.resize(tx.vin.size());
         for (size_t txinIndex = 0; txinIndex < tx.vin.size(); txinIndex++) {
             const CTxIn& txin = tx.vin[txinIndex];
             CCoins coins;
-            if (!viewMemPool.GetCoins(txin.prevout.hash, coins)) {
-                return error("%s: Missing input", __func__);
+            if (!viewMemPool.GetCoins(txin.prevout.hash, coins))
+            {
+                if (!viewStemPool.GetCoins(txin.prevout.hash, coins)) {
+                    return error("%s: Missing input", __func__);
+                }
             }
             if (coins.nHeight == MEMPOOL_HEIGHT) {
                 // Assume all mempool transaction confirm in the next block
@@ -1839,7 +1843,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         LogPrintf("%s: Successfully added txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
     else
     {
-        LogPrintf("%s: FAILED to add txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
+        LogPrintf("%s: FAILED to add txn %s to %s (%s).\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool", state.GetRejectReason());
         for(const uint256& hashTx: vHashTxToUncache)
                 pcoinsTip->Uncache(hashTx);
     }
