@@ -1455,6 +1455,9 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
                     {
                         if (mapBlockIndex.count(consultation.txblockhash) == 0)
                             continue;
+
+                        if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
+                            continue;
                     }
 
                     if (consultation.IsAboutConsensusParameter() && !consultation.IsFinished() && consultation.nMin == nMin)
@@ -1561,6 +1564,9 @@ bool IsValidConsensusParameterProposal(Consensus::ConsensusParamsPos pos, std::s
                 if (consultation.txblockhash != uint256()) // only check if not mempool
                 {
                     if (mapBlockIndex.count(consultation.txblockhash) == 0)
+                        continue;
+
+                    if (!chainActive.Contains(mapBlockIndex[consultation.txblockhash]))
                         continue;
                 }
 

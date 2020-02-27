@@ -51,7 +51,9 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
     {
     LOCK(cs_main);
 
-    if (pcoinsTip != nullptr && pcoinsTip->GetAllProposals(proposalMap))
+    CStateViewCache coins(pcoinsTip);
+
+    if (pcoinsTip != nullptr && coins.GetAllProposals(proposalMap))
     {
         for (auto& it: proposalMap)
         {
