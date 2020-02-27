@@ -205,7 +205,10 @@ void DaoConsultationCreate::onCreate()
         nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;
 
     if (moreAnswersBox->isChecked())
-        nVersion |= CConsultation::MORE_ANSWERS_VERSION;
+    {
+        if (!fRange)
+           nVersion |= CConsultation::MORE_ANSWERS_VERSION;
+    }
     else if (listAnswers.size() < 2 && !fRange)
     {
         showWarning("You need to indicate at least two possible answers.");

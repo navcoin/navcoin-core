@@ -1471,6 +1471,10 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         std::map<std::string, bool> mapSeen;
         UniValue answersArray = answers.get_array();
 
+        if (fRange && fAcceptMoreAnswers)
+        {
+            return error("%s: Invalid consultation %s. Range consultations can't accept answers.", __func__, tx.GetHash().ToString());
+        }
 
         if (!fAcceptMoreAnswers && !fRange)
         {

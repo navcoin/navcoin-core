@@ -874,7 +874,10 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
     uint64_t nVersion = CConsultation::BASE_VERSION | CConsultation::MORE_ANSWERS_VERSION;
 
     if (fRange)
+    {
         nVersion |= CConsultation::ANSWER_IS_A_RANGE_VERSION;
+        nVersion &= ~CConsultation::MORE_ANSWERS_VERSION;
+    }
 
     strDZeel.pushKV("q",sQuestion);
     strDZeel.pushKV("m",nMin);
