@@ -55,7 +55,7 @@ CommunityFundCreatePaymentRequestDialog::CommunityFundCreatePaymentRequestDialog
     {
         for (auto& it: proposalMap)
         {
-            if (it.second.GetLastState() != DAOFlags::ACCEPTED)
+            if (it.second.GetLastState() != DAOFlags::ACCEPTED || it.second.GetAvailable(coins) == 0)
                 continue;
 
             ui->comboBoxProposalHash->insertItem(0, QString::fromStdString(it.second.strDZeel).left(50) + (it.second.strDZeel.size() > 50 ? "..." : ""), QString::fromStdString(it.second.hash.ToString()));
