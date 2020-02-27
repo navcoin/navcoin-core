@@ -75,6 +75,16 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     }
     result.pushKV("cfund_votes", votes);
 
+    UniValue votes_pr(UniValue::VARR);
+    for (auto& it: blockindex->vPaymentRequestVotes)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("hash", it.first.ToString());
+        entry.pushKV("vote", it.second);
+        votes_pr.push_back(entry);
+    }
+    result.pushKV("cfund_request_votes", votes_pr);
+
     UniValue daosupport(UniValue::VARR);
     for (auto& it: blockindex->mapSupport)
     {
