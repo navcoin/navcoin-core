@@ -1472,7 +1472,7 @@ bool IsValidConsultation(CTransaction tx, CStateViewCache& coins, uint64_t nMask
         UniValue answersArray = answers.get_array();
 
 
-        if (!fAcceptMoreAnswers)
+        if (!fAcceptMoreAnswers && !fRange)
         {
             if (nMax > answersArray.size())
             {
