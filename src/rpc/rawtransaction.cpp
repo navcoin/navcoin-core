@@ -1139,7 +1139,7 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "sendrawtransaction",     &sendrawtransaction,     false },
     { "rawtransactions",    "signrawtransaction",     &signrawtransaction,     false }, /* uses wallet if enabled */
 
-    { "blockchain",         "getstakercript",         &getstakerscript,        true  },
+    { "blockchain",         "getstakerscript",        &getstakerscript,        true  },
     { "blockchain",         "gettxoutproof",          &gettxoutproof,          true  },
     { "blockchain",         "verifytxoutproof",       &verifytxoutproof,       true  },
 };
