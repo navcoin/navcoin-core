@@ -506,7 +506,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         flags fState = proposal.GetLastState();
 
-        if (fExclude && (fState == DAOFlags::ACCEPTED || fState == DAOFlags::REJECTED || fState == DAOFlags::EXPIRED || proposal.GetAvailable(coins) == 0))
+        if (fExclude && (fState == DAOFlags::REJECTED || fState == DAOFlags::EXPIRED || proposal.GetAvailable(coins) == 0))
             continue;
 
         if (mapBlockIndex.count(proposal.txblockhash) == 0)
