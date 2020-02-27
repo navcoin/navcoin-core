@@ -366,7 +366,11 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
             return false;
     }
     else if (typeRet == TX_CONTRIBUTION || typeRet == TX_PAYMENTREQUESTNOVOTE || typeRet == TX_PAYMENTREQUESTYESVOTE
-             || typeRet == TX_PROPOSALNOVOTE || typeRet == TX_PROPOSALYESVOTE)
+             || typeRet == TX_PAYMENTREQUESTREMOVEVOTE || typeRet == TX_PAYMENTREQUESTABSVOTE
+             || typeRet == TX_PROPOSALNOVOTE || typeRet == TX_PROPOSALYESVOTE
+             || typeRet == TX_PROPOSALABSVOTE || typeRet == TX_PROPOSALREMOVEVOTE
+             || typeRet == TX_DAOSUPPORT || typeRet == TX_DAOSUPPORTREMOVE || typeRet == TX_CONSULTATIONVOTE
+             || typeRet == TX_CONSULTATIONVOTEABSTENTION || typeRet == TX_CONSULTATIONVOTEREMOVE)
     {
         return true;
     }
