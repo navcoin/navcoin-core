@@ -646,7 +646,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (!((consultation->CanBeVoted() && consultation->IsValidVote(it.first.second)) || it.first.second == VoteFlags::VOTE_ABSTAIN))
                 continue;
 
-            if (mapAlreadyCleared.count(it.first.first) == 0)
+            if (fScanningWholeCycle && mapAlreadyCleared.count(it.first.first) == 0)
             {
                 mapAlreadyCleared[it.first.first] = true;
                 consultation->mapVotes.clear();
@@ -1075,7 +1075,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if (consultation->GetLastState() == DAOFlags::ACCEPTED)
             {
-                if (!mapSeen.count(consultation->hash))
+                if (fScanningWholeCycle && !mapSeen.count(consultation->hash))
                 {
                     consultation->mapVotes.clear();
                     consultation->fDirty = true;

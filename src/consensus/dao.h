@@ -853,7 +853,7 @@ public:
 
     bool IsNull() const {
         return (hash == uint256() && txblockhash == uint256() && mapState.size() == 0
-                && nVersion == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0 && mapVotes.size() == 0
+                && nVersion == 0 && nVotingCycle == 0 && strDZeel == "" && nSupport == 0
                 && nMin == 0 && nMax == 0 && vAnswers.size() == 0);
     };
 
@@ -894,13 +894,26 @@ public:
         if (nMax != b.nMax) ret += strprintf("nMax: %d => %d, ", nMax, b.nMax);
         if (mapVotes != b.mapVotes)
         {
-            std::string sAdded = "";
-            std::string sRemoved = "";
-            for (auto &it:mapVotes) if (b.mapVotes.count(it.first) == 0) sRemoved += to_string(it.first)+":"+to_string(it.second)+",";
-            for (auto &it:b.mapVotes) if (mapVotes.count(it.first) == 0) sAdded += to_string(it.first)+":"+to_string(it.second)+",";
-            if (sRemoved.size() > 0) sRemoved.pop_back();
-            if (sAdded.size() > 0) sAdded.pop_back();
-            ret += strprintf("mapVotes: added: %s - removed: %s, ", sAdded, sRemoved);
+            std::string sList;
+            for (auto& it:mapVotes)
+            {
+                if (b.mapVotes.count(it.first) == 0)
+                {
+                    sList += strprintf("removed vote %d, ", it.first);
+                }
+                else if (b.mapVotes.at(it.first) != it.second)
+                {
+                    sList += strprintf("modified vote %d => %d, ", it.first, b.mapVotes.at(it.first));
+                }
+            }
+            for (auto& it:b.mapVotes)
+            {
+                if (mapVotes.count(it.first) == 0)
+                {
+                    sList += strprintf("added vote %d, ", it.first);
+                }
+            }
+            ret = strprintf("mapVotes: %s", sList);
         }
         if (vAnswers != b.vAnswers)
         {

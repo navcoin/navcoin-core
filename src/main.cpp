@@ -2772,7 +2772,10 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if (view.HaveConsultation(it.first))
         {
             CConsultationModifier mConsultation = view.ModifyConsultation(it.first, pindex->nHeight);
-            mConsultation->mapVotes[it.second] = max(mConsultation->mapVotes[it.second] - (uint64_t)1, (uint64_t)0);
+            if (mConsultation->mapVotes[it.second] == 1)
+                mConsultation->mapVotes.erase(it.second);
+            else
+                mConsultation->mapVotes[it.second] = max(mConsultation->mapVotes[it.second] - (uint64_t)1, (uint64_t)0);
             mConsultation->fDirty = true;
         }
         else if (view.HaveConsultationAnswer(it.first))
