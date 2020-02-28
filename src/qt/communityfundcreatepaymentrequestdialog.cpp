@@ -91,15 +91,10 @@ bool CommunityFundCreatePaymentRequestDialog::validate()
     }
 
     // Description
-    size_t desc_size = ui->plainTextEditDescription->toPlainText().toStdString().length();
+    size_t desc_size = ui->plainTextEditDescription->text().toStdString().length();
     if(desc_size >= 1024 || desc_size == 0)
     {
         isValid = false;
-        ui->plainTextEditDescription->setValid(false);
-    }
-    else
-    {
-        ui->plainTextEditDescription->setValid(true);
     }
 
     return isValid;
@@ -184,7 +179,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
         // Get fields from form
         CAmount nReqAmount = ui->lineEditRequestedAmount->value();
-        std::string id = ui->plainTextEditDescription->toPlainText().toStdString();
+        std::string id = ui->plainTextEditDescription->text().toStdString();
         std::string sRandom = random_str(16);
 
         // Construct Secret
@@ -288,7 +283,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             CPaymentRequest* preq = new CPaymentRequest();
             preq->nAmount = ui->lineEditRequestedAmount->value();
             preq->proposalhash = proposal.hash;
-            preq->strDZeel = ui->plainTextEditDescription->toPlainText().toStdString();
+            preq->strDZeel = ui->plainTextEditDescription->text().toStdString();
 
             SendCommunityFundDialog dlg(this, preq, 10);
             if(dlg.exec()== QDialog::Rejected) {
@@ -353,7 +348,7 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
             str += QString(tr("- Proposal Hash\n"));
         if(!ui->lineEditRequestedAmount->validate())
             str += QString(tr("- Requested Amount\n"));
-        if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
+        if(ui->plainTextEditDescription->text() == QString("") || ui->plainTextEditDescription->text().size() <= 0)
             str += QString(tr("- Description\n"));
 
         msgBox.setText(str);

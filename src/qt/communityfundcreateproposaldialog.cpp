@@ -85,16 +85,12 @@ bool CommunityFundCreateProposalDialog::validate()
         ui->lineEditRequestedAmount->setValid(false);
         isValid = false;
     }
-    size_t desc_length = ui->plainTextEditDescription->toPlainText().toStdString().length();
+    size_t desc_length = ui->plainTextEditDescription->text().toStdString().length();
     if(desc_length >= 1024 || desc_length == 0)
     {
         isValid = false;
-        ui->plainTextEditDescription->setValid(false);
     }
-    else
-    {
-        ui->plainTextEditDescription->setValid(true);
-    }
+
     if(ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60 <= 0)
     {
         ui->spinBoxDays->setValid(false);
@@ -139,7 +135,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         int64_t nDeadline = ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60;
 
         // Description
-        string sDesc = ui->plainTextEditDescription->toPlainText().toStdString();
+        string sDesc = ui->plainTextEditDescription->text().toStdString();
 
         UniValue strDZeel(UniValue::VOBJ);
         uint64_t nVersion = CProposal::BASE_VERSION;
@@ -262,7 +258,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             str += QString(tr("- Address\n"));
         if(!ui->lineEditRequestedAmount->validate())
             str += QString(tr("- Requested Amount\n"));
-        if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
+        if(ui->plainTextEditDescription->text() == QString("") || ui->plainTextEditDescription->text().size() <= 0)
             str += QString(tr("- Description\n"));
         if((ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60) <= 0)
             str += QString(tr("- Duration\n"));
