@@ -121,10 +121,7 @@ function initialize_node {
 	array_data[$1]=$data_
 	array_user[$1]=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
 	array_pwd[$1]=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
-	echo "DATADIR_$1 = ${array_data[$1]}"
-	echo "USER = ${array_user[$1]}"
-	echo "PWD = ${array_pwd[$1]}"
-	echo "RPC PORT = ${array_rpc_port[$1]}"
+	echo "-datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]}"
 	start_node $1
 	array_active_nodes[$1]=$1
 	array_all_nodes[$1]=$1
@@ -840,6 +837,8 @@ function voter_dice_consultation {
 				if [ $dice -eq 1 ];
 				then
 					out=$(nav_cli ${array_stressing_nodes[$node]} "consultationvote $i $RANDOM")
+				else
+					out=$(nav_cli ${array_stressing_nodes[$node]} "consultationvote $i abs")
 				fi
 			else
 				out=$(nav_cli ${array_stressing_nodes[$node]} "consultationvote $i remove")
@@ -1004,7 +1003,7 @@ function random_verifychain_check {
 }
 
 function start_node {
-        $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} -devnet -daemon -debug=dao -debug=statehash -ntpminmeasures=0 -staking=0 2> /dev/null
+        $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} -devnet -daemon -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -staking=0 2> /dev/null
 }
 
 function stop_node {
@@ -1233,7 +1232,7 @@ while [ $wait_until_cycle -gt $this_cycle ]; do
 			node=${shuffled_array[0]}
 			((node_count++))
 			array_topology_node_pairs+=("$node_count $node")
-			echo "array topology node pairs is now ${array_topology_node_pairs[@]}"
+			#echo "array topology node pairs is now ${array_topology_node_pairs[@]}"
 			initialize_node $node_count
 			echo Waiting 30 sec for navcoind...
 			sleep 30
