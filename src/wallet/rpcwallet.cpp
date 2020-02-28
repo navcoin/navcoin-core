@@ -3908,7 +3908,7 @@ UniValue consultationvote(const UniValue& params, bool fHelp)
         if (!coins.GetConsultation(hash, consultation))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not read consultation ")+hash.ToString());
 
-        if (!consultation.CanBeVoted())
+        if (!consultation.CanBeVoted() && strCommand != "abs")
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("The consultation can not be voted."));
 
         if (strCommand == "yes")
