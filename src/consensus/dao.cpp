@@ -1904,7 +1904,7 @@ bool CConsultation::CanHaveAnswers() const
 
 bool CConsultation::IsValidVote(int64_t vote) const
 {
-    return (vote >= nMin && vote <= nMax);
+    return vote == VoteFlags::VOTE_ABSTAIN || (vote >= nMin && vote <= nMax);
 }
 
 bool CConsultation::ExceededMaxVotingCycles(const CStateViewCache& view) const

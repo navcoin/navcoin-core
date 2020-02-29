@@ -3480,7 +3480,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE || vote == VoteFlags::VOTE_ABSTAIN)) ||
+                                if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
                                     CVoteModifier mVote = view.ModifyVote(stakerScript, pindex->nHeight);
@@ -3533,7 +3533,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 bool fValidConsultation = view.GetConsultation(hash, consultation);
                                 bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
 
-                                if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_ABSTAIN)) ||
+                                if ((fValidConsultation && (consultation.CanBeVoted() && consultation.IsValidVote(vote))) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
                                     if (vote != VoteFlags::VOTE_REMOVE)
@@ -3946,7 +3946,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     bool fValidConsultation = view.GetConsultation(it.first, consultation);
                     bool fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer);
 
-                    if ((fValidConsultation && ((consultation.CanBeVoted() && consultation.IsValidVote(val)) || val == VoteFlags::VOTE_ABSTAIN)) ||
+                    if ((fValidConsultation && (consultation.CanBeVoted() && consultation.IsValidVote(val))) ||
                             (fValidConsultationAnswer && answer.CanBeVoted(view)))
                     {
                         if (val != VoteFlags::VOTE_REMOVE)
