@@ -430,8 +430,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
             {
-                LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d\n", __func__,
-                         it.second, it.first.ToString(), pindexblock->nHeight);
 
                 if (it.second == VoteFlags::VOTE_ABSTAIN && view.GetConsultationAnswer(it.first, answer))
                 {
@@ -439,6 +437,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] = 0;
 
                     mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] += 1;
+
+                    LogPrint("dao", "%s: Found consultation answer vote %d for %s at block height %d\n", __func__,
+                             it.second, answer.parent.ToString(), pindexblock->nHeight);
                 }
                 else
                 {
@@ -446,6 +447,9 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] = 0;
 
                     mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] += 1;
+
+                    LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d\n", __func__,
+                             it.second, it.first.ToString(), pindexblock->nHeight);
                 }
             }
         }
@@ -643,7 +647,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 consultation->fDirty = true;
             }
 
-            if (!(consultation->CanBeVoted() && consultation->IsValidVote(it.first.second)))
+            if (!(consultation->CanBeVoted(it.first.second) && consultation->IsValidVote(it.first.second)))
                 continue;
 
             if (fScanningWholeCycle && mapAlreadyCleared.count(it.first.first) == 0)
@@ -1879,10 +1883,12 @@ bool CConsultation::CanBeSupported() const
     return fState == DAOFlags::NIL && IsRange();
 }
 
-bool CConsultation::CanBeVoted() const
+bool CConsultation::CanBeVoted(int64_t vote) const
 {
     flags fState = GetLastState();
-    return fState == DAOFlags::ACCEPTED && IsRange();
+    LogPrintf("%s: %s: fState %d isrange %d nMin %d nMax %d\n", __func__, hash.ToString(), fState, IsRange());
+
+    return fState == DAOFlags::ACCEPTED && (IsRange() || vote == VoteFlags::VOTE_ABSTAIN);
 }
 
 bool CConsultation::IsRange() const
@@ -1904,7 +1910,8 @@ bool CConsultation::CanHaveAnswers() const
 
 bool CConsultation::IsValidVote(int64_t vote) const
 {
-    return vote == VoteFlags::VOTE_ABSTAIN || (vote >= nMin && vote <= nMax);
+    LogPrintf("%s: %s: vote: %d isrange %d nMin %d nMax %d\n", __func__, hash.ToString(), vote, IsRange(), nMin, nMax);
+    return vote == VoteFlags::VOTE_ABSTAIN || (IsRange() && vote >= nMin && vote <= nMax);
 }
 
 bool CConsultation::ExceededMaxVotingCycles(const CStateViewCache& view) const

@@ -967,7 +967,7 @@ public:
     std::string ToString(const CBlockIndex* pindex, const CStateViewCache& view) const;
     void ToJson(UniValue& ret, const CStateViewCache& view) const;
     bool CanBeSupported() const;
-    bool CanBeVoted() const;
+    bool CanBeVoted(int64_t vote = VoteFlags::VOTE_NO) const;
     bool IsSupported(const CStateViewCache& view) const;
     bool CanMoveInReflection(const CStateViewCache& view) const;
     bool IsExpired(const CBlockIndex* pindex, const CStateViewCache& view) const;

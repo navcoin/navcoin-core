@@ -271,7 +271,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
 
             if (coins.GetConsultation(it.first, consultation))
             {
-                if (consultation.CanBeVoted() && consultation.IsValidVote(vote))
+                if (consultation.CanBeVoted(vote) && consultation.IsValidVote(vote))
                 {
                     coinbaseTx.vout.resize(coinbaseTx.vout.size()+1);
 
