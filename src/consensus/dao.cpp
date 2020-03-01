@@ -1888,6 +1888,7 @@ bool CConsultation::CanBeSupported() const
 bool CConsultation::CanBeVoted(int64_t vote) const
 {
     flags fState = GetLastState();
+    LogPrintf("%s: %s: %d %d %d\n", __func__, hash.ToString(),fState ,IsRange(), vote  );
     return fState == DAOFlags::ACCEPTED && (IsRange() || vote == VoteFlags::VOTE_ABSTAIN);
 }
 
@@ -1910,6 +1911,7 @@ bool CConsultation::CanHaveAnswers() const
 
 bool CConsultation::IsValidVote(int64_t vote) const
 {
+    LogPrintf("%s: %s: %d %d %d %d\n", __func__, hash.ToString(),vote,IsRange(), vote, nMin, nMax);
     return vote == VoteFlags::VOTE_ABSTAIN || (IsRange() && vote >= nMin && vote <= nMax);
 }
 
