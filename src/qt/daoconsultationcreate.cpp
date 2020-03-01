@@ -63,6 +63,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     minBox->setVisible(false);
 
     minBox->setMinimum(0);
+    minBox->setMaximum(pow(2,24));
     maxBox->setMinimum(1);
     maxBox->setMaximum(pow(2,24));
 
