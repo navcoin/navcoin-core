@@ -1081,6 +1081,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             {
                 if (!consultation->IsRange())
                     vClearAnswers.push_back(consultation->hash);
+                if ((consultation->mapVotes.count(VoteFlags::VOTE_ABSTAIN) || consultation->IsRange()) && !mapSeen.count(consultation->hash))
+                    consultation->mapVotes.clear();
             }
         }
 
@@ -1886,8 +1888,6 @@ bool CConsultation::CanBeSupported() const
 bool CConsultation::CanBeVoted(int64_t vote) const
 {
     flags fState = GetLastState();
-    LogPrintf("%s: %s: fState %d isrange %d nMin %d nMax %d\n", __func__, hash.ToString(), fState, IsRange());
-
     return fState == DAOFlags::ACCEPTED && (IsRange() || vote == VoteFlags::VOTE_ABSTAIN);
 }
 
@@ -1910,7 +1910,6 @@ bool CConsultation::CanHaveAnswers() const
 
 bool CConsultation::IsValidVote(int64_t vote) const
 {
-    LogPrintf("%s: %s: vote: %d isrange %d nMin %d nMax %d\n", __func__, hash.ToString(), vote, IsRange(), nMin, nMax);
     return vote == VoteFlags::VOTE_ABSTAIN || (IsRange() && vote >= nMin && vote <= nMax);
 }
 
