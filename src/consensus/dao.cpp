@@ -438,8 +438,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
                     mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] += 1;
 
-                    LogPrint("dao", "%s: Found consultation answer vote %d for %s at block height %d\n", __func__,
-                             it.second, answer.parent.ToString(), pindexblock->nHeight);
+                    LogPrint("dao", "%s: Found consultation answer vote %d for %s at block height %d (total %d)\n", __func__,
+                             it.second, answer.parent.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)]);
                 }
                 else
                 {
@@ -448,8 +448,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
                     mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] += 1;
 
-                    LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d\n", __func__,
-                             it.second, it.first.ToString(), pindexblock->nHeight);
+                    LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d (total %d)\n", __func__,
+                             it.second, it.first.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)]);
                 }
             }
         }
