@@ -426,8 +426,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             if (mapSeen.count(it.first))
                 continue;
 
-            mapSeen[it.first]=true;
-
             if (view.HaveConsultation(it.first) || view.HaveConsultationAnswer(it.first))
             {
 
@@ -438,6 +436,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
                     mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)] += 1;
 
+                    mapSeen[it.first]=true;
+
                     LogPrint("dao", "%s: Found consultation answer vote %d for %s at block height %d (total %d)\n", __func__,
                              it.second, answer.parent.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)]);
                 }
@@ -447,6 +447,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] = 0;
 
                     mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)] += 1;
+
+                    mapSeen[it.first]=true;
 
                     LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d (total %d)\n", __func__,
                              it.second, it.first.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)]);
@@ -685,7 +687,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
             answer->nVotes = it.second;
             answer->fDirty = true;
             mapSeen[it.first.first]=true;
-            mapSeen[answer->parent]=true;
         }
     }
 
@@ -1888,7 +1889,6 @@ bool CConsultation::CanBeSupported() const
 bool CConsultation::CanBeVoted(int64_t vote) const
 {
     flags fState = GetLastState();
-    LogPrintf("%s: %s: %d %d %d\n", __func__, hash.ToString(),fState ,IsRange(), vote  );
     return fState == DAOFlags::ACCEPTED && (IsRange() || vote == VoteFlags::VOTE_ABSTAIN);
 }
 
@@ -1911,7 +1911,6 @@ bool CConsultation::CanHaveAnswers() const
 
 bool CConsultation::IsValidVote(int64_t vote) const
 {
-    LogPrintf("%s: %s: %d %d %d %d\n", __func__, hash.ToString(),vote,IsRange(), vote, nMin, nMax);
     return vote == VoteFlags::VOTE_ABSTAIN || (IsRange() && vote >= nMin && vote <= nMax);
 }
 
