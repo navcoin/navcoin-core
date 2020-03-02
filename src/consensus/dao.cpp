@@ -1821,9 +1821,11 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
     {
         if (mapVotes.count(VoteFlags::VOTE_ABSTAIN) != 0)
         {
-            UniValue a(UniValue::VOBJ);
-            a.pushKV("abstain", mapVotes.at(VoteFlags::VOTE_ABSTAIN));
-            answers.push_back(a);
+            ret.pushKV("abstain", mapVotes.at(VoteFlags::VOTE_ABSTAIN));
+        }
+        else
+        {
+            ret.pushKV("abstain", 0);
         }
         CConsultationAnswerMap mapConsultationAnswers;
         CConsultationAnswer answer;
@@ -2073,7 +2075,7 @@ std::string CConsultationAnswer::ToString() const {
 void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) const {
     flags fState = GetLastState();
     ret.pushKV("version",(uint64_t)nVersion);
-    ret.pushKV("string", sAnswer);
+    ret.pushKV("answer", sAnswer);
     ret.pushKV("support", nSupport);
     ret.pushKV("votes", nVotes);
     ret.pushKV("status", GetState(view));
