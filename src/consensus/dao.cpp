@@ -1811,10 +1811,19 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
     if (nVersion & CConsultation::ANSWER_IS_A_RANGE_VERSION)
     {
         UniValue a(UniValue::VOBJ);
+        bool fAbstainAdded = false;
         for (auto &it: mapVotes)
         {
-            a.pushKV(it.first == VoteFlags::VOTE_ABSTAIN ? "abstain" : to_string(it.first), it.second);
+            if (it.first == VoteFlags::VOTE_ABSTAIN)
+            {
+                fAbstainAdded = true;
+                ret.pushKV("abstain", it.second);
+            }
+            else
+                a.pushKV(to_string(it.first), it.second);
         }
+        if (!fAbstainAdded)
+            ret.pushKV("abstain", 0);
         answers.push_back(a);
     }
     else
@@ -2074,12 +2083,18 @@ std::string CConsultationAnswer::ToString() const {
 
 void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) const {
     flags fState = GetLastState();
+    uint256 blockhash;
+    CBlockIndex* pblockindex = GetLastStateBlockIndex();
+    if (pblockindex) blockhash = pblockindex->GetBlockHash();
+
     ret.pushKV("version",(uint64_t)nVersion);
     ret.pushKV("answer", sAnswer);
     ret.pushKV("support", nSupport);
     ret.pushKV("votes", nVotes);
     ret.pushKV("status", GetState(view));
     ret.pushKV("state", (uint64_t)fState);
+    ret.pushKV("stateChangedOnBlock", blockhash.ToString());
+    ret.pushKV("txblockhash", txblockhash.ToString());
     ret.pushKV("parent", parent.ToString());
     if (hash != uint256())
         ret.pushKV("hash", hash.ToString());
