@@ -514,6 +514,10 @@ void NavCoinGUI::createActions()
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
+
+    // Get restart command-line parameters and handle restart
+    connect(rpcConsole, SIGNAL(handleRestart(QStringList)), this, SLOT(handleRestart(QStringList)));
+
     // prevents an open debug window from becoming stuck/unusable on client shutdown
     connect(quitAction, SIGNAL(triggered()), rpcConsole, SLOT(hide()));
 
@@ -1841,6 +1845,13 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     uiInterface.UpdateDaoNewCount.disconnect(boost::bind(UpdateDaoNewCount, this));
     uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3));
     uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
+}
+
+/** Get restart command-line parameters and request restart */
+void NavCoinGUI::handleRestart(QStringList args)
+{
+    if (!ShutdownRequested())
+        Q_EMIT requestedRestart(args);
 }
 
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
