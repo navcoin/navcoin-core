@@ -383,7 +383,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
             table->setColumnHidden(C_COLUMN_HASH, true);
             table->setColumnHidden(C_COLUMN_COLOR, false);
             table->setHorizontalHeaderLabels({ "", "", tr("Question"), tr("Possible Answers"), tr("Status"), "", tr("My Votes"), "", ""});
-            table->horizontalHeader()->setSectionResizeMode(C_COLUMN_TITLE, QHeaderView::ResizeToContents);
+            table->horizontalHeader()->setSectionResizeMode(C_COLUMN_TITLE, QHeaderView::Stretch);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_ANSWERS, QHeaderView::Stretch);
             table->horizontalHeaderItem(C_COLUMN_TITLE)->setTextAlignment(Qt::AlignLeft);
             table->horizontalHeader()->setSectionResizeMode(C_COLUMN_STATUS, QHeaderView::ResizeToContents);
@@ -529,7 +529,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
         ProposalEntry p = {
             it.first,
             "#6666ff",
-            QString::fromStdString(proposal.strDZeel),
+            QString::fromStdString(proposal.strDZeel).left(150) + (proposal.strDZeel.size() > 150 ? "..." : ""),
             NavCoinUnits::formatWithUnit(unit, proposal.nAmount, false, NavCoinUnits::separatorAlways),
             NavCoinUnits::formatWithUnit(unit, proposal.nAmount - proposal.GetAvailable(coins), false, NavCoinUnits::separatorAlways),
             QString::fromStdString(s_deadline),
@@ -634,8 +634,8 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
         PaymentRequestEntry p = {
             it.first,
-            QString::fromStdString(prequest.strDZeel),
-            QString::fromStdString(proposal.strDZeel),
+            QString::fromStdString(prequest.strDZeel).left(150) + (prequest.strDZeel.size() > 150 ? "..." : ""),
+            QString::fromStdString(proposal.strDZeel).left(150) + (proposal.strDZeel.size() > 150 ? "..." : ""),
             "#6666ff",
             NavCoinUnits::formatWithUnit(unit, prequest.nAmount, false, NavCoinUnits::separatorAlways),
             prequest.nVotesYes ? prequest.nVotesYes : 0,
@@ -744,7 +744,7 @@ void DaoPage::initialize(CProposalMap proposalMap, CPaymentRequestMap paymentReq
 
                 ConsultationAnswerEntry a = {
                     answer.hash,
-                    QString::fromStdString(answer.sAnswer),
+                    QString::fromStdString(answer.sAnswer).left(150) + (answer.sAnswer.size() > 150 ? "..." : ""),
                     answer.nVotes,
                     QString::fromStdString(answer.GetState(coins)),
                     answer.CanBeVoted(coins),
