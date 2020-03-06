@@ -58,8 +58,8 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     });
 
     string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
-    string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
-    ui->labelWarning->setText(QString::fromStdString(warning));
+    QString warning = tr("By submitting the proposal a contribution of %1 NAV to the Community Fund will occur from your wallet.").arg(QString::fromStdString(fee));
+    ui->labelWarning->setText(warning);
 }
 
 void CommunityFundCreateProposalDialog::setModel(WalletModel *model)

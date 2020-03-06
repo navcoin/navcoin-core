@@ -59,7 +59,7 @@ SendCommunityFundDialog::SendCommunityFundDialog(QWidget *parent, CProposal* pro
     ui->labelDuration->setText(GUIUtil::formatDurationStr(int(proposal->nDeadline)));
 
     string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
-    string warning = tr("By submitting the proposal a %1 NAV deduction will occur from your wallet ").arg(QString::fromStdString(fee)).toStdString();
+    string warning = tr("By submitting the payment request a contribution of %1 NAV to the Community Fund will occur from your wallet.").arg(QString::fromStdString(fee)).toStdString();
     ui->labelWarning->setText(QString::fromStdString(warning));
 }
 

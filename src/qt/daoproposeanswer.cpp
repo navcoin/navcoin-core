@@ -42,7 +42,7 @@ DaoProposeAnswer::DaoProposeAnswer(QWidget *parent, CConsultation consultation, 
     layout->addWidget(answerInput);
     layout->addWidget(warningLbl);
     layout->addSpacing(15);
-    layout->addWidget(new QLabel(tr("By submitting the proposal a %1 NAV deduction will occur from your wallet").arg(fee)));
+    layout->addWidget(new QLabel(tr("By submitting the answer a contribution of %1 NAV to the Community Fund will occur from your wallet.").arg(fee)));
     layout->addWidget(bottomBox);
     layout->addSpacing(15);
 
