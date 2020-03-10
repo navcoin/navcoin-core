@@ -44,10 +44,11 @@ endif
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
-$(LIBBLS): $(wildcard bls-signatures/src/*.hpp) $(wildcard bls-signatures/src/*.cpp) 
+$(LIBBLS): $(wildcard bls-signatures/src/*.hpp) $(wildcard bls-signatures/src/*.cpp)
 	$(AM_V_at)mkdir -p $(@D)/build
-	$(AM_V_at)cmake $(@D)
-	$(AM_V_at)cmake --build $(@D)/build -- $(AM_MAKEFLAGS)
+	$(AM_V_at)cd $(@D)/build && cmake ..
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)/build bls
+	$(AM_V_at)cp $(@D)/build/libbls.a $(@D)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
