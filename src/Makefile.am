@@ -18,7 +18,7 @@ endif
 NAVCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 NAVCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
-NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src
+NAVCOIN_INCLUDES += -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/
 NAVCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBNAVCOIN_SERVER=libnavcoin_server.a
@@ -29,7 +29,8 @@ LIBNAVCOIN_UTIL=libnavcoin_util.a
 LIBNAVCOIN_CRYPTO=crypto/libnavcoin_crypto.a
 LIBNAVCOINQT=qt/libnavcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
-LIBBLS=bls-signatures/libbls.a
+
+BLS_LIBS=-L$(srcdir)/bls-signatures/build/ -lbls
 
 if ENABLE_ZMQ
 LIBNAVCOIN_ZMQ=libnavcoin_zmq.a
@@ -48,7 +49,6 @@ $(LIBBLS): $(wildcard bls-signatures/src/*.hpp) $(wildcard bls-signatures/src/*.
 	$(AM_V_at)mkdir -p $(@D)/build
 	$(AM_V_at)cd $(@D)/build && cmake ..
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)/build bls
-	$(AM_V_at)cp $(@D)/build/libbls.a $(@D)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -430,10 +430,9 @@ navcoind_LDADD = \
   $(LIBNAVCOIN_CRYPTO) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
-  $(LIBSECP256K1) \
-  $(LIBBLS)
+  $(LIBSECP256K1)
 
-navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(BLS_LIBS)
 
 # navcoin-cli binary #
 navcoin_cli_SOURCES = navcoin-cli.cpp
@@ -470,10 +469,9 @@ navcoin_tx_LDADD = \
   $(LIBNAVCOIN_UTIL) \
   $(LIBNAVCOIN_CONSENSUS) \
   $(LIBNAVCOIN_CRYPTO) \
-  $(LIBSECP256K1) \
-  $(LIBBLS)
+  $(LIBSECP256K1)
 
-navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
+navcoin_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS) $(BLS_LIBS)
 #
 
 # navcoinconsensus library #
@@ -486,7 +484,7 @@ if GLIBC_BACK_COMPAT
 endif
 
 libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(LIBBLS)
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1)
 libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
