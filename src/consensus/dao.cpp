@@ -704,6 +704,81 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     {
         return false;
     }
+    
+    if(lastConsensusStateHash != lastConsensusStateHash)
+    {
+        for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
+        {
+            if (!view.HavePaymentRequest(it->first))
+                continue;
+
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest(it->first, pindexNew->nHeight);
+
+            if (!mapSeen.count(prequest->hash) && prequest->CanVote(view))
+            {
+                prequest->nVotesYes = 0;
+                prequest->nVotesNo = 0;
+                prequest->fDirty = true;
+            }
+        }
+
+        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
+        {
+            if (!view.HaveProposal(it->first))
+                continue;
+
+            CProposalModifier proposal = view.ModifyProposal(it->first, pindexNew->nHeight);
+
+            if (!mapSeen.count(proposal->hash) && proposal->CanVote(view))
+            {
+                proposal->nVotesYes = 0;
+                proposal->nVotesNo = 0;
+                proposal->fDirty = true;
+            }
+        }
+
+        for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
+        {
+            if (!view.HaveConsultation(it->first))
+                continue;
+
+            CConsultationModifier consultation = view.ModifyConsultation(it->first, pindexNew->nHeight);
+
+            if (consultation->CanBeSupported() && !mapSeenSupport.count(consultation->hash))
+            {
+                consultation->nSupport = 0;
+                consultation->fDirty = true;
+            }
+
+            if (consultation->GetLastState() == DAOFlags::ACCEPTED)
+            {
+                if (!consultation->IsRange())
+                    vClearAnswers.push_back(consultation->hash);
+                if ((consultation->mapVotes.count(VoteFlags::VOTE_ABSTAIN) || consultation->IsRange()) && !mapSeen.count(consultation->hash))
+                    consultation->mapVotes.clear();
+            }
+        }
+
+        for (CConsultationAnswerMap::iterator it = mapConsultationAnswers.begin(); it != mapConsultationAnswers.end(); it++)
+        {
+            if (!view.HaveConsultationAnswer(it->first) || mapSeen.count(it->first))
+                continue;
+
+            CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it->first, pindexNew->nHeight);
+
+            if (answer->CanBeSupported(view) && !mapSeenSupport.count(answer->hash))
+            {
+                answer->nSupport = 0;
+                answer->fDirty = true;
+            }
+
+            if (std::find(vClearAnswers.begin(), vClearAnswers.end(), it->second.parent) == vClearAnswers.end())
+                continue;
+
+            answer->nVotes = 0;
+            answer->fDirty = true;
+        }
+    }
 
     for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
     {
