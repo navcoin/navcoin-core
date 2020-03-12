@@ -705,6 +705,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         return false;
     }
     
+    std::vector<uint256> vClearAnswers;
+
     if(lastConsensusStateHash != lastConsensusStateHash)
     {
         for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
@@ -1023,8 +1025,6 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     LogPrint("bench", "   - CFund update consultation answer status: %.2fms\n", (nTimeEnd6 - nTimeStart6) * 0.001);
 
     int64_t nTimeStart7 = GetTimeMicros();
-
-    std::vector<uint256> vClearAnswers;
 
     for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
     {
