@@ -673,14 +673,6 @@ UniValue createproposal(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    uint64_t nVersionDummy;
-    uint64_t nVersionMask;
-
-    GetVersionMask(nVersionMask, nVersionDummy, nVersionDummy, nVersionDummy, chainActive.Tip());
-
-    if (!IsValidProposal(wtx, view, nVersionMask))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong strdzeel");
-
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
@@ -898,14 +890,6 @@ UniValue createconsultation(const UniValue& params, bool fHelp)
 
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
-
-    uint64_t nVersionDummy;
-    uint64_t nVersionMask;
-
-    GetVersionMask(nVersionDummy, nVersionDummy, nVersionMask, nVersionDummy, chainActive.Tip());
-
-    if (!IsValidConsultation(wtx, view, nVersionMask, chainActive.Tip()))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong strdzeel");
 
     EnsureWalletIsUnlocked();
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
@@ -1144,14 +1128,6 @@ UniValue createpaymentrequest(const UniValue& params, bool fHelp)
     if(wtx.strDZeel.length() > 1024)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
 
-    uint64_t nVersionDummy;
-    uint64_t nVersionMask;
-
-    GetVersionMask(nVersionDummy, nVersionMask, nVersionDummy, nVersionDummy, chainActive.Tip());
-
-    if (!IsValidPaymentRequest(wtx, view, nVersionMask))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong strdzeel");
-
     SendMoney(address.Get(), 10000, fSubtractFeeFromAmount, wtx, true, fDump);
 
     if (!fDump)
@@ -1234,14 +1210,6 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
 
     if(wtx.strDZeel.length() > 255)
         throw JSONRPCError(RPC_TYPE_ERROR, "String too long");
-
-    uint64_t nVersionDummy;
-    uint64_t nVersionMask;
-
-    GetVersionMask(nVersionDummy, nVersionDummy, nVersionDummy, nVersionMask, chainActive.Tip());
-
-    if (!IsValidConsultationAnswer(wtx, view, nVersionMask, chainActive.Tip()))
-        throw JSONRPCError(RPC_TYPE_ERROR, "Wrong strdzeel");
 
     SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, true, fDump);
 

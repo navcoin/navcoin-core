@@ -3186,6 +3186,7 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
             if (!wtxNew.AcceptToMemoryPool(false, maxTxFee))
             {
                 // This must not fail. The transaction has already been signed and recorded.
+                mapWallet[wtxNew.GetHash()].MarkDirty();
                 LogPrintf("CommitTransaction(): Error: Transaction not valid\n");
                 return false;
             }
