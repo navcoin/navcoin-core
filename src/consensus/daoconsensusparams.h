@@ -76,7 +76,7 @@ static std::string sConsensusParamsDesc[Consensus::MAX_CONSENSUS_PARAMS] = {
     "Minimum of positive votes for a payment request to be accepted",
     "Minimum of negative votes for a payment request to be rejected",
     "Minimum fee to submit a payment request",
-    "Maximum of voting cycles for fund proposal votings",
+    "Maximum of voting cycles for fund payment request votings",
 
     "Frequency of the fund accumulation transaction",
     "Percentage of generated NAV going to the Fund",
