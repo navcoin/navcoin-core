@@ -568,7 +568,7 @@ bool CScript::GetStakerScript(std::vector<unsigned char>& script) const
 {
     if (IsColdStakingv2())
     {
-        script = std::vector<unsigned char>(this->begin()+1, this->begin()+21);
+        script = std::vector<unsigned char>(this->begin(), this->begin()+20);
         return true;
     }
     else if (IsPayToPublicKeyHash())
@@ -577,6 +577,7 @@ bool CScript::GetStakerScript(std::vector<unsigned char>& script) const
         return true;
     }
     script = std::vector<unsigned char>(this->begin(),this->end());
+
     return true;
 }
 

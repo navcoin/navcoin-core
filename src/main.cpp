@@ -3392,6 +3392,23 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     std::vector<unsigned char> stakerScript;
 
+    if (fStake)
+    {
+        const CTransaction &txRead = block.vtx[1];
+        CTransaction txPrev;
+        uint256 hashBlock;
+
+        if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, view, true))
+        {
+            return error("%s: Could not find %s to read staker script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
+        }
+
+        if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+        {
+            return error("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey));
+        }
+    }
+
     if (fStake && block.vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
         fStakerIsColdStakingv2 = true;
 
@@ -3407,7 +3424,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (fCFund || fDAOConsultations)
         {
             // Add Votes from the block coinbase or dao vote txs if enabled
-            if((tx.IsCoinBase() && !fStakerIsColdStakingv2) || (fDaoTx && i > 1))
+            if((tx.IsCoinBase() && !fStakerIsColdStakingv2) || (fStake && fDaoTx && i > 1) || (!fStake && fDaoTx && i > 0))
             {
                 CProposal proposal;
                 CPaymentRequest prequest;
@@ -3420,18 +3437,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 CTransaction txPrev;
                 uint256 hashBlock = uint256();
 
-                if (fStake)
+                std::vector<unsigned char> voterScript;
+                voterScript = stakerScript;
+
+                if (fDaoTx)
                 {
-                    const CTransaction &txRead = (i == 0 && block.vtx.size() > 1) ? block.vtx[1] : tx;
+                    const CTransaction &txRead = tx;
 
                     if (!GetTransaction(txRead.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, view, true))
                     {
-                        return error("%s: Could not find %s to read staker script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
+                        return error("%s: Could not find %s to read voter script.\n", __func__, txRead.vin[0].prevout.hash.ToString());
                     }
 
-                    if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+                    if(!txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey.GetStakerScript(voterScript))
                     {
-                        return error("%s: Could not read staker script from %s.\n", __func__, HexStr(txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey));
+                        return error("%s: Could not read voter script from %s.\n", __func__, HexStr(txPrev.vout[txRead.vin[0].prevout.n].scriptPubKey));
                     }
                 }
 
@@ -3446,11 +3466,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     bool fSuccessExtractingVote = true;
 
                     if(tx.vout[j].IsVote())
-                        fSuccessExtractingVote=tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
+                        fSuccessExtractingVote&=tx.vout[j].scriptPubKey.ExtractVote(hash, vote);
                     else if(tx.vout[j].IsSupportVote())
-                        fSuccessExtractingVote=tx.vout[j].scriptPubKey.ExtractSupportVote(hash, vote);
+                        fSuccessExtractingVote&=tx.vout[j].scriptPubKey.ExtractSupportVote(hash, vote);
                     else if(tx.vout[j].IsConsultationVote())
-                        fSuccessExtractingVote=tx.vout[j].scriptPubKey.ExtractConsultationVote(hash, vote);
+                        fSuccessExtractingVote&=tx.vout[j].scriptPubKey.ExtractConsultationVote(hash, vote);
 
                     if (!fSuccessExtractingVote)
                         return error("%s: Could not extract vote from script %s.\n", __func__, HexStr(tx.vout[j].scriptPubKey));
@@ -3468,10 +3488,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         if (vote != VoteFlags::VOTE_REMOVE)
                             votes[hash] = vote;
 
-                        if (fStake && fVoteCacheState)
+                        if (fVoteCacheState)
                         {
                             CVoteList pVoteList;
-                            view.GetCachedVoter(stakerScript, pVoteList);
+                            view.GetCachedVoter(voterScript, pVoteList);
 
                             LogPrint("dao", "%s: Looking for votes to add in the cache at height %d.\n", __func__, pindex->nHeight);
 
@@ -3483,10 +3503,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 if ((fValidConsultation && ((consultation.CanBeVoted(vote) && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE)) ||
                                     (fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
-                                    CVoteModifier mVote = view.ModifyVote(stakerScript, pindex->nHeight);
+                                    CVoteModifier mVote = view.ModifyVote(voterScript, pindex->nHeight);
                                     mVote->Set(pindex->nHeight, hash, vote);
                                     mVote->fDirty = true;
-                                    LogPrint("dao", "%s: Setting consultation vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
+                                    LogPrint("dao", "%s: Setting consultation vote for voter %s at height %d - hash: %s vote: %d\n", __func__, HexStr(voterScript), pindex->nHeight, hash.ToString(), vote);
                                 }
                                 else
                                 {
@@ -3501,10 +3521,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         || (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view)))))
                             {
                                 votes[hash] = vote;
-                                CVoteModifier mVote = view.ModifyVote(stakerScript, pindex->nHeight);
+                                CVoteModifier mVote = view.ModifyVote(voterScript, pindex->nHeight);
                                 mVote->Set(pindex->nHeight, hash, vote);
                                 mVote->fDirty = true;
-                                LogPrint("dao", "%s: Setting vote for staker %s at height %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, hash.ToString(), vote);
+                                LogPrint("dao", "%s: Setting vote for voter %s at height %d - hash: %s vote: %d\n", __func__, HexStr(voterScript), pindex->nHeight, hash.ToString(), vote);
                             }
                         }
                         else if (i == 0)

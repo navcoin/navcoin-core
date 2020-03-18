@@ -19,7 +19,7 @@ class LightVotingTest(NavCoinTestFramework):
 
     def setup_network(self, split=False):
         self.nodes = []
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-debug"]]*3)
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-debug=dao","-dandelion=0"]]*3)
         connect_nodes(self.nodes[0], 1)
         connect_nodes(self.nodes[1], 2)
         connect_nodes(self.nodes[2], 0)
@@ -37,10 +37,14 @@ class LightVotingTest(NavCoinTestFramework):
         coldstaking = self.nodes[0].getcoldstakingaddress(self.nodes[1].getnewaddress(),self.nodes[1].getnewaddress(),votingkey)
 
         self.nodes[0].sendtoaddress(votingkey, 100)
-        self.nodes[0].sendtoaddress(coldstaking, 30000000)
+        self.nodes[0].sendtoaddress(coldstaking, 3000000)
+        self.nodes[0].sendtoaddress(coldstaking, 3000000)
+        self.nodes[0].sendtoaddress(coldstaking, 3000000)
+        self.nodes[0].sendtoaddress(coldstaking, 3000000)
 
         slow_gen(self.nodes[0], 10)
-        sync_blocks(self.nodes)
+
+        time.sleep(3)
 
         proposalid0 = self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 100, 3600, "test")["hash"]
         slow_gen(self.nodes[0], 1)
@@ -56,23 +60,50 @@ class LightVotingTest(NavCoinTestFramework):
         fundedrawtx=self.nodes[2].fundrawtransaction(rawtx)['hex']
         signedrawtx=self.nodes[2].signrawtransaction(fundedrawtx)['hex']
         self.nodes[2].sendrawtransaction(signedrawtx)
-
-        slow_gen(self.nodes[0], 1)
+        slow_gen(self.nodes[2], 1)
         sync_blocks(self.nodes)
 
-        self.nodes[1].staking(True)
         self.nodes[1].coinbaseoutputs([self.nodes[1].createrawtransaction(
             [],
             {voteno_str: 0},
-            "", 0
-        )])
+            "", 0)])
 
-        block_height = self.nodes[1].getblockcount()
-        while (block_height  >= self.nodes[1].getblockcount()):
+        block_height = self.nodes[1].getblockcount()+1
+        while (block_height >= self.nodes[1].getblockcount()):
+            self.stake_block(self.nodes[1], False)
+
+        assert_equal(self.nodes[1].getproposal(proposalid0)["votesYes"], 2)
+        assert_equal(self.nodes[1].getproposal(proposalid0)["votesNo"], 0)
+
+    def stake_block(self, node, mature = True):
+        # Get the current block count to check against while we wait for a stake
+        blockcount = node.getblockcount()
+
+        # Turn staking on
+        node.staking(True)
+
+        # wait for a new block to be mined
+        while node.getblockcount() == blockcount:
+            #print("waiting for a new block...")
             time.sleep(1)
 
-        assert (self.nodes[1].getproposal(proposalid0)["votesYes"] == 1)
-        assert (self.nodes[1].getproposal(proposalid0)["votesNo"] == 0)
+        # We got one
+        #print("found a new block...")
+
+        # Turn staking off
+        node.staking(False)
+
+        # Get the staked block
+        block_hash = node.getbestblockhash()
+
+        # Only mature the blocks if we asked for it
+        if (mature):
+            # Make sure the blocks are mature before we check the report
+            slow_gen(node, 5, 0.5)
+            self.sync_all()
+
+        # return the block hash to the function caller
+        return block_hash
 
 if __name__ == '__main__':
     LightVotingTest().main()
