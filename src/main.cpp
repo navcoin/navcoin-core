@@ -3488,7 +3488,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         if (vote != VoteFlags::VOTE_REMOVE)
                             votes[hash] = vote;
 
-                        if (fVoteCacheState)
+                        if (fVoteCacheState && voterScript.size() > 0)
                         {
                             CVoteList pVoteList;
                             view.GetCachedVoter(voterScript, pVoteList);
