@@ -17,7 +17,7 @@ DaoConsultationCreate::DaoConsultationCreate(QWidget *parent) :
     listWidget(new NavCoinListWidget(nullptr, "", [](QString s)->bool{return !s.isEmpty();})),
     moreAnswersBox(new QCheckBox)
 {
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
     this->setLayout(layout);
 
     auto *topBox = new QFrame;

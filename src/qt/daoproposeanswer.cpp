@@ -10,7 +10,7 @@ DaoProposeAnswer::DaoProposeAnswer(QWidget *parent, CConsultation consultation, 
     answerInput(new QLineEdit),
     validatorFunc(validator)
 {
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
     this->setLayout(layout);
 
     CStateViewCache view(pcoinsTip);

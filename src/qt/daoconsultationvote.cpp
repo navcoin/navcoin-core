@@ -13,7 +13,7 @@ DaoConsultationVote::DaoConsultationVote(QWidget *parent, CConsultation consulta
     amountBox(new QSpinBox),
     nChecked(0)
 {
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
     this->setLayout(layout);
 
     QFont subtitleFnt("Sans Serif", 18, QFont::Bold);

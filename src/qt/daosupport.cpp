@@ -9,7 +9,7 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
     consultation(consultation),
     answerBox(new QGroupBox)
 {
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
     this->setLayout(layout);
 
     auto *bottomBox = new QFrame;
@@ -75,7 +75,9 @@ DaoSupport::DaoSupport(QWidget *parent, CConsultation consultation) :
     answerBox->setLayout(vbox);
 
     layout->addSpacing(15);
-    layout->addWidget(new QLabel(tr("Consultation:<br><br>%1").arg(QString::fromStdString(consultation.strDZeel))));
+    QLabel* titleLabel = new QLabel(tr("Consultation:<br><br>%1").arg(QString::fromStdString(consultation.strDZeel)));
+    titleLabel->setWordWrap(true) ;
+    layout->addWidget(titleLabel);
     layout->addSpacing(15);
     layout->addWidget(new QLabel(tr("Possible answers:")));
     layout->addWidget(answerBox);
