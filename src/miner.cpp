@@ -1176,51 +1176,54 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                   std::map<uint256, bool> votes;
                   std::map<uint256, bool> supports;
 
-                  for (auto& it: list)
+                  if (!fStakerIsColdStakingv2)
                   {
-                      uint256 hash = it.first;
-                      int64_t val = it.second;
-
-                      bool fProposal = view.HaveProposal(hash);
-                      bool fPaymentRequest = view.HavePaymentRequest(hash);
-
-                      if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest))
+                      for (auto& it: list)
                       {
-                          pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
+                          uint256 hash = it.first;
+                          int64_t val = it.second;
 
-                          if (fProposal)
-                              SetScriptForProposalVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
-                          else if (fPaymentRequest)
-                              SetScriptForPaymentRequestVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
+                          bool fProposal = view.HaveProposal(hash);
+                          bool fPaymentRequest = view.HavePaymentRequest(hash);
 
-                          pblock->vtx[0].vout[0].nValue = 0;
-                          LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
-                          votes[hash] = true;
-                      }
-
-                      bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation);
-                      bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
-
-                      if (fConsultation || fAnswer)
-                      {
-                          if (val == VoteFlags::SUPPORT && mapSupported.count(hash) == 0 && supports.count(hash) == 0)
+                          if (mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && (fProposal || fPaymentRequest))
                           {
                               pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
 
-                              SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
-                              pblock->vtx[0].vout[0].nValue = 0;
-                              LogPrint("dao", "%s: Adding remove-support output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
-                              supports[hash] = true;
-                          }
+                              if (fProposal)
+                                  SetScriptForProposalVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
+                              else if (fPaymentRequest)
+                                  SetScriptForPaymentRequestVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
 
-                          if (val != VoteFlags::SUPPORT && mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && val != VoteFlags::SUPPORT_REMOVE && val != VoteFlags::VOTE_REMOVE)
-                          {
-                              pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
-
-                              SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
                               pblock->vtx[0].vout[0].nValue = 0;
                               LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                               votes[hash] = true;
+                          }
+
+                          bool fConsultation = view.HaveConsultation(hash) && view.GetConsultation(hash, consultation);
+                          bool fAnswer = view.HaveConsultationAnswer(hash) && view.GetConsultationAnswer(hash, answer);
+
+                          if (fConsultation || fAnswer)
+                          {
+                              if (val == VoteFlags::SUPPORT && mapSupported.count(hash) == 0 && supports.count(hash) == 0)
+                              {
+                                  pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
+
+                                  SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
+                                  pblock->vtx[0].vout[0].nValue = 0;
+                                  LogPrint("dao", "%s: Adding remove-support output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
+                                  supports[hash] = true;
+                              }
+
+                              if (val != VoteFlags::SUPPORT && mapAddedVotes.count(hash) == 0 && votes.count(hash) == 0 && val != VoteFlags::SUPPORT_REMOVE && val != VoteFlags::VOTE_REMOVE)
+                              {
+                                  pblock->vtx[0].vout.insert(pblock->vtx[0].vout.begin(), CTxOut());
+
+                                  SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
+                                  pblock->vtx[0].vout[0].nValue = 0;
+                                  LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
+                                  votes[hash] = true;
+                              }
                           }
                       }
                   }
