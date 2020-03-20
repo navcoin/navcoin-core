@@ -121,7 +121,7 @@ function initialize_node {
 	array_data[$1]=$data_
 	array_user[$1]=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
 	array_pwd[$1]=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
-	echo "-datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]}"
+	echo "-datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]}"
 	start_node $1
 	array_active_nodes[$1]=$1
 	array_all_nodes[$1]=$1
@@ -156,7 +156,7 @@ function copy_array {
 
 
 function nav_cli {
-	echo $($(echo $navpath)/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} $2 2> /dev/null)
+	$navpath/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -devnet $2 2> /dev/null
 }
 
 function terminate {
@@ -187,13 +187,13 @@ function terminate {
 }
 
 function connect_nodes {
-	echo $($(echo $navpath)/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} addnode 127.0.0.1:$( bc <<< "10000+$2") add 2> /dev/null)
-	echo $($(echo $navpath)/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} addnode 127.0.0.1:$( bc <<< "10000+$2") onetry 2> /dev/null)
+	nav_cli "$1" "addnode 127.0.0.1:$( bc <<< 10000+$2 ) add"
+	nav_cli "$1" "addnode 127.0.0.1:$( bc <<< 10000+$2 ) onetry"
 }
 
 function disconnect_nodes {
-	echo $($(echo $navpath)/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} addnode 127.0.0.1:$( bc <<< "10000+$2") remove 2> /dev/null)
-	echo $($(echo $navpath)/navcoin-cli -datadir=${array_data[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} disconnectnode 127.0.0.1:$( bc <<< "10000+$2") 2> /dev/null)
+	nav_cli "$1" "addnode 127.0.0.1:$( bc <<< 10000+$2 ) remove"
+	nav_cli "$1" "disconnectnode 127.0.0.1:$( bc <<< 10000+$2 )"
 }
 
 
@@ -1003,7 +1003,7 @@ function random_verifychain_check {
 }
 
 function start_node {
-        $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -rpcuser=${array_user[$1]} -rpcpassword=${array_pwd[$1]} -devnet -daemon -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -staking=0 2> /dev/null
+        $(echo $navpath)/navcoind -datadir=${array_data[$1]} -port=${array_p2p_port[$1]} -rpcport=${array_rpc_port[$1]} -devnet -daemon -debug=dao -debug=statehash -ntpminmeasures=0 -dandelion=0 -disablesafemode -staking=0 2> /dev/null
 }
 
 function stop_node {
