@@ -237,7 +237,7 @@ class LightVotingTest(NavCoinTestFramework):
 
         assert_equal(self.nodes[1].getpaymentrequest(paymentReqid0)["votesYes"], 2)
         assert_equal(self.nodes[1].getpaymentrequest(paymentReqid0)["votesAbs"], 0)
-        assert_equal(self.nodes[1].getpaymentrequest(paymentReqid0)["votesNo"], 2)
+        assert_equal(self.nodes[1].getpaymentrequest(paymentReqid0)["votesNo"], 0)
 
         #start new cycle
         start_new_cycle(self.nodes[0])
