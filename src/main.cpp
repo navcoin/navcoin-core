@@ -3412,6 +3412,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (fStake && block.vtx[1].vout[1].scriptPubKey.IsColdStakingv2())
         fStakerIsColdStakingv2 = true;
 
+    std::map<std::pair<std::vector<unsigned char>, uint256>, int> votes;
+
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = block.vtx[i];
@@ -3424,13 +3426,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (fCFund || fDAOConsultations)
         {
             // Add Votes from the block coinbase or dao vote txs if enabled
+            LogPrintf("%s: %d %d %d\n", __func__, (tx.IsCoinBase() && !fStakerIsColdStakingv2), (fStake && fDaoTx && i > 1), (!fStake && fDaoTx && i > 0));
             if((tx.IsCoinBase() && !fStakerIsColdStakingv2) || (fStake && fDaoTx && i > 1) || (!fStake && fDaoTx && i > 0))
             {
                 CProposal proposal;
                 CPaymentRequest prequest;
                 CConsultation consultation;
                 CConsultationAnswer answer;
-                std::map<uint256, int> votes;
                 std::map<uint256, int> mapCountAnswers;
                 std::map<uint256, int> mapCacheMaxAnswers;
 
@@ -3483,10 +3485,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if (!(fProposal || fPaymentRequest || fSupport || fConsultation))
                         continue;
 
-                    if(votes.count(hash) == 0)
+                    if(votes.count(std::make_pair(voterScript, hash)) == 0)
                     {
                         if (vote != VoteFlags::VOTE_REMOVE)
-                            votes[hash] = vote;
+                            votes[std::make_pair(voterScript, hash)] = vote;
 
                         if (fVoteCacheState && voterScript.size() > 0)
                         {
@@ -3520,7 +3522,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     (fDAOConsultations && fSupport && ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported())
                                         || (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view)))))
                             {
-                                votes[hash] = vote;
+                                votes[std::make_pair(voterScript, hash)] = vote;
                                 CVoteModifier mVote = view.ModifyVote(voterScript, pindex->nHeight);
                                 mVote->Set(pindex->nHeight, hash, vote);
                                 mVote->fDirty = true;
