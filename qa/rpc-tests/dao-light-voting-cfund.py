@@ -19,7 +19,7 @@ class LightVotingTest(NavCoinTestFramework):
 
     def setup_network(self, split=False):
         self.nodes = []
-        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-debug=dao","-dandelion=0", "-printtoconsole"]]*3)
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-debug=dao","-dandelion=0"]]*3)
         connect_nodes(self.nodes[0], 1)
         connect_nodes(self.nodes[1], 2)
         connect_nodes(self.nodes[2], 0)

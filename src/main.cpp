@@ -3426,7 +3426,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (fCFund || fDAOConsultations)
         {
             // Add Votes from the block coinbase or dao vote txs if enabled
-            LogPrintf("%s: %d %d %d\n", __func__, (tx.IsCoinBase() && !fStakerIsColdStakingv2), (fStake && fDaoTx && i > 1), (!fStake && fDaoTx && i > 0));
             if((tx.IsCoinBase() && !fStakerIsColdStakingv2) || (fStake && fDaoTx && i > 1) || (!fStake && fDaoTx && i > 0))
             {
                 CProposal proposal;
