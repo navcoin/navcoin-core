@@ -13,6 +13,7 @@
 #include <QFont>
 #include <QGroupBox>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QVariant>
