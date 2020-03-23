@@ -223,6 +223,12 @@ void DaoConsultationVote::onClose()
         bool duplicate;
         if (consultation.IsValidVote(amountBox->value()))
             VoteValue(consultation.hash, amountBox->value(), duplicate);
+        else
+        {
+            QMessageBox::warning(this, tr("Invalid value"),
+                                 tr("The answer is not in the allowed range."));
+            return;
+        }
     }
     close();
 }
