@@ -161,6 +161,7 @@ enum BlockStatus: uint32_t {
     BLOCK_FAILED_MASK        =   BLOCK_FAILED_VALID | BLOCK_FAILED_CHILD,
 
     BLOCK_OPT_WITNESS        =   128, //! block data in blk*.data was received with a witness-enforcing client
+    BLOCK_OPT_DAO            =   256, //! DAO data structures
 };
 
 /** The block chain is a tree shaped structure starting with the
@@ -534,7 +535,7 @@ public:
         READWRITE(nCFSupply);
         READWRITE(nCFLocked);
         // UPDATE if versionbits.h is modified
-        if (this->nVersion & 0x00800000)
+        if (this->nStatus & BLOCK_OPT_DAO)
         {
             READWRITE(vPaymentRequestVotes);
             READWRITE(vProposalVotes);
@@ -571,7 +572,7 @@ public:
             }
         }
 
-        if (this->nVersion & 0x00800000)
+        if (this->nStatus & BLOCK_OPT_DAO)
         {
             READWRITE(mapSupport);
             READWRITE(mapConsultationVotes);

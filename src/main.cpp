@@ -4906,6 +4906,9 @@ bool ReceivedBlockTransactions(const CBlock &block, CValidationState& state, CBl
     if (IsWitnessEnabled(pindexNew->pprev, Params().GetConsensus())) {
         pindexNew->nStatus |= BLOCK_OPT_WITNESS;
     }
+    if (IsDAOEnabled(pindexNew->pprev, Params().GetConsensus())) {
+        pindexNew->nStatus |= BLOCK_OPT_DAO;
+    }
     pindexNew->RaiseValidity(BLOCK_VALID_TRANSACTIONS);
     setDirtyBlockIndex.insert(pindexNew);
 
