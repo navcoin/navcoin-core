@@ -103,12 +103,11 @@ class LightVotingTest(NavCoinTestFramework):
         start_new_cycle(self.nodes[0])
         start_new_cycle(self.nodes[0])
 
-        print(self.nodes[0].getconsultation(consultation_hash)['status'])
-
         vote_str_a = '6a' + 'cb' + 'ca' + '20' + reversed_hash_a
         voterm_str_a = '6a' + 'cb' + 'c8' + '20' + reversed_hash_a
 
         voteabs_str = '6a' + 'cb' + 'c7' + '20' + reversed_hash
+        voterm_str = '6a' + 'cb' + 'c8' + '20' + reversed_hash
 
         support_str_b = '6a' + 'c4' + '20' + reversed_hash_b
         vote_str_b = '6a' + 'cb' + 'ca' + '20' + reversed_hash_b
@@ -166,6 +165,15 @@ class LightVotingTest(NavCoinTestFramework):
         sync_blocks(self.nodes)
         time.sleep(3)
 
+#       remove abstain vote
+        rawtx=self.nodes[2].createrawtransaction([],{voterm_str:0,'6ac1':0.1})
+        rawtx = "08" + rawtx[2:]
+        fundedrawtx=self.nodes[2].fundrawtransaction(rawtx,{'changeAddress':votingkey})['hex']
+        signedrawtx=self.nodes[2].signrawtransaction(fundedrawtx)['hex']
+        self.nodes[2].sendrawtransaction(signedrawtx)
+        self.nodes[2].generatetoaddress(1, votingkey)
+        sync_blocks(self.nodes)
+        time.sleep(3)
 #       switch to vote answer b
         rawtx=self.nodes[2].createrawtransaction([],{vote_str_b:0,'6ac1':0.1})
         rawtx = "08" + rawtx[2:]
