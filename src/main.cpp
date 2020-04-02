@@ -3498,11 +3498,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                             if (fDAOConsultations && fConsultation)
                             {
-                                bool fValidConsultation = view.GetConsultation(hash, consultation);
-                                bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
-
-                                if ((fValidConsultation && ((consultation.CanBeVoted(vote) && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE)) ||
-                                    (fValidConsultationAnswer && answer.CanBeVoted(view)))
+                                if ((view.GetConsultation(hash, consultation) && ((consultation.CanBeVoted(vote) && consultation.IsValidVote(vote)) || vote == VoteFlags::VOTE_REMOVE)) ||
+                                    (view.GetConsultationAnswer(hash, answer) && answer.CanBeVoted(view)))
                                 {
                                     CVoteModifier mVote = view.ModifyVote(voterScript, pindex->nHeight);
                                     mVote->Set(pindex->nHeight, hash, vote);
@@ -3551,11 +3548,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             }
                             else if (fDAOConsultations && fConsultation && !fSupport)
                             {
-                                bool fValidConsultation = view.GetConsultation(hash, consultation);
-                                bool fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer);
-
-                                if ((fValidConsultation && (consultation.CanBeVoted(vote) && consultation.IsValidVote(vote))) ||
-                                    (fValidConsultationAnswer && answer.CanBeVoted(view)))
+                                bool fValidConsultationAnswer;
+                                if ((view.GetConsultation(hash, consultation) && (consultation.CanBeVoted(vote) && consultation.IsValidVote(vote))) ||
+                                    (fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer) && fValidConsultationAnswer && answer.CanBeVoted(view)))
                                 {
                                     if (vote != VoteFlags::VOTE_REMOVE)
                                     {
@@ -3920,6 +3915,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
     }
 
+    int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
+    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
+
     if (fStake && fVoteCacheState)
     {
         CVoteList pVoteList;
@@ -3942,12 +3940,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (val == VoteFlags::SUPPORT_REMOVE || val == VoteFlags::VOTE_REMOVE)
                     continue;
 
-                if (fCFund && view.HaveProposal(it.first) && view.GetProposal(it.first, proposal) && proposal.CanVote(view))
+                if (fCFund && view.GetProposal(it.first, proposal) && proposal.CanVote(view))
                 {
                     pindex->vProposalVotes.push_back(make_pair(it.first, val));
                     LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                 }
-                else if (fCFund && view.HavePaymentRequest(it.first) && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
+                else if (fCFund && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
                 {
                     pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
                     LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
@@ -3964,11 +3962,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
                 else if (fDAOConsultations)
                 {
-                    bool fValidConsultation = view.GetConsultation(it.first, consultation);
-                    bool fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer);
-
-                    if ((fValidConsultation && (consultation.CanBeVoted(val) && consultation.IsValidVote(val))) ||
-                            (fValidConsultationAnswer && answer.CanBeVoted(view)))
+                    bool fValidConsultationAnswer;
+                    if ((view.GetConsultation(it.first, consultation) && (consultation.CanBeVoted(val) && consultation.IsValidVote(val))) ||
+                            (fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer) && fValidConsultationAnswer && answer.CanBeVoted(view)))
                     {
                         if (val != VoteFlags::VOTE_REMOVE)
                         {
@@ -3998,8 +3994,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
     }
 
-    int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
-    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
+    int64_t nTime4 = GetTimeMicros();
+    LogPrint("bench", "      - Updated votes in block index: %.2fms\n", 0.001 * (nTime4 - nTime3));
 
     CAmount nPOWBlockReward = block.IsProofOfWork() ? nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) : 0;
 
@@ -4088,8 +4084,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (!control.Wait()) {
         return state.DoS(100, false);
     }
-    int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
-    LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
+    int64_t nTime44 = GetTimeMicros(); nTimeVerify += nTime44 - nTime2;
+    LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime44 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime44 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
     if (fJustCheck)
         return true;
@@ -4155,8 +4151,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
 
-    int64_t nTime5 = GetTimeMicros(); nTimeIndex += nTime5 - nTime4;
-    LogPrint("bench", "    - Index writing: %.2fms [%.2fs]\n", 0.001 * (nTime5 - nTime4), nTimeIndex * 0.000001);
+    int64_t nTime5 = GetTimeMicros(); nTimeIndex += nTime5 - nTime44;
+    LogPrint("bench", "    - Index writing: %.2fms [%.2fs]\n", 0.001 * (nTime5 - nTime44), nTimeIndex * 0.000001);
 
     // Watch for changes to the previous coinbase transaction.
     static uint256 hashPrevBestCoinBase;

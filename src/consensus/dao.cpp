@@ -860,7 +860,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
     }
 
     int64_t nTimeEnd4 = GetTimeMicros();
-    LogPrint("bench", "   - CFund update payment request status: %.2fms\n", (nTimeEnd4 - nTimeStart4) * 0.001);
+    LogPrint("bench", "   - CFund update payment request status: %.2fms (%d entries)\n", (nTimeEnd4 - nTimeStart4) * 0.001, mapPaymentRequests.size());
 
     int64_t nTimeStart5 = GetTimeMicros();
 
@@ -962,7 +962,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeEnd5 = GetTimeMicros();
 
-    LogPrint("bench", "   - CFund update proposal status: %.2fms\n", (nTimeEnd5 - nTimeStart5) * 0.001);
+    LogPrint("bench", "   - CFund update proposal status: %.2fms (%d entries)\n", (nTimeEnd5 - nTimeStart5) * 0.001, mapProposals.size());
 
     int64_t nTimeStart6 = GetTimeMicros();
 
@@ -1022,7 +1022,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
     int64_t nTimeEnd6 = GetTimeMicros();
 
-    LogPrint("bench", "   - CFund update consultation answer status: %.2fms\n", (nTimeEnd6 - nTimeStart6) * 0.001);
+    LogPrint("bench", "   - CFund update consultation answer status: %.2fms (%d entries)\n", (nTimeEnd6 - nTimeStart6) * 0.001, mapConsultationAnswers.size());
 
     int64_t nTimeStart7 = GetTimeMicros();
 
@@ -1108,6 +1108,11 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         }
     }
 
+    int64_t nTimeEnd7 = GetTimeMicros();
+    LogPrint("bench", "   - CFund update consultation status: %.2fms (%d entries)\n", (nTimeEnd7 - nTimeStart7) * 0.001, mapConsultations.size());
+
+    int64_t nTimeStart71 = GetTimeMicros();
+
     if(fScanningWholeCycle)
     {
         for (CPaymentRequestMap::iterator it = mapPaymentRequests.begin(); it != mapPaymentRequests.end(); it++)
@@ -1183,9 +1188,8 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         }
     }
 
-
-    int64_t nTimeEnd7 = GetTimeMicros();
-    LogPrint("bench", "   - CFund update consultation status: %.2fms\n", (nTimeEnd7 - nTimeStart7) * 0.001);
+    int64_t nTimeEnd71 = GetTimeMicros();
+    LogPrint("bench", "   - CFund restart vote counters: %.2fms\n", (nTimeEnd71 - nTimeStart71) * 0.001);
 
     int64_t nTimeStart8 = GetTimeMicros();
 
