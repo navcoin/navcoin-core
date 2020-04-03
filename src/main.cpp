@@ -3546,31 +3546,31 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 LogPrint("dao", "%s: Adding support vote at height %d - hash: %s\n", __func__, pindex->nHeight, hash.ToString());
                                 pindex->mapSupport.insert(make_pair(hash, true));
                             }
-                            else if (fDAOConsultations && fConsultation && !fSupport)
+                            else if (fDAOConsultations && fConsultation && !fSupport && vote != VoteFlags::VOTE_REMOVE)
                             {
-                                bool fValidConsultationAnswer;
-                                if ((view.GetConsultation(hash, consultation) && (consultation.CanBeVoted(vote) && consultation.IsValidVote(vote))) ||
-                                    (fValidConsultationAnswer = view.GetConsultationAnswer(hash, answer) && fValidConsultationAnswer && answer.CanBeVoted(view)))
+                                if ((view.GetConsultation(hash, consultation) && (consultation.CanBeVoted(vote) && consultation.IsValidVote(vote))))
                                 {
-                                    if (vote != VoteFlags::VOTE_REMOVE)
-                                    {
-                                        if (fValidConsultationAnswer)
-                                        {
-                                            CConsultation parentConsultation;
-                                            if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
-                                                mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
-                                            mapCountAnswers[answer.parent]++;
-                                            if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
-                                                continue;
-                                        }
-                                        LogPrint("dao", "%s: Adding consultation vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
-                                        pindex->mapConsultationVotes.insert(make_pair(hash, vote));
-                                    }
+                                    LogPrint("dao", "%s: Adding consultation vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
+                                    pindex->mapConsultationVotes.insert(make_pair(hash, vote));
                                 }
                                 else
                                 {
-                                    LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
-                                    continue;
+                                    if (view.GetConsultationAnswer(hash, answer) && answer.CanBeVoted(view))
+                                    {
+                                        CConsultation parentConsultation;
+                                        if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                            mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
+                                        mapCountAnswers[answer.parent]++;
+                                        if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                                            continue;
+                                        LogPrint("dao", "%s: Adding consultation answer vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
+                                        pindex->mapConsultationVotes.insert(make_pair(hash, vote));
+                                    }
+                                    else
+                                    {
+                                        LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
+                                        continue;
+                                    }
                                 }
                             }
                             else
@@ -3960,35 +3960,34 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
                     }
                 }
-                else if (fDAOConsultations)
+                else if (fDAOConsultations && val != VoteFlags::VOTE_REMOVE)
                 {
-                    bool fValidConsultationAnswer;
-                    if ((view.GetConsultation(it.first, consultation) && (consultation.CanBeVoted(val) && consultation.IsValidVote(val))) ||
-                            (fValidConsultationAnswer = view.GetConsultationAnswer(it.first, answer) && fValidConsultationAnswer && answer.CanBeVoted(view)))
+                    if ((view.GetConsultation(it.first, consultation) && (consultation.CanBeVoted(val) && consultation.IsValidVote(val))))
                     {
-                        if (val != VoteFlags::VOTE_REMOVE)
-                        {
-                            if (fValidConsultationAnswer)
-                            {
-                                CConsultation parentConsultation;
-                                if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
-                                    mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
-                                mapCountAnswers[answer.parent]++;
-                                if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
-                                {
-                                    LogPrint("dao", "%s: Ignoring vote for staker %s - it exceeded max allowed of answers- hash: %s vote: %d\n", __func__, HexStr(stakerScript), it.first.ToString(), val);
-                                    continue;
-                                }
-                            }
-                            LogPrint("dao", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
-                            pindex->mapConsultationVotes.insert(make_pair(it.first, val));
-                        }
+                        LogPrint("dao", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                        pindex->mapConsultationVotes.insert(make_pair(it.first, val));
                     }
                     else
                     {
-                        continue;
+                        if (view.GetConsultationAnswer(it.first, answer) && answer.CanBeVoted(view))
+                        {
+                            CConsultation parentConsultation;
+                            if (mapCacheMaxAnswers.count(answer.parent) == 0 && view.GetConsultation(answer.parent, parentConsultation))
+                                mapCacheMaxAnswers[answer.parent] = parentConsultation.nMax;
+                            mapCountAnswers[answer.parent]++;
+                            if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
+                            {
+                                LogPrint("dao", "%s: Ignoring vote for staker %s - it exceeded max allowed of answers- hash: %s vote: %d\n", __func__, HexStr(stakerScript), it.first.ToString(), val);
+                                continue;
+                            }
+                            LogPrint("dao", "%s: Inserting consultation answer vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                            pindex->mapConsultationVotes.insert(make_pair(it.first, val));
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
-
                 }
             }
         }
