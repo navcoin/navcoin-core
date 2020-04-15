@@ -86,6 +86,8 @@ NAVCOIN_CORE_H = \
   base58.h \
   bloom.h \
   blockencodings.h \
+  blsct/bulletproofs.h \
+  blsct/types.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -358,6 +360,8 @@ libnavcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_common_a_SOURCES = \
   amount.cpp \
   base58.cpp \
+  blsct/bulletproofs.cpp \
+  blsct/types.cpp \
   chainparams.cpp \
   coins.cpp \
   compressor.cpp \
