@@ -95,7 +95,7 @@ std::vector<uint8_t> Point::GetVch() const
 
 void Point::SetVch(const std::vector<uint8_t> &b)
 {
-    g1_read_bin(this->g1, (unsigned char*)&b, b.size());
+    g1_read_bin(this->g1, &b.front(), b.size());
     CheckRelicErrors();
 }
 
@@ -150,12 +150,89 @@ Scalar Scalar::operator*(const Scalar &b) const
     return ret;
 }
 
+Scalar Scalar::operator<<(const int &b) const
+{
+    Scalar ret;
+    bn_lsh(ret.bn, this->bn, b);
+    CheckRelicErrors();
+    return ret;
+}
+
+Scalar Scalar::operator>>(const int &b) const
+{
+    Scalar ret;
+    bn_rsh(ret.bn, this->bn, b);
+    CheckRelicErrors();
+    return ret;
+}
+
+Scalar Scalar::operator|(const Scalar &b) const
+{
+    Scalar ret;
+    size_t size = std::max(bn_bits(this->bn), bn_bits(b.bn));
+
+    for (size_t i = 0; i < size; i++)
+    {
+        bool l = bn_get_bit(this->bn, i);
+        bool r = bn_get_bit(b.bn, i);
+        bn_set_bit(ret.bn, i, l|r);
+    }
+
+    CheckRelicErrors();
+
+    return ret;
+}
+
+Scalar Scalar::operator&(const Scalar &b) const
+{
+    Scalar ret;
+    size_t size = std::max(bn_bits(this->bn), bn_bits(b.bn));
+
+    for (size_t i = 0; i < size; i++)
+    {
+        bool l = bn_get_bit(this->bn, i);
+        bool r = bn_get_bit(b.bn, i);
+        bn_set_bit(ret.bn, i, l&r);
+    }
+
+    CheckRelicErrors();
+
+    return ret;
+}
+
+Scalar Scalar::operator~() const
+{
+    Scalar ret;
+    size_t size = bn_bits(this->bn);
+
+    for (size_t i = 0; i < size; i++)
+    {
+        bool a = bn_get_bit(this->bn, i);
+        bn_set_bit(ret.bn, i, !a);
+    }
+
+    CheckRelicErrors();
+
+    return ret;
+}
+
 Point Scalar::operator*(const Point &b) const
 {
     Point ret;
     g1_mul(ret.g1, b.g1, this->bn);
     CheckRelicErrors();
     return ret;
+}
+
+void Scalar::operator=(const uint64_t& n)
+{
+    bn_new(this->bn);
+    bn_zero(this->bn);
+    for (size_t i = 0; i < 64; i++)
+    {
+        bn_set_bit(this->bn, i, (n>>i)&1);
+    }
+    CheckRelicErrors();
 }
 
 Scalar::Scalar(const uint64_t& n)
@@ -199,6 +276,7 @@ std::vector<uint8_t> Scalar::GetVch() const
     uint8_t buffer[size];
     bn_write_bin(buffer, size, this->bn);
     std::vector<uint8_t> ret(buffer, buffer+size);
+
     return ret;
 }
 
@@ -212,49 +290,6 @@ Scalar Scalar::Invert() const
     toinverse = *this;
     fp_inv_exgcd_bn(inv.bn, toinverse.bn, ord);
     bn_mod(inv.bn, inv.bn, ord);
-
-//    Scalar _1, _10, _100, _11, _101, _111, _1001, _1011, _1111;
-
-//    _1 = *this;
-//    _10 = _1 * _1;
-//    _100 = _10 * _10;
-//    _11 = _10 * _1;
-//    _101 = _10 * _11;
-//    _111 = _10 * _101;
-//    _1001 = _10 * _111;
-//    _1011 = _10 * _1001;
-//    _1111 = _100 * _1011;
-
-//    Scalar inv;
-//    inv = _1111 * _1;
-
-//    inv = sm(inv, 123 + 3, _101);
-//    inv = sm(inv, 2 + 2, _11);
-//    inv = sm(inv, 1 + 4, _1111);
-//    inv = sm(inv, 1 + 4, _1111);
-//    inv = sm(inv, 4, _1001);
-//    inv = sm(inv, 2, _11);
-//    inv = sm(inv, 1 + 4, _1111);
-//    inv = sm(inv, 1 + 3, _101);
-//    inv = sm(inv, 3 + 3, _101);
-//    inv = sm(inv, 3, _111);
-//    inv = sm(inv, 1 + 4, _1111);
-//    inv = sm(inv, 2 + 3, _111);
-//    inv = sm(inv, 2 + 2, _11);
-//    inv = sm(inv, 1 + 4, _1011);
-//    inv = sm(inv, 2 + 4, _1011);
-//    inv = sm(inv, 6 + 4, _1001);
-//    inv = sm(inv, 2 + 2, _11);
-//    inv = sm(inv, 3 + 2, _11);
-//    inv = sm(inv, 3 + 2, _11);
-//    inv = sm(inv, 1 + 4, _1001);
-//    inv = sm(inv, 1 + 3, _111);
-//    inv = sm(inv, 2 + 4, _1111);
-//    inv = sm(inv, 1 + 4, _1011);
-//    inv = sm(inv, 3, _101);
-//    inv = sm(inv, 2 + 4, _1111);
-//    inv = sm(inv, 3, _101);
-//    inv = sm(inv, 1 + 2, _11);
 
     CHECK_AND_ASSERT_THROW_MES((*this * inv) == 1, "Invert failed");
 
@@ -291,6 +326,14 @@ Scalar Scalar::Rand()
     return r;
 }
 
+uint256 Scalar::Hash(const int& n) const
+{
+    CHashWriter hasher(0,0);
+    hasher << *this;
+    hasher << n;
+    return hasher.GetHash();
+}
+
 Scalar::Scalar(const bn_t& n)
 {
     bn_new(this->bn);
@@ -317,11 +360,7 @@ Scalar::Scalar(const uint256 &b)
 
 void Scalar::SetVch(const std::vector<uint8_t> &b)
 {
-    bn_read_bin(this->bn, (unsigned char*)&b, b.size());
-    bn_t ord;
-    bn_new(ord);
-    g1_get_ord(ord);
-    bn_mod(this->bn, this->bn, ord);
+    bn_read_bin(this->bn, &b.front(), b.size());
     CheckRelicErrors();
 }
 

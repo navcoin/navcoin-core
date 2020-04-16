@@ -5,6 +5,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <hash.h>
 #include <uint256.h>
 #include <serialize.h>
 #include <version.h>
@@ -83,9 +84,16 @@ public:
     Scalar(const Scalar& n);
     Scalar(const uint256& n);
 
+    void operator=(const uint64_t& n);
+
     Scalar operator+(const Scalar &b) const;
     Scalar operator-(const Scalar &b) const;
     Scalar operator*(const Scalar &b) const;
+    Scalar operator|(const Scalar &b) const;
+    Scalar operator&(const Scalar &b) const;
+    Scalar operator~() const;
+    Scalar operator<<(const int &b) const;
+    Scalar operator>>(const int &b) const;
     Point operator*(const Point &b) const;
 
     bool operator==(const Scalar& b) const;
@@ -101,6 +109,8 @@ public:
     void SetVch(const std::vector<uint8_t>& b);
 
     void SetPow2(const int& n);
+
+    uint256 Hash(const int& n) const;
 
     static Scalar Rand();
 

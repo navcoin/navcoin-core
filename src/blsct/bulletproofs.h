@@ -11,7 +11,6 @@
 
 #include <bls.hpp>
 #include <blsct/types.h>
-#include <hash.h>
 #include <utilstrencodings.h>
 
 #include <boost/thread/mutex.hpp>
@@ -20,6 +19,7 @@
 namespace BLSCT
 {
 static const size_t maxN = 64;
+static const size_t maxMessageSize = 20;
 static const size_t maxM = 16;
 static const size_t maxMN = maxM*maxN;
 
@@ -35,10 +35,11 @@ public:
 
     BulletproofsRangeproof() {}
 
-    void Prove(const std::vector<Scalar> &v, const std::vector<Scalar> &gamma, const size_t logN = 6);
+    void Prove(const std::vector<Scalar> &v, const std::vector<Scalar> &gamma, const std::vector<uint8_t>& message = std::vector<uint8_t>(), Scalar nonce = 0);
 
     ADD_SERIALIZE_METHODS;
     template <typename Stream, typename Operation>  inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(V);
         READWRITE(L);
         READWRITE(R);
         READWRITE(A);
@@ -53,6 +54,8 @@ public:
     }
 
     std::vector<Point> GetValueCommitments() const { return V; }
+
+    static const size_t logN = 6;
 
     static Point G;
     static Point H;
@@ -81,7 +84,7 @@ public:
     Scalar t;
 };
 
-bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, unsigned int logN = 6);
+bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::vector<uint64_t>& amounts, std::vector<Scalar>& gammas, std::vector<std::vector<uint8_t>>& messages, const std::vector<Scalar>& nonces, bool &fIsMine, const bool &fOnlyRecover = false);
 }
 
 #endif // NAVCOIN_BLSCT_OPERATIONS_H

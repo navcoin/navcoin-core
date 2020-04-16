@@ -14,49 +14,120 @@ BOOST_FIXTURE_TEST_SUITE(bulletproofsrangeproof, BasicTestingSetup)
 
 using namespace BLSCT;
 
-bool TestRange(std::vector<Scalar> values)
+bool TestRange(std::vector<Scalar> values, Scalar nonce)
 {
     std::vector<Scalar> gamma;
+    std::vector<Scalar> nonces;
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
         gamma.push_back(Scalar::Rand());
+        nonces.push_back(nonce);
     }
 
     BulletproofsRangeproof bprp;
-    bprp.Prove(values, gamma);
+    bprp.Prove(values, gamma, {1, 2, 3, 4}, nonce);
 
     std::vector<BulletproofsRangeproof> proofs;
     proofs.push_back(bprp);
 
-    return VerifyBulletproof(proofs);
+    std::vector<uint64_t> amounts;
+    std::vector<Scalar> gammas;
+    std::vector<std::vector<uint8_t>> messages;
+
+    bool fIsMine = false;
+
+    bool ret = VerifyBulletproof(proofs, amounts, gammas, messages, nonces, fIsMine);
+
+    if (!ret)
+        return ret;
+
+    if (values.size() == 1)
+    {
+        for (unsigned int i = 0; i < values.size(); i++)
+        {
+            if(amounts[i] != values[i].GetUint64())
+                return false;
+            if(!(gammas[i] == gamma[i]))
+                return false;
+            if(messages[i][0] != 1)
+                return false;
+            if(messages[i][1] != 2)
+                return false;
+            if(messages[i][2] != 3)
+                return false;
+            if(messages[i][3] != 4)
+                return false;
+        }
+        if (!fIsMine)
+            return false;
+    }
+
+    return true;
 }
 
-bool TestRangeBatch(std::vector<Scalar> values)
+bool TestRangeBatch(std::vector<Scalar> values, Scalar nonce)
 {
     std::vector<BulletproofsRangeproof> proofs;
+    std::vector<Scalar> nonces;
+    std::vector<Scalar> gamma;
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
         std::vector<Scalar> v;
         v.push_back(values[i]);
 
-        std::vector<Scalar> gamma;
-        gamma.push_back(Scalar::Rand());
+        std::vector<Scalar> g;
+        Scalar mask = Scalar::Rand();
+        g.push_back(mask);
+        gamma.push_back(mask);
 
         BulletproofsRangeproof bprp;
-        bprp.Prove(v, gamma);
+        bprp.Prove(v, g, {1,2,3,4}, nonce);
+
+        nonces.push_back(nonce);
 
         proofs.push_back(bprp);
     }
 
-    return VerifyBulletproof(proofs);
+    std::vector<uint64_t> amounts;
+    std::vector<Scalar> gammas;
+    std::vector<std::vector<uint8_t>> messages;
+
+    bool fIsMine = false;
+
+    bool ret = VerifyBulletproof(proofs, amounts, gammas, messages, nonces, fIsMine);
+
+    if (!ret)
+        return ret;
+
+    for (unsigned int i = 0; i < values.size(); i++)
+    {
+        if(amounts[i] != values[i].GetUint64())
+            return false;
+        if(!(gammas[i] == gamma[i]))
+            return false;
+        if(messages[i][0] != 1)
+            return false;
+        if(messages[i][1] != 2)
+            return false;
+        if(messages[i][2] != 3)
+            return false;
+        if(messages[i][3] != 4)
+            return false;
+    }
+    if (!fIsMine)
+        return false;
+
+    return true;
 }
 
 BOOST_AUTO_TEST_CASE(RangeProofTest)
 {
     std::vector<Scalar> vInRange;
     std::vector<Scalar> vOutOfRange;
+
+    Scalar nonce = Scalar::Rand();
 
     // Admited range is (0, 2**64)
     Scalar one;
@@ -82,20 +153,20 @@ BOOST_AUTO_TEST_CASE(RangeProofTest)
         std::vector<Scalar> values;
         bn_print(v.bn);
         values.push_back(v);
-        BOOST_CHECK(TestRange(values));
+        BOOST_CHECK(TestRange(values, nonce));
     }
 
     for (Scalar v: vOutOfRange)
     {
         std::vector<Scalar> values;
         values.push_back(v);
-        BOOST_CHECK(!TestRange(values));
+        BOOST_CHECK(!TestRange(values, nonce));
     }
 
-    BOOST_CHECK(TestRangeBatch(vInRange));
-    BOOST_CHECK(TestRange(vInRange));
-    BOOST_CHECK(!TestRangeBatch(vOutOfRange));
-    BOOST_CHECK(!TestRange(vOutOfRange));
+    BOOST_CHECK(TestRangeBatch(vInRange, nonce));
+    BOOST_CHECK(TestRange(vInRange, nonce));
+    BOOST_CHECK(!TestRangeBatch(vOutOfRange, nonce));
+    BOOST_CHECK(!TestRange(vOutOfRange, nonce));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
