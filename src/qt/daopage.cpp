@@ -2074,14 +2074,20 @@ DaoChart::DaoChart(QWidget *parent, uint256 hash) :
 {
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->setLayout(layout);
+    this->setStyleSheet("background-color:white;");
     this->resize(800, 600);
 
     series = new QtCharts::QPieSeries();
     chart = new QtCharts::QChart();
     chartView = new QtCharts::QChartView(chart);
+    titleLabel = new QLabel();
+    titleLabel->setWordWrap(true);
+    titleLabel->setStyleSheet("background-color:white;");
+    titleLabel->setAlignment(Qt::AlignCenter);
 
     chart->addSeries(series);
 
+    layout->addWidget(titleLabel);
     layout->addWidget(chartView);
 
     updateView();
@@ -2253,7 +2259,7 @@ void DaoChart::updateView() {
         title += state;
     }
 
-    chart->setTitle(title);
+    titleLabel->setText(title);
     chart->legend()->hide();
 
     chartView->setRenderHint(QPainter::Antialiasing);

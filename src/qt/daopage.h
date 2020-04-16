@@ -162,6 +162,7 @@ public:
 private:
     QVBoxLayout *layout;
     uint256 hash;
+    QLabel *titleLabel;
     QtCharts::QPieSeries *series;
     QtCharts::QChart *chart;
     QtCharts::QChartView *chartView;
