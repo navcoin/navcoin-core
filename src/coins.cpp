@@ -940,7 +940,7 @@ CProposalModifier::~CProposalModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
+        LogPrint("daoextra", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
@@ -962,7 +962,7 @@ CPaymentRequestModifier::~CPaymentRequestModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
+        LogPrint("daoextra", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
@@ -984,7 +984,7 @@ CVoteModifier::~CVoteModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"", HexStr(it->first), prev.diff(it->second));
+        LogPrint("daoextra", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"", HexStr(it->first), prev.diff(it->second));
     }
 }
 
@@ -1006,7 +1006,7 @@ CConsultationModifier::~CConsultationModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
+        LogPrint("daoextra", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
@@ -1028,7 +1028,7 @@ CConsultationAnswerModifier::~CConsultationAnswerModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
+        LogPrint("daoextra", "%s: Modified %s%s: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first.ToString(), prev.diff(it->second));
     }
 }
 
@@ -1050,7 +1050,7 @@ CConsensusParameterModifier::~CConsensusParameterModifier()
     if (prev != it->second)
     {
         it->second.fDirty = true;
-        LogPrint("dao", "%s: Modified %sconsensus parameter %d: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first, prev.diff(it->second));
+        LogPrint("daoextra", "%s: Modified %sconsensus parameter %d: %s\n", __func__, height>0?strprintf("at height %d ",height):"",it->first, prev.diff(it->second));
     }
 }
 

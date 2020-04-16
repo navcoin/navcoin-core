@@ -1032,7 +1032,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
               if (IsVoteCacheStateEnabled(chainActive.Tip(), Params().GetConsensus())
                       && kernelScriptPubKey.GetStakerScript(stakerScript))
               {
-                  LogPrint("dao", "%s: Reviewing vote outputs for stake script %s\n", __func__, HexStr(stakerScript));
+                  LogPrint("daoextra", "%s: Reviewing vote outputs for stake script %s\n", __func__, HexStr(stakerScript));
                   CVoteList pVoteList;
                   view.GetCachedVoter(stakerScript, pVoteList);
                   std::map<uint256, int64_t> list = pVoteList.GetList();
@@ -1084,7 +1084,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                       {
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
-                              LogPrint("dao", "%s: Removing vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
+                              LogPrint("daoextra", "%s: Removing vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1098,7 +1098,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                               int64_t nval = list[hash];
                               if (nval == vote)
                               {
-                                  LogPrint("dao", "%s: Removing vote output %s because it is already in the voting cache\n", __func__, out.ToString());
+                                  LogPrint("daoextra", "%s: Removing vote output %s because it is already in the voting cache\n", __func__, out.ToString());
                                   it = pblock->vtx[0].vout.erase(it);
                                   continue;
                               }
@@ -1109,7 +1109,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                       {
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
-                              LogPrint("dao", "%s: Removing support vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
+                              LogPrint("daoextra", "%s: Removing support vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1124,7 +1124,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
 
                               if (nval == vote)
                               {
-                                  LogPrint("dao", "%s: Removing support vote output %s because it is already in the voting cache\n", __func__, out.ToString());
+                                  LogPrint("daoextra", "%s: Removing support vote output %s because it is already in the voting cache\n", __func__, out.ToString());
                                   it = pblock->vtx[0].vout.erase(it);
                                   continue;
                               }
@@ -1135,7 +1135,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                       {
                           if (fColdStakingv2 && fStakerIsColdStakingv2)
                           {
-                              LogPrint("dao", "%s: Removing consultation vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
+                              LogPrint("daoextra", "%s: Removing consultation vote output %s because the staker delegated to a light wallet\n", __func__, out.ToString());
                               it = pblock->vtx[0].vout.erase(it);
                               continue;
                           }
@@ -1152,7 +1152,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                               mapCountAnswers[answer.parent]++;
                               if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                               {
-                                  LogPrint("dao", "%s: Removing consultation vote output %s because it already voted the max amount of times\n", __func__, out.ToString());
+                                  LogPrint("daoextra", "%s: Removing consultation vote output %s because it already voted the max amount of times\n", __func__, out.ToString());
                                   it = pblock->vtx[0].vout.erase(it);
                                   continue;
                               }
@@ -1164,7 +1164,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
 
                               if (nval == vote)
                               {
-                                  LogPrint("dao", "%s: Removing consultation vote output %s because it is already in the voting cache\n", __func__, out.ToString());
+                                  LogPrint("daoextra", "%s: Removing consultation vote output %s because it is already in the voting cache\n", __func__, out.ToString());
                                   it = pblock->vtx[0].vout.erase(it);
                                   continue;
                               }
@@ -1196,7 +1196,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
                                   SetScriptForPaymentRequestVote(pblock->vtx[0].vout[0].scriptPubKey, hash, VoteFlags::VOTE_REMOVE);
 
                               pblock->vtx[0].vout[0].nValue = 0;
-                              LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
+                              LogPrint("daoextra", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                               votes[hash] = true;
                           }
 
@@ -1211,7 +1211,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
 
                                   SetScriptForConsultationSupportRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
                                   pblock->vtx[0].vout[0].nValue = 0;
-                                  LogPrint("dao", "%s: Adding remove-support output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
+                                  LogPrint("daoextra", "%s: Adding remove-support output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                                   supports[hash] = true;
                               }
 
@@ -1221,7 +1221,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees, std::string sLog)
 
                                   SetScriptForConsultationVoteRemove(pblock->vtx[0].vout[0].scriptPubKey, hash);
                                   pblock->vtx[0].vout[0].nValue = 0;
-                                  LogPrint("dao", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
+                                  LogPrint("daoextra", "%s: Adding remove-vote output %s\n", __func__, pblock->vtx[0].vout[0].ToString());
                                   votes[hash] = true;
                               }
                           }

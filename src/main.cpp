@@ -2796,7 +2796,7 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if (!view.GetAllVotes(baseMap))
             return AbortNode(state, "Failed to get voters list");
 
-        LogPrint("dao", "%s: Clearing votes at height %d\n", __func__, pindex->nHeight);
+        LogPrint("daoextra", "%s: Clearing votes at height %d\n", __func__, pindex->nHeight);
 
         for (auto&it: baseMap)
         {
@@ -3494,7 +3494,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CVoteList pVoteList;
                             view.GetCachedVoter(voterScript, pVoteList);
 
-                            LogPrint("dao", "%s: Looking for votes to add in the cache at height %d.\n", __func__, pindex->nHeight);
+                            LogPrint("daoextra", "%s: Looking for votes to add in the cache at height %d.\n", __func__, pindex->nHeight);
 
                             if (fDAOConsultations && fConsultation)
                             {
@@ -3504,11 +3504,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                     CVoteModifier mVote = view.ModifyVote(voterScript, pindex->nHeight);
                                     mVote->Set(pindex->nHeight, hash, vote);
                                     mVote->fDirty = true;
-                                    LogPrint("dao", "%s: Setting consultation vote for voter %s at height %d - hash: %s vote: %d\n", __func__, HexStr(voterScript), pindex->nHeight, hash.ToString(), vote);
+                                    LogPrint("daoextra", "%s: Setting consultation vote for voter %s at height %d - hash: %s vote: %d\n", __func__, HexStr(voterScript), pindex->nHeight, hash.ToString(), vote);
                                 }
                                 else
                                 {
-                                    LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
+                                    LogPrint("daoextra", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                     continue;
                                 }
 
@@ -3522,35 +3522,35 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 CVoteModifier mVote = view.ModifyVote(voterScript, pindex->nHeight);
                                 mVote->Set(pindex->nHeight, hash, vote);
                                 mVote->fDirty = true;
-                                LogPrint("dao", "%s: Setting vote for voter %s at height %d - hash: %s vote: %d\n", __func__, HexStr(voterScript), pindex->nHeight, hash.ToString(), vote);
+                                LogPrint("daoextra", "%s: Setting vote for voter %s at height %d - hash: %s vote: %d\n", __func__, HexStr(voterScript), pindex->nHeight, hash.ToString(), vote);
                             }
                         }
                         else if (i == 0)
                         {
-                            LogPrint("dao", "%s: Looking for votes to add in the block index.\n", __func__);
+                            LogPrint("daoextra", "%s: Looking for votes to add in the block index.\n", __func__);
 
                             if (fCFund && (fProposal && view.GetProposal(hash, proposal) && proposal.CanVote(view)))
                             {
-                                LogPrint("dao", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
+                                LogPrint("daoextra", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                 pindex->vProposalVotes.push_back(make_pair(hash, vote));
                             }
                             else if (fCFund && (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))
                             {
-                                LogPrint("dao", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
+                                LogPrint("daoextra", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                 pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
                             }
                             else if(fDAOConsultations && fSupport &&
                                     ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported()) ||
                                      (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view))))
                             {
-                                LogPrint("dao", "%s: Adding support vote at height %d - hash: %s\n", __func__, pindex->nHeight, hash.ToString());
+                                LogPrint("daoextra", "%s: Adding support vote at height %d - hash: %s\n", __func__, pindex->nHeight, hash.ToString());
                                 pindex->mapSupport.insert(make_pair(hash, true));
                             }
                             else if (fDAOConsultations && fConsultation && !fSupport && vote != VoteFlags::VOTE_REMOVE)
                             {
                                 if ((view.GetConsultation(hash, consultation) && (consultation.CanBeVoted(vote) && consultation.IsValidVote(vote))))
                                 {
-                                    LogPrint("dao", "%s: Adding consultation vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
+                                    LogPrint("daoextra", "%s: Adding consultation vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                     pindex->mapConsultationVotes.insert(make_pair(hash, vote));
                                 }
                                 else
@@ -3563,24 +3563,24 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         mapCountAnswers[answer.parent]++;
                                         if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                                             continue;
-                                        LogPrint("dao", "%s: Adding consultation answer vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
+                                        LogPrint("daoextra", "%s: Adding consultation answer vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
                                         pindex->mapConsultationVotes.insert(make_pair(hash, vote));
                                     }
                                     else
                                     {
-                                        LogPrint("dao", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
+                                        LogPrint("daoextra", "%s: Ignoring invalid vote output %s\n", __func__, tx.vout[j].ToString());
                                         continue;
                                     }
                                 }
                             }
                             else
                             {
-                                LogPrint("dao", "%s: Ignoring vote output, could not find payment request %s\n", __func__, hash.ToString());
+                                LogPrint("daoextra", "%s: Ignoring vote output, could not find payment request %s\n", __func__, hash.ToString());
                             }
                         }
                         else
                         {
-                            LogPrint("dao", "%s: Ignoring duplicated vote for %s\n", __func__, hash.ToString());
+                            LogPrint("daoextra", "%s: Ignoring duplicated vote for %s\n", __func__, hash.ToString());
                         }
                     }
                 }
@@ -3813,7 +3813,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 fContribution=true;
                 pindex->nCFSupply += vout.nValue;
                 nProposalFee += vout.nValue;
-                LogPrint("dao", "%s: Updated DAO Fund supply to %d\n", __func__, pindex->nCFSupply);
+                LogPrint("daoextra", "%s: Updated DAO Fund supply to %d\n", __func__, pindex->nCFSupply);
             }
         }
 
@@ -3943,12 +3943,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 if (fCFund && view.GetProposal(it.first, proposal) && proposal.CanVote(view))
                 {
                     pindex->vProposalVotes.push_back(make_pair(it.first, val));
-                    LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                    LogPrint("daoextra", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                 }
                 else if (fCFund && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
                 {
                     pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
-                    LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                    LogPrint("daoextra", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                 }
                 else if (val == VoteFlags::SUPPORT)
                 {
@@ -3957,14 +3957,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                              (view.GetConsultationAnswer(it.first, answer) && answer.CanBeSupported(view))))
                     {
                         pindex->mapSupport.insert(make_pair(it.first, true));
-                        LogPrint("dao", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
+                        LogPrint("daoextra", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
                     }
                 }
                 else if (fDAOConsultations && val != VoteFlags::VOTE_REMOVE)
                 {
                     if ((view.GetConsultation(it.first, consultation) && (consultation.CanBeVoted(val) && consultation.IsValidVote(val))))
                     {
-                        LogPrint("dao", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                        LogPrint("daoextra", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                         pindex->mapConsultationVotes.insert(make_pair(it.first, val));
                     }
                     else
@@ -3977,10 +3977,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             mapCountAnswers[answer.parent]++;
                             if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                             {
-                                LogPrint("dao", "%s: Ignoring vote for staker %s - it exceeded max allowed of answers- hash: %s vote: %d\n", __func__, HexStr(stakerScript), it.first.ToString(), val);
+                                LogPrint("daoextra", "%s: Ignoring vote for staker %s - it exceeded max allowed of answers- hash: %s vote: %d\n", __func__, HexStr(stakerScript), it.first.ToString(), val);
                                 continue;
                             }
-                            LogPrint("dao", "%s: Inserting consultation answer vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
+                            LogPrint("daoextra", "%s: Inserting consultation answer vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                             pindex->mapConsultationVotes.insert(make_pair(it.first, val));
                         }
                         else

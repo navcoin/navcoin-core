@@ -362,7 +362,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             if(mapSeen.count(pindexblock->vProposalVotes[i].first) == 0)
             {
-                LogPrint("dao", "%s: Found vote %d for proposal %s at block height %d\n", __func__,
+                LogPrint("daoextra", "%s: Found vote %d for proposal %s at block height %d\n", __func__,
                          pindexblock->vProposalVotes[i].second, pindexblock->vProposalVotes[i].first.ToString(),
                          pindexblock->nHeight);
 
@@ -384,7 +384,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
         {
             if(mapSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
             {
-                LogPrint("dao", "%s: Found vote %d for payment request %s at block height %d\n", __func__,
+                LogPrint("daoextra", "%s: Found vote %d for payment request %s at block height %d\n", __func__,
                          pindexblock->vPaymentRequestVotes[i].second, pindexblock->vPaymentRequestVotes[i].first.ToString(),
                          pindexblock->nHeight);
 
@@ -409,7 +409,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
             if (!mapSeenSupport.count(it.first))
             {
-                LogPrint("dao", "%s: Found support vote for %s at block height %d\n", __func__,
+                LogPrint("daoextra", "%s: Found support vote for %s at block height %d\n", __func__,
                          it.first.ToString(),
                          pindexblock->nHeight);
 
@@ -438,7 +438,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
                     mapSeen[it.first]=true;
 
-                    LogPrint("dao", "%s: Found consultation answer vote %d for %s at block height %d (total %d)\n", __func__,
+                    LogPrint("daoextra", "%s: Found consultation answer vote %d for %s at block height %d (total %d)\n", __func__,
                              it.second, answer.parent.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(answer.parent,it.second)]);
                 }
                 else
@@ -450,7 +450,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
 
                     mapSeen[it.first]=true;
 
-                    LogPrint("dao", "%s: Found consultation vote %d for %s at block height %d (total %d)\n", __func__,
+                    LogPrint("daoextra", "%s: Found consultation vote %d for %s at block height %d (total %d)\n", __func__,
                              it.second, it.first.ToString(), pindexblock->nHeight, mapCacheConsultationToUpdate[std::make_pair(it.first,it.second)]);
                 }
             }
@@ -851,7 +851,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                             pindexNew->nCFLocked -= prequest->nAmount;
                             prequest->SetState(pindexNew, DAOFlags::ACCEPTED);
                             prequest->fDirty = true;
-                            LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                            LogPrint("daoextra", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
                         }
                     }
                 }
@@ -924,7 +924,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                             {
                                 pindexNew->nCFSupply += proposal->GetAvailable(view);
                                 pindexNew->nCFLocked -= proposal->GetAvailable(view);
-                                LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                                LogPrint("daoextra", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
                             }
                             proposal->SetState(pindexNew, DAOFlags::EXPIRED);
                             proposal->fDirty = true;
@@ -945,7 +945,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                         {
                             pindexNew->nCFSupply -= proposal->GetAvailable(view);
                             pindexNew->nCFLocked += proposal->GetAvailable(view);
-                            LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
+                            LogPrint("daoextra", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindexNew->nCFSupply), FormatMoney(pindexNew->nCFLocked));
                             proposal->SetState(pindexNew, DAOFlags::ACCEPTED);
                             proposal->fDirty = true;
                         }
