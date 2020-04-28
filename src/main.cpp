@@ -5437,8 +5437,8 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
                               ? pindexPrev->GetMedianTimePast()
                               : block.GetBlockTime();
 
-    bool fColdStakingEnabled = IsColdStakingEnabled(pindexPrev,Params().GetConsensus());
-    bool fColdStakingv2Enabled = IsColdStakingv2Enabled(chainActive.Tip(), Params().GetConsensus());
+    bool fColdStakingEnabled = IsColdStakingEnabled(pindexPrev, Params().GetConsensus());
+    bool fColdStakingv2Enabled = IsColdStakingv2Enabled(pindexPrev, Params().GetConsensus());
 
     // Check that all transactions are finalized and no early cold stake
     for(const CTransaction& tx: block.vtx) {
