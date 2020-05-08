@@ -476,7 +476,7 @@ public:
         pchMessageStart[0] = 0x3f;
         pchMessageStart[1] = 0xa4;
         pchMessageStart[2] = 0x52;
-        pchMessageStart[3] = 0x25;
+        pchMessageStart[3] = 0x27;
         nDefaultPort = 15556;
         nPruneAfterHeight = 1000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
