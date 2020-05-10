@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>507</width>
-    <height>380</height>
+    <height>474</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,15 +44,15 @@
          <enum>QLayout::SetNoConstraint</enum>
         </property>
         <property name="labelAlignment">
-         <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="formAlignment">
-         <set>Qt::AlignRight|Qt::AlignVCenter</set>
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <item row="0" column="0">
          <widget class="QLabel" name="labelAvailableText">
           <property name="text">
-           <string>Available</string>
+           <string>Available Public</string>
           </property>
          </widget>
         </item>
@@ -62,14 +62,14 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="labelPendingText">
           <property name="text">
-           <string>Pending</string>
+           <string>- Pending</string>
           </property>
          </widget>
         </item>
@@ -79,75 +79,126 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="labelAvailableText_2">
+          <property name="text">
+           <string>Available Private</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="labelPrivateBalance">
+          <property name="text">
+           <string>1 000.00000000 NAV</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
         <item row="3" column="0">
+         <widget class="QLabel" name="labelAvailableText_3">
+          <property name="text">
+           <string>- Pending</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="labelPrivateBalancePending">
+          <property name="text">
+           <string>1 000.00000000 NAV</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="labelAvailableText_4">
+          <property name="text">
+           <string>- Locked</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLabel" name="labelPrivateBalanceLocked">
+          <property name="text">
+           <string>1 000.00000000 NAV</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
          <widget class="QLabel" name="labelColdStakingText">
           <property name="text">
            <string>Cold Staking</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="5" column="1">
          <widget class="QLabel" name="labelColdStaking">
           <property name="text">
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="labelImmatureText">
           <property name="text">
            <string>Immature</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="6" column="1">
          <widget class="QLabel" name="labelImmature">
           <property name="text">
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="labelWatchedBalanceText">
           <property name="text">
            <string>Watched</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="7" column="1">
          <widget class="QLabel" name="labelWatchedBalance">
           <property name="text">
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="labelTotalText">
           <property name="text">
            <string>Total</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="8" column="1">
          <widget class="QLabel" name="labelTotal">
           <property name="text">
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -161,10 +212,10 @@
        </property>
        <layout class="QFormLayout" name="formLayout_2">
         <property name="labelAlignment">
-         <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="formAlignment">
-         <set>Qt::AlignRight|Qt::AlignVCenter</set>
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <item row="2" column="0">
          <widget class="QLabel" name="label7dStakingStatsText">
@@ -179,7 +230,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -196,7 +247,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -213,7 +264,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -230,7 +281,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -247,7 +298,7 @@
            <string>1 000.00000000 NAV</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignVCenter</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -258,6 +309,12 @@
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
        </property>
       </spacer>
      </item>

@@ -38,8 +38,9 @@ CTxMemPoolEntry::CTxMemPoolEntry(const CTransaction& _tx, const CAmount& _nFee,
     nCountWithDescendants = 1;
     nSizeWithDescendants = GetTxSize();
     nModFeesWithDescendants = nFee;
-    CAmount nValueIn = _tx.GetValueOut()+nFee;
-    assert(inChainInputValue <= nValueIn);
+    CAmount nValueIn = _tx.GetValueOut()+(_tx.IsBLSCT()?0:nFee);
+    if (!_tx.IsBLSCT())
+        assert(inChainInputValue <= nValueIn);
 
     feeDelta = 0;
 
@@ -413,7 +414,11 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
     // Used by main.cpp AcceptToMemoryPool(), which DOES do
     // all the appropriate checks.
     LOCK(cs);
+
+    bool fBLSInput = entry.GetTx().IsBLSInput();
+
     indexed_transaction_set::iterator newit = mapTx.insert(entry).first;
+
     mapLinks.insert(make_pair(newit, TxLinks()));
 
     // Update transaction for any feeDelta created by PrioritiseTransaction
@@ -445,15 +450,18 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
     // In that case, our disconnect block logic will call UpdateTransactionsFromBlock
     // to clean up the mess we're leaving here.
 
-    // Update ancestors with information about this tx
-    for(const uint256 &phash: setParentTransactions) {
-        txiter pit = mapTx.find(phash);
-        if (pit != mapTx.end()) {
-            UpdateParent(newit, pit, true);
+    if (!fBLSInput)
+    {
+        // Update ancestors with information about this tx
+        for(const uint256 &phash: setParentTransactions) {
+            txiter pit = mapTx.find(phash);
+            if (pit != mapTx.end()) {
+                UpdateParent(newit, pit, true);
+            }
         }
+        UpdateAncestorsOf(true, newit, setAncestors);
+        UpdateEntryForAncestors(newit, setAncestors);
     }
-    UpdateAncestorsOf(true, newit, setAncestors);
-    UpdateEntryForAncestors(newit, setAncestors);
 
     nTransactionsUpdated++;
     totalTxSize += entry.GetTxSize();
@@ -818,6 +826,7 @@ void CTxMemPool::check(const CCoinsViewCache *pcoins) const
 
     LOCK(cs);
     list<const CTxMemPoolEntry*> waitingOnDependants;
+    std::vector<RangeproofEncodedData> blsctData;
     for (indexed_transaction_set::const_iterator it = mapTx.begin(); it != mapTx.end(); it++) {
         unsigned int i = 0;
         checkTotal += it->GetTxSize();
@@ -896,7 +905,7 @@ void CTxMemPool::check(const CCoinsViewCache *pcoins) const
         else {
             CValidationState state;
             PrecomputedTransactionData txdata(tx);
-            assert(CheckInputs(tx, state, mempoolDuplicate, false, 0, false, txdata, nullptr));
+            assert(CheckInputs(tx, state, mempoolDuplicate, false, 0, false, blsctData, txdata, nullptr));
             UpdateCoins(tx, mempoolDuplicate, 1000000);
         }
     }
@@ -911,7 +920,7 @@ void CTxMemPool::check(const CCoinsViewCache *pcoins) const
             assert(stepsSinceLastRemove < waitingOnDependants.size());
         } else {
             PrecomputedTransactionData txdata(entry->GetTx());
-            assert(CheckInputs(entry->GetTx(), state, mempoolDuplicate, false, 0, false, txdata, nullptr));
+            assert(CheckInputs(entry->GetTx(), state, mempoolDuplicate, false, 0, false, blsctData, txdata, nullptr));
             UpdateCoins(entry->GetTx(), mempoolDuplicate, 1000000);
             stepsSinceLastRemove = 0;
         }

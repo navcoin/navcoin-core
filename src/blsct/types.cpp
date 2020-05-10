@@ -7,8 +7,16 @@
 
 #include <iostream>
 
-namespace BLSCT
-{
+void CheckRelicErrorsBLSCT() {
+    if (!core_get()) {
+        throw std::string("Library not initialized properly. Call BLS::Init()");
+    }
+    if (core_get()->code != STS_OK) {
+        core_get()->code = STS_OK;
+        throw std::string("Relic library error");
+    }
+}
+
 static Scalar sm(const Scalar &y, int n, const Scalar &x)
 {
     Scalar ret;
@@ -23,14 +31,31 @@ Point::Point()
 {
     g1_new(g1);
     g1_set_infty(g1);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
+}
+
+Point::Point(const bls::PublicKey& n)
+{
+    g1_new(this->g1);
+    uint8_t buf[bls::PublicKey::PUBLIC_KEY_SIZE + 1];
+    n.Serialize(buf);
+    uint8_t uncompressed[bls::PublicKey::PUBLIC_KEY_SIZE + 1];
+    std::memcpy(uncompressed + 1, buf, bls::PublicKey::PUBLIC_KEY_SIZE);
+    if (buf[0] & 0x80) {
+        uncompressed[0] = 0x03;   // Insert extra byte for Y=1
+        uncompressed[1] &= 0x7f;  // Remove initial Y bit
+    } else {
+        uncompressed[0] = 0x02;   // Insert extra byte for Y=0
+    }
+    g1_read_bin(this->g1, uncompressed, bls::PublicKey::PUBLIC_KEY_SIZE + 1);
+    CheckRelicErrorsBLSCT();
 }
 
 Point Point::operator+(const Point &b) const
 {
     Point ret;
     g1_add(ret.g1, this->g1, b.g1);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -38,15 +63,15 @@ Point Point::operator-(const Point &b) const
 {
     Point ret;
     g1_sub(ret.g1, this->g1, b.g1);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
 Point Point::operator*(const Scalar &b) const
 {
     Point ret;
-    g1_mul(ret.g1, this->g1, b.bn);
-    CheckRelicErrors();
+    g1_mul(ret.g1, const_cast<ep_st*>(this->g1), const_cast<bn_st*>(b.bn));
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -55,7 +80,7 @@ Point::Point(const Point& n)
     g1_new(g1);
     g1_set_infty(g1);
     g1_copy(this->g1, n.g1);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Point::Point(const g1_t& n)
@@ -63,7 +88,7 @@ Point::Point(const g1_t& n)
     g1_new(g1);
     g1_set_infty(g1);
     g1_copy(this->g1, n);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Point::Point(const uint256 &b)
@@ -71,7 +96,7 @@ Point::Point(const uint256 &b)
     g1_new(g1);
     g1_set_infty(g1);
     g1_map(this->g1, (unsigned char*)&b, 32);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 bool Point::operator==(const Point &b) const
@@ -82,6 +107,14 @@ bool Point::operator==(const Point &b) const
 bool Point::IsUnity() const
 {
     return g1_is_infty(this->g1);
+}
+
+uint256 Point::Hash(const int& n) const
+{
+    CHashWriter hasher(0,0);
+    hasher << *this;
+    hasher << n;
+    return hasher.GetHash();
 }
 
 std::vector<uint8_t> Point::GetVch() const
@@ -96,14 +129,26 @@ std::vector<uint8_t> Point::GetVch() const
 void Point::SetVch(const std::vector<uint8_t> &b)
 {
     g1_read_bin(this->g1, &b.front(), b.size());
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
+}
+
+Point Point::Rand()
+{
+    bn_t ord;
+    bn_new(ord);
+    g1_get_ord(ord);
+    bn_t bn;
+    bn_rand_mod(bn, ord);
+    Point r;
+    g1_mul_gen(r.g1, bn);
+    return r;
 }
 
 Scalar::Scalar()
 {
     bn_new(bn);
     bn_zero(bn);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Scalar::Scalar(const std::vector<uint8_t> &v)
@@ -111,7 +156,7 @@ Scalar::Scalar(const std::vector<uint8_t> &v)
     bn_new(bn);
     bn_zero(bn);
     SetVch(v);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Scalar Scalar::operator+(const Scalar &b) const
@@ -122,7 +167,7 @@ Scalar Scalar::operator+(const Scalar &b) const
     bn_new(ord);
     g1_get_ord(ord);
     bn_mod(ret.bn, ret.bn, ord);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -134,7 +179,7 @@ Scalar Scalar::operator-(const Scalar &b) const
     bn_new(ord);
     g1_get_ord(ord);
     bn_mod(ret.bn, ret.bn, ord);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -146,7 +191,7 @@ Scalar Scalar::operator*(const Scalar &b) const
     bn_new(ord);
     g1_get_ord(ord);
     bn_mod(ret.bn, ret.bn, ord);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -154,7 +199,7 @@ Scalar Scalar::operator<<(const int &b) const
 {
     Scalar ret;
     bn_lsh(ret.bn, this->bn, b);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -162,7 +207,7 @@ Scalar Scalar::operator>>(const int &b) const
 {
     Scalar ret;
     bn_rsh(ret.bn, this->bn, b);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -178,7 +223,7 @@ Scalar Scalar::operator|(const Scalar &b) const
         bn_set_bit(ret.bn, i, l|r);
     }
 
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 
     return ret;
 }
@@ -195,7 +240,7 @@ Scalar Scalar::operator&(const Scalar &b) const
         bn_set_bit(ret.bn, i, l&r);
     }
 
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 
     return ret;
 }
@@ -211,7 +256,7 @@ Scalar Scalar::operator~() const
         bn_set_bit(ret.bn, i, !a);
     }
 
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 
     return ret;
 }
@@ -219,8 +264,8 @@ Scalar Scalar::operator~() const
 Point Scalar::operator*(const Point &b) const
 {
     Point ret;
-    g1_mul(ret.g1, b.g1, this->bn);
-    CheckRelicErrors();
+    g1_mul(ret.g1, const_cast<ep_st*>(b.g1), const_cast<bn_st*>(this->bn));
+    CheckRelicErrorsBLSCT();
     return ret;
 }
 
@@ -232,7 +277,7 @@ void Scalar::operator=(const uint64_t& n)
     {
         bn_set_bit(this->bn, i, (n>>i)&1);
     }
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Scalar::Scalar(const uint64_t& n)
@@ -243,7 +288,7 @@ Scalar::Scalar(const uint64_t& n)
     {
         bn_set_bit(this->bn, i, (n>>i)&1);
     }
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Scalar::Scalar(const Scalar& n)
@@ -255,7 +300,21 @@ Scalar::Scalar(const Scalar& n)
     bn_new(ord);
     g1_get_ord(ord);
     bn_mod(this->bn, this->bn, ord);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
+}
+
+Scalar::Scalar(const bls::PrivateKey& n)
+{
+    bn_new(this->bn);
+    bn_zero(this->bn);
+    uint8_t buf[bls::PrivateKey::PRIVATE_KEY_SIZE];
+    n.Serialize(buf);
+    bn_read_bin(this->bn, (unsigned char*)&buf, 32);
+    bn_t ord;
+    bn_new(ord);
+    g1_get_ord(ord);
+    bn_mod(this->bn, this->bn, ord);
+    CheckRelicErrorsBLSCT();
 }
 
 bool Scalar::operator==(const int &b) const
@@ -299,14 +358,10 @@ Scalar Scalar::Invert() const
 uint64_t Scalar::GetUint64() const
 {
     uint64_t ret = 0;
-
-    for (unsigned int i = 0; i < 64; i++)
-    {
-        ret |= bn_get_bit(this->bn, i) << i;
-    }
-
+    if (this->bn->used == 0)
+        return ret;
+    ret = this->bn->dp[0];
     return ret;
-
 }
 
 bool Scalar::GetBit(size_t n) const
@@ -343,7 +398,7 @@ Scalar::Scalar(const bn_t& n)
     bn_new(ord);
     g1_get_ord(ord);
     bn_mod(this->bn, this->bn, ord);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Scalar::Scalar(const uint256 &b)
@@ -355,13 +410,13 @@ Scalar::Scalar(const uint256 &b)
     bn_new(ord);
     g1_get_ord(ord);
     bn_mod(this->bn, this->bn, ord);
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 void Scalar::SetVch(const std::vector<uint8_t> &b)
 {
     bn_read_bin(this->bn, &b.front(), b.size());
-    CheckRelicErrors();
+    CheckRelicErrorsBLSCT();
 }
 
 Scalar Scalar::Negate() const
@@ -378,5 +433,4 @@ Scalar Scalar::Negate() const
 void Scalar::SetPow2(const int& n)
 {
     bn_set_2b(this->bn, n);
-}
 }

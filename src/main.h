@@ -12,6 +12,7 @@
 #endif
 
 #include <amount.h>
+#include <blsct/verification.h>
 #include <chain.h>
 #include <coins.h>
 #include <net.h>
@@ -339,6 +340,8 @@ void FlushStateToDiskIfNeeded();
 /** Prune block files and flush state to disk. */
 void PruneAndFlush();
 
+bool RemoveBLSCTConflicting(CTxMemPool& pool, const CTxIn& txin);
+
 /** (try to) add transaction to memory pool **/
 bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransaction &tx, bool fLimitFree,
                         bool* pfMissingInputs, bool fOverrideMempoolLimit=false, const CAmount nAbsurdFee=0);
@@ -387,7 +390,7 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
  * instead of being performed inline.
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
-                 unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks = NULL);
+                 unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks = NULL);
 
 /** Apply the effects of this transaction on the UTXO set represented by view */
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, int nHeight);
@@ -502,7 +505,8 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& coins,
-                  const CChainParams& chainparams, bool fJustCheck = false, bool fProofOfStake = false);
+                  const CChainParams& chainparams, std::map<int, std::vector<RangeproofEncodedData>>& blsctData,
+                  bool fJustCheck = false, bool fProofOfStake = false);
 
 /** Undo the effects of this block (with given index) on the UTXO set represented by coins.
  *  In case pfClean is provided, operation will try to be tolerant about errors, and *pfClean
@@ -532,6 +536,7 @@ bool IsStaticRewardLocked(const CBlockIndex* pindexPrev, const Consensus::Params
 bool IsNtpSyncEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 bool IsReducedCFundQuorumEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
+bool IsBLSCTEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
 /** Check whether ColdStaking has been activated. */
 bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params);

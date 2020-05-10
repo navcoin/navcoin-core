@@ -199,6 +199,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -221,6 +225,7 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0xc507eec6ccabfd5432d764afceafba42d2d946594b8a60570cb2358a7392c61a"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,53);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,75);
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,21); // cold staking addresses start with 'X'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
         base58Prefixes[RAW_SCRIPT_ADDRESS] = std::vector<unsigned char>(1,60);
@@ -389,6 +394,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -429,6 +439,7 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,80);
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,8); // cold staking addresses start with 'C/D'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
         base58Prefixes[RAW_SCRIPT_ADDRESS] = std::vector<unsigned char>(1,60);
@@ -571,6 +582,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -621,6 +637,7 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,88);
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
         base58Prefixes[RAW_SCRIPT_ADDRESS] = std::vector<unsigned char>(1,60);
@@ -763,6 +780,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nStartTime = 1559390400; // Jun 1st, 2018
         consensus.vDeployments[Consensus::DEPLOYMENT_POOL_FEE].nTimeout = 1622548800; // Jun 1st, 2021
 
+        // Deployment of BLSCT
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].bit = 24;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nStartTime = 1577836800; // Jan 1st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_BLSCT].nTimeout = 1640995200; // Jun 1st, 2022
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -803,6 +825,7 @@ public:
         assert(genesis.hashMerkleRoot == hashMerkleRoot);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
+        base58Prefixes[BLS_PRIVATE_ADDRESS] = std::vector<unsigned char>(1,89);
         base58Prefixes[COLDSTAKING_ADDRESS] = std::vector<unsigned char>(1,63); // cold staking addresses start with 'S'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
         base58Prefixes[RAW_SCRIPT_ADDRESS] = std::vector<unsigned char>(1,60);

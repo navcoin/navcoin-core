@@ -5,6 +5,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <bls.hpp>
 #include <hash.h>
 #include <uint256.h>
 #include <serialize.h>
@@ -25,8 +26,6 @@
 
 #define CHECK_AND_ASSERT_THROW_MES(expr, message) do {if(!(expr)) throw std::runtime_error(message);} while(0)
 
-namespace BLSCT
-{
 class Scalar;
 
 static Scalar sm(const Scalar &y, int n, const Scalar &x);
@@ -37,6 +36,7 @@ public:
 
     Point();
     Point(const Point& n);
+    Point(const bls::PublicKey& n);
     Point(const uint256 &b);
     Point(const g1_t &b);
 
@@ -45,6 +45,9 @@ public:
     Point operator*(const Scalar &b) const;
 
     bool operator==(const Point& b) const;
+
+    static Point Rand();
+    uint256 Hash(const int& n) const;
 
     bool IsUnity() const;
 
@@ -79,6 +82,7 @@ class Scalar {
 public:
     Scalar();
     Scalar(const uint64_t& n);
+    Scalar(const bls::PrivateKey& n);
     Scalar(const std::vector<uint8_t> &v);
     Scalar(const bn_t &b);
     Scalar(const Scalar& n);
@@ -147,16 +151,5 @@ public:
     MultiexpData() {}
     MultiexpData(Point base_, Scalar exp_) : base(base_), exp(exp_){}
 };
-
-void CheckRelicErrors() {
-    if (!core_get()) {
-        throw std::string("Library not initialized properly. Call BLS::Init()");
-    }
-    if (core_get()->code != STS_OK) {
-        core_get()->code = STS_OK;
-        throw std::string("Relic library error");
-    }
-}
-}
 
 #endif // TYPES_H

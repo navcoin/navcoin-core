@@ -227,6 +227,7 @@ public:
     CNavCoinAddressVisitor(CNavCoinAddress* addrIn) : addr(addrIn) {}
 
     bool operator()(const CKeyID& id) const { return addr->Set(id); }
+    bool operator()(const blsctDoublePublicKey &id) const { return addr->Set(id); }
     bool operator()(const pair<CKeyID, CKeyID>& id) const { return addr->Set(id.first, id.second); }
     bool operator()(const CScriptID& id) const { return addr->Set(id); }
     bool operator()(const CNoDestination& no) const { return false; }
@@ -243,6 +244,13 @@ bool CNavCoinAddress::Set(const CKeyID& id)
 bool CNavCoinAddress::Set(const CKeyID& id, const CKeyID& id2)
 {
     SetData(Params().Base58Prefix(CChainParams::COLDSTAKING_ADDRESS), &id, 20, &id2, 20);
+    return true;
+}
+
+bool CNavCoinAddress::Set(const blsctDoublePublicKey &id)
+{
+    SetData(Params().Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS), id.GetVkVch().data(), bls::PublicKey::PUBLIC_KEY_SIZE, id.GetSkVch().data(), bls::PublicKey::PUBLIC_KEY_SIZE);
+
     return true;
 }
 
@@ -266,6 +274,11 @@ bool CNavCoinAddress::Set(const CTxDestination& dest)
 bool CNavCoinAddress::IsValid() const
 {
     return IsValid(Params());
+}
+
+bool CNavCoinAddress::IsPrivateAddress(const CChainParams& params) const
+{
+    return vchVersion == params.Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS);
 }
 
 bool CNavCoinAddress::GetSpendingAddress(CNavCoinAddress &address) const
@@ -294,6 +307,8 @@ bool CNavCoinAddress::IsValid(const CChainParams& params) const
         return vchData.size() == 40;
     if (vchVersion == params.Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))
         return vchData.size() > 0;
+    if (vchVersion == params.Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS))
+        return vchData.size() == 2*bls::PublicKey::PUBLIC_KEY_SIZE;
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
@@ -317,6 +332,16 @@ CTxDestination CNavCoinAddress::Get() const
         return make_pair(CKeyID(id), CKeyID(id2));
     } if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return CKeyID(id);
+    else if (vchVersion == Params().Base58Prefix(CChainParams::BLS_PRIVATE_ADDRESS))
+    {
+        uint8_t vData[bls::PublicKey::PUBLIC_KEY_SIZE];
+        uint8_t sData[bls::PublicKey::PUBLIC_KEY_SIZE];
+
+        memcpy(&vData[0], &vchData[0], bls::PublicKey::PUBLIC_KEY_SIZE);
+        memcpy(&sData[0], &vchData[bls::PublicKey::PUBLIC_KEY_SIZE], bls::PublicKey::PUBLIC_KEY_SIZE);
+        blsctDoublePublicKey ret(bls::PublicKey::FromBytes(vData), bls::PublicKey::FromBytes(sData));
+        return ret;
+    }
     else if (vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS))
         return CScriptID(id);
     else if (vchVersion == Params().Base58Prefix(CChainParams::RAW_SCRIPT_ADDRESS))

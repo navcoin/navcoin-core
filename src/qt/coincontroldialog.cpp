@@ -33,7 +33,9 @@
 
 QList<CAmount> CoinControlDialog::payAmounts;
 CCoinControl* CoinControlDialog::coinControl = new CCoinControl();
+CCoinControl* CoinControlDialog::zeroCoinControl = new CCoinControl();
 bool CoinControlDialog::fSubtractFeeFromAmount = false;
+bool CoinControlDialog::fPrivate = false;
 
 CoinControlDialog::CoinControlDialog(const PlatformStyle *platformStyle, QWidget *parent) :
     QDialog(parent),
@@ -200,7 +202,7 @@ void CoinControlDialog::buttonSelectAllClicked()
                 ui->treeWidget->topLevelItem(i)->setCheckState(COLUMN_CHECKBOX, state);
     ui->treeWidget->setEnabled(true);
     if (state == Qt::Unchecked)
-        coinControl->UnSelectAll(); // just to be sure
+        (fPrivate ? zeroCoinControl : coinControl)->UnSelectAll(); // just to be sure
     CoinControlDialog::updateLabels(model, this);
 }
 
@@ -394,11 +396,11 @@ void CoinControlDialog::viewItemChanged(QTreeWidgetItem* item, int column)
         COutPoint outpt(uint256S(item->text(COLUMN_TXHASH).toStdString()), item->text(COLUMN_VOUT_INDEX).toUInt());
 
         if (item->checkState(COLUMN_CHECKBOX) == Qt::Unchecked)
-            coinControl->UnSelect(outpt);
+            (fPrivate ? zeroCoinControl : coinControl)->UnSelect(outpt);
         else if (item->isDisabled()) // locked (this happens if "check all" through parent node)
             item->setCheckState(COLUMN_CHECKBOX, Qt::Unchecked);
         else
-            coinControl->Select(outpt);
+            (fPrivate ? zeroCoinControl : coinControl)->Select(outpt);
 
         // selection changed -> update labels
         if (ui->treeWidget->isEnabled()) // do not update on every click for (un)select all
@@ -417,6 +419,9 @@ void CoinControlDialog::viewItemChanged(QTreeWidgetItem* item, int column)
 // return human readable label for priority number
 QString CoinControlDialog::getPriorityLabel(double dPriority, double mempoolEstimatePriority)
 {
+    if (CoinControlDialog::fPrivate)
+        return tr("none");
+
     double dPriorityMedium = mempoolEstimatePriority;
 
     if (dPriorityMedium <= 0)
@@ -484,7 +489,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
 
     std::vector<COutPoint> vCoinControl;
     std::vector<COutput>   vOutputs;
-    coinControl->ListSelected(vCoinControl);
+    (CoinControlDialog::fPrivate ? zeroCoinControl : coinControl)->ListSelected(vCoinControl);
     model->getOutputs(vCoinControl, vOutputs);
 
     for(const COutput& out: vOutputs) {
@@ -494,7 +499,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         COutPoint outpt(txhash, out.i);
         if (model->isSpent(outpt))
         {
-            coinControl->UnSelect(outpt);
+            (CoinControlDialog::fPrivate ? zeroCoinControl : coinControl)->UnSelect(outpt);
             continue;
         }
 
@@ -502,7 +507,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         nQuantity++;
 
         // Amount
-        nAmount += out.tx->vout[out.i].nValue;
+        nAmount += out.tx->vout[out.i].HasRangeProof() ? out.nAmount : out.tx->vout[out.i].nValue;
 
         // Priority
         dPriorityInputs += (double)out.tx->vout[out.i].nValue * (out.nDepth+1);
@@ -558,8 +563,8 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
 
         // Fee
         nPayFee = CWallet::GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
-        if (nPayFee > 0 && coinControl->nMinimumTotalFee > nPayFee)
-            nPayFee = coinControl->nMinimumTotalFee;
+        if (nPayFee > 0 && (CoinControlDialog::fPrivate ? zeroCoinControl : coinControl)->nMinimumTotalFee > nPayFee)
+            nPayFee = (CoinControlDialog::fPrivate ? zeroCoinControl : coinControl)->nMinimumTotalFee;
 
 
         // Allow free? (require at least hard-coded threshold and default to that if no estimate)
@@ -631,7 +636,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     l6->setText(sPriorityLabel);                                             // Priority
     l7->setText(fDust ? tr("yes") : tr("no"));                               // Dust
     l8->setText(NavCoinUnits::formatWithUnit(nDisplayUnit, nChange));        // Change
-    if (nPayFee > 0 && (coinControl->nMinimumTotalFee < nPayFee))
+    if (nPayFee > 0 && ((CoinControlDialog::fPrivate ? zeroCoinControl : coinControl)->nMinimumTotalFee < nPayFee))
     {
         l3->setText(ASYMP_UTF8 + l3->text());
         l4->setText(ASYMP_UTF8 + l4->text());
@@ -700,7 +705,10 @@ void CoinControlDialog::updateView()
     double mempoolEstimatePriority = mempool.estimateSmartPriority(nTxConfirmTarget);
 
     std::map<QString, std::vector<COutput> > mapCoins;
-    model->listCoins(mapCoins);
+    if (CoinControlDialog::fPrivate)
+        model->listPrivateCoins(mapCoins);
+    else
+        model->listCoins(mapCoins);
 
     for(const PAIRTYPE(QString, std::vector<COutput>)& coins: mapCoins) {
         QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem();
@@ -773,8 +781,8 @@ void CoinControlDialog::updateView()
             }
 
             // amount
-            itemOutput->setText(COLUMN_AMOUNT, NavCoinUnits::format(nDisplayUnit, out.tx->vout[out.i].nValue));
-            itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, "0")); // padding so that sorting works correctly
+            itemOutput->setText(COLUMN_AMOUNT, NavCoinUnits::format(nDisplayUnit, out.tx->vout[out.i].HasRangeProof() ? out.nAmount : out.tx->vout[out.i].nValue));
+            itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].HasRangeProof() ? out.nAmount : out.tx->vout[out.i].nValue), 15, "0")); // padding so that sorting works correctly
 
             // date
             itemOutput->setText(COLUMN_DATE, GUIUtil::dateTimeStr(out.tx->GetTxTime()));
@@ -802,13 +810,13 @@ void CoinControlDialog::updateView()
             if (model->isLockedCoin(txhash, out.i))
             {
                 COutPoint outpt(txhash, out.i);
-                coinControl->UnSelect(outpt); // just to be sure
+                (fPrivate ? zeroCoinControl : coinControl)->UnSelect(outpt); // just to be sure
                 itemOutput->setDisabled(true);
                 itemOutput->setIcon(COLUMN_CHECKBOX, platformStyle->Icon(":/icons/lock_closed"));
             }
 
             // set checkbox
-            if (coinControl->IsSelected(COutPoint(txhash, out.i)))
+            if ((fPrivate ? zeroCoinControl : coinControl)->IsSelected(COutPoint(txhash, out.i)))
                 itemOutput->setCheckState(COLUMN_CHECKBOX, Qt::Checked);
         }
 

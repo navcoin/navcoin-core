@@ -191,6 +191,7 @@ private:
     void addPriorityTxs(bool fProofOfStake, int blockTime);
     /** Add transactions based on feerate including unconfirmed ancestors */
     void addPackageTxs();
+    void addCombinedBLSCT(const CCoinsViewCache& inputs);
 
     // helper function for addPriorityTxs
     /** Test if tx will still "fit" in the block */

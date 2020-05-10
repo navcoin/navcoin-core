@@ -18,6 +18,7 @@ public:
     void setModel(WalletModel *model);
 
 public Q_SLOTS:
+    void showPrivateAddress();
     void getNewAddress();
     void getColdStakingAddress();
     void showQR();

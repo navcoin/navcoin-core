@@ -105,3 +105,19 @@ CReserveKey *WalletModelTransaction::getPossibleKeyChange()
 {
     return keyChange;
 }
+
+void WalletModelTransaction::newPossibleBLSCTKeyChange(CWallet *wallet)
+{
+    blsctKeyChange = new std::vector<shared_ptr<CReserveBLSCTKey>>();
+
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        shared_ptr<CReserveBLSCTKey> rk(new CReserveBLSCTKey(wallet));
+        blsctKeyChange->insert(blsctKeyChange->begin(), std::move(rk));
+    }
+}
+
+std::vector<shared_ptr<CReserveBLSCTKey>> *WalletModelTransaction::getPossibleBLSCTKeyChange()
+{
+    return blsctKeyChange;
+}

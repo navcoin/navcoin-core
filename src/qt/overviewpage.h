@@ -42,11 +42,11 @@ public:
 public Q_SLOTS:
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
-                    const CAmount& coldStakingBalance);
+                    const CAmount& coldStakingBalance, const CAmount& privateBalance, const CAmount& privPending, const CAmount& privLocked);
 
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
     void updateStakeReportNow();
-    void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
+    void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
     void on_showStakingSetup_clicked();
 
 Q_SIGNALS:
@@ -63,6 +63,9 @@ private:
     CAmount currentColdStakingBalance;
     CAmount currentImmatureBalance;
     CAmount currentTotalBalance;
+    CAmount currentPrivateBalance;
+    CAmount currentPrivateBalancePending;
+    CAmount currentPrivateBalanceLocked;
     CAmount currentWatchOnlyBalance;
     CAmount currentWatchUnconfBalance;
     CAmount currentWatchImmatureBalance;

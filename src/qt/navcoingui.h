@@ -85,7 +85,7 @@ public:
     void updateDaoNewCount();
 
     /** Sets the balance for the wallet GUI header */
-    void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat);
+    void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat, const CAmount &priv, const CAmount& privpending, const CAmount& privlocked);
 
     /** Sets the staked amounts for the wallet GUI header */
     void setStaked(const CAmount &all, const CAmount &today, const CAmount &week);
@@ -135,6 +135,9 @@ private:
     QLabel* balanceAvail;
     QLabel* balancePendi;
     QLabel* balanceImmat;
+    QLabel* privAvail;
+    QLabel* privPendi;
+    QLabel* privLocked;
     QLabel* stakedAvail;
     QLabel* stakedPendi;
     QLabel* stakedImmat;

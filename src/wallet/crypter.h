@@ -123,6 +123,7 @@ class CCryptoKeyStore : public CBasicKeyStore
 {
 private:
     CryptedKeyMap mapCryptedKeys;
+    std::vector<unsigned char> privateCryptedBlsKey;
 
     CKeyingMaterial vMasterKey;
 
@@ -138,6 +139,9 @@ protected:
 
     //! will encrypt previously unencrypted keys
     bool EncryptKeys(CKeyingMaterial& vMasterKeyIn);
+
+    //! will encrypt previously unencrypted blsct parameters
+    bool EncryptBLSCTParameters(CKeyingMaterial& vMasterKeyIn);
 
     bool Unlock(const CKeyingMaterial& vMasterKeyIn);
 
@@ -194,6 +198,11 @@ public:
             mi++;
         }
     }
+
+    bool GetBLSCTSpendKey(blsctKey& zk) const;
+    bool GetCryptedBLSCTSpendKey(std::vector<unsigned char>& k) const;
+    bool SetBLSCTSpendKey(const blsctKey& zk);
+    bool SetCryptedBLSCTSpendKey(const std::vector<unsigned char>& k);
 
     /**
      * Wallet status (encrypted, locked) changed.

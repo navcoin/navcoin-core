@@ -7,6 +7,7 @@
 #define NAVCOIN_WALLET_WALLETDB_H
 
 #include <amount.h>
+#include <blsct/key.h>
 #include <primitives/transaction.h>
 #include <wallet/db.h>
 #include <key.h>
@@ -22,6 +23,7 @@ static const bool DEFAULT_FLUSHWALLET = true;
 class CAccount;
 class CAccountingEntry;
 struct CBlockLocator;
+class CBLSCTKeyPool;
 class CKeyPool;
 class CMasterKey;
 class CScript;
@@ -46,6 +48,7 @@ class CHDChain
 {
 public:
     uint32_t nExternalChainCounter;
+    uint32_t nExternalBLSCTChainCounter;
     CKeyID masterKeyID; //!< master key hash160
 
     static const int CURRENT_VERSION = 1;
@@ -58,14 +61,38 @@ public:
     {
         READWRITE(this->nVersion);
         nVersion = this->nVersion;
-        READWRITE(nExternalChainCounter);
-        READWRITE(masterKeyID);
+        if (ser_action.ForRead())
+        {
+            READWRITE(nExternalChainCounter);
+            if (nExternalChainCounter == ~(uint32_t)0)
+            {
+                READWRITE(nExternalChainCounter);
+                READWRITE(nExternalBLSCTChainCounter);
+            }
+            READWRITE(masterKeyID);
+        }
+        else
+        {
+            if (nExternalBLSCTChainCounter > 0)
+            {
+                uint32_t nMarker = ~(uint32_t)0;
+                READWRITE(nMarker);
+                READWRITE(nExternalChainCounter);
+                READWRITE(nExternalBLSCTChainCounter);
+            }
+            else
+            {
+                READWRITE(nExternalChainCounter);
+            }
+            READWRITE(masterKeyID);
+        }
     }
 
     void SetNull()
     {
         nVersion = CHDChain::CURRENT_VERSION;
         nExternalChainCounter = 0;
+        nExternalBLSCTChainCounter = 0;
         masterKeyID.SetNull();
     }
 };
@@ -114,6 +141,42 @@ public:
     }
 };
 
+class CBLSCTKeyMetadata
+{
+public:
+    static const int VERSION_CURRENT=1;
+    int nVersion;
+    int64_t nCreateTime; // 0 means unknown
+    std::string hdKeypath; //optional HD/bip32 keypath
+
+    CBLSCTKeyMetadata()
+    {
+        SetNull();
+    }
+    CBLSCTKeyMetadata(int64_t nCreateTime_)
+    {
+        SetNull();
+        nCreateTime = nCreateTime_;
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(this->nVersion);
+        nVersion = this->nVersion;
+        READWRITE(nCreateTime);
+        READWRITE(hdKeypath);
+    }
+
+    void SetNull()
+    {
+        nVersion = CKeyMetadata::CURRENT_VERSION;
+        nCreateTime = 0;
+        hdKeypath.clear();
+    }
+};
+
 /** Access to the wallet database */
 class CWalletDB : public CDB
 {
@@ -151,6 +214,10 @@ public:
     bool WritePool(int64_t nPool, const CKeyPool& keypool);
     bool ErasePool(int64_t nPool);
 
+    bool ReadBLSCTPool(int64_t nPool, CBLSCTKeyPool& keypool);
+    bool WriteBLSCTPool(int64_t nPool, const CBLSCTKeyPool& keypool);
+    bool EraseBLSCTPool(int64_t nPool);
+
     bool WriteMinVersion(int nVersion);
 
     /// This writes directly to the database, and will not update the CWallet's cached accounting entries!
@@ -158,6 +225,14 @@ public:
     bool WriteAccountingEntry_Backend(const CAccountingEntry& acentry);
     bool ReadAccount(const std::string& strAccount, CAccount& account);
     bool WriteAccount(const std::string& strAccount, const CAccount& account);
+
+    bool WriteBLSCTSpendKey(const blsctKey& key);
+    bool WriteBLSCTViewKey(const blsctKey& key);
+    bool WriteblsctDoublePublicKey(const blsctDoublePublicKey& key);
+    bool WriteBLSCTBlindingKey(const blsctExtendedKey& key);
+    bool WriteBLSCTCryptedKey(const std::vector<unsigned char>& ck);
+    bool WriteBLSCTKey(const CWallet* pwallet);
+    bool WriteBLSCTChildKey(const blsctPublicKey& vchPubKey, const blsctKey& vchPrivKey, const CBLSCTKeyMetadata& keyMeta);
 
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);

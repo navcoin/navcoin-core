@@ -56,6 +56,7 @@ public:
     QString destaddress;
     CScript scriptPubKey;
     double transaction_fee;
+    bool isanon;
 
     // If from a payment request, paymentRequest.IsInitialized() will be true
     PaymentRequestPlus paymentRequest;
@@ -144,6 +145,9 @@ public:
     CAmount getWatchBalance() const;
     CAmount getWatchUnconfirmedBalance() const;
     CAmount getWatchImmatureBalance() const;
+    CAmount getPrivateBalance() const;
+    CAmount getPrivateBalancePending() const;
+    CAmount getPrivateBalanceLocked() const;
     EncryptionStatus getEncryptionStatus() const;
 
     // Check address for validity
@@ -158,10 +162,10 @@ public:
     };
 
     // prepare transaction for getting txfee before sending coins
-    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, const CCoinControl *coinControl = NULL);
+    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, CAmount& total, const CCoinControl *coinControl = NULL);
 
     // Send coins to a list of recipients
-    SendCoinsReturn sendCoins(WalletModelTransaction &transaction, const CCoinControl *coinControl = NULL);
+    SendCoinsReturn sendCoins(WalletModelTransaction &transaction, const bool& fPrivate, const CCoinControl *coinControl = NULL);
 
     // Wallet encryption
     bool setWalletEncrypted(bool encrypted, const SecureString &passphrase);
@@ -198,6 +202,7 @@ public:
     void getOutputs(const std::vector<COutPoint>& vOutpoints, std::vector<COutput>& vOutputs);
     bool isSpent(const COutPoint& outpoint) const;
     void listCoins(std::map<QString, std::vector<COutput> >& mapCoins) const;
+    void listPrivateCoins(std::map<QString, std::vector<COutput>>& mapCoins) const;
 
     bool isLockedCoin(uint256 hash, unsigned int n) const;
     void lockCoin(COutPoint& output);
@@ -232,6 +237,9 @@ private:
     CAmount cachedWatchImmatureBalance;
     CAmount cachedStakingBalance;
     CAmount cachedColdStakingBalance;
+    CAmount cachedPrivateBalance;
+    CAmount cachedPrivateBalancePending;
+    CAmount cachedPrivateBalanceLocked;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
 
@@ -244,7 +252,8 @@ private:
 Q_SIGNALS:
     // Signal that balance in wallet changed
     void balanceChanged(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance);
+                        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance,
+                        const CAmount& privateBalance, const CAmount& privateBalancePending, const CAmount& privateBalanceLocked);
 
     // Encryption status of wallet changed
     void encryptionStatusChanged(int status);

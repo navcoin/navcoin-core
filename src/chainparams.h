@@ -52,6 +52,7 @@ public:
         EXT_PUBLIC_KEY,
         EXT_SECRET_KEY,
         COLDSTAKING_ADDRESS,
+        BLS_PRIVATE_ADDRESS,
 
         MAX_BASE58_TYPES
     };

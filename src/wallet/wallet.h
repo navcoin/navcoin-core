@@ -7,6 +7,7 @@
 #define NAVCOIN_WALLET_WALLET_H
 
 #include <amount.h>
+#include <blsct/transaction.h>
 #include <mnemonic/mnemonic.h>
 #include <streams.h>
 #include <tinyformat.h>
@@ -71,6 +72,7 @@ extern const char * DEFAULT_WALLET_DAT;
 class CBlockIndex;
 class CCoinControl;
 class COutput;
+class CReserveBLSCTKey;
 class CReserveKey;
 class CScript;
 class CTxMemPool;
@@ -85,6 +87,7 @@ enum WalletFeature
     FEATURE_COMPRPUBKEY = 60000, // compressed public keys
 
     FEATURE_HD = 130000, // Hierarchical key derivation after BIP32 (HD Wallet)
+    FEATURE_BLSCT = 140000, // Support for BLSCT
     FEATURE_LATEST = FEATURE_COMPRPUBKEY // HD is optional, use FEATURE_COMPRPUBKEY as latest version
 };
 
@@ -98,6 +101,27 @@ public:
 
     CKeyPool();
     CKeyPool(const CPubKey& vchPubKeyIn);
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        if (!(nType & SER_GETHASH))
+            READWRITE(nVersion);
+        READWRITE(nTime);
+        READWRITE(vchPubKey);
+    }
+};
+
+/** A key pool entry */
+class CBLSCTKeyPool
+{
+public:
+    int64_t nTime;
+    blsctPublicKey vchPubKey;
+
+    CBLSCTKeyPool();
+    CBLSCTKeyPool(const blsctPublicKey& vchPubKeyIn);
 
     ADD_SERIALIZE_METHODS;
 
@@ -230,6 +254,10 @@ private:
 public:
     mapValue_t mapValue;
     std::vector<std::pair<std::string, std::string> > vOrderForm;
+    std::vector<CAmount> vAmounts;
+    std::vector<Scalar> vGammas;
+    std::vector<std::vector<uint8_t>> vMemos;
+
     unsigned int fTimeReceivedIsTxTime;
     unsigned int nTimeReceived; //!< time received by this node
     unsigned int nTimeSmart;
@@ -243,11 +271,14 @@ public:
     mutable bool fDebitCached;
     mutable bool fCreditCached;
     mutable bool fImmatureCreditCached;
+    mutable bool fImmaturePrivateCreditCached;
     mutable bool fAvailableCreditCached;
     mutable bool fWatchDebitCached;
     mutable bool fWatchCreditCached;
     mutable bool fColdStakingCreditCached;
     mutable bool fColdStakingDebitCached;
+    mutable bool fPrivateCreditCached;
+    mutable bool fPrivateDebitCached;
     mutable bool fImmatureWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
@@ -255,11 +286,14 @@ public:
     mutable CAmount nDebitCached;
     mutable CAmount nCreditCached;
     mutable CAmount nImmatureCreditCached;
+    mutable CAmount nImmaturePrivateCreditCached;
     mutable CAmount nAvailableCreditCached;
     mutable CAmount nWatchDebitCached;
     mutable CAmount nWatchCreditCached;
     mutable CAmount nColdStakingCreditCached;
     mutable CAmount nColdStakingDebitCached;
+    mutable CAmount nPrivateCreditCached;
+    mutable CAmount nPrivateDebitCached;
     mutable CAmount nImmatureWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
@@ -292,6 +326,9 @@ public:
         pwallet = pwalletIn;
         mapValue.clear();
         vOrderForm.clear();
+        vAmounts.clear();
+        vGammas.clear();
+        vMemos.clear();
         fTimeReceivedIsTxTime = false;
         nTimeReceived = 0;
         nTimeSmart = 0;
@@ -306,6 +343,8 @@ public:
         fWatchCreditCached = false;
         fColdStakingCreditCached = false;
         fColdStakingDebitCached = false;
+        fPrivateCreditCached = false;
+        fPrivateDebitCached = false;
         fImmatureWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
         fSpendsColdStaking = false;
@@ -318,6 +357,8 @@ public:
         nAvailableCreditCached = 0;
         nColdStakingCreditCached = 0;
         nColdStakingDebitCached = 0;
+        nPrivateCreditCached = 0;
+        nPrivateDebitCached = 0;
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
         nAvailableWatchCreditCached = 0;
@@ -364,11 +405,19 @@ public:
             nTimeSmart = mapValue.count("timesmart") ? (unsigned int)atoi64(mapValue["timesmart"]) : 0;
         }
 
+        if (HasCTOutput())
+         {
+             READWRITE(vAmounts);
+             READWRITE(vMemos);
+             READWRITE(vGammas);
+         }
+
         mapValue.erase("fromaccount");
         mapValue.erase("version");
         mapValue.erase("spent");
         mapValue.erase("n");
         mapValue.erase("timesmart");
+
     }
 
     //! make sure balances are recalculated
@@ -451,6 +500,7 @@ public:
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetAvailableStakableCredit() const;
+    CAmount GetAvailablePrivateCredit() const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;
@@ -487,6 +537,10 @@ struct CRecipient
     CScript scriptPubKey;
     CAmount nAmount;
     bool fSubtractFeeFromAmount;
+    bool fBLSCT;
+    std::vector<unsigned char> sk;
+    std::vector<unsigned char> vk;
+    std::string sMemo;
 };
 
 class COutput
@@ -498,15 +552,18 @@ public:
     int nDepth;
     bool fSpendable;
     bool fSolvable;
+    std::vector<unsigned char> vMemo;
+    CAmount nAmount;
+    Scalar gamma;
 
-    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn)
+    COutput(const CWalletTx *txIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::vector<unsigned char> vMemoIn = std::vector<unsigned char>(), CAmount nAmountIn = 0, Scalar gammaIn = 0)
     {
-        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn;
+        tx = txIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn;
     }
 
-    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn)
+    COutput(const CWalletTx *txIn, const CTransaction *ptxIn, int iIn, int nDepthIn, bool fSpendableIn, bool fSolvableIn, std::vector<unsigned char> vMemoIn = std::vector<unsigned char>(), CAmount nAmountIn = 0, Scalar gammaIn = 0)
     {
-        tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn;
+        tx = txIn; ptx = ptxIn; i = iIn; nDepth = nDepthIn; fSpendable = fSpendableIn; fSolvable = fSolvableIn; vMemo = vMemoIn; nAmount = nAmountIn; gamma = gammaIn;
     }
 
     std::string ToString() const;
@@ -688,7 +745,9 @@ public:
     std::string strWalletFile;
 
     std::set<int64_t> setKeyPool;
+    std::set<int64_t> setBLSCTKeyPool;
     std::map<CKeyID, CKeyMetadata> mapKeyMetadata;
+    std::map<blsctPublicKey, CBLSCTKeyMetadata> mapBLSCTKeyMetadata;
 
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
@@ -759,6 +818,7 @@ public:
      * populate vCoins with vector of available COutputs.
      */
     void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed=true, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue=false, bool fIncludeColdStaking=false) const;
+    void AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl = NULL, bool fIncludeZeroValue = false) const;
     void AvailableCoinsForStaking(std::vector<COutput>& vCoins, unsigned int nSpendTime) const;
 
     /**
@@ -786,12 +846,16 @@ public:
      * Generate a new key
      */
     CPubKey GenerateNewKey();
+    blsctPublicKey GenerateNewBLSCTKey();
     //! Adds a key to the store, and saves it to disk.
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
+    bool AddBLSCTKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey);
     //! Adds a key to the store, without saving it to disk (used by LoadWallet)
     bool LoadKey(const CKey& key, const CPubKey &pubkey) { return CCryptoKeyStore::AddKeyPubKey(key, pubkey); }
+    bool LoadBLSCTKey(const blsctKey& key, const blsctPublicKey &pubkey) { return CBasicKeyStore::AddBLSCTKeyPubKey(key, pubkey); }
     //! Load metadata (used by LoadWallet)
     bool LoadKeyMetadata(const CPubKey &pubkey, const CKeyMetadata &metadata);
+    bool LoadBLSCTKeyMetadata(const blsctPublicKey &pubkey, const CBLSCTKeyMetadata &metadata);
 
     bool LoadMinVersion(int nVersion) { AssertLockHeld(cs_wallet); nWalletVersion = nVersion; nWalletMaxVersion = std::max(nWalletMaxVersion, nVersion); return true; }
 
@@ -832,15 +896,18 @@ public:
     bool GetAccountPubkey(CPubKey &pubKey, std::string strAccount, bool bForceNew = false);
 
     void MarkDirty();
-    bool AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletDB* pwalletdb);
-    void SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, const CBlock* pblock, const bool fConnect = true);
-    bool AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pblock, bool fUpdate);
+    bool AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletDB* pwalletdb, const std::vector<RangeproofEncodedData> *blsctData = nullptr);
+    void SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, const CBlock* pblock, const bool fConnect = true, const std::vector<RangeproofEncodedData> *blsctData = nullptr);
+    bool AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pblock, bool fUpdate, const std::vector<RangeproofEncodedData> *blsctData = nullptr);
     int ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate = false);
     void ReacceptWalletTransactions();
     void ResendWalletTransactions(int64_t nBestBlockTime);
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime);
     CAmount GetBalance() const;
     CAmount GetColdStakingBalance() const;
+    CAmount GetPrivateBalance() const;
+    CAmount GetPrivateBalancePending() const;
+    CAmount GetPrivateBalanceLocked() const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
     CAmount GetWatchOnlyBalance() const;
@@ -851,16 +918,16 @@ public:
      * Insert additional inputs into the transaction by
      * calling CreateTransaction();
      */
-    bool FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool overrideEstimatedFeeRate, const CFeeRate& specificFeeRate, int& nChangePosInOut, std::string& strFailReason, bool includeWatching, bool lockUnspents, const CTxDestination& destChange = CNoDestination());
+    bool FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool overrideEstimatedFeeRate, const CFeeRate& specificFeeRate, int& nChangePosInOut, std::string& strFailReason, bool includeWatching, bool lockUnspents, const CTxDestination& destChange = CNoDestination(), bool fPrivate = false);
 
     /**
      * Create a new transaction paying the recipients with a set of coins
      * selected by SelectCoins(); Also create the change output, when needed
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
-    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, const CCoinControl *coinControl = NULL, bool sign = true);
-    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
+    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
+                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true);
+    bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);
 
@@ -886,6 +953,15 @@ public:
     int64_t GetOldestKeyPoolTime();
     void GetAllReserveKeys(std::set<CKeyID>& setAddress) const;
 
+    bool NewBLSCTKeyPool();
+    bool TopUpBLSCTKeyPool(unsigned int kpSize = 0);
+    void ReserveBLSCTKeyFromKeyPool(int64_t& nIndex, CBLSCTKeyPool& keypool);
+    void KeepBLSCTKey(int64_t nIndex);
+    void ReturnBLSCTKey(int64_t nIndex);
+    bool GetBLSCTKeyFromPool(blsctPublicKey &key);
+    int64_t GetOldestBLSCTKeyPoolTime();
+    void GetAllReserveBLSCTKeys(std::set<blsctPublicKey>& setAddress) const;
+
     std::set< std::set<CTxDestination> > GetAddressGroupings();
     std::map<CTxDestination, CAmount> GetAddressBalances();
 
@@ -907,7 +983,7 @@ public:
     CAmount GetChange(const CTransaction& tx) const;
     void SetBestChain(const CBlockLocator& loc);
 
-    DBErrors LoadWallet(bool& fFirstRunRet);
+    DBErrors LoadWallet(bool& fFirstRunRet, bool& fFirstBLSCTRunRet);
     DBErrors ZapWalletTx(std::vector<CWalletTx>& vWtx);
     DBErrors ZapSelectTx(std::vector<uint256>& vHashIn, std::vector<uint256>& vHashOut);
 
@@ -941,6 +1017,7 @@ public:
     }
 
     bool SetDefaultKey(const CPubKey &vchPubKey);
+    bool SetBLSCTKeys(const bls::PrivateKey& v, const bls::PrivateKey& s, const bls::ExtendedPrivateKey& b);
 
     //! signify that a particular wallet feature is now used. this may change nWalletVersion and nWalletMaxVersion if those are lower
     bool SetMinVersion(enum WalletFeature, CWalletDB* pwalletdbIn = NULL, bool fExplicit = false);
@@ -1040,6 +1117,29 @@ public:
     void KeepScript() { KeepKey(); }
 };
 
+class CReserveBLSCTKey : public CReserveScript
+{
+protected:
+    CWallet* pwallet;
+    int64_t nIndex;
+    blsctPublicKey vchPubKey;
+public:
+    CReserveBLSCTKey(CWallet* pwalletIn)
+    {
+        nIndex = -1;
+        pwallet = pwalletIn;
+    }
+
+    ~CReserveBLSCTKey()
+    {
+        ReturnKey();
+    }
+
+    void ReturnKey();
+    bool GetReservedKey(blsctPublicKey &pubkey);
+    void KeepKey();
+    void KeepScript() { KeepKey(); }
+};
 
 /**
  * Account information.

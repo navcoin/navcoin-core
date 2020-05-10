@@ -286,12 +286,14 @@ void CommunityFundCreatePaymentRequestDialog::click_pushButtonSubmitPaymentReque
 
                 bool created_prequest = true;
 
-                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, nullptr, true)) {
+                std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+
+                if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, nullptr, true)) {
                     if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
                         created_prequest = false;
                     }
                 }
-                if (!pwalletMain->CommitTransaction(wtx, reservekey)) {
+                if (!pwalletMain->CommitTransaction(wtx, reservekey, reserveBLSCTKey)) {
                     created_prequest = false;
                 }
 

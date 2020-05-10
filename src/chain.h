@@ -239,6 +239,9 @@ public:
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     uint32_t nSequenceId;
 
+    CAmount nPrivateMoneySupply;
+    CAmount nPublicMoneySupply;
+
     void SetNull()
     {
         phashBlock = NULL;
@@ -256,6 +259,8 @@ public:
         nMint = 0;
         nCFSupply = 0;
         nCFLocked = 0;
+        nPrivateMoneySupply = 0;
+        nPublicMoneySupply = 0;
         nFlags = 0;
         nStakeModifier = 0;
 	      hashProof = arith_uint256();
@@ -528,7 +533,24 @@ public:
         READWRITE(nNonce);
         READWRITE(blockHash);
         READWRITE(nCFSupply);
-        READWRITE(nCFLocked);
+        if (ser_action.ForRead())
+        {
+            READWRITE(nCFLocked);
+            if (nCFLocked == (uint64_t)-1)
+            {
+                READWRITE(nCFLocked);
+                READWRITE(nPrivateMoneySupply);
+                READWRITE(nPublicMoneySupply);
+            }
+        }
+        else
+        {
+            uint64_t nMarker = -1;
+            READWRITE(nMarker);
+            READWRITE(nCFLocked);
+            READWRITE(nPrivateMoneySupply);
+            READWRITE(nPublicMoneySupply);
+        }
         READWRITE(vPaymentRequestVotes);
         READWRITE(vProposalVotes);
     }

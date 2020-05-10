@@ -31,6 +31,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, Op
     transactionTableModel(0),
     recentRequestsTableModel(0),
     cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0), cachedColdStakingBalance(0),
+    cachedPrivateBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
 {
@@ -74,6 +75,21 @@ CAmount WalletModel::getBalance(const CCoinControl *coinControl) const
 CAmount WalletModel::getUnconfirmedBalance() const
 {
     return wallet->GetUnconfirmedBalance();
+}
+
+CAmount WalletModel::getPrivateBalance() const
+{
+    return wallet->GetPrivateBalance();
+}
+
+CAmount WalletModel::getPrivateBalancePending() const
+{
+    return wallet->GetPrivateBalancePending();
+}
+
+CAmount WalletModel::getPrivateBalanceLocked() const
+{
+    return wallet->GetPrivateBalanceLocked();
 }
 
 CAmount WalletModel::getStake() const
@@ -151,6 +167,9 @@ void WalletModel::checkBalanceChanged()
     CAmount newImmatureBalance = getImmatureBalance();
     CAmount newStakingBalance = getStake();
     CAmount newColdStakingBalance = getColdStakingBalance();
+    CAmount newPrivateBalance = getPrivateBalance();
+    CAmount newPrivateBalancePending = getPrivateBalancePending();
+    CAmount newPrivateBalanceLocked = getPrivateBalanceLocked();
     CAmount newWatchOnlyBalance = 0;
     CAmount newWatchUnconfBalance = 0;
     CAmount newWatchImmatureBalance = 0;
@@ -163,7 +182,8 @@ void WalletModel::checkBalanceChanged()
 
     if(cachedBalance != newBalance || cachedUnconfirmedBalance != newUnconfirmedBalance || cachedImmatureBalance != newImmatureBalance ||
         cachedWatchOnlyBalance != newWatchOnlyBalance || cachedWatchUnconfBalance != newWatchUnconfBalance || cachedWatchImmatureBalance != newWatchImmatureBalance ||
-            cachedStakingBalance != newStakingBalance || cachedColdStakingBalance != newColdStakingBalance)
+            cachedStakingBalance != newStakingBalance || cachedColdStakingBalance != newColdStakingBalance || cachedPrivateBalance != newPrivateBalance ||
+            cachedPrivateBalancePending != newPrivateBalancePending || cachedPrivateBalanceLocked != newPrivateBalanceLocked)
     {
         cachedBalance = newBalance;
         cachedUnconfirmedBalance = newUnconfirmedBalance;
@@ -173,8 +193,12 @@ void WalletModel::checkBalanceChanged()
         cachedWatchOnlyBalance = newWatchOnlyBalance;
         cachedWatchUnconfBalance = newWatchUnconfBalance;
         cachedWatchImmatureBalance = newWatchImmatureBalance;
+        cachedPrivateBalance = newPrivateBalance;
+        cachedPrivateBalancePending = newPrivateBalancePending;
+        cachedPrivateBalanceLocked = newPrivateBalanceLocked;
         Q_EMIT balanceChanged(newBalance, newUnconfirmedBalance, newStakingBalance, newImmatureBalance,
-                            newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance, newColdStakingBalance);
+                            newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance, newColdStakingBalance, newPrivateBalance,
+                            newPrivateBalancePending, newPrivateBalanceLocked);
     }
 }
 
@@ -220,9 +244,9 @@ bool WalletModel::validateAddress(const QString &address)
   return addressParsed.IsValid();
 }
 
-WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransaction &transaction, const CCoinControl *coinControl)
+WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransaction &transaction, CAmount& total, const CCoinControl *coinControl)
 {
-    CAmount total = 0;
+    total = 0;
     bool fSubtractFeeFromAmount = false;
     QList<SendCoinsRecipient> recipients = transaction.getRecipients();
     std::vector<CRecipient> vecSend;
@@ -234,12 +258,17 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
     QSet<QString> setAddress; // Used to detect duplicates
     int nAddresses = 0;
+    bool fPrivate = false;
+    bool fAnyBLSCT = false;
 
     // Pre-check input data for validity
     for(const SendCoinsRecipient &rcp: recipients)
     {
         if (rcp.fSubtractFeeFromAmount)
             fSubtractFeeFromAmount = true;
+
+        if (rcp.isanon)
+            fPrivate = true;
 
         if (rcp.paymentRequest.IsInitialized())
         {   // PaymentRequest...
@@ -275,8 +304,17 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             setAddress.insert(rcp.address);
             ++nAddresses;
 
-            CScript scriptPubKey = GetScriptForDestination(CNavCoinAddress(rcp.address.toStdString()).Get());
-            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
+            CTxDestination address = CNavCoinAddress(rcp.address.toStdString()).Get();
+            CScript scriptPubKey = GetScriptForDestination(address);
+            bool fBLSCT = address.type() == typeid(blsctDoublePublicKey);
+            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount, fBLSCT};
+            fAnyBLSCT |= fBLSCT;
+            if (fBLSCT)
+            {
+                recipient.sk = boost::get<blsctDoublePublicKey>(address).GetSpendKey().Serialize();
+                recipient.vk = boost::get<blsctDoublePublicKey>(address).GetViewKey().Serialize();
+                recipient.sMemo = rcp.message.toStdString();
+            }
             vecSend.push_back(recipient);
 
             total += rcp.amount;
@@ -287,7 +325,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         return DuplicateAddress;
     }
 
-    CAmount nBalance = getBalance(coinControl);
+    CAmount nBalance = fPrivate ? getPrivateBalance() : getBalance(coinControl);
 
     if(total > nBalance)
     {
@@ -304,17 +342,19 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         std::vector<CRecipient> vec;
         vec.push_back(rcp);
         transaction.newPossibleKeyChange(wallet);
+        transaction.newPossibleBLSCTKeyChange(wallet);
 
         CAmount nFeeRequired = 0;
         int nChangePosRet = -1;
         std::string strFailReason;
         bool fCreated;
         CReserveKey *keyChange = transaction.getPossibleKeyChange();
+        std::vector<shared_ptr<CReserveBLSCTKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTKeyChange();
 
         CWalletTx *newTx;
         newTx = new CWalletTx();
 
-        fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true);
+        fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, *reserveBLSCTKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true);
         if (newTx->fSpendsColdStaking)
             transaction.fSpendsColdStaking = true;
         transaction.vTransactions.push_back(*newTx);
@@ -346,7 +386,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
     return SendCoinsReturn(OK);
 }
 
-WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &transaction, const CCoinControl *coinControl)
+WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &transaction, const bool& fPrivate, const CCoinControl *coinControl)
 {
     QByteArray transaction_array; /* store serialized transaction */
 
@@ -383,6 +423,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
           int nChangePosRet = -1;
           std::string strFailReason;
           CReserveKey *keyChange = transaction.getPossibleKeyChange();
+          std::vector<shared_ptr<CReserveBLSCTKey>> *reserveBLSCTKey = transaction.getPossibleBLSCTKeyChange();
 
           CWalletTx *wTx;
           wTx = new CWalletTx();
@@ -390,9 +431,9 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
           std::vector<CRecipient> vec;
           vec.push_back(rcp);
 
-          wallet->CreateTransaction(vec, *wTx, *keyChange, nFeeRequired, nChangePosRet, strFailReason, coinControl, true);
+          wallet->CreateTransaction(vec, *wTx, *keyChange, *reserveBLSCTKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true);
 
-          if(!wallet->CommitTransaction(*wTx, *keyChange))
+          if(!wallet->CommitTransaction(*wTx, *keyChange, *reserveBLSCTKey))
             return TransactionCommitFailed;
 
           CTransaction* t = (CTransaction*)wTx;
@@ -660,6 +701,31 @@ bool WalletModel::isSpent(const COutPoint& outpoint) const
 {
     LOCK2(cs_main, wallet->cs_wallet);
     return wallet->IsSpent(outpoint.hash, outpoint.n);
+}
+
+void WalletModel::listPrivateCoins(std::map<QString, std::vector<COutput> >& mapCoins) const
+{
+    std::vector<COutput> vCoins;
+    wallet->AvailablePrivateCoins(vCoins, true);
+
+    LOCK2(cs_main, wallet->cs_wallet);
+
+    for(const COutput& out: vCoins)
+    {
+        COutput cout = out;
+
+        while (wallet->IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && wallet->IsMine(cout.tx->vin[0]))
+        {
+            if (!wallet->mapWallet.count(cout.tx->vin[0].prevout.hash)) break;
+            cout = COutput(&wallet->mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0, true, true, out.vMemo, out.nAmount);
+        }
+
+        CTxDestination address;
+        if(!out.fSpendable)
+            continue;
+        std::string memo(out.vMemo.begin(), out.vMemo.end());
+        mapCoins[QString::fromStdString(memo!=""?memo:"(none)")].push_back(out);
+    }
 }
 
 // AvailableCoins + LockedCoins grouped by wallet address (put change in one group with wallet address)

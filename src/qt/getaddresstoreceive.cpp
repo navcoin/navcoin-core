@@ -30,8 +30,8 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
         bool fMine = IsMine(*pwalletMain, addressbook.Get());
         if(fMine)
         {
-          address = QString::fromStdString(addressbook.ToString());
-          break;
+            address = QString::fromStdString(addressbook.ToString());
+            break;
         }
     }
 
@@ -42,11 +42,52 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
     connect(ui->newAddressButton,SIGNAL(clicked()),this,SLOT(getNewAddress()));
     connect(ui->coldStakingButton,SIGNAL(clicked()),this,SLOT(getColdStakingAddress()));
     connect(ui->requestNewAddressButton,SIGNAL(clicked()),this,SLOT(showAddressHistory()));
+    connect(ui->privateAddressButton,SIGNAL(clicked()),this,SLOT(showPrivateAddress()));
 }
 
 getAddressToReceive::~getAddressToReceive()
 {
     delete ui;
+}
+
+void getAddressToReceive::showPrivateAddress()
+{
+    if (address.length() > 65)
+    {
+        LOCK(pwalletMain->cs_wallet);
+        for(const PAIRTYPE(CTxDestination, CAddressBookData)& item: pwalletMain->mapAddressBook)
+        {
+            const CNavCoinAddress& addressbook = item.first;
+            bool fMine = IsMine(*pwalletMain, addressbook.Get());
+            if(fMine)
+            {
+                address = QString::fromStdString(addressbook.ToString());
+                break;
+            }
+        }
+        ui->privateAddressButton->setText(QString(tr("Show private address")));
+        ui->requestNewAddressButton->show();
+        ui->requestPaymentButton->show();
+        ui->coldStakingButton->show();
+        ui->newAddressButton->show();
+    }
+    else
+    {
+        LOCK2(cs_main, pwalletMain->cs_wallet);
+
+        blsctDoublePublicKey k;
+        if (pwalletMain->GetBLSCTDoublePublicKey(k))
+            address = QString::fromStdString(CNavCoinAddress(k).ToString());
+        else
+            address = "Unavailable";
+
+        ui->privateAddressButton->setText(QString(tr("Show public address")));
+        ui->requestNewAddressButton->hide();
+        ui->requestPaymentButton->hide();
+        ui->coldStakingButton->hide();
+        ui->newAddressButton->hide();
+    }
+    showQR();
 }
 
 void getAddressToReceive::showRequestPayment()

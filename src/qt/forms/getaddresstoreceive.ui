@@ -152,33 +152,33 @@
            </item>
            <item>
             <widget class="QLineEdit" name="lblAddress">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="verticalLayout_13">
              <item>
-               <widget class="QPushButton" name="copyClipboardButton">
-                <property name="text">
-                 <string>&amp;Copy to clipboard</string>
-                </property>
-                <property name="default">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="newAddressButton">
-                <property name="text">
-                 <string>&amp;Generate a new address</string>
-                </property>
-               </widget>
-              </item>
+              <widget class="QPushButton" name="copyClipboardButton">
+               <property name="text">
+                <string>&amp;Copy to clipboard</string>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="newAddressButton">
+               <property name="text">
+                <string>&amp;Generate a new address</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>
@@ -289,6 +289,13 @@
         <widget class="QPushButton" name="coldStakingButton">
          <property name="text">
           <string>&amp;Create a Cold Staking address</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="privateAddressButton">
+         <property name="text">
+          <string>Show private address</string>
          </property>
         </widget>
        </item>

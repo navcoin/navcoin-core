@@ -6,6 +6,7 @@
 #ifndef NAVCOIN_SCRIPT_STANDARD_H
 #define NAVCOIN_SCRIPT_STANDARD_H
 
+#include <blsct/key.h>
 #include <script/interpreter.h>
 #include <uint256.h>
 
@@ -17,6 +18,7 @@ static const bool DEFAULT_ACCEPT_DATACARRIER = true;
 
 class CKeyID;
 class CScript;
+class Key;
 
 /** A reference to a CScript: the Hash160 of its serialization (see script.h) */
 class CScriptID : public uint160
@@ -76,7 +78,7 @@ public:
  *  * Pair of two CKeyID: TX_COLDSTAKING destination
  *  A CTxDestination is the internal data type encoded in a CNavCoinAddress
  */
-typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, CScript> CTxDestination;
+typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, blsctDoublePublicKey, CScript> CTxDestination;
 
 const char* GetTxnOutputType(txnouttype t);
 

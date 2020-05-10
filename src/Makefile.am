@@ -1,4 +1,4 @@
-DIST_SUBDIRS = secp256k1 univalue bls-signatures
+DIST_SUBDIRS = secp256k1 univalue bls-signatures tor
 
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
@@ -50,6 +50,55 @@ $(LIBBLS): $(wildcard bls-signatures/src/*.hpp) $(wildcard bls-signatures/src/*.
 	$(AM_V_at)cd $(@D)/build && cmake ..
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)/build bls
 
+TOR_UTIL_LIBS = \
+        tor/src/lib/libtor-geoip.a \
+        tor/src/lib/libtor-process.a \
+        tor/src/lib/libtor-buf.a \
+        tor/src/lib/libtor-confmgt.a \
+        tor/src/lib/libtor-pubsub.a \
+        tor/src/lib/libtor-dispatch.a \
+        tor/src/lib/libtor-time.a \
+        tor/src/lib/libtor-fs.a \
+        tor/src/lib/libtor-encoding.a \
+        tor/src/lib/libtor-sandbox.a \
+        tor/src/lib/libtor-container.a \
+        tor/src/lib/libtor-net.a \
+        tor/src/lib/libtor-thread.a \
+        tor/src/lib/libtor-memarea.a \
+        tor/src/lib/libtor-math.a \
+        tor/src/lib/libtor-meminfo.a \
+        tor/src/lib/libtor-osinfo.a \
+        tor/src/lib/libtor-log.a \
+        tor/src/lib/libtor-lock.a \
+        tor/src/lib/libtor-fdio.a \
+        tor/src/lib/libtor-string.a \
+        tor/src/lib/libtor-term.a \
+        tor/src/lib/libtor-smartlist-core.a \
+        tor/src/lib/libtor-malloc.a \
+        tor/src/lib/libtor-wallclock.a \
+        tor/src/lib/libtor-err.a \
+        tor/src/lib/libtor-version.a \
+        tor/src/lib/libtor-llharden.a \
+        tor/src/lib/libtor-intmath.a \
+        tor/src/lib/libtor-ctime.a
+
+# Internal crypto libraries used in Tor
+TOR_CRYPTO_LIBS = \
+        src/lib/libtor-tls.a \
+        tor/src/lib/libtor-crypt-ops.a \
+        $(LIBKECCAK_TINY) \
+        $(LIBDONNA)
+
+# All static libraries used to link tor.
+TOR_INTERNAL_LIBS = \
+        tor/src/core/libtor-app.a \
+        tor/src/lib/libtor-compress.a \
+        tor/src/lib/libtor-evloop.a \
+        tor/$(TOR_CRYPTO_LIBS) \
+        $(TOR_UTIL_LIBS) \
+        tor/src/trunnel/libor-trunnel.a \
+        tor/src/lib/libtor-trace.a
+
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
 EXTRA_LIBRARIES += \
@@ -87,7 +136,10 @@ NAVCOIN_CORE_H = \
   bloom.h \
   blockencodings.h \
   blsct/bulletproofs.h \
+  blsct/key.h \
+  blsct/transaction.h \
   blsct/types.h \
+  blsct/verification.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -296,6 +348,9 @@ libnavcoin_consensus_a_SOURCES = \
   amount.h \
   arith_uint256.cpp \
   arith_uint256.h \
+  blsct/bulletproofs.cpp \
+  blsct/transaction.cpp \
+  blsct/types.cpp \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
@@ -361,7 +416,9 @@ libnavcoin_common_a_SOURCES = \
   amount.cpp \
   base58.cpp \
   blsct/bulletproofs.cpp \
+  blsct/transaction.cpp \
   blsct/types.cpp \
+  blsct/verification.cpp \
   chainparams.cpp \
   coins.cpp \
   compressor.cpp \
@@ -434,7 +491,8 @@ navcoind_LDADD = \
   $(LIBNAVCOIN_CRYPTO) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
-  $(LIBSECP256K1)
+  $(LIBSECP256K1) \
+  $(TOR_INTERNAL_LIBS)
 
 navcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(BLS_LIBS)
 
@@ -487,9 +545,9 @@ if GLIBC_BACK_COMPAT
   libnavcoinconsensus_la_SOURCES += compat/glibc_compat.cpp
 endif
 
-libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1)
-libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src -DBUILD_NAVCOIN_INTERNAL
+libnavcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(BOOST_LIBS)
+libnavcoinconsensus_la_LIBADD = $(LIBSECP256K1) -lbls -L$(srcdir)/bls-signatures/build/
+libnavcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -I$(srcdir)/bls-signatures/src  -I$(srcdir)/bls-signatures/build/contrib/relic/include/ -I$(srcdir)/bls-signatures/contrib/relic/include/ -DBUILD_NAVCOIN_INTERNAL
 libnavcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
@@ -522,6 +580,7 @@ EXTRA_DIST = $(CTAES_DIST)
 clean-local:
 	-$(MAKE) -C secp256k1 clean
 	-$(MAKE) -C bls-signatures/build clean
+	-$(MAKE) -C tor clean
 	-$(MAKE) -C univalue clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h

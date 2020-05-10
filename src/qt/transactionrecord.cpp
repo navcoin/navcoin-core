@@ -36,7 +36,11 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     int64_t nTime = wtx.GetTxTime();
     isminefilter dCFilter = wtx.IsCoinStake() ? wallet->IsMine(wtx.vout[1]) : ISMINE_ALL;
     CAmount nCredit = wtx.GetCredit(dCFilter, false);
+    CAmount nPrivateCredit = wtx.GetCredit(ISMINE_SPENDABLE_PRIVATE);
+    CAmount nPublicCredit = wtx.GetCredit(ISMINE_SPENDABLE);
     CAmount nDebit = wtx.GetDebit(dCFilter);
+    CAmount nPrivateDebit = wtx.GetDebit(ISMINE_SPENDABLE_PRIVATE);
+    CAmount nPublicDebit = wtx.GetDebit(ISMINE_SPENDABLE);
     CAmount nCFundCredit = wtx.GetDebit(ISMINE_ALL);
     CAmount nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash();
@@ -48,6 +52,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         // Credit
         //
         unsigned int i = 0;
+        bool fBLSCT = false;
         CAmount nReward = -nDebit;
         if (wtx.IsCoinStake())
         {
@@ -111,10 +116,14 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                         sub.type = TransactionRecord::Staked;
                     }
                 }
-                if(wtx.fAnon)
+                else if(txout.HasRangeProof())
                 {
-                    sub.type = TransactionRecord::AnonTx;
+                    sub.type = TransactionRecord::AnonTxRecv;
+                    sub.memo = std::string(wtx.vMemos[i].begin(), wtx.vMemos[i].end());
+                    sub.credit = wtx.vAmounts[i];
+                    fBLSCT = true;
                 }
+
                 if(txout.scriptPubKey.IsCommunityFundContribution())
                 {
                     sub.type = TransactionRecord::CFund;
@@ -137,10 +146,13 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         }
 
         isminetype fAllToMe = ISMINE_SPENDABLE;
+        bool fHasSomeNormalOut = false;
         for(const CTxOut& txout: wtx.vout)
         {
+            if (txout.scriptPubKey.IsFee()) continue;
             isminetype mine = wallet->IsMine(txout);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
+            if(mine & ISMINE_SPENDABLE) fHasSomeNormalOut = true;
             if(fAllToMe > mine) fAllToMe = mine;
         }
 
@@ -149,16 +161,22 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             // Payment to self
             CAmount nChange = wtx.GetChange();
 
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, "",
+            parts.append(TransactionRecord(hash, nTime, TransactionRecord::Fee, "",
                             -(nDebit - nChange), nCredit - nChange));
             parts.last().involvesWatchAddress = involvesWatchAddress;   // maybe pass to TransactionRecord as constructor argument
+            if (wtx.IsBLSInput() && fHasSomeNormalOut)
+                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPublic, "",
+                                                0, nPublicCredit));
+             else if (!wtx.IsBLSInput() && wtx.IsCTOutput())
+                 parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelfPrivate, "",
+                                                0, nPrivateCredit));
         }
         else if (fAllFromMe)
         {
             //
             // Debit
             //
-            CAmount nTxFee = nDebit - wtx.GetValueOut();
+            CAmount nTxFee = wtx.IsBLSCT() ? wtx.GetFee() : nDebit - wtx.GetValueOut();
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -188,16 +206,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.address = mapValue["to"];
                 }
 
-                if(wtx.fAnon)
-                {
-                    sub.type = TransactionRecord::AnonTx;
-                }
-
-                if(txout.scriptPubKey.IsCommunityFundContribution())
-                {
-                    sub.type = TransactionRecord::CFund;
-                }
-
                 CAmount nValue = txout.nValue;
                 /* Add fee to first output */
                 if (nTxFee > 0)
@@ -206,6 +214,19 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     nTxFee = 0;
                 }
                 sub.debit = -nValue;
+
+                if(txout.HasRangeProof())
+                {
+                    sub.type = TransactionRecord::AnonTxSend;
+                    sub.memo = std::string(wtx.vMemos[nOut].begin(), wtx.vMemos[nOut].end());
+                    sub.debit = nPrivateDebit;
+                }
+
+                else if (txout.scriptPubKey.IsCommunityFundContribution())
+                    sub.type = TransactionRecord::CFund;
+
+                else if (txout.scriptPubKey.IsFee())
+                    sub.type = TransactionRecord::Fee;
 
                 parts.append(sub);
             }

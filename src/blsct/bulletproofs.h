@@ -6,9 +6,10 @@
 // inspired by https://github.com/b-g-goodell/research-lab/blob/master/source-code/StringCT-java/src/how/monero/hodl/bulletproof/Bulletproof.java
 // and https://github.com/monero-project/monero/blob/master/src/ringct/bulletproofs.cc
 
-#ifndef NAVCOIN_BLSCT_OPERATIONS_H
-#define NAVCOIN_BLSCT_OPERATIONS_H
+#ifndef NAVCOIN_blsct_OPERATIONS_H
+#define NAVCOIN_blsct_OPERATIONS_H
 
+#include <amount.h>
 #include <bls.hpp>
 #include <blsct/types.h>
 #include <utilstrencodings.h>
@@ -16,26 +17,36 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
 
-namespace BLSCT
-{
 static const size_t maxN = 64;
 static const size_t maxMessageSize = 20;
 static const size_t maxM = 16;
 static const size_t maxMN = maxM*maxN;
 
+static const uint8_t balanceMsg[12] = {'B', 'L', 'S', 'C', 'T', 'B', 'A', 'L', 'A', 'N', 'C', 'E'};
+
 class BulletproofsRangeproof
 {
 public:
-    template <typename Stream>
-    BulletproofsRangeproof(Stream& strm)
-    {
-        Stream strmCopy = strm;
-        strmCopy >> *this;
-    }
-
     BulletproofsRangeproof() {}
 
-    void Prove(const std::vector<Scalar> &v, const std::vector<Scalar> &gamma, const std::vector<uint8_t>& message = std::vector<uint8_t>(), Scalar nonce = 0);
+    static bool Init();
+
+    void Prove(const std::vector<Scalar> &v, const std::vector<Scalar> &gamma, Point nonce, const std::vector<uint8_t>& message = std::vector<uint8_t>());
+
+    bool operator==(const BulletproofsRangeproof& rh) const {
+        return (V == rh.V &&
+                L == rh.L &&
+                R == rh.R &&
+                A == rh.A &&
+                S == rh.S &&
+                T1 == rh.T1 &&
+                T2 == rh.T2 &&
+                taux == rh.taux &&
+                mu == rh.mu &&
+                a == rh.a &&
+                b == rh.b &&
+                t == rh.t);
+    }
 
     ADD_SERIALIZE_METHODS;
     template <typename Stream, typename Operation>  inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
@@ -84,7 +95,15 @@ public:
     Scalar t;
 };
 
-bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::vector<uint64_t>& amounts, std::vector<Scalar>& gammas, std::vector<std::vector<uint8_t>>& messages, const std::vector<Scalar>& nonces, bool &fIsMine, const bool &fOnlyRecover = false);
-}
+struct RangeproofEncodedData
+{
+    CAmount amount;
+    Scalar gamma;
+    std::vector<uint8_t> message;
+    int index;
+    bool valid = false;
+};
 
-#endif // NAVCOIN_BLSCT_OPERATIONS_H
+bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& data, const std::vector<Point>& nonces, const bool &fOnlyRecover = false);
+
+#endif // NAVCOIN_blsct_OPERATIONS_H

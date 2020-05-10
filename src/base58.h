@@ -19,6 +19,7 @@
 #include <pubkey.h>
 #include <script/script.h>
 #include <script/standard.h>
+#include <streams.h>
 #include <support/allocators/zeroafterfree.h>
 
 #include <string>
@@ -111,9 +112,11 @@ public:
     bool Set(const CScriptID &id);
     bool Set(const CScript &scriptIn);
     bool Set(const CTxDestination &dest);
+    bool Set(const blsctDoublePublicKey &id);
     bool IsValid() const;
     bool IsValid(const CChainParams &params) const;
     bool IsColdStakingAddress(const CChainParams& params) const;
+    bool IsPrivateAddress(const CChainParams& params) const;
     bool IsRawScript() const;
 
     CNavCoinAddress() {}
@@ -132,7 +135,6 @@ public:
 
     bool GetStakingAddress(CNavCoinAddress &address) const;
     bool GetSpendingAddress(CNavCoinAddress &address) const;
-
 };
 
 /**

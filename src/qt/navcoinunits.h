@@ -92,7 +92,7 @@ public:
         SEK, // Swedish krona
         SGD, // Singapore dollar
         THB, // Thai baht
-        TRY, // Turkish lira
+        TRYy, // Turkish lira
         TWD, // New Taiwan dollar
         ZAR  // South African rand
     };

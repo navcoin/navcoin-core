@@ -55,7 +55,8 @@ public Q_SLOTS:
     SendCoinsEntry *addEntry();
     void updateTabsAndLabels();
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance);
+                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& coldStakingBalance,
+                    const CAmount& privateBalance, const CAmount& privPending, const CAmount& privLocked);
 
 private:
     Ui::SendCoinsDialog *ui;
@@ -63,6 +64,7 @@ private:
     WalletModel *model;
     bool fNewRecipientAllowed;
     const PlatformStyle *platformStyle;
+    bool fPrivate;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting
     // of a message and message flags for use in Q_EMIT message().
@@ -73,6 +75,7 @@ private Q_SLOTS:
     void on_sendButton_clicked();
     void removeEntry(SendCoinsEntry* entry);
     void updateDisplayUnit();
+    void updatePrivateOrPublic(bool fPrivate);
     void coinControlFeatureChanged(bool);
     void coinControlButtonClicked();
     void coinControlChangeChecked(int);

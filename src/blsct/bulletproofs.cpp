@@ -9,10 +9,6 @@
 #include <blsct/bulletproofs.h>
 #include <tinyformat.h>
 
-#include "random.h"
-
-namespace BLSCT
-{
 bool BLSInitResult = bls::BLS::Init();
 
 static std::vector<Scalar> VectorPowers(const Scalar &x, size_t n);
@@ -52,14 +48,14 @@ static Point GetBasePoint(const Point &base, size_t idx)
 }
 
 // Initialize bases and constants
-static void Init()
+bool BulletproofsRangeproof::Init()
 {
     boost::lock_guard<boost::mutex> lock(BulletproofsRangeproof::init_mutex);
 
     static bool fInit = false;
 
     if (fInit)
-        return;
+        return true;
 
     BulletproofsRangeproof::one = 1;
     BulletproofsRangeproof::two = 2;
@@ -84,6 +80,8 @@ static void Init()
     BulletproofsRangeproof::ip12 = InnerProduct(BulletproofsRangeproof::oneN, BulletproofsRangeproof::twoN);
 
     fInit = true;
+
+    return true;
 }
 
 // Todo multi-exp optimization
@@ -362,7 +360,7 @@ Point CrossVectorExponent(size_t size, const std::vector<Point> &A, size_t Ao, c
     return MultiExp(multiexp_data);
 }
 
-void BulletproofsRangeproof::Prove(const std::vector<Scalar>& v, const std::vector<Scalar> &gamma, const std::vector<uint8_t>& message, Scalar nonce)
+void BulletproofsRangeproof::Prove(const std::vector<Scalar>& v, const std::vector<Scalar> &gamma, Point nonce, const std::vector<uint8_t>& message)
 {
     if (pow(2, BulletproofsRangeproof::logN) > maxN)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
@@ -377,9 +375,6 @@ void BulletproofsRangeproof::Prove(const std::vector<Scalar>& v, const std::vect
     CHECK_AND_ASSERT_THROW_MES(!v.empty(), "sv is empty");
 
     Init();
-
-    if (nonce == 0)
-        nonce = Scalar::Rand();
 
     const size_t N = 1<<BulletproofsRangeproof::logN;
 
@@ -430,15 +425,6 @@ try_again:
     // Commitment to aL and aR (obfuscated with alpha)
     Scalar alpha;
     Scalar sM = message;
-
-    Scalar test;
-    test.SetVch(message);
-    CHECK_AND_ASSERT_THROW_MES(test == sM, "sv/gamma are too large1");
-    std::vector<uint8_t> ss = test.GetVch();
-    CHECK_AND_ASSERT_THROW_MES(ss == message, "sv/gamma are too large2");
-    CHECK_AND_ASSERT_THROW_MES(sM.GetVch() == message, "sv/gamma are too large3");
-
-
     sM = sM << 144;
 
     alpha = nonce.Hash(1);
@@ -671,18 +657,8 @@ struct proof_data_t
     size_t logM, inv_offset;
 };
 
-bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::vector<uint64_t>& amounts, std::vector<Scalar>& gammas, std::vector<std::vector<uint8_t>>& messages, const std::vector<Scalar>& nonces, bool &fIsMine, const bool &fOnlyRecover)
+bool VerifyBulletproof(const std::vector<std::pair<int, BulletproofsRangeproof>>& proofs, std::vector<RangeproofEncodedData>& vData, const std::vector<Point>& nonces, const bool &fOnlyRecover)
 {
-    std::vector<std::vector<Point>> v;
-
-    for (auto& it: proofs)
-    {
-        v.push_back(it.GetValueCommitments());
-    }
-
-    if (proofs.size() != v.size())
-        throw std::runtime_error("VerifyBulletproof(): Proofs vector != value commitments vector");
-
     bool fRecover = false;
 
     if (nonces.size() == proofs.size())
@@ -691,7 +667,7 @@ bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::v
     if (pow(2, BulletproofsRangeproof::logN) > maxN)
         throw std::runtime_error("BulletproofsRangeproof::Prove(): logN value is too high");
 
-    Init();
+    BulletproofsRangeproof::Init();
 
     unsigned int N = 1 << BulletproofsRangeproof::logN;
 
@@ -700,13 +676,12 @@ bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::v
 
     std::vector<proof_data_t> proof_data;
 
-    size_t inv_offset = 0;
+    size_t inv_offset = 0, j = 0;
     std::vector<Scalar> to_invert;
 
-    int j = 0;
-
-    for (const BulletproofsRangeproof proof: proofs)
+    for (auto& p: proofs)
     {
+        BulletproofsRangeproof proof = p.second;
         if (!(proof.V.size() >= 1 && proof.L.size() == proof.R.size() &&
               proof.L.size() > 0))
             return false;
@@ -779,16 +754,18 @@ bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::v
             Scalar excess = (proof.mu - rho*pd.x) - alpha;
             Scalar amount = (excess & Scalar(0xFFFFFFFFFFFFFFFF));
 
-            amounts.push_back(amount.GetUint64());
-
-            Scalar message = (excess>>144);
-            std::vector<uint8_t> m = message.GetVch();
-            messages.push_back(m);
+            RangeproofEncodedData data;
+            data.index = p.first;
+            data.amount = amount.GetUint64();
+            data.message = (excess>>144).GetVch();
+            data.valid = true;
 
             Scalar gamma = (proof.taux - (tau2*pd.x*pd.x) - (tau1*pd.x)) * (pd.z*pd.z).Invert();
-            gammas.push_back(gamma);
+            data.gamma = gamma;
 
-            fIsMine = ((BulletproofsRangeproof::G*gamma + BulletproofsRangeproof::H*amount) == pd.V[0]);
+            bool fIsMine = ((BulletproofsRangeproof::G*gamma + BulletproofsRangeproof::H*amount) == pd.V[0]);
+            if (fIsMine)
+                vData.push_back(data);
 
             j++;
         }
@@ -821,8 +798,10 @@ bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::v
     multiexpdata.reserve(nV + (2 * (10/*logM*/ + BulletproofsRangeproof::logN) + 4) * proofs.size() + 2 * maxMN);
     multiexpdata.resize(2 * maxMN);
 
-    for (const BulletproofsRangeproof proof: proofs)
+    for (auto& p: proofs)
     {
+        BulletproofsRangeproof proof = p.second;
+
         const proof_data_t &pd = proof_data[proof_data_index++];
 
         if (proof.L.size() != BulletproofsRangeproof::logN+pd.logM)
@@ -972,7 +951,6 @@ bool VerifyBulletproof(const std::vector<BulletproofsRangeproof>& proofs, std::v
     }
 
     Point mexp = MultiExp(multiexpdata);
-    return mexp.IsUnity();
-}
 
+    return mexp.IsUnity();
 }

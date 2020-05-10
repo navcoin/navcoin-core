@@ -44,7 +44,9 @@ public:
 
     static QList<CAmount> payAmounts;
     static CCoinControl *coinControl;
+    static CCoinControl *zeroCoinControl;
     static bool fSubtractFeeFromAmount;
+    static bool fPrivate;
 
 private:
     Ui::CoinControlDialog *ui;

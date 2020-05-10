@@ -892,6 +892,8 @@ bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
         return true;
     if ((int64_t)tx.nLockTime < ((int64_t)tx.nLockTime < LOCKTIME_THRESHOLD ? (int64_t)nBlockHeight : nBlockTime))
         return true;
+    if (tx.IsBLSCT())
+        return true;
     for(const CTxIn& txin: tx.vin) {
         if (!(txin.nSequence == CTxIn::SEQUENCE_FINAL))
             return false;
@@ -1163,6 +1165,12 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
     if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_BASE_SIZE)
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
 
+    if ((tx.IsCTOutput() && (!tx.HasCTOutput() || tx.vchBalanceSig.size() == 0)) || (!tx.IsCTOutput() && (tx.HasCTOutput() || tx.vchBalanceSig.size() > 0)))
+        return state.DoS(100, false, REJECT_INVALID, "bad-ctout-version-flag");
+
+    if ((tx.IsBLSInput() && (tx.vchBalanceSig.size() == 0 || tx.vchTxSig.size() == 0)) || (!tx.IsBLSInput() && (tx.vchTxSig.size() > 0)))
+        return state.DoS(100, false, REJECT_INVALID, "bad-blsinput-version-flag");
+
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
     for(const CTxOut& txout: tx.vout)
@@ -1222,6 +1230,30 @@ std::string FormatStateMessage(const CValidationState &state)
         state.GetRejectCode());
 }
 
+bool RemoveBLSCTConflicting(CTxMemPool& pool, const CTxIn& txin)
+{
+    LOCK(pool.cs);
+
+    CTxMemPool::setEntries allConflicting;
+    auto itConflicting = pool.mapNextTx.find(txin.prevout);
+
+    if (itConflicting != pool.mapNextTx.end())
+    {
+        const CTransaction *ptxConflicting = itConflicting->second;
+        uint256 hashConflicting = ptxConflicting->GetHash();
+        CTxMemPool::txiter mi = pool.mapTx.find(hashConflicting);
+        if (mi == pool.mapTx.end())
+            return true;
+
+        LogPrintf("%s: Removing BLSCT conflict %s from the mempool\n", __func__, hashConflicting.ToString());
+
+        pool.CalculateDescendants(mi, allConflicting);
+        pool.RemoveStaged(allConflicting, false);
+    }
+
+    return true;
+}
+
 bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree,
                               bool* pfMissingInputs, bool fOverrideMempoolLimit, const CAmount& nAbsurdFee,
                               std::vector<uint256>& vHashTxnToUncache)
@@ -1250,6 +1282,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         return state.DoS(0, false, REJECT_NONSTANDARD, "no-witness-yet", true);
     }
 
+    bool fBls = IsBLSCTEnabled(chainActive.Tip(), Params().GetConsensus());
+    if (!fBls && (tx.IsBLSInput() || tx.IsCTOutput())) {
+        return state.DoS(0, false, REJECT_NONSTANDARD, "no-blsct-yet", true);
+     }
+
     // Rather not work on nonstandard transactions (unless -testnet/-regtest)
     string reason;
     if (fRequireStandard && !IsStandardTx(tx, reason, witnessEnabled))
@@ -1271,6 +1308,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     LOCK(pool.cs); // protect pool.mapNextTx
     for(const CTxIn &txin: tx.vin)
     {
+        if (tx.IsBLSInput())
+        {
+            if (pool.exists(txin.prevout.hash))
+                return state.Invalid(false, REJECT_CONFLICT, "blsct-cant-spend-unconfirmed");
+        }
         auto itConflicting = pool.mapNextTx.find(txin.prevout);
         if (itConflicting != pool.mapNextTx.end())
         {
@@ -1290,7 +1332,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 // unconfirmed ancestors anyway; doing otherwise is hopelessly
                 // insecure.
                 bool fReplacementOptOut = true;
-                if (fEnableReplacement)
+                if (fEnableReplacement && !tx.IsBLSInput())
                 {
                     for(const CTxIn &txin: ptxConflicting->vin)
                     {
@@ -1301,7 +1343,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                         }
                     }
                 }
-                if (fReplacementOptOut)
+                if (fReplacementOptOut && tx.IsBLSInput())
                     return state.Invalid(false, REJECT_CONFLICT, "txn-mempool-conflict");
 
                 setConflicts.insert(ptxConflicting->GetHash());
@@ -1309,6 +1351,8 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         }
     }
     }
+
+    std::vector<RangeproofEncodedData> blsctData;
 
     {
         CCoinsView dummy;
@@ -1326,11 +1370,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
             int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+            if((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
                 if(!CFund::IsValidProposal(tx, nMaxVersionProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+            if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
                 if(!CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
         }
@@ -1388,7 +1432,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
               }
             }
 
-            if(nProposalFee > 0 && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
+            if(nProposalFee > 0 && (tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
                 CFund::CProposal proposal;
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
                 {
@@ -1401,7 +1445,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 }
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
+            if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
                 CFund::CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest, view))
                 {
@@ -1435,6 +1479,9 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = (!tx.IsCoinStake())?nValueIn-nValueOut:0;
+        if (tx.IsBLSInput() || tx.IsCTOutput())
+            nFees = tx.GetFee();
+
         // nModifiedFees includes any fee deltas from PrioritiseTransaction
         CAmount nModifiedFees = nFees;
         double nPriorityDummy = 0;
@@ -1664,12 +1711,12 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         PrecomputedTransactionData txdata(tx);
-        if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, txdata)) {
+        if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, blsctData, txdata)) {
             // SCRIPT_VERIFY_CLEANSTACK requires SCRIPT_VERIFY_WITNESS, so we
             // need to turn both off, and compare against just turning off CLEANSTACK
             // to see if the failure is specifically due to witness validation.
-            if (CheckInputs(tx, state, view, true, scriptVerifyFlags & ~(SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_CLEANSTACK), true, txdata) &&
-                !CheckInputs(tx, state, view, true, scriptVerifyFlags & ~SCRIPT_VERIFY_CLEANSTACK, true, txdata)) {
+            if (CheckInputs(tx, state, view, true, scriptVerifyFlags & ~(SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_CLEANSTACK), true, blsctData, txdata) &&
+                !CheckInputs(tx, state, view, true, scriptVerifyFlags & ~SCRIPT_VERIFY_CLEANSTACK, true, blsctData, txdata)) {
                 // Only the witness is wrong, so the transaction itself may be fine.
                 state.SetCorruptionPossible();
             }
@@ -1685,7 +1732,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         // There is a similar check in CreateNewBlock() to prevent creating
         // invalid blocks, however allowing such transactions into the mempool
         // can be exploited as a DoS attack.
-        if (!CheckInputs(tx, state, view, true, MANDATORY_SCRIPT_VERIFY_FLAGS, true, txdata))
+        if (!CheckInputs(tx, state, view, true, MANDATORY_SCRIPT_VERIFY_FLAGS, true, blsctData, txdata))
         {
             return error("%s: BUG! PLEASE REPORT THIS! ConnectInputs failed against MANDATORY but not STANDARD flags %s, %s",
                 __func__, hash.ToString(), FormatStateMessage(state));
@@ -1723,7 +1770,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
         }
     }
 
-    SyncWithWallets(tx, nullptr, nullptr);
+    SyncWithWallets(tx, nullptr, nullptr, true, &blsctData);
 
     return true;
 }
@@ -1737,7 +1784,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
         LogPrintf("%s: Successfully added txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
     else
     {
-        LogPrintf("%s: FAILED to add txn %s to %s.\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool");
+        LogPrintf("%s: FAILED to add txn %s to %s (%s).\n", __func__, tx.ToString(), (&pool == &mempool) ? "mempool" : "stempool", state.GetRejectReason());
         for(const uint256& hashTx: vHashTxToUncache)
                 pcoinsTip->Uncache(hashTx);
     }
@@ -2158,60 +2205,94 @@ int GetSpendHeight(const CCoinsViewCache& inputs)
 }
 
 namespace Consensus {
-bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight)
+bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, std::vector<RangeproofEncodedData>& blsctData)
 {
-        // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
-        // for an attacker to attempt to split the network.
-        if (!inputs.HaveInputs(tx))
-            return state.Invalid(false, 0, "", "Inputs unavailable");
-        CAmount nValueIn = 0;
-        CAmount nFees = 0;
-        for (unsigned int i = 0; i < tx.vin.size(); i++)
+    // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
+    // for an attacker to attempt to split the network.
+    if (!inputs.HaveInputs(tx))
+        return state.Invalid(false, 0, "", "Inputs unavailable");
+    CAmount nValueIn = 0;
+    CAmount nFees = 0;
+    bool fHasBLSInput = false;
+    for (unsigned int i = 0; i < tx.vin.size(); i++)
+    {
+        const COutPoint &prevout = tx.vin[i].prevout;
+        const CCoins *coins = inputs.AccessCoins(prevout.hash);
+        assert(coins);
+
+        if (coins->vout[prevout.n].IsBLSCT())
         {
-            const COutPoint &prevout = tx.vin[i].prevout;
-            const CCoins *coins = inputs.AccessCoins(prevout.hash);
-            assert(coins);
-
-            // If prev is coinbase, check that it's matured
-            if ((coins->IsCoinBase() || coins->IsCoinStake()) && !GetBoolArg("-testnet",false)) {
-                if (nSpendHeight - coins->nHeight < ::Params().GetConsensus().nCoinbaseMaturity && nSpendHeight - coins->nHeight > 0)
-                    return state.Invalid(false,
-                        REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
-                        strprintf("tried to spend %s at depth %d", coins->IsCoinBase() ?"coinbase":"coinstake",nSpendHeight - coins->nHeight));
-            }
-
-            // Check for negative or overflow input values
-            nValueIn += coins->vout[prevout.n].nValue;
-            if (!MoneyRange(coins->vout[prevout.n].nValue) || !MoneyRange(nValueIn))
-                return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputvalues-outofrange");
-
+            if (!fHasBLSInput && i > 0)
+                return state.Invalid(false,
+                                     REJECT_INVALID, "bad-mix-bls-inputs",
+                                     "transaction mixes bls and legacy inputs");
+            fHasBLSInput = true;
         }
 
+        if (fHasBLSInput && !coins->vout[prevout.n].IsBLSCT())
+            return state.Invalid(false,
+                                 REJECT_INVALID, "bad-mix-bls-inputs",
+                                 "transaction mixes bls and legacy inputs");
+
+        // If prev is coinbase, check that it's matured
+        if ((coins->IsCoinBase() || coins->IsCoinStake()) && !GetBoolArg("-testnet",false)) {
+            if (nSpendHeight - coins->nHeight < ::Params().GetConsensus().nCoinbaseMaturity && nSpendHeight - coins->nHeight > 0)
+                return state.Invalid(false,
+                                     REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
+                                     strprintf("tried to spend %s at depth %d", coins->IsCoinBase() ?"coinbase":"coinstake",nSpendHeight - coins->nHeight));
+        }
+
+        // Check for negative or overflow input values
+        nValueIn += coins->vout[prevout.n].nValue;
+        if (!MoneyRange(coins->vout[prevout.n].nValue) || !MoneyRange(nValueIn))
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputvalues-outofrange");
+
+    }
+
+    if (!tx.IsBLSCT())
+    {
         if(!tx.IsCoinBase() && !tx.IsCoinStake()){
-          if (nValueIn < tx.GetValueOut())
-              return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
-                  strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn), FormatMoney(tx.GetValueOut())));
+            if (nValueIn < tx.GetValueOut())
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
+                                 strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn), FormatMoney(tx.GetValueOut())));
 
-          // Tally transaction fees
-          CAmount nTxFee = nValueIn - tx.GetValueOut();
-          if (nTxFee < 0)
-              return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-negative");
-          nFees += nTxFee;
-          if (!MoneyRange(nFees))
-              return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
+            // Tally transaction fees
+            CAmount nTxFee = nValueIn - tx.GetValueOut();
+            if (nTxFee < 0)
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-negative");
+            nFees += nTxFee;
+            if (!MoneyRange(nFees))
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
         }
+    }
+    else
+    {
+        blsctKey v;
 
+        if (pwalletMain)
+            pwalletMain->GetBLSCTViewKey(v);
+        else
+            v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
+
+        if (!VerifyBLSCT(tx, v.GetKey(), blsctData, inputs, state))
+            return false;
+
+        nFees += tx.GetFee();
+    }
 
     return true;
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
 {
     if (!tx.IsCoinBase())
     {
-        if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs)))
+        if (!Consensus::CheckTxInputs(tx, state, inputs, GetSpendHeight(inputs), blsctData))
             return false;
+
+        if (tx.IsBLSInput())
+            return true;
 
         if (pvChecks)
             pvChecks->reserve(tx.vin.size());
@@ -2232,22 +2313,25 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 const CCoins* coins = inputs.AccessCoins(prevout.hash);
                 assert(coins);
 
-                CTransaction txPrev;
-                uint256 hashBlock = uint256();
-                int valid = 1;
+                if (coins->nHeight > 1294597 && coins->nHeight < 2741760)
+                {
+                    CTransaction txPrev;
+                    uint256 hashBlock = uint256();
+                    int valid = 1;
 
-                if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, inputs, true))
-                   valid = 0;
+                    if (!GetTransaction(prevout.hash, txPrev, Params().GetConsensus(), hashBlock, inputs, true))
+                        valid = 0;
 
-                if (mapBlockIndex.count(hashBlock) == 0)
-                   valid = 0;
+                    if (mapBlockIndex.count(hashBlock) == 0)
+                        valid = 0;
 
-                if(valid){ // prev out is already checked in CheckTxInputs
-                    CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+                    if(valid){ // prev out is already checked in CheckTxInputs
+                        CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
 
-                    // ppcoin: check transaction timestamp
-                    if (txPrev.nTime > tx.nTime && pblockindex->nHeight > 1294597)
-                        return state.DoS(100, false, REJECT_INVALID, "tx-timestamp-earlier-as-output");
+                        // ppcoin: check transaction timestamp
+                        if (txPrev.nTime > tx.nTime)
+                            return state.DoS(100, false, REJECT_INVALID, "tx-timestamp-earlier-as-output");
+                    }
                 }
 
                 // Verify signature
@@ -2426,12 +2510,12 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
             int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
             int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION) {
+            if((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION) {
                 view.RemoveProposal(hash);
                 LogPrintf("%s: Removed proposal %s\n", __func__, hash.ToString());
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) {
+            if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION) {
                 view.RemovePaymentRequest(hash);
                 LogPrintf("%s: Removed payment request %s\n", __func__, hash.ToString());
             }
@@ -2499,8 +2583,11 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
         if (outsBlock.nVersion < 0)
             outs->nVersion = outsBlock.nVersion;
 
+        if (outs->vout.size() != outsBlock.vout.size())
+            fClean = fClean && error("DisconnectBlock(): added transaction mismatch? different output vector size");
+
         if (*outs != outsBlock)
-            fClean = fClean && error("DisconnectBlock(): added transaction mismatch? database corrupted");
+            fClean = fClean && error("DisconnectBlock(): added transaction mismatch? database corrupted %d", *outs != outsBlock);
 
         // remove outputs
         outs->Clear();
@@ -2840,13 +2927,18 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
-                  CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck, bool fProofOfStake)
+                  CCoinsViewCache& view, const CChainParams& chainparams, std::map<int, std::vector<RangeproofEncodedData>>& blsctData,
+                  bool fJustCheck, bool fProofOfStake)
 {
 
     AssertLockHeld(cs_main);
 
     pindex->nCFSupply = pindex->pprev != NULL ? pindex->pprev->nCFSupply : 0;
     pindex->nCFLocked = pindex->pprev != NULL ? pindex->pprev->nCFLocked : 0;
+    pindex->nPrivateMoneySupply = pindex->pprev != NULL ? pindex->pprev->nPrivateMoneySupply : 0;
+    pindex->nPublicMoneySupply = pindex->pprev != NULL ? pindex->pprev->nPublicMoneySupply : 0;
+
+    CAmount nCreated = 0;
 
     pindex->vProposalVotes.clear();
     pindex->vPaymentRequestVotes.clear();
@@ -3012,6 +3104,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CBlockUndo blockundo;
 
     std::vector<uint256> vOrphanErase;
+    std::vector<CTxIn> vBLSConflicted;
     std::vector<int> prevheights;
     CAmount nFees = 0;
     int nInputs = 0;
@@ -3027,6 +3120,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : nullptr);
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
+
+    uint64_t nCoinAge;
+    CAmount nMovedToBLS = 0;
 
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -3129,11 +3225,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
             int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
-            if(tx.nVersion == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
+            if((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
                 if(!CFund::IsValidProposal(tx, nMaxVersionProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
+            if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
                 if(!CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
         }
@@ -3154,6 +3250,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             // Which orphan pool entries must we evict?
             for (size_t j = 0; j < tx.vin.size(); j++) {
+                if (tx.IsBLSInput())
+                    vBLSConflicted.push_back(tx.vin[j]);
                 auto itByPrev = mapOrphanTransactionsByPrev.find(tx.vin[j].prevout);
                 if (itByPrev == mapOrphanTransactionsByPrev.end()) continue;
                 for (auto mi = itByPrev->second.begin(); mi != itByPrev->second.end(); ++mi) {
@@ -3209,7 +3307,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         spentIndex.push_back(make_pair(CSpentIndexKey(input.prevout.hash, input.prevout.n), CSpentIndexValue(txhash, j, pindex->nHeight, prevout.nValue, addressType, hashBytes)));
                     }
                 }
-
             }
         }
 
@@ -3226,11 +3323,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (!tx.IsCoinBase())
         {
-
             if (!tx.IsCoinStake())
-                nFees += view.GetValueIn(tx) - tx.GetValueOut();
+            {
+                if (tx.IsBLSCT())
+                    nFees += tx.GetFee();
+                else
+                    nFees += view.GetValueIn(tx) - tx.GetValueOut();
+            }
             if (tx.IsCoinStake())
             {
+                if (!TransactionGetCoinAge(const_cast<CTransaction&>(tx), nCoinAge, view))
+                    return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
 
                 nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
                 pindex->strDZeel = tx.strDZeel;
@@ -3270,8 +3373,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
 
             std::vector<CScriptCheck> vChecks;
+            std::vector<RangeproofEncodedData> dummyData;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : nullptr))
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, tx.IsCTOutput()?blsctData[i]:dummyData, txdata[i], nScriptCheckThreads ? &vChecks : nullptr))
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
@@ -3330,6 +3434,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         bool fContribution = false;
         CAmount nProposalFee = 0;
 
+        if (tx.IsCTOutput())
+        {
+            nMovedToBLS += view.GetValueIn(tx) - tx.GetValueOut();
+        }
+
         for(const CTxOut& vout: tx.vout)
         {
             if(vout.IsCommunityFundContribution())
@@ -3337,6 +3446,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 fContribution=true;
                 pindex->nCFSupply += vout.nValue;
                 nProposalFee += vout.nValue;
+                nCreated -= vout.nValue;
                 LogPrint("dao", "%s: Updated nCFSupply %s nCFLocked %s\n", __func__, FormatMoney(pindex->nCFSupply), FormatMoney(pindex->nCFLocked));
             }
         }
@@ -3346,7 +3456,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             int nMaxVersionProposal = fReducedQuorum ? Params().GetConsensus().nProposalMaxVersion : 2;
             int nMaxVersionPaymentRequest = fReducedQuorum ? Params().GetConsensus().nPaymentRequestMaxVersion : 2;
 
-            if(fContribution && tx.nVersion == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
+            if(fContribution && (tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION && CFund::IsValidProposal(tx, nMaxVersionProposal)){
                 CFund::CProposal proposal;
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
@@ -3359,7 +3469,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 }
             }
 
-            if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
+            if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION && CFund::IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
                 CFund::CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest, view))
                 {
@@ -3373,6 +3483,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
         }
 
+        nCreated += tx.GetValueOut() - view.GetValueIn(tx);
 
         CTxUndo undoDummy;
         if (i > 0) {
@@ -3467,16 +3578,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     if (block.IsProofOfStake())
     {
-        // ppcoin: coin stake tx earns reward instead of paying fee
-        uint64_t nCoinAge;
-        if (!TransactionGetCoinAge(const_cast<CTransaction&>(block.vtx[1]), nCoinAge, view))
-            return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
-
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->nHeight, nCoinAge, nFees, pindex->pprev);
 
         if (nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
+
+    pindex->nPublicMoneySupply += nCreated - nFees - nMovedToBLS;
+    pindex->nPrivateMoneySupply += nMovedToBLS;
 
     if (!control.Wait()) {
         return state.DoS(100, false);
@@ -3563,6 +3672,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             nErased += EraseOrphanTx(orphanHash);
         }
         LogPrint("mempool", "Erased %d orphan tx included or conflicted by block\n", nErased);
+    }
+
+    if (vBLSConflicted.size()) {
+        for (auto& it: vBLSConflicted)
+        {
+            RemoveBLSCTConflicting(stempool, it);
+            RemoveBLSCTConflicting(mempool, it);
+        }
     }
 
     int64_t nTime6 = GetTimeMicros(); nTimeCallbacks += nTime6 - nTime5;
@@ -3864,10 +3981,11 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
     int64_t nTime4;
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     uint256 statehash;
+    std::map<int, std::vector<RangeproofEncodedData>> blsctData;
     {
         CCoinsViewCache view(pcoinsTip);
 
-        bool rv = ConnectBlock(*pblock, state, pindexNew, view, chainparams);
+        bool rv = ConnectBlock(*pblock, state, pindexNew, view, chainparams, blsctData);
 
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
@@ -3903,8 +4021,9 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
         SyncWithWallets(tx, pindexNew, nullptr);
     }
     // ... and about transactions that got confirmed:
-    for(const CTransaction &tx: pblock->vtx) {
-        SyncWithWallets(tx, pindexNew, pblock);
+    for(size_t i = 0; i<pblock->vtx.size(); i++) {
+        CTransaction tx = pblock->vtx[i];
+        SyncWithWallets(tx, pindexNew, pblock, true, &(blsctData[i]));
     }
 
     int64_t nTime7 = GetTimeMicros(); nTimePostConnect += nTime7 - nTime6; nTimeTotal += nTime7 - nTime1;
@@ -4493,12 +4612,20 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         return error("CheckBlock() : bad proof-of-stake block signature");
     }
 
+    int nBLSInputTxCount = 0;
+
     // Check transactions
     for(const CTransaction& tx: block.vtx)
     {
         if (!CheckTransaction(tx, state))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s\n%s", tx.GetHash().ToString(), state.GetDebugMessage(), tx.ToString()));
+
+        if (tx.IsBLSInput())
+            nBLSInputTxCount++;
+
+        if (nBLSInputTxCount > 1)
+            return state.DoS(100, false, REJECT_INVALID, "bad-multiple-blsinput-txs", false, "only one transaction with bls inputs is allowed");
     }
 
     unsigned int nSigOps = 0;
@@ -4629,6 +4756,12 @@ bool IsColdStakingEnabled(const CBlockIndex* pindexPrev, const Consensus::Params
 {
     LOCK(cs_main);
     return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_COLDSTAKING, versionbitscache) == THRESHOLD_ACTIVE);
+}
+
+bool IsBLSCTEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
+{
+    LOCK(cs_main);
+    return (VersionBitsState(pindexPrev, params, Consensus::DEPLOYMENT_BLSCT, versionbitscache) == THRESHOLD_ACTIVE);
 }
 
 bool IsColdStakingPoolFeeEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
@@ -5047,6 +5180,7 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     CBlockIndex indexDummy(block);
     indexDummy.pprev = pindexPrev;
     indexDummy.nHeight = pindexPrev->nHeight + 1;
+    std::map<int, std::vector<RangeproofEncodedData>> blsctData;
 
     // NOTE: CheckBlockHeader is called by CheckBlock
     if (!ContextualCheckBlockHeader(block, state, chainparams.GetConsensus(), pindexPrev, GetAdjustedTime()))
@@ -5055,7 +5189,7 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
     if (!ContextualCheckBlock(block, state, pindexPrev, !fCheckPOW))
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, FormatStateMessage(state));
-    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true, !fCheckPOW))
+    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, blsctData, true, !fCheckPOW))
         return false;
     assert(state.IsValid());
 
@@ -5475,9 +5609,10 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
             uiInterface.ShowProgress(_("Verifying blocks..."), std::max(1, std::min(99, 100 - (int)(((double)(chainActive.Height() - pindex->nHeight)) / (double)nCheckDepth * 50))));
             pindex = chainActive.Next(pindex);
             CBlock block;
+            std::map<int, std::vector<RangeproofEncodedData>> blsctData;
             if (!ReadBlockFromDisk(block, pindex, chainparams.GetConsensus()))
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
-            if (!ConnectBlock(block, state, pindex, coins, chainparams))
+            if (!ConnectBlock(block, state, pindex, coins, chainparams, blsctData))
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             CFundStep(state, pindex, false, coins);
         }

@@ -1002,6 +1002,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
         SoftSetBoolArg("-rescan", true);
     }
 
+    BulletproofsRangeproof::Init();
+
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
     // Turn off Microsoft heap dump noise
@@ -1827,6 +1829,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
 #ifdef ENABLE_WALLET
     LogPrintf("setKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
+    LogPrintf("setBLSCTKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setBLSCTKeyPool.size() : 0);
     LogPrintf("mapWallet.size() = %u\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);
     LogPrintf("mapAddressBook.size() = %u\n",  pwalletMain ? pwalletMain->mapAddressBook.size() : 0);
 #endif

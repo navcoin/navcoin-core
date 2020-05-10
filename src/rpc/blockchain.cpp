@@ -59,6 +59,8 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
     result.pushKV("ncfsupply", FormatMoney(blockindex->nCFSupply));
     result.pushKV("ncflocked", FormatMoney(blockindex->nCFLocked));
+    result.pushKV("publicmoneysupply", FormatMoney(blockindex->nPublicMoneySupply));
+    result.pushKV("privatemoneysupply", FormatMoney(blockindex->nPrivateMoneySupply));
     result.pushKV("flags", strprintf("%s%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work", blockindex->GeneratedStakeModifier()? " stake-modifier": ""));
     result.pushKV("proofhash", blockindex->hashProof.GetHex());
     result.pushKV("entropybit", (int)blockindex->GetStakeEntropyBit());
@@ -242,9 +244,9 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
         }
         else
         {
-            if (tx.nVersion == CTransaction::PROPOSAL_VERSION)
+            if ((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION)
                 nCountProposals++;
-            else if(tx.nVersion == CTransaction::PAYMENT_REQUEST_VERSION)
+            else if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION)
                 nCountPaymentRequests++;
             else
                 nCountTransactions++;
@@ -1327,6 +1329,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking_pool_fee", consensusParams, Consensus::DEPLOYMENT_POOL_FEE);
     BIP9SoftForkDescPushBack(bip9_softforks, "spread_cfund_accumulation", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_ACCUMULATION_SPREAD);
     BIP9SoftForkDescPushBack(bip9_softforks, "communityfund_amount_v2", consensusParams, Consensus::DEPLOYMENT_COMMUNITYFUND_AMOUNT_V2);
+    BIP9SoftForkDescPushBack(bip9_softforks, "blsct", consensusParams, Consensus::DEPLOYMENT_BLSCT);
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
     obj.pushKV("softforks",             softforks);

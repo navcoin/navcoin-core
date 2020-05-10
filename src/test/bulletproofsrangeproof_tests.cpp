@@ -12,12 +12,10 @@
 
 BOOST_FIXTURE_TEST_SUITE(bulletproofsrangeproof, BasicTestingSetup)
 
-using namespace BLSCT;
-
-bool TestRange(std::vector<Scalar> values, Scalar nonce)
+bool TestRange(std::vector<Scalar> values, Point nonce)
 {
     std::vector<Scalar> gamma;
-    std::vector<Scalar> nonces;
+    std::vector<Point> nonces;
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
@@ -26,18 +24,18 @@ bool TestRange(std::vector<Scalar> values, Scalar nonce)
     }
 
     BulletproofsRangeproof bprp;
-    bprp.Prove(values, gamma, {1, 2, 3, 4}, nonce);
+    bprp.Prove(values, gamma, nonce, {1, 2, 3, 4});
 
-    std::vector<BulletproofsRangeproof> proofs;
-    proofs.push_back(bprp);
+    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+    proofs.push_back(std::make_pair(0,bprp));
 
     std::vector<uint64_t> amounts;
     std::vector<Scalar> gammas;
     std::vector<std::vector<uint8_t>> messages;
 
-    bool fIsMine = false;
+    std::vector<RangeproofEncodedData> data;
 
-    bool ret = VerifyBulletproof(proofs, amounts, gammas, messages, nonces, fIsMine);
+    bool ret = VerifyBulletproof(proofs, data, nonces);
 
     if (!ret)
         return ret;
@@ -46,30 +44,28 @@ bool TestRange(std::vector<Scalar> values, Scalar nonce)
     {
         for (unsigned int i = 0; i < values.size(); i++)
         {
-            if(amounts[i] != values[i].GetUint64())
+            if(data[i].amount != values[i].GetUint64())
                 return false;
-            if(!(gammas[i] == gamma[i]))
+            if(!(data[i].gamma == gamma[i]))
                 return false;
-            if(messages[i][0] != 1)
+            if(data[i].message[0] != 1)
                 return false;
-            if(messages[i][1] != 2)
+            if(data[i].message[1] != 2)
                 return false;
-            if(messages[i][2] != 3)
+            if(data[i].message[2] != 3)
                 return false;
-            if(messages[i][3] != 4)
+            if(data[i].message[3] != 4)
                 return false;
         }
-        if (!fIsMine)
-            return false;
     }
 
     return true;
 }
 
-bool TestRangeBatch(std::vector<Scalar> values, Scalar nonce)
+bool TestRangeBatch(std::vector<Scalar> values, Point nonce)
 {
-    std::vector<BulletproofsRangeproof> proofs;
-    std::vector<Scalar> nonces;
+    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+    std::vector<Point> nonces;
     std::vector<Scalar> gamma;
 
     for (unsigned int i = 0; i < values.size(); i++)
@@ -83,41 +79,39 @@ bool TestRangeBatch(std::vector<Scalar> values, Scalar nonce)
         gamma.push_back(mask);
 
         BulletproofsRangeproof bprp;
-        bprp.Prove(v, g, {1,2,3,4}, nonce);
+        bprp.Prove(v, g, nonce, {1,2,3,4});
 
         nonces.push_back(nonce);
 
-        proofs.push_back(bprp);
+        proofs.push_back(std::make_pair(i, bprp));
     }
 
     std::vector<uint64_t> amounts;
     std::vector<Scalar> gammas;
     std::vector<std::vector<uint8_t>> messages;
 
-    bool fIsMine = false;
+    std::vector<RangeproofEncodedData> data;
 
-    bool ret = VerifyBulletproof(proofs, amounts, gammas, messages, nonces, fIsMine);
+    bool ret = VerifyBulletproof(proofs, data, nonces);
 
     if (!ret)
         return ret;
 
     for (unsigned int i = 0; i < values.size(); i++)
     {
-        if(amounts[i] != values[i].GetUint64())
+        if(data[i].amount != values[i].GetUint64())
             return false;
-        if(!(gammas[i] == gamma[i]))
+        if(!(data[i].gamma == gamma[i]))
             return false;
-        if(messages[i][0] != 1)
+        if(data[i].message[0] != 1)
             return false;
-        if(messages[i][1] != 2)
+        if(data[i].message[1] != 2)
             return false;
-        if(messages[i][2] != 3)
+        if(data[i].message[2] != 3)
             return false;
-        if(messages[i][3] != 4)
+        if(data[i].message[3] != 4)
             return false;
     }
-    if (!fIsMine)
-        return false;
 
     return true;
 }
@@ -127,7 +121,7 @@ BOOST_AUTO_TEST_CASE(RangeProofTest)
     std::vector<Scalar> vInRange;
     std::vector<Scalar> vOutOfRange;
 
-    Scalar nonce = Scalar::Rand();
+    Point nonce = Point::Rand();
 
     // Admited range is (0, 2**64)
     Scalar one;

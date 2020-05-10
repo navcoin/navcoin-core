@@ -7,11 +7,15 @@
 #define NAVCOIN_PRIMITIVES_TRANSACTION_H
 
 #include <amount.h>
+#include <blsct/bulletproofs.h>
 #include <consensus/cfund.h>
 #include <script/script.h>
 #include <serialize.h>
 #include <uint256.h>
 #include <univalue/include/univalue.h>
+
+#define TX_BLS_INPUT_FLAG 0x10
+#define TX_BLS_CT_FLAG 0x20
 
 static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 
@@ -127,6 +131,17 @@ public:
         return !(a == b);
     }
 
+    friend bool operator<(const CTxIn& a, const CTxIn& b)
+    {
+        CHashWriter ahw(0,0);
+        ahw << a;
+        uint256 ah = ahw.GetHash();
+        CHashWriter bhw(0,0);
+        bhw << b;
+        uint256 bh = bhw.GetHash();
+        return ah.Compare(bh);
+    }
+
     std::string ToString() const;
 };
 
@@ -138,6 +153,9 @@ class CTxOut
 public:
     CAmount nValue;
     CScript scriptPubKey;
+    BulletproofsRangeproof bp;
+    std::vector<uint8_t> blindingKey;
+    std::vector<uint8_t> spendingKey;
 
     CTxOut()
     {
@@ -145,29 +163,72 @@ public:
     }
 
     CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn);
+    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& blindingKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn);
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
-        READWRITE(nValue);
-        READWRITE(*(CScriptBase*)(&scriptPubKey));
+        if (ser_action.ForRead())
+        {
+            READWRITE(nValue);
+            if (nValue == ~(uint64_t)0)
+            {
+                READWRITE(nValue);
+                READWRITE(blindingKey);
+                READWRITE(spendingKey);
+                READWRITE(bp);
+            }
+            READWRITE(*(CScriptBase*)(&scriptPubKey));
+        }
+        else
+        {
+            if (IsBLSCT())
+            {
+                CAmount nMarker = ~(uint64_t)0;
+                READWRITE(nMarker);
+                READWRITE(nValue);
+                READWRITE(blindingKey);
+                READWRITE(spendingKey);
+                READWRITE(bp);
+            }
+            else
+            {
+                READWRITE(nValue);
+            }
+            READWRITE(*(CScriptBase*)(&scriptPubKey));
+        }
     }
 
     void SetNull()
     {
         nValue = -1;
         scriptPubKey.clear();
+        blindingKey.clear();
+        spendingKey.clear();
+    }
+
+    bls::PublicKey GetBlindingKey() const;
+    bls::PublicKey GetSpendingKey() const;
+
+    bool IsBLSCT() const
+    {
+        return blindingKey.size() > 0 || spendingKey.size() > 0;
+    }
+
+    bool HasRangeProof() const
+    {
+        return bp.V.size() > 0;
     }
 
     bool IsNull() const
     {
-        return (nValue == -1);
+        return (nValue == -1 && scriptPubKey.empty() && spendingKey.empty() && blindingKey.empty());
     }
 
     bool IsEmpty() const
     {
-        return (nValue == 0 && scriptPubKey.empty());
+        return (nValue == 0 && scriptPubKey.empty() && spendingKey.empty() && blindingKey.empty());
     }
 
     bool IsCommunityFundContribution() const
@@ -232,12 +293,20 @@ public:
     friend bool operator==(const CTxOut& a, const CTxOut& b)
     {
         return (a.nValue       == b.nValue &&
-                a.scriptPubKey == b.scriptPubKey);
+                a.scriptPubKey == b.scriptPubKey &&
+                a.blindingKey  == b.blindingKey &&
+                a.spendingKey  == b.spendingKey &&
+                a.bp           == b.bp);
     }
 
     friend bool operator!=(const CTxOut& a, const CTxOut& b)
     {
         return !(a == b);
+    }
+
+    friend bool operator<(const CTxOut& a, const CTxOut& b)
+    {
+        return a.GetHash().Compare(b.GetHash());
     }
 
     std::string ToString() const;
@@ -375,6 +444,10 @@ inline void SerializeTransaction(TxType& tx, Stream& s, Operation ser_action, in
     READWRITE(*const_cast<uint32_t*>(&tx.nLockTime));
     if(tx.nVersion >= 2) {
       READWRITE(*const_cast<std::string*>(&tx.strDZeel)); }
+    if (tx.nVersion & TX_BLS_CT_FLAG || tx.nVersion & TX_BLS_INPUT_FLAG)
+        READWRITE(*const_cast<std::vector<unsigned char>*>(&tx.vchBalanceSig));
+    if (tx.nVersion & TX_BLS_INPUT_FLAG)
+        READWRITE(*const_cast<std::vector<unsigned char>*>(&tx.vchTxSig));
 }
 
 /** The basic transaction that is broadcasted on the network and contained in
@@ -413,6 +486,8 @@ public:
     const uint32_t nLockTime;
     std::string strDZeel;
     const uint256 hash;
+    std::vector<unsigned char> vchTxSig;
+    std::vector<unsigned char> vchBalanceSig;
 
     /** Construct a CTransaction that qualifies as IsNull() */
     CTransaction();
@@ -456,6 +531,43 @@ public:
     // Compute modified tx size for priority calculation (optionally given tx size)
     unsigned int CalculateModifiedSize(unsigned int nTxSize=0) const;
 
+    bool IsBLSInput() const
+    {
+        return nVersion & TX_BLS_INPUT_FLAG;
+    }
+
+    bool IsCTOutput() const
+    {
+        return nVersion & TX_BLS_CT_FLAG;
+    }
+
+    bool IsBLSCT() const
+    {
+        return IsCTOutput() || IsBLSInput();
+    }
+
+    bool HasCTOutput() const
+    {
+        for (auto &out: vout)
+        {
+            if (out.HasRangeProof())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    CAmount GetFee() const
+    {
+        CAmount ret = 0;
+        for(const CTxOut& txout : vout) {
+            if (txout.scriptPubKey.IsFee())
+                ret += txout.nValue;
+        }
+        return ret;
+    }
+
     bool IsCoinBase() const
     {
         return (vin.size() == 1 && vin[0].prevout.IsNull());
@@ -481,6 +593,9 @@ public:
 
     void UpdateHash() const;
 
+    bls::Signature GetBalanceSignature() const;
+    bls::PrependSignature GetTxSignature() const;
+
     friend CWalletTx;
     friend CMerkleTx;
 };
@@ -495,6 +610,8 @@ struct CMutableTransaction
     CTxWitness wit;
     uint32_t nLockTime;
     std::string strDZeel;
+    std::vector<unsigned char> vchTxSig;
+    std::vector<unsigned char> vchBalanceSig;
 
     CMutableTransaction();
     CMutableTransaction(const CTransaction& tx);
@@ -516,6 +633,12 @@ struct CMutableTransaction
         // ppcoin: the coin stake transaction is marked with the first output empty
         return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
     }
+
+    bls::Signature GetBalanceSignature() const;
+    bls::PrependSignature GetTxSignature() const;
+
+    void SetBalanceSignature(const bls::Signature& sig);
+    void SetTxSignature(const bls::PrependSignature& sig);
 
     /** Compute the hash of this CMutableTransaction. This is computed on the
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.

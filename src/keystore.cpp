@@ -13,6 +13,10 @@ bool CKeyStore::AddKey(const CKey &key) {
     return AddKeyPubKey(key, key.GetPubKey());
 }
 
+bool CBasicKeyStore::AddBLSCTKey(const blsctKey &key) {
+    return AddBLSCTKeyPubKey(key, blsctPublicKey(key.GetPublicKey()));
+}
+
 bool CBasicKeyStore::GetPubKey(const CKeyID &address, CPubKey &vchPubKeyOut) const
 {
     CKey key;
@@ -33,6 +37,13 @@ bool CBasicKeyStore::AddKeyPubKey(const CKey& key, const CPubKey &pubkey)
 {
     LOCK(cs_KeyStore);
     mapKeys[pubkey.GetID()] = key;
+    return true;
+}
+
+bool CBasicKeyStore::AddBLSCTKeyPubKey(const blsctKey& key, const blsctPublicKey &pubkey)
+{
+    LOCK(cs_KeyStore);
+    mapBLSCTKeys[pubkey] = key;
     return true;
 }
 

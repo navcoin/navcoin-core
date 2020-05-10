@@ -379,6 +379,12 @@ bool CScript::IsPushOnly(const_iterator pc) const
     return true;
 }
 
+bool CScript::IsFee() const
+{
+    return (this->size() == 1 &&
+            (*this)[0] == OP_RETURN);
+}
+
 bool CScript::IsPushOnly() const
 {
     return this->IsPushOnly(begin());

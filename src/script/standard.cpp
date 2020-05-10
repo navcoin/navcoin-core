@@ -5,6 +5,7 @@
 
 #include <script/standard.h>
 
+#include <blsct/key.h>
 #include <pubkey.h>
 #include <script/script.h>
 #include <script/sign.h>
@@ -371,6 +372,12 @@ public:
         script->clear();
         *script += scriptIn;
         return true;
+    }
+
+    bool operator()(const blsctDoublePublicKey &dest) const {
+        script->clear();
+        *script << OP_TRUE;
+        return false;
     }
 };
 }

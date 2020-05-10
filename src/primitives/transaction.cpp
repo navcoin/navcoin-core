@@ -48,24 +48,49 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
     scriptPubKey = scriptPubKeyIn;
 }
 
+CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, const bls::PublicKey& blindingKeyIn, const bls::PublicKey& spendingKeyIn, const BulletproofsRangeproof& bpIn)
+{
+    nValue = nValueIn;
+    scriptPubKey = scriptPubKeyIn;
+    blindingKey = blindingKeyIn.Serialize();
+    spendingKey = spendingKeyIn.Serialize();
+    bp = bpIn;
+}
+
 uint256 CTxOut::GetHash() const
 {
     return SerializeHash(*this);
+}
+
+bls::PublicKey CTxOut::GetBlindingKey() const
+{
+    return bls::PublicKey::FromBytes(blindingKey.data());
+}
+
+bls::PublicKey CTxOut::GetSpendingKey() const
+{
+    return bls::PublicKey::FromBytes(spendingKey.data());
 }
 
 std::string CTxOut::ToString() const
 {
     if (IsEmpty()) return "CTxOut(empty)";
     if (IsCommunityFundContribution())
-      return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution)", nValue / COIN, nValue % COIN);
+        return strprintf("CTxOut(nValue=%d.%08d, CommunityFundContribution)", nValue / COIN, nValue % COIN);
     else
-      return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, scriptPubKey.ToString());
+    {
+        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s%s%s%s)", HasRangeProof() ? "private" : strprintf("%d.%08d", nValue / COIN, nValue % COIN),
+                         scriptPubKey.ToString(),
+                         spendingKey.size()>0 ? strprintf(" spendingKey=%s",HexStr(spendingKey)):"",
+                         blindingKey.size()>0 ? strprintf(" blindingKey=%s",HexStr(spendingKey)):"",
+                         bp.V.size()>0 ? " rangeProof=1":"");
+    }
 }
 
 CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nTime(0), nLockTime(0) {
   // *const_cast<unsigned int*>(&nTime) = GetTime();
 }
-CMutableTransaction::CMutableTransaction(const CTransaction& tx) : nVersion(tx.nVersion), nTime(tx.nTime), vin(tx.vin), vout(tx.vout), wit(tx.wit), nLockTime(tx.nLockTime), strDZeel(tx.strDZeel) {}
+CMutableTransaction::CMutableTransaction(const CTransaction& tx) : nVersion(tx.nVersion), nTime(tx.nTime), vin(tx.vin), vout(tx.vout), wit(tx.wit), nLockTime(tx.nLockTime), strDZeel(tx.strDZeel), vchTxSig(tx.vchTxSig), vchBalanceSig(tx.vchBalanceSig) {}
 
 uint256 CMutableTransaction::GetHash() const
 {
@@ -86,7 +111,7 @@ CTransaction::CTransaction() : nVersion(CTransaction::CURRENT_VERSION), nTime(0)
     // *const_cast<unsigned int*>(&nTime) = GetTime();
 }
 
-CTransaction::CTransaction(const CMutableTransaction &tx) : nVersion(tx.nVersion), nTime(tx.nTime), vin(tx.vin), vout(tx.vout), wit(tx.wit), nLockTime(tx.nLockTime), strDZeel(tx.strDZeel) {
+CTransaction::CTransaction(const CMutableTransaction &tx) : nVersion(tx.nVersion), nTime(tx.nTime), vin(tx.vin), vout(tx.vout), wit(tx.wit), nLockTime(tx.nLockTime), strDZeel(tx.strDZeel), vchTxSig(tx.vchTxSig), vchBalanceSig(tx.vchBalanceSig) {
     UpdateHash();
 }
 
@@ -99,6 +124,8 @@ CTransaction& CTransaction::operator=(const CTransaction &tx) {
     *const_cast<uint256*>(&hash) = tx.hash;
     *const_cast<unsigned int*>(&nTime) = tx.nTime;
     *const_cast<std::string*>(&strDZeel) = tx.strDZeel;
+    *const_cast<std::vector<unsigned char>*>(&vchBalanceSig) = tx.vchBalanceSig;
+    *const_cast<std::vector<unsigned char>*>(&vchTxSig) = tx.vchTxSig;
     return *this;
 }
 
@@ -158,20 +185,32 @@ std::string CTransaction::ToString() const
 {
       std::string str;
       str += IsCoinBase()? "Coinbase" : (IsCoinStake()? "Coinstake" : "CTransaction");
-      str += strprintf("(hash=%s, nTime=%d, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%d), strDZeel=%s)\n",
-          GetHash().ToString(),
-          nTime,
-          nVersion,
-          vin.size(),
-          vout.size(),
-          nLockTime,
-          strDZeel.substr(0,30).c_str()
-  	);
+      str += strprintf("(hash=%s, nTime=%d, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%d), strDZeel=%s, vchTxSig=%s vchBalanceSig=%s)\n",
+                       GetHash().ToString(),
+                       nTime,
+                       nVersion,
+                       vin.size(),
+                       vout.size(),
+                       nLockTime,
+                       strDZeel.substr(0,30).c_str(),
+                       HexStr(vchTxSig).substr(0,30).c_str(),
+                       HexStr(vchBalanceSig).substr(0,30).c_str()
+                       );
     for (unsigned int i = 0; i < vin.size(); i++)
         str += "    " + vin[i].ToString() + "\n";
     for (unsigned int i = 0; i < vout.size(); i++)
         str += "    " + vout[i].ToString() + "\n";
     return str;
+}
+
+bls::Signature CTransaction::GetBalanceSignature() const
+{
+    return bls::Signature::FromBytes(vchBalanceSig.data());
+}
+
+bls::PrependSignature CTransaction::GetTxSignature() const
+{
+    return bls::PrependSignature::FromBytes(vchTxSig.data());
 }
 
 std::string CMutableTransaction::ToString() const
@@ -195,6 +234,26 @@ std::string CMutableTransaction::ToString() const
     for (unsigned int i = 0; i < vout.size(); i++)
         str += "    " + vout[i].ToString() + "\n";
     return str;
+}
+
+bls::Signature CMutableTransaction::GetBalanceSignature() const
+{
+    return bls::Signature::FromBytes(vchBalanceSig.data());
+}
+
+bls::PrependSignature CMutableTransaction::GetTxSignature() const
+{
+    return bls::PrependSignature::FromBytes(vchTxSig.data());
+}
+
+void CMutableTransaction::SetBalanceSignature(const bls::Signature& sig)
+{
+    vchBalanceSig = sig.Serialize();
+}
+
+void CMutableTransaction::SetTxSignature(const bls::PrependSignature& sig)
+{
+    vchTxSig = sig.Serialize();
 }
 
 int64_t GetTransactionWeight(const CTransaction& tx)

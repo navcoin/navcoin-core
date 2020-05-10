@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <base58.h>
+#include <blsct/key.h>
 #include <clientversion.h>
 #include <init.h>
 #include <main.h>
@@ -87,7 +88,10 @@ UniValue getinfo(const UniValue& params, bool fHelp)
 #ifdef ENABLE_WALLET
     if (pwalletMain) {
         obj.pushKV("walletversion", pwalletMain->GetVersion());
-        obj.pushKV("balance",       ValueFromAmount(pwalletMain->GetBalance()));
+        obj.pushKV("public_balance",       ValueFromAmount(pwalletMain->GetBalance()));
+        obj.pushKV("private_balance", ValueFromAmount(pwalletMain->GetPrivateBalance()));
+        obj.pushKV("private_balance_pending", ValueFromAmount(pwalletMain->GetPrivateBalancePending()));
+        obj.pushKV("private_balance_locked", ValueFromAmount(pwalletMain->GetPrivateBalanceLocked()));
         obj.pushKV("coldstaking_balance",       ValueFromAmount(pwalletMain->GetColdStakingBalance()));
         obj.pushKV("newmint",       ValueFromAmount(pwalletMain->GetNewMint()));
         obj.pushKV("stake",         ValueFromAmount(pwalletMain->GetStake()));
@@ -100,6 +104,8 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     cf.pushKV("locked",         ValueFromAmount(chainActive.Tip()->nCFLocked));
 
     obj.pushKV("communityfund", cf);
+    obj.pushKV("publicmoneysupply", FormatMoney(chainActive.Tip()->nPublicMoneySupply));
+    obj.pushKV("privatemoneysupply", FormatMoney(chainActive.Tip()->nPrivateMoneySupply));
     obj.pushKV("timeoffset",    GetTimeOffset());
     obj.pushKV("ntptimeoffset", GetNtpTimeOffset());
     obj.pushKV("connections",   (int)vNodes.size());
@@ -124,6 +130,8 @@ class DescribeAddressVisitor : public boost::static_visitor<UniValue>
 {
 public:
     UniValue operator()(const CNoDestination &dest) const { return UniValue(UniValue::VOBJ); }
+
+    UniValue operator()(blsctDoublePublicKey dest) const { return UniValue(UniValue::VOBJ); }
 
     UniValue operator()(const CKeyID &keyID) const {
         UniValue obj(UniValue::VOBJ);
@@ -258,6 +266,7 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             ret.pushKV("stakingaddress", stakingAddress.ToString());
             ret.pushKV("spendingaddress", spendingAddress.ToString());
         }
+
         ret.pushKV("ismine", (mine & ISMINE_SPENDABLE) ? true : false);
         ret.pushKV("isstakable", (mine & ISMINE_STAKABLE || (mine & ISMINE_SPENDABLE &&
                      !address.IsColdStakingAddress(Params()))) ? true : false);

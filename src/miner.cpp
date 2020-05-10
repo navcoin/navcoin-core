@@ -182,6 +182,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
                        ? nMedianTimePast
                        : pblock->GetBlockTime();
 
+    addCombinedBLSCT(view);
     addPriorityTxs(fProofOfStake, pblock->vtx[0].nTime);
     addPackageTxs();
 
@@ -493,7 +494,7 @@ void BlockAssembler::UpdatePackagesForAdded(const CTxMemPool::setEntries& alread
 bool BlockAssembler::SkipMapTxEntry(CTxMemPool::txiter it, indexed_modified_transaction_set &mapModifiedTx, CTxMemPool::setEntries &failedTx)
 {
     assert (it != mempool.mapTx.end());
-    if (mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it))
+    if (mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it) || it->GetTx().IsBLSInput())
         return true;
     return false;
 }
@@ -507,6 +508,40 @@ void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, CTxMemP
     sortedEntries.clear();
     sortedEntries.insert(sortedEntries.begin(), package.begin(), package.end());
     std::sort(sortedEntries.begin(), sortedEntries.end(), CompareTxIterByAncestorCount());
+}
+
+void BlockAssembler::addCombinedBLSCT(const CCoinsViewCache& inputs)
+{
+    std::vector<CTransaction> vToCombine;
+    std::vector<RangeproofEncodedData> blsctData;
+    CValidationState state;
+
+    for (auto &it: mempool.mapTx)
+    {
+        CTransaction tx = it.GetTx();
+
+        if (!tx.IsBLSInput())
+            continue;
+
+        if (inputs.HaveInputs(tx) && VerifyBLSCT(tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state))
+            vToCombine.push_back(tx);
+        else
+            LogPrintf("%s: Missing inputs or invalid blsct of %s (%s)\n", __func__, it.GetTx().GetHash().ToString(), FormatStateMessage(state));
+    }
+
+    if (vToCombine.size() == 0)
+        return;
+
+    CTransaction combinedTx;
+
+    if (!CombineBLSTransactions(vToCombine, combinedTx, inputs, state))
+    {
+        LogPrintf("%s: Could not combine BLSCT transactions: %s\n", __func__, FormatStateMessage(state));
+        return;
+    }
+
+    pblock->vtx.push_back(combinedTx);
+
 }
 
 // This transaction selection algorithm orders the mempool based
