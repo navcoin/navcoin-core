@@ -2006,6 +2006,10 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
     {
         nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH, view);
     }
+    else if (fState == DAOFlags::ACCEPTED)
+    {
+        nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view);
+    }
 
     UniValue votingCycleForState(UniValue::VOBJ);
     votingCycleForState.pushKV("current", (uint64_t)nCurrentCycle);
