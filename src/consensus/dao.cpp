@@ -581,7 +581,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
                 uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
                 uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-                uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view) + 1);
+                uint64_t nVotingCycles = std::min((uint64_t)nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH, view)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, view));
 
                 if(fUndo)
                 {
@@ -1969,10 +1969,50 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
             answers.push_back(a);
         }
     }
+    UniValue mapState(UniValue::VOBJ);
+    for (auto&it: this->mapState)
+    {
+        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+    }
+    ret.pushKV("mapState", mapState);
     ret.pushKV("answers", answers);
     ret.pushKV("min", nMin);
     ret.pushKV("max", nMax);
-    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, view)));
+    ret.pushKV("votingCyclesFromCreation", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH, view)+GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, view)));
+
+    auto nMaxCycles = 0;
+    auto nCurrentCycle = 0;
+    auto nVotingLength = GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view);
+
+    nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_VOTING_CYCLES, view);
+
+    if (pblockindex)
+    {
+        auto nCreated = (unsigned int)(pblockindex->nHeight / nVotingLength);
+        auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
+        nCurrentCycle = nCurrent - nCreated;
+    }
+    else
+    {
+        nCurrentCycle = nVotingCycle;
+    }
+
+    if (fState == DAOFlags::NIL || fState == DAOFlags::SUPPORTED)
+    {
+        nCurrentCycle = nVotingCycle;
+        nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_MAX_SUPPORT_CYCLES, view);
+    }
+    else if (fState == DAOFlags::REFLECTION)
+    {
+        nMaxCycles = GetConsensusParameter(Consensus::CONSENSUS_PARAM_CONSULTATION_REFLECTION_LENGTH, view);
+    }
+
+    UniValue votingCycleForState(UniValue::VOBJ);
+    votingCycleForState.pushKV("current", (uint64_t)nCurrentCycle);
+    votingCycleForState.pushKV("max", (uint64_t)nMaxCycles);
+    ret.pushKV("votingCycleForState", votingCycleForState);
+
+
     ret.pushKV("status", GetState(chainActive.Tip(), view));
     ret.pushKV("state", (uint64_t)fState);
     ret.pushKV("stateChangedOnBlock", blockhash.ToString());
@@ -2208,6 +2248,12 @@ void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) con
     ret.pushKV("answer", sAnswer);
     ret.pushKV("support", nSupport);
     ret.pushKV("votes", nVotes);
+    UniValue mapState(UniValue::VOBJ);
+    for (auto&it: this->mapState)
+    {
+        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+    }
+    ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(view));
     ret.pushKV("state", (uint64_t)fState);
     ret.pushKV("stateChangedOnBlock", blockhash.ToString());
@@ -2777,6 +2823,12 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("votesNo", nVotesNo);
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, coins)));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
+    UniValue mapState(UniValue::VOBJ);
+    for (auto&it: this->mapState)
+    {
+        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+    }
+    ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(chainActive.Tip()->GetBlockTime(), coins));
     ret.pushKV("state", (uint64_t)fState);
     if(blockhash != uint256())
@@ -2832,6 +2884,12 @@ void CPaymentRequest::ToJson(UniValue& ret, const CStateViewCache& view) const {
     ret.pushKV("votesNo", nVotesNo);
     ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
+    UniValue mapState(UniValue::VOBJ);
+    for (auto&it: this->mapState)
+    {
+        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+    }
+    ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(view));
     ret.pushKV("state", (uint64_t)GetLastState());
     CBlockIndex* pblockindex = GetLastStateBlockIndex();
