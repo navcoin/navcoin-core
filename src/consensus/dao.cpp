@@ -1990,7 +1990,7 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
     {
         auto nCreated = (unsigned int)(pblockindex->nHeight / nVotingLength);
         auto nCurrent = (unsigned int)(chainActive.Tip()->nHeight / nVotingLength);
-        nCurrentCycle = nCurrent - nCreated;
+        nCurrentCycle = std::min(nCurrent - nCreated, nVotingCycle);
     }
     else
     {
