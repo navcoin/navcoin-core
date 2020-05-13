@@ -285,12 +285,6 @@ bool static InterruptibleRecv(char* data, size_t len, int timeout, SOCKET& hSock
     return len == 0;
 }
 
-struct ProxyCredentials
-{
-    std::string username;
-    std::string password;
-};
-
 std::string Socks5ErrorString(int err)
 {
     switch(err) {
@@ -307,7 +301,7 @@ std::string Socks5ErrorString(int err)
 }
 
 /** Connect using SOCKS5 (as described in RFC1928) */
-static bool Socks5(const std::string& strDest, int port, const ProxyCredentials *auth, SOCKET& hSocket)
+bool Socks5(const std::string& strDest, int port, const ProxyCredentials *auth, SOCKET& hSocket)
 {
     LogPrint("net", "SOCKS5 connecting %s\n", strDest);
     if (strDest.size() > 255) {
@@ -434,7 +428,7 @@ static bool Socks5(const std::string& strDest, int port, const ProxyCredentials 
     return true;
 }
 
-bool static ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocketRet, int nTimeout)
+bool ConnectSocketDirectly(const CService &addrConnect, SOCKET& hSocketRet, int nTimeout)
 {
     hSocketRet = INVALID_SOCKET;
 

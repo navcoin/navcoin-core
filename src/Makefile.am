@@ -82,6 +82,14 @@ TOR_UTIL_LIBS = \
         tor/src/lib/libtor-intmath.a \
         tor/src/lib/libtor-ctime.a
 
+LIBED25519_REF10 = tor/src/ext/ed25519/ref10/libed25519_ref10.a
+LIBED25519_DONNA = tor/src/ext/ed25519/donna/libed25519_donna.a
+LIBKECCAK_TINY = tor/src/ext/keccak-tiny/libkeccak-tiny.a
+
+LIBDONNA = tor/src/lib/libcurve25519_donna.a \
+  $(LIBED25519_REF10) \
+  $(LIBED25519_DONNA)
+
 # Internal crypto libraries used in Tor
 TOR_CRYPTO_LIBS = \
         src/lib/libtor-tls.a \
@@ -136,7 +144,10 @@ NAVCOIN_CORE_H = \
   bloom.h \
   blockencodings.h \
   blsct/bulletproofs.h \
+  blsct/ephemeralserver.h \
   blsct/key.h \
+  blsct/mixsession.h \
+  blsct/rpc.h \
   blsct/transaction.h \
   blsct/types.h \
   blsct/verification.h \
@@ -201,6 +212,7 @@ NAVCOIN_CORE_H = \
   threadsafety.h \
   timedata.h \
   torcontrol.h \
+  torthread.h \
   txdb.h \
   txmempool.h \
   ui_interface.h \
@@ -240,6 +252,8 @@ libnavcoin_server_a_SOURCES = \
   addrman.cpp \
   bloom.cpp \
   blockencodings.cpp \
+  blsct/ephemeralserver.cpp \
+  blsct/mixsession.cpp \
   chain.cpp \
   checkpoints.cpp \
   consensus/cfund.cpp \
@@ -270,6 +284,7 @@ libnavcoin_server_a_SOURCES = \
   script/ismine.cpp \
   timedata.cpp \
   torcontrol.cpp \
+  torthread.cpp \
   txdb.cpp \
   txmempool.cpp \
   ui_interface.cpp \
@@ -294,6 +309,7 @@ endif
 libnavcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_wallet_a_SOURCES = \
+  blsct/rpc.cpp \
   consensus/cfund.cpp \
   mnemonic/dictionary.cpp \
   mnemonic/mnemonic.cpp \

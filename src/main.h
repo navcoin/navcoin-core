@@ -660,6 +660,7 @@ bool TxToProposal(std::string strDZeel, uint256 hash, const uint256& blockhash, 
 bool TxToPaymentRequest(std::string strDZeel, uint256 hash, const uint256& blockhash, CFund::CPaymentRequest& prequest, CCoinsViewCache& view);
 
 static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom);
+static void RelayDandelionMixSession(const MixSession& tx, CNode* pfrom);
 static void CheckDandelionEmbargoes();
 
 #endif // NAVCOIN_MAIN_H

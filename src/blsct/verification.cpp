@@ -4,7 +4,7 @@
 
 #include "verification.h"
 
-bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::vector<RangeproofEncodedData> &vData, const CCoinsViewCache& view, CValidationState& state, bool fOnlyRecover)
+bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::vector<RangeproofEncodedData> &vData, const CCoinsViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<Point> nonces;
@@ -30,6 +30,13 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
 
     CAmount valIn = 0;
     CAmount valOut = 0;
+
+    if (nMixFee > 0 && MoneyRange(nMixFee))
+    {
+        balKey = fPointZero ? (BulletproofsRangeproof::H*Scalar(nMixFee)) : balKey + (BulletproofsRangeproof::H*Scalar(nMixFee));
+        valIn += nMixFee;
+        fPointZero = false;
+    }
 
     for (size_t j = 0; j < tx.vin.size(); j++)
     {
@@ -99,6 +106,14 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
         }
     }
 
+    if (fCheckRange && proofs.size() > 0)
+    {
+        if (!VerifyBulletproof(proofs, vData, nonces, fOnlyRecover))
+        {
+            return state.DoS(100, false, REJECT_INVALID, "invalid-rangeproof");
+        }
+    }
+
     if (fCheckBalance)
     {
         bls::PublicKey balanceKey = bls::PublicKey::FromG1(&(balKey.g1));
@@ -107,14 +122,6 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
 
         if (!sig.Verify())
             return state.DoS(100, false, REJECT_INVALID, strprintf("invalid-balanceproof"));
-    }
-
-    if (fCheckRange && proofs.size() > 0)
-    {
-        if (!VerifyBulletproof(proofs, vData, nonces, fOnlyRecover))
-        {
-            return state.DoS(100, false, REJECT_INVALID, "invalid-rangeproof");
-        }
     }
 
     if (fCheckBLSSignature)
@@ -187,7 +194,7 @@ bool CombineBLSTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx,
     mutOutTx.nVersion = TX_BLS_INPUT_FLAG;
     if (fAnyCTOutput)
         mutOutTx.nVersion |= TX_BLS_CT_FLAG;
-    mutOutTx.nTime = vTx[0].nTime;
+    mutOutTx.nTime = GetTime();
     mutOutTx.vin.clear();
     mutOutTx.vout.clear();
 

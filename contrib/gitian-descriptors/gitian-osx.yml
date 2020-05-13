@@ -28,6 +28,7 @@ packages:
 - "python3-dev"
 - "python3-setuptools"
 - "fonts-tuffy"
+- "cmake"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"

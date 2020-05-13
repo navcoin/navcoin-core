@@ -17,6 +17,7 @@
 #include <checkpoints.h>
 #include <compat/sanity.h>
 #include <consensus/validation.h>
+#include <blsct/rpc.h>
 #include <httpserver.h>
 #include <httprpc.h>
 #include <kernel.h>
@@ -35,6 +36,7 @@
 #include <txdb.h>
 #include <txmempool.h>
 #include <torcontrol.h>
+#include <torthread.h>
 #include <ui_interface.h>
 #include <untar.h>
 #include <util.h>
@@ -65,7 +67,6 @@
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/aes.h>
-
 
 #if ENABLE_ZMQ
 #include <zmq/zmqnotificationinterface.h>
@@ -219,6 +220,7 @@ public:
 static CCoinsViewDB *pcoinsdbview = nullptr;
 static CCoinsViewErrorCatcher *pcoinscatcher = nullptr;
 static boost::scoped_ptr<ECCVerifyHandle> globalVerifyHandle;
+static TorControlThread torController = TorControlThread();
 
 void Interrupt(boost::thread_group& threadGroup)
 {
@@ -226,7 +228,8 @@ void Interrupt(boost::thread_group& threadGroup)
     InterruptHTTPRPC();
     InterruptRPC();
     InterruptREST();
-    InterruptTorControl();
+    torController.Interrupt();
+    TorThreadInterrupt();
     threadGroup.interrupt_all();
 }
 
@@ -256,7 +259,8 @@ void Shutdown()
         pwalletMain->Flush(false);
 #endif
     StopNode();
-    StopTorControl();
+    torController.Stop();
+    TorThreadStop();
     UnregisterNodeSignals(GetNodeSignals());
 
     if (fFeeEstimatesInitialized)
@@ -966,6 +970,11 @@ void DownloadBlockchain(std::string url)
     }
 }
 
+void ttt(std::string d)
+{
+    LogPrintf("created %s\n", d);
+}
+
 /** Initialize navcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -1146,6 +1155,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 
     fServer = GetBoolArg("-server", false);
 
+    TorThreadInit();
+
     // block pruning; get the amount of disk space (in MiB) to allot for block & undo files
     int64_t nSignedPruneTarget = GetArg("-prune", 0) * 1024 * 1024;
     if (nSignedPruneTarget < 0) {
@@ -1164,7 +1175,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 #ifdef ENABLE_WALLET
     bool fDisableWallet = GetBoolArg("-disablewallet", false);
     if (!fDisableWallet)
+    {
         RegisterWalletRPCCommands(tableRPC);
+        RegisterBLSCTRPCCommands(tableRPC);
+    }
 #endif
 
     nConnectTimeout = GetArg("-timeout", DEFAULT_CONNECT_TIMEOUT);
@@ -1835,7 +1849,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
 #endif
 
     if (GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION))
-        StartTorControl(threadGroup, scheduler);
+        torController.Start();
 
     StartNode(threadGroup, scheduler);
 

@@ -56,5 +56,10 @@ bool SignBLSOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, std::ve
     uint256 txOutHash = newTxOut.GetHash();
     bls::PrependSignature sig = blindingKey.SignPrependPrehashed((unsigned char*)(&txOutHash));
     vBLSSignatures.push_back(sig);
+
     return true;
+}
+
+CandidateTransaction::CandidateTransaction() {
+
 }

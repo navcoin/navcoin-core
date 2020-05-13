@@ -13,8 +13,24 @@
 extern const std::string DEFAULT_TOR_CONTROL;
 static const bool DEFAULT_LISTEN_ONION = true;
 
-void StartTorControl(boost::thread_group& threadGroup, CScheduler& scheduler);
-void InterruptTorControl();
-void StopTorControl();
+class MixSession;
+
+typedef std::function<void(std::string)> hidden_service_cb;
+
+class TorControlThread
+{
+public:
+    TorControlThread(int listen_in = 0, hidden_service_cb ready_cb_in = 0): listen(listen_in), ready_cb(ready_cb_in) {}
+
+    void Run();
+    void Start();
+    void Interrupt();
+    void Stop();
+private:
+    struct event_base *base;
+    boost::thread torControlThread;
+    int listen;
+    hidden_service_cb ready_cb;
+};
 
 #endif /* NAVCOIN_TORCONTROL_H */

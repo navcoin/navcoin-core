@@ -46,7 +46,7 @@ public Q_SLOTS:
 
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
     void updateStakeReportNow();
-    void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
+    void updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount);
     void on_showStakingSetup_clicked();
 
 Q_SIGNALS:

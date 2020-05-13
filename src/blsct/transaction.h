@@ -15,4 +15,25 @@ bool CreateBLSCTOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, con
                   Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::PrependSignature>& vBLSSignatures);
 bool SignBLSOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, std::vector<bls::PrependSignature>& vBLSSignatures);
 
+class CandidateTransaction
+{
+public:
+    CandidateTransaction();
+    CandidateTransaction(CTransaction txIn, CAmount feeIn): tx(txIn), fee(feeIn) {}
+
+    friend inline  bool operator==(const CandidateTransaction& a, const CandidateTransaction& b) { return a.tx == b.tx; }
+    friend inline  bool operator<(const CandidateTransaction& a, const CandidateTransaction& b) { return a.fee < b.fee; }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(tx);
+        READWRITE(fee);
+    }
+
+    CTransaction tx;
+    CAmount fee;
+};
+
 #endif // BLSCT_TRANSACTION_H

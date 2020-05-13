@@ -322,7 +322,7 @@ void OverviewPage::updateStakeReport(bool fImmediate=false)
 }
 
 
-void OverviewPage::updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)
+void OverviewPage::updateStakeReportbalanceChanged(CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount, CAmount)
 {
     OverviewPage::updateStakeReportNow();
 }

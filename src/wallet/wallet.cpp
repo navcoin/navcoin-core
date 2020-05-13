@@ -4982,6 +4982,7 @@ bool CWallet::InitLoadWallet(const std::string& wordlist)
     walletInstance->SetBroadcastTransactions(GetBoolArg("-walletbroadcast", DEFAULT_WALLETBROADCAST));
 
     pwalletMain = walletInstance;
+    pwalletMain->mixSession = new MixSession(pcoinsTip);
     return true;
 }
 

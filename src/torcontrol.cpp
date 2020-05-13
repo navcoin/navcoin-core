@@ -352,7 +352,7 @@ static bool WriteBinaryFile(const std::string &filename, const std::string &data
 class TorController
 {
 public:
-    TorController(struct event_base* base, const std::string& target);
+    TorController(struct event_base* base, const std::string& target, const int& listen_in = 0, hidden_service_cb ready_cb_in = 0);
     ~TorController();
 
     /** Get name fo file to store private key in */
@@ -360,6 +360,7 @@ public:
 
     /** Reconnect, after getting disconnected */
     void Reconnect();
+
 private:
     struct event_base* base;
     std::string target;
@@ -370,6 +371,10 @@ private:
     struct event *reconnect_ev;
     float reconnect_timeout;
     CService service;
+    bool ready;
+    hidden_service_cb ready_cb;
+    bool announce;
+    int listen;
     /** Cooie for SAFECOOKIE auth */
     std::vector<uint8_t> cookie;
     /** ClientNonce for SAFECOOKIE auth */
@@ -392,24 +397,34 @@ private:
     static void reconnect_cb(evutil_socket_t fd, short what, void *arg);
 };
 
-TorController::TorController(struct event_base* baseIn, const std::string& target):
-    base(baseIn),
+TorController::TorController(struct event_base* baseIn, const std::string& target,
+                             const int& listen_in, hidden_service_cb ready_cb_in) :
+    ready(false), announce(false), listen(listen_in), ready_cb(ready_cb_in),
     target(target), conn(base), reconnect(true), reconnect_ev(0),
-    reconnect_timeout(RECONNECT_TIMEOUT_START)
+    reconnect_timeout(RECONNECT_TIMEOUT_START), base(baseIn)
 {
     reconnect_ev = event_new(base, -1, 0, reconnect_cb, this);
     if (!reconnect_ev)
         LogPrintf("tor: Failed to create event for reconnection: out of memory?\n");
+    if (listen == 0)
+    {
+        listen = GetListenPort();
+        announce = true;
+        // Read service private key if cached
+        std::pair<bool,std::string> pkf = ReadBinaryFile(GetPrivateKeyFile());
+        if (pkf.first) {
+            LogPrint("tor", "tor: Reading cached private key from %s\n", GetPrivateKeyFile());
+            private_key = pkf.second;
+        }
+    }
+    else
+    {
+        announce = false;
+    }
     // Start connection attempts immediately
     if (!conn.Connect(target, boost::bind(&TorController::connected_cb, this, _1),
          boost::bind(&TorController::disconnected_cb, this, _1) )) {
         LogPrintf("tor: Initiating connection to Tor control port %s failed\n", target);
-    }
-    // Read service private key if cached
-    std::pair<bool,std::string> pkf = ReadBinaryFile(GetPrivateKeyFile());
-    if (pkf.first) {
-        LogPrint("tor", "tor: Reading cached private key from %s\n", GetPrivateKeyFile());
-        private_key = pkf.second;
     }
 }
 
@@ -438,18 +453,26 @@ void TorController::add_onion_cb(TorControlConnection& conn, const TorControlRep
         }
 
         service = CService(service_id+".onion", GetListenPort());
-        LogPrintf("tor: Got service ID %s, advertising service %s\n", service_id, service.ToString());
-        if (WriteBinaryFile(GetPrivateKeyFile(), private_key)) {
-            LogPrint("tor", "tor: Cached service private key to %s\n", GetPrivateKeyFile());
-        } else {
-            LogPrintf("tor: Error writing service private key to %s\n", GetPrivateKeyFile());
+        if (announce) {
+            LogPrintf("tor: Got service ID %s.onion %d, advertising service %s\n", service_id, listen, service.ToString());
+            if (WriteBinaryFile(GetPrivateKeyFile(), private_key)) {
+                LogPrint("tor", "tor: Cached service private key to %s\n", GetPrivateKeyFile());
+            } else {
+                LogPrintf("tor: Error writing service private key to %s\n", GetPrivateKeyFile());
+            }
+            AddLocal(service, LOCAL_MANUAL);
         }
-        AddLocal(service, LOCAL_MANUAL);
+        if (ready_cb)
+            ready_cb(service_id+".onion:"+std::to_string(listen));
         // ... onion requested - keep connection open
     } else if (reply.code == 510) { // 510 Unrecognized command
         LogPrintf("tor: Add onion failed with unrecognized command (You probably need to upgrade Tor)\n");
+        if (ready_cb)
+            ready_cb("");
     } else {
         LogPrintf("tor: Add onion failed; error code %d\n", reply.code);
+        if (ready_cb)
+            ready_cb("");
     }
 }
 
@@ -461,21 +484,25 @@ void TorController::auth_cb(TorControlConnection& conn, const TorControlReply& r
         // Now that we know Tor is running setup the proxy for onion addresses
         // if -onion isn't set to something else.
         if (GetArg("-onion", "") == "") {
-            proxyType addrOnion = proxyType(CService("127.0.0.1", 9050), true);
+            proxyType addrOnion = proxyType(CService("127.0.0.1", 9044), true);
             SetProxy(NET_TOR, addrOnion);
             SetLimited(NET_TOR, false);
         }
 
-        // Finally - now create the service
-        if (private_key.empty()) // No private key, generate one
-            private_key = "NEW:BEST";
         // Request hidden service, redirect port.
         // Note that the 'virtual' port doesn't have to be the same as our internal port, but this is just a convenient
         // choice.  TODO; refactor the shutdown sequence some day.
-        conn.Command(strprintf("ADD_ONION %s Port=%i,127.0.0.1:%i", private_key, GetListenPort(), GetListenPort()),
+        ready = true;
+        // Finally - now create the service
+        if (private_key.empty() || !announce) // No private key, generate one
+            private_key = "NEW:BEST";
+
+        conn.Command(strprintf("ADD_ONION %s Port=%d,127.0.0.1:%d", private_key, listen, listen),
             boost::bind(&TorController::add_onion_cb, this, _1, _2));
     } else {
         LogPrintf("tor: Authentication failed\n");
+        if (ready_cb)
+            ready_cb("");
     }
 }
 
@@ -531,9 +558,13 @@ void TorController::authchallenge_cb(TorControlConnection& conn, const TorContro
             conn.Command("AUTHENTICATE " + HexStr(computedClientHash), boost::bind(&TorController::auth_cb, this, _1, _2));
         } else {
             LogPrintf("tor: Invalid reply to AUTHCHALLENGE\n");
+            if (ready_cb)
+                ready_cb("");
         }
     } else {
         LogPrintf("tor: SAFECOOKIE authentication challenge failed\n");
+        if (ready_cb)
+            ready_cb("");
     }
 }
 
@@ -603,11 +634,17 @@ void TorController::protocolinfo_cb(TorControlConnection& conn, const TorControl
             }
         } else if (methods.count("HASHEDPASSWORD")) {
             LogPrintf("tor: The only supported authentication mechanism left is password, but no password provided with -torpassword\n");
+            if (ready_cb)
+                ready_cb("");
         } else {
             LogPrintf("tor: No supported authentication method\n");
+            if (ready_cb)
+                ready_cb("");
         }
     } else {
         LogPrintf("tor: Requesting protocol info failed\n");
+        if (ready_cb)
+            ready_cb("");
     }
 }
 
@@ -616,17 +653,25 @@ void TorController::connected_cb(TorControlConnection& conn)
     reconnect_timeout = RECONNECT_TIMEOUT_START;
     // First send a PROTOCOLINFO command to figure out what authentication is expected
     if (!conn.Command("PROTOCOLINFO 1", boost::bind(&TorController::protocolinfo_cb, this, _1, _2)))
+    {
         LogPrintf("tor: Error sending initial protocolinfo command\n");
+        if (ready_cb)
+            ready_cb("");
+    }
 }
 
 void TorController::disconnected_cb(TorControlConnection& conn)
 {
     // Stop advertising service when disconnected
-    if (service.IsValid())
+    if (announce && service.IsValid())
         RemoveLocal(service);
     service = CService();
     if (!reconnect)
+    {
+        if (ready_cb)
+            ready_cb("");
         return;
+    }
 
     LogPrint("tor", "tor: Not connected to Tor control port %s, trying to reconnect\n", target);
 
@@ -660,19 +705,15 @@ void TorController::reconnect_cb(evutil_socket_t fd, short what, void *arg)
 }
 
 /****** Thread ********/
-struct event_base *base;
-boost::thread torControlThread;
-
-static void TorControlThread()
+void TorControlThread::Run()
 {
-    TorController ctrl(base, GetArg("-torcontrol", DEFAULT_TOR_CONTROL));
+    TorController ctrl(base, GetArg("-torcontrol", DEFAULT_TOR_CONTROL), listen, ready_cb);
 
     event_base_dispatch(base);
 }
 
-void StartTorControl(boost::thread_group& threadGroup, CScheduler& scheduler)
+void TorControlThread::Start()
 {
-    assert(!base);
 #ifdef WIN32
     evthread_use_windows_threads();
 #else
@@ -684,10 +725,10 @@ void StartTorControl(boost::thread_group& threadGroup, CScheduler& scheduler)
         return;
     }
 
-    torControlThread = boost::thread(boost::bind(&TraceThread<void (*)()>, "torcontrol", &TorControlThread));
+    torControlThread = boost::thread(boost::bind(&TorControlThread::Run, this));
 }
 
-void InterruptTorControl()
+void TorControlThread::Interrupt()
 {
     if (base) {
         LogPrintf("tor: Thread interrupt\n");
@@ -695,7 +736,7 @@ void InterruptTorControl()
     }
 }
 
-void StopTorControl()
+void TorControlThread::Stop()
 {
     if (base) {
         torControlThread.join();
@@ -703,4 +744,3 @@ void StopTorControl()
         base = 0;
     }
 }
-

@@ -1,0 +1,124 @@
+// Copyright (c) 2020 The NavCoin developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef EPHEMERALSERVER_H
+#define EPHEMERALSERVER_H
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h> //sockaddr, socklen_t
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <iostream>
+
+#include <boost/thread/thread.hpp>
+#include <boost/thread/future.hpp>
+#include <boost/asio.hpp>
+
+#include <torcontrol.h>
+#include <util.h>
+
+#define EPH_SERVER_DELIMITER '\n'
+
+using boost::asio::ip::tcp;
+
+typedef std::function<void(std::vector<unsigned char>&)> cb_t;
+typedef std::function<void(std::string&)> hs_cb_t;
+
+class EphemeralServer
+{
+public:
+    EphemeralServer(hs_cb_t hs_cb_in, cb_t data_cb_in, int timeout = 120000);
+
+    void Start();
+    void Stop();
+    bool IsRunning() const;
+
+private:
+    void Accept();
+
+    int live_until;
+    bool fState;
+
+    boost::thread ephemeralServerThread;
+    boost::promise<std::string> *p;
+    cb_t data_cb;
+    hs_cb_t hs_cb;
+
+    TorControlThread torController;
+
+    void SetHiddenService(std::string s);
+};
+
+class tcp_connection
+{
+public:
+    tcp_connection(boost::asio::io_service& io_service, cb_t data_cb_in)
+        : socket_(io_service), data_cb(data_cb_in)
+    {
+    }
+
+    tcp::socket& socket()
+    {
+        return socket_;
+    }
+
+    void start();
+
+    void handle_read(const boost::system::error_code& error,
+                     size_t bytes_transferred);
+
+private:
+    boost::asio::streambuf b;
+    tcp::socket socket_;
+    cb_t data_cb;
+};
+
+class EphemeralSession
+{
+public:
+    EphemeralSession(boost::asio::io_service& io_service, cb_t data_cb_in)
+        : acceptor_(io_service, tcp::endpoint(tcp::v4(), 0)), data_cb(data_cb_in)
+    {
+        port = acceptor_.local_endpoint().port();
+        Accept();
+    }
+
+    unsigned short port;
+
+private:
+    void Accept()
+    {
+        tcp_connection* new_connection = new
+                tcp_connection(acceptor_.get_io_service(), data_cb);
+
+        acceptor_.async_accept(new_connection->socket(),
+                               boost::bind(&EphemeralSession::HandleAccept, this, new_connection,
+                                           boost::asio::placeholders::error));
+    }
+
+    void HandleAccept(tcp_connection* new_connection,
+                      const boost::system::error_code& error)
+    {
+        if (!error)
+        {
+            new_connection->start();
+        }
+        else
+        {
+            delete new_connection;
+        }
+
+        Accept();
+    }
+
+    tcp::acceptor acceptor_;
+    cb_t data_cb;
+};
+
+#endif // EPHEMERALSERVER_H

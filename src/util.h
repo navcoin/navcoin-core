@@ -276,6 +276,31 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
     }
 }
 
+template <typename Callable, typename Arg1> void TraceThread(const char* name,  Callable func, Arg1 arg)
+{
+    std::string s = strprintf("navcoin-%s", name);
+    RenameThread(s.c_str());
+    try
+    {
+        LogPrintf("%s thread start\n", name);
+        func(arg);
+        LogPrintf("%s thread exit\n", name);
+    }
+    catch (const boost::thread_interrupted&)
+    {
+        LogPrintf("%s thread interrupt\n", name);
+        throw;
+    }
+    catch (const std::exception& e) {
+        PrintExceptionContinue(&e, name);
+        throw;
+    }
+    catch (...) {
+        PrintExceptionContinue(NULL, name);
+        throw;
+    }
+}
+
 std::string CopyrightHolders(const std::string& strPrefix);
 
 #endif // NAVCOIN_UTIL_H

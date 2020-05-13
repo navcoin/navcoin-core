@@ -23,6 +23,7 @@ packages:
 - "ca-certificates"
 - "python3"
 - "rename"
+- "cmake"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"

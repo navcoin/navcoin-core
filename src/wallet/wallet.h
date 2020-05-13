@@ -7,6 +7,7 @@
 #define NAVCOIN_WALLET_WALLET_H
 
 #include <amount.h>
+#include <blsct/mixsession.h>
 #include <blsct/transaction.h>
 #include <mnemonic/mnemonic.h>
 #include <streams.h>
@@ -77,6 +78,7 @@ class CReserveKey;
 class CScript;
 class CTxMemPool;
 class CWalletTx;
+class MixSession;
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -753,6 +755,8 @@ public:
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
 
+    MixSession* mixSession;
+
     CAmount nCommunityFund;
 
     CWallet()
@@ -785,6 +789,7 @@ public:
         nNextResend = 0;
         nLastResend = 0;
         nTimeFirstKey = 0;
+        mixSession = 0;
         fBroadcastTransactions = false;
     }
 

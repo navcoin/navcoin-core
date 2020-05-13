@@ -32,6 +32,7 @@ packages:
 - "bsdmainutils"
 - "ca-certificates"
 - "python3"
+- "cmake"
 remotes:
 - "url": "https://github.com/navcoin/navcoin-core.git"
   "dir": "navcoin-core"
