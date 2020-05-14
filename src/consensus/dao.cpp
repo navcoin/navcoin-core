@@ -1972,7 +1972,7 @@ void CConsultation::ToJson(UniValue& ret, const CStateViewCache& view) const
     UniValue mapState(UniValue::VOBJ);
     for (auto&it: this->mapState)
     {
-        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+        mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
     ret.pushKV("mapState", mapState);
     ret.pushKV("answers", answers);
@@ -2255,7 +2255,7 @@ void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) con
     UniValue mapState(UniValue::VOBJ);
     for (auto&it: this->mapState)
     {
-        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+        mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
     ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(view));
@@ -2830,7 +2830,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     UniValue mapState(UniValue::VOBJ);
     for (auto&it: this->mapState)
     {
-        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+        mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
     ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(chainActive.Tip()->GetBlockTime(), coins));
@@ -2891,7 +2891,7 @@ void CPaymentRequest::ToJson(UniValue& ret, const CStateViewCache& view) const {
     UniValue mapState(UniValue::VOBJ);
     for (auto&it: this->mapState)
     {
-        mapState.pushKV(it.first.ToString(), (uint64_t)it.second);
+        mapState.pushKV(std::to_string(it.second), it.first.ToString());
     }
     ret.pushKV("mapState", mapState);
     ret.pushKV("status", GetState(view));
