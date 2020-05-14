@@ -1131,7 +1131,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                     }
                     CConsensusParameter cparameter;
 
-                    if (consultation->IsAboutConsensusParameter() && mapConsensusToChange.count(consultation->nMin))
+                    if (consultation->IsAboutConsensusParameter() && mapConsensusToChange.count(consultation->nMin) && oldState == DAOFlags::ACCEPTED && consultation->GetLastState() != DAOFlags::EXPIRED)
                     {
                         consultation->SetState(pindexNew, DAOFlags::PASSED);
                         consultation->fDirty = true;
