@@ -44,7 +44,7 @@ public:
 
     static QList<CAmount> payAmounts;
     static CCoinControl *coinControl;
-    static CCoinControl *zeroCoinControl;
+    static CCoinControl *blscctCoinControl;
     static bool fSubtractFeeFromAmount;
     static bool fPrivate;
 

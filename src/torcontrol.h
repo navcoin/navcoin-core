@@ -13,7 +13,7 @@
 extern const std::string DEFAULT_TOR_CONTROL;
 static const bool DEFAULT_LISTEN_ONION = true;
 
-class MixSession;
+class AggregationSesion;
 
 typedef std::function<void(std::string)> hidden_service_cb;
 

@@ -640,7 +640,7 @@ void NavCoinGUI::createHeaderWidgets()
     balanceContainer->setLayout(balanceLayout);
 
     QVBoxLayout* privateLayout = new QVBoxLayout();
-    privateLayout->setContentsMargins(20 * GUIUtil::scale(), 0, 0, 0);
+    privateLayout->setContentsMargins(20 * GUIUtil::scale(), 0, 20 * GUIUtil::scale(), 0);
     privateLayout->setSpacing(5 * GUIUtil::scale());
     privateContainer->setLayout(privateLayout);
 

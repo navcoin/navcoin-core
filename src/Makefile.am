@@ -1,4 +1,4 @@
-DIST_SUBDIRS = secp256k1 univalue bls-signatures tor
+DIST_SUBDIRS = secp256k1 univalue 
 
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
@@ -44,11 +44,6 @@ endif
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
-
-$(LIBBLS): $(wildcard bls-signatures/src/*.hpp) $(wildcard bls-signatures/src/*.cpp)
-	$(AM_V_at)mkdir -p $(@D)/build
-	$(AM_V_at)cd $(@D)/build && cmake ..
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)/build bls
 
 TOR_UTIL_LIBS = \
         tor/src/lib/libtor-geoip.a \
@@ -146,7 +141,7 @@ NAVCOIN_CORE_H = \
   blsct/bulletproofs.h \
   blsct/ephemeralserver.h \
   blsct/key.h \
-  blsct/mixsession.h \
+  blsct/aggregationsession.h \
   blsct/rpc.h \
   blsct/transaction.h \
   blsct/types.h \
@@ -253,7 +248,7 @@ libnavcoin_server_a_SOURCES = \
   bloom.cpp \
   blockencodings.cpp \
   blsct/ephemeralserver.cpp \
-  blsct/mixsession.cpp \
+  blsct/aggregationsession.cpp \
   chain.cpp \
   checkpoints.cpp \
   consensus/cfund.cpp \

@@ -3153,7 +3153,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool ov
 bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey,
                                 std::vector<shared_ptr<CReserveBLSCTKey>>& reserveBLSCTKey, CAmount& nFeeRet,
                                 int& nChangePosInOut, std::string& strFailReason, bool fPrivate, const CCoinControl* coinControl,
-                                bool sign)
+                                bool sign, const CandidateTransaction* coinsToMix)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
@@ -3205,9 +3205,17 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
         txNew.nVersion |= TX_BLS_CT_FLAG;
     }
 
+    CAmount nMixFee = 0;
+
     if (fPrivate) {
         txNew.nVersion |= TX_BLS_INPUT_FLAG;
+        nMixFee = (coinsToMix ? coinsToMix->fee : 0);
     }
+
+    std::cout << strprintf("we need %d mix fee\n", nMixFee);
+
+    auto nInMix = (coinsToMix ? coinsToMix->tx.vin.size() : 0);
+    auto nOutMix = (coinsToMix ? coinsToMix->tx.vout.size() : 0);
 
     // Discourage fee sniping.
     //
@@ -3252,7 +3260,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
             else
                 AvailableCoins(vAvailableCoins, true, coinControl);
 
-            nFeeRet = 0;
+            nFeeRet = nMixFee;
             // Start with no fee and loop until there is enough fee
             while (true)
             {
@@ -3272,7 +3280,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 double dPriority = 0;
                 unsigned int i = 0;
                 if (fBLSCT)
-                    uiInterface.ShowProgress("Constructing BLSCT trasaction...", i);
+                    uiInterface.ShowProgress("Constructing BLSCT transaction...", -1);
 
                 // vouts to the payees
                 for(const CRecipient& recipient: vecSend)
@@ -3283,6 +3291,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         wtxNew.fCFund = true;
 
                     CAmount nValue = recipient.nAmount;
+
+                    std::cout << strprintf("Adding %d output\n", nValue);
 
                     if (recipient.fSubtractFeeFromAmount)
                     {
@@ -3345,11 +3355,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                         bls::PrivateKey blindingKey = bk.GetKey();
 
-                        auto nProgress = (i)*100/vecSend.size();
-
-                        if (nProgress>0)
-                            uiInterface.ShowProgress("Constructing BLSCT transaction...", nProgress);
-
                         if (!CreateBLSCTOutput(blindingKey, txout, blsctDoublePublicKey(recipient.vk, recipient.sk), nValue, recipient.sMemo, gammaOuts, strFailReason, fPrivate, vBLSSignatures))
                         {
                             uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
@@ -3363,16 +3368,19 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 }
 
                 if (fBLSCT)
-                    uiInterface.ShowProgress("Constructing BLSCT trasaction...", 100);
+                    uiInterface.ShowProgress("Constructing BLSCT transaction...", 100);
 
                 // Choose coins to use
                 set<pair<const CWalletTx*,unsigned int> > setCoins;
                 CAmount nValueIn = 0;
+
                 if (!SelectCoins(vAvailableCoins, nValueToSelect, setCoins, nValueIn, coinControl))
                 {
                     strFailReason = _("Insufficient funds");
                     return false;
                 }
+                std::cout << strprintf("Selecting %d got %d\n", nValueToSelect, nValueIn);
+
                 for(PAIRTYPE(const CWalletTx*, unsigned int) pcoin: setCoins)
                 {
                     CAmount nCredit = pcoin.first->vout[pcoin.second].nValue;
@@ -3390,6 +3398,8 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 }
 
                 const CAmount nChange = nValueIn - nValueToSelect;
+                std::cout << strprintf("change is %d output\n", nChange);
+
                 if (nChange > 0)
                 {
                     // Fill a vout to ourself
@@ -3420,7 +3430,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                             return false;
                         }
 
-                        uiInterface.ShowProgress("Constructing BLSCT transaction...", 0);
+                        uiInterface.ShowProgress("Constructing BLSCT transaction...", -1);
 
                         if (!CreateBLSCTOutput(blindingKey, newTxOut, k, nChange, "Change", gammaOuts, strFailReason, fPrivate, vBLSSignatures))
                         {
@@ -3515,8 +3525,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 if (fBLSCT || fPrivate)
                 {
-                     CTxOut feeOut = CTxOut(nFeeRet, CScript(OP_RETURN));
-                     txNew.vout.push_back(feeOut);
+                    std::cout << strprintf("Adding %d fee output\n", nFeeRet-nMixFee);
+                    CTxOut feeOut = CTxOut(nFeeRet-nMixFee, CScript(OP_RETURN));
+                    txNew.vout.push_back(feeOut);
                 }
 
                 // Fill vin
@@ -3530,14 +3541,17 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     txNew.vin.push_back(CTxIn(coin.first->GetHash(),coin.second,CScript(),
                                               std::numeric_limits<unsigned int>::max()-1));
                     if (fPrivate)
+                    {
+                        std::cout << strprintf("Adding %d input\n", coin.first->vAmounts[coin.second]);
                         gammaIns = gammaIns + coin.first->vGammas[coin.second];
+                    }
                 }
 
                 // Sign
                 int nIn = 0;
 
                 if (fPrivate)
-                     uiInterface.ShowProgress(_("Signing..."), 0);
+                     uiInterface.ShowProgress(_("Signing..."), -1);
 
                 if (fPrivate || fBLSCT)
                 {
@@ -3553,14 +3567,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     bool signSuccess = false;
                     const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
                     SignatureData sigdata;
-
-                    if (fPrivate)
-                    {
-                         unsigned int nProgress = (nIn)*100/setCoins.size();
-
-                         if (nProgress > 0)
-                             uiInterface.ShowProgress(_("Signing..."), nProgress);
-                     }
 
                     if (sign)
                     {
@@ -3641,7 +3647,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                     v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));
 
-                    if (!VerifyBLSCT(txNew, v.GetKey(), blsctData, inputs, state))
+                    if (!(coinsToMix && coinsToMix->tx.vin.size() > 0) && !VerifyBLSCT(txNew, v.GetKey(), blsctData, inputs, state, false))
                     {
                         strFailReason = FormatStateMessage(state);
                         return false;
@@ -3673,12 +3679,15 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 CAmount nFeeNeeded = GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
 
-                nFeeNeeded = nFeeNeeded > 10000 ? nFeeNeeded : 10000;
+                if (fPrivate)
+                    nFeeNeeded = (wtxNew.vin.size()+nInMix)*BLSCT_TX_INPUT_FEE+(wtxNew.vout.size()+nOutMix)*BLSCT_TX_OUTPUT_FEE;
+                else
+                    nFeeNeeded = nFeeNeeded > 10000 ? nFeeNeeded : 10000;
 
                 if (coinControl && nFeeNeeded > 0 && coinControl->nMinimumTotalFee > nFeeNeeded) {
                     nFeeNeeded = coinControl->nMinimumTotalFee;
                 }
-                if (coinControl && coinControl->fOverrideFeeRate)
+                if (!fPrivate && coinControl && coinControl->fOverrideFeeRate)
                     nFeeNeeded = coinControl->nFeeRate.GetFee(nBytes);
 
                 // If we made it here and we aren't even able to meet the relay fee on the next pass, give up
@@ -3689,14 +3698,29 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     return false;
                 }
 
-                if (nFeeRet >= nFeeNeeded)
+                if (nFeeRet-nMixFee >= nFeeNeeded)
                     break; // Done, enough fee included.
 
                 // Include more fee and try again.
-                nFeeRet = nFeeNeeded;
+                nFeeRet = nFeeNeeded+nMixFee;
                 continue;
             }
         }
+    }
+
+    if (fPrivate && coinsToMix && coinsToMix->tx.vin.size() > 0)
+    {
+        std::vector<CTransaction> vTransactionsToCombine;
+        vTransactionsToCombine.push_back(coinsToMix->tx);
+        vTransactionsToCombine.push_back(wtxNew);
+
+        CTransaction ctx;
+        CValidationState state;
+
+        if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *pcoinsTip, state))
+            return error("CWallet::%s: Failed %s\n", __func__, state.GetRejectReason());
+
+        *static_cast<CTransaction*>(&wtxNew) = CTransaction(ctx);
     }
 
     return true;
@@ -4982,7 +5006,7 @@ bool CWallet::InitLoadWallet(const std::string& wordlist)
     walletInstance->SetBroadcastTransactions(GetBoolArg("-walletbroadcast", DEFAULT_WALLETBROADCAST));
 
     pwalletMain = walletInstance;
-    pwalletMain->mixSession = new MixSession(pcoinsTip);
+    pwalletMain->aggSession = new AggregationSesion(pcoinsTip);
     return true;
 }
 

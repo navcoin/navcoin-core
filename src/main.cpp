@@ -7253,29 +7253,30 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
         FlushStateToDisk(state, FLUSH_STATE_PERIODIC);
     }
-    else if (strCommand == NetMsgType::DANDELIONMIXSESSION)
+    else if (strCommand == NetMsgType::DANDELIONAGGREGATIONSESSION)
     {
         if (IsDandelionInbound(pfrom)) {
-            MixSession ms(pcoinsTip);
+            AggregationSesion ms(pcoinsTip);
             vRecv >> ms;
             int64_t nCurrTime = GetTimeMicros();
             int64_t nEmbargo = 1000000*DANDELION_EMBARGO_MINIMUM+PoissonNextSend(nCurrTime, DANDELION_EMBARGO_AVG_ADD);
-            InsertDandelionMixSessionEmbargo(ms,nEmbargo);
-            RelayDandelionMixSession(ms, pfrom);
+            InsertDandelionAggregationSesionEmbargo(ms,nEmbargo);
+            RelayDandelionAggregationSesion(ms, pfrom);
         }
     }
-    else if (strCommand == NetMsgType::MIXSESSION)
+    else if (strCommand == NetMsgType::AGGREGATIONSESSION)
     {
-        MixSession ms(pcoinsTip);
+        AggregationSesion ms(pcoinsTip);
         vRecv >> ms;
 
-        if (IsDandelionMixSessionEmbargoed(ms)) {
+        if (IsDandelionAggregationSesionEmbargoed(ms)) {
             LogPrint("dandelion", "Embargoed dandelion message %s found; removing from embargo map\n", ms.GetHash().ToString());
-            RemoveDandelionMixSessionEmbargo(ms);
+            RemoveDandelionAggregationSesionEmbargo(ms);
         }
-        if (!MixSession::IsKnown(ms))
+        if (!AggregationSesion::IsKnown(ms))
         {
-            RelayMixSession(ms);
+            uiInterface.NewAggregationSesion(ms.GetHiddenService());
+            RelayAggregationSesion(ms);
             ms.Join();
         }
     }
@@ -9191,16 +9192,16 @@ static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom)
     }
 }
 
-static void RelayDandelionMixSession(const MixSession& ms, CNode* pfrom)
+static void RelayDandelionAggregationSesion(const AggregationSesion& ms, CNode* pfrom)
 {
     FastRandomContext rng;
     if (rng.randrange(100)<DANDELION_FLUFF) {
         LogPrint("dandelion", "Dandelion message fluff: %s\n", ms.GetHash().ToString());
-        RelayMixSession(ms);
+        RelayAggregationSesion(ms);
     } else {
         CNode* destination = GetDandelionDestination(pfrom);
         if (destination!=nullptr) {
-            destination->PushMessage(NetMsgType::MIXSESSION, ms);
+            destination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
         }
     }
 }
@@ -9208,10 +9209,10 @@ static void RelayDandelionMixSession(const MixSession& ms, CNode* pfrom)
 static void CheckDandelionEmbargoes()
 {
     int64_t nCurrTime = GetTimeMicros();
-    for (auto iter=mDandelionMixSessionEmbargo.begin(); iter!=mDandelionMixSessionEmbargo.end();) {
+    for (auto iter=mDandelionAggregationSesionEmbargo.begin(); iter!=mDandelionAggregationSesionEmbargo.end();) {
         if (iter->second < nCurrTime) {
-            RelayMixSession(iter->first);
-            iter = mDandelionMixSessionEmbargo.erase(iter);
+            RelayAggregationSesion(iter->first);
+            iter = mDandelionAggregationSesionEmbargo.erase(iter);
         } else {
             iter++;
         }

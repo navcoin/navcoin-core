@@ -7,7 +7,7 @@
 #define NAVCOIN_WALLET_WALLET_H
 
 #include <amount.h>
-#include <blsct/mixsession.h>
+#include <blsct/aggregationsession.h>
 #include <blsct/transaction.h>
 #include <mnemonic/mnemonic.h>
 #include <streams.h>
@@ -78,7 +78,7 @@ class CReserveKey;
 class CScript;
 class CTxMemPool;
 class CWalletTx;
-class MixSession;
+class AggregationSesion;
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -755,7 +755,7 @@ public:
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
 
-    MixSession* mixSession;
+    AggregationSesion* aggSession;
 
     CAmount nCommunityFund;
 
@@ -789,7 +789,7 @@ public:
         nNextResend = 0;
         nLastResend = 0;
         nTimeFirstKey = 0;
-        mixSession = 0;
+        aggSession = 0;
         fBroadcastTransactions = false;
     }
 
@@ -931,7 +931,7 @@ public:
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTKey>>& reserveBLSCTKey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true);
+                           std::string& strFailReason, bool fPrivate, const CCoinControl *coinControl = NULL, bool sign = true, const CandidateTransaction* coinsToMix = 0);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::vector<shared_ptr<CReserveBLSCTKey>>& reserveBLSCTKey);
 
     bool AddAccountingEntry(const CAccountingEntry&, CWalletDB & pwalletdb);

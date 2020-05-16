@@ -5,7 +5,9 @@
 #ifndef NAVCOIN_QT_SENDCOINSDIALOG_H
 #define NAVCOIN_QT_SENDCOINSDIALOG_H
 
+#include <blsct/transaction.h>
 #include <qt/walletmodel.h>
+#include <aggregationsession.h>
 
 #include <QDialog>
 #include <QMessageBox>

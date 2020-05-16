@@ -8,7 +8,7 @@
 
 #include <amount.h>
 #include <bloom.h>
-#include <blsct/mixsession.h>
+#include <blsct/aggregationsession.h>
 #include <compat.h>
 #include <limitedmap.h>
 #include <netbase.h>
@@ -187,7 +187,7 @@ extern CCriticalSection cs_nLastNodeId;
 
 // Public Dandelion field
 extern std::map<uint256, int64_t> mDandelionEmbargo;
-extern std::map<MixSession, int64_t> mDandelionMixSessionEmbargo;
+extern std::map<AggregationSesion, int64_t> mDandelionAggregationSesionEmbargo;
 // Dandelion methods
 bool IsDandelionInbound(const CNode* const pnode);
 bool IsDandelionOutbound(const CNode* const pnode);
@@ -195,13 +195,13 @@ bool IsLocalDandelionDestinationSet();
 bool SetLocalDandelionDestination();
 CNode* GetDandelionDestination(CNode* pfrom);
 bool LocalDandelionDestinationPushInventory(const CInv& inv);
-bool LocalDandelionDestinationPushMixSession(const MixSession& inv);
+bool LocalDandelionDestinationPushAggregationSesion(const AggregationSesion& inv);
 bool InsertDandelionEmbargo(const uint256& hash, const int64_t& embargo);
 bool IsTxDandelionEmbargoed(const uint256& hash);
 bool RemoveDandelionEmbargo(const uint256& hash);
-bool InsertDandelionMixSessionEmbargo(const MixSession& ms, const int64_t& embargo);
-bool IsDandelionMixSessionEmbargoed(const MixSession& ms);
-bool RemoveDandelionMixSessionEmbargo(const MixSession& ms);
+bool InsertDandelionAggregationSesionEmbargo(const AggregationSesion& ms, const int64_t& embargo);
+bool IsDandelionAggregationSesionEmbargoed(const AggregationSesion& ms);
+bool RemoveDandelionAggregationSesionEmbargo(const AggregationSesion& ms);
 // Dandelion fields
 extern std::vector<CNode*> vDandelionInbound;
 extern std::vector<CNode*> vDandelionOutbound;
@@ -864,7 +864,7 @@ public:
 
 class CTransaction;
 void RelayTransaction(const CTransaction& tx);
-void RelayMixSession(const MixSession& ms);
+void RelayAggregationSesion(const AggregationSesion& ms);
 
 /** Access to the (IP) address database (peers.dat) */
 class CAddrDB

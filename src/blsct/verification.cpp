@@ -31,9 +31,14 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
     CAmount valIn = 0;
     CAmount valOut = 0;
 
-    if (nMixFee > 0 && MoneyRange(nMixFee))
+    if (nMixFee != 0)
     {
-        balKey = fPointZero ? (BulletproofsRangeproof::H*Scalar(nMixFee)) : balKey + (BulletproofsRangeproof::H*Scalar(nMixFee));
+        Scalar sMixFee = Scalar(nMixFee);
+
+        if (nMixFee < 0)
+            sMixFee = sMixFee.Negate();
+
+        balKey = fPointZero ? (BulletproofsRangeproof::H*sMixFee) : balKey + (BulletproofsRangeproof::H*sMixFee);
         valIn += nMixFee;
         fPointZero = false;
     }
@@ -134,7 +139,7 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
     return true;
 }
 
-bool CombineBLSTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx, const CCoinsViewCache& inputs, CValidationState& state)
+bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx, const CCoinsViewCache& inputs, CValidationState& state, CAmount nMixFee)
 {
     std::set<CTxIn> setInputs;
     std::set<CTxOut> setOutputs;
@@ -216,5 +221,8 @@ bool CombineBLSTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx,
 
     std::vector<RangeproofEncodedData> blsctData;
 
-    return VerifyBLSCT(outTx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state);
+    if (!MoneyRange(nMixFee))
+        return state.DoS(100, false, REJECT_INVALID, strprintf("%s: Can't combine transactions with incorrect fee %d\n", __func__, nMixFee));
+
+    return VerifyBLSCT(outTx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, inputs, state, false, nMixFee);
 }

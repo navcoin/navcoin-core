@@ -60,6 +60,5 @@ bool SignBLSOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, std::ve
     return true;
 }
 
-CandidateTransaction::CandidateTransaction() {
-
+CandidateTransaction::CandidateTransaction() : fee(0) {
 }

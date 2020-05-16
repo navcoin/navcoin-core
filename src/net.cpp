@@ -74,7 +74,7 @@ const static std::string NET_MESSAGE_COMMAND_OTHER = "*other*";
 /** Services this node implementation cares about */
 ServiceFlags nRelevantServices = NODE_NETWORK;
 
-class MixSession;
+class AggregationSesion;
 
 //
 // Global state variables
@@ -112,7 +112,7 @@ boost::condition_variable messageHandlerCondition;
 
 // Public Dandelion field
 std::map<uint256, int64_t> mDandelionEmbargo;
-std::map<MixSession, int64_t> mDandelionMixSessionEmbargo;
+std::map<AggregationSesion, int64_t> mDandelionAggregationSesionEmbargo;
 // Dandelion fields
 std::vector<CNode*> vDandelionInbound;
 std::vector<CNode*> vDandelionOutbound;
@@ -1557,12 +1557,12 @@ bool LocalDandelionDestinationPushInventory(const CInv& inv) {
     }
 }
 
-bool LocalDandelionDestinationPushMixSession(const MixSession& ms) {
+bool LocalDandelionDestinationPushAggregationSesion(const AggregationSesion& ms) {
     if(IsLocalDandelionDestinationSet()) {
-        localDandelionDestination->PushMessage(NetMsgType::MIXSESSION, ms);
+        localDandelionDestination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
         return true;
     } else if (SetLocalDandelionDestination()) {
-        localDandelionDestination->PushMessage(NetMsgType::MIXSESSION, ms);
+        localDandelionDestination->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
         return true;
     } else {
         return false;
@@ -1596,25 +1596,25 @@ bool RemoveDandelionEmbargo(const uint256& hash) {
     return removed;
 }
 
-bool InsertDandelionMixSessionEmbargo(const MixSession& ms, const int64_t& embargo) {
-    auto pair = mDandelionMixSessionEmbargo.insert(std::make_pair(ms, embargo));
+bool InsertDandelionAggregationSesionEmbargo(const AggregationSesion& ms, const int64_t& embargo) {
+    auto pair = mDandelionAggregationSesionEmbargo.insert(std::make_pair(ms, embargo));
     return pair.second;
 }
 
-bool IsDandelionMixSessionEmbargoed(const MixSession& ms) {
-    auto pair = mDandelionMixSessionEmbargo.find(ms);
-    if (pair != mDandelionMixSessionEmbargo.end()) {
+bool IsDandelionAggregationSesionEmbargoed(const AggregationSesion& ms) {
+    auto pair = mDandelionAggregationSesionEmbargo.find(ms);
+    if (pair != mDandelionAggregationSesionEmbargo.end()) {
         return true;
     } else {
         return false;
     }
 }
 
-bool RemoveDandelionMixSessionEmbargo(const MixSession& ms) {
+bool RemoveDandelionAggregationSesionEmbargo(const AggregationSesion& ms) {
     bool removed = false;
-    for (auto iter=mDandelionMixSessionEmbargo.begin(); iter!=mDandelionMixSessionEmbargo.end();) {
+    for (auto iter=mDandelionAggregationSesionEmbargo.begin(); iter!=mDandelionAggregationSesionEmbargo.end();) {
         if (iter->first==ms) {
-            iter = mDandelionMixSessionEmbargo.erase(iter);
+            iter = mDandelionAggregationSesionEmbargo.erase(iter);
             removed = true;
         } else {
             iter++;
@@ -2524,12 +2524,12 @@ void RelayTransaction(const CTransaction& tx)
     }
 }
 
-void RelayMixSession(const MixSession& ms)
+void RelayAggregationSesion(const AggregationSesion& ms)
 {
     LOCK(cs_vNodes);
     for(CNode* pnode: vNodes)
     {
-        pnode->PushMessage(NetMsgType::MIXSESSION, ms);
+        pnode->PushMessage(NetMsgType::AGGREGATIONSESSION, ms);
     }
 }
 

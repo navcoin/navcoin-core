@@ -86,6 +86,8 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
     entry.pushKV("version", tx.nVersion);
     entry.pushKV("locktime", (int64_t)tx.nLockTime);
     entry.pushKV("strdzeel", tx.strDZeel);
+    entry.pushKV("vchTxSig", HexStr(tx.vchTxSig));
+    entry.pushKV("vchBalanceSig", HexStr(tx.vchBalanceSig));
     UniValue vin(UniValue::VARR);
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxIn& txin = tx.vin[i];
@@ -139,6 +141,9 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         UniValue o(UniValue::VOBJ);
         ScriptPubKeyToJSON(txout.scriptPubKey, o, true);
         out.pushKV("scriptPubKey", o);
+        out.pushKV("spendingKey", HexStr(txout.spendingKey));
+        out.pushKV("blindingKey", HexStr(txout.blindingKey));
+        out.pushKV("rangeProof", txout.bp.V.size() > 0);
 
         // Add spent information if spentindex is enabled
         CSpentIndexValue spentInfo;
@@ -179,6 +184,8 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     entry.pushKV("locktime", (int64_t)tx.nLockTime);
     entry.pushKV("time", (int64_t)tx.nTime);
     entry.pushKV("strdzeel", tx.strDZeel);
+    entry.pushKV("vchTxSig", HexStr(tx.vchTxSig));
+    entry.pushKV("vchBalanceSig", HexStr(tx.vchBalanceSig));
 
     UniValue vin(UniValue::VARR);
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
@@ -220,6 +227,9 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
         UniValue o(UniValue::VOBJ);
         ScriptPubKeyToJSON(txout.scriptPubKey, o, true);
         out.pushKV("scriptPubKey", o);
+        out.pushKV("spendingKey", HexStr(txout.spendingKey));
+        out.pushKV("blindingKey", HexStr(txout.blindingKey));
+        out.pushKV("rangeProof", txout.bp.V.size() > 0);
         vout.push_back(out);
     }
     entry.pushKV("vout", vout);

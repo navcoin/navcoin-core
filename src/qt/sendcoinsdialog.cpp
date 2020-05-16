@@ -177,6 +177,25 @@ void SendCoinsDialog::on_sendButton_clicked()
     recipients.append(recipient);
     fPrivate = recipient.isanon;
 
+    CandidateTransaction selectedCoins;
+
+    if (fPrivate) {
+        QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Increase privacy level"),
+            tr("Would you like to increase the privacy level of your transaction by mixing it with other coins in exchange of a fee?"),
+            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+
+        if(btnRetVal == QMessageBox::Yes)
+        {
+            AggregationSesionDialog msd(this);
+            msd.setWalletModel(model);
+            msd.setClientModel(clientModel);
+            if (!msd.exec())
+                QMessageBox::critical(this, tr("Something failed"), tr("The mixing process failed, if you continue, the transaction would be sent with limited privacy and the source could be easily identified by an observer. Transaction amount and recipient would be perfectly obfuscated."));
+            else
+                selectedCoins = msd.GetSelectedCoins();
+        }
+    }
+
     fNewRecipientAllowed = false;
     WalletModel::UnlockContext ctx(model->requestUnlock());
     if(!ctx.isValid())
@@ -190,13 +209,13 @@ void SendCoinsDialog::on_sendButton_clicked()
     WalletModelTransaction currentTransaction(recipients);
 
     CAmount nTotalAmount = 0;
-    CCoinControl* coinControl = fPrivate?CoinControlDialog::zeroCoinControl:CoinControlDialog::coinControl;
+    CCoinControl* coinControl = fPrivate?CoinControlDialog::blscctCoinControl:CoinControlDialog::coinControl;
 
     WalletModel::SendCoinsReturn prepareStatus;
     if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
-        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, CoinControlDialog::coinControl);
+        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, CoinControlDialog::coinControl, &selectedCoins);
     else
-        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount);
+        prepareStatus = model->prepareTransaction(currentTransaction, nTotalAmount, 0, &selectedCoins);
 
     // process prepareStatus and on error generate message shown to user
     processSendCoinsReturn(prepareStatus,
@@ -222,7 +241,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         }
     }
 
-    CAmount txFee = currentTransaction.getTransactionFee();
+    CAmount txFee = currentTransaction.getTransactionFee()+selectedCoins.fee;
 
     QString questionString = tr("Are you sure you want to send?");
 
@@ -260,7 +279,13 @@ void SendCoinsDialog::on_sendButton_clicked()
             recipientElement = tr("%1 to %2").arg((rcp.isanon ? tr(" Private payment ") : "") +amount, address);
         }
 
+        if (selectedCoins.tx.vin.size() > 0)
+        {
+            recipientElement.append(QString("<br /><br />%1").arg(tr("mixed with %1 coins")).arg(selectedCoins.tx.vin.size()));
+        }
+
         formatted.append(recipientElement);
+
 
         questionString.append("<br /><br />%1");
 
@@ -310,9 +335,9 @@ void SendCoinsDialog::on_sendButton_clicked()
 
     // now send the prepared transaction
     if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
-        sendStatus = model->sendCoins(currentTransaction, fPrivate, coinControl);
+        sendStatus = model->sendCoins(currentTransaction, fPrivate, coinControl, &selectedCoins);
     else
-        sendStatus = model->sendCoins(currentTransaction, fPrivate);
+        sendStatus = model->sendCoins(currentTransaction, fPrivate, 0, &selectedCoins);
 
     // process sendStatus and on error generate message shown to user
     processSendCoinsReturn(sendStatus);
@@ -483,7 +508,7 @@ void SendCoinsDialog::updatePrivateOrPublic(bool fPrivate)
     ui->checkBoxCoinControlChange->setEnabled(!fPrivate);
     this->fPrivate = fPrivate;
     CoinControlDialog::fPrivate = fPrivate;
-    CCoinControl* coinControl = CoinControlDialog::fPrivate ? CoinControlDialog::zeroCoinControl : CoinControlDialog::coinControl;
+    CCoinControl* coinControl = CoinControlDialog::fPrivate ? CoinControlDialog::blscctCoinControl : CoinControlDialog::coinControl;
     coinControl->UnSelectAll();
     coinControlUpdateLabels();
 }
@@ -726,7 +751,7 @@ void SendCoinsDialog::coinControlUpdateLabels()
         }
     }
 
-    CCoinControl* coinControl = fPrivate?CoinControlDialog::zeroCoinControl:CoinControlDialog::coinControl;
+    CCoinControl* coinControl = fPrivate?CoinControlDialog::blscctCoinControl:CoinControlDialog::coinControl;
 
     if (coinControl->HasSelected())
     {

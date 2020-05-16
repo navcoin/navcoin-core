@@ -532,9 +532,15 @@ void BlockAssembler::addCombinedBLSCT(const CCoinsViewCache& inputs)
     if (vToCombine.size() == 0)
         return;
 
+    if (vToCombine.size() == 1)
+    {
+        pblock->vtx.push_back(vToCombine[0]);
+        return;
+    }
+
     CTransaction combinedTx;
 
-    if (!CombineBLSTransactions(vToCombine, combinedTx, inputs, state))
+    if (!CombineBLSCTTransactions(vToCombine, combinedTx, inputs, state))
     {
         LogPrintf("%s: Could not combine BLSCT transactions: %s\n", __func__, FormatStateMessage(state));
         return;

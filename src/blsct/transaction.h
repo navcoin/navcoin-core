@@ -11,6 +11,9 @@
 #include <blsct/verification.h>
 #include <primitives/transaction.h>
 
+#define BLSCT_TX_INPUT_FEE 200000
+#define BLSCT_TX_OUTPUT_FEE 200000
+
 bool CreateBLSCTOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, const blsctDoublePublicKey& destKey, const CAmount& nAmount, std::string sMemo,
                   Scalar& gammaAcc, std::string &strFailReason, const bool& fBLSSign, std::vector<bls::PrependSignature>& vBLSSignatures);
 bool SignBLSOutput(const bls::PrivateKey& blindingKey, CTxOut& newTxOut, std::vector<bls::PrependSignature>& vBLSSignatures);

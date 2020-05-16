@@ -244,7 +244,7 @@ bool WalletModel::validateAddress(const QString &address)
   return addressParsed.IsValid();
 }
 
-WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransaction &transaction, CAmount& total, const CCoinControl *coinControl)
+WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransaction &transaction, CAmount& total, const CCoinControl *coinControl, const CandidateTransaction* selectedCoins)
 {
     total = 0;
     bool fSubtractFeeFromAmount = false;
@@ -354,7 +354,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         CWalletTx *newTx;
         newTx = new CWalletTx();
 
-        fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, *reserveBLSCTKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true);
+        fCreated = wallet->CreateTransaction(vec, *newTx, *keyChange, *reserveBLSCTKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true, selectedCoins);
         if (newTx->fSpendsColdStaking)
             transaction.fSpendsColdStaking = true;
         transaction.vTransactions.push_back(*newTx);
@@ -386,7 +386,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
     return SendCoinsReturn(OK);
 }
 
-WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &transaction, const bool& fPrivate, const CCoinControl *coinControl)
+WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &transaction, const bool& fPrivate, const CCoinControl *coinControl, const CandidateTransaction* selectedCoins)
 {
     QByteArray transaction_array; /* store serialized transaction */
 
@@ -431,7 +431,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
           std::vector<CRecipient> vec;
           vec.push_back(rcp);
 
-          wallet->CreateTransaction(vec, *wTx, *keyChange, *reserveBLSCTKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true);
+          wallet->CreateTransaction(vec, *wTx, *keyChange, *reserveBLSCTKey, nFeeRequired, nChangePosRet, strFailReason, fPrivate, coinControl, true, selectedCoins);
 
           if(!wallet->CommitTransaction(*wTx, *keyChange, *reserveBLSCTKey))
             return TransactionCommitFailed;

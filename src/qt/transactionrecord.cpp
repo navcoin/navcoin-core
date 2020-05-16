@@ -121,6 +121,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::AnonTxRecv;
                     sub.memo = std::string(wtx.vMemos[i].begin(), wtx.vMemos[i].end());
                     sub.credit = wtx.vAmounts[i];
+                    if (sub.memo == "Mixing Reward")
+                        sub.credit += nReward;
                     fBLSCT = true;
                 }
 

@@ -149,6 +149,65 @@ UniValue createrawscriptaddress(const UniValue& params, bool fHelp)
     return address.ToString();
 }
 
+UniValue listprivateunspent(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() > 3)
+        throw runtime_error(
+                "listprivateunspent ( minconf maxconf )\n"
+                "\nReturns array of unspent private transaction outputs\n"
+                "with between minconf and maxconf (inclusive) confirmations.\n"
+                "\nArguments:\n"
+                "1. minconf          (numeric, optional, default=1) The minimum confirmations to filter\n"
+                "2. maxconf          (numeric, optional, default=9999999) The maximum confirmations to filter\n"
+                "\nResult\n"
+                "[                   (array of json object)\n"
+                "  {\n"
+                "    \"txid\" : \"txid\",          (string) the transaction id \n"
+                "    \"vout\" : n,                 (numeric) the vout value\n"
+                "    \"amount\" : x.xxx,           (numeric) the transaction amount in " + CURRENCY_UNIT + "\n"
+                                                                                                           "    \"confirmations\" : n         (numeric) The number of confirmations\n"
+                                                                                                           "  }\n"
+                                                                                                           "  ,...\n"
+                                                                                                           "]\n"
+
+                                                                                                           "\nExamples\n"
+                + HelpExampleCli("listprivateunspent", "")
+                + HelpExampleCli("listprivateunspent", "6 9999999")
+                );
+
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VNUM)(UniValue::VNUM)(UniValue::VARR));
+
+    int nMinDepth = 1;
+    if (params.size() > 0)
+        nMinDepth = params[0].get_int();
+
+    int nMaxDepth = 9999999;
+    if (params.size() > 1)
+        nMaxDepth = params[1].get_int();
+
+    UniValue results(UniValue::VARR);
+    vector<COutput> vecOutputs;
+    assert(pwalletMain != NULL);
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    pwalletMain->AvailablePrivateCoins(vecOutputs, false, NULL, true);
+    for(const COutput& out: vecOutputs) {
+        if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
+            continue;
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("txid", out.tx->GetHash().GetHex());
+        entry.pushKV("vout", out.i);
+        entry.pushKV("amount", ValueFromAmount(out.tx->vAmounts[out.i]));
+        entry.pushKV("confirmations", out.nDepth);
+        results.push_back(entry);
+    }
+
+    return results;
+}
+
+
 UniValue getnewaddress(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -3040,6 +3099,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
                 "   {\n"
                 "     \"changeAddress\"     (string, optional, default pool address) The navcoin address to receive the change\n"
                 "     \"changePosition\"    (numeric, optional, default random) The index of the change output\n"
+                "     \"private\"           (boolean, optional, default false) Try to spend private coin outputs\n"
                 "     \"includeWatching\"   (boolean, optional, default false) Also select inputs which are watch only\n"
                 "     \"lockUnspents\"      (boolean, optional, default false) Lock selected unspent outputs\n"
                 "     \"feeRate\"           (numeric, optional, default not set: makes wallet determine the fee) Set a specific feerate (" + CURRENCY_UNIT + " per KB)\n"
@@ -3069,6 +3129,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
     int changePosition = -1;
     bool includeWatching = false;
     bool lockUnspents = false;
+    bool fPrivate = false;
     CFeeRate feeRate = CFeeRate(0);
     bool overrideEstimatedFeerate = false;
 
@@ -3088,6 +3149,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
                                 {"changePosition", UniValueType(UniValue::VNUM)},
                                 {"includeWatching", UniValueType(UniValue::VBOOL)},
                                 {"lockUnspents", UniValueType(UniValue::VBOOL)},
+                                {"private", UniValueType(UniValue::VBOOL)},
                                 {"feeRate", UniValueType()}, // will be checked below
                             },
                             true, true);
@@ -3100,6 +3162,9 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
 
                 changeAddress = address.Get();
             }
+
+            if (options.exists("private"))
+                fPrivate = options["private"].get_bool();
 
             if (options.exists("changePosition"))
                 changePosition = options["changePosition"].get_int();
@@ -3133,7 +3198,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
     CAmount nFeeOut;
     string strFailReason;
 
-    if(!pwalletMain->FundTransaction(tx, nFeeOut, overrideEstimatedFeerate, feeRate, changePosition, strFailReason, includeWatching, lockUnspents, changeAddress))
+    if(!pwalletMain->FundTransaction(tx, nFeeOut, overrideEstimatedFeerate, feeRate, changePosition, strFailReason, includeWatching, lockUnspents, changeAddress, fPrivate))
         throw JSONRPCError(RPC_INTERNAL_ERROR, strFailReason);
 
     UniValue result(UniValue::VOBJ);
@@ -3829,6 +3894,7 @@ static const CRPCCommand commands[] =
   { "wallet",             "listsinceblock",           &listsinceblock,           false },
   { "wallet",             "listtransactions",         &listtransactions,         false },
   { "wallet",             "listunspent",              &listunspent,              false },
+  { "wallet",             "listprivateunspent",       &listprivateunspent,       false },
   { "wallet",             "lockunspent",              &lockunspent,              true  },
   { "wallet",             "move",                     &movecmd,                  false },
   { "wallet",             "sendfrom",                 &sendfrom,                 false },

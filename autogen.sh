@@ -3,8 +3,8 @@
 export LC_ALL=C
 set -e
 git submodule update --init --recursive
-mkdir -p src/bls-signatures/build
 srcdir="$(dirname $0)"
+mkdir -p "$srcdir/src/bls-signatures/build"
 cd "$srcdir"
 if [ -z ${LIBTOOLIZE} ] && GLIBTOOLIZE="`which glibtoolize 2>/dev/null`"; then
   LIBTOOLIZE="${GLIBTOOLIZE}"
@@ -16,4 +16,5 @@ autoreconf --install --force --warnings=all
 
 cd "$srcdir/src/bls-signatures/build"
 cmake ../
+echo "distdir: all" >> Makefile
 cd "$srcdir"

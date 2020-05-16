@@ -33,7 +33,7 @@ typedef std::function<void(std::string&)> hs_cb_t;
 class EphemeralServer
 {
 public:
-    EphemeralServer(hs_cb_t hs_cb_in, cb_t data_cb_in, int timeout = 120000);
+    EphemeralServer(hs_cb_t hs_cb_in, cb_t data_cb_in, int timeout = 120);
 
     void Start();
     void Stop();

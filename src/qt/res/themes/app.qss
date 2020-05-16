@@ -66,9 +66,16 @@
     border-right: 0.15em solid palette(text);
 }
 
+#privateContainer {
+    border-right: 0.15em solid palette(text);
+}
+
 #balanceAvailLabel,
 #balancePendiLabel,
 #balanceImmatLabel,
+#privAvailLabel,
+#privPendiLabel,
+#privLockedLabel,
 #stakedAvailLabel,
 #stakedPendiLabel,
 #stakedImmatLabel {
@@ -76,15 +83,16 @@
     font-size: 8pt;
 }
 
-#balanceAvail,
 #balancePendi,
 #balanceImmat,
-#stakedAvail,
+#privPendi,
+#privLocked,
 #stakedPendi,
 #stakedImmat {
     font-size: 10pt;
 }
 
+#privAvail,
 #balanceAvail,
 #stakedAvail {
     font-size: 15pt;
