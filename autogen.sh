@@ -6,7 +6,7 @@ git submodule update --init --recursive
 srcdir="$(dirname $0)"
 mkdir -p src/bls-signatures/build
 cmake -Bsrc/bls-signatures/build -Hsrc/bls-signatures
-echo "distdir: all" >> src/bls-signatures/build/Makefile
+printf 'distdir:\n\techo' >> src/bls-signatures/build/Makefile
 cd "$srcdir"
 if [ -z ${LIBTOOLIZE} ] && GLIBTOOLIZE="`which glibtoolize 2>/dev/null`"; then
   LIBTOOLIZE="${GLIBTOOLIZE}"
