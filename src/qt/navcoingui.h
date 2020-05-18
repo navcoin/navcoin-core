@@ -81,9 +81,6 @@ public:
     /** Set the active menuBtns */
     void setActiveMenu(int index);
 
-    /** Updates the count of new Dao entries */
-    void updateDaoNewCount();
-
     /** Sets the balance for the wallet GUI header */
     void setBalance(const CAmount &avail, const CAmount &pendi, const CAmount &immat);
 
@@ -296,6 +293,8 @@ private Q_SLOTS:
 
     /** Update the alerts notification */
     void updateAlerts(const QString &warnings);
+
+    void onDaoEntriesChanged(int count);
 
 #endif // ENABLE_WALLET
     /** Show configuration dialog */

@@ -16,6 +16,7 @@
 #include <qt/walletmodel.h>
 #include <qt/walletframe.h>
 #include <qt/askpassphrasedialog.h>
+#include <main.h>
 #include <util.h>
 
 #include <QAbstractItemDelegate>
@@ -271,6 +272,7 @@ extern int GetsStakeSubTotal(vStakePeriodRange_T& aRange);
 
 void OverviewPage::updateStakeReport(bool fImmediate=false)
 {
+    LOCK(cs_main);
     if (!walletModel || !walletModel->getOptionsModel())
         return;
 

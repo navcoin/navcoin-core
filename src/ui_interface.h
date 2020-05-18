@@ -75,9 +75,6 @@ public:
         MSG_ERROR = (ICON_ERROR | BTN_OK | MODAL)
     };
 
-    /** Update the dao new counter. */
-    boost::signals2::signal<void ()> UpdateDaoNewCount;
-
     /** Update the balance in the wallet header. */
     boost::signals2::signal<void (const CAmount &avail, const CAmount &pending, const CAmount &immat)> SetBalance;
 

@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
-#include <consensus/cfund.h>
+#include <consensus/dao.h>
 #include <coins.h>
 #include <random.h>
 #include <uint256.h>
@@ -21,10 +21,9 @@ static const unsigned int NUM_SIMULATION_ITERATIONS = 250;
 
 BOOST_AUTO_TEST_CASE(cfunddb_state)
 {
-    //CCoinsView base;
-    CCoinsViewDB *pcoinsdbview = new CCoinsViewDB(1<<23, true);
-    CCoinsViewCache *base = new CCoinsViewCache(pcoinsdbview);
-    CCoinsViewCache view(base);
+    CStateViewDB *pcoinsdbview = new CStateViewDB(1<<23, true);
+    CStateViewCache *base = new CStateViewCache(pcoinsdbview);
+    CStateViewCache view(base);
 
     std::map<uint256, CProposal> result_p;
     std::map<uint256, CPaymentRequest> result_r;
@@ -73,12 +72,13 @@ BOOST_AUTO_TEST_CASE(cfunddb_state)
         std::string strDZeel = "{\"n\":5000000000,\"a\":\"NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N\",\"d\":604800,\"s\":\"test\",\"v\":2}";
         uint256 hash = GetRandHash();
         uint256 blockhash = GetRandHash();
-        CAmount nFee = Params().GetConsensus().nProposalMinimalFee;
+        CAmount nFee = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
 
         BOOST_CHECK(TxToProposal(strDZeel, hash, blockhash, nFee, validProposal));
         BOOST_CHECK(validProposal.hash == hash);
         BOOST_CHECK(validProposal.nAmount == 5000000000);
-        BOOST_CHECK(validProposal.Address == "NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N");
+        BOOST_CHECK(validProposal.ownerAddress == "NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N");
+        BOOST_CHECK(validProposal.paymentAddress == "NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N");
         BOOST_CHECK(validProposal.nDeadline == 604800);
         BOOST_CHECK(validProposal.strDZeel == "test");
         BOOST_CHECK(validProposal.nFee == nFee);
@@ -92,7 +92,8 @@ BOOST_AUTO_TEST_CASE(cfunddb_state)
         BOOST_CHECK(TxToProposal(strDZeel2, hash2, blockhash2, nFee, validProposal2));
         BOOST_CHECK(validProposal2.hash == hash2);
         BOOST_CHECK(validProposal2.nAmount == 5100000000);
-        BOOST_CHECK(validProposal2.Address == "NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N");
+        BOOST_CHECK(validProposal2.ownerAddress == "NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N");
+        BOOST_CHECK(validProposal2.paymentAddress == "NP3h1uzYuZX9k3xmT5sZsrEceRFW5kxo2N");
         BOOST_CHECK(validProposal2.nDeadline == 604800);
         BOOST_CHECK(validProposal2.strDZeel == "test 2");
         BOOST_CHECK(validProposal2.nFee == nFee);
@@ -103,7 +104,7 @@ BOOST_AUTO_TEST_CASE(cfunddb_state)
         uint256 hash3 = GetRandHash();
         uint256 blockhash3 = GetRandHash();
 
-        BOOST_CHECK(TxToPaymentRequest(strDZeel3, hash3, blockhash3, validPaymentRequest, view));
+        BOOST_CHECK(TxToPaymentRequest(strDZeel3, hash3, blockhash3, validPaymentRequest));
         BOOST_CHECK(validPaymentRequest.hash == hash3);
         BOOST_CHECK(validPaymentRequest.nAmount == 500000000000);
         BOOST_CHECK(validPaymentRequest.proposalhash == uint256S("e8b46f55fd222cf269ab2eb935ba38cc7c9d19b775d9dd781fb6c7b88059bdde"));

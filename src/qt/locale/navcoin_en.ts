@@ -330,12 +330,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+21"/>
+        <source>View Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
         <source>Proposal Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+43"/>
         <source>Amount:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -432,7 +437,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+12"/>
         <source>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</source>
         <translation type="unfinished"></translation>
     </message>
@@ -467,7 +472,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+28"/>
+        <source>Do you support this proposal?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -528,12 +538,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+25"/>
         <source>Payment Request Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+28"/>
+        <source>View details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+41"/>
         <source>Amount:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -577,12 +592,12 @@
         <location line="+15"/>
         <location line="+48"/>
         <location line="+48"/>
-        <location line="+242"/>
+        <location line="+252"/>
         <source>9d486795bf6d90198b336dc354aa17f109f75cfa5536684b594f1d0c7f0f0981</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-305"/>
+        <location line="-315"/>
         <source>Transaction Block Hash:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -617,7 +632,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+12"/>
         <source>1 Voting Cycle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -637,7 +652,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+45"/>
         <source>Link to Payment Request:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -647,7 +662,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+37"/>
+        <source>Do you support this payment request?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -689,6 +709,11 @@
     <message>
         <location line="+7"/>
         <source>Payment Requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Consultations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

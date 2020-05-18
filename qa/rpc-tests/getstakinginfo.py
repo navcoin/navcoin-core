@@ -36,6 +36,7 @@ class GetStakingInfo(NavCoinTestFramework):
         assert_equal(59814950, self.nodes[0].getwalletinfo()['balance'] + self.nodes[0].getwalletinfo()['immature_balance'])
 
         # Turn on staking
+        self.nodes[0].generate(2000)
         self.nodes[0].staking(True)
 
         # Check for staking after we have matured coins
@@ -58,7 +59,7 @@ class GetStakingInfo(NavCoinTestFramework):
         print("found a new block...")
 
         # Check balance
-        assert_equal(59814952, self.nodes[0].getwalletinfo()['balance'] + self.nodes[0].getwalletinfo()['immature_balance'])
+        assert_equal(59914952, self.nodes[0].getwalletinfo()['balance'] + self.nodes[0].getwalletinfo()['immature_balance'])
 
         # Check if we get the error for nWeight again after a stake
         assert(self.nodes[0].getstakinginfo()['enabled'])

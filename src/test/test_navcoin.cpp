@@ -57,8 +57,8 @@ TestingSetup::TestingSetup(const std::string& chainName) : BasicTestingSetup(cha
         mapArgs["-datadir"] = pathTemp.string();
         mempool.setSanityCheck(1.0);
         pblocktree = new CBlockTreeDB(1 << 20, true);
-        pcoinsdbview = new CCoinsViewDB(1 << 23, true);
-        pcoinsTip = new CCoinsViewCache(pcoinsdbview);
+        pcoinsdbview = new CStateViewDB(1 << 23, true);
+        pcoinsTip = new CStateViewCache(pcoinsdbview);
         InitBlockIndex(chainparams);
         nScriptCheckThreads = 3;
         for (int i=0; i < nScriptCheckThreads-1; i++)
@@ -99,7 +99,8 @@ CBlock
 TestChain100Setup::CreateAndProcessBlock(const std::vector<CMutableTransaction>& txns, const CScript& scriptPubKey)
 {
     const CChainParams& chainparams = Params();
-    CBlockTemplate *pblocktemplate = BlockAssembler(chainparams).CreateNewBlock(scriptPubKey,false,0);
+    std::string sLog;
+    CBlockTemplate *pblocktemplate = BlockAssembler(chainparams).CreateNewBlock(scriptPubKey,false,0,sLog);
     CBlock& block = pblocktemplate->block;
 
 

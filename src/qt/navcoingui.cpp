@@ -343,6 +343,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     gotoOverviewPage();
 #endif
 
+    connect(walletFrame, SIGNAL(daoEntriesChanged(int)), this, SLOT(onDaoEntriesChanged(int)));
+
 #ifdef Q_OS_MAC
     appNapInhibitor = new CAppNapInhibitor;
 #endif
@@ -923,77 +925,13 @@ void NavCoinGUI::setStaked(const CAmount &all, const CAmount &today, const CAmou
     stakedImmat->setText(NavCoinUnits::prettyWithUnit(unit, week, false, NavCoinUnits::separatorAlways));
 }
 
-void NavCoinGUI::updateDaoNewCount()
+void NavCoinGUI::onDaoEntriesChanged(int count)
 {
-    LOCK(cs_main);
-
-    // Make sure we have coins db loaded
-    if(!pcoinsTip || !pindexBestHeader)
-        return;
-
-    // Debug log
-    info("[DAO] started dao count");
-
-    // We start with none
-    int newDaoCount = 0;
-
-    CProposalMap mapProposals;
-
-    if(pcoinsTip->GetAllProposals(mapProposals))
-    {
-        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
-        {
-            CFund::CProposal proposal;
-            if (!pcoinsTip->GetProposal(it->first, proposal))
-                continue;
-
-            if (proposal.GetLastState() != CFund::NIL)
-                continue;
-
-            auto _it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                    [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-
-            if (_it != vAddedProposalVotes.end())
-                continue;
-
-            // Add to the count
-            newDaoCount++;
-        }
-    }
-
-    //Payment request listings
-    CPaymentRequestMap mapPaymentRequests;
-
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
-    {
-        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
-        {
-            CFund::CPaymentRequest prequest;
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
-                continue;
-
-            if (prequest.GetLastState() != CFund::NIL)
-                continue;
-
-            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                    [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-
-            if (it != vAddedPaymentRequestVotes.end())
-                continue;
-
-            // Add to the count
-            newDaoCount++;
-        }
-    }
-
-    // Debug log
-    info("[DAO] dao count found :" + std::to_string(newDaoCount));
-
     // Update the bubble
-    setMenuBubble(4, newDaoCount);
+    setMenuBubble(4, count);
 
     // New daos? SHOW notification
-    showHideNotification(newDaoCount > 0, 0);
+    showHideNotification(count > 0, 0);
 }
 
 void NavCoinGUI::setMenuBubble(int index, int drak)
@@ -1809,12 +1747,6 @@ static bool ThreadSafeMessageBox(NavCoinGUI *gui, const std::string& message, co
     return ret;
 }
 
-static void UpdateDaoNewCount(NavCoinGUI *gui)
-{
-    // Call our instance method
-    gui->updateDaoNewCount();
-}
-
 void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat)
 {
     // Call our instance method
@@ -1832,7 +1764,6 @@ void NavCoinGUI::subscribeToCoreSignals()
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
-    uiInterface.UpdateDaoNewCount.connect(boost::bind(UpdateDaoNewCount, this));
     uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3));
     uiInterface.SetStaked.connect(boost::bind(SetStaked, this, _1, _2, _3));
 }
@@ -1842,7 +1773,6 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
-    uiInterface.UpdateDaoNewCount.disconnect(boost::bind(UpdateDaoNewCount, this));
     uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3));
     uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
 }
@@ -2044,7 +1974,6 @@ size_t NavCoinGUI::priceUdateWriteCallback(void *contents, size_t size, size_t n
 void NavCoinGUI::updateStakingStatus()
 {
     updateWeight();
-    updateDaoNewCount();
 
     if(!walletFrame)
         return;

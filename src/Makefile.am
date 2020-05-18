@@ -93,7 +93,10 @@ NAVCOIN_CORE_H = \
   compat/endian.h \
   compat/sanity.h \
   compressor.h \
-  consensus/cfund.h \
+  consensus/dao.h \
+  consensus/daoconsensusparams.h \
+  consensus/dao/flags.h \
+  daoversionbit.h \
   consensus/consensus.h \
   core_io.h \
   core_memusage.h \
@@ -181,7 +184,8 @@ libnavcoin_server_a_SOURCES = \
   blockencodings.cpp \
   chain.cpp \
   checkpoints.cpp \
-  consensus/cfund.cpp \
+  daoversionbit.cpp \
+  consensus/dao.cpp \
   httprpc.cpp \
   httpserver.cpp \
   kernel.cpp \
@@ -233,7 +237,7 @@ endif
 libnavcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_wallet_a_SOURCES = \
-  consensus/cfund.cpp \
+  consensus/dao.cpp \
   mnemonic/dictionary.cpp \
   mnemonic/mnemonic.cpp \
   mnemonic/generateseed.cpp \
@@ -244,6 +248,7 @@ libnavcoin_wallet_a_SOURCES = \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   policy/rbf.cpp \
+  daoversionbit.cpp \
   $(NAVCOIN_CORE_H)
 
 # crypto primitives library
@@ -372,6 +377,7 @@ libnavcoin_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(NAVCOIN_INCLUDES)
 libnavcoin_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libnavcoin_util_a_SOURCES = \
   support/pagelocker.cpp \
+  uint256.cpp \
   chainparamsbase.cpp \
   clientversion.cpp \
   compat/glibc_sanity.cpp \

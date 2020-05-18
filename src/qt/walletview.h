@@ -14,7 +14,7 @@
 class NavCoinGUI;
 class ClientModel;
 class OverviewPage;
-class CommunityFundPage;
+class DaoPage;
 class PlatformStyle;
 class ReceiveCoinsDialog;
 class SendCoinsDialog;
@@ -64,7 +64,7 @@ private:
     QWidget *transactionsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
-    CommunityFundPage *communityFundPage;
+    DaoPage *daoPage;
     getAddressToReceive *requestPaymentPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
@@ -129,6 +129,8 @@ public Q_SLOTS:
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
     void requestAddressHistory();
 
+    void onDaoEntriesChanged(int count);
+
 Q_SIGNALS:
     /** Signal that we want to show the main window */
     void showNormalIfMinimized();
@@ -140,6 +142,8 @@ Q_SIGNALS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
     /** Notify that the out of sync warning icon has been pressed */
     void outOfSyncWarningClicked();
+
+    void daoEntriesChanged(int count);
 
     void openAddressHistory();
 

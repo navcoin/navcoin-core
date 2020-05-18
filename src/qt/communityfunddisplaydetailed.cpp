@@ -8,57 +8,74 @@
 #include <wallet/wallet.h>
 #include <base58.h>
 
-CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFund::CProposal proposal) :
+CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CProposal proposal) :
     QDialog(parent),
     ui(new Ui::CommunityFundDisplayDetailed),
     proposal(proposal)
 {
     ui->setupUi(this);
+    ui->detailsWidget->setVisible(false);
+    adjustSize();
+
+    LOCK(cs_main);
+    CStateViewCache view(pcoinsTip);
 
     //connect ui elements to functions
     connect(ui->buttonBoxYesNoVote, SIGNAL(clicked( QAbstractButton*)), this, SLOT(click_buttonBoxYesNoVote(QAbstractButton*)));
     connect(ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(ui->labelLinkToProposal, SIGNAL(linkActivated()), this, SLOT(go_to_explorer()));
+    connect(ui->detailsBtn, SIGNAL(clicked()), this, SLOT(onDetails()));
+
+    ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+    ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
 
     //update labels
     setProposalLabels();
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (proposal.GetLastState() == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos) {
+    if (proposal.GetLastState() == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == string::npos) {
         // Get proposal votes list
-        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&proposal](const std::pair<std::string, bool>& element){ return element.first == proposal.hash.ToString();} );
-        if (it != vAddedProposalVotes.end()) {
-            if (it->second) {
+        auto it = mapAddedVotes.find(proposal.hash);
+
+        if (it != mapAddedVotes.end())
+        {
+            if (it->second == 1) {
                 // Proposal was voted yes, shade in yes button and unshade no button
-                ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
                 ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             }
-            else {
+            else if (it->second == 0) {
                 // Proposal was noted no, shade in no button and unshade yes button
-                ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
                 ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            }
+            else if (it->second == -1) {
+                // Proposal was noted abstain, shade in no button and unshade yes button
+                ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_ABSTAIN);
             }
         }
         else {
             // Proposal was not voted on, reset shades of both buttons
-            ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+            ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore);
             ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         }
     }
 
+    ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
 
+    //hide ui voting elements on proposals which are not allowed vote states
+    if(!proposal.CanVote(view))
     {
-        LOCK(cs_main);
-        //hide ui voting elements on proposals which are not allowed vote states
-        if(!proposal.CanVote())
-        {
-            ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
-        }
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::NoButton);
     }
 
     // Hide ability to vote is the status is expired
@@ -68,15 +85,23 @@ CommunityFundDisplayDetailed::CommunityFundDisplayDetailed(QWidget *parent, CFun
     }
 }
 
-void CommunityFundDisplayDetailed::setProposalLabels() const
+void CommunityFundDisplayDetailed::onDetails()
 {
+    ui->detailsWidget->setVisible(!ui->detailsWidget->isVisible());
+    adjustSize();
+}
+
+void CommunityFundDisplayDetailed::setProposalLabels()
+{
+    CStateViewCache view(pcoinsTip);
+
     ui->labelProposalTitle->setText(QString::fromStdString(proposal.strDZeel));
-    ui->labelAddress->setText(QString::fromStdString(proposal.Address));
+    ui->labelAddress->setText(QString::fromStdString(proposal.GetPaymentAddress()));
 
     uint64_t deadline_d = std::floor(proposal.nDeadline/86400);
     uint64_t deadline_h = std::floor((proposal.nDeadline-deadline_d*86400)/3600);
     uint64_t deadline_m = std::floor((proposal.nDeadline-(deadline_d*86400 + deadline_h*3600))/60);
-    std::string s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
+    ui->labelDeadline->setText(tr("%n Days", "", deadline_d) + tr(" %n Hours", "", deadline_h) + tr(" %n Minutes", "", deadline_m));
 
     uint64_t proptime = 0;
     CBlockIndex *pblockindex = proposal.GetLastStateBlockIndex();
@@ -86,32 +111,26 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
 
     auto fLastState = proposal.GetLastState();
 
-    ui->labelDeadline->setText(QString::fromStdString(s_deadline));
-    if (fLastState == CFund::NIL) {
+    if (fLastState == DAOFlags::NIL) {
         std::string expiry_title = "Voting period finishes in: ";
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-        std::string expiry = std::to_string(Params().GetConsensus().nCyclesProposalVoting - proposal.nVotingCycle) +  " voting cycles";
+        std::string expiry = std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view) - proposal.nVotingCycle) +  " voting cycles";
         ui->labelExpiresIn->setText(QString::fromStdString(expiry));
     }
-    if (fLastState == CFund::ACCEPTED) {
+    if (fLastState == DAOFlags::ACCEPTED) {
         uint64_t deadline = proptime + proposal.nDeadline - pindexBestHeader->GetBlockTime();
 
         uint64_t deadline_d = std::floor(deadline/86400);
         uint64_t deadline_h = std::floor((deadline-deadline_d*86400)/3600);
         uint64_t deadline_m = std::floor((deadline-(deadline_d*86400 + deadline_h*3600))/60);
 
-        std::string s_deadline = "";
         if(deadline_d >= 14)
-        {
-            s_deadline = std::to_string(deadline_d) + std::string(" Days");
-        }
+            ui->labelExpiresIn->setText(tr("%n Days", "", deadline_d));
         else
-        {
-            s_deadline = std::to_string(deadline_d) + std::string(" Days ") + std::to_string(deadline_h) + std::string(" Hours ") + std::to_string(deadline_m) + std::string(" Minutes");
-        }
-        ui->labelExpiresIn->setText(QString::fromStdString(s_deadline));
+            ui->labelExpiresIn->setText(tr("%n Days", "", deadline_d) + tr(" %n Hours", "", deadline_h) + tr(" %n Minutes", "", deadline_m));
     }
-    if (fLastState == CFund::REJECTED) {
+
+    if (fLastState == DAOFlags::REJECTED) {
         std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
@@ -121,25 +140,21 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
         ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
     }
-    if (fLastState== CFund::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") != string::npos) {
-        if (fLastState == CFund::EXPIRED) {
+    if (fLastState== DAOFlags::EXPIRED || proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") != string::npos) {
+        if (fLastState == DAOFlags::EXPIRED) {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
             std::stringstream ss;
-            char buf[48];
-            if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-                ss << buf;
-            ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-            ui->labelExpiresIn->setText(QString::fromStdString(ss.str().erase(10, 9)));
+            ss << std::put_time(std::gmtime(&t), "%c %Z");
+            ui->labelExpiresInTitle->setText(tr("Expired on: "));
+            ui->labelExpiresIn->setText(QString::fromStdString(ss.str()));
         }
         else {
-            std::string expiry_title = "Expires: ";
-            std::string expiry = "At end of voting period";
-            ui->labelExpiresInTitle->setText(QString::fromStdString(expiry_title));
-            ui->labelExpiresIn->setText(QString::fromStdString(expiry));
+            ui->labelExpiresInTitle->setText(tr("Expires: "));
+            ui->labelExpiresIn->setText(tr("At end of voting period"));
         }
     }
-    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
+    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime(), view)));
     ui->labelNumberOfYesVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesYes)));
     ui->labelNumberOfNoVotes->setText(QString::fromStdString(std::to_string(proposal.nVotesNo)));
     ui->labelTransactionBlockHash->setText(QString::fromStdString(pblockindex ? pblockindex->GetBlockHash().ToString() : ""));
@@ -170,7 +185,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
     }
 
     // If proposal is pending, hide the transaction hash
-    if (fLastState == CFund::NIL) {
+    if (fLastState == DAOFlags::NIL) {
         ui->labelTransactionBlockHashTitle->setVisible(false);
         ui->labelTransactionBlockHash->setVisible(false);
     }
@@ -182,6 +197,7 @@ void CommunityFundDisplayDetailed::setProposalLabels() const
         ui->labelExpiresIn->setVisible(false);
         ui->labelExpiresInTitle->setVisible(false);
     }
+    adjustSize();
 }
 
 void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *button)
@@ -192,7 +208,7 @@ void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *but
     //cast the vote
     bool duplicate = false;
 
-    CFund::CProposal p;
+    CProposal p;
     if (!pcoinsTip->GetProposal(uint256S(proposal.hash.ToString()), p))
     {
         return;
@@ -200,24 +216,39 @@ void CommunityFundDisplayDetailed::click_buttonBoxYesNoVote(QAbstractButton *but
 
     if (ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::VoteProposal(p, true, duplicate);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        Vote(p.hash, 1, duplicate);
+        close();
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
-        CFund::VoteProposal(p, false, duplicate);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        Vote(p.hash, 0, duplicate);
+        close();
+    }
+    else if(ui->buttonBoxYesNoVote->standardButton(button) == QDialogButtonBox::Ignore)
+    {
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_ABSTAIN);
+        Vote(p.hash, -1, duplicate);
+        close();
     }
     else if(ui->buttonBoxYesNoVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
-        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+        ui->buttonBoxYesNoVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         ui->buttonBoxYesNoVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
-        CFund::RemoveVoteProposal(p.hash.ToString());
+        ui->buttonBoxYesNoVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+        RemoveVote(p.hash);
+        close();
     }
     else {
         return;

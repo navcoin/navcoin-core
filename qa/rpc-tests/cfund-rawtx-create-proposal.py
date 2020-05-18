@@ -207,7 +207,7 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         assert (proposal['hash'] == self.goodPropHash)
         assert (float(proposal['requestedAmount']) == float(self.goodAmount))
         assert (float(proposal['notPaidYet']) == float(self.goodAmount))
-        assert (float(proposal['userPaidFee']) == float(1))
+        assert (float(proposal['userPaidFee']) == float(1000))
 
 
     def send_raw_proposalrequest(self, address, amount, time, description):
@@ -217,7 +217,7 @@ class CommunityFundRawTXCreateProposalTest(NavCoinTestFramework):
         # Create a raw proposal tx
         raw_proposal_tx = self.nodes[0].createrawtransaction(
             [],
-            {"6ac1": 1},
+            {"6ac1": 1000},
             json.dumps({"v": 2, "n": amount, "a": address,  "d": time, "s": description})
         )
 

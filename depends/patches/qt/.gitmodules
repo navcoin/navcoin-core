@@ -3,16 +3,22 @@
 	url = ../qtbase.git
 	branch = 5.9.8
 	status = essential
-[submodule "qtsvg"]
-	depends = qtbase
-	path = qtsvg
-	url = ../qtsvg.git
-	branch = 5.9.8
-	status = addon
 [submodule "qttools"]
 	depends = qtbase
 	path = qttools
 	url = ../qttools.git
+	branch = 5.9.8
+	status = addon
+[submodule "qtcharts"]
+	depends = qtbase
+	path = qtcharts
+	url = ../qtcharts.git
+	branch = 5.9.8
+	status = addon
+[submodule "qtsvg"]
+	depends = qtbase
+	path = qtsvg
+	url = ../qtsvg.git
 	branch = 5.9.8
 	status = addon
 [submodule "qttranslations"]

@@ -3,8 +3,8 @@
 
 #include <QWidget>
 #include <QAbstractButton>
-#include <consensus/cfund.h>
-#include <wallet/wallet.h>
+#include "consensus/dao.h"
+#include "wallet/wallet.h"
 
 namespace Ui {
 class CommunityFundDisplayPaymentRequest;
@@ -15,13 +15,13 @@ class CommunityFundDisplayPaymentRequest : public QWidget
     Q_OBJECT
 
 public:
-    CommunityFundDisplayPaymentRequest(QWidget *parent = 0, CFund::CPaymentRequest prequest = CFund::CPaymentRequest());
+    CommunityFundDisplayPaymentRequest(QWidget *parent = 0, CPaymentRequest prequest = CPaymentRequest());
     void refresh();
     ~CommunityFundDisplayPaymentRequest();
 
 private:
     Ui::CommunityFundDisplayPaymentRequest *ui;
-    CFund::CPaymentRequest prequest;
+    CPaymentRequest prequest;
     CWallet *wallet;
 
 public Q_SLOTS:

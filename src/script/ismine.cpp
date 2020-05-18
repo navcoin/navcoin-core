@@ -56,6 +56,15 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     case TX_PROPOSALYESVOTE:
     case TX_PAYMENTREQUESTNOVOTE:
     case TX_PAYMENTREQUESTYESVOTE:
+    case TX_PROPOSALABSVOTE:
+    case TX_PROPOSALREMOVEVOTE:
+    case TX_PAYMENTREQUESTABSVOTE:
+    case TX_PAYMENTREQUESTREMOVEVOTE:
+    case TX_CONSULTATIONVOTE:
+    case TX_DAOSUPPORTREMOVE:
+    case TX_CONSULTATIONVOTEREMOVE:
+    case TX_CONSULTATIONVOTEABSTENTION:
+    case TX_DAOSUPPORT:
         break;
     case TX_PUBKEY:
         keyID = CPubKey(vSolutions[0]).GetID();
@@ -68,6 +77,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
         if (keystore.HaveKey(keyID))
             return ISMINE_SPENDABLE;
         break;
+    case TX_COLDSTAKING_V2:
     case TX_COLDSTAKING: {
         keyID = CKeyID(uint160(vSolutions[1]));
         keyID2 = CKeyID(uint160(vSolutions[0]));

@@ -66,13 +66,13 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
             blocks=slow_gen(self.nodes[0], 1)
             time.sleep(1)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
 
         self.nodes[0].invalidateblock(blocks[-1])
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "accepted")
 
         slow_gen(self.nodes[0], 1)
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired waiting for end of voting period")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, waiting for end of voting period")
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0], 1)
@@ -137,7 +137,7 @@ class CommunityFundPaymentRequestsTest(NavCoinTestFramework):
         assert(self.nodes[0].getpaymentrequest(paymentrequestid0)["status"] == "pending")
         assert(self.nodes[0].cfundstats()["funds"]["locked"] == locked_accepted)
 
-        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired pending voting of payment requests")
+        assert(self.nodes[0].getproposal(proposalid0)["status"] == "expired, pending voting of payment requests")
 
         # Vote enough quorum and enough positive votes
 
