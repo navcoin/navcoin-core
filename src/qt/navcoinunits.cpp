@@ -354,7 +354,7 @@ QString NavCoinUnits::prettyWithUnit(int unit, const CAmount& amount, bool pluss
     return QString("%1 %2").arg(pretty(unit, amount, plussign, separators), name(unit));
 }
 
-QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString NavCoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators, bool removeTrailing)
 {
     QString str(formatWithUnit(unit, amount, plussign, separators));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));

@@ -19,6 +19,8 @@
 #include <utilstrencodings.h>
 #include <utiltime.h>
 
+#include <boost/algorithm/string.hpp>
+
 #include <stdarg.h>
 
 #if (defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__))
@@ -104,6 +106,8 @@ using namespace std;
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 
+std::map<uint256, int64_t> mapAddedVotes;
+std::map<uint256, bool> mapSupported;
 std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
 
@@ -654,31 +658,37 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         string strKey = string("-") + it->string_key;
         string strValue = it->value[0];
 
-        if(strKey == "-addproposalvoteyes")
+        if(strKey == "-addproposalvoteyes" || strKey == "-addpaymentrequestvoteyes" || strKey == "-voteyes")
         {
-            vAddedProposalVotes.push_back(make_pair(strValue,true));
+            mapAddedVotes[uint256S(strValue)]=1;
             continue;
         }
 
-        if(strKey == "-addproposalvoteno")
+        else if(strKey == "-addproposalvoteno" || strKey == "-addpaymentrequestvoteno" || strKey == "-voteno")
         {
-            vAddedProposalVotes.push_back(make_pair(strValue,false));
+            mapAddedVotes[uint256S(strValue)]=0;
             continue;
         }
 
-        if(strKey == "-addpaymentrequestvoteyes")
+        else if(strKey == "-addproposalvoteabs" || strKey == "-addpaymentrequestvotabs" || strKey == "-voteabs")
         {
-            vAddedPaymentRequestVotes.push_back(make_pair(strValue,true));
+            mapAddedVotes[uint256S(strValue)]=-1;
             continue;
         }
 
-        if(strKey == "-addpaymentrequestvoteno")
+        else if(strKey == "-support")
         {
-            vAddedPaymentRequestVotes.push_back(make_pair(strValue,false));
-            continue;
+            mapSupported[uint256S(strValue)]=true;
         }
 
-        if(strKey == "-stakervote")
+        else if(strKey == "-vote" && strValue.find("~") != std::string::npos)
+        {
+            std::string sHash = strValue.substr(0, strValue.find("~"));
+            std::string sVote = strValue.substr(strValue.find("~")+1, strValue.size());
+            mapAddedVotes[uint256S(sHash)]=stoull(sVote);
+        }
+
+        else if(strKey == "-stakervote")
         {
             mapArgs[strKey] = strValue;
         }
@@ -760,6 +770,27 @@ void RemoveConfigFile(std::string key, std::string value)
     while (std::getline(streamConfig, line))
     {
           if(line != key + "=" + value && line != "")
+              configBuffer += line + "\n";
+    }
+
+    boost::filesystem::ofstream outStream(GetConfigFile());
+    outStream << configBuffer;
+    outStream.close();
+}
+
+void RemoveConfigFilePair(std::string key, std::string value)
+{
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    if (!streamConfig.good())
+        return; // Nothing to remove
+
+    std::string configBuffer, line;
+    set<string> setOptions;
+    setOptions.insert("*");
+
+    while (std::getline(streamConfig, line))
+    {
+          if(line.substr(0,key.length()+1+value.length()) != key + "=" + value && line != "")
               configBuffer += line + "\n";
     }
 

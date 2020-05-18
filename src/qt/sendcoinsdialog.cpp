@@ -703,6 +703,15 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         if(model->havePrivKey(stakingId) || model->havePrivKey(spendingId))
             fHaveKey = true;
     }
+    else if(addr.IsColdStakingv2Address(Params()))
+    {
+        CKeyID stakingId, spendingId, votingId;
+        addr.GetStakingKeyID(stakingId);
+        addr.GetSpendingKeyID(spendingId);
+        addr.GetVotingKeyID(votingId);
+        if(model->havePrivKey(stakingId) || model->havePrivKey(spendingId) || model->havePrivKey(votingId))
+            fHaveKey = true;
+    }
     else
     {
         CKeyID keyid;

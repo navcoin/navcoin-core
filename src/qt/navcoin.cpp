@@ -29,6 +29,7 @@
 #endif
 
 #include <init.h>
+#include <net.h>
 #include <rpc/server.h>
 #include <scheduler.h>
 #include <ui_interface.h>
@@ -159,8 +160,10 @@ public:
 public Q_SLOTS:
     void initialize();
     void shutdown();
+    void restart(QStringList args);
 
 Q_SIGNALS:
+    void requestedRestart(QStringList args);
     void initializeResult(int retval);
     void shutdownResult(int retval);
     void runawayException(const QString &message);
@@ -168,6 +171,9 @@ Q_SIGNALS:
 private:
     boost::thread_group threadGroup;
     CScheduler scheduler;
+
+    /// Flag indicating a restart
+    bool execute_restart;
 
     /// Pass fatal exception message to UI thread
     void handleRunawayException(const std::exception *e);
@@ -257,6 +263,7 @@ void NavCoinCore::handleRunawayException(const std::exception *e)
 
 void NavCoinCore::initialize()
 {
+    execute_restart = true;
     try
     {
         qDebug() << __func__ << ": Running AppInit2 in thread";
@@ -266,6 +273,29 @@ void NavCoinCore::initialize()
         handleRunawayException(&e);
     } catch (...) {
         handleRunawayException(NULL);
+    }
+}
+
+void NavCoinCore::restart(QStringList args)
+{
+    if (execute_restart) { // Only restart 1x, no matter how often a user clicks on a restart-button
+        execute_restart = false;
+        try {
+            qDebug() << __func__ << ": Running Restart in thread";
+            Interrupt(threadGroup);
+            threadGroup.join_all();
+            PrepareShutdown();
+            qDebug() << __func__ << ": Shutdown finished";
+            Q_EMIT shutdownResult(1);
+            CExplicitNetCleanup::callCleanup();
+            QProcess::startDetached(QApplication::applicationFilePath(), args);
+            qDebug() << __func__ << ": Restart initiated...";
+            QApplication::quit();
+        } catch (std::exception& e) {
+            handleRunawayException(&e);
+        } catch (...) {
+            handleRunawayException(NULL);
+        }
     }
 }
 
@@ -451,6 +481,7 @@ void NavCoinApplication::startThread()
     connect(executor, SIGNAL(runawayException(QString)), this, SLOT(handleRunawayException(QString)));
     connect(this, SIGNAL(requestedInitialize()), executor, SLOT(initialize()));
     connect(this, SIGNAL(requestedShutdown()), executor, SLOT(shutdown()));
+    connect(window, SIGNAL(requestedRestart(QStringList)), executor, SLOT(restart(QStringList)));
     /*  make sure executor object is deleted in its own thread */
     connect(this, SIGNAL(stopThread()), executor, SLOT(deleteLater()));
     connect(this, SIGNAL(stopThread()), coreThread, SLOT(quit()));
@@ -553,7 +584,6 @@ void NavCoinApplication::initializeResult(int retval)
         connect(paymentServer, SIGNAL(message(QString,QString,unsigned int)),
                          window, SLOT(message(QString,QString,unsigned int)));
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
-        QTimer::singleShot(500, window, SLOT(startVotingCounter()));
 #endif
     } else {
         quit(); // Exit main loop

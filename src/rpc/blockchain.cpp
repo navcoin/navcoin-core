@@ -3,28 +3,29 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <amount.h>
-#include <base58.h>
-#include <chain.h>
-#include <chainparams.h>
-#include <checkpoints.h>
-#include <coins.h>
-#include <consensus/validation.h>
-#include <main.h>
-#include <policy/policy.h>
-#include <primitives/transaction.h>
-#include <rpc/server.h>
-#include <script/script.h>
-#include <script/script_error.h>
-#include <script/sign.h>
-#include <script/standard.h>
-#include <streams.h>
-#include <sync.h>
-#include <txmempool.h>
-#include <util.h>
-#include <utilstrencodings.h>
-#include <hash.h>
-#include <pos.h>
+#include "amount.h"
+#include "base58.h"
+#include "chain.h"
+#include "chainparams.h"
+#include "checkpoints.h"
+#include "coins.h"
+#include "consensus/validation.h"
+#include "consensus/daoconsensusparams.h"
+#include "main.h"
+#include "policy/policy.h"
+#include "primitives/transaction.h"
+#include "rpc/server.h"
+#include "script/script.h"
+#include "script/script_error.h"
+#include "script/sign.h"
+#include "script/standard.h"
+#include "streams.h"
+#include "sync.h"
+#include "txmempool.h"
+#include "util.h"
+#include "utilstrencodings.h"
+#include "hash.h"
+#include "pos.h"
 
 #include <stdint.h>
 
@@ -65,6 +66,44 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("proofhash", blockindex->hashProof.GetHex());
     result.pushKV("entropybit", (int)blockindex->GetStakeEntropyBit());
     result.pushKV("modifier", strprintf("%016x", blockindex->nStakeModifier));
+
+    UniValue votes(UniValue::VARR);
+    for (auto& it: blockindex->vProposalVotes)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("hash", it.first.ToString());
+        entry.pushKV("vote", it.second);
+        votes.push_back(entry);
+    }
+    result.pushKV("cfund_votes", votes);
+
+    UniValue votes_pr(UniValue::VARR);
+    for (auto& it: blockindex->vPaymentRequestVotes)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("hash", it.first.ToString());
+        entry.pushKV("vote", it.second);
+        votes_pr.push_back(entry);
+    }
+    result.pushKV("cfund_request_votes", votes_pr);
+
+    UniValue daosupport(UniValue::VARR);
+    for (auto& it: blockindex->mapSupport)
+    {
+        daosupport.push_back(it.first.ToString());
+    }
+    result.pushKV("dao_support", daosupport);
+
+    UniValue daovotes(UniValue::VARR);
+    for (auto& it: blockindex->mapConsultationVotes)
+    {
+        UniValue entry(UniValue::VOBJ);
+        entry.pushKV("hash", it.first.ToString());
+        entry.pushKV("vote", it.second);
+        daovotes.push_back(entry);
+    }
+    result.pushKV("dao_votes", daovotes);
+
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     CBlockIndex *pnext = chainActive.Next(blockindex);
@@ -867,9 +906,9 @@ struct CCoinsStats
 };
 
 //! Calculate statistics about the unspent transaction output set
-static bool GetUTXOStats(CCoinsView *view, CCoinsStats &stats)
+static bool GetUTXOStats(CStateView *view, CCoinsStats &stats)
 {
-    boost::scoped_ptr<CCoinsViewCursor> pcursor(view->Cursor());
+    boost::scoped_ptr<CStateViewCursor> pcursor(view->Cursor());
 
     CHashWriter ss(SER_GETHASH, PROTOCOL_VERSION);
     stats.hashBlock = pcursor->GetBestBlock();
@@ -960,8 +999,112 @@ UniValue getcfunddbstatehash(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CCoinsViewCache view(pcoinsTip);
-    return view.GetCFundDBStateHash(chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply).ToString();
+    CStateViewCache view(pcoinsTip);
+    return GetDAOStateHash(view, chainActive.Tip()->nCFLocked, chainActive.Tip()->nCFSupply).ToString();
+}
+
+UniValue listconsultations(const UniValue& params, bool fHelp)
+{
+    if (fHelp)
+        throw runtime_error(
+                "listconsultations \"filter\"\n"
+                "\nList the consultations and all the relating data including answers and status.\n"
+                "\nNote passing no argument returns all consultations regardless of state.\n"
+                "\nArguments:\n"
+                "\n1. \"filter\" (string, optional)   \"not_enough_answers\" | \"waiting_for_support\" | \"reflection\" | \"voting\" | \"finished\"\n"
+                "\nExamples:\n"
+                + HelpExampleCli("listconsultations", "finished voting")
+                );
+
+    LOCK(cs_main);
+
+    UniValue ret(UniValue::VARR);
+
+    bool showNotEnoughAnswers = false;
+    bool showLookingForSupport = false;
+    bool showReflection = false;
+    bool showVoting = false;
+    bool showFinished = false;
+    bool showAll = params.size() == 0;
+
+    if(params.size() >= 1)
+    {
+        showNotEnoughAnswers = false;
+        showLookingForSupport = false;
+        showReflection = false;
+        showVoting = false;
+        showFinished = false;
+
+        for(unsigned int i = 0; i < params.size(); i++)
+        {
+            auto p = params[i];
+            if (p.get_str() == "not_enough_answers")
+            {
+                showNotEnoughAnswers = true;
+            }
+            else if (p.get_str() == "waiting_for_support")
+            {
+                showLookingForSupport = true;
+            }
+            else if (p.get_str() == "reflection")
+            {
+                showReflection = true;
+            }
+            else if (p.get_str() == "voting")
+            {
+                showVoting = true;
+            }
+            else if (p.get_str() == "finished")
+            {
+                showFinished = true;
+            }
+        }
+    }
+
+    CConsultationMap mapConsultations;
+    CStateViewCache view(pcoinsTip);
+
+    if(view.GetAllConsultations(mapConsultations))
+    {
+        for (CConsultationMap::iterator it = mapConsultations.begin(); it != mapConsultations.end(); it++)
+        {
+            CConsultation consultation;
+            if (!view.GetConsultation(it->first, consultation))
+                continue;
+
+            if (!mapBlockIndex.count(consultation.txblockhash))
+                continue;
+
+            CBlockIndex* pindex = mapBlockIndex[consultation.txblockhash];
+
+            if (!chainActive.Contains(pindex))
+                continue;
+
+            std::vector<CConsultationAnswer> vAnswers;
+
+            for (auto& it: consultation.vAnswers)
+            {
+                CConsultationAnswer answer;
+                if (!view.GetConsultationAnswer(it, answer) || answer.parent != consultation.hash)
+                    continue;
+                vAnswers.push_back(answer);
+            }
+
+            flags fState = consultation.GetLastState();
+
+            if((showNotEnoughAnswers && fState == DAOFlags::NIL && vAnswers.size() < 2) ||
+               (showLookingForSupport && fState == DAOFlags::NIL) ||
+               (showReflection && fState == DAOFlags::REFLECTION) ||
+               (showReflection && fState == DAOFlags::ACCEPTED) ||
+               (showFinished && fState == DAOFlags::EXPIRED) ||
+                showAll) {
+                UniValue o(UniValue::VOBJ);
+                consultation.ToJson(o, view);
+                ret.push_back(o);
+            }
+        }
+    }
+    return ret;
 }
 
 UniValue cfundstats(const UniValue& params, bool fHelp)
@@ -977,109 +1120,150 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CFund::CProposal proposal; CFund::CPaymentRequest prequest;
+    CProposal proposal; CPaymentRequest prequest;
 
-    int nBlocks = (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle) + 1;
+    CStateViewCache view(pcoinsTip);
+
+    int nBlocks = (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view)) + 1;
     CBlockIndex* pindexblock = chainActive.Tip();
 
     std::map<uint256, bool> vSeen;
-    std::map<uint256, std::pair<int, int>> vCacheProposalsRPC;
-    std::map<uint256, std::pair<int, int>> vCachePaymentRequestRPC;
+    std::map<uint256, std::pair<std::pair<int, int>, int>> vCacheProposalsRPC;
+    std::map<uint256, std::pair<std::pair<int, int>, int>> vCachePaymentRequestRPC;
 
     vCacheProposalsRPC.clear();
     vCachePaymentRequestRPC.clear();
 
     while(nBlocks > 0 && pindexblock != nullptr) {
         vSeen.clear();
-        for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++) {
-            if(!pcoinsTip->GetProposal(pindexblock->vProposalVotes[i].first, proposal))
+
+        for(unsigned int i = 0; i < pindexblock->vProposalVotes.size(); i++)
+        {
+            if(!view.GetProposal(pindexblock->vProposalVotes[i].first, proposal))
                 continue;
-            if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0) {
+
+            if(vSeen.count(pindexblock->vProposalVotes[i].first) == 0)
+            {
                 if(vCacheProposalsRPC.count(pindexblock->vProposalVotes[i].first) == 0)
-                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first] = make_pair(0, 0);
-                if(pindexblock->vProposalVotes[i].second)
-                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].first += 1;
-                else
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first] = make_pair(make_pair(0,0), 0);
+
+                if(pindexblock->vProposalVotes[i].second == 1)
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].first.first += 1;
+                else if(pindexblock->vProposalVotes[i].second == -1)
                     vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].second += 1;
+                else if (pindexblock->vProposalVotes[i].second == 0)
+                    vCacheProposalsRPC[pindexblock->vProposalVotes[i].first].first.second += 1;
+
                 vSeen[pindexblock->vProposalVotes[i].first]=true;
             }
         }
-        for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++) {
-            if(!pcoinsTip->GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
+
+        for(unsigned int i = 0; i < pindexblock->vPaymentRequestVotes.size(); i++)
+        {
+            if(!view.GetPaymentRequest(pindexblock->vPaymentRequestVotes[i].first, prequest))
                 continue;
-            if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+
+            if(!view.GetProposal(prequest.proposalhash, proposal))
                 continue;
             if(vSeen.count(pindexblock->vPaymentRequestVotes[i].first) == 0) {
                 if(vCachePaymentRequestRPC.count(pindexblock->vPaymentRequestVotes[i].first) == 0)
-                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first] = make_pair(0, 0);
-                if(pindexblock->vPaymentRequestVotes[i].second)
-                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].first += 1;
-                else
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first] = make_pair(make_pair(0,0), 0);
+
+                if(pindexblock->vPaymentRequestVotes[i].second == 1)
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].first.first += 1;
+                else if(pindexblock->vPaymentRequestVotes[i].second == -1)
                     vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].second += 1;
+                else if (pindexblock->vPaymentRequestVotes[i].second == 0)
+                    vCachePaymentRequestRPC[pindexblock->vPaymentRequestVotes[i].first].first.second += 1;
+
                 vSeen[pindexblock->vPaymentRequestVotes[i].first]=true;
             }
         }
+
         pindexblock = pindexblock->pprev;
         nBlocks--;
     }
 
     UniValue ret(UniValue::VOBJ);
     UniValue cf(UniValue::VOBJ);
+
     cf.pushKV("available",      ValueFromAmount(pindexBestHeader->nCFSupply));
     cf.pushKV("locked",         ValueFromAmount(pindexBestHeader->nCFLocked));
     ret.pushKV("funds", cf);
+
     UniValue vp(UniValue::VOBJ);
-    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % Params().GetConsensus().nBlocksPerVotingCycle);
+    int starting = chainActive.Tip()->nHeight - (chainActive.Tip()->nHeight % GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
+
     vp.pushKV("starting",       starting);
-    vp.pushKV("ending",         starting+Params().GetConsensus().nBlocksPerVotingCycle-1);
+    vp.pushKV("ending",         starting+GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view)-1);
     vp.pushKV("current",        chainActive.Tip()->nHeight);
+
     UniValue consensus(UniValue::VOBJ);
-    consensus.pushKV("blocksPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle);
-    if (!IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus())){
-        consensus.pushKV("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorum);
-    } else {
-        consensus.pushKV("minSumVotesPerVotingCycle",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumFirstHalf);
-        consensus.pushKV("minSumVotesPerVotingCycleSecondHalf",Params().GetConsensus().nBlocksPerVotingCycle * Params().GetConsensus().nMinimumQuorumSecondHalf);
+
+    consensus.pushKV("blocksPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view));
+
+    if (!IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
+        consensus.pushKV("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_QUORUM, view)/10000.0);
+    else
+    {
+        consensus.pushKV("minSumVotesPerVotingCycle",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * Params().GetConsensus().nMinimumQuorumFirstHalf);
+        consensus.pushKV("minSumVotesPerVotingCycleSecondHalf",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * Params().GetConsensus().nMinimumQuorumSecondHalf);
     }
-    consensus.pushKV("maxCountVotingCycleProposals",(uint64_t)Params().GetConsensus().nCyclesProposalVoting);
-    consensus.pushKV("maxCountVotingCyclePaymentRequests",(uint64_t)Params().GetConsensus().nCyclesPaymentRequestVoting);
-    consensus.pushKV("votesAcceptProposalPercentage",Params().GetConsensus().nVotesAcceptProposal*100);
-    consensus.pushKV("votesRejectProposalPercentage",Params().GetConsensus().nVotesRejectProposal*100);
-    consensus.pushKV("votesAcceptPaymentRequestPercentage",Params().GetConsensus().nVotesAcceptPaymentRequest*100);
-    consensus.pushKV("votesRejectPaymentRequestPercentage",Params().GetConsensus().nVotesRejectPaymentRequest*100);
-    consensus.pushKV("proposalMinimalFee",ValueFromAmount(Params().GetConsensus().nProposalMinimalFee));
+
+    consensus.pushKV("maxCountVotingCycleProposals",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view));
+    consensus.pushKV("maxCountVotingCyclePaymentRequests",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view));
+    consensus.pushKV("votesAcceptProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT, view)/100);
+    consensus.pushKV("votesRejectProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT, view)/100);
+    consensus.pushKV("votesAcceptPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT, view)/100);
+    consensus.pushKV("votesRejectPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_REJECT, view)/100);
+    consensus.pushKV("proposalMinimalFee",ValueFromAmount(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)));
+    consensus.pushKV("paymentRequestMinimalFee",ValueFromAmount(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_FEE, view)));
     ret.pushKV("consensus", consensus);
+
     UniValue votesProposals(UniValue::VARR);
     UniValue votesPaymentRequests(UniValue::VARR);
 
-    std::map<uint256, std::pair<int, int>>::iterator it;
-    for(it = vCacheProposalsRPC.begin(); it != vCacheProposalsRPC.end(); it++) {
-        CFund::CProposal proposal;
-        if(!pcoinsTip->GetProposal(it->first, proposal))
+    std::map<uint256, std::pair<std::pair<int, int>, int>>::iterator it;
+
+    for(auto& it: vCacheProposalsRPC)
+    {
+        CProposal proposal;
+
+        if(!view.GetProposal(it.first, proposal))
             continue;
+
         UniValue op(UniValue::VOBJ);
+
         op.pushKV("str", proposal.strDZeel);
         op.pushKV("hash", proposal.hash.ToString());
         op.pushKV("amount", ValueFromAmount(proposal.nAmount));
-        op.pushKV("yes", it->second.first);
-        op.pushKV("no", it->second.second);
+        op.pushKV("yes", it.second.first.first);
+        op.pushKV("abs", it.second.second);
+        op.pushKV("no", it.second.first.second);
         votesProposals.push_back(op);
     }
-    for(it = vCachePaymentRequestRPC.begin(); it != vCachePaymentRequestRPC.end(); it++) {
-        CFund::CPaymentRequest prequest; CFund::CProposal proposal;
-        if(!pcoinsTip->GetPaymentRequest(it->first, prequest))
+
+    for(auto& it: vCachePaymentRequestRPC)
+    {
+        CPaymentRequest prequest; CProposal proposal;
+
+        if(!view.GetPaymentRequest(it.first, prequest))
             continue;
-        if(!pcoinsTip->GetProposal(prequest.proposalhash, proposal))
+
+        if(!view.GetProposal(prequest.proposalhash, proposal))
             continue;
+
         UniValue op(UniValue::VOBJ);
         op.pushKV("hash", prequest.hash.ToString());
         op.pushKV("proposalDesc", proposal.strDZeel);
         op.pushKV("desc", prequest.strDZeel);
         op.pushKV("amount", ValueFromAmount(prequest.nAmount));
-        op.pushKV("yes", it->second.first);
-        op.pushKV("no", it->second.second);
+        op.pushKV("yes", it.second.first.first);
+        op.pushKV("abs", it.second.second);
+        op.pushKV("no", it.second.first.second);
         votesPaymentRequests.push_back(op);
     }
+
     vp.pushKV("votedProposals",       votesProposals);
     vp.pushKV("votedPaymentrequests", votesPaymentRequests);
     ret.pushKV("votingPeriod", vp);
@@ -1140,10 +1324,10 @@ UniValue gettxout(const UniValue& params, bool fHelp)
     CCoins coins;
     if (fMempool) {
         LOCK(mempool.cs);
-        CCoinsViewMemPool view(pcoinsTip, mempool);
+        CStateViewMemPool view(pcoinsTip, mempool);
         if (!view.GetCoins(hash, coins))
             return NullUniValue;
-        mempool.pruneSpent(hash, coins); // TODO: this should be done by the CCoinsViewMemPool
+        mempool.pruneSpent(hash, coins); // TODO: this should be done by the CStateViewMemPool
     } else {
         if (!pcoinsTip->GetCoins(hash, coins))
             return NullUniValue;
@@ -1193,7 +1377,11 @@ UniValue verifychain(const UniValue& params, bool fHelp)
     if (params.size() > 1)
         nCheckDepth = params[1].get_int();
 
-    return CVerifyDB().VerifyDB(Params(), pcoinsTip, nCheckLevel, nCheckDepth);
+    fVerifyChain = true;
+    bool ret = CVerifyDB().VerifyDB(Params(), pcoinsTip, nCheckLevel, nCheckDepth);
+    fVerifyChain = false;
+
+    return ret;
 }
 
 /** Implementation of IsSuperMajority with better feedback */
@@ -1332,7 +1520,10 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     BIP9SoftForkDescPushBack(bip9_softforks, "blsct", consensusParams, Consensus::DEPLOYMENT_BLSCT);
     BIP9SoftForkDescPushBack(bip9_softforks, "static", consensusParams, Consensus::DEPLOYMENT_STATIC_REWARD);
     BIP9SoftForkDescPushBack(bip9_softforks, "reduced_quorum", consensusParams, Consensus::DEPLOYMENT_QUORUM_CFUND);
-    obj.pushKV("softforks",             softforks);
+    BIP9SoftForkDescPushBack(bip9_softforks, "consultations", consensusParams, Consensus::DEPLOYMENT_CONSULTATIONS);
+    BIP9SoftForkDescPushBack(bip9_softforks, "dao_consensus", consensusParams, Consensus::DEPLOYMENT_DAO_CONSENSUS);
+    BIP9SoftForkDescPushBack(bip9_softforks, "coldstaking_v2", consensusParams, Consensus::DEPLOYMENT_COLDSTAKING_V2);
+    obj.pushKV("softforks",      softforks);
     obj.pushKV("bip9_softforks", bip9_softforks);
 
     if (fPruneMode)
@@ -1542,13 +1733,63 @@ UniValue getproposal(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CFund::CProposal proposal;
-    if(!pcoinsTip->GetProposal(uint256S(params[0].get_str()), proposal))
+    CStateViewCache view(pcoinsTip);
+
+    CProposal proposal;
+    if(!view.GetProposal(uint256S(params[0].get_str()), proposal))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Proposal not found");
 
     UniValue ret(UniValue::VOBJ);
+    proposal.ToJson(ret, view);
 
-    proposal.ToJson(ret, *pcoinsTip);
+    return ret;
+}
+
+UniValue getconsultation(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getconsultation \"hash\"\n"
+            "\nShows information about the given consultation.\n"
+            "\nArguments:\n"
+            "1. hash   (string, required) the hash of the consultation\n"
+        );
+
+    LOCK(cs_main);
+
+    CConsultation consultation;
+    CStateViewCache view(pcoinsTip);
+
+    if(!view.GetConsultation(uint256S(params[0].get_str()), consultation))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation not found");
+
+    UniValue ret(UniValue::VOBJ);
+    consultation.ToJson(ret, view);
+
+    return ret;
+}
+
+UniValue getconsultationanswer(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getconsultationanswer \"hash\"\n"
+            "\nShows information about the given consultation answer.\n"
+            "\nArguments:\n"
+            "1. hash   (string, required) the hash of the consultation answer\n"
+        );
+
+    LOCK(cs_main);
+
+    CConsultationAnswer answer;
+    CStateViewCache view(pcoinsTip);
+
+    if(!view.GetConsultationAnswer(uint256S(params[0].get_str()), answer))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Consultation answer not found");
+
+    UniValue ret(UniValue::VOBJ);
+
+    answer.ToJson(ret, view);
 
     return ret;
 }
@@ -1565,13 +1806,15 @@ UniValue getpaymentrequest(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    CFund::CPaymentRequest prequest;
-    if(!pcoinsTip->GetPaymentRequest(uint256S(params[0].get_str()), prequest))
+    CPaymentRequest prequest;
+    CStateViewCache view(pcoinsTip);
+
+    if(!view.GetPaymentRequest(uint256S(params[0].get_str()), prequest))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Payment request not found");
 
     UniValue ret(UniValue::VOBJ);
 
-    prequest.ToJson(ret, true);
+    prequest.ToJson(ret, view);
 
     return ret;
 }
@@ -1676,7 +1919,10 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-    { "communityfund",      "getcfunddbstatehash",    &getcfunddbstatehash,    true  },
+    { "dao",                "listconsultations",      &listconsultations,      true  },
+    { "dao",                "getconsultation",        &getconsultation,        true  },
+    { "dao",                "getconsultationanswer",  &getconsultationanswer,  true  },
+    { "dao",                "getcfunddbstatehash",    &getcfunddbstatehash,    true  },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },

@@ -165,7 +165,7 @@ class CommunityFundCreatePaymentrequestRawTX(NavCoinTestFramework):
         slow_gen(self.nodes[0], 10)
 
         # Proposal 2 should be expired
-        assert (self.nodes[0].getproposal(proposalid2_expired_timeout)["status"] == "expired waiting for end of voting period")
+        assert (self.nodes[0].getproposal(proposalid2_expired_timeout)["status"] == "expired, waiting for end of voting period")
 
         start_new_cycle(self.nodes[0])
 

@@ -55,7 +55,11 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     out.pushKV("type", GetTxnOutputType(type));
 
     if (type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
-                 || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE)
+            || type == TX_PAYMENTREQUESTREMOVEVOTE || type == TX_PAYMENTREQUESTABSVOTE
+            || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE
+            || type == TX_PROPOSALABSVOTE || type == TX_PROPOSALREMOVEVOTE
+            || type == TX_DAOSUPPORT || type == TX_DAOSUPPORTREMOVE || type == TX_CONSULTATIONVOTE
+            || type == TX_CONSULTATIONVOTEABSTENTION || type == TX_CONSULTATIONVOTEREMOVE)
     {
         vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;
@@ -63,6 +67,13 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
         if (Solver(scriptPubKey, whichType, vSolutions))
         {
             out.pushKV("hash", uint256(vSolutions[0]).ToString());
+        }
+
+        if (vSolutions.size() > 1)
+        {
+            CScriptNum nVote(vSolutions[1], false);
+            int vote = nVote.getint();
+            out.pushKV("value",vote);
         }
     }
     else
@@ -252,6 +263,52 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     }
 }
 
+UniValue getstakerscript(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "getstakerscript \"txid\"\n"
+                "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
+                "or there is an unspent output in the utxo for this transaction. To make it always work,\n"
+                "you need to maintain a transaction index, using the -txindex command line option.\n"
+                "\nReturn the raw transaction data.\n"
+                "\nIf verbose=0, returns a string that is serialized, hex-encoded data for 'txid'.\n"
+                "If verbose is non-zero, returns an Object with information about 'txid'.\n"
+
+                "\nArguments:\n"
+                "1. \"txid\"      (string, required) The transaction id\n"
+                "\nExamples:\n"
+                + HelpExampleCli("getstakerscript", "\"mytxid\"")
+                );
+
+    uint256 hash = ParseHashV(params[0], "parameter 1");
+
+    CTransaction tx;
+    CTransaction txPrev;
+    std::vector<unsigned char> stakerScript;
+
+    uint256 hashBlock;
+
+    {
+        LOCK(cs_main);
+        CStateViewCache view(pcoinsTip);
+        if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, view, true))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+
+        if (!GetTransaction(tx.vin[0].prevout.hash, txPrev, Params().GetConsensus(), hashBlock, view, true))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about previous transaction");
+
+        if(!txPrev.vout[tx.vin[0].prevout.n].scriptPubKey.GetStakerScript(stakerScript))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid script");
+    }
+
+    string strHex = HexStr(stakerScript);
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("hex", strHex);
+    return result;
+}
+
 UniValue getrawtransaction(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
@@ -353,7 +410,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
     {
         LOCK(cs_main);
-        CCoinsViewCache view(pcoinsTip);
+        CStateViewCache view(pcoinsTip);
         if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, view, true))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
 
@@ -440,7 +497,7 @@ UniValue gettxoutproof(const UniValue& params, bool fHelp)
     if (pblockindex == nullptr)
     {
         CTransaction tx;
-        CCoinsViewCache view(pcoinsTip);
+        CStateViewCache view(pcoinsTip);
         if (!GetTransaction(oneTxid, tx, Params().GetConsensus(), hashBlock, view, false) || hashBlock.IsNull())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Transaction not yet in block");
         if (!mapBlockIndex.count(hashBlock))
@@ -846,12 +903,12 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
     CMutableTransaction mergedTx(txVariants[0]);
 
     // Fetch previous transactions (inputs):
-    CCoinsView viewDummy;
-    CCoinsViewCache view(&viewDummy);
+    CStateView viewDummy;
+    CStateViewCache view(&viewDummy);
     {
         LOCK(mempool.cs);
-        CCoinsViewCache &viewChain = *pcoinsTip;
-        CCoinsViewMemPool viewMempool(&viewChain, mempool);
+        CStateViewCache &viewChain = *pcoinsTip;
+        CStateViewMemPool viewMempool(&viewChain, mempool);
         view.SetBackend(viewMempool); // temporarily switch cache backend to db+mempool view
 
         for(const CTxIn& txin: mergedTx.vin) {
@@ -1056,7 +1113,7 @@ UniValue sendrawtransaction(const UniValue& params, bool fHelp)
     if (params.size() > 1 && params[1].get_bool())
         nMaxRawTxFee = 0;
 
-    CCoinsViewCache &view = *pcoinsTip;
+    CStateViewCache &view = *pcoinsTip;
     const CCoins* existingCoins = view.AccessCoins(hashTx);
     bool fHaveMempool = mempool.exists(hashTx);
     bool fHaveChain = existingCoins && existingCoins->nHeight < 1000000000;
@@ -1092,6 +1149,7 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "sendrawtransaction",     &sendrawtransaction,     false },
     { "rawtransactions",    "signrawtransaction",     &signrawtransaction,     false }, /* uses wallet if enabled */
 
+    { "blockchain",         "getstakerscript",        &getstakerscript,        true  },
     { "blockchain",         "gettxoutproof",          &gettxoutproof,          true  },
     { "blockchain",         "verifytxoutproof",       &verifytxoutproof,       true  },
 };

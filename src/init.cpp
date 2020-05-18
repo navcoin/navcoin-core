@@ -75,6 +75,7 @@
 using namespace std;
 
 bool fFeeEstimatesInitialized = false;
+volatile bool fRestartRequested = false; // true: restart false: shutdown
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
 static const bool DEFAULT_DISABLE_SAFEMODE = false;
@@ -171,7 +172,7 @@ void StartShutdown()
 }
 bool ShutdownRequested()
 {
-    return fRequestShutdown;
+    return fRequestShutdown || fRestartRequested;
 }
 
 /**
@@ -179,13 +180,13 @@ bool ShutdownRequested()
  * chainstate, while keeping user interface out of the common library, which is shared
  * between navcoind, and navcoin-qt and non-server tools.
 */
-class CCoinsViewErrorCatcher : public CCoinsViewBacked
+class CStateViewErrorCatcher : public CStateViewBacked
 {
 public:
-    CCoinsViewErrorCatcher(CCoinsView* view) : CCoinsViewBacked(view) {}
+    CStateViewErrorCatcher(CStateView* view) : CStateViewBacked(view) {}
     bool GetCoins(const uint256 &txid, CCoins &coins) const {
         try {
-            return CCoinsViewBacked::GetCoins(txid, coins);
+            return CStateViewBacked::GetCoins(txid, coins);
         } catch(const std::runtime_error& e) {
             uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
             LogPrintf("Error reading from database: %s\n", e.what());
@@ -196,18 +197,18 @@ public:
             abort();
         }
     }
-    bool GetProposal(const uint256 &id, CFund::CProposal &proposal) const {
+    bool GetProposal(const uint256 &id, CProposal &proposal) const {
         try {
-            return CCoinsViewBacked::GetProposal(id, proposal);
+            return CStateViewBacked::GetProposal(id, proposal);
         } catch(const std::runtime_error& e) {
             uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
             LogPrintf("Error reading from database: %s\n", e.what());
             abort();
         }
     }
-    bool GetPaymentRequest(const uint256 &id, CFund::CPaymentRequest &prequest) const {
+    bool GetPaymentRequest(const uint256 &id, CPaymentRequest &prequest) const {
         try {
-            return CCoinsViewBacked::GetPaymentRequest(id, prequest);
+            return CStateViewBacked::GetPaymentRequest(id, prequest);
         } catch(const std::runtime_error& e) {
             uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
             LogPrintf("Error reading from database: %s\n", e.what());
@@ -217,8 +218,8 @@ public:
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 
-static CCoinsViewDB *pcoinsdbview = nullptr;
-static CCoinsViewErrorCatcher *pcoinscatcher = nullptr;
+static CStateViewDB *pcoinsdbview = nullptr;
+static CStateViewErrorCatcher *pcoinscatcher = nullptr;
 static boost::scoped_ptr<ECCVerifyHandle> globalVerifyHandle;
 static TorControlThread torController = TorControlThread();
 
@@ -233,8 +234,11 @@ void Interrupt(boost::thread_group& threadGroup)
     threadGroup.interrupt_all();
 }
 
-void Shutdown()
+/** Preparing steps before shutting down or restarting the wallet */
+void PrepareShutdown()
 {
+    fRequestShutdown = true;  // Needed when we shutdown the wallet
+    fRestartRequested = true; // Needed when we restart the wallet
     LogPrintf("%s: In progress...\n", __func__);
     static CCriticalSection cs_Shutdown;
     TRY_LOCK(cs_Shutdown, lockShutdown);
@@ -309,6 +313,25 @@ void Shutdown()
     }
 #endif
     UnregisterAllValidationInterfaces();
+}
+
+/**
+* Shutdown is split into 2 parts:
+* Part 1: shut down everything but the main wallet instance (done in PrepareShutdown() )
+* Part 2: delete wallet instance
+*
+* In case of a restart PrepareShutdown() was already called before, but this method here gets
+* called implicitly when the parent object is deleted. In this case we have to skip the
+* PrepareShutdown() part because it was already executed and just delete the wallet instance.
+*/
+void Shutdown()
+{
+    // Shutdown part 1: prepare shutdown
+    if (!fRestartRequested) {
+        PrepareShutdown();
+    }
+    // Shutdown part 2: Stop TOR thread and delete wallet instance
+    StopTorControl();
 #ifdef ENABLE_WALLET
     delete pwalletMain;
     pwalletMain = nullptr;
@@ -1574,10 +1597,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
                 delete pblocktree;
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex, dbCompression, dbMaxOpenFiles);
-                pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex || fReindexChainState);
+                pcoinsdbview = new CStateViewDB(nCoinDBCache, false, fReindex || fReindexChainState);
 
-                pcoinscatcher = new CCoinsViewErrorCatcher(pcoinsdbview);
-                pcoinsTip = new CCoinsViewCache(pcoinscatcher);
+                pcoinscatcher = new CStateViewErrorCatcher(pcoinsdbview);
+                pcoinsTip = new CStateViewCache(pcoinscatcher);
 
                 if (fReindex) {
                     pblocktree->WriteReindexing(true);
@@ -1658,13 +1681,17 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
                     }
                 }
 
-                if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
-                                          GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
+                fVerifyChain = true;
+                bool fVerifyRet = CVerifyDB().VerifyDB(chainparams, pcoinsdbview, GetArg("-checklevel", DEFAULT_CHECKLEVEL),
+                                                       GetArg("-checkblocks", DEFAULT_CHECKBLOCKS));
+                fVerifyChain = false;
+
+                if (!fVerifyRet) {
                     strLoadError = _("Corrupted block database detected");
                     break;
                 }
 
-                std::vector<CFund::CProposal> vProposals;
+                std::vector<CProposal> vProposals;
                 CProposalMap mapProposals;
 
                 if (pblocktree->GetProposalIndex(vProposals))
@@ -1690,7 +1717,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
                     break;
                 }
 
-                std::vector<CFund::CPaymentRequest> vPaymentRequests;
+                std::vector<CPaymentRequest> vPaymentRequests;
                 CPaymentRequestMap mapPaymentRequest;
 
                 if (pblocktree->GetPaymentRequestIndex(vPaymentRequests))

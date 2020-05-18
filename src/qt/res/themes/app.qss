@@ -13,8 +13,7 @@
 }
 
 .alert-danger {
-    border-color: #f5c6cb;
-    background: #f8d7da;
+    border-color: #f5c6cb; background: #f8d7da;
     color: #721c24;
 }
 
@@ -173,4 +172,8 @@
 
 #listTransactions {
     background: transparent;
+}
+
+#daoTopBox QPushButton.active {
+    background: palette(highlight);
 }

@@ -53,6 +53,7 @@ public:
         EXT_SECRET_KEY,
         COLDSTAKING_ADDRESS,
         BLS_PRIVATE_ADDRESS,
+        COLDSTAKING_ADDRESS_V2,
 
         MAX_BASE58_TYPES
     };

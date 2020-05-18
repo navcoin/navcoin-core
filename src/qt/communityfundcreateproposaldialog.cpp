@@ -27,6 +27,8 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
     ui->setupUi(this);
     GUIUtil::setupAddressWidget(ui->lineEditNavcoinAddress, this);
 
+    CStateViewCache view(pcoinsTip);
+
     ui->spinBoxDays->setRange(0, 999999999);
     ui->spinBoxHours->setRange(0, 24);
     ui->spinBoxMinutes->setRange(0, 60);
@@ -55,9 +57,9 @@ CommunityFundCreateProposalDialog::CommunityFundCreateProposalDialog(QWidget *pa
                 }
     });
 
-    string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
-    string warning = "By submitting the proposal a " + fee + " NAV deduction will occur from your wallet ";
-    ui->labelWarning->setText(QString::fromStdString(warning));
+    string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
+    QString warning = tr("By submitting the proposal a contribution of %1 NAV to the Community Fund will occur from your wallet.").arg(QString::fromStdString(fee));
+    ui->labelWarning->setText(warning);
 }
 
 void CommunityFundCreateProposalDialog::setModel(WalletModel *model)
@@ -83,16 +85,12 @@ bool CommunityFundCreateProposalDialog::validate()
         ui->lineEditRequestedAmount->setValid(false);
         isValid = false;
     }
-    size_t desc_length = ui->plainTextEditDescription->toPlainText().toStdString().length();
+    size_t desc_length = ui->plainTextEditDescription->text().toStdString().length();
     if(desc_length >= 1024 || desc_length == 0)
     {
         isValid = false;
-        ui->plainTextEditDescription->setValid(false);
     }
-    else
-    {
-        ui->plainTextEditDescription->setValid(true);
-    }
+
     if(ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60 <= 0)
     {
         ui->spinBoxDays->setValid(false);
@@ -120,6 +118,8 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
     {
         LOCK2(cs_main, pwalletMain->cs_wallet);
 
+        CStateViewCache view(pcoinsTip);
+
         CNavCoinAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
 
         CWalletTx wtx;
@@ -135,15 +135,22 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
         int64_t nDeadline = ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60;
 
         // Description
-        string sDesc = ui->plainTextEditDescription->toPlainText().toStdString();
+        string sDesc = ui->plainTextEditDescription->text().toStdString();
 
         UniValue strDZeel(UniValue::VOBJ);
+        uint64_t nVersion = CProposal::BASE_VERSION;
+
+        if (IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CProposal::REDUCED_QUORUM_VERSION;
+
+        if (IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()))
+            nVersion |= CProposal::ABSTAIN_VOTE_VERSION;
 
         strDZeel.pushKV("n",nReqAmount);
         strDZeel.pushKV("a",Address);
         strDZeel.pushKV("d",nDeadline);
         strDZeel.pushKV("s",sDesc);
-        strDZeel.pushKV("v",IsReducedCFundQuorumEnabled(chainActive.Tip(), Params().GetConsensus()) ? CFund::CProposal::CURRENT_VERSION : 2);
+        strDZeel.pushKV("v",nVersion);
 
         wtx.strDZeel = strDZeel.write();
         wtx.nCustomVersion = CTransaction::PROPOSAL_VERSION;
@@ -169,10 +176,10 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         // Check balance
         CAmount curBalance = pwalletMain->GetBalance();
-        if (curBalance <= Params().GetConsensus().nProposalMinimalFee) {
+        if (curBalance <= GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view)) {
             QMessageBox msgBox(this);
-            string fee = std::to_string(Params().GetConsensus().nProposalMinimalFee / COIN);
-            std::string str = "You require at least " + fee + " NAV mature and available to create a proposal\n";
+            string fee = FormatMoney(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view));
+            std::string str = tr("You require at least %1 NAV mature and available to create a proposal\n").arg(QString::fromStdString(fee)).toStdString();
             msgBox.setText(tr(str.c_str()));
             msgBox.addButton(tr("Ok"), QMessageBox::AcceptRole);
             msgBox.setIcon(QMessageBox::Warning);
@@ -183,8 +190,8 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
 
         // Create partial proposal object with all nessesary display fields from input and create confirmation dialog
         {
-            CFund::CProposal *proposal = new CFund::CProposal();
-            proposal->Address = Address;
+            CProposal *proposal = new CProposal();
+            proposal->ownerAddress = Address;
             proposal->nAmount = nReqAmount;
             proposal->strDZeel = sDesc;
             proposal->nDeadline = nDeadline;
@@ -197,10 +204,8 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             }
             else {
                 // User accepted making the proposal
-                // Parse NavCoin address
-                CScript CFContributionScript;
                 CScript scriptPubKey = GetScriptForDestination(address.Get());
-                CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+                SetScriptForCommunityFundContribution(scriptPubKey);
 
                 // Create and send the transaction
                 CReserveKey reservekey(pwalletMain);
@@ -208,7 +213,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
                 std::string strError;
                 vector<CRecipient> vecSend;
                 int nChangePosRet = -1;
-                CAmount nValue = Params().GetConsensus().nProposalMinimalFee;
+                CAmount nValue = GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_FEE, view);
                 CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
                 vecSend.push_back(recipient);
 
@@ -255,7 +260,7 @@ void CommunityFundCreateProposalDialog::click_pushButtonCreateProposal()
             str += QString(tr("- Address\n"));
         if(!ui->lineEditRequestedAmount->validate())
             str += QString(tr("- Requested Amount\n"));
-        if(ui->plainTextEditDescription->toPlainText() == QString("") || ui->plainTextEditDescription->toPlainText().size() <= 0)
+        if(ui->plainTextEditDescription->text() == QString("") || ui->plainTextEditDescription->text().size() <= 0)
             str += QString(tr("- Description\n"));
         if((ui->spinBoxDays->value()*24*60*60 + ui->spinBoxHours->value()*60*60 + ui->spinBoxMinutes->value()*60) <= 0)
             str += QString(tr("- Duration\n"));

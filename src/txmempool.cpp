@@ -408,6 +408,18 @@ bool CTxMemPool::AddPaymentRequest(const CPaymentRequest& prequest)
     return true;
 }
 
+bool CTxMemPool::AddConsultation(const CConsultation& consultation)
+{
+    mapConsultation.insert(make_pair(consultation.hash, consultation));
+    return true;
+}
+
+bool CTxMemPool::AddConsultationAnswer(const CConsultationAnswer& answer)
+{
+    mapAnswer.insert(make_pair(answer.hash, answer));
+    return true;
+}
+
 bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry, setEntries &setAncestors, bool fCurrentEstimate)
 {
     // Add to memory pool without checking anything.
@@ -473,7 +485,7 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
     return true;
 }
 
-void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view)
+void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view)
 {
     LOCK(cs);
     const CTransaction& tx = entry.GetTx();
@@ -547,7 +559,7 @@ bool CTxMemPool::removeAddressIndex(const uint256 txhash)
     return true;
 }
 
-void CTxMemPool::addSpentIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view)
+void CTxMemPool::addSpentIndex(const CTxMemPoolEntry &entry, const CStateViewCache &view)
 {
     LOCK(cs);
 
@@ -701,7 +713,7 @@ void CTxMemPool::removeRecursive(const CTransaction &origTx, std::list<CTransact
     }
 }
 
-void CTxMemPool::removeForReorg(const CCoinsViewCache *pcoins, unsigned int nMemPoolHeight, int flags)
+void CTxMemPool::removeForReorg(const CStateViewCache *pcoins, unsigned int nMemPoolHeight, int flags)
 {
     // Remove transactions spending a coinbase which are now immature and no-longer-final transactions
     LOCK(cs);
@@ -809,7 +821,7 @@ void CTxMemPool::clear()
     _clear();
 }
 
-void CTxMemPool::check(const CCoinsViewCache *pcoins) const
+void CTxMemPool::check(const CStateViewCache *pcoins) const
 {
     if (nCheckFrequency == 0)
         return;
@@ -822,7 +834,7 @@ void CTxMemPool::check(const CCoinsViewCache *pcoins) const
     uint64_t checkTotal = 0;
     uint64_t innerUsage = 0;
 
-    CCoinsViewCache mempoolDuplicate(const_cast<CCoinsViewCache*>(pcoins));
+    CStateViewCache mempoolDuplicate(const_cast<CStateViewCache*>(pcoins));
 
     LOCK(cs);
     list<const CTxMemPoolEntry*> waitingOnDependants;
@@ -1131,9 +1143,9 @@ bool CTxMemPool::HasNoInputsOf(const CTransaction &tx) const
     return true;
 }
 
-CCoinsViewMemPool::CCoinsViewMemPool(CCoinsView* baseIn, const CTxMemPool& mempoolIn) : CCoinsViewBacked(baseIn), mempool(mempoolIn) { }
+CStateViewMemPool::CStateViewMemPool(CStateView* baseIn, const CTxMemPool& mempoolIn) : CStateViewBacked(baseIn), mempool(mempoolIn) { }
 
-bool CCoinsViewMemPool::GetCoins(const uint256 &txid, CCoins &coins) const {
+bool CStateViewMemPool::GetCoins(const uint256 &txid, CCoins &coins) const {
     // If an entry in the mempool exists, always return that one, as it's guaranteed to never
     // conflict with the underlying cache, and it cannot have pruned entries (as it contains full)
     // transactions. First checking the underlying cache risks returning a pruned entry instead.
@@ -1145,28 +1157,60 @@ bool CCoinsViewMemPool::GetCoins(const uint256 &txid, CCoins &coins) const {
     return (base->GetCoins(txid, coins) && !coins.IsPruned());
 }
 
-bool CCoinsViewMemPool::GetProposal(const uint256 &txid, CProposal &proposal) const {
+bool CStateViewMemPool::GetProposal(const uint256 &txid, CProposal &proposal) const {
+    if (base->GetProposal(txid, proposal) && !proposal.IsNull())
+        return true;
+
     if (mempool.mapProposal.count(txid))
     {
         proposal = mempool.mapProposal.at(txid);
         return true;
     }
-    return (base->GetProposal(txid, proposal) && !proposal.IsNull());
+    return false;
 }
 
-bool CCoinsViewMemPool::GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const
+bool CStateViewMemPool::GetPaymentRequest(const uint256 &txid, CPaymentRequest &prequest) const
 {
+    if (base->GetPaymentRequest(txid, prequest) && !prequest.IsNull())
+        return true;
+
     if (mempool.mapPaymentRequest.count(txid))
     {
         prequest = mempool.mapPaymentRequest.at(txid);
         return true;
     }
-    return (base->GetPaymentRequest(txid, prequest) && !prequest.IsNull());
+    return false;
 }
 
-bool CCoinsViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
+
+bool CStateViewMemPool::GetConsultation(const uint256 &txid, CConsultation &consultation) const
+{
+    if (base->GetConsultation(txid, consultation) && !consultation.IsNull())
+        return true;
+
+    if (mempool.mapConsultation.count(txid))
+    {
+        consultation = mempool.mapConsultation.at(txid);
+        return true;
+    }
+    return false;
+}
+
+bool CStateViewMemPool::GetConsultationAnswer(const uint256 &txid, CConsultationAnswer &answer) const
+{
+    if (base->GetConsultationAnswer(txid, answer) && !answer.IsNull())
+        return true;
+
+    if (mempool.mapAnswer.count(txid))
+    {
+        answer = mempool.mapAnswer.at(txid);
+        return true;
+    }
+    return false;
+}
+
+bool CStateViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequests) {
     mapPaymentRequests.clear();
-    mapPaymentRequests.insert(mempool.mapPaymentRequest.begin(), mempool.mapPaymentRequest.end());
 
     CPaymentRequestMap baseMap;
 
@@ -1176,30 +1220,82 @@ bool CCoinsViewMemPool::GetAllPaymentRequests(CPaymentRequestMap& mapPaymentRequ
     for (CPaymentRequestMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
         mapPaymentRequests.insert(make_pair(it->first, it->second));
 
+    mapPaymentRequests.insert(mempool.mapPaymentRequest.begin(), mempool.mapPaymentRequest.end());
+
     return true;
 }
 
-bool CCoinsViewMemPool::HaveCoins(const uint256 &txid) const {
+bool CStateViewMemPool::GetAllConsultationAnswers(CConsultationAnswerMap& mapAnswers) {
+    mapAnswers.clear();
+
+    CConsultationAnswerMap baseMap;
+
+    if (!base->GetAllConsultationAnswers(baseMap))
+        return false;
+
+    for (CConsultationAnswerMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapAnswers.insert(make_pair(it->first, it->second));
+
+    mapAnswers.insert(mempool.mapAnswer.begin(), mempool.mapAnswer.end());
+
+    return true;
+}
+
+bool CStateViewMemPool::GetAllConsultations(CConsultationMap& mapConsultations) {
+    mapConsultations.clear();
+
+    CConsultationMap baseMap;
+
+    if (!base->GetAllConsultations(baseMap))
+        return false;
+
+    for (CConsultationMap::iterator it = baseMap.begin(); it != baseMap.end(); it++)
+        mapConsultations.insert(make_pair(it->first, it->second));
+
+    mapConsultations.insert(mempool.mapConsultation.begin(), mempool.mapConsultation.end());
+
+    return true;
+}
+
+bool CStateViewMemPool::HaveCoins(const uint256 &txid) const {
     return mempool.exists(txid) || base->HaveCoins(txid);
 }
 
-bool CCoinsViewMemPool::HaveProposal(const uint256 &txid) const {
+bool CStateViewMemPool::HaveProposal(const uint256 &txid) const {
     return mempool.mapProposal.count(txid) || base->HaveProposal(txid);
 }
 
-bool CCoinsViewMemPool::HavePaymentRequest(const uint256 &txid) const {
+bool CStateViewMemPool::HavePaymentRequest(const uint256 &txid) const {
     return mempool.mapPaymentRequest.count(txid) || base->HavePaymentRequest(txid);
 }
 
-bool CCoinsViewMemPool::AddProposal(const CProposal& proposal) const
+bool CStateViewMemPool::HaveConsultation(const uint256 &txid) const {
+    return mempool.mapConsultation.count(txid) || base->HaveConsultation(txid);
+}
+
+bool CStateViewMemPool::HaveConsultationAnswer(const uint256 &txid) const {
+    return mempool.mapAnswer.count(txid) || base->HaveConsultationAnswer(txid);
+}
+
+bool CStateViewMemPool::AddProposal(const CProposal& proposal) const
 {
     return const_cast<CTxMemPool&>(mempool).AddProposal(proposal);
 };
 
-bool CCoinsViewMemPool::AddPaymentRequest(const CPaymentRequest& prequest) const
+bool CStateViewMemPool::AddPaymentRequest(const CPaymentRequest& prequest) const
 {
     return const_cast<CTxMemPool&>(mempool).AddPaymentRequest(prequest);
 };
+
+bool CStateViewMemPool::AddConsultation(const CConsultation& consultation) const
+{
+    return const_cast<CTxMemPool&>(mempool).AddConsultation(consultation);
+}
+
+bool CStateViewMemPool::AddConsultationAnswer(const CConsultationAnswer& answer) const
+{
+    return const_cast<CTxMemPool&>(mempool).AddConsultationAnswer(answer);
+}
 
 size_t CTxMemPool::DynamicMemoryUsage() const {
     LOCK(cs);

@@ -37,6 +37,8 @@ class CommunityFundVotePaymentrequestRawTX(NavCoinTestFramework):
         self.nodes[0].proposalvote(proposalid0, "remove")
         slow_gen(self.nodes[0], 5)
 
+        end_cycle(self.nodes[0])
+
         # Proposal should be accepted
         assert (self.nodes[0].getproposal(proposalid0)["state"] == 1)
         assert (self.nodes[0].getproposal(proposalid0)["status"] == "accepted")

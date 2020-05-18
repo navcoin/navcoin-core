@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>253</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,27 +15,27 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="labelCreatePaymentRequestTitle">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Create Payment Request</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QVBoxLayout" name="verticalLayoutCreatePaymentRequest">
+     <item>
+      <widget class="QLabel" name="labelCreatePaymentRequestTitle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Create Payment Request</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QLabel" name="labelProposalHashTitle">
        <property name="sizePolicy">
@@ -51,12 +51,12 @@
         </font>
        </property>
        <property name="text">
-        <string>Proposal Hash:</string>
+        <string>Proposal:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QValidatedLineEdit" name="lineEditProposalHash"/>
+      <widget class="QComboBox" name="comboBoxProposalHash"/>
      </item>
      <item>
       <widget class="QLabel" name="labelRequestedAmountTitle">
@@ -83,19 +83,12 @@
         </font>
        </property>
        <property name="text">
-        <string>Description:</string>
+        <string>Title + URL:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QValidatedPlainTextEdit" name="plainTextEditDescription">
-       <property name="plainText">
-        <string/>
-       </property>
-       <property name="overwriteMode">
-        <bool>false</bool>
-       </property>
-      </widget>
+      <widget class="QLineEdit" name="plainTextEditDescription"/>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayoutSubmitPaymentRequest">
@@ -141,16 +134,6 @@
    <extends>QLineEdit</extends>
    <header>navcoinamountfield.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QValidatedLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>qvalidatedlineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QValidatedPlainTextEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header>qvalidatedplaintextedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

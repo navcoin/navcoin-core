@@ -36,9 +36,19 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_PAYMENTREQUESTYESVOTE: return "payment_request_yes_vote";
     case TX_PROPOSALNOVOTE: return "proposal_no_vote";
     case TX_PAYMENTREQUESTNOVOTE: return "payment_request_no_vote";
+    case TX_PROPOSALABSVOTE: return "proposal_abstain_vote";
+    case TX_PROPOSALREMOVEVOTE: return "proposal_remove_vote";
+    case TX_PAYMENTREQUESTABSVOTE: return "payment_request_abstain_vote";
+    case TX_PAYMENTREQUESTREMOVEVOTE: return "payment_request_remove_vote";
+    case TX_CONSULTATIONVOTE: return "consultation_vote";
+    case TX_CONSULTATIONVOTEREMOVE: return "consultation_vote_remove";
+    case TX_CONSULTATIONVOTEABSTENTION: return "consultation_vote_abstention";
+    case TX_DAOSUPPORT: return "dao_support";
+    case TX_DAOSUPPORTREMOVE: return "dao_support_remove";
     case TX_WITNESS_V0_KEYHASH: return "witness_v0_keyhash";
     case TX_WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     case TX_COLDSTAKING: return "cold_staking";
+    case TX_COLDSTAKING_V2: return "cold_staking_v2";
     case TX_POOL: return "pool_staking";
     }
     return nullptr;
@@ -86,41 +96,73 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         return true;
     }
 
+    if (scriptPubKey.IsColdStakingv2())
+    {
+        typeRet = TX_COLDSTAKING_V2;
+        vector<unsigned char> stakingPubKey(scriptPubKey.begin()+27, scriptPubKey.begin()+47);
+        vSolutionsRet.push_back(stakingPubKey);
+        vector<unsigned char> spendingPubKey(scriptPubKey.begin()+53, scriptPubKey.begin()+73);
+        vSolutionsRet.push_back(spendingPubKey);
+        vector<unsigned char> votingPubKey(scriptPubKey.begin()+1, scriptPubKey.begin()+21);
+        vSolutionsRet.push_back(votingPubKey);
+        return true;
+    }
+
     if (scriptPubKey.IsCommunityFundContribution())
     {
         typeRet = TX_CONTRIBUTION;
         return true;
     }
 
-    if(scriptPubKey.IsProposalVoteYes())
+    if(scriptPubKey.IsProposalVote() || scriptPubKey.IsPaymentRequestVote())
     {
-        typeRet = TX_PROPOSALYESVOTE;
+        if (scriptPubKey.IsProposalVoteYes())
+            typeRet = TX_PROPOSALYESVOTE;
+        else if (scriptPubKey.IsProposalVoteNo())
+            typeRet = TX_PROPOSALNOVOTE;
+        else if (scriptPubKey.IsProposalVoteAbs())
+            typeRet = TX_PROPOSALABSVOTE;
+        else if (scriptPubKey.IsProposalVoteRemove())
+            typeRet = TX_PROPOSALREMOVEVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteYes())
+            typeRet = TX_PAYMENTREQUESTYESVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteNo())
+            typeRet = TX_PAYMENTREQUESTNOVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteAbs())
+            typeRet = TX_PAYMENTREQUESTABSVOTE;
+        else if (scriptPubKey.IsPaymentRequestVoteRemove())
+            typeRet = TX_PAYMENTREQUESTREMOVEVOTE;
         vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
 
-    if(scriptPubKey.IsProposalVoteNo())
+    if(scriptPubKey.IsSupportVote())
     {
-        typeRet = TX_PROPOSALNOVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
+        if(scriptPubKey.IsSupportVoteYes())
+            typeRet = TX_DAOSUPPORT;
+        else if(scriptPubKey.IsSupportVoteRemove())
+            typeRet = TX_DAOSUPPORTREMOVE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
 
-    if(scriptPubKey.IsPaymentRequestVoteYes())
+    if(scriptPubKey.IsConsultationVote())
     {
-        typeRet = TX_PAYMENTREQUESTYESVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
+        if(scriptPubKey.IsConsultationVoteAnswer())
+            typeRet = TX_CONSULTATIONVOTE;
+        else if(scriptPubKey.IsConsultationVoteAbstention())
+            typeRet = TX_CONSULTATIONVOTEABSTENTION;
+        else if(scriptPubKey.IsConsultationVoteRemove())
+            typeRet = TX_CONSULTATIONVOTEREMOVE;
+        vector<unsigned char> hashBytes(scriptPubKey.begin()+4, scriptPubKey.begin()+36);
         vSolutionsRet.push_back(hashBytes);
-        return true;
-    }
-
-    if(scriptPubKey.IsPaymentRequestVoteNo())
-    {
-        typeRet = TX_PAYMENTREQUESTNOVOTE;
-        vector<unsigned char> hashBytes(scriptPubKey.begin()+5, scriptPubKey.begin()+37);
-        vSolutionsRet.push_back(hashBytes);
+        if (scriptPubKey.size() > 36)
+        {
+            vector<unsigned char> vVote(scriptPubKey.begin()+37, scriptPubKey.end());
+            vSolutionsRet.push_back(vVote);
+        }
         return true;
     }
 
@@ -273,6 +315,11 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         addressRet = make_pair(CKeyID(uint160(vSolutions[0])), CKeyID(uint160(vSolutions[1])));
         return true;
     }
+    else if (whichType == TX_COLDSTAKING_V2)
+    {
+        addressRet = make_pair(CKeyID(uint160(vSolutions[0])), make_pair(CKeyID(uint160(vSolutions[1])), CKeyID(uint160(vSolutions[2]))));
+        return true;
+    }
     // Multisig txns have more than one address...
     return false;
 }
@@ -306,7 +353,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
         if (addressRet.empty())
             return false;
     }
-    else if (typeRet == TX_COLDSTAKING)
+    else if (typeRet == TX_COLDSTAKING || typeRet == TX_COLDSTAKING_V2)
     {
         nRequiredRet = 1;
         for (unsigned int i = 0; i < vSolutions.size(); i++)
@@ -320,7 +367,11 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
             return false;
     }
     else if (typeRet == TX_CONTRIBUTION || typeRet == TX_PAYMENTREQUESTNOVOTE || typeRet == TX_PAYMENTREQUESTYESVOTE
-             || typeRet == TX_PROPOSALNOVOTE || typeRet == TX_PROPOSALYESVOTE)
+             || typeRet == TX_PAYMENTREQUESTREMOVEVOTE || typeRet == TX_PAYMENTREQUESTABSVOTE
+             || typeRet == TX_PROPOSALNOVOTE || typeRet == TX_PROPOSALYESVOTE
+             || typeRet == TX_PROPOSALABSVOTE || typeRet == TX_PROPOSALREMOVEVOTE
+             || typeRet == TX_DAOSUPPORT || typeRet == TX_DAOSUPPORTREMOVE || typeRet == TX_CONSULTATIONVOTE
+             || typeRet == TX_CONSULTATIONVOTEABSTENTION || typeRet == TX_CONSULTATIONVOTEREMOVE)
     {
         return true;
     }
@@ -359,6 +410,12 @@ public:
     bool operator()(const pair<CKeyID, CKeyID>&keyPairID) const {
         script->clear();
         *script << OP_COINSTAKE << OP_IF << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ELSE << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.second) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ENDIF;
+        return true;
+    }
+
+    bool operator()(const pair<CKeyID, pair<CKeyID, CKeyID>>&keyPairID) const {
+        script->clear();
+        *script << ToByteVector(keyPairID.second.second) << OP_DROP << OP_COINSTAKE << OP_IF << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ELSE << OP_DUP << OP_HASH160 << ToByteVector(keyPairID.second.first) << OP_EQUALVERIFY << OP_CHECKSIG << OP_ENDIF;
         return true;
     }
 

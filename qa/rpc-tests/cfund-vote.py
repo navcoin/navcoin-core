@@ -54,48 +54,63 @@ class CommunityFundVotesTest(NavCoinTestFramework):
         # Verify the votes have been reseted
         assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 0 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
 
-        # Add dummy votes
-        slow_gen(self.nodes[0], 5)
-        self.nodes[0].proposalvote(proposalid0, "yes")
-        slow_gen(self.nodes[0], 5)
+        slow_gen(self.nodes[0], 1)
+        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 0 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 1)
+        assert_equal(self.nodes[0].getproposal(proposalid0)["votingCycle"], 0)
+
         self.nodes[0].proposalvote(proposalid0, "remove")
 
+        # Add dummy votes
+        end_cycle(self.nodes[0])
+
+        total_votes = self.nodes[0].cfundstats()["consensus"]["minSumVotesPerVotingCycle"]
+        min_yes_votes = self.nodes[0].cfundstats()["consensus"]["votesAcceptPaymentRequestPercentage"]/100
+        yes_votes = int(total_votes * min_yes_votes) + 1
+        no_votes = total_votes - yes_votes
+
+        self.nodes[0].proposalvote(proposalid0, "no")
+        slow_gen(self.nodes[0], no_votes)
+        self.nodes[0].proposalvote(proposalid0, "yes")
+        slow_gen(self.nodes[0], yes_votes)
+        self.nodes[0].proposalvote(proposalid0, "remove")
+
+        assert_equal(self.nodes[0].getproposal(proposalid0)["votingCycle"], 1)
+
         # Check votes are added
-        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 5 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 5)
+        assert_equal(self.nodes[0].getproposal(proposalid0)["votesYes"], yes_votes)
+        assert_equal(self.nodes[0].getproposal(proposalid0)["votesNo"], no_votes)
 
         # Move to the end of the cycle
         slow_gen(self.nodes[0], self.nodes[0].cfundstats()["votingPeriod"]["ending"] - self.nodes[0].cfundstats()["votingPeriod"]["current"])
 
-        # Check we are still in the first cycle
-        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 0)
+        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 1)
 
         slow_gen(self.nodes[0], 1)
-
         # Check we are in a new cycle
-        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 1)
+        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 2)
 
         # Check the number of votes reseted and the proposal state
         assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 0 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending" and self.nodes[0].getproposal(proposalid0)["state"] == 0)
 
-        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["consensus"]["blocksPerVotingCycle"] - 10)
-        self.nodes[0].proposalvote(proposalid0, "yes")
+        slow_gen(self.nodes[0], self.nodes[0].cfundstats()["consensus"]["blocksPerVotingCycle"] - 5)
 
+        self.nodes[0].proposalvote(proposalid0, "yes")
         # Vote in the limits of a cycle
-        slow_gen(self.nodes[0], 9)
+        slow_gen(self.nodes[0], 4)
 
         # Check we are still in the same cycle
-        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 1)
+        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 2)
 
         # Check the number of votes reseted and the proposal state
-        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 9 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
+        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 4 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending" and self.nodes[0].getproposal(proposalid0)["state"] == 0)
 
         # Vote into the new cycle
         firstblockofcycle = slow_gen(self.nodes[0], 1)[0]
 
         # Check we are in the new cycle
-        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 2)
+        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 3)
 
         # Check the number of votes
         assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 1 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
@@ -105,8 +120,8 @@ class CommunityFundVotesTest(NavCoinTestFramework):
         self.nodes[0].invalidateblock(firstblockofcycle)
 
         # Check we are again in the old cycle
-        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 1)
-        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 9 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
+        assert(self.nodes[0].getproposal(proposalid0)["votingCycle"] == 2)
+        assert(self.nodes[0].getproposal(proposalid0)["votesYes"] == 4 and self.nodes[0].getproposal(proposalid0)["votesNo"] == 0)
         assert(self.nodes[0].getproposal(proposalid0)["status"] == "pending" and self.nodes[0].getproposal(proposalid0)["state"] == 0)
 
 

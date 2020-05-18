@@ -9,7 +9,7 @@
 #include <checkpoints.h>
 #include <chain.h>
 #include <coincontrol.h>
-#include <consensus/cfund.h>
+#include <consensus/dao.h>
 #include <consensus/consensus.h>
 #include <consensus/validation.h>
 #include <init.h>
@@ -311,7 +311,8 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
                 if (!(IsSpent(wtxid,i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue){
                     vCoins.push_back(COutput(pcoin, i, nDepth, true,
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_SPENDABLE)) != ISMINE_NO &&
-                                           !pcoin->vout[i].scriptPubKey.IsColdStaking()) ||
+                                           !pcoin->vout[i].scriptPubKey.IsColdStaking() &&
+                                           !pcoin->vout[i].scriptPubKey.IsColdStakingv2()) ||
                                            ((IsMine(pcoin->vout[i]) & (ISMINE_STAKABLE)) != ISMINE_NO &&
                                            IsColdStakingEnabled(chainActive.Tip(), Params().GetConsensus()))));
                 }
@@ -363,7 +364,7 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
     return true;
 }
 
-bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key)
+bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CMutableTransaction& txNew, CKey& key, CScript& kernelScriptPubKey)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
     arith_uint256 bnTargetPerCoinDay;
@@ -395,7 +396,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (setCoins.empty())
         return false;
 
-    CCoinsViewCache view(pcoinsTip);
+    CStateViewCache view(pcoinsTip);
 
     int64_t nCredit = 0;
     CScript scriptPubKeyKernel;
@@ -424,12 +425,12 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     break;
                 }
                 LogPrint("coinstake", "CreateCoinStake : parsed kernel type=%d\n", whichType);
-                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_COLDSTAKING)
+                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_COLDSTAKING && whichType != TX_COLDSTAKING_V2)
                 {
                     LogPrint("coinstake", "CreateCoinStake : no support for kernel type=%d\n", whichType);
                     break;  // only support pay to public key and pay to address
                 }
-                if (whichType == TX_COLDSTAKING) // cold staking
+                if (whichType == TX_COLDSTAKING || whichType == TX_COLDSTAKING_V2) // cold staking
                 {
                     // try to find staking key
                     if (!keystore.GetKey(uint160(vSolutions[0]), key))
@@ -474,6 +475,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 nCredit += pcoin.first->vout[pcoin.second].nValue;
                 vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
+                kernelScriptPubKey = scriptPubKeyKernel;
 
                 LogPrint("coinstake", "CreateCoinStake : added kernel type=%d\n", whichType);
                 fKernelFound = true;
@@ -487,6 +489,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
         return false;
+
+    CTransaction txPrev;
+    uint256 hashBlock = uint256();
 
     for(PAIRTYPE(const CWalletTx*, unsigned int) pcoin: setCoins)
     {
@@ -510,6 +515,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if (nTimeWeight < Params().GetConsensus().nStakeMinAge)
                 continue;
 
+            if (!GetTransaction(pcoin.first->GetHash(), txPrev, Params().GetConsensus(), hashBlock, view, true))
+                continue;
+
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->vout[pcoin.second].nValue;
             vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
@@ -524,7 +532,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if (!TransactionGetCoinAge(ptxNew, nCoinAge, view))
             return error("CreateCoinStake : failed to calculate coin age");
 
-        nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees, chainActive.Tip());
+        nReward = GetProofOfStakeReward(pindexPrev->nHeight + 1, nCoinAge, nFees, chainActive.Tip(), view);
         if (nReward <= 0)
             return false;
 
@@ -645,16 +653,16 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         if(IsCommunityFundAccumulationSpreadEnabled(pindexPrev, Params().GetConsensus()))
         {
-            if((pindexPrev->nHeight + 1) % Params().GetConsensus().nBlockSpreadCFundAccumulation == 0)
+            if((pindexPrev->nHeight + 1) % GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, view) == 0)
             {
                 int fundIndex = txNew.vout.size() + 1;
                 txNew.vout.resize(fundIndex);
-                CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+                SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
 
                 if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
-                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2 * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+                    txNew.vout[fundIndex-1].nValue = GetFundContributionPerBlock(view) * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, view);
                 } else {
-                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * Params().GetConsensus().nBlockSpreadCFundAccumulation;
+                    txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount * GetConsensusParameter(Consensus::CONSENSUS_PARAM_FUND_SPREAD_ACCUMULATION, view);
                 }
             }
         }
@@ -662,10 +670,10 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         {
             int fundIndex = txNew.vout.size() + 1;
             txNew.vout.resize(fundIndex);
-            CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
+            SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
 
              if(IsCommunityFundAmountV2Enabled(pindexPrev, Params().GetConsensus())) {
-                txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmountV2;
+                txNew.vout[fundIndex-1].nValue = GetFundContributionPerBlock(view);
              } else {
                 txNew.vout[fundIndex-1].nValue = Params().GetConsensus().nCommunityFundAmount;
              }
@@ -3387,7 +3395,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 for(PAIRTYPE(const CWalletTx*, unsigned int) pcoin: setCoins)
                 {
                     CAmount nCredit = pcoin.first->vout[pcoin.second].nValue;
-                    if(pcoin.first->vout[pcoin.second].scriptPubKey.IsColdStaking())
+                    if(pcoin.first->vout[pcoin.second].scriptPubKey.IsColdStaking() || pcoin.first->vout[pcoin.second].scriptPubKey.IsColdStakingv2())
                         wtxNew.fSpendsColdStaking = true;
                     //The coin age after the next block (depth+1) is used instead of the current,
                     //reflecting an assumption the user would accept a bit more delay for
@@ -3780,6 +3788,7 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std:
             if (!wtxNew.AcceptToMemoryPool(false, maxTxFee))
             {
                 // This must not fail. The transaction has already been signed and recorded.
+                mapWallet[wtxNew.GetHash()].MarkDirty();
                 LogPrintf("CommitTransaction(): Error: Transaction not valid\n");
                 return false;
             }
@@ -4649,6 +4658,15 @@ public:
             vKeys.push_back(keyId.first);
         if (keystore.HaveKey(keyId.second))
             vKeys.push_back(keyId.second);
+    }
+
+    void operator()(const pair<CKeyID, pair<CKeyID, CKeyID>> &keyId) {
+        if (keystore.HaveKey(keyId.first))
+            vKeys.push_back(keyId.first);
+        if (keystore.HaveKey(keyId.second.first))
+            vKeys.push_back(keyId.second.first);
+        if (keystore.HaveKey(keyId.second.second))
+            vKeys.push_back(keyId.second.second);
     }
 
     void operator()(const CScriptID &scriptId) {

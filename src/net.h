@@ -860,7 +860,11 @@ public:
     static uint64_t GetMaxOutboundTimeLeftInCycle();
 };
 
-
+class CExplicitNetCleanup
+{
+public:
+    static void callCleanup();
+};
 
 class CTransaction;
 void RelayTransaction(const CTransaction& tx);

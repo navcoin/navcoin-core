@@ -346,6 +346,8 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     gotoOverviewPage();
 #endif
 
+    connect(walletFrame, SIGNAL(daoEntriesChanged(int)), this, SLOT(onDaoEntriesChanged(int)));
+
 #ifdef Q_OS_MAC
     appNapInhibitor = new CAppNapInhibitor;
 #endif
@@ -517,6 +519,10 @@ void NavCoinGUI::createActions()
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
+
+    // Get restart command-line parameters and handle restart
+    connect(rpcConsole, SIGNAL(handleRestart(QStringList)), this, SLOT(handleRestart(QStringList)));
+
     // prevents an open debug window from becoming stuck/unusable on client shutdown
     connect(quitAction, SIGNAL(triggered()), rpcConsole, SLOT(hide()));
 
@@ -993,77 +999,13 @@ void NavCoinGUI::setStaked(const CAmount &all, const CAmount &today, const CAmou
     stakedImmat->setText(NavCoinUnits::prettyWithUnit(unit, week, false, NavCoinUnits::separatorAlways));
 }
 
-void NavCoinGUI::updateDaoNewCount()
+void NavCoinGUI::onDaoEntriesChanged(int count)
 {
-    LOCK(cs_main);
-
-    // Make sure we have coins db loaded
-    if(!pcoinsTip || !pindexBestHeader)
-        return;
-
-    // Debug log
-    info("[DAO] started dao count");
-
-    // We start with none
-    int newDaoCount = 0;
-
-    CProposalMap mapProposals;
-
-    if(pcoinsTip->GetAllProposals(mapProposals))
-    {
-        for (CProposalMap::iterator it = mapProposals.begin(); it != mapProposals.end(); it++)
-        {
-            CFund::CProposal proposal;
-            if (!pcoinsTip->GetProposal(it->first, proposal))
-                continue;
-
-            if (proposal.GetLastState() != CFund::NIL)
-                continue;
-
-            auto _it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                    [&proposal](const std::pair<std::string, int>& element){ return element.first == proposal.hash.ToString();} );
-
-            if (_it != vAddedProposalVotes.end())
-                continue;
-
-            // Add to the count
-            newDaoCount++;
-        }
-    }
-
-    //Payment request listings
-    CPaymentRequestMap mapPaymentRequests;
-
-    if(pcoinsTip->GetAllPaymentRequests(mapPaymentRequests))
-    {
-        for (CPaymentRequestMap::iterator it_ = mapPaymentRequests.begin(); it_ != mapPaymentRequests.end(); it_++)
-        {
-            CFund::CPaymentRequest prequest;
-            if (!pcoinsTip->GetPaymentRequest(it_->first, prequest))
-                continue;
-
-            if (prequest.GetLastState() != CFund::NIL)
-                continue;
-
-            auto it = std::find_if( vAddedPaymentRequestVotes.begin(), vAddedPaymentRequestVotes.end(),
-                    [&prequest](const std::pair<std::string, int>& element){ return element.first == prequest.hash.ToString();} );
-
-            if (it != vAddedPaymentRequestVotes.end())
-                continue;
-
-            // Add to the count
-            newDaoCount++;
-        }
-    }
-
-    // Debug log
-    info("[DAO] dao count found :" + std::to_string(newDaoCount));
-
     // Update the bubble
-    setMenuBubble(4, newDaoCount);
+    setMenuBubble(4, count);
 
     // New daos? SHOW notification
-    showHideNotification(newDaoCount > 0, 0);
+    showHideNotification(count > 0, 0);
 }
 
 void NavCoinGUI::setMenuBubble(int index, int drak)
@@ -1917,6 +1859,13 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
 }
 
+/** Get restart command-line parameters and request restart */
+void NavCoinGUI::handleRestart(QStringList args)
+{
+    if (!ShutdownRequested())
+        Q_EMIT requestedRestart(args);
+}
+
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
 void NavCoinGUI::updateDisplayUnit(int unit)
 {
@@ -2107,7 +2056,6 @@ size_t NavCoinGUI::priceUdateWriteCallback(void *contents, size_t size, size_t n
 void NavCoinGUI::updateStakingStatus()
 {
     updateWeight();
-    updateDaoNewCount();
 
     if(!walletFrame)
         return;

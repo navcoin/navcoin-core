@@ -18,12 +18,12 @@
 
 namespace
 {
-class CCoinsViewTest : public CCoinsView
+class CStateViewTest : public CStateView
 {
     uint256 hashBestBlock_;
     std::map<uint256, CCoins> map_;
-    std::map<uint256, CFund::CProposal> mapP_;
-    std::map<uint256, CFund::CPaymentRequest> mapPR_;
+    std::map<uint256, CProposal> mapP_;
+    std::map<uint256, CPaymentRequest> mapPR_;
 
 public:
     bool GetCoins(const uint256& txid, CCoins& coins) const
@@ -49,11 +49,13 @@ public:
     uint256 GetBestBlock() const { return hashBestBlock_; }
 
     bool BatchWrite(CCoinsMap &mapCoins, CProposalMap &mapProposals,
-                    CPaymentRequestMap &mapPaymentRequests, const uint256 &hashBlock)
+                    CPaymentRequestMap &mapPaymentRequests, CVoteMap &mapVotes,
+                    CConsultationMap &mapConsultations, CConsultationAnswerMap &mapAnswers,
+                    CConsensusParameterMap& mapConsensus, const uint256 &hashBlock)
     {
         for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end(); ) {
             if (it->second.flags & CCoinsCacheEntry::DIRTY) {
-                // Same optimization used in CCoinsViewDB is to only write dirty entries.
+                // Same optimization used in CStateViewDB is to only write dirty entries.
                 map_[it->first] = it->second.coins;
                 if (it->second.coins.IsPruned() && insecure_rand() % 3 == 0) {
                     // Randomly delete empty entries on write.
@@ -68,10 +70,10 @@ public:
     }
 };
 
-class CCoinsViewCacheTest : public CCoinsViewCache
+class CStateViewCacheTest : public CStateViewCache
 {
 public:
-    CCoinsViewCacheTest(CCoinsView* base) : CCoinsViewCache(base) {}
+    CStateViewCacheTest(CStateView* base) : CStateViewCache(base) {}
 
     void SelfTest() const
     {
@@ -92,7 +94,7 @@ BOOST_FIXTURE_TEST_SUITE(coins_tests, BasicTestingSetup)
 static const unsigned int NUM_SIMULATION_ITERATIONS = 40000;
 
 // This is a large randomized insert/remove simulation test on a variable-size
-// stack of caches on top of CCoinsViewTest.
+// stack of caches on top of CStateViewTest.
 //
 // It will randomly create/update/delete CCoins entries to a tip of caches, with
 // txids picked from a limited list of random 256-bit hashes. Occasionally, a
@@ -115,9 +117,9 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
     std::map<uint256, CCoins> result;
 
     // The cache stack.
-    CCoinsViewTest base; // A CCoinsViewTest at the bottom.
-    std::vector<CCoinsViewCacheTest*> stack; // A stack of CCoinsViewCaches on top.
-    stack.push_back(new CCoinsViewCacheTest(&base)); // Start with one cache.
+    CStateViewTest base; // A CStateViewTest at the bottom.
+    std::vector<CStateViewCacheTest*> stack; // A stack of CStateViewCaches on top.
+    stack.push_back(new CStateViewCacheTest(&base)); // Start with one cache.
 
     // Use a limited set of random transaction ids, so we do test overwriting entries.
     std::vector<uint256> txids;
@@ -162,7 +164,7 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
                     missed_an_entry = true;
                 }
             }
-            for(const CCoinsViewCacheTest *test: stack) {
+            for(const CStateViewCacheTest *test: stack) {
                 test->SelfTest();
             }
         }
@@ -184,13 +186,13 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
             }
             if (stack.size() == 0 || (stack.size() < 4 && insecure_rand() % 2)) {
                 //Add a new cache
-                CCoinsView* tip = &base;
+                CStateView* tip = &base;
                 if (stack.size() > 0) {
                     tip = stack.back();
                 } else {
                     removed_all_caches = true;
                 }
-                stack.push_back(new CCoinsViewCacheTest(tip));
+                stack.push_back(new CStateViewCacheTest(tip));
                 if (stack.size() == 4) {
                     reached_4_caches = true;
                 }
@@ -226,9 +228,9 @@ BOOST_AUTO_TEST_CASE(updatecoins_simulation_test)
     std::map<uint256, CCoins> result;
 
     // The cache stack.
-    CCoinsViewTest base; // A CCoinsViewTest at the bottom.
-    std::vector<CCoinsViewCacheTest*> stack; // A stack of CCoinsViewCaches on top.
-    stack.push_back(new CCoinsViewCacheTest(&base)); // Start with one cache.
+    CStateViewTest base; // A CStateViewTest at the bottom.
+    std::vector<CStateViewCacheTest*> stack; // A stack of CStateViewCaches on top.
+    stack.push_back(new CStateViewCacheTest(&base)); // Start with one cache.
 
     // Track the txids we've used and whether they have been spent or not
     std::map<uint256, CAmount> coinbaseids;
@@ -330,11 +332,11 @@ BOOST_AUTO_TEST_CASE(updatecoins_simulation_test)
                 stack.pop_back();
             }
             if (stack.size() == 0 || (stack.size() < 4 && insecure_rand() % 2)) {
-                CCoinsView* tip = &base;
+                CStateView* tip = &base;
                 if (stack.size() > 0) {
                     tip = stack.back();
                 }
-                stack.push_back(new CCoinsViewCacheTest(tip));
+                stack.push_back(new CStateViewCacheTest(tip));
            }
         }
     }

@@ -29,9 +29,34 @@ enum DeploymentPos
     DEPLOYMENT_NTPSYNC,
     DEPLOYMENT_STATIC_REWARD,
     DEPLOYMENT_QUORUM_CFUND,
+    DEPLOYMENT_VOTE_STATE_CACHE,
+    DEPLOYMENT_CONSULTATIONS,
+    DEPLOYMENT_DAO_CONSENSUS,
+    DEPLOYMENT_COLDSTAKING_V2,
     DEPLOYMENT_POOL_FEE,
     DEPLOYMENT_BLSCT,
     MAX_VERSION_BITS_DEPLOYMENTS
+};
+
+static std::string sDeploymentsDesc[Consensus::MAX_VERSION_BITS_DEPLOYMENTS] = {
+    "Test",
+    "CSV",
+    "Segregated Witness",
+    "CSV Legacy",
+    "Segregated Witness Legacy",
+    "Community Fund",
+    "Starts the accumulation of coins on the Community Fund",
+    "Cold Staking",
+    "Spread the accumulation of coins on the Community Fund to save on block space",
+    "Increase the contributed amount to the Community Fund to 0.5NAV per block",
+    "NTP SYNC",
+    "Upgrade to POSv3. Every staked block will have a fixed reward of 2 NAV",
+    "Reduce the Quorum necessary for the last cycles of the Community Fund votings",
+    "Upgrades the Community Fund with a state based cache which will save on block space as votes do not need to be broadcasted every block",
+    "Enable DAO Consultations",
+    "Enables remote DAO voting from light wallets",
+    "Enables the decision over consensus parameters using distributed voting",
+    "Allows staking pools to charge a fee"
 };
 
 /**
@@ -45,6 +70,10 @@ struct BIP9Deployment {
     /** Timeout/expiry MedianTime for the deployment attempt. */
     int64_t nTimeout;
     double nYesCount;
+};
+
+struct ConsensusParameter {
+    uint64_t value;
 };
 
 /**
@@ -68,6 +97,7 @@ struct Params {
     uint32_t nRuleChangeActivationThreshold;
     uint32_t nMinerConfirmationWindow;
     BIP9Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
+    ConsensusParameter vParameters[MAX_CONSENSUS_PARAMS];
     /** Proof of work parameters */
     uint256 powLimit;
     bool fPowAllowMinDifficultyBlocks;
@@ -76,23 +106,16 @@ struct Params {
     int64_t nPowTargetTimespan;
     int nLastPOWBlock;
 
-    int nBlocksPerVotingCycle;
-    float nVotesAcceptProposal;
-    float nVotesRejectProposal;
-    float nVotesAcceptPaymentRequest;
-    float nVotesRejectPaymentRequest;
-    float nMinimumQuorum;
     float nMinimumQuorumFirstHalf;
     float nMinimumQuorumSecondHalf;
     int nCommunityFundMinAge;
-    int64_t nProposalMinimalFee;
-    int nBlockSpreadCFundAccumulation;
-    CAmount nCommunityFundAmount;
-    CAmount nCommunityFundAmountV2;
-    unsigned int nCyclesProposalVoting;
-    unsigned int nCyclesPaymentRequestVoting;
-    int nPaymentRequestMaxVersion;
-    int nProposalMaxVersion;
+    uint64_t nCommunityFundAmount;
+    int64_t nPaymentRequestMaxVersion;
+    int64_t nProposalMaxVersion;
+    int64_t nConsultationMaxVersion;
+    int64_t nConsultationAnswerMaxVersion;
+
+    int64_t nConsensusChangeMinAccept;
 
     /** Proof of stake parameters */
     unsigned int nStakeMinAge;
@@ -105,7 +128,6 @@ struct Params {
     int64_t sigActivationTime;
     int64_t nCoinbaseTimeActivationHeight;
     int64_t nMaxFutureDrift;
-    CAmount nStaticReward;
     int nHeightv451Fork;
     int nHeightv452Fork;
 

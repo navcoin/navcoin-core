@@ -8,7 +8,7 @@
 
 #include <amount.h>
 #include <blsct/bulletproofs.h>
-#include <consensus/cfund.h>
+#include <consensus/dao.h>
 #include <script/script.h>
 #include <serialize.h>
 #include <uint256.h>
@@ -251,6 +251,16 @@ public:
         return scriptPubKey.IsPaymentRequestVote();
     }
 
+    bool IsSupportVote() const
+    {
+        return scriptPubKey.IsSupportVote();
+    }
+
+    bool IsConsultationVote() const
+    {
+        return scriptPubKey.IsConsultationVote();
+    }
+
     uint256 GetHash() const;
 
     CAmount GetDustThreshold(const CFeeRate &minRelayTxFee) const
@@ -466,6 +476,9 @@ public:
     static const int32_t TXDZEEL_VERSION_V2=3;
     static const int32_t PROPOSAL_VERSION=4;
     static const int32_t PAYMENT_REQUEST_VERSION=5;
+    static const int32_t CONSULTATION_VERSION=6;
+    static const int32_t ANSWER_VERSION=7;
+    static const int32_t VOTE_VERSION=8;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
@@ -520,7 +533,7 @@ public:
 
     // Return sum of txouts.
     CAmount GetValueOut() const;
-    // GetValueIn() is a method on CCoinsViewCache, because
+    // GetValueIn() is a method on CStateViewCache, because
     // inputs must be known to compute value in.
 
     CAmount GetValueOutCFund() const;

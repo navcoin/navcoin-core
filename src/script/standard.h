@@ -60,7 +60,17 @@ enum txnouttype
     TX_PAYMENTREQUESTYESVOTE,
     TX_PROPOSALNOVOTE,
     TX_PAYMENTREQUESTNOVOTE,
+    TX_PROPOSALABSVOTE,
+    TX_PAYMENTREQUESTABSVOTE,
+    TX_PROPOSALREMOVEVOTE,
+    TX_PAYMENTREQUESTREMOVEVOTE,
+    TX_DAOSUPPORT,
+    TX_DAOSUPPORTREMOVE,
+    TX_CONSULTATIONVOTE,
+    TX_CONSULTATIONVOTEREMOVE,
+    TX_CONSULTATIONVOTEABSTENTION,
     TX_COLDSTAKING,
+    TX_COLDSTAKING_V2,
     TX_POOL
 };
 
@@ -76,9 +86,10 @@ public:
  *  * CKeyID: TX_PUBKEYHASH destination
  *  * CScriptID: TX_SCRIPTHASH destination
  *  * Pair of two CKeyID: TX_COLDSTAKING destination
+ *  * Pair of one CKeyID and one pair of two CKeyID: TX_COLDSTAKING_V2 destination
  *  A CTxDestination is the internal data type encoded in a CNavCoinAddress
  */
-typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, blsctDoublePublicKey, CScript> CTxDestination;
+typedef boost::variant<CNoDestination, CKeyID, CScriptID, pair<CKeyID, CKeyID>, blsctDoublePublicKey, std::pair<CKeyID, std::pair<CKeyID, CKeyID>>, CScript> CTxDestination;
 
 const char* GetTxnOutputType(txnouttype t);
 
