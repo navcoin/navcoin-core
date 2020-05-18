@@ -54,7 +54,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         #cycle 1
 
         assert_equal(self.nodes[0].getconsultation(proposal)["status"], "found support, waiting for end of voting period")
-        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 1)
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCyclesFromCreation"], 1)
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
@@ -62,7 +62,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         #cycle 2
 
         assert_equal(self.nodes[0].getconsultation(proposal)["status"], "found support")
-        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 2)
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCyclesFromCreation"], 2)
 
         end_cycle(self.nodes[0])
         slow_gen(self.nodes[0] , 1)
@@ -70,7 +70,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         #cycle 3
 
         assert_equal(self.nodes[0].getconsultation(proposal)["status"], "reflection phase")
-        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 3)
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCyclesFromCreation"], 3)
 
         phash=self.nodes[0].createproposal(self.nodes[0].getnewaddress(), 1, 10000, "test")["hash"]
         createdin=self.nodes[0].getblockcount()
@@ -81,7 +81,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         #cycle 4
 
         assert_equal(self.nodes[0].getconsultation(proposal)["status"], "voting started")
-        assert_equal(self.nodes[0].getconsultation(proposal)["votingCycle"], 4)
+        assert_equal(self.nodes[0].getconsultation(proposal)["votingCyclesFromCreation"], 4)
 
 
         try:
@@ -96,7 +96,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         except JSONRPCException as e:
             assert(e.error['code']==-5)
 
-        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 1)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 1)
 
         self.nodes[0].consultationvote(second_answer, "yes")
         blocks=end_cycle(self.nodes[0])
@@ -106,13 +106,13 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         assert(self.nodes[0].getconsultation(proposal)["status"] == "passed")
 
         assert_equal(self.nodes[0].getconsensusparameters()[0], 5)
-        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 4)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 4)
         self.nodes[0].invalidateblock(blocks[-1])
         assert_equal(self.nodes[0].getconsensusparameters()[0], 10)
-        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 1)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 1)
         self.nodes[0].generate(2)
         assert_equal(self.nodes[0].getconsensusparameters()[0], 5)
-        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 4)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 4)
 
 
 if __name__ == '__main__':
