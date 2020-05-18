@@ -623,7 +623,7 @@ void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, CTxMemP
     std::sort(sortedEntries.begin(), sortedEntries.end(), CompareTxIterByAncestorCount());
 }
 
-void BlockAssembler::addCombinedBLSCT(const CCoinsViewCache& inputs)
+void BlockAssembler::addCombinedBLSCT(const CStateViewCache& inputs)
 {
     std::vector<CTransaction> vToCombine;
     std::vector<RangeproofEncodedData> blsctData;

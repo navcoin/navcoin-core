@@ -264,7 +264,6 @@ void PrepareShutdown()
 #endif
     StopNode();
     torController.Stop();
-    TorThreadStop();
     UnregisterNodeSignals(GetNodeSignals());
 
     if (fFeeEstimatesInitialized)
@@ -331,7 +330,7 @@ void Shutdown()
         PrepareShutdown();
     }
     // Shutdown part 2: Stop TOR thread and delete wallet instance
-    StopTorControl();
+    torController.Stop();
 #ifdef ENABLE_WALLET
     delete pwalletMain;
     pwalletMain = nullptr;

@@ -6,7 +6,7 @@
 
 std::set<uint256> setKnownSessions;
 
-AggregationSesion::AggregationSesion(const CCoinsViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(1)
+AggregationSesion::AggregationSesion(const CStateViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(1)
 {
 }
 

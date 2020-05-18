@@ -1448,8 +1448,8 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
             if (blsctData == nullptr)
             {
                 CValidationState state;
-                CCoinsView dummy;
-                CCoinsViewCache view(&dummy);
+                CStateView dummy;
+                CStateViewCache view(&dummy);
                 blsctKey k;
 
                 if (GetBLSCTViewKey(k))
@@ -2142,8 +2142,8 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
             {
                 std::vector<RangeproofEncodedData> blsctData;
                 CValidationState state;
-                CCoinsView dummy;
-                CCoinsViewCache view(&dummy);
+                CStateView dummy;
+                CStateViewCache view(&dummy);
                 blsctKey k;
 
                 if (GetBLSCTViewKey(k))
@@ -3653,7 +3653,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     CValidationState state;
                     std::vector<RangeproofEncodedData> blsctData;
 
-                    CCoinsViewCache inputs(pcoinsTip);
+                    CStateViewCache inputs(pcoinsTip);
                     blsctKey v;
 
                     v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));

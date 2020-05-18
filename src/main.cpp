@@ -1274,7 +1274,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
     if (IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()) && tx.nVersion < CTransaction::TXDZEEL_VERSION_V2)
       return state.DoS(100, false, REJECT_INVALID, "old-version");
 
-    if (!IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION || tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION))
+    if (!IsCommunityFundEnabled(chainActive.Tip(), Params().GetConsensus()) && ((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION || (tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION))
         return state.DoS(100, false, REJECT_INVALID, "too-early-cfund");
 
     if (!IsDAOEnabled(chainActive.Tip(), Params().GetConsensus()) && (tx.nVersion == CTransaction::CONSULTATION_VERSION || tx.nVersion == CTransaction::ANSWER_VERSION))
@@ -1392,11 +1392,11 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, chainActive.Tip());
 
             if((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
-                if(!IsValidProposal(tx, nMaxVersionProposal))
+                if(!IsValidProposal(tx, view, nVersionMaskProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
 
             if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
-                if(!IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest))
+                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
 
             if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
@@ -1486,25 +1486,22 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const C
                 }
             }
 
-            if(nProposalFee > 0 && (tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, nMaxVersionProposal)){
+            GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, chainActive.Tip());
+
+            if(nProposalFee > 0 && (tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, view, nVersionMaskProposal)){
                 CProposal proposal;
-    
-                GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, chainActive.Tip());
-
-                if(fCFund && tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, view, nVersionMaskProposal)){
-                    CProposal proposal;
-                    if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
-                    {
-                        if (viewMemPool.AddProposal(proposal))
-                            LogPrint("dao","New proposal (mempool) %s\n", proposal.ToString(view, chainActive.Tip()->GetBlockTime()));
-                    }
-                    else
-                    {
-                        return state.DoS(0, false, REJECT_NONSTANDARD, "invalid proposal");
-                    }
+                if (TxToProposal(tx.strDZeel, tx.GetHash(), uint256(), nProposalFee, proposal))
+                {
+                    if (viewMemPool.AddProposal(proposal))
+                        LogPrint("dao","New proposal (mempool) %s\n", proposal.ToString(view, chainActive.Tip()->GetBlockTime()));
                 }
+                else
+                {
+                    return state.DoS(0, false, REJECT_NONSTANDARD, "invalid proposal");
+                }
+            }
 
-            if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest)){
+            if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
                 CPaymentRequest prequest;
                 if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), uint256(), prequest))
                 {
@@ -2314,7 +2311,7 @@ int GetSpendHeight(const CStateViewCache& inputs)
 }
 
 namespace Consensus {
-bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, std::vector<RangeproofEncodedData>& blsctData)
+bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CStateViewCache& inputs, int nSpendHeight, std::vector<RangeproofEncodedData>& blsctData)
 {
     // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
     // for an attacker to attempt to split the network.
@@ -2393,7 +2390,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 }
 }// namespace Consensus
 
-bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
+bool CheckInputs(const CTransaction& tx, CValidationState &state, const CStateViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheStore, std::vector<RangeproofEncodedData>& blsctData, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
 {
     if (!tx.IsCoinBase())
     {
@@ -3275,7 +3272,7 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
-                  CCoinsViewCache& view, const CChainParams& chainparams, std::map<int, std::vector<RangeproofEncodedData>>& blsctData,
+                  CStateViewCache& view, const CChainParams& chainparams, std::map<int, std::vector<RangeproofEncodedData>>& blsctData,
                   bool fJustCheck, bool fProofOfStake)
 {
 
@@ -3475,7 +3472,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
 
-    uint64_t nCoinAge;
     CAmount nMovedToBLS = 0;
     bool fStake = block.IsProofOfStake();
     bool fVoteCacheState = IsVoteCacheStateEnabled(pindex->pprev, chainparams.GetConsensus());
@@ -3510,7 +3506,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         fStakerIsColdStakingv2 = true;
 
     std::map<std::pair<std::vector<unsigned char>, uint256>, int> votes;
->>>>>>> upstream/master
 
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -3693,13 +3688,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if((tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION) // Community Fund Proposal
             {
-                if(!IsValidProposal(tx, nMaxVersionProposal))
+                if(!IsValidProposal(tx, view, nVersionMaskProposal))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-proposal");
-
             }
             else if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION) // Community Fund Payment Request
             {
-                if(!IsValidPaymentRequest(tx, view, nMaxVersionPaymentRequest))
+                if(!IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest))
                     return state.DoS(10, false, REJECT_INVALID, "bad-cfund-payment-request");
             }
             else if(fDAOConsultations && tx.nVersion == CTransaction::CONSULTATION_VERSION)
@@ -3812,9 +3806,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             }
             if (tx.IsCoinStake())
             {
-                if (!TransactionGetCoinAge(const_cast<CTransaction&>(tx), nCoinAge, view))
-                    return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1].GetHash().ToString());
-
                 nStakeReward = tx.GetValueOut() - view.GetValueIn(tx);
                 pindex->strDZeel = tx.strDZeel;
 
@@ -3940,7 +3931,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             GetVersionMask(nVersionMaskProposal, nVersionMaskPaymentRequest, nVersionMaskConsultation, nVersionMaskConsultationAnswer, pindex->pprev);
 
-            if(fCFund && tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, view, nVersionMaskProposal)){
+            if(fCFund && (tx.nVersion&0xF) == CTransaction::PROPOSAL_VERSION && IsValidProposal(tx, view, nVersionMaskProposal)){
                 CProposal proposal;
                 if (TxToProposal(tx.strDZeel, tx.GetHash(), block.GetHash(), nProposalFee, proposal))
                 {
@@ -3955,7 +3946,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if((tx.nVersion&0xF) == CTransaction::PAYMENT_REQUEST_VERSION && IsValidPaymentRequest(tx, view, nVersionMaskPaymentRequest)){
                 CPaymentRequest prequest;
-                if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest, view))
+                if (TxToPaymentRequest(tx.strDZeel, tx.GetHash(), block.GetHash(), prequest))
                 {
                     CProposal proposal;
                     if (view.GetProposal(prequest.proposalhash, proposal) && proposal.GetLastState() == DAOFlags::ACCEPTED)
