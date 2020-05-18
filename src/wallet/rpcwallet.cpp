@@ -1742,8 +1742,12 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
         if (nDepth < nMinDepth)
             continue;
 
+        size_t i = -1;
+
         for(const CTxOut& txout: wtx.vout)
         {
+            i++;
+
             CTxDestination address;
             if (!ExtractDestination(txout.scriptPubKey, address))
                 continue;
@@ -1753,7 +1757,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
                 continue;
 
             tallyitem& item = mapTally[address];
-            item.nAmount += txout.nValue;
+            item.nAmount += txout.nValue + wtx.vAmounts[i];
             item.nConf = min(item.nConf, nDepth);
             item.txids.push_back(wtx.GetHash());
             if (mine & ISMINE_WATCH_ONLY)
@@ -2099,7 +2103,7 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
     int nFrom = 0;
     if (params.size() > 2)
         nFrom = params[2].get_int();
-    isminefilter filter = ISMINE_SPENDABLE | ISMINE_STAKABLE;
+    isminefilter filter = ISMINE_SPENDABLE | ISMINE_STAKABLE | ISMINE_SPENDABLE_PRIVATE;
     if(params.size() > 3)
         if(params[3].get_bool())
             filter = filter | ISMINE_WATCH_ONLY;
@@ -2384,10 +2388,13 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
     const CWalletTx& wtx = pwalletMain->mapWallet[hash];
 
+    if (wtx.IsCTOutput())
+        filter = filter | ISMINE_SPENDABLE_PRIVATE;
+
     CAmount nCredit = wtx.GetCredit(filter, false);
     CAmount nDebit = wtx.GetDebit(filter);
     CAmount nNet = nCredit - nDebit;
-    CAmount nFee = (wtx.IsFromMe(filter) ? wtx.GetValueOut() - nDebit : 0);
+    CAmount nFee = (wtx.IsFromMe(filter) ? (wtx.IsBLSCT() ? wtx.GetFee() : wtx.GetValueOut() - nDebit) : 0);
 
     entry.pushKV("amount", ValueFromAmount(nNet - (wtx.IsCoinStake() ? 0 : nFee)));
     if (wtx.IsFromMe(filter))

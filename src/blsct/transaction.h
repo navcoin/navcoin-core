@@ -6,6 +6,7 @@
 #define BLSCT_TRANSACTION_H
 
 #include <bls.hpp>
+#include <blsct/bulletproofs.h>
 #include <blsct/key.h>
 #include <blsct/types.h>
 #include <blsct/verification.h>
@@ -22,7 +23,8 @@ class CandidateTransaction
 {
 public:
     CandidateTransaction();
-    CandidateTransaction(CTransaction txIn, CAmount feeIn): tx(txIn), fee(feeIn) {}
+    CandidateTransaction(CTransaction txIn, CAmount feeIn, CAmount minAmountIn, BulletproofsRangeproof minAmountProofsIn) :
+        tx(txIn), fee(feeIn), minAmount(minAmountIn), minAmountProofs(minAmountProofsIn) {}
 
     friend inline  bool operator==(const CandidateTransaction& a, const CandidateTransaction& b) { return a.tx == b.tx; }
     friend inline  bool operator<(const CandidateTransaction& a, const CandidateTransaction& b) { return a.fee < b.fee; }
@@ -33,10 +35,14 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(tx);
         READWRITE(fee);
+        READWRITE(minAmount);
+        READWRITE(minAmountProofs);
     }
 
     CTransaction tx;
     CAmount fee;
+    CAmount minAmount;
+    BulletproofsRangeproof minAmountProofs;
 };
 
 #endif // BLSCT_TRANSACTION_H

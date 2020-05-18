@@ -16,6 +16,7 @@
 #include <wallet/wallet.h>
 
 #define DEFAULT_MIX_FEE 10000000
+#define DEFAULT_MIN_OUTPUT_AMOUNT 10000000000
 #define DEFAULT_MAX_MIX_FEE 100000000
 #define DEFAULT_TX_MIXCOINS 10
 #define DEFAULT_MIX true
@@ -29,6 +30,8 @@ public:
     void Stop();
 
     static CAmount GetDefaultFee();
+    static CAmount GetMaxFee();
+
     static bool IsKnown(const AggregationSesion& ms);
 
     bool GetState() const;
@@ -63,6 +66,7 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(this->nVersion);
         READWRITE(sHiddenService);
     }
 
@@ -72,6 +76,8 @@ private:
     std::string sHiddenService;
     int fState;
     bool lock;
+
+    int nVersion;
 
     std::vector<CandidateTransaction> vTransactionCandidates;
 };

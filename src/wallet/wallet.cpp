@@ -2817,7 +2817,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
     }
 }
 
-void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue) const
+void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, CAmount nMinAmount) const
 {
     vCoins.clear();
 
@@ -2866,6 +2866,9 @@ void CWallet::AvailablePrivateCoins(vector<COutput>& vCoins, bool fOnlyConfirmed
                 std::vector<unsigned char> memo = pcoin->vMemos[i];
                 CAmount amount = pcoin->vAmounts[i];
                 Scalar gamma = pcoin->vGammas[i];
+
+                if (amount < nMinAmount)
+                    continue;
 
                 if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
                         !IsLockedCoin((*it).first, i) && (amount > 0 || fIncludeZeroValue) &&

@@ -6,7 +6,7 @@
 
 std::set<uint256> setKnownSessions;
 
-AggregationSesion::AggregationSesion(const CCoinsViewCache* inputsIn) : inputs(inputsIn), fState(0)
+AggregationSesion::AggregationSesion(const CCoinsViewCache* inputsIn) : inputs(inputsIn), fState(0), nVersion(1)
 {
 }
 
@@ -90,7 +90,7 @@ bool AggregationSesion::SelectCandidates(CandidateTransaction &ret)
     if (!CombineBLSCTTransactions(vTransactionsToCombine, ctx, *inputs, state, nFee))
         return error("AggregationSesion::%s: Failed %s\n", state.GetRejectReason());
 
-    ret = CandidateTransaction(ctx, nFee);
+    ret = CandidateTransaction(ctx, nFee, DEFAULT_MIN_OUTPUT_AMOUNT, BulletproofsRangeproof());
 
     return true;
 }
@@ -111,16 +111,30 @@ bool AggregationSesion::AddCandidateTransaction(const std::vector<unsigned char>
         return error("AggregationSesion::%s: Wrong serialization of transaction candidate\n", __func__);
     }
 
-    if (!(tx.tx.IsBLSInput() && tx.tx.IsCTOutput() && tx.tx.vin.size() == 1 && tx.tx.vout.size() == 1))
+    if (!(tx.tx.IsBLSInput() && tx.tx.IsCTOutput() && tx.tx.vin.size() == 1 && tx.tx.vout.size() == 1 && tx.minAmountProofs.V.size() == tx.tx.vout.size()))
         return error("AggregationSesion::%s: Received transaction is not BLSCT mix compliant\n", __func__);
+
+    std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
+    std::vector<Point> nonces;
+    std::vector<RangeproofEncodedData> blsctData;
+
+    for (unsigned int i = 0; i < tx.tx.vout.size(); i++)
+    {
+        if (!(tx.tx.vout[i].bp.V[0]-BulletproofsRangeproof::H*tx.minAmount == tx.minAmountProofs.V[i]))
+            return error ("AggregationSesion::%s: Failed verification of output %d amount\n", __func__, i);
+        proofs.push_back(std::make_pair(i, tx.minAmountProofs));
+    }
+
+    if (!VerifyBulletproof(proofs, blsctData, nonces))
+        return error("AggregationSesion::%s: Failed verification of min amount range proofs\n", __func__);
 
     if (!MoneyRange(tx.fee))
         return error("AggregationSesion::%s: Received transaction with incorrect fee %d\n", __func__, tx.fee);
 
+    if (tx.fee > GetMaxFee())
+        return error("AggregationSesion::%s: Received transaction with too high fee %d\n", __func__, tx.fee);
 
     CValidationState state;
-
-    std::vector<RangeproofEncodedData> blsctData;
 
     if(!VerifyBLSCT(tx.tx, bls::PrivateKey::FromBN(Scalar::Rand().bn), blsctData, *inputs, state, false, tx.fee))
     {
@@ -173,7 +187,7 @@ bool AggregationSesion::Join() const
 
     std::vector<COutput> vAvailableCoins;
 
-    pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr);
+    pwalletMain->AvailablePrivateCoins(vAvailableCoins, true, nullptr, false, DEFAULT_MIN_OUTPUT_AMOUNT);
 
     if (vAvailableCoins.size() == 0)
         return false;
@@ -262,9 +276,34 @@ bool AggregationSesion::Join() const
 
     CValidationState state;
 
-    std::vector<RangeproofEncodedData> blsctData;
+    // Range proof of min amount
 
-    CandidateTransaction tx(candidate, nAddedFee);
+    std::vector<RangeproofEncodedData> blsctData;
+    BulletproofsRangeproof bprp;
+
+    std::vector<Scalar> value;
+    value.push_back(prevcoin->vAmounts[prevout]+nAddedFee-DEFAULT_MIN_OUTPUT_AMOUNT);
+
+    Point nonce = bls::PrivateKey::FromBN(Scalar::Rand().bn).GetPublicKey();
+    std::vector<Point> nonces;
+    nonces.push_back(nonce);
+
+    std::vector<Scalar> gammas;
+    gammas.push_back(gammaOuts);
+
+    std::vector<unsigned char> vMemo;
+
+    bprp.Prove(value, gammas, nonce, vMemo);
+
+    std::vector<std::pair<int,BulletproofsRangeproof>> proofs;
+    proofs.push_back(std::make_pair(0,bprp));
+
+    if (!VerifyBulletproof(proofs, blsctData, nonces, false))
+    {
+        return error("AggregationSesion::%s: Failed validation of range proof\n", __func__);
+    }
+
+    CandidateTransaction tx(candidate, nAddedFee, DEFAULT_MIN_OUTPUT_AMOUNT, bprp);
 
     if(!VerifyBLSCT(candidate, v.GetKey(), blsctData, *inputs, state, false, nAddedFee))
         return error("AggregationSesion::%s: Failed validation of transaction candidate %s\n", __func__, state.GetRejectReason());
@@ -304,7 +343,7 @@ bool AggregationSesion::Join() const
              CDataStream ds(0,0);
              ds << tx;
              std::vector<unsigned char> vBuffer(ds.begin(), ds.end());
-             vBuffer.push_back(EPH_SERVER_DELIMITER);
+             vBuffer.push_back('\0');
 
              auto ret = send(so, vBuffer.data(), vBuffer.size(), MSG_NOSIGNAL);
              LogPrintf("AggregationSesion::%s: Sent %d bytes\n", __func__, ret);
@@ -321,5 +360,10 @@ bool AggregationSesion::Join() const
 
 CAmount AggregationSesion::GetDefaultFee()
 {
-    return GetArg("-mixinfee", DEFAULT_MIX_FEE);
+    return GetArg("-aggregationfee", DEFAULT_MIX_FEE);
+}
+
+CAmount AggregationSesion::GetMaxFee()
+{
+    return GetArg("-aggregationmaxfee", DEFAULT_MAX_MIX_FEE);
 }

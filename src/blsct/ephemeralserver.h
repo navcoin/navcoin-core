@@ -5,25 +5,12 @@
 #ifndef EPHEMERALSERVER_H
 #define EPHEMERALSERVER_H
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h> //sockaddr, socklen_t
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <iostream>
-
 #include <boost/thread/thread.hpp>
 #include <boost/thread/future.hpp>
 #include <boost/asio.hpp>
 
 #include <torcontrol.h>
 #include <util.h>
-
-#define EPH_SERVER_DELIMITER '\n'
 
 using boost::asio::ip::tcp;
 

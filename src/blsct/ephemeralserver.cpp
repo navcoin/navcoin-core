@@ -60,7 +60,6 @@ void EphemeralServer::SetHiddenService(std::string s)
 void tcp_connection::start()
 {
     boost::asio::async_read(socket_, b, boost::asio::transfer_all(),
-    //boost::asio::async_read_until(socket_, b, EPH_SERVER_DELIMITER,
                                   boost::bind(&tcp_connection::handle_read, this,
                                               boost::asio::placeholders::error,
                                               boost::asio::placeholders::bytes_transferred));

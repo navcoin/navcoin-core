@@ -40,8 +40,8 @@ const char *CMPCTBLOCK="cmpctblock";
 const char *GETBLOCKTXN="getblocktxn";
 const char *BLOCKTXN="blocktxn";
 const char *DANDELIONTX="dandeliontx";
-const char *DANDELIONAGGREGATIONSESSION="dandelionaggregationsession";
-const char *AGGREGATIONSESSION="aggregationsession";
+const char *DANDELIONAGGREGATIONSESSION="daggsess";
+const char *AGGREGATIONSESSION="aggsess";
 };
 
 /** All known message types. Keep this in the same order as the list of
