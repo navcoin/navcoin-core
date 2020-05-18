@@ -96,7 +96,7 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         except JSONRPCException as e:
             assert(e.error['code']==-5)
 
-        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 1)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 1)
 
         self.nodes[0].consultationvote(second_answer, "yes")
         blocks=end_cycle(self.nodes[0])
@@ -106,13 +106,13 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
         assert(self.nodes[0].getconsultation(proposal)["status"] == "passed")
 
         assert_equal(self.nodes[0].getconsensusparameters()[0], 5)
-        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 4)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 4)
         self.nodes[0].invalidateblock(blocks[-1])
         assert_equal(self.nodes[0].getconsensusparameters()[0], 10)
-        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 1)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 1)
         self.nodes[0].generate(2)
         assert_equal(self.nodes[0].getconsensusparameters()[0], 5)
-        assert_equal(self.nodes[0].getproposal(phash)["votingCyclesFromCreation"], 4)
+        assert_equal(self.nodes[0].getproposal(phash)["votingCycle"], 4)
 
 
 if __name__ == '__main__':
