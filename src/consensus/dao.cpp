@@ -1352,6 +1352,11 @@ bool CVoteList::Get(const uint256& hash, int64_t& val)
 
 bool CVoteList::Set(const int& height, const uint256& hash, int64_t vote)
 {
+    int64_t prevVote;
+
+    if (Get(hash, prevVote) && prevVote == vote)
+        return false;
+
     if (list.count(height) == 0)
     {
         std::map<uint256, int64_t> mapVote;
