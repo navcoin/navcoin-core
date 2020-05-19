@@ -271,6 +271,13 @@ std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::str
         out << std::fixed << (float)stoll(string) / 100.0;
         ret =  out.str() + "%";
     }
+    else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER)
+    {
+        if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+        {
+            ret = to_string(stoll(string) + 1);
+        }
+    }
 
     return ret;
 }
@@ -289,6 +296,13 @@ std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, st
         else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
         {
             ret = std::to_string((uint64_t)(stof(string) * 100));
+        }
+        else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER)
+        {
+            if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+            {
+                ret = to_string(stoll(string) - 1);
+            }
         }
     }
     catch(...)
@@ -536,7 +550,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
                 uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
                 uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-                uint64_t nVotingCycles = std::min(nElapsedCycles, nCycleLength + 1);
+                uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view) + 1);
 
                 if(fUndo)
                 {
@@ -2247,9 +2261,13 @@ void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) con
     uint256 blockhash;
     CBlockIndex* pblockindex = GetLastStateBlockIndex();
     if (pblockindex) blockhash = pblockindex->GetBlockHash();
+    CConsultation consultation;
 
     ret.pushKV("version",(uint64_t)nVersion);
-    ret.pushKV("answer", sAnswer);
+    if(view.GetConsultation(parent, consultation) && consultation.IsAboutConsensusParameter() && (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES))
+        ret.pushKV("answer", std::to_string(stoll(sAnswer)+1));
+    else
+        ret.pushKV("answer", sAnswer);
     ret.pushKV("support", nSupport);
     ret.pushKV("votes", nVotes);
     UniValue mapState(UniValue::VOBJ);

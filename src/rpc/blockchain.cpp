@@ -1208,8 +1208,8 @@ UniValue cfundstats(const UniValue& params, bool fHelp)
         consensus.pushKV("minSumVotesPerVotingCycleSecondHalf",GetConsensusParameter(Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH, view) * Params().GetConsensus().nMinimumQuorumSecondHalf);
     }
 
-    consensus.pushKV("maxCountVotingCycleProposals",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view));
-    consensus.pushKV("maxCountVotingCyclePaymentRequests",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view));
+    consensus.pushKV("maxCountVotingCycleProposals",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view)+1);
+    consensus.pushKV("maxCountVotingCyclePaymentRequests",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)+1);
     consensus.pushKV("votesAcceptProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_ACCEPT, view)/100);
     consensus.pushKV("votesRejectProposalPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MIN_REJECT, view)/100);
     consensus.pushKV("votesAcceptPaymentRequestPercentage",GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MIN_ACCEPT, view)/100);
