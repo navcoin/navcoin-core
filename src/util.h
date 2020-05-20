@@ -16,6 +16,7 @@
 
 #include <compat.h>
 #include <tinyformat.h>
+#include <uint256.h>
 #include <utiltime.h>
 
 #include <atomic>
@@ -43,6 +44,8 @@ public:
 
 extern std::map<std::string, std::string> mapArgs;
 extern std::map<std::string, std::vector<std::string> > mapMultiArgs;
+extern std::map<uint256, int64_t> mapAddedVotes;
+extern std::map<uint256, bool> mapSupported;
 extern bool fDebug;
 extern bool fPrintToConsole;
 extern bool fPrintToDebugLog;
