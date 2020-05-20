@@ -386,8 +386,11 @@ public:
             if(fState != DAOFlags::REJECTED)
                 sFlags += " waiting for end of voting period";
         }
-        if(IsExpired(view))
+        if(IsExpired(view)) {
             sFlags = "expired";
+            if(fState != DAOFlags::EXPIRED)
+                sFlags += " waiting for end of voting period";
+        }
         if (fState == PAID)
             sFlags = "paid";
         return sFlags;
