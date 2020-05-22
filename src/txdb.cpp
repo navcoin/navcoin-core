@@ -774,7 +774,7 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->hashProof      = diskindex.hashProof;
                 if (diskindex.vProposalVotes.size() > 0)
                 {
-                    auto pVotes = InsertProposalVotes(diskindex.GetBlockHash());
+                    auto pVotes = insertProposalVotes(diskindex.GetBlockHash());
                     *pVotes = diskindex.vProposalVotes;
                 }
                 if (diskindex.vPaymentRequestVotes.size() > 0)
