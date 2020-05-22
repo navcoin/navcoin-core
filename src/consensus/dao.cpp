@@ -271,6 +271,13 @@ std::string FormatConsensusParameter(Consensus::ConsensusParamsPos pos, std::str
         out << std::fixed << (float)stoll(string) / 100.0;
         ret =  out.str() + "%";
     }
+    else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER)
+    {
+        if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+        {
+            ret = to_string(stoll(string) + 1);
+        }
+    }
 
     return ret;
 }
@@ -289,6 +296,13 @@ std::string RemoveFormatConsensusParameter(Consensus::ConsensusParamsPos pos, st
         else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_PERCENT)
         {
             ret = std::to_string((uint64_t)(stof(string) * 100));
+        }
+        else if (Consensus::vConsensusParamsType[pos] == Consensus::TYPE_NUMBER)
+        {
+            if (pos == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || pos == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+            {
+                ret = to_string(stoll(string) - 1);
+            }
         }
     }
     catch(...)
@@ -536,7 +550,7 @@ bool VoteStep(const CValidationState& state, CBlockIndex *pindexNew, const bool 
                 uint64_t nCreatedOnCycle = (pblockindex->nHeight / nCycleLength);
                 uint64_t nCurrentCycle = (pindexNew->nHeight / nCycleLength);
                 uint64_t nElapsedCycles = std::max(nCurrentCycle - nCreatedOnCycle, (uint64_t)0);
-                uint64_t nVotingCycles = std::min(nElapsedCycles, nCycleLength + 1);
+                uint64_t nVotingCycles = std::min(nElapsedCycles, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view) + 1);
 
                 if(fUndo)
                 {
@@ -2252,9 +2266,13 @@ void CConsultationAnswer::ToJson(UniValue& ret, const CStateViewCache& view) con
     uint256 blockhash;
     CBlockIndex* pblockindex = GetLastStateBlockIndex();
     if (pblockindex) blockhash = pblockindex->GetBlockHash();
+    CConsultation consultation;
 
     ret.pushKV("version",(uint64_t)nVersion);
-    ret.pushKV("answer", sAnswer);
+    if(view.GetConsultation(parent, consultation) && consultation.IsAboutConsensusParameter() && (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES))
+        ret.pushKV("answer", std::to_string(stoll(sAnswer)+1));
+    else
+        ret.pushKV("answer", sAnswer);
     ret.pushKV("support", nSupport);
     ret.pushKV("votes", nVotes);
     UniValue mapState(UniValue::VOBJ);
@@ -2727,8 +2745,7 @@ std::string CProposal::GetState(uint32_t currentTime, const CStateViewCache& vie
     }
     if(currentTime > 0 && IsExpired(currentTime, view)) {
         sFlags = "expired";
-        if(fState != DAOFlags::EXPIRED && !ExceededMaxVotingCycles(view))
-            // This branch only occurs when a proposal expires due to exceeding its nDeadline during a voting cycle, not due to exceeding max voting cycles
+        if(fState != DAOFlags::EXPIRED)
             sFlags += ", waiting for end of voting period";
     }
     if(fState == DAOFlags::PENDING_VOTING_PREQ) {
@@ -2830,7 +2847,7 @@ void CProposal::ToJson(UniValue& ret, CStateViewCache& coins) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
-    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, coins)));
+    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, coins)+1));
     // votingCycle does not return higher than nCyclesProposalVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesProposalVoting
     UniValue mapState(UniValue::VOBJ);
     for (auto&it: this->mapState)
@@ -2891,7 +2908,7 @@ void CPaymentRequest::ToJson(UniValue& ret, const CStateViewCache& view) const {
     ret.pushKV("votesYes", nVotesYes);
     ret.pushKV("votesAbs", nVotesAbs);
     ret.pushKV("votesNo", nVotesNo);
-    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)));
+    ret.pushKV("votingCycle", std::min((uint64_t)nVotingCycle, GetConsensusParameter(Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES, view)+1));
     // votingCycle does not return higher than nCyclesPaymentRequestVoting to avoid reader confusion, since votes are not counted anyway when votingCycle > nCyclesPaymentRequestVoting
     UniValue mapState(UniValue::VOBJ);
     for (auto&it: this->mapState)
