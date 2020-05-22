@@ -410,7 +410,28 @@ bool CBlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockF
     }
     batch.Write(DB_LAST_BLOCK, nLastFile);
     for (std::vector<const CBlockIndex*>::const_iterator it=blockinfo.begin(); it != blockinfo.end(); it++) {
-        batch.Write(make_pair(DB_BLOCK_INDEX, (*it)->GetBlockHash()), CDiskBlockIndex(*it));
+        CDiskBlockIndex dbi(*it);
+        auto pVotes = GetProposalVotes(dbi.GetBlockHash());
+        if (pVotes != nullptr)
+        {
+            dbi.vProposalVotes = *pVotes;
+        }
+        auto prVotes = GetPaymentRequestVotes(dbi.GetBlockHash());
+        if (prVotes != nullptr)
+        {
+            dbi.vPaymentRequestVotes = *prVotes;
+        }
+        auto supp = GetSupport(dbi.GetBlockHash());
+        if (supp != nullptr)
+        {
+            dbi.mapSupport = *supp;
+        }
+        auto cVotes = GetConsultationVotes(dbi.GetBlockHash());
+        if (cVotes != nullptr)
+        {
+            dbi.mapConsultationVotes = *cVotes;
+        }
+        batch.Write(make_pair(DB_BLOCK_INDEX, (*it)->GetBlockHash()), dbi);
     }
     return WriteBatch(batch, true);
 }
@@ -713,7 +734,11 @@ bool CBlockTreeDB::ReadFlag(const std::string &name, bool &fValue) {
     return true;
 }
 
-bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex)
+bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex,
+                                      boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertProposalVotes,
+                                      boost::function<std::vector<std::pair<uint256, int>>*(const uint256&)> insertPaymentRequestVotes,
+                                      boost::function<std::map<uint256, bool>*(const uint256&)> insertSupport,
+                                      boost::function<std::map<uint256, uint64_t>*(const uint256&)> insertConsultationVotes)
 {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
@@ -742,19 +767,31 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->nTx            = diskindex.nTx;
                 pindexNew->nMint          = diskindex.nMint;
                 pindexNew->nCFSupply      = diskindex.nCFSupply;
-                pindexNew->vPaymentRequestVotes
-                                          = diskindex.vPaymentRequestVotes;
-                pindexNew->vProposalVotes = diskindex.vProposalVotes;
                 pindexNew->nCFLocked      = diskindex.nCFLocked;
                 pindexNew->strDZeel       = diskindex.strDZeel;
                 pindexNew->nFlags         = diskindex.nFlags;
                 pindexNew->nStakeModifier = diskindex.nStakeModifier;
-                pindexNew->prevoutStake   = diskindex.prevoutStake;
-                pindexNew->nStakeTime     = diskindex.nStakeTime;
                 pindexNew->hashProof      = diskindex.hashProof;
-                pindexNew->mapSupport     = diskindex.mapSupport;
-                pindexNew->mapConsultationVotes
-                                          = diskindex.mapConsultationVotes;
+                if (diskindex.vProposalVotes.size() > 0)
+                {
+                    auto pVotes = InsertProposalVotes(diskindex.GetBlockHash());
+                    *pVotes = diskindex.vProposalVotes;
+                }
+                if (diskindex.vPaymentRequestVotes.size() > 0)
+                {
+                    auto prVotes = insertPaymentRequestVotes(diskindex.GetBlockHash());
+                    *prVotes = diskindex.vPaymentRequestVotes;
+                }
+                if (diskindex.mapSupport.size() > 0)
+                {
+                    auto supp = insertSupport(diskindex.GetBlockHash());
+                    *supp = diskindex.mapSupport;
+                }
+                if (diskindex.mapConsultationVotes.size() > 0)
+                {
+                    auto cVotes = insertConsultationVotes(diskindex.GetBlockHash());
+                    *cVotes = diskindex.mapConsultationVotes;
+                }
 
                 pcursor->Next();
             } else {

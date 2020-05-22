@@ -67,6 +67,10 @@ using namespace std;
 CCriticalSection cs_main;
 
 BlockMap mapBlockIndex;
+std::map<uint256,std::vector<std::pair<uint256, int>>> vProposalVotes;
+std::map<uint256,std::vector<std::pair<uint256, int>>> vPaymentRequestVotes;
+std::map<uint256,std::map<uint256, bool>> mapSupport;
+std::map<uint256,std::map<uint256, uint64_t>> mapConsultationVotes;
 CChain chainActive;
 CBlockIndex *pindexBestHeader = nullptr;
 int64_t nTimeBestReceived = 0;
@@ -99,8 +103,6 @@ uint256 hashBestChain = uint256();
 CBlockIndex* pindexBest = nullptr;
 CBlockIndex* pindexVerifyChainTip = nullptr;
 
-set<pair<COutPoint, unsigned int> > setStakeSeen;
-
 CTxMemPool mempool(::minRelayTxFee);
 FeeFilterRounder filterRounder(::minRelayTxFee);
 CTxMemPool stempool(::minRelayTxFee);
@@ -131,9 +133,6 @@ static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned 
 static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
 /* Proof of Stake constants */
-
-extern std::set<std::pair<COutPoint, unsigned int> > setStakeSeen;
-
 arith_uint256 bnProofOfStakeLimit(~arith_uint256() >> 20);
 arith_uint256 bnProofOfStakeLimitV2(~arith_uint256() >> 20);
 
@@ -2699,90 +2698,107 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
     std::map<uint256, bool> vSeen;
 
-    for(unsigned int i = 0; i < pindex->vProposalVotes.size(); i++)
+    auto pVotes = GetProposalVotes(block.GetHash());
+    auto prVotes = GetPaymentRequestVotes(block.GetHash());
+    auto supp = GetSupport(block.GetHash());
+    auto cVotes = GetConsultationVotes(block.GetHash());
+
+    if (pVotes != nullptr)
     {
-        if(!view.HaveProposal(pindex->vProposalVotes[i].first))
-            continue;
-
-        CProposalModifier proposal = view.ModifyProposal(pindex->vProposalVotes[i].first, pindex->nHeight);
-
-        if(vSeen.count(proposal->hash) == 0)
+        for(unsigned int i = 0; i < pVotes->size(); i++)
         {
-            if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_YES)
-                proposal->nVotesYes = max(proposal->nVotesYes - 1, 0);
-            else if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_ABSTAIN)
-                proposal->nVotesAbs = max(proposal->nVotesAbs - 1, 0);
-            else if(pindex->vProposalVotes[i].second == VoteFlags::VOTE_NO)
-                proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
+            if(!view.HaveProposal((*pVotes)[i].first))
+                continue;
 
-            proposal->fDirty = true;
+            CProposalModifier proposal = view.ModifyProposal((*pVotes)[i].first, pindex->nHeight);
 
-            vSeen[pindex->vProposalVotes[i].first]=true;
-        }
-    }
-
-    for(unsigned int i = 0; i < pindex->vPaymentRequestVotes.size(); i++)
-    {
-        if(!view.HavePaymentRequest(pindex->vPaymentRequestVotes[i].first))
-            continue;
-
-        CPaymentRequestModifier prequest = view.ModifyPaymentRequest(pindex->vPaymentRequestVotes[i].first, pindex->nHeight);
-
-        if(vSeen.count(prequest->hash) == 0)
-        {
-            if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_YES)
-                prequest->nVotesYes = max(prequest->nVotesYes - 1, 0);
-            else if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_ABSTAIN)
-                prequest->nVotesAbs = max(prequest->nVotesAbs - 1, 0);
-            else if(pindex->vPaymentRequestVotes[i].second == VoteFlags::VOTE_NO)
-                prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
-
-            prequest->fDirty = true;
-
-            vSeen[pindex->vPaymentRequestVotes[i].first]=true;
-        }
-    }
-
-    for (auto &it: pindex->mapSupport)
-    {
-        if (view.HaveConsultation(it.first))
-        {
-            if(vSeen.count(it.first) == 0)
+            if(vSeen.count(proposal->hash) == 0)
             {
-                CConsultationModifier consultation = view.ModifyConsultation(it.first, pindex->nHeight);
-                consultation->nSupport = max(consultation->nSupport - 1, 0);
-                consultation->fDirty = true;
-                vSeen[it.first] = true;
-            }
-        }
-        else if (view.HaveConsultationAnswer(it.first))
-        {
-            if(vSeen.count(it.first) == 0)
-            {
-                CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first, pindex->nHeight);
-                answer->nSupport = max(answer->nSupport - 1, 0);
-                answer->fDirty = true;
-                vSeen[it.first] = true;
+                if((*pVotes)[i].second == VoteFlags::VOTE_YES)
+                    proposal->nVotesYes = max(proposal->nVotesYes - 1, 0);
+                else if((*pVotes)[i].second == VoteFlags::VOTE_ABSTAIN)
+                    proposal->nVotesAbs = max(proposal->nVotesAbs - 1, 0);
+                else if((*pVotes)[i].second == VoteFlags::VOTE_NO)
+                    proposal->nVotesNo = max(proposal->nVotesNo - 1, 0);
+
+                proposal->fDirty = true;
+
+                vSeen[(*pVotes)[i].first]=true;
             }
         }
     }
 
-    for (auto &it: pindex->mapConsultationVotes)
+    if (prVotes != nullptr)
     {
-        if (view.HaveConsultation(it.first))
+        for(unsigned int i = 0; i < prVotes->size(); i++)
         {
-            CConsultationModifier mConsultation = view.ModifyConsultation(it.first, pindex->nHeight);
-            if (mConsultation->mapVotes[it.second] == 1)
-                mConsultation->mapVotes.erase(it.second);
-            else
-                mConsultation->mapVotes[it.second] = max(mConsultation->mapVotes[it.second] - (uint64_t)1, (uint64_t)0);
-            mConsultation->fDirty = true;
+            if(!view.HavePaymentRequest((*prVotes)[i].first))
+                continue;
+
+            CPaymentRequestModifier prequest = view.ModifyPaymentRequest((*prVotes)[i].first, pindex->nHeight);
+
+            if(vSeen.count(prequest->hash) == 0)
+            {
+                if((*prVotes)[i].second == VoteFlags::VOTE_YES)
+                    prequest->nVotesYes = max(prequest->nVotesYes - 1, 0);
+                else if((*prVotes)[i].second == VoteFlags::VOTE_ABSTAIN)
+                    prequest->nVotesAbs = max(prequest->nVotesAbs - 1, 0);
+                else if((*prVotes)[i].second == VoteFlags::VOTE_NO)
+                    prequest->nVotesNo = max(prequest->nVotesNo - 1, 0);
+
+                prequest->fDirty = true;
+
+                vSeen[(*prVotes)[i].first]=true;
+            }
         }
-        else if (view.HaveConsultationAnswer(it.first))
+    }
+
+    if (supp != nullptr)
+    {
+        for (auto &it: *supp)
         {
-            CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first, pindex->nHeight);
-            mConsultationAnswer->nVotes = max(mConsultationAnswer->nVotes - (uint64_t)1, (uint64_t)0);
-            mConsultationAnswer->fDirty = true;
+            if (view.HaveConsultation(it.first))
+            {
+                if(vSeen.count(it.first) == 0)
+                {
+                    CConsultationModifier consultation = view.ModifyConsultation(it.first, pindex->nHeight);
+                    consultation->nSupport = max(consultation->nSupport - 1, 0);
+                    consultation->fDirty = true;
+                    vSeen[it.first] = true;
+                }
+            }
+            else if (view.HaveConsultationAnswer(it.first))
+            {
+                if(vSeen.count(it.first) == 0)
+                {
+                    CConsultationAnswerModifier answer = view.ModifyConsultationAnswer(it.first, pindex->nHeight);
+                    answer->nSupport = max(answer->nSupport - 1, 0);
+                    answer->fDirty = true;
+                    vSeen[it.first] = true;
+                }
+            }
+        }
+    }
+
+    if (cVotes != nullptr)
+    {
+        for (auto &it: *cVotes)
+        {
+            if (view.HaveConsultation(it.first))
+            {
+                CConsultationModifier mConsultation = view.ModifyConsultation(it.first, pindex->nHeight);
+                if (mConsultation->mapVotes[it.second] == 1)
+                    mConsultation->mapVotes.erase(it.second);
+                else
+                    mConsultation->mapVotes[it.second] = max(mConsultation->mapVotes[it.second] - (uint64_t)1, (uint64_t)0);
+                mConsultation->fDirty = true;
+            }
+            else if (view.HaveConsultationAnswer(it.first))
+            {
+                CConsultationAnswerModifier mConsultationAnswer = view.ModifyConsultationAnswer(it.first, pindex->nHeight);
+                mConsultationAnswer->nVotes = max(mConsultationAnswer->nVotes - (uint64_t)1, (uint64_t)0);
+                mConsultationAnswer->fDirty = true;
+            }
         }
     }
 
@@ -3194,20 +3210,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nCFSupply = pindex->pprev != NULL ? pindex->pprev->nCFSupply : 0;
     pindex->nCFLocked = pindex->pprev != NULL ? pindex->pprev->nCFLocked : 0;
 
-    pindex->vProposalVotes.clear();
-    pindex->vPaymentRequestVotes.clear();
-    pindex->mapConsultationVotes.clear();
-
     if (block.IsProofOfStake())
     {
         pindex->SetProofOfStake();
-        pindex->prevoutStake = block.vtx[1].vin[0].prevout;
-        pindex->nStakeTime = block.vtx[1].nTime;
-    }
-    else
-    {
-        pindex->prevoutStake.SetNull();
-        pindex->nStakeTime = 0;
     }
 
     int64_t nTimeStart = GetTimeMicros();
@@ -3230,9 +3235,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             view.SetBestBlock(pindex->GetBlockHash());
         return true;
     }
-
-    if (pindex->IsProofOfStake())
-        setStakeSeen.insert(make_pair(pindex->prevoutStake, pindex->nStakeTime));
 
     // Check proof of stake
     if (block.nBits != GetNextTargetRequired(pindex->pprev, block.IsProofOfStake())){
@@ -3532,26 +3534,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             if (fCFund && (fProposal && view.GetProposal(hash, proposal) && proposal.CanVote(view)))
                             {
                                 LogPrint("daoextra", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
-                                pindex->vProposalVotes.push_back(make_pair(hash, vote));
+                                InsertProposalVotes(block.GetHash())->push_back(make_pair(hash, vote));
                             }
                             else if (fCFund && (fPaymentRequest && view.GetPaymentRequest(hash, prequest) && prequest.CanVote(view)))
                             {
                                 LogPrint("daoextra", "%s: Adding vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
-                                pindex->vPaymentRequestVotes.push_back(make_pair(hash, vote));
+                                InsertPaymentRequestVotes(block.GetHash())->push_back(make_pair(hash, vote));
                             }
                             else if(fDAOConsultations && fSupport &&
                                     ((view.GetConsultation(hash, consultation) && consultation.CanBeSupported()) ||
                                      (view.GetConsultationAnswer(hash, answer) && answer.CanBeSupported(view))))
                             {
                                 LogPrint("daoextra", "%s: Adding support vote at height %d - hash: %s\n", __func__, pindex->nHeight, hash.ToString());
-                                pindex->mapSupport.insert(make_pair(hash, true));
+                                InsertSupport(block.GetHash())->insert(make_pair(hash, true));
                             }
                             else if (fDAOConsultations && fConsultation && !fSupport && vote != VoteFlags::VOTE_REMOVE)
                             {
                                 if ((view.GetConsultation(hash, consultation) && (consultation.CanBeVoted(vote) && consultation.IsValidVote(vote))))
                                 {
                                     LogPrint("daoextra", "%s: Adding consultation vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
-                                    pindex->mapConsultationVotes.insert(make_pair(hash, vote));
+                                    InsertConsultationVotes(block.GetHash())->insert(make_pair(hash, vote));
                                 }
                                 else
                                 {
@@ -3564,7 +3566,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                         if (mapCountAnswers[answer.parent] > mapCacheMaxAnswers[answer.parent])
                                             continue;
                                         LogPrint("daoextra", "%s: Adding consultation answer vote at height %d - hash: %s vote: %d\n", __func__, pindex->nHeight, hash.ToString(), vote);
-                                        pindex->mapConsultationVotes.insert(make_pair(hash, vote));
+                                        InsertConsultationVotes(block.GetHash())->insert(make_pair(hash, vote));
                                     }
                                     else
                                     {
@@ -3942,12 +3944,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
                 if (fCFund && view.GetProposal(it.first, proposal) && proposal.CanVote(view))
                 {
-                    pindex->vProposalVotes.push_back(make_pair(it.first, val));
+                    InsertProposalVotes(block.GetHash())->push_back(make_pair(it.first, val));
                     LogPrint("daoextra", "%s: Inserting vote for staker %s in block index %d - proposal hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                 }
                 else if (fCFund && view.GetPaymentRequest(it.first, prequest) && prequest.CanVote(view))
                 {
-                    pindex->vPaymentRequestVotes.push_back(make_pair(it.first, val));
+                    InsertPaymentRequestVotes(block.GetHash())->push_back(make_pair(it.first, val));
                     LogPrint("daoextra", "%s: Inserting vote for staker %s in block index %d - payment request hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
                 }
                 else if (val == VoteFlags::SUPPORT)
@@ -3956,7 +3958,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             ((view.GetConsultation(it.first, consultation) && consultation.CanBeSupported()) ||
                              (view.GetConsultationAnswer(it.first, answer) && answer.CanBeSupported(view))))
                     {
-                        pindex->mapSupport.insert(make_pair(it.first, true));
+                        InsertSupport(block.GetHash())->insert(make_pair(it.first, true));
                         LogPrint("daoextra", "%s: Inserting vote for staker %s in block index %d - hash: %s vote: support\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString());
                     }
                 }
@@ -3965,7 +3967,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     if ((view.GetConsultation(it.first, consultation) && (consultation.CanBeVoted(val) && consultation.IsValidVote(val))))
                     {
                         LogPrint("daoextra", "%s: Inserting consultation vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
-                        pindex->mapConsultationVotes.insert(make_pair(it.first, val));
+                        InsertConsultationVotes(block.GetHash())->insert(make_pair(it.first, val));
                     }
                     else
                     {
@@ -3981,7 +3983,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                 continue;
                             }
                             LogPrint("daoextra", "%s: Inserting consultation answer vote for staker %s in block index %d - hash: %s vote: %d\n", __func__, HexStr(stakerScript), pindex->nHeight, it.first.ToString(), val);
-                            pindex->mapConsultationVotes.insert(make_pair(it.first, val));
+                            InsertConsultationVotes(block.GetHash())->insert(make_pair(it.first, val));
                         }
                         else
                         {
@@ -5881,7 +5883,7 @@ CBlockIndex * InsertBlockIndex(uint256 hash)
 bool static LoadBlockIndexDB()
 {
     const CChainParams& chainparams = Params();
-    if (!pblocktree->LoadBlockIndexGuts(InsertBlockIndex))
+    if (!pblocktree->LoadBlockIndexGuts(InsertBlockIndex, InsertProposalVotes, InsertPaymentRequestVotes, InsertSupport, InsertConsultationVotes))
         return false;
 
     boost::this_thread::interruption_point();
@@ -9790,4 +9792,56 @@ static void CheckDandelionEmbargoes()
             iter++;
         }
     }
+}
+
+std::vector<std::pair<uint256, int>>* GetProposalVotes(const uint256& hash)
+{
+    if (vProposalVotes.count(hash) == 0)
+        return nullptr;
+
+    return InsertProposalVotes(hash);
+}
+
+std::vector<std::pair<uint256, int>>* GetPaymentRequestVotes(const uint256& hash)
+{
+    if (vPaymentRequestVotes.count(hash) == 0)
+        return nullptr;
+
+    return InsertPaymentRequestVotes(hash);
+}
+
+std::map<uint256, bool>* GetSupport(const uint256& hash)
+{
+    if (mapSupport.count(hash) == 0)
+        return nullptr;
+
+    return InsertSupport(hash);
+}
+
+std::map<uint256, uint64_t>* GetConsultationVotes(const uint256& hash)
+{
+    if (mapConsultationVotes.count(hash) == 0)
+        return nullptr;
+
+    return InsertConsultationVotes(hash);
+}
+
+std::vector<std::pair<uint256, int>>* InsertProposalVotes(const uint256& hash)
+{
+    return &vProposalVotes[hash];
+}
+
+std::vector<std::pair<uint256, int>>* InsertPaymentRequestVotes(const uint256& hash)
+{
+    return &vPaymentRequestVotes[hash];
+}
+
+std::map<uint256, bool>* InsertSupport(const uint256& hash)
+{
+    return &mapSupport[hash];
+}
+
+std::map<uint256, uint64_t>* InsertConsultationVotes(const uint256& hash)
+{
+    return &mapConsultationVotes[hash];
 }

@@ -186,6 +186,10 @@ extern CTxMemPool mempool;
 extern CTxMemPool stempool;
 typedef boost::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
 extern BlockMap mapBlockIndex;
+extern std::map<uint256,std::vector<std::pair<uint256, int>>> vProposalVotes;
+extern std::map<uint256,std::vector<std::pair<uint256, int>>> vPaymentRequestVotes;
+extern std::map<uint256,std::map<uint256, bool>> mapSupport;
+extern std::map<uint256,std::map<uint256, uint64_t>> mapConsultationVotes;
 extern uint64_t nLastBlockTx;
 extern uint64_t nLastBlockSize;
 extern uint64_t nLastBlockWeight;
@@ -672,5 +676,14 @@ uint64_t GetStakingRewardPerBlock(const CStateViewCache& view);
 
 static void RelayDandelionTransaction(const CTransaction& tx, CNode* pfrom);
 static void CheckDandelionEmbargoes();
+
+std::vector<std::pair<uint256, int>>* GetProposalVotes(const uint256& hash);
+std::vector<std::pair<uint256, int>>* GetPaymentRequestVotes(const uint256& hash);
+std::map<uint256, bool>* GetSupport(const uint256& hash);
+std::map<uint256, uint64_t>* GetConsultationVotes(const uint256& hash);
+std::vector<std::pair<uint256, int>>* InsertProposalVotes(const uint256& hash);
+std::vector<std::pair<uint256, int>>* InsertPaymentRequestVotes(const uint256& hash);
+std::map<uint256, bool>* InsertSupport(const uint256& hash);
+std::map<uint256, uint64_t>* InsertConsultationVotes(const uint256& hash);
 
 #endif // NAVCOIN_MAIN_H

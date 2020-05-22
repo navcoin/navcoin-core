@@ -222,20 +222,11 @@ public:
     int64_t nCFSupply;
     int64_t nCFLocked;
 
-    std::vector<std::pair<uint256, int>> vProposalVotes;
-    std::vector<std::pair<uint256, int>> vPaymentRequestVotes;
-    std::map<uint256, bool> mapSupport;
-    std::map<uint256, uint64_t> mapConsultationVotes;
-
     std::string strDZeel;
 
     unsigned int nFlags;  // ppcoin: block index flags
 
     uint64_t nStakeModifier; // hash modifier for proof-of-stake
-
-    // proof-of-stake specific fields
-    COutPoint prevoutStake;
-    unsigned int nStakeTime;
 
     arith_uint256 hashProof;
 
@@ -262,17 +253,11 @@ public:
         nFlags = 0;
         nStakeModifier = 0;
         hashProof = arith_uint256();
-        prevoutStake.SetNull();
-        nStakeTime = 0;
         nVersion       = 0;
         hashMerkleRoot = uint256();
         nTime          = 0;
         nBits          = 0;
         nNonce         = 0;
-        vProposalVotes.clear();
-        vPaymentRequestVotes.clear();
-        mapSupport.clear();
-        mapConsultationVotes.clear();
     }
 
     CBlockIndex()
@@ -298,13 +283,6 @@ public:
         if (block.IsProofOfStake())
         {
             SetProofOfStake();
-            prevoutStake = block.vtx[1].vin[0].prevout;
-            nStakeTime = block.vtx[1].nTime;
-        }
-        else
-        {
-            prevoutStake.SetNull();
-            nStakeTime = 0;
         }
 
         nVersion       = block.nVersion;
@@ -389,13 +367,12 @@ public:
 
     std::string ToString() const
     {
-        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nCFSupply=%s, nCFLocked=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
+        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nCFSupply=%s, nCFLocked=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, merkle=%s, hashBlock=%s)",
                          pprev, nFile, nHeight,
                          FormatMoney(nMint), FormatMoney(nCFSupply), FormatMoney(nCFLocked),
                          GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",
                          nStakeModifier,
                          hashProof.ToString(),
-                         prevoutStake.ToString(), nStakeTime,
                          hashMerkleRoot.ToString(),
                          GetBlockHash().ToString());
     }
@@ -484,10 +461,25 @@ public:
     uint256 hashPrev;
     uint256 hashNext;
 
+    std::vector<std::pair<uint256, int>> vProposalVotes;
+    std::vector<std::pair<uint256, int>> vPaymentRequestVotes;
+    std::map<uint256, bool> mapSupport;
+    std::map<uint256, uint64_t> mapConsultationVotes;
+
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+    unsigned int nStakeTime;
+
     CDiskBlockIndex() {
         hashPrev = uint256();
         hashNext = uint256();
         blockHash = uint256();
+        prevoutStake.SetNull();
+        nStakeTime = 0;
+        vProposalVotes.clear();
+        vPaymentRequestVotes.clear();
+        mapSupport.clear();
+        mapConsultationVotes.clear();
     }
 
     explicit CDiskBlockIndex(const CBlockIndex* pindex) : CBlockIndex(*pindex) {
