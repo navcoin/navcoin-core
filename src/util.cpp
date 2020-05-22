@@ -106,10 +106,11 @@ using namespace std;
 const char * const NAVCOIN_CONF_FILENAME = "navcoin.conf";
 const char * const NAVCOIN_PID_FILENAME = "navcoin.pid";
 
-std::map<uint256, int64_t> mapAddedVotes;
-std::map<uint256, bool> mapSupported;
 std::vector<std::pair<std::string, bool>> vAddedProposalVotes;
 std::vector<std::pair<std::string, bool>> vAddedPaymentRequestVotes;
+
+std::map<uint256, int64_t> mapAddedVotes;
+std::map<uint256, bool> mapSupported;
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
