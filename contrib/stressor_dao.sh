@@ -1,11 +1,11 @@
-#!/bin/bash 
+#!/bin/bash
 
 
 # This file serves the purpose of testing the network behavior under extreme load of
 # random transactions, proposals, payment requests, consultations, and consensus changes.
-# Blocks are being mined through proof of stake process so this script usually takes hours 
+# Blocks are being mined through proof of stake process so this script usually takes hours
 # to finish depending on the setup. Tests that are included are:
-# 
+#
 # 	1. Create random transactions
 # 	2. Create and vote on random proposals
 # 	3. Create and vote on random payment requests
@@ -21,7 +21,7 @@
 # 	    1-5, re-combine all subnetworks afterwards into 1 to see if all networks follow
 # 	    the longest chain correctly
 # 	13. Final verifychain check back to genesis
-# 
+#
 # The stressor has been run on network size up to 64 nodes and 8 sub networks for up to 200
 # block cycles (a block cycle is around 10-30 blocks). Script passed without issues for more
 # than 25 times to date(2020/02/18).
@@ -32,7 +32,7 @@
 ### Need to configure this!!
 
 ### Path to binaries
-navpath=/YOURPATH/navcoin-core/src
+navpath=./src
 
 ### How many voting cycles to run the stresser
 cycles=10
@@ -57,7 +57,7 @@ extra_blocks_to_stake_randomness=30
 ### Length in seconds for a stress round
 seconds_round=60
 
-### Network topology, a random topology will be generated if left empty "()", or specify nodes to be connect by pairs (EX to have a network with topology of  
+### Network topology, a random topology will be generated if left empty "()", or specify nodes to be connect by pairs (EX to have a network with topology of
 ###
 ### 0-1-2-8- 9-10
 ### | | |    |  |
@@ -365,7 +365,7 @@ function stop_selected_nodes {
 	then
 		echo Cannot find suitable nodes to stop
 		copy_array array_topology_node_pairs_backcup array_topology_node_pairs
-		copy_array array_topology_node_pairs_stopped_backup array_topology_node_pairs_stopped 
+		copy_array array_topology_node_pairs_stopped_backup array_topology_node_pairs_stopped
 		return
 	fi
 	echo "Stopping nodes ${array_nodes_to_stop[@]}"
@@ -373,7 +373,7 @@ function stop_selected_nodes {
 	do
 		stop_node $i
 	done
-	
+
 	sleep 5
 	for i in ${array_nodes_to_stop[@]};
 	do
@@ -640,7 +640,7 @@ function dice_consultation {
 	node=${shuffled_array[0]}
 
 	if [ $dice -lt $chances_create_answer_consultation ];
-	then 
+	then
 		random_sentence=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
 		random_max_answer=$( shuf -i 2-10 -n 1 )
 		user_propose_new_answer=$( bc <<< "$RANDOM%2" )
@@ -663,7 +663,7 @@ function dice_consultation {
 	node=${shuffled_array[0]}
 
 	if [ $dice -lt $chances_create_range_consultation ];
-	then 
+	then
 		random_sentence=$(env LC_CTYPE=C tr -dc "a-zA-Z0-9-_\$\?" < /dev/urandom | head -c 10)
 		random_upper_limit=$RANDOM
 		random_lower_limit=$( shuf -i 0-$random_upper_limit -n 1)
@@ -847,7 +847,7 @@ function voter_dice_consultation {
 				do
 					out=$(nav_cli ${array_stressing_nodes[$node]} "consultationvote $k remove")
 				done
-				
+
 				if [ "$version" == 13 ];
 				then
 					dice=$(bc <<< "$RANDOM % 5")
@@ -898,7 +898,7 @@ function check_consensus_parameters {
 }
 
 function stress {
-	
+
 	for i in ${array_stressing_nodes[@]};
 	do
 		out=$(nav_cli $i "staking true")
@@ -992,7 +992,7 @@ function random_verifychain_check {
 	echo ''
 	echo Running verifychain test with node ${array_verifychain_nodes[@]}...
 	echo ''
-	
+
 	starting_block=0
 	for i in ${!array_verifychain_nodes[@]};
 	do
@@ -1057,7 +1057,7 @@ else
 	fi
 
 	echo "array_stressing_nodes = ${array_stressing_nodes[@]}"
-	
+
 	if [ -z $array_verifychain_nodes ];
 	then
 		echo "Selecting random verifychain nodes..."
@@ -1084,7 +1084,7 @@ for n in ${!array_stressing_nodes[@]};
 do
         array_address[$n]=$(nav_cli ${array_stressing_nodes[$n]} getnewaddress)
 done
-for i in {1..50}; 
+for i in {1..50};
 do
 	for j in ${array_address[@]};
 	do
@@ -1098,7 +1098,7 @@ do
 	echo "Node $n balance: $(nav_cli $n getbalance) tNAV"
 done
 
-#Create blocks to make block count greater than 300 
+#Create blocks to make block count greater than 300
 blocks=$(nav_cli 0 getblockcount)
 while [ $blocks -lt 300 ];
 do
@@ -1139,8 +1139,8 @@ check_consensus_parameters $node
 node_count_to_stop=$(echo "sqrt($node_count)" | bc )
 
 while [ $wait_until_cycle -gt $this_cycle ]; do
-	
-	
+
+
 	echo ''
 	echo ''
 	echo Stressing for $seconds_round seconds...
@@ -1162,7 +1162,7 @@ while [ $wait_until_cycle -gt $this_cycle ]; do
 	then
 		out=$(nav_cli 0 "generate 5")
 	fi
-	
+
 	if [ "$bool_random_verifychain_check" == 1 ];
 	then
 		dice=$( bc <<< "$RANDOM % 60" )
@@ -1193,7 +1193,7 @@ while [ $wait_until_cycle -gt $this_cycle ]; do
 		dice=$( bc <<< "$RANDOM % 10" )
 		if [ "$dice" == 1 ];
 		then
-	
+
 			attempts=0
 			copy_array array_topology_node_pairs array_topology_node_pairs_backcup
 			copy_array array_topology_node_pairs_stopped array_topology_node_pairs_stopped_backup
@@ -1207,7 +1207,7 @@ while [ $wait_until_cycle -gt $this_cycle ]; do
 				unset array_topology_node_pairs_stopped
 				check_stopping_nodes_cause_network_split "${array_stopped_nodes[@]}"
 				((attempts++))
-			done		
+			done
 			if [ "$attempts" == 10 ];
 			then
 				copy_array array_topology_node_pairs_backup array_topology_node_pairs
@@ -1216,12 +1216,12 @@ while [ $wait_until_cycle -gt $this_cycle ]; do
 				disconnect_network "${array_topology_node_pairs_backup[@]}"
 				connect_network "${array_topology_node_pairs[@]}"
 				echo "Created topology that has ${#array_topology_node_pairs[@]} connections out of max connections ${#array_network_connection_pool[@]} in the network"
-			fi	
+			fi
 			echo array topoloy node pairs is "${array_topology_node_pairs[@]}" with index "${!array_topology_node_pairs[@]}"
 			echo array topology node pairs stopped is "${array_topology_node_pairs_stopped[@]}" with index "${!array_topology_node_pairs_stopped[@]}"
 		fi
 	fi
-	
+
 	if [ "$bool_sync_new_node" == 1 ];
 	then
 		dice=$( bc <<< "$RANDOM % 10" )
@@ -1275,11 +1275,11 @@ while [ $wait_until_cycle -gt $this_cycle ]; do
 #	done
 done
 
-echo Consensus parameters started out as 
+echo Consensus parameters started out as
 echo ${consensusparameter_original[@]}
 echo now it is
 echo ${consensusparameter_new[@]}
-##############################Network Splitting 
+##############################Network Splitting
 if [ "$bool_network_split" == 1 ];
 then
 	echo Stopping and then starting all nodes...
@@ -1325,7 +1325,7 @@ then
 			fi
 		done
 		if [ "$match" != 1 ];
-		then	
+		then
 			eval "array_all_nodes_network$counter[$i]=$i"
 		fi
 		((counter++))
