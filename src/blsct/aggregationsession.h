@@ -24,7 +24,7 @@
 class AggregationSesion
 {
 public:
-    AggregationSesion(const CCoinsViewCache* inputs);
+    AggregationSesion(const CStateViewCache* inputs);
 
     bool Start();
     void Stop();
@@ -72,7 +72,7 @@ public:
 
 private:
     EphemeralServer *es;
-    const CCoinsViewCache* inputs;
+    const CStateViewCache* inputs;
     std::string sHiddenService;
     int fState;
     bool lock;

@@ -502,7 +502,7 @@ public:
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetAvailableStakableCredit() const;
-    CAmount GetAvailablePrivateCredit() const;
+    CAmount GetAvailablePrivateCredit(bool fLocked = false) const;
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetChange() const;
@@ -1174,5 +1174,8 @@ public:
         READWRITE(vchPubKey);
     }
 };
+
+void LockOutputFor(uint256 hash, unsigned int n, uint64_t time);
+bool IsOutputLocked(uint256 hash, unsigned int n);
 
 #endif // NAVCOIN_WALLET_WALLET_H

@@ -1448,8 +1448,8 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet, CWalletD
             if (blsctData == nullptr)
             {
                 CValidationState state;
-                CCoinsView dummy;
-                CCoinsViewCache view(&dummy);
+                CStateView dummy;
+                CStateViewCache view(&dummy);
                 blsctKey k;
 
                 if (GetBLSCTViewKey(k))
@@ -1734,7 +1734,7 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
 
 isminetype CWallet::IsMine(const CTxOut& txout) const
 {
-    if (txout.spendingKey.size() > 0 && txout.HasRangeProof())
+    if (txout.HasRangeProof() && txout.IsBLSCT())
     {
         std::vector<RangeproofEncodedData> blsctData;
         std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
@@ -2040,8 +2040,8 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         if (!ExtractDestination(txout.scriptPubKey, address))
         {
             if(!txout.scriptPubKey.IsCommunityFundContribution() && !txout.IsBLSCT())
-                LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
-                         this->GetHash().ToString(),i);
+                LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d %s\n",
+                         this->GetHash().ToString(), i, txout.ToString());
             address = CNoDestination();
         }
 
@@ -2142,8 +2142,8 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
             {
                 std::vector<RangeproofEncodedData> blsctData;
                 CValidationState state;
-                CCoinsView dummy;
-                CCoinsViewCache view(&dummy);
+                CStateView dummy;
+                CStateViewCache view(&dummy);
                 blsctKey k;
 
                 if (GetBLSCTViewKey(k))
@@ -2370,7 +2370,27 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter, bool fCheckMaturity) co
     return credit;
 }
 
-CAmount CWalletTx::GetAvailablePrivateCredit() const
+std::map<std::pair<uint256,int>, uint64_t> mapLockedOutputs;
+
+void LockOutputFor(uint256 hash, unsigned int n, uint64_t time)
+{
+    mapLockedOutputs[std::make_pair(hash, n)] = GetTime() + time;
+}
+
+bool IsOutputLocked(uint256 hash, unsigned int n)
+{
+    if (mapLockedOutputs.count(std::make_pair(hash, n)) == 0)
+        return false;
+
+    bool ret = mapLockedOutputs.at(std::make_pair(hash, n)) > GetTime();
+
+    if (!ret)
+        mapLockedOutputs.erase(std::make_pair(hash, n));
+
+    return ret;
+}
+
+CAmount CWalletTx::GetAvailablePrivateCredit(bool fLocked) const
 {
     if (pwallet == 0)
         return 0;
@@ -2384,7 +2404,7 @@ CAmount CWalletTx::GetAvailablePrivateCredit() const
 
         CAmount amount = vAmounts[i];
 
-        if (!pwallet->IsSpent(hashTx, i))
+        if (!pwallet->IsSpent(hashTx, i) && IsOutputLocked(hashTx, i) == fLocked)
         {
             const CTxOut &txout = vout[i];
 
@@ -2688,6 +2708,17 @@ CAmount CWallet::GetPrivateBalancePending() const
 CAmount CWallet::GetPrivateBalanceLocked() const
 {
     CAmount nTotal = 0;
+
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+        {
+            const CWalletTx* pcoin = &(*it).second;
+            if (pcoin->IsCTOutput())
+                if (pcoin->IsInMainChain())
+                    nTotal += pcoin->GetAvailablePrivateCredit(true);
+        }
+    }
 
     return nTotal;
 }
@@ -3223,8 +3254,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
         nMixFee = (coinsToMix ? coinsToMix->fee : 0);
     }
 
-    std::cout << strprintf("we need %d mix fee\n", nMixFee);
-
     auto nInMix = (coinsToMix ? coinsToMix->tx.vin.size() : 0);
     auto nOutMix = (coinsToMix ? coinsToMix->tx.vout.size() : 0);
 
@@ -3302,8 +3331,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         wtxNew.fCFund = true;
 
                     CAmount nValue = recipient.nAmount;
-
-                    std::cout << strprintf("Adding %d output\n", nValue);
 
                     if (recipient.fSubtractFeeFromAmount)
                     {
@@ -3390,7 +3417,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     strFailReason = _("Insufficient funds");
                     return false;
                 }
-                std::cout << strprintf("Selecting %d got %d\n", nValueToSelect, nValueIn);
 
                 for(PAIRTYPE(const CWalletTx*, unsigned int) pcoin: setCoins)
                 {
@@ -3409,7 +3435,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 }
 
                 const CAmount nChange = nValueIn - nValueToSelect;
-                std::cout << strprintf("change is %d output\n", nChange);
 
                 if (nChange > 0)
                 {
@@ -3536,7 +3561,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                 if (fBLSCT || fPrivate)
                 {
-                    std::cout << strprintf("Adding %d fee output\n", nFeeRet-nMixFee);
                     CTxOut feeOut = CTxOut(nFeeRet-nMixFee, CScript(OP_RETURN));
                     txNew.vout.push_back(feeOut);
                 }
@@ -3553,7 +3577,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                                               std::numeric_limits<unsigned int>::max()-1));
                     if (fPrivate)
                     {
-                        std::cout << strprintf("Adding %d input\n", coin.first->vAmounts[coin.second]);
                         gammaIns = gammaIns + coin.first->vGammas[coin.second];
                     }
                 }
@@ -3653,7 +3676,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     CValidationState state;
                     std::vector<RangeproofEncodedData> blsctData;
 
-                    CCoinsViewCache inputs(pcoinsTip);
+                    CStateViewCache inputs(pcoinsTip);
                     blsctKey v;
 
                     v = blsctKey(bls::PrivateKey::FromBN(Scalar::Rand().bn));

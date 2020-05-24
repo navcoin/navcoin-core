@@ -1821,12 +1821,6 @@ static bool ThreadSafeMessageBox(NavCoinGUI *gui, const std::string& message, co
     return ret;
 }
 
-static void UpdateDaoNewCount(NavCoinGUI *gui)
-{
-    // Call our instance method
-    gui->updateDaoNewCount();
-}
-
 void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat, const CAmount& priv, const CAmount& privpending, const CAmount& privlocked)
 {
     // Call our instance method
@@ -1844,7 +1838,6 @@ void NavCoinGUI::subscribeToCoreSignals()
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
-    uiInterface.UpdateDaoNewCount.connect(boost::bind(UpdateDaoNewCount, this));
     uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
     uiInterface.SetStaked.connect(boost::bind(SetStaked, this, _1, _2, _3));
 }
@@ -1854,7 +1847,6 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
-    uiInterface.UpdateDaoNewCount.disconnect(boost::bind(UpdateDaoNewCount, this));
     uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3, _4, _5, _6));
     uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
 }

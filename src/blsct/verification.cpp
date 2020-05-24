@@ -4,7 +4,7 @@
 
 #include "verification.h"
 
-bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::vector<RangeproofEncodedData> &vData, const CCoinsViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
+bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::vector<RangeproofEncodedData> &vData, const CStateViewCache& view, CValidationState& state, bool fOnlyRecover, CAmount nMixFee)
 {
     std::vector<std::pair<int, BulletproofsRangeproof>> proofs;
     std::vector<Point> nonces;
@@ -139,7 +139,7 @@ bool VerifyBLSCT(const CTransaction &tx, const bls::PrivateKey& viewKey, std::ve
     return true;
 }
 
-bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx, const CCoinsViewCache& inputs, CValidationState& state, CAmount nMixFee)
+bool CombineBLSCTTransactions(std::vector<CTransaction> &vTx, CTransaction& outTx, const CStateViewCache& inputs, CValidationState& state, CAmount nMixFee)
 {
     std::set<CTxIn> setInputs;
     std::set<CTxOut> setOutputs;

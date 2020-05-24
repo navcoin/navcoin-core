@@ -278,14 +278,16 @@ void DaoConsultationCreate::onCreate()
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
 
+    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+
     bool created = true;
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, NULL, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
             created = false;
         }
     }
-    if (!pwalletMain->CommitTransaction(wtx, reservekey)) {
+    if (!pwalletMain->CommitTransaction(wtx, reservekey, reserveBLSCTKey)) {
         created = false;
     }
 
@@ -441,14 +443,16 @@ void DaoConsultationCreate::onCreateConsensus()
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount};
     vecSend.push_back(recipient);
 
+    std::vector<shared_ptr<CReserveBLSCTKey>> reserveBLSCTKey;
+
     bool created = true;
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, NULL, true)) {
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, reserveBLSCTKey, nFeeRequired, nChangePosRet, strError, false, NULL, true)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > pwalletMain->GetBalance()) {
             created = false;
         }
     }
-    if (!pwalletMain->CommitTransaction(wtx, reservekey)) {
+    if (!pwalletMain->CommitTransaction(wtx, reservekey, reserveBLSCTKey)) {
         created = false;
     }
 
