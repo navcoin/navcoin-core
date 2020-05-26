@@ -22,9 +22,6 @@ class CBlockIndex;
 class CChainParams;
 class CValidationState;
 
-extern std::map<uint256, int64_t> mapAddedVotes;
-extern std::map<uint256, bool> mapSupported;
-
 void SetScriptForCommunityFundContribution(CScript &script);
 void SetScriptForProposalVote(CScript &script, uint256 proposalhash, int64_t vote);
 void SetScriptForPaymentRequestVote(CScript &script, uint256 prequest, int64_t vote);
@@ -386,8 +383,11 @@ public:
             if(fState != DAOFlags::REJECTED)
                 sFlags += " waiting for end of voting period";
         }
-        if(IsExpired(view))
+        if(IsExpired(view)) {
             sFlags = "expired";
+            if(fState != DAOFlags::EXPIRED)
+                sFlags += " waiting for end of voting period";
+        }
         if (fState == PAID)
             sFlags = "paid";
         return sFlags;

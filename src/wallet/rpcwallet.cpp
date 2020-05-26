@@ -944,7 +944,14 @@ UniValue proposeconsensuschange(const UniValue& params, bool fHelp)
     int64_t nMin = params[0].get_int64();
     int64_t nMax = 1;
 
-    std::string sAnswer = std::to_string(params[1].get_int64());
+    int64_t nValue = params[1].get_int64();
+
+    if (nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+    {
+        nValue--;
+    }
+
+    std::string sAnswer = std::to_string(nValue);
 
     if (nMin < Consensus::CONSENSUS_PARAM_VOTING_CYCLE_LENGTH || nMin >= Consensus::MAX_CONSENSUS_PARAMS)
         throw JSONRPCError(RPC_TYPE_ERROR, "Wrong parameter id");
@@ -1362,7 +1369,14 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(!consultation.CanHaveNewAnswers())
         throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
 
-    std::string sAnswer = params[1].get_str();
+    int64_t nValue = params[1].get_int64();
+
+    if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+    {
+        nValue--;
+    }
+
+    std::string sAnswer = std::to_string(nValue);
 
     bool fDump = params.size() == 4 ? params[3].getBool() : false;
 

@@ -88,6 +88,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "proposeconsensuschange", 3},
     { "consultationvote", 2 },
     { "support", 1 },
+    { "proposeanswer", 1 },
     { "proposeanswer", 2 },
     { "proposeanswer", 3 },
     { "createpaymentrequest", 3 },
