@@ -350,9 +350,11 @@ bool AggregationSesion::Join() const
 
              CloseSocket(so);
 
+             LockOutputFor(prevcoin->GetHash(), prevout, 90);
+             pwalletMain->NotifyTransactionChanged(pwalletMain, prevcoin->GetHash(), CT_UPDATED);
+
              return ret;
          }
-
     }
 
     return false;

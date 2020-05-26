@@ -77,12 +77,17 @@ void AggregationSesionDialog::CheckStatus()
     if (!fReady)
         return;
 
+    fReady = false;
+
     size_t nCount = 0;
 
     if (pwalletMain && pwalletMain->aggSession)
         nCount = pwalletMain->aggSession->GetTransactionCandidates().size();
     else
+    {
+        fReady = true;
         return;
+    }
 
     if (nExpiresAt < GetTime())
     {
@@ -99,12 +104,14 @@ void AggregationSesionDialog::CheckStatus()
             }
         }
         this->done(ret);
+        fReady = true;
     }
     else if (nCount > 0)
     {
         SetBottomLabel(QString(tr("Received %1 coin candidate(s)...").arg(nCount)));
     }
     SetBottom2Label(QString(tr("%1 seconds left...").arg(nExpiresAt-GetTime())));
+    fReady = true;
 }
 
 CandidateTransaction AggregationSesionDialog::GetSelectedCoins()
