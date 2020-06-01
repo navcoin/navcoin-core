@@ -1198,14 +1198,22 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(!consultation.CanHaveNewAnswers())
         throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
 
-    int64_t nValue = params[1].get_int64();
-
-    if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+    std::string sAnswer = "";
+    if (consultation.IsAboutConsensusParameter())
     {
-        nValue--;
-    }
+        int64_t nValue = params[1].get_int64();
 
-    std::string sAnswer = std::to_string(nValue);
+        if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+        {
+            nValue--;
+        }
+
+        sAnswer = std::to_string(nValue);
+    }
+    else
+    {
+        sAnswer = params[1].get_str();
+    }
 
     bool fDump = params.size() == 4 ? params[3].getBool() : false;
 
