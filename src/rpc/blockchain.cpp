@@ -1039,38 +1039,37 @@ UniValue listconsultations(const UniValue& params, bool fHelp)
     bool showReflection = false;
     bool showVoting = false;
     bool showFinished = false;
-    bool showAll = params.size() == 0;
+    bool showAll = true;
 
     if(params.size() >= 1)
     {
-        showNotEnoughAnswers = false;
-        showLookingForSupport = false;
-        showReflection = false;
-        showVoting = false;
-        showFinished = false;
-
         for(unsigned int i = 0; i < params.size(); i++)
         {
             auto p = params[i];
             if (p.get_str() == "not_enough_answers")
             {
                 showNotEnoughAnswers = true;
+                showAll = false;
             }
             else if (p.get_str() == "waiting_for_support")
             {
                 showLookingForSupport = true;
+                showAll = false;
             }
             else if (p.get_str() == "reflection")
             {
                 showReflection = true;
+                showAll = false;
             }
             else if (p.get_str() == "voting")
             {
                 showVoting = true;
+                showAll = false;
             }
             else if (p.get_str() == "finished")
             {
                 showFinished = true;
+                showAll = false;
             }
         }
     }
