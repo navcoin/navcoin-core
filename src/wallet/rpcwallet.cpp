@@ -4177,7 +4177,7 @@ UniValue getstakervote(const UniValue& params, bool fHelp)
 
     if (!view.GetCachedVoter(stakerScript, pVoteList))
     {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find staker script ")+HexStr(stakerScript));
+         return ret;
     }
 
     std::map<int, std::map<uint256, int64_t>>* list= pVoteList.GetFullList();
