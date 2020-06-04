@@ -48,7 +48,7 @@ double GetPoWMHashPS()
 double GetPoSKernelPS()
 {
     int nTargetSpacing = GetTargetSpacing(pindexBestHeader->nHeight); // time per block
-    int nPoSInterval = 1440 / nTargetSpacing; // 24 hours worth of blocks
+    int nPoSInterval = 1440 * 60 / nTargetSpacing; // 24 hours worth of blocks
     double dStakeKernelsTriedAvg = 0;
     int nStakesHandled = 0, nStakesTime = 0;
 
