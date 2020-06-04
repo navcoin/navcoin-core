@@ -2588,14 +2588,21 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
                     address.GetIndexKey(hashBytes, type);
 
                     // undo spending activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(type, uint160(hashBytes), pindex->nHeight, i, hash, k, true), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(type, hashBytes, pindex->nHeight, i, hash, k, true), out.nValue));
 
                     // restore unspent index
-                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), hash, k), CAddressUnspentValue()));
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, hashBytes, hash, k), CAddressUnspentValue()));
 
 
                 } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
+                    uint160 hashBytes;
+                    CTxDestination destination;
+                    int type = 0;
+
+                    ExtractDestination(out.scriptPubKey, destination);
+                    CNavCoinAddress address(destination);
+
+                    address.GetIndexKey(hashBytes, type);
 
                     // undo receiving activity
                     addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, hash, k, false), out.nValue));
@@ -2679,13 +2686,20 @@ bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockI
 
 
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
-                        vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23);
+                        uint160 hashBytes;
+                        CTxDestination destination;
+                        int type = 0;
+
+                        ExtractDestination(prevout.scriptPubKey, destination);
+                        CNavCoinAddress address(destination);
+
+                        address.GetIndexKey(hashBytes, type);
 
                         // undo spending activity
-                        addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
+                        addressIndex.push_back(make_pair(CAddressIndexKey(1, hashBytes, pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
 
                         // restore unspent index
-                        addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, uint160(hashBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
+                        addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, hashBytes, input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
 
                     } else {
                         continue;
@@ -3660,8 +3674,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         hashBytes = uint160(vector <unsigned char>(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22));
                         addressType = 2;
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
-                        hashBytes = uint160(vector <unsigned char>(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23));
-                        addressType = 1;
+                        CTxDestination destination;
+                        ExtractDestination(prevout.scriptPubKey, destination);
+                        CNavCoinAddress address(destination);
+                        address.GetIndexKey(hashBytes, addressType);
                     } else if (prevout.scriptPubKey.IsPayToPublicKey() || prevout.scriptPubKey.IsColdStaking() || prevout.scriptPubKey.IsColdStakingv2()) {
                         CTxDestination destination;
                         ExtractDestination(prevout.scriptPubKey, destination);
@@ -3790,13 +3806,19 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(type, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
                 } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
+                    uint160 hashBytes;
+                    CTxDestination destination;
+                    int type = 0;
 
+                    ExtractDestination(out.scriptPubKey, destination);
+                    CNavCoinAddress address(destination);
+
+                    address.GetIndexKey(hashBytes, type);
                     // record receiving activity
-                    addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
+                    addressIndex.push_back(make_pair(CAddressIndexKey(1, hashBytes, pindex->nHeight, i, txhash, k, false), out.nValue));
 
                     // record unspent output
-                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, uint160(hashBytes), txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
+                    addressUnspentIndex.push_back(make_pair(CAddressUnspentKey(1, hashBytes, txhash, k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight)));
 
                 } else {
                     continue;
