@@ -125,6 +125,7 @@ private:
     GUIUtil::ClickableLabel* labelBlocksIcon;
     QLabel *labelStakingIcon;
     QLabel *labelPrice;
+    QTimer *timerPrice;
     QLabel *progressBarLabel;
     GUIUtil::ClickableProgressBar* progressBar;
     QProgressDialog *progressDialog;
