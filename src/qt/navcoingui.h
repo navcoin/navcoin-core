@@ -147,6 +147,7 @@ private:
     QAction *repairWalletAction;
     QAction *importPrivateKeyAction;
     QAction *exportMasterPrivateKeyAction;
+    QAction *exportMnemonicAction;
     QAction *signMessageAction;
     QAction *verifyMessageAction;
     QAction *aboutAction;
