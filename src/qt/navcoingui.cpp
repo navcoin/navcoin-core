@@ -113,6 +113,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     labelBlocksIcon(0),
     labelStakingIcon(0),
     labelPrice(0),
+    timerPrice(0),
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
@@ -282,15 +283,17 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     updatePrice(); // First price update
 
+    // Get the passed override value or use default value
     int updateFiatPeriod = GetArg("-updatefiatperiod", PRICE_UPDATE_DELAY);
+
+    // Make sure the delay is a same value
     if (updateFiatPeriod >= PRICE_UPDATE_DELAY)
     {
-        QTimer *timerPrice = new QTimer(labelPrice);
+        timerPrice = new QTimer(labelPrice);
         connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
         timerPrice->start(updateFiatPeriod);
         info("Automatic price update set to " + std::to_string(updateFiatPeriod) + "ms");
-    }
-    else
+    } else // No auto update of prices
     {
         info("Automatic price update turned OFF");
     }
@@ -1839,6 +1842,19 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
+    // Check for shutdown
+    if (ShutdownRequested()) {
+        // Kill the timer and return
+        timerPrice->stop();
+        timerPrice->deleteLater();
+
+        // Can't update pricing
+        info("Can't update prices, shutdown requested.");
+
+        // Done
+        return;
+    }
+
     info("Updating prices");
 
     std::thread pThread{[this]{
