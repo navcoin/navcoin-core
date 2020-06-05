@@ -94,6 +94,7 @@ QT_FORMS_UI = \
 	qt/forms/askpassphrasedialog.ui \
   qt/forms/startoptionsdialog.ui \
   qt/forms/startoptions.ui \
+  qt/forms/startoptionspassword.ui \
   qt/forms/startoptionsrestore.ui \
   qt/forms/startoptionssort.ui \
   qt/forms/startoptionsrevealed.ui \
@@ -131,6 +132,7 @@ QT_MOC_CPP = \
 	qt/moc_clientmodel.cpp \
   qt/moc_startoptionsdialog.cpp \
   qt/moc_startoptions.cpp \
+  qt/moc_startoptionspassword.cpp \
   qt/moc_startoptionsrestore.cpp \
   qt/moc_startoptionssort.cpp \
   qt/moc_startoptionsrevealed.cpp \
@@ -246,6 +248,7 @@ NAVCOIN_QT_H = \
 	qt/clientmodel.h \
   qt/startoptionsdialog.h \
   qt/startoptions.h \
+  qt/startoptionspassword.h \
   qt/startoptionsrestore.h \
   qt/startoptionssort.h \
   qt/startoptionsrevealed.h \
@@ -491,6 +494,7 @@ NAVCOIN_QT_CPP = \
   qt/navcoinpushbutton.cpp \
   qt/startoptionsdialog.cpp \
   qt/startoptions.cpp \
+  qt/startoptionspassword.cpp \
   qt/startoptionsrestore.cpp \
   qt/startoptionssort.cpp \
   qt/startoptionsrevealed.cpp \

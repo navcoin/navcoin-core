@@ -154,7 +154,7 @@ class NavCoinCore: public QObject
 {
     Q_OBJECT
 public:
-    explicit NavCoinCore(std::string& wordlist);
+    explicit NavCoinCore(std::string& wordlist, std::string& password);
 
 public Q_SLOTS:
     void initialize();
@@ -177,6 +177,7 @@ private:
     /// Pass fatal exception message to UI thread
     void handleRunawayException(const std::exception *e);
     std::string words;
+    std::string password;
 };
 
 /** Main NavCoin application object */
@@ -204,7 +205,7 @@ public:
     void createSplashScreen(const NetworkStyle *networkStyle);
 
     /// Get mnemonic words on first startup
-    bool setupMnemonicWords(std::string& wordlist);
+    bool setupMnemonicWords(std::string& wordlist, std::string& password);
 
     /// Request core initialization
     void requestInitialize();
@@ -240,6 +241,7 @@ private:
     WalletModel *walletModel;
 #endif
     std::string wordlist;
+    std::string password;
     int returnValue;
     const PlatformStyle *platformStyle;
     std::unique_ptr<QWidget> shutdownWindow;
@@ -249,8 +251,10 @@ private:
 
 #include <qt/navcoin.moc>
 
-NavCoinCore::NavCoinCore(std::string& wordlist):
-    QObject(), words(wordlist)
+NavCoinCore::NavCoinCore(std::string& wordlist, std::string& password):
+    QObject(),
+    words(wordlist),
+    password(password)
 {
 }
 
@@ -266,7 +270,7 @@ void NavCoinCore::initialize()
     try
     {
         qDebug() << __func__ << ": Running AppInit2 in thread";
-        int rv = AppInit2(threadGroup, scheduler, words);
+        int rv = AppInit2(threadGroup, scheduler, words, password);
         Q_EMIT initializeResult(rv);
     } catch (const std::exception& e) {
         handleRunawayException(&e);
@@ -421,7 +425,7 @@ void NavCoinApplication::createOptionsModel(bool resetSettings)
 }
 
 // this will be used to get mnemonic words
-bool NavCoinApplication::setupMnemonicWords(std::string& wordlist) {
+bool NavCoinApplication::setupMnemonicWords(std::string& wordlist, std::string& password) {
     namespace fs = boost::filesystem;
     if (GetBoolArg("-disablewallet", false)) {
         LogPrintf("Wallet disabled!\n");
@@ -439,12 +443,13 @@ bool NavCoinApplication::setupMnemonicWords(std::string& wordlist) {
     StartOptionsMain dlg(nullptr);
     dlg.exec();
     wordlist = dlg.getWords();
+    password = dlg.getPassword();
     return false;
 }
 
 bool NavCoinApplication::createWindow(const NetworkStyle *networkStyle)
 {
-    if (!setupMnemonicWords(wordlist)) {
+    if (!setupMnemonicWords(wordlist, password)) {
         if (wordlist.empty()) return false;
     }
 
@@ -471,7 +476,7 @@ void NavCoinApplication::startThread()
     if(coreThread)
         return;
     coreThread = new QThread(this);
-    NavCoinCore *executor = new NavCoinCore(wordlist);
+    NavCoinCore *executor = new NavCoinCore(wordlist, password);
     executor->moveToThread(coreThread);
 
     /*  communication to and from thread */
