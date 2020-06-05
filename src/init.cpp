@@ -1297,6 +1297,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler, const std
     if (fServer)
     {
         uiInterface.InitMessage.connect(SetRPCWarmupStatus);
+        uiInterface.ShowProgress.connect(SetRPCWarmupStatusProgress);
         if (!AppInitServers(threadGroup))
             return InitError(_("Unable to start HTTP server. See debug log for details."));
     }
