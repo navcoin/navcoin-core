@@ -500,8 +500,8 @@ void NavCoinGUI::createActions()
     exportMasterPrivateKeyAction = new QAction(tr("Show &master private key"), this);
     exportMasterPrivateKeyAction->setToolTip(tr("Show master private key"));
 
-    exportMnemonicAction = new QAction(tr("Show master m&nemonic"), this);
-    exportMnemonicAction->setToolTip(tr("Show master mnemonic"));
+    exportMnemonicAction = new QAction(tr("Show m&nemonic"), this);
+    exportMnemonicAction->setToolTip(tr("Show mnemonic"));
 
     openAction = new QAction(platformStyle->IconAlt(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
