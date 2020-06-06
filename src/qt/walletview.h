@@ -109,6 +109,7 @@ public Q_SLOTS:
     void lockWallet();
     void importPrivateKey();
     void exportMasterPrivateKeyAction();
+    void exportMnemonicAction();
 
     void splitRewards();
 

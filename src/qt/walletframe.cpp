@@ -265,6 +265,13 @@ void WalletFrame::exportMasterPrivateKeyAction()
         walletView->exportMasterPrivateKeyAction();
 }
 
+void WalletFrame::exportMnemonicAction()
+{
+    WalletView *walletView = currentWalletView();
+    if(walletView)
+        walletView->exportMnemonicAction();
+}
+
 void WalletFrame::lockWallet()
 {
     WalletView *walletView = currentWalletView();

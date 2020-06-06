@@ -131,6 +131,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     repairWalletAction(0),
     importPrivateKeyAction(0),
     exportMasterPrivateKeyAction(0),
+    exportMnemonicAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -502,6 +503,9 @@ void NavCoinGUI::createActions()
     exportMasterPrivateKeyAction = new QAction(tr("Show &master private key"), this);
     exportMasterPrivateKeyAction->setToolTip(tr("Show master private key"));
 
+    exportMnemonicAction = new QAction(tr("Show m&nemonic"), this);
+    exportMnemonicAction->setToolTip(tr("Show mnemonic"));
+
     openAction = new QAction(platformStyle->IconAlt(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
 
@@ -540,6 +544,7 @@ void NavCoinGUI::createActions()
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
         connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
         connect(exportMasterPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(exportMasterPrivateKeyAction()));
+        connect(exportMnemonicAction, SIGNAL(triggered()), walletFrame, SLOT(exportMnemonicAction()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -574,6 +579,7 @@ void NavCoinGUI::createMenuBar()
         file->addSeparator();
         file->addAction(importPrivateKeyAction);
         file->addAction(exportMasterPrivateKeyAction);
+        file->addAction(exportMnemonicAction);
     }
     file->addAction(quitAction);
 
