@@ -33,8 +33,8 @@ class ConsensusConsultationsTest(NavCoinTestFramework):
 
         first_answer = self.nodes[0].getconsultation(proposal)['answers'][0]['hash']
 
-        second_answer = self.nodes[0].proposeanswer(proposal, "5")["hash"]
-        third_answer_not_supported = self.nodes[0].proposeanswer(proposal, "6")["hash"]
+        second_answer = self.nodes[0].proposeanswer(proposal, 5)["hash"]
+        third_answer_not_supported = self.nodes[0].proposeanswer(proposal, 6)["hash"]
 
         slow_gen(self.nodes[0] , 1)
         end_cycle(self.nodes[0])
