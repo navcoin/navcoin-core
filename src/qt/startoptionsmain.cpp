@@ -242,7 +242,7 @@ void StartOptionsMain::on_Next_clicked() {
             {
                 QMessageBox msgBox;
                 msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Are you sure you want to skip seed confirmation?"));
+                msgBox.setText(tr("Are you sure you don't want to set a password?"));
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
                 msgBox.setDefaultButton(QMessageBox::Cancel);
                 // Check if they want to really skip password
