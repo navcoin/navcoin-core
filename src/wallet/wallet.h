@@ -994,7 +994,7 @@ public:
     static std::string GetWalletHelpString(bool showDebug);
 
     /* Initializes the wallet, returns a new CWallet instance or a null pointer in case of an error */
-    static bool InitLoadWallet(const std::string& wordlist);
+    static bool InitLoadWallet(const std::string& wordlist, const std::string& password);
 
     /* Wallets parameter interaction */
     static bool ParameterInteraction();
