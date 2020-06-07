@@ -155,7 +155,7 @@ static void InitMessage(SplashScreen *splash, const std::string &message)
 
 static void ShowProgress(SplashScreen *splash, const std::string &title, int nProgress)
 {
-    InitMessage(splash, title + strprintf("%d", nProgress) + "%");
+    InitMessage(splash, title + strprintf("%d", nProgress) + (nProgress <= 100 ? "%" : ""));
 }
 
 #ifdef ENABLE_WALLET

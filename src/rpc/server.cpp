@@ -337,6 +337,11 @@ void SetRPCWarmupStatus(const std::string& newStatus)
     rpcWarmupStatus = newStatus;
 }
 
+void SetRPCWarmupStatusProgress(const std::string& newStatus, int nProgress)
+{
+    SetRPCWarmupStatus(newStatus + strprintf("%d", nProgress) + (nProgress <= 100 ? "%" : ""));
+}
+
 void SetRPCWarmupFinished()
 {
     LOCK(cs_rpcWarmup);

@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <txdb.h>
+#include <ui_interface.h>
 
 #include <chainparams.h>
 #include <hash.h>
@@ -744,8 +745,14 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
 
     pcursor->Seek(make_pair(DB_BLOCK_INDEX, uint256()));
 
+    int nCount = 0;
+
     // Load mapBlockIndex
     while (pcursor->Valid()) {
+        if (++nCount % PROGRESS_INTERVAL == 0) {
+            // Update the progress
+            uiInterface.ShowProgress(_("Loading block guts..."), nCount);
+        }
         boost::this_thread::interruption_point();
         std::pair<char, uint256> key;
         if (pcursor->GetKey(key) && key.first == DB_BLOCK_INDEX) {
