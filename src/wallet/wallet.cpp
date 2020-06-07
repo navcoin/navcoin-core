@@ -940,7 +940,24 @@ bool CWallet::Verify()
     if (walletFile != boost::filesystem::basename(walletFile) + boost::filesystem::extension(walletFile))
         return InitError(strprintf(_("Wallet %s resides outside data directory %s"), walletFile, GetDataDir().string()));
 
-    if (!bitdb.Open(GetDataDir()))
+    // PIN for wallet txdata?
+    std::string pin = GetArg("-pin", "");
+
+    // Check if we have the wallet file
+    if (boost::filesystem::exists(GetDataDir() / walletFile)) {
+        // Check if it's encrypted
+        if (BdbEncrypted(boost::filesystem::path(GetDataDir() / walletFile))) {
+            // No pin?
+           if (pin == "")
+                pin = uiInterface.AskForPin(_("PIN/PASS:"));
+        }
+    } else {
+        // Check if it's empty
+        if (pin == "")
+            pin = uiInterface.AskForPin(_("PIN/PASS:"));
+    }
+
+    if (!bitdb.Open(GetDataDir(), pin))
     {
         // try moving the database env out of the way
         boost::filesystem::path pathDatabase = GetDataDir() / "database";
@@ -953,7 +970,7 @@ bool CWallet::Verify()
         }
 
         // try again
-        if (!bitdb.Open(GetDataDir())) {
+        if (!bitdb.Open(GetDataDir(), pin)) {
             // if it still fails, it probably means we can't even create the database env
             return InitError(strprintf(_("Error initializing wallet database environment %s!"), GetDataDir()));
         }
@@ -1152,6 +1169,12 @@ bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
     NotifyStatusChanged(this);
 
     return true;
+}
+
+bool CWallet::EncryptTx(const SecureString& password)
+{
+    // TODO: Implement Encryption
+    return false;
 }
 
 int64_t CWallet::IncOrderPosNext(CWalletDB *pwalletdb)
@@ -3968,7 +3991,6 @@ std::string CWallet::GetWalletHelpString(bool showDebug)
 
         strUsage += HelpMessageOpt("-dblogsize=<n>", strprintf("Flush wallet database activity from memory to disk log every <n> megabytes (default: %u)", DEFAULT_WALLET_DBLOGSIZE));
         strUsage += HelpMessageOpt("-flushwallet", strprintf("Run a thread to flush wallet periodically (default: %u)", DEFAULT_FLUSHWALLET));
-        strUsage += HelpMessageOpt("-privdb", strprintf("Sets the DB_PRIVATE flag in the wallet db environment (default: %u)", DEFAULT_WALLET_PRIVDB));
     }
 
     return strUsage;

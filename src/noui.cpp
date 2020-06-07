@@ -49,10 +49,21 @@ static void noui_InitMessage(const std::string& message)
     LogPrintf("init message: %s\n", message);
 }
 
+static std::string noui_AskForPin(const std::string& message)
+{
+    std::string pin = "";
+
+    while(pin == "")
+        pin = __getpass(message, true);
+
+    return pin;
+}
+
 void noui_connect()
 {
     // Connect navcoind signal handlers
     uiInterface.ThreadSafeMessageBox.connect(noui_ThreadSafeMessageBox);
     uiInterface.ThreadSafeQuestion.connect(noui_ThreadSafeQuestion);
     uiInterface.InitMessage.connect(noui_InitMessage);
+    uiInterface.AskForPin.connect(noui_AskForPin);
 }

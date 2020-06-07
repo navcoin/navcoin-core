@@ -5,11 +5,13 @@
 
 #include <wallet/db.h>
 
+#include <init.h>
 #include <addrman.h>
 #include <hash.h>
 #include <protocol.h>
 #include <util.h>
 #include <utilstrencodings.h>
+#include <ui_interface.h>
 
 #include <stdint.h>
 
@@ -71,7 +73,7 @@ void CDBEnv::Close()
     EnvShutdown();
 }
 
-bool CDBEnv::Open(const boost::filesystem::path& pathIn)
+bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string pin)
 {
     if (fDbEnvInit)
         return true;
@@ -84,10 +86,6 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn)
     boost::filesystem::path pathErrorFile = pathIn / "db.log";
     LogPrintf("CDBEnv::Open: LogDir=%s ErrorFile=%s\n", pathLogDir.string(), pathErrorFile.string());
 
-    unsigned int nEnvFlags = 0;
-    if (GetBoolArg("-privdb", DEFAULT_WALLET_PRIVDB))
-        nEnvFlags |= DB_PRIVATE;
-
     dbenv->set_lg_dir(pathLogDir.string().c_str());
     dbenv->set_cachesize(0, 0x100000, 1); // 1 MiB should be enough for just the wallet
     dbenv->set_lg_bsize(0x10000);
@@ -98,6 +96,24 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn)
     dbenv->set_flags(DB_AUTO_COMMIT, 1);
     dbenv->set_flags(DB_TXN_WRITE_NOSYNC, 1);
     dbenv->log_set_config(DB_LOG_AUTO_REMOVE, 1);
+
+    // Check if we got a pin
+    if (pin != "")
+    {
+        info("CDBEnv::Open: Encryption Enabled");
+
+        // Enable encryption for the envirnment
+        int cryptRet = dbenv->set_encrypt(pin.c_str(), DB_ENCRYPT_AES);
+
+        // Check if it worked
+        if (cryptRet != 0)
+            return error("CDBEnv::Open: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet));
+    } else {
+        info("CDBEnv::Open: Encryption Disabled");
+    }
+
+    info("CDBEnv::Open: CALL DBEnv->open");
+    info("CDBEnv::Open: DIR %s", strPath);
     int ret = dbenv->open(strPath.c_str(),
                          DB_CREATE |
                              DB_INIT_LOCK |
@@ -106,7 +122,7 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn)
                              DB_INIT_TXN |
                              DB_THREAD |
                              DB_RECOVER |
-                             nEnvFlags,
+                             DB_PRIVATE,
                          S_IRUSR | S_IWUSR);
     if (ret != 0)
         return error("CDBEnv::Open: Error %d opening database environment: %s\n", ret, DbEnv::strerror(ret));
@@ -132,6 +148,8 @@ void CDBEnv::MakeMock()
     dbenv->set_lk_max_objects(10000);
     dbenv->set_flags(DB_AUTO_COMMIT, 1);
     dbenv->log_set_config(DB_LOG_IN_MEMORY, 1);
+
+    info("CDBEnv::MakeMock: CALL DB->open");
     int ret = dbenv->open(NULL,
                          DB_CREATE |
                              DB_INIT_LOCK |
@@ -155,7 +173,10 @@ CDBEnv::VerifyResult CDBEnv::Verify(const std::string& strFile, bool (*recoverFu
 
     Db db(dbenv, 0);
     int result = db.verify(strFile.c_str(), nullptr, nullptr, 0);
-    if (result == 0)
+
+    info("CDBEnv::Verify: CODE: %d MESSAGE: %s", result, DbEnv::strerror(result));
+
+    if (result != DB_VERIFY_BAD)
         return VERIFY_OK;
     else if (recoverFunc == nullptr)
         return RECOVER_FAIL;
@@ -239,9 +260,9 @@ void CDBEnv::CheckpointLSN(const std::string& strFile)
     dbenv->lsn_reset(strFile.c_str(), 0);
 }
 
-
-CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(NULL), activeTxn(NULL)
+void CDB::Setup(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn)
 {
+    info("CDB::Setup: START");
     int ret;
     fReadOnly = (!strchr(pszMode, '+') && !strchr(pszMode, 'w'));
     fFlushOnClose = fFlushOnCloseIn;
@@ -256,7 +277,7 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
     {
         LOCK(bitdb.cs_db);
         if (!bitdb.Open(GetDataDir()))
-            throw runtime_error("CDB: Failed to open database environment.");
+            throw runtime_error("CDB::Setup: Failed to open database environment.");
 
         strFile = strFilename;
         ++bitdb.mapFileUseCount[strFile];
@@ -269,9 +290,10 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                 DbMpoolFile* mpf = pdb->get_mpf();
                 ret = mpf->set_flags(DB_MPOOL_NOFILE, 1);
                 if (ret != 0)
-                    throw runtime_error(strprintf("CDB: Failed to configure for no temp file backing for database %s", strFile));
+                    throw runtime_error(strprintf("CDB::CDB Failed to configure for no temp file backing for database %s", strFile));
             }
 
+            info("CDB::Setup: CALL DB->open");
             ret = pdb->open(NULL,                               // Txn pointer
                             fMockDb ? NULL : strFile.c_str(),   // Filename
                             fMockDb ? strFile.c_str() : "main", // Logical db name
@@ -280,11 +302,21 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                             0);
 
             if (ret != 0) {
+                std::string err = strprintf("CDB::CDB Error %d, can't open database %s", ret, strFile);
+                error(err);
+
                 delete pdb;
                 pdb = nullptr;
                 --bitdb.mapFileUseCount[strFile];
                 strFile = "";
-                throw runtime_error(strprintf("CDB: Error %d, can't open database %s", ret, strFile));
+
+                // Could not decrypt?
+                if (ret == -30973) {
+                    InitError(_("Could not decrypt the wallet database"));
+                    StartShutdown();
+                    return;
+                }
+                throw runtime_error(err);
             }
 
             if (fCreate && !Exists(string("version"))) {
@@ -297,6 +329,11 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
             bitdb.mapDb[strFile] = pdb;
         }
     }
+}
+
+CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(NULL), activeTxn(NULL)
+{
+    Setup(strFilename, pszMode, fFlushOnCloseIn);
 }
 
 void CDB::Flush()
@@ -371,6 +408,7 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
                     CDB db(strFile.c_str(), "r");
                     Db* pdbCopy = new Db(bitdb.dbenv, 0);
 
+                    info("CDB::Rewrite: CALL DB->open");
                     int ret = pdbCopy->open(NULL,               // Txn pointer
                                             strFileRes.c_str(), // Filename
                                             "main",             // Logical db name

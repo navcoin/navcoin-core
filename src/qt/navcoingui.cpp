@@ -1834,6 +1834,22 @@ static bool ThreadSafeMessageBox(NavCoinGUI *gui, const std::string& message, co
     return ret;
 }
 
+static std::string AskForPin(NavCoinGUI *gui)
+{
+    bool ok = false;
+    QString text = QInputDialog::getText(gui,
+            _("Unlock wallet").c_str(),
+            _("Pin/Password:").c_str(),
+            QLineEdit::Password,
+            "",
+            &ok);
+    std::string ret = text.toStdString();
+    if (ret == "")
+        return "=";
+    else
+        return ret;
+}
+
 void SetBalance(NavCoinGUI *gui, const CAmount& total, const CAmount& avail, const CAmount &immat)
 {
     // Call our instance method
@@ -1851,6 +1867,7 @@ void NavCoinGUI::subscribeToCoreSignals()
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.AskForPin.connect(boost::bind(AskForPin, this));
     uiInterface.SetBalance.connect(boost::bind(SetBalance, this, _1, _2, _3));
     uiInterface.SetStaked.connect(boost::bind(SetStaked, this, _1, _2, _3));
 }
@@ -1860,6 +1877,7 @@ void NavCoinGUI::unsubscribeFromCoreSignals()
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
+    uiInterface.AskForPin.disconnect(boost::bind(AskForPin, this));
     uiInterface.SetBalance.disconnect(boost::bind(SetBalance, this, _1, _2, _3));
     uiInterface.SetStaked.disconnect(boost::bind(SetStaked, this, _1, _2, _3));
 }

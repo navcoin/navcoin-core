@@ -3030,6 +3030,62 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     return _("wallet encrypted; NavCoin server stopping, restart to run with encrypted wallet.");
 }
 
+UniValue encrypttx(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (!pwalletMain->IsCryptedTx() && (fHelp || params.size() != 1))
+        throw runtime_error(
+            "encrypttx \"passphrase\"\n"
+            "\nEncrypts the wallet with 'passphrase'. This is for first time encryption.\n"
+            "After this, any calls that interact with private keys such as sending or signing \n"
+            "will require the passphrase to be set prior the making these calls.\n"
+            "Use the walletpassphrase call for this, and then walletlock call.\n"
+            "If the wallet is already encrypted, use the walletpassphrasechange call.\n"
+            "Note that this will shutdown the server.\n"
+            "\nArguments:\n"
+            "1. \"passphrase\"    (string) The pass phrase to encrypt the wallet with. It must be at least 1 character, but should be long.\n"
+            "\nExamples:\n"
+            "\nEncrypt you wallet\n"
+            + HelpExampleCli("encrypttx", "\"my pass phrase\"") +
+            "\nNow set the passphrase to use the wallet, such as for signing or sending navcoin\n"
+            + HelpExampleCli("walletpassphrase", "\"my pass phrase\"") +
+            "\nNow we can so something like sign\n"
+            + HelpExampleCli("signmessage", "\"navcoinaddress\" \"test message\"") +
+            "\nNow lock the wallet again by removing the passphrase\n"
+            + HelpExampleCli("walletlock", "") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("encrypttx", "\"my pass phrase\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    if (fHelp)
+        return true;
+    if (pwalletMain->IsCryptedTx())
+        throw JSONRPCError(RPC_WALLET_WRONG_ENC_STATE, "Error: running with encrypted txdata, but encrypttx was called.");
+
+    // TODO: get rid of this .c_str() by implementing SecureString::operator=(std::string)
+    // Alternately, find a way to make params[0] mlock()'d to begin with.
+    SecureString strWalletPass;
+    strWalletPass.reserve(100);
+    strWalletPass = params[0].get_str().c_str();
+
+    if (strWalletPass.length() < 1)
+        throw runtime_error(
+            "encrypttx <passphrase>\n"
+            "Encrypts the txdata with <passphrase>.");
+
+    if (!pwalletMain->EncryptTx(strWalletPass))
+        throw JSONRPCError(RPC_WALLET_ENCRYPTION_FAILED, "Error: Failed to encrypt the txdata.");
+
+    // Shutdown the wallet so we don't accidentally write unencrypted data
+    // to the wallet.dat file...
+    StartShutdown();
+    return _("txdata encrypted; NavCoin server stopping, restart to run with encrypted txdata.");
+}
+
 UniValue lockunspent(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
