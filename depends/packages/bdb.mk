@@ -14,8 +14,12 @@ $(package)_cppflags_mingw32=-DUNICODE -D_UNICODE
 endef
 
 define $(package)_preprocess_cmds
-    sed -i.old 's/__atomic_compare_exchange/__atomic_compare_exchange_db/' src/dbinc/atomic.h && \
-    sed -i.old 's/WinIoCtl.h/winioctl.h/' src/dbinc/win_db.h
+  cd src &&\
+  sed -i.old 's/__atomic_compare_exchange/__atomic_compare_exchange_db/' dbinc/atomic.h && \
+  sed -i.old 's/atomic_init/atomic_init_db/' dbinc/atomic.h mp/mp_region.c mp/mp_mvcc.c mp/mp_fget.c mutex/mut_method.c mutex/mut_tas.c && \
+  sed -i.old 's/WinIoCtl.h/winioctl.h/' dbinc/win_db.h &&\
+  cd .. &&\
+  cp -f $(BASEDIR)/config.guess $(BASEDIR)/config.sub dist
 endef
 
 define $(package)_config_cmds
@@ -23,7 +27,7 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) libdb_cxx-5.3.a libdb-5.3.a
+  $(MAKE) -j$(JOBS) libdb_cxx-5.3.a libdb-5.3.a
 endef
 
 define $(package)_stage_cmds
