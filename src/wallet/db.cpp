@@ -108,8 +108,6 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string strPin)
         // Check if it worked
         if (cryptRet != 0)
             return error("CDBEnv::Open: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet));
-
-        info(dbenv->set_encrypt());
     } else {
         info("CDBEnv::Open: Encryption Disabled");
     }
