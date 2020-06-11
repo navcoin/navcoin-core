@@ -181,8 +181,10 @@ CDBEnv::VerifyResult CDBEnv::Verify(const std::string& strFile, bool (*recoverFu
 
     info("CDBEnv::Verify: CODE: %d MESSAGE: %s", result, DbEnv::strerror(result));
 
-    if (result != DB_VERIFY_BAD)
+    if (result == 0)
         return VERIFY_OK;
+    else if (result == DB_RUNRECOVERY && bitdb.IsCrypted())
+        return DECRYPT_FAIL;
     else if (recoverFunc == nullptr)
         return RECOVER_FAIL;
 
@@ -319,21 +321,11 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                             0);
 
             if (ret != 0) {
-                std::string err = strprintf("CDB::CDB Error %d, can't open database %s", ret, strFile);
-                error(err);
-
                 delete pdb;
                 pdb = nullptr;
                 --bitdb.mapFileUseCount[strFile];
                 strFile = "";
-
-                // Could not decrypt?
-                if (ret == -30973) {
-                    InitError(_("Could not decrypt the wallet database"));
-                    StartShutdown();
-                    return;
-                }
-                throw runtime_error(err);
+                throw runtime_error(strprintf("CDB::CDB Error %d, can't open database %s", ret, strFile));
             }
 
             if (fCreate && !Exists(string("version"))) {

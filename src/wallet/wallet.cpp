@@ -990,6 +990,10 @@ bool CWallet::Verify()
                                          " restore from a backup."),
                 walletFile, "wallet.{timestamp}.bak", GetDataDir()));
         }
+        // Could not decrypt?
+        if (r == CDBEnv::DECRYPT_FAIL) {
+            return InitError(_("Could not decrypt the wallet database"));
+        }
         if (r == CDBEnv::RECOVER_FAIL)
             return InitError(strprintf(_("%s corrupt, salvage failed"), walletFile));
     }

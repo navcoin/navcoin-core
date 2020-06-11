@@ -64,6 +64,7 @@ public:
      */
     enum VerifyResult { VERIFY_OK,
                         RECOVER_OK,
+                        DECRYPT_FAIL,
                         RECOVER_FAIL };
     VerifyResult Verify(const std::string& strFile, bool (*recoverFunc)(CDBEnv& dbenv, const std::string& strFile));
     /**
