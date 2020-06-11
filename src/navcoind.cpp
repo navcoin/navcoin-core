@@ -161,7 +161,8 @@ bool AppInit(int argc, char* argv[])
         InitLogging();
         InitParameterInteraction();
         std::string wordlist;
-        fRet = AppInit2(threadGroup, scheduler, wordlist);
+        std::string password;
+        fRet = AppInit2(threadGroup, scheduler, wordlist, password);
     }
     catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInit()");

@@ -142,6 +142,10 @@
 #startOptions QLabel {
     font: normal normal 10pt/12pt;
 }
+#startOptions #startOptionsLabelNote {
+    font: normal normal 14pt/15pt;
+    color: palette(text);
+}
 #startOptions QLabel.reveal {
     background-color: transparent;
     margin-bottom:    0.3em;

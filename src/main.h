@@ -42,6 +42,7 @@
 
 #define START_INODE_PAYMENTS_TESTNET 1429456427
 #define START_INODE_PAYMENTS 1429456427
+#define PROGRESS_INTERVAL 15000
 
 static const int64_t MAX_MINT_PROOF_OF_STAKE = 0.1 * COIN;
 
@@ -563,8 +564,6 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
 /** RAII wrapper for VerifyDB: Verify consistency of the block and coin databases */
 class CVerifyDB {
 public:
-    CVerifyDB();
-    ~CVerifyDB();
     bool VerifyDB(const CChainParams& chainparams, CStateView *coinsview, int nCheckLevel, int nCheckDepth);
 };
 

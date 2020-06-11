@@ -60,6 +60,7 @@ bool IsRPCRunning();
  * immediately with RPC_IN_WARMUP.
  */
 void SetRPCWarmupStatus(const std::string& newStatus);
+void SetRPCWarmupStatusProgress(const std::string& newStatus, int nProgress);
 /* Mark warmup as done.  RPC calls will be processed from now on.  */
 void SetRPCWarmupFinished();
 

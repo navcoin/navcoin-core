@@ -1198,14 +1198,22 @@ UniValue proposeanswer(const UniValue& params, bool fHelp)
     if(!consultation.CanHaveNewAnswers())
         throw JSONRPCError(RPC_TYPE_ERROR, "The consultation does not admit new answers.");
 
-    int64_t nValue = params[1].get_int64();
-
-    if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+    std::string sAnswer = "";
+    if (consultation.IsAboutConsensusParameter())
     {
-        nValue--;
-    }
+        int64_t nValue = params[1].get_int64();
 
-    std::string sAnswer = std::to_string(nValue);
+        if (consultation.nMin == Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES || consultation.nMin == Consensus::CONSENSUS_PARAM_PAYMENT_REQUEST_MAX_VOTING_CYCLES)
+        {
+            nValue--;
+        }
+
+        sAnswer = std::to_string(nValue);
+    }
+    else
+    {
+        sAnswer = params[1].get_str();
+    }
 
     bool fDump = params.size() == 4 ? params[3].getBool() : false;
 
@@ -2980,7 +2988,7 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return "wallet encrypted; NavCoin server stopping, restart to run with encrypted wallet. The keypool has been flushed and a new HD seed was generated (if you are using HD). You need to make a new backup.";
+    return _("wallet encrypted; NavCoin server stopping, restart to run with encrypted wallet.");
 }
 
 UniValue lockunspent(const UniValue& params, bool fHelp)
@@ -4233,7 +4241,7 @@ UniValue getstakervote(const UniValue& params, bool fHelp)
 
     if (!view.GetCachedVoter(stakerScript, pVoteList))
     {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Could not find staker script ")+HexStr(stakerScript));
+         return ret;
     }
 
     std::map<int, std::map<uint256, int64_t>>* list= pVoteList.GetFullList();
@@ -4456,7 +4464,7 @@ UniValue listproposals(const UniValue& params, bool fHelp)
                 + HelpExampleCli("listproposal", "mine accepted")
                 + HelpExampleCli("listproposal", "accepted")
                 + HelpExampleRpc("listproposal", "")
-        );
+                );
 
     LOCK(cs_main);
 
@@ -4516,12 +4524,12 @@ UniValue listproposals(const UniValue& params, bool fHelp)
 
 
             if(showAll
-               || (showMine && fIsMine)
-               || (showPending  && (fLastState == DAOFlags::NIL || fLastState == DAOFlags::PENDING_VOTING_PREQ
-                                    || fLastState == DAOFlags::PENDING_FUNDS))
-               || (showAccepted && (fLastState == DAOFlags::ACCEPTED))
-               || (showRejected && (fLastState == DAOFlags::REJECTED))
-               || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime(), view))) {
+                    || (showMine && fIsMine)
+                    || (showPending  && (fLastState == DAOFlags::NIL || fLastState == DAOFlags::PENDING_VOTING_PREQ
+                                         || fLastState == DAOFlags::PENDING_FUNDS))
+                    || (showAccepted && (fLastState == DAOFlags::ACCEPTED))
+                    || (showRejected && (fLastState == DAOFlags::REJECTED))
+                    || (showExpired  &&  proposal.IsExpired(pindexBestHeader->GetBlockTime(), view))) {
                 UniValue o(UniValue::VOBJ);
                 proposal.ToJson(o, view);
                 ret.push_back(o);

@@ -113,6 +113,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     labelBlocksIcon(0),
     labelStakingIcon(0),
     labelPrice(0),
+    timerPrice(0),
     progressBarLabel(0),
     progressBar(0),
     progressDialog(0),
@@ -130,6 +131,7 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     repairWalletAction(0),
     importPrivateKeyAction(0),
     exportMasterPrivateKeyAction(0),
+    exportMnemonicAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -282,15 +284,17 @@ NavCoinGUI::NavCoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
 
     updatePrice(); // First price update
 
+    // Get the passed override value or use default value
     int updateFiatPeriod = GetArg("-updatefiatperiod", PRICE_UPDATE_DELAY);
+
+    // Make sure the delay is a same value
     if (updateFiatPeriod >= PRICE_UPDATE_DELAY)
     {
-        QTimer *timerPrice = new QTimer(labelPrice);
+        timerPrice = new QTimer(labelPrice);
         connect(timerPrice, SIGNAL(timeout()), this, SLOT(updatePrice()));
         timerPrice->start(updateFiatPeriod);
         info("Automatic price update set to " + std::to_string(updateFiatPeriod) + "ms");
-    }
-    else
+    } else // No auto update of prices
     {
         info("Automatic price update turned OFF");
     }
@@ -499,6 +503,9 @@ void NavCoinGUI::createActions()
     exportMasterPrivateKeyAction = new QAction(tr("Show &master private key"), this);
     exportMasterPrivateKeyAction->setToolTip(tr("Show master private key"));
 
+    exportMnemonicAction = new QAction(tr("Show m&nemonic"), this);
+    exportMnemonicAction->setToolTip(tr("Show mnemonic"));
+
     openAction = new QAction(platformStyle->IconAlt(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a navcoin: URI or payment request"));
 
@@ -537,6 +544,7 @@ void NavCoinGUI::createActions()
         connect(repairWalletAction, SIGNAL(triggered()), this, SLOT(repairWallet()));
         connect(importPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(importPrivateKey()));
         connect(exportMasterPrivateKeyAction, SIGNAL(triggered()), walletFrame, SLOT(exportMasterPrivateKeyAction()));
+        connect(exportMnemonicAction, SIGNAL(triggered()), walletFrame, SLOT(exportMnemonicAction()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
     }
 #endif // ENABLE_WALLET
@@ -571,6 +579,7 @@ void NavCoinGUI::createMenuBar()
         file->addSeparator();
         file->addAction(importPrivateKeyAction);
         file->addAction(exportMasterPrivateKeyAction);
+        file->addAction(exportMnemonicAction);
     }
     file->addAction(quitAction);
 
@@ -1839,6 +1848,19 @@ void NavCoinGUI::updateWeight()
 
 void NavCoinGUI::updatePrice()
 {
+    // Check for shutdown
+    if (ShutdownRequested()) {
+        // Kill the timer and return
+        timerPrice->stop();
+        timerPrice->deleteLater();
+
+        // Can't update pricing
+        info("Can't update prices, shutdown requested.");
+
+        // Done
+        return;
+    }
+
     info("Updating prices");
 
     std::thread pThread{[this]{
