@@ -33,9 +33,9 @@ private:
     // shutdown problems/crashes caused by a static initialized internal pointer.
     std::string strPath;
 
-    // We need to save the pin so we can use it to create copies of the unlocked
-    // DBEnv later on, usefull for when we rewrite the entire file
-    std::string pin = "";
+    // We need to save the state of encryption so we can use it to create copies
+    // of the unlocked DBEnv later on, usefull for when we rewrite the entire file
+    bool fCrypted = false;
 
     void EnvShutdown();
 
@@ -52,9 +52,9 @@ public:
     void MakeMock();
     bool IsMock() { return fMockDb; }
 
-    bool IsCrypted() { return pin != ""; }
+    std::string GetPath() { return strPath; }
 
-    std::string GetPin() { return pin; };
+    bool IsCrypted() { return fCrypted; }
 
     /**
      * Verify that database file strFile is OK. If it is not,
@@ -313,7 +313,7 @@ public:
         return Write(std::string("version"), nVersion);
     }
 
-    bool static Rewrite(const std::string& strFile, const char* pszSkip = NULL);
+    bool static Rewrite(const std::string& strFile, const char* pszSkip = nullptr, std::string newPin = "");
 };
 
 #endif // NAVCOIN_WALLET_DB_H

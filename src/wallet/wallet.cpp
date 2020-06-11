@@ -1169,8 +1169,8 @@ bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
 
 bool CWallet::EncryptTx(const SecureString& password)
 {
-    // TODO: Implement Encryption
-    return false;
+    // Rewrite the database with the new key
+    return CDB::Rewrite(strWalletFile, nullptr, string(password.c_str()));
 }
 
 int64_t CWallet::IncOrderPosNext(CWalletDB *pwalletdb)

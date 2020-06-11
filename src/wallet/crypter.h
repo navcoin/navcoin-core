@@ -130,8 +130,6 @@ private:
     //! if fUseCrypto is false, vMasterKey must be empty
     bool fUseCrypto;
 
-    bool fUseCryptoTx;
-
     //! keeps track of whether Unlock has run a thorough check before
     bool fDecryptionThoroughlyChecked;
 
@@ -144,18 +142,13 @@ protected:
     bool Unlock(const CKeyingMaterial& vMasterKeyIn);
 
 public:
-    CCryptoKeyStore() : fUseCrypto(false), fUseCryptoTx(false), fDecryptionThoroughlyChecked(false)
+    CCryptoKeyStore() : fUseCrypto(false), fDecryptionThoroughlyChecked(false)
     {
     }
 
     bool IsCrypted() const
     {
         return fUseCrypto;
-    }
-
-    bool IsCryptedTx() const
-    {
-        return fUseCryptoTx;
     }
 
     bool IsLocked() const
