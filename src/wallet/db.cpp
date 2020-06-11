@@ -73,10 +73,14 @@ void CDBEnv::Close()
     EnvShutdown();
 }
 
-bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string strPin)
+bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string _pin)
 {
     if (fDbEnvInit)
         return true;
+
+    // Save the pin for later use
+    if (_pin != "")
+        pin = _pin;
 
     boost::this_thread::interruption_point();
 
@@ -98,12 +102,13 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string strPin)
     dbenv->log_set_config(DB_LOG_AUTO_REMOVE, 1);
 
     // Check if we got a pin
-    if (strPin != "")
+    if (pin != "")
     {
         info("CDBEnv::Open: Encryption Enabled");
+        info("CDBEnv::Open: PIN(%s)", pin);
 
         // Enable encryption for the envirnment
-        int cryptRet = dbenv->set_encrypt(strPin.c_str(), DB_ENCRYPT_AES);
+        int cryptRet = dbenv->set_encrypt(pin.c_str(), DB_ENCRYPT_AES);
 
         // Check if it worked
         if (cryptRet != 0)
@@ -260,7 +265,7 @@ void CDBEnv::CheckpointLSN(const std::string& strFile)
     dbenv->lsn_reset(strFile.c_str(), 0);
 }
 
-CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn, std::string strPin) : pdb(NULL), activeTxn(NULL)
+CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(nullptr), activeTxn(nullptr)
 {
     info("CDB::CDB: START");
     int ret;
@@ -276,7 +281,7 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
 
     {
         LOCK(bitdb.cs_db);
-        if (!bitdb.Open(GetDataDir(), strPin))
+        if (!bitdb.Open(GetDataDir()))
             throw runtime_error("CDB::CDB: Failed to open database environment.");
 
         strFile = strFilename;
@@ -291,6 +296,20 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                 ret = mpf->set_flags(DB_MPOOL_NOFILE, 1);
                 if (ret != 0)
                     throw runtime_error(strprintf("CDB::CDB Failed to configure for no temp file backing for database %s", strFile));
+            }
+
+            // Check if bitdb is encrypted
+            if (bitdb.IsCrypted())
+            {
+                info("CDB::CDB: DB_ENCRYPT enabled");
+                // Enable encryption for the database
+                int cryptRet = pdb->set_flags(DB_ENCRYPT);
+
+                // Check if it worked
+                if (cryptRet != 0)
+                    throw runtime_error(strprintf("CDB::CDB: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
+            } else {
+                info("CDB::CDB: DB_ENCRYPT disabled");
             }
 
             info("CDB::CDB: CALL DB->open");

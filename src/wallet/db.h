@@ -33,6 +33,10 @@ private:
     // shutdown problems/crashes caused by a static initialized internal pointer.
     std::string strPath;
 
+    // We need to save the pin so we can use it to create copies of the unlocked
+    // DBEnv later on, usefull for when we rewrite the entire file
+    std::string pin = "";
+
     void EnvShutdown();
 
 public:
@@ -47,6 +51,10 @@ public:
 
     void MakeMock();
     bool IsMock() { return fMockDb; }
+
+    bool IsCrypted() { return pin != ""; }
+
+    std::string GetPin() { return pin; };
 
     /**
      * Verify that database file strFile is OK. If it is not,
@@ -68,7 +76,7 @@ public:
     typedef std::pair<std::vector<unsigned char>, std::vector<unsigned char> > KeyValPair;
     bool Salvage(const std::string& strFile, bool fAggressive, std::vector<KeyValPair>& vResult);
 
-    bool Open(const boost::filesystem::path& path, std::string strPin);
+    bool Open(const boost::filesystem::path& path, std::string pin = "");
     void Close();
     void Flush(bool fShutdown);
     void CheckpointLSN(const std::string& strFile);
@@ -99,7 +107,7 @@ protected:
     bool fReadOnly;
     bool fFlushOnClose;
 
-    explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn = true, std::string strPin = "");
+    explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn = true);
     ~CDB() { Close(); }
 
 public:
