@@ -15,11 +15,8 @@
 #include <qt/sendcoinsentry.h>
 #include <qt/walletmodel.h>
 #include <net.h>
-#include <qt/skinize.h>
 #include <util.h>
 #include <utilstrencodings.h>
-#include <qt/navtechinit.h>
-#include <qt/navtechsetup.h>
 
 #include <base58.h>
 #include <coincontrol.h>
@@ -44,7 +41,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     clientModel(0),
     model(0),
     fNewRecipientAllowed(true),
-    fFeeMinimized(true),
     platformStyle(platformStyle)
 {
     ui->setupUi(this);
@@ -57,7 +53,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
 
     // Coin Control
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
-    connect(ui->noNavtechButton, SIGNAL(clicked()), this, SLOT(showNavTechDialog()));
     connect(ui->checkBoxCoinControlChange, SIGNAL(stateChanged(int)), this, SLOT(coinControlChangeChecked(int)));
     connect(ui->lineEditCoinControlChange, SIGNAL(textEdited(const QString &)), this, SLOT(coinControlChangeEdited(const QString &)));
 
@@ -78,8 +73,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
     connect(clipboardPriorityAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardPriority()));
     connect(clipboardLowOutputAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardLowOutput()));
     connect(clipboardChangeAction, SIGNAL(triggered()), this, SLOT(coinControlClipboardChange()));
-    connect(ui->anonsendCheckbox, SIGNAL(clicked()), this, SLOT(anonsendCheckboxClick()));
-    connect(ui->fullAmountBtn,  SIGNAL(clicked()), this, SLOT(useFullAmount()));
 
     ui->labelCoinControlQuantity->addAction(clipboardQuantityAction);
     ui->labelCoinControlAmount->addAction(clipboardAmountAction);
@@ -108,53 +101,17 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *pa
         settings.setValue("nTransactionFee", (qint64)DEFAULT_TRANSACTION_FEE);
     if (!settings.contains("fPayOnlyMinFee"))
         settings.setValue("fPayOnlyMinFee", false);
-    if (!settings.contains("fAnonSend"))
-      settings.setValue("fAnonSend", false);
     if (!settings.contains("sCustomChangeAddress"))
       settings.setValue("sCustomChangeAddress", "");
     if (!settings.contains("fUseCustomChangeAddress"))
       settings.setValue("fUseCustomChangeAddress", false);
-    ui->groupFee->setId(ui->radioSmartFee, 0);
-    ui->groupFee->setId(ui->radioCustomFee, 1);
-    ui->groupFee->button((int)std::max(0, std::min(1, settings.value("nFeeRadio").toInt())))->setChecked(true);
-    ui->groupCustomFee->setId(ui->radioCustomPerKilobyte, 0);
-    ui->groupCustomFee->setId(ui->radioCustomAtLeast, 1);
-    ui->groupCustomFee->button((int)std::max(0, std::min(1, settings.value("nCustomFeeRadio").toInt())))->setChecked(true);
-    ui->sliderSmartFee->setValue(settings.value("nSmartFeeSliderPosition").toInt());
-    ui->customFee->setValue(settings.value("nTransactionFee").toLongLong());
-    ui->checkBoxMinimumFee->setChecked(settings.value("fPayOnlyMinFee").toBool());
     ui->checkBoxCoinControlChange->setChecked(settings.value("fUseCustomChangeAddress").toBool());
     ui->lineEditCoinControlChange->setText(settings.value("sCustomChangeAddress").toString());
-    minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
-    ui->anonsendCheckbox->setChecked(settings.value("fAnonSend").toBool());
-
-    checkNavtechServers();
-}
-
-void SendCoinsDialog::anonsendCheckboxClick()
-{
-    QSettings settings;
-
-    settings.setValue("fAnonSend", ui->anonsendCheckbox->isChecked());
-}
-
-void SendCoinsDialog::checkNavtechServers()
-{
-    bool notEnoughServers = vAddedAnonServers.size() < 1 && mapMultiArgs["-addanonserver"].size() < 1;
-
-    ui->noNavtechLabel->setVisible(notEnoughServers);
-    ui->anonsendCheckbox->setVisible(!notEnoughServers);
-    if(notEnoughServers)
-      ui->anonsendCheckbox->setChecked(false);
 }
 
 void SendCoinsDialog::setClientModel(ClientModel *clientModel)
 {
     this->clientModel = clientModel;
-
-    if (clientModel) {
-        connect(clientModel, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(updateSmartFeeLabel()));
-    }
 }
 
 void SendCoinsDialog::setModel(WalletModel *model)
@@ -185,27 +142,6 @@ void SendCoinsDialog::setModel(WalletModel *model)
         ui->frameCoinControl->setVisible(model->getOptionsModel()->getCoinControlFeatures());
         coinControlUpdateLabels();
 
-        // fee section
-        connect(ui->sliderSmartFee, SIGNAL(valueChanged(int)), this, SLOT(updateSmartFeeLabel()));
-        connect(ui->sliderSmartFee, SIGNAL(valueChanged(int)), this, SLOT(updateGlobalFeeVariables()));
-        connect(ui->sliderSmartFee, SIGNAL(valueChanged(int)), this, SLOT(coinControlUpdateLabels()));
-        connect(ui->groupFee, SIGNAL(buttonClicked(int)), this, SLOT(updateFeeSectionControls()));
-        connect(ui->groupFee, SIGNAL(buttonClicked(int)), this, SLOT(updateGlobalFeeVariables()));
-        connect(ui->groupFee, SIGNAL(buttonClicked(int)), this, SLOT(coinControlUpdateLabels()));
-        connect(ui->groupCustomFee, SIGNAL(buttonClicked(int)), this, SLOT(updateGlobalFeeVariables()));
-        connect(ui->groupCustomFee, SIGNAL(buttonClicked(int)), this, SLOT(coinControlUpdateLabels()));
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(updateGlobalFeeVariables()));
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(coinControlUpdateLabels()));
-        connect(ui->checkBoxMinimumFee, SIGNAL(stateChanged(int)), this, SLOT(setMinimumFee()));
-        connect(ui->checkBoxMinimumFee, SIGNAL(stateChanged(int)), this, SLOT(updateFeeSectionControls()));
-        connect(ui->checkBoxMinimumFee, SIGNAL(stateChanged(int)), this, SLOT(updateGlobalFeeVariables()));
-        connect(ui->checkBoxMinimumFee, SIGNAL(stateChanged(int)), this, SLOT(coinControlUpdateLabels()));
-        ui->customFee->setSingleStep(CWallet::GetRequiredFee(1000));
-        updateFeeSectionControls();
-        updateMinFeeLabel();
-        updateSmartFeeLabel();
-        updateGlobalFeeVariables();
-
         // Toggle the checkbox for change address
         // Which in turn uses model and model->getOptionsModel()
         // via coinControlChangeEdited
@@ -216,12 +152,6 @@ void SendCoinsDialog::setModel(WalletModel *model)
 SendCoinsDialog::~SendCoinsDialog()
 {
     QSettings settings;
-    settings.setValue("fFeeSectionMinimized", fFeeMinimized);
-    settings.setValue("nFeeRadio", ui->groupFee->checkedId());
-    settings.setValue("nCustomFeeRadio", ui->groupCustomFee->checkedId());
-    settings.setValue("nSmartFeeSliderPosition", ui->sliderSmartFee->value());
-    settings.setValue("nTransactionFee", (qint64)ui->customFee->value());
-    settings.setValue("fPayOnlyMinFee", ui->checkBoxMinimumFee->isChecked());
 
     delete ui;
 }
@@ -232,145 +162,14 @@ void SendCoinsDialog::on_sendButton_clicked()
         return;
 
     QList<SendCoinsRecipient> recipients;
-    bool valid = true;
-
-    int nEntropy = GetArg("anon_entropy",NAVTECH_DEFAULT_ENTROPY);
-
-    unsigned int nTransactions = (rand() % nEntropy) + 2;
 
     SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
-    if(entry)
-    {
-        if(entry->validate())
-        {
-            SendCoinsRecipient recipient = entry->getValue();
-            CAmount nAmount = recipient.amount;
-            double nId = rand() % pindexBestHeader->GetMedianTimePast();
 
-            if(ui->anonsendCheckbox->checkState() != 0) {
-                try
-                {
-                    Navtech navtech;
-
-                    UniValue navtechData = navtech.CreateAnonTransaction(recipient.address.toStdString() , recipient.amount / (nTransactions * 2), nTransactions);
-
-                    UniValue pubKey = find_value(navtechData, "public_key");
-
-                    std::vector<UniValue> serverNavAddresses(find_value(navtechData, "anonaddress").getValues());
-
-                    if(serverNavAddresses.size() != nTransactions)
-                    {
-                        QMessageBox::warning(this, tr("Private payment"),
-                                         "<qt>" +
-                                         tr("NAVTech server returned a different number of addresses.")+"</qt>");
-                        valid = false;
-                    }
-
-                    for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-                    {
-                        CNavCoinAddress serverNavAddress(serverNavAddresses[i].get_str());
-                        if (!serverNavAddress.IsValid())
-                        {
-
-                            valid = false;
-                            break;
-                        }
-                    }
-
-                    if(valid)
-                    {
-
-                      CAmount nAmountAlreadyProcessed = 0;
-                      CAmount nMinAmount = find_value(navtechData, "min_amount").get_int() * COIN;
-
-                      for(unsigned int i = 0; i < serverNavAddresses.size(); i++)
-                      {
-                          SendCoinsRecipient cRecipient = recipient;
-                          cRecipient.destaddress = QString::fromStdString(serverNavAddresses[i].get_str());
-                          CAmount nAmountRound = 0;
-                          CAmount nAmountNotProcessed = nAmount - nAmountAlreadyProcessed;
-                          CAmount nAmountToSubstract = ((nAmountNotProcessed / ((rand() % nEntropy)+2))/1000)*1000;
-                          if(i == serverNavAddresses.size() - 1 || (nAmountNotProcessed - nAmountToSubstract) < (nMinAmount + 0.001))
-                          {
-                              nAmountRound = nAmountNotProcessed;
-                              i = serverNavAddresses.size();
-                          }
-                          else
-                          {
-                              nAmountRound = std::max(nAmountToSubstract,nMinAmount);
-                          }
-
-
-                          nAmountAlreadyProcessed += nAmountRound;
-                          cRecipient.anondestination = QString::fromStdString(navtech.EncryptAddress(recipient.address.toStdString(), pubKey.get_str(), nTransactions, i+(i==serverNavAddresses.size()?0:1), nId));
-                          if(!find_value(navtechData, "anonfee").isNull()){
-                              cRecipient.anonfee = nAmountRound * ((float)find_value(navtechData, "anonfee").get_real() / 100.0);
-                              cRecipient.transaction_fee = find_value(navtechData, "anonfee").get_real();
-                          }else
-                              valid = false;
-                          cRecipient.isanon = true;
-                          cRecipient.amount = nAmountRound;
-                          recipients.append(cRecipient);
-
-                      }
-
-                    }
-
-                }
-                catch(const std::runtime_error &e)
-                {
-                    QMessageBox msgBox;
-                    msgBox.setText(tr("Something went wrong:"));
-                    msgBox.setInformativeText(tr(e.what()));
-                    QAbstractButton *myYesButton = msgBox.addButton(tr("Do a normal transaction"), QMessageBox::YesRole);
-                    msgBox.addButton(trUtf8("Abort"), QMessageBox::NoRole);
-                    msgBox.setIcon(QMessageBox::Question);
-                    msgBox.exec();
-
-                    if(msgBox.clickedButton() == myYesButton)
-                    {
-                        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Switch to normal transaction"),
-                            tr("Are you sure you want to do a normal transaction instead of a private payment?") + QString("<br><br>") + tr("Details of the payment would be publicly exposed on the blockchain."),
-                            QMessageBox::Yes|QMessageBox::Cancel,
-                            QMessageBox::Cancel);
-
-                        if(retval == QMessageBox::Yes)
-                        {
-                            recipient.isanon = false;
-                            recipients.append(recipient);
-                            valid = true;
-                        }
-                        else
-                        {
-                            valid = false;
-                        }
-                    }
-                    else
-                    {
-                        valid = false;
-                    }
-                }
-            }
-            else
-            {
-
-                recipient.isanon = false;
-                recipients.append(recipient);
-
-            }
-
-        }
-        else
-        {
-            valid = false;
-        }
-    }
-
-    if(!valid || recipients.isEmpty())
-    {
+    // Check if we have an entry and make sure it's valid
+    if(!entry || !entry->validate())
         return;
-    }
 
+    recipients.append(entry->getValue());
 
     fNewRecipientAllowed = false;
     WalletModel::UnlockContext ctx(model->requestUnlock());
@@ -414,18 +213,14 @@ void SendCoinsDialog::on_sendButton_clicked()
         }
     }
 
-
     CAmount txFee = currentTransaction.getTransactionFee();
-    CAmount anonfee;
     CAmount nTotalAmount = 0;
 
     QString questionString = tr("Are you sure you want to send?");
 
     for(const SendCoinsRecipient &rcp: currentTransaction.getRecipients())
     {
-      nTotalAmount += rcp.amount;
-      if(rcp.fSubtractFeeFromAmount && rcp.isanon)
-        nTotalAmount -= rcp.anonfee;
+        nTotalAmount += rcp.amount;
     }
 
     // Format confirmation message
@@ -445,63 +240,43 @@ void SendCoinsDialog::on_sendButton_clicked()
         {
             if(rcp.label.length() > 0) // label with address
             {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "" ) +amount, GUIUtil::HtmlEscape(rcp.label));
+                recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.label));
                 recipientElement.append(QString(" (%1)").arg(address));
             }
             else // just address
             {
-                recipientElement = tr("%1 to %2").arg((rcp.isanon ?  " Private payment " : "" ) +amount, address);
+                recipientElement = tr("%1 to %2").arg(amount, address);
             }
         }
         else if(!rcp.authenticatedMerchant.isEmpty()) // authenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "") +amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
+            recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
         }
         else // unauthenticated payment request
         {
-            recipientElement = tr("%1 to %2").arg((rcp.isanon ? " Private payment " : "") +amount, address);
+            recipientElement = tr("%1 to %2").arg(amount, address);
         }
 
         formatted.append(recipientElement);
 
         questionString.append("<br /><br />%1");
 
-        anonfee = rcp.isanon && !rcp.fSubtractFeeFromAmount ? rcp.anonfee : 0;
-
-        if(txFee + anonfee > 0)
+        if(txFee)
         {
             // append fee string if a fee is required
             questionString.append("<hr /><span style='color:#aa0000;'>");
-            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee + anonfee));
+            questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
             questionString.append("</span> ");
             questionString.append(tr("added as transaction fee"));
 
-
             // append transaction size
             questionString.append(" (" + QString::number((double)currentTransaction.getTransactionSize() / 1000) + " kB)");
-
-            if(rcp.fSubtractFeeFromAmount && anonfee > 0)
-            {
-                questionString.append("<br>" + tr("The following fee will be deducted") + ":");
-                questionString.append(NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), anonfee));
-            }
-
-            if(rcp.isanon){
-                questionString.append("<br>" + tr("Navtech server fee:") +QString(" ")+ QString::number(rcp.transaction_fee) + "% "+ tr(rcp.fSubtractFeeFromAmount ? "" : "(already included)") + "<br>");
-                if(rcp.fSubtractFeeFromAmount)
-                    questionString.append("<span style='color:#aa0000;'>" + NavCoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), nTotalAmount * ((rcp.transaction_fee/100))) + "</span> " + tr("will be deducted as Navtech fee.") + "<br>");
-
-            }
-
         }
-
     }
-
-
 
     // add total amount in all subdivision units
     questionString.append("<hr />");
-    CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee + anonfee;
+    CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee;
     QStringList alternativeUnits;
 
     // Check if we have selected a display unit that is not NAV
@@ -558,17 +333,6 @@ void SendCoinsDialog::clear()
     addEntry();
 
     updateTabsAndLabels();
-}
-
-void SendCoinsDialog::showNavTechDialog()
-{
-    navtechsetup* setupNavTech = new navtechsetup();
-    setupNavTech->setWindowIcon(QIcon(":icons/navcoin"));
-    setupNavTech->setStyleSheet(Skinize());
-
-    setupNavTech->exec();
-
-    checkNavtechServers();
 }
 
 void SendCoinsDialog::reject()
@@ -699,31 +463,11 @@ void SendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfir
             entry->setTotalAmount(balance);
         }
     }
-
-    if(model && model->getOptionsModel())
-    {
-        ui->labelBalance->setText(NavCoinUnits::formatWithUnit(0, balance) + (model->getOptionsModel()->getDisplayUnit() != 0 ?( " (" + NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance) + ")") : ""));
-    }
-}
-
-void SendCoinsDialog::useFullAmount()
-{
-  for(int i = 0; i < ui->entries->count(); ++i)
-  {
-      SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-      if(entry)
-      {
-          entry->useFullAmount();
-      }
-  }
 }
 
 void SendCoinsDialog::updateDisplayUnit()
 {
     setBalance(model->getBalance(), 0, 0, 0, 0, 0, 0, 0);
-    ui->customFee->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
-    updateMinFeeLabel();
-    updateSmartFeeLabel();
 }
 
 void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg)
@@ -774,115 +518,6 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
     }
 
     Q_EMIT message(tr("Send Coins"), msgParams.first, msgParams.second);
-}
-
-void SendCoinsDialog::minimizeFeeSection(bool fMinimize)
-{
-    //ui->labelFeeMinimized->setVisible(fMinimize);
-    //ui->buttonChooseFee  ->setVisible(fMinimize);
-    //ui->buttonMinimizeFee->setVisible(!fMinimize);
-    ui->frameFeeSelection->setVisible(!fMinimize);
-    ui->sendButton       ->setVisible(fMinimize);
-    ui->label            ->setVisible(fMinimize);
-    ui->labelBalance     ->setVisible(fMinimize);
-    ui->noNavtechButton  ->setVisible(fMinimize);
-    //ui->horizontalLayoutSmartFee->setContentsMargins(0, (fMinimize ? 0 : 6), 0, 0);
-
-    if(fMinimize)
-        checkNavtechServers();
-    else
-        ui->noNavtechLabel  ->setVisible(false);
-        ui->anonsendCheckbox->setVisible(false);
-
-
-    fFeeMinimized = fMinimize;
-}
-
-void SendCoinsDialog::setMinimumFee()
-{
-    ui->radioCustomPerKilobyte->setChecked(true);
-    ui->customFee->setValue(CWallet::GetRequiredFee(1000));
-}
-
-void SendCoinsDialog::updateFeeSectionControls()
-{
-    ui->sliderSmartFee          ->setEnabled(ui->radioSmartFee->isChecked());
-    ui->labelSmartFee           ->setEnabled(ui->radioSmartFee->isChecked());
-    ui->labelSmartFee2          ->setEnabled(ui->radioSmartFee->isChecked());
-    ui->labelSmartFee3          ->setEnabled(ui->radioSmartFee->isChecked());
-    ui->labelFeeEstimation      ->setEnabled(ui->radioSmartFee->isChecked());
-    ui->labelSmartFeeNormal     ->setEnabled(ui->radioSmartFee->isChecked());
-    ui->labelSmartFeeFast       ->setEnabled(ui->radioSmartFee->isChecked());
-    ui->checkBoxMinimumFee      ->setEnabled(ui->radioCustomFee->isChecked());
-    ui->labelMinFeeWarning      ->setEnabled(ui->radioCustomFee->isChecked());
-    ui->radioCustomPerKilobyte  ->setEnabled(ui->radioCustomFee->isChecked() && !ui->checkBoxMinimumFee->isChecked());
-    ui->radioCustomAtLeast      ->setEnabled(ui->radioCustomFee->isChecked() && !ui->checkBoxMinimumFee->isChecked() && CoinControlDialog::coinControl->HasSelected());
-    ui->customFee               ->setEnabled(ui->radioCustomFee->isChecked() && !ui->checkBoxMinimumFee->isChecked());
-}
-
-void SendCoinsDialog::updateGlobalFeeVariables()
-{
-    if (ui->radioSmartFee->isChecked())
-    {
-        nTxConfirmTarget = defaultConfirmTarget - ui->sliderSmartFee->value();
-        payTxFee = CFeeRate(0);
-    }
-    else
-    {
-        nTxConfirmTarget = defaultConfirmTarget;
-        payTxFee = CFeeRate(ui->customFee->value());
-
-        // if user has selected to set a minimum absolute fee, pass the value to coincontrol
-        // set nMinimumTotalFee to 0 in case of user has selected that the fee is per KB
-        CoinControlDialog::coinControl->nMinimumTotalFee = ui->radioCustomAtLeast->isChecked() ? ui->customFee->value() : 0;
-    }
-}
-
-void SendCoinsDialog::updateFeeMinimizedLabel()
-{
-    if(!model || !model->getOptionsModel())
-        return;
-
-  //  if (ui->radioSmartFee->isChecked())
-  //      ui->labelFeeMinimized->setText(ui->labelSmartFee->text());
-  //  else {
-  //      ui->labelFeeMinimized->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), ui->customFee->value()) +
-  //          ((ui->radioCustomPerKilobyte->isChecked()) ? "/kB" : ""));
-  //  }
-}
-
-void SendCoinsDialog::updateMinFeeLabel()
-{
-    if (model && model->getOptionsModel())
-        ui->checkBoxMinimumFee->setText(tr("Pay only the required fee of %1").arg(
-            NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), CWallet::GetRequiredFee(1000)) + "/kB")
-        );
-}
-
-void SendCoinsDialog::updateSmartFeeLabel()
-{
-    if(!model || !model->getOptionsModel())
-        return;
-
-    int nBlocksToConfirm = defaultConfirmTarget - ui->sliderSmartFee->value();
-    int estimateFoundAtBlocks = nBlocksToConfirm;
-    CFeeRate feeRate = mempool.estimateSmartFee(nBlocksToConfirm, &estimateFoundAtBlocks);
-    if (feeRate <= CFeeRate(0)) // not enough data => minfee
-    {
-        ui->labelSmartFee->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(),
-                                                                std::max(CWallet::fallbackFee.GetFeePerK(), CWallet::GetRequiredFee(1000))) + "/kB");
-        ui->labelSmartFee2->show(); // (Smart fee not initialized yet. This usually takes a few blocks...)
-        ui->labelFeeEstimation->setText("");
-    }
-    else
-    {
-        ui->labelSmartFee->setText(NavCoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(),
-                                                                std::max(feeRate.GetFeePerK(), CWallet::GetRequiredFee(1000))) + "/kB");
-        ui->labelSmartFee2->hide();
-        ui->labelFeeEstimation->setText(tr("Estimated to begin confirmation within %n block(s).", "", estimateFoundAtBlocks));
-    }
-
-    updateFeeMinimizedLabel();
 }
 
 // Coin Control: copy label "Quantity" to clipboard
@@ -1025,6 +660,15 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         if(model->havePrivKey(stakingId) || model->havePrivKey(spendingId))
             fHaveKey = true;
     }
+    else if(addr.IsColdStakingv2Address(Params()))
+    {
+        CKeyID stakingId, spendingId, votingId;
+        addr.GetStakingKeyID(stakingId);
+        addr.GetSpendingKeyID(spendingId);
+        addr.GetVotingKeyID(votingId);
+        if(model->havePrivKey(stakingId) || model->havePrivKey(spendingId) || model->havePrivKey(votingId))
+            fHaveKey = true;
+    }
     else
     {
         CKeyID keyid;
@@ -1057,21 +701,6 @@ void SendCoinsDialog::coinControlUpdateLabels()
 {
     if (!model || !model->getOptionsModel())
         return;
-
-    if (model->getOptionsModel()->getCoinControlFeatures())
-    {
-        // enable minimum absolute fee UI controls
-        ui->radioCustomAtLeast->setVisible(true);
-
-        // only enable the feature if inputs are selected
-        ui->radioCustomAtLeast->setEnabled(CoinControlDialog::coinControl->HasSelected());
-    }
-    else
-    {
-        // in case coin control is disabled (=default), hide minimum absolute fee UI controls
-        ui->radioCustomAtLeast->setVisible(false);
-        return;
-    }
 
     // set pay amounts
     CoinControlDialog::payAmounts.clear();

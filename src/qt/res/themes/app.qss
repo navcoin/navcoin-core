@@ -1,0 +1,171 @@
+/**
+ * Copyright (c) 2019 The NavCoin Core developers
+ * Distributed under the MIT software license, see the accompanying
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.
+ */
+
+.alert {
+    border: 0.15em solid palette(highlight);
+    border-radius: 0.3em;
+    padding: 0.3em 0.5em;
+    margin: 0.25em 0;
+    font: normal normal 1.5em/1.5em;
+}
+
+.alert-danger {
+    border-color: #f5c6cb; background: #f8d7da;
+    color: #721c24;
+}
+
+.error-border {
+    border: 0.06em solid red;
+    border-radius: 0.1em;
+}
+
+.highlight-border {
+    border: 0.06em solid palette(highlight);
+    border-radius: 0.1em;
+}
+
+.alert-warning {
+    border-color: #ffeeba;
+    background: #fff3cd;
+    color: #856404;
+}
+
+.main-menu-btn {
+    padding: 0.5em 0.2em 0.5em 0.5em;
+    border: 0;
+    color: #fafafa;
+    background: #3e1e6e;
+    border-right: 0.3em solid #3e1e6e;
+}
+
+.main-menu-btn:disabled {
+    background: #351565;
+    border-color: #c42bb7;
+}
+
+.main-menu-bubble {
+    border-radius: 0.2em;
+    background: #c42bb7;
+    color: #fafafa;
+    padding: 0.1em;
+    font: normal normal 1em/1em;
+}
+
+.status-icon {
+    background: palette(base);
+    border: 0.05em solid palette(alternate-base);
+    border-bottom: 0.2em solid palette(highlight);
+    padding: 0 0.25em 0 0.25em;
+}
+
+#balanceContainer {
+    border-right: 0.15em solid palette(text);
+}
+
+#balanceAvailLabel,
+#balancePendiLabel,
+#balanceImmatLabel,
+#stakedAvailLabel,
+#stakedPendiLabel,
+#stakedImmatLabel {
+    color: palette(alternate-text);
+    font-size: 8pt;
+}
+
+#balanceAvail,
+#balancePendi,
+#balanceImmat,
+#stakedAvail,
+#stakedPendi,
+#stakedImmat {
+    font-size: 10pt;
+}
+
+#balanceAvail,
+#stakedAvail {
+    font-size: 15pt;
+}
+
+#unlockStakingButton {
+    border-image: url(:/icons/lock_closed) 0 0 0 0 stretch stretch;
+    border: 0;
+}
+
+#SplashVersionLabel {
+    padding: 2pt;
+    font-size: 7pt;
+}
+
+#SplashStatusLabel {
+    padding: 5pt;
+    font-size: 12pt;
+}
+
+#SplashBar {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.00 #7d5ab5, stop:0.75 #42b6eb, stop:1.00 #46b1e8);
+}
+
+#SplashBarInner {
+    background: #c42bb7;
+}
+
+#progressBackground {
+    background: rgba(0,0,0,220);
+}
+
+#progressContent {
+    background: palette(alternate-base);
+    border-radius: 0.8em;
+}
+
+#startOptions QListView {
+    border: 0;
+    background:transparent;
+}
+#startOptions QListView::item {
+    color:      palette(text);
+    height:     3em;
+    background: transparent;
+    border:     0;
+}
+#startOptions QListView::item:hover {
+    color: palette(highlight);
+}
+#startOptions QListWidget {
+    border:     0;
+    font-size:  14pt;
+    font-style: bold;
+}
+#startOptions QLabel {
+    font: normal normal 10pt/12pt;
+}
+#startOptions QLabel.reveal {
+    background-color: transparent;
+    margin-bottom:    0.3em;
+    border-radius:    0;
+    color:            palette(highlight);
+    border-bottom:    0.15em solid palette(highlight);
+    text-align:       center;
+    font: normal normal 12pt/15pt;
+}
+#startOptions QGraphicsView {
+    font: normal normal 10pt/12pt;
+    background-color: palette(base);
+    border: 0.2em solid palette(highlight);
+    color: palette(highlight);
+}
+#startOptions QGraphicsScene {
+    background-color: palette(base);
+    color: palette(highlight);
+}
+
+#listTransactions {
+    background: transparent;
+}
+
+#daoTopBox QPushButton.active {
+    background: palette(highlight);
+}

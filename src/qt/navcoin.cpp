@@ -12,21 +12,24 @@
 #include <qt/clientmodel.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
-#include <qt/intro.h>
 #include <qt/networkstyle.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
 #include <qt/winshutdownmonitor.h>
-#include <qt/navtechsetup.h>
+
+#include <styles/dark.h>
+#include <styles/light.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
+#include <startoptionsmain.h>
 #include <qt/walletmodel.h>
 #endif
 
 #include <init.h>
+#include <net.h>
 #include <rpc/server.h>
 #include <scheduler.h>
 #include <ui_interface.h>
@@ -62,6 +65,8 @@ Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 #elif defined(QT_QPA_PLATFORM_COCOA)
 Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
 #endif
+Q_IMPORT_PLUGIN(QSvgPlugin);
+Q_IMPORT_PLUGIN(QSvgIconPlugin);
 #endif
 
 // Declare meta types used for QMetaObject::invokeMethod
@@ -149,13 +154,15 @@ class NavCoinCore: public QObject
 {
     Q_OBJECT
 public:
-    explicit NavCoinCore();
+    explicit NavCoinCore(std::string& wordlist);
 
 public Q_SLOTS:
     void initialize();
     void shutdown();
+    void restart(QStringList args);
 
 Q_SIGNALS:
+    void requestedRestart(QStringList args);
     void initializeResult(int retval);
     void shutdownResult(int retval);
     void runawayException(const QString &message);
@@ -164,8 +171,12 @@ private:
     boost::thread_group threadGroup;
     CScheduler scheduler;
 
+    /// Flag indicating a restart
+    bool execute_restart;
+
     /// Pass fatal exception message to UI thread
     void handleRunawayException(const std::exception *e);
+    std::string words;
 };
 
 /** Main NavCoin application object */
@@ -176,6 +187,9 @@ public:
     explicit NavCoinApplication(int &argc, char **argv);
     ~NavCoinApplication();
 
+    /** Load the stylesheet and base style for the app */
+    void loadTheme();
+
 #ifdef ENABLE_WALLET
     /// Create payment server
     void createPaymentServer();
@@ -185,9 +199,12 @@ public:
     /// Create options model
     void createOptionsModel(bool resetSettings);
     /// Create main window
-    void createWindow(const NetworkStyle *networkStyle);
+    bool createWindow(const NetworkStyle *networkStyle);
     /// Create splash screen
     void createSplashScreen(const NetworkStyle *networkStyle);
+
+    /// Get mnemonic words on first startup
+    bool setupMnemonicWords(std::string& wordlist);
 
     /// Request core initialization
     void requestInitialize();
@@ -222,6 +239,7 @@ private:
     PaymentServer* paymentServer;
     WalletModel *walletModel;
 #endif
+    std::string wordlist;
     int returnValue;
     const PlatformStyle *platformStyle;
     std::unique_ptr<QWidget> shutdownWindow;
@@ -231,8 +249,8 @@ private:
 
 #include <qt/navcoin.moc>
 
-NavCoinCore::NavCoinCore():
-    QObject()
+NavCoinCore::NavCoinCore(std::string& wordlist):
+    QObject(), words(wordlist)
 {
 }
 
@@ -244,15 +262,39 @@ void NavCoinCore::handleRunawayException(const std::exception *e)
 
 void NavCoinCore::initialize()
 {
+    execute_restart = true;
     try
     {
         qDebug() << __func__ << ": Running AppInit2 in thread";
-        int rv = AppInit2(threadGroup, scheduler);
+        int rv = AppInit2(threadGroup, scheduler, words);
         Q_EMIT initializeResult(rv);
     } catch (const std::exception& e) {
         handleRunawayException(&e);
     } catch (...) {
         handleRunawayException(NULL);
+    }
+}
+
+void NavCoinCore::restart(QStringList args)
+{
+    if (execute_restart) { // Only restart 1x, no matter how often a user clicks on a restart-button
+        execute_restart = false;
+        try {
+            qDebug() << __func__ << ": Running Restart in thread";
+            Interrupt(threadGroup);
+            threadGroup.join_all();
+            PrepareShutdown();
+            qDebug() << __func__ << ": Shutdown finished";
+            Q_EMIT shutdownResult(1);
+            CExplicitNetCleanup::callCleanup();
+            QProcess::startDetached(QApplication::applicationFilePath(), args);
+            qDebug() << __func__ << ": Restart initiated...";
+            QApplication::quit();
+        } catch (std::exception& e) {
+            handleRunawayException(&e);
+        } catch (...) {
+            handleRunawayException(NULL);
+        }
     }
 }
 
@@ -287,16 +329,6 @@ NavCoinApplication::NavCoinApplication(int &argc, char **argv):
     returnValue(0)
 {
     setQuitOnLastWindowClosed(false);
-
-    // UI per-platform customization
-    // This must be done inside the NavCoinApplication constructor, or after it, because
-    // PlatformStyle::instantiate requires a QApplication
-    std::string platformName;
-    platformName = GetArg("-uiplatform", NavCoinGUI::DEFAULT_UIPLATFORM);
-    platformStyle = PlatformStyle::instantiate(QString::fromStdString(platformName));
-    if (!platformStyle) // Fall back to "other" if specified name not found
-        platformStyle = PlatformStyle::instantiate("other");
-    assert(platformStyle);
 }
 
 NavCoinApplication::~NavCoinApplication()
@@ -321,6 +353,61 @@ NavCoinApplication::~NavCoinApplication()
     platformStyle = 0;
 }
 
+void NavCoinApplication::loadTheme()
+{
+    // Get an instance of settings
+    QSettings settings;
+
+    // What theme are we using? DEFAULT: light
+    QString theme = settings.value("theme").toString();
+
+    // Check theme
+    if (theme != "light" && theme != "dark") {
+        theme = "light";
+    }
+
+    qDebug() << __func__ << ": THEME LOADED: " << settings.value("theme").toString();
+
+    // Load the style sheet
+    QFile appQss(":/themes/app");
+    QFile sharedQss(":/themes/shared");
+    QFile themeQss(":/themes/" + theme);
+
+    // Check if we can access it
+    if (
+            appQss.open(QIODevice::ReadOnly) &&    // check app specific styles
+            sharedQss.open(QIODevice::ReadOnly) && // check shared stlyes
+            themeQss.open(QIODevice::ReadOnly)     // check theme styles
+       )
+    {
+        // Create a text stream
+        QTextStream appQssStream(&appQss);
+        QTextStream sharedQssStream(&sharedQss);
+        QTextStream themeQssStream(&themeQss);
+
+        // Load the whole stylesheet into the app
+        qApp->setStyleSheet(appQssStream.readAll() + sharedQssStream.readAll() + themeQssStream.readAll());
+
+        // Check if we which theme we want
+        if (theme == "dark") {
+            qApp->setStyle(new StyleDark);
+        } else {
+            qApp->setStyle(new StyleLight);
+        }
+
+        // Close the streams
+        appQss.close();
+        sharedQss.close();
+        themeQss.close();
+    }
+
+    // UI per-platform customization
+    // This must be done inside the NavCoinApplication constructor, or after it, because
+    // PlatformStyle::instantiate requires a QApplication
+    platformStyle = PlatformStyle::instantiate();
+    assert(platformStyle);
+}
+
 #ifdef ENABLE_WALLET
 void NavCoinApplication::createPaymentServer()
 {
@@ -333,13 +420,40 @@ void NavCoinApplication::createOptionsModel(bool resetSettings)
     optionsModel = new OptionsModel(NULL, resetSettings);
 }
 
-void NavCoinApplication::createWindow(const NetworkStyle *networkStyle)
+// this will be used to get mnemonic words
+bool NavCoinApplication::setupMnemonicWords(std::string& wordlist) {
+    namespace fs = boost::filesystem;
+    if (GetBoolArg("-disablewallet", false)) {
+        LogPrintf("Wallet disabled!\n");
+    }
+
+    if (GetBoolArg("-skipmnemonicbackup",false)) {
+        return true;
+    }
+
+    std::string walletFile = GetArg("-wallet", "wallet.dat");
+    if (fs::exists(walletFile)) return true;
+
+	if (CheckIfWalletDatExists()) return true;
+
+    StartOptionsMain dlg(nullptr);
+    dlg.exec();
+    wordlist = dlg.getWords();
+    return false;
+}
+
+bool NavCoinApplication::createWindow(const NetworkStyle *networkStyle)
 {
+    if (!setupMnemonicWords(wordlist)) {
+        if (wordlist.empty()) return false;
+    }
+
     window = new NavCoinGUI(platformStyle, networkStyle, 0);
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
     pollShutdownTimer->start(200);
+    return true;
 }
 
 void NavCoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
@@ -357,7 +471,7 @@ void NavCoinApplication::startThread()
     if(coreThread)
         return;
     coreThread = new QThread(this);
-    NavCoinCore *executor = new NavCoinCore();
+    NavCoinCore *executor = new NavCoinCore(wordlist);
     executor->moveToThread(coreThread);
 
     /*  communication to and from thread */
@@ -366,6 +480,7 @@ void NavCoinApplication::startThread()
     connect(executor, SIGNAL(runawayException(QString)), this, SLOT(handleRunawayException(QString)));
     connect(this, SIGNAL(requestedInitialize()), executor, SLOT(initialize()));
     connect(this, SIGNAL(requestedShutdown()), executor, SLOT(shutdown()));
+    connect(window, SIGNAL(requestedRestart(QStringList)), executor, SLOT(restart(QStringList)));
     /*  make sure executor object is deleted in its own thread */
     connect(this, SIGNAL(stopThread()), executor, SLOT(deleteLater()));
     connect(this, SIGNAL(stopThread()), coreThread, SLOT(quit()));
@@ -452,7 +567,7 @@ void NavCoinApplication::initializeResult(int retval)
         Q_EMIT splashFinished(window);
 
         //specify a new font.
-        int id = QFontDatabase::addApplicationFont(":/icons/Roboto-Medium");
+        int id = QFontDatabase::addApplicationFont(":/icons/roboto-medium");
         QString family = QFontDatabase::applicationFontFamilies(id).at(0);
         QFont newFont(family,10);        //set font of application
         newFont.setStyleStrategy(QFont::PreferAntialias);
@@ -468,7 +583,6 @@ void NavCoinApplication::initializeResult(int retval)
         connect(paymentServer, SIGNAL(message(QString,QString,unsigned int)),
                          window, SLOT(message(QString,QString,unsigned int)));
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
-        QTimer::singleShot(500, window, SLOT(startVotingCounter()));
 #endif
     } else {
         quit(); // Exit main loop
@@ -508,13 +622,13 @@ int main(int argc, char *argv[])
     // Command-line options take precedence:
     ParseParameters(argc, argv);
 
-    // Do not refer to data directory yet, this can be overridden by Intro::pickDataDirectory
-
     /// 2. Basic Qt initialization (not dependent on parameters or configuration)
     Q_INIT_RESOURCE(navcoin);
     Q_INIT_RESOURCE(navcoin_locale);
 
+    // Load the app
     NavCoinApplication app(argc, argv);
+
     // Generate high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #if QT_VERSION >= 0x050600
@@ -558,11 +672,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /// 5. Now that settings and translations are available, ask user for data directory
-    // User language is set up: pick a data directory
-    Intro::pickDataDirectory();
-
-    /// 6. Determine availability of data directory and parse navcoin.conf
+    /// 5. Determine availability of data directory and parse navcoin.conf
     /// - Do not call GetDataDir(true) before this step finishes
     if (!boost::filesystem::is_directory(GetDataDir(false)))
     {
@@ -578,13 +688,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if(GetArg("-firstrun","0") == "1")
-    {
-        navtechsetup* setupNavTech = new navtechsetup();
-        setupNavTech->showNavtechIntro();
-    }
-
-    /// 7. Determine network (and switch to network specific options)
+    /// 6. Determine network (and switch to network specific options)
     // - Do not call Params() before this step
     // - Do this after parsing the configuration file, as the network can be switched there
     // - QSettings() will use the new application name after this, resulting in network-specific settings
@@ -609,8 +713,12 @@ int main(int argc, char *argv[])
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
 
+    // Load the application styles
+    // Needs to be loaded after setting the app name from networkStyle
+    app.loadTheme();
+
 #ifdef ENABLE_WALLET
-    /// 8. URI IPC sending
+    /// 7. URI IPC sending
     // - Do this early as we don't want to bother initializing if we are just calling IPC
     // - Do this *after* setting up the data directory, as the data directory hash is used in the name
     // of the server.
@@ -624,7 +732,7 @@ int main(int argc, char *argv[])
     app.createPaymentServer();
 #endif
 
-    /// 9. Main GUI initialization
+    /// 8. Main GUI initialization
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
 #if defined(Q_OS_WIN)
@@ -646,7 +754,9 @@ int main(int argc, char *argv[])
 
     try
     {
-        app.createWindow(networkStyle.data());
+        if (!app.createWindow(networkStyle.data())) {
+            return EXIT_FAILURE;
+        }
         app.requestInitialize();
 #if defined(Q_OS_WIN)
         WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("%1 didn't yet exit safely...").arg(QObject::tr(PACKAGE_NAME)), (HWND)app.getMainWinId());

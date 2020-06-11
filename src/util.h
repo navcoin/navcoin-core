@@ -16,6 +16,7 @@
 
 #include <compat.h>
 #include <tinyformat.h>
+#include <uint256.h>
 #include <utiltime.h>
 
 #include <atomic>
@@ -43,6 +44,8 @@ public:
 
 extern std::map<std::string, std::string> mapArgs;
 extern std::map<std::string, std::vector<std::string> > mapMultiArgs;
+extern std::map<uint256, int64_t> mapAddedVotes;
+extern std::map<uint256, bool> mapSupported;
 extern bool fDebug;
 extern bool fPrintToConsole;
 extern bool fPrintToDebugLog;
@@ -145,6 +148,7 @@ void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
 bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest);
 bool TryCreateDirectory(const boost::filesystem::path& p);
 boost::filesystem::path GetDefaultDataDir();
+bool CheckIfWalletDatExists(bool fNetSpecific = true);
 const boost::filesystem::path &GetDataDir(bool fNetSpecific = true);
 void ClearDatadirCache();
 boost::filesystem::path GetConfigFile();
@@ -155,6 +159,7 @@ void CreatePidFile(const boost::filesystem::path &path, pid_t pid);
 void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet, std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet);
 void WriteConfigFile(std::string key, std::string value);
 void RemoveConfigFile(std::string key, std::string value);
+void RemoveConfigFilePair(std::string key, std::string value);
 void RemoveConfigFile(std::string key);
 bool ExistsKeyInConfigFile(std::string key);
 
@@ -169,8 +174,7 @@ void PoolInitAccount(std::string spendingAddress, std::string stakingAddress, st
 std::string PoolReadFile(boost::filesystem::path poolFile, std::string strKey);
 void PoolWriteFile(boost::filesystem::path poolFile, std::string key, std::string value);
 void PoolRemoveFile(boost::filesystem::path poolFile, std::string key, std::string value);
-void PoolUpdateProposalVotes(std::string stakingAddress);
-void PoolUpdatePaymentRequestVotes(std::string stakingAddress);
+void PoolUpdateVotes(std::string stakingAddress);
 void PoolVoteProposalList(std::string strAddress, std::vector<std::pair<std::string, bool>> &votes);
 void PoolVotePaymentRequestList(std::string strAddress, std::vector<std::pair<std::string, bool>> &votes);
 

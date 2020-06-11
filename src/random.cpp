@@ -16,7 +16,6 @@
 #include <utilstrencodings.h> // for GetTime()
 
 #include <stdlib.h>
-#include <limits>
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -196,4 +195,60 @@ void seed_insecure_rand(bool fDeterministic)
         } while (tmp == 0 || tmp == 0x464fffffU);
         insecure_rand_Rw = tmp;
     }
+}
+
+void FastRandomContext::RandomSeed()
+{
+    uint256 seed = GetRandHash();
+    rng.SetKey(seed.begin(), 32);
+    requires_seed = false;
+}
+
+uint256 FastRandomContext::rand256() noexcept
+{
+    if (bytebuf_size < 32) {
+        FillByteBuffer();
+    }
+    uint256 ret;
+    memcpy(ret.begin(), bytebuf + 64 - bytebuf_size, 32);
+    bytebuf_size -= 32;
+    return ret;
+}
+
+std::vector<unsigned char> FastRandomContext::randbytes(size_t len)
+{
+    if (requires_seed) RandomSeed();
+    std::vector<unsigned char> ret(len);
+    if (len > 0) {
+        rng.Keystream(&ret[0], len);
+    }
+    return ret;
+}
+
+FastRandomContext::FastRandomContext(const uint256& seed) noexcept : requires_seed(false), bytebuf_size(0), bitbuf_size(0)
+{
+    rng.SetKey(seed.begin(), 32);
+}
+
+FastRandomContext::FastRandomContext(bool fDeterministic) noexcept : requires_seed(!fDeterministic), bytebuf_size(0), bitbuf_size(0)
+{
+    if (!fDeterministic) {
+        return;
+    }
+    uint256 seed;
+    rng.SetKey(seed.begin(), 32);
+}
+
+FastRandomContext& FastRandomContext::operator=(FastRandomContext&& from) noexcept
+{
+    requires_seed = from.requires_seed;
+    rng = from.rng;
+    std::copy(std::begin(from.bytebuf), std::end(from.bytebuf), std::begin(bytebuf));
+    bytebuf_size = from.bytebuf_size;
+    bitbuf = from.bitbuf;
+    bitbuf_size = from.bitbuf_size;
+    from.requires_seed = true;
+    from.bytebuf_size = 0;
+    from.bitbuf_size = 0;
+    return *this;
 }

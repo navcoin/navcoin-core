@@ -230,9 +230,6 @@
     </message>
     </context>
 <context>
-    <name>NavTechInit</name>
-    </context>
-<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -323,11 +320,5 @@
     </context>
 <context>
     <name>navcoin-core</name>
-    </context>
-<context>
-    <name>navtechitem</name>
-    </context>
-<context>
-    <name>navtechsetup</name>
     </context>
 </TS>

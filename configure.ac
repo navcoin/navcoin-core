@@ -1,8 +1,8 @@
 dnl require autoconf 2.60 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.60])
-define(_CLIENT_VERSION_MAJOR, 4)
-define(_CLIENT_VERSION_MINOR, 7)
-define(_CLIENT_VERSION_REVISION, 2)
+define(_CLIENT_VERSION_MAJOR, 5)
+define(_CLIENT_VERSION_MINOR, 0)
+define(_CLIENT_VERSION_REVISION, 0)
 define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_CLIENT_BUILD_IS_TEST_RELEASE, false)
@@ -819,6 +819,7 @@ if test x$use_pkgconfig = xyes; then
       if test x$use_qr != xno; then
         NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
+      NAVCOIN_QT_CHECK([PKG_CHECK_MODULES([CHARTS], [Qt5Charts],,[NAVCOIN_QT_FAIL(qtcharts not found)])])
       if test x$build_navcoin_utils$build_navcoind$navcoin_enable_qt$use_tests != xnononono; then
         PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
         if test x$TARGET_OS != xwindows; then
@@ -878,6 +879,7 @@ else
   fi
 
   NAVCOIN_QT_CHECK(AC_CHECK_LIB([protobuf] ,[main],[PROTOBUF_LIBS=-lprotobuf], NAVCOIN_QT_FAIL(libprotobuf not found)))
+  NAVCOIN_QT_CHECK([AC_CHECK_LIB([Qt5Charts], [main],[CHARTS_LIBS=-lQt5Charts], NAVCOIN_QT_FAIL(charts not found))])
   if test x$use_qr != xno; then
     NAVCOIN_QT_CHECK([AC_CHECK_LIB([qrencode], [main],[QR_LIBS=-lqrencode], [have_qrencode=no])])
     NAVCOIN_QT_CHECK([AC_CHECK_HEADER([qrencode.h],, have_qrencode=no)])
@@ -1224,4 +1226,6 @@ echo "  CXX           = $CXX"
 echo "  CXXFLAGS      = $HARDENED_CXXFLAGS $CXXFLAGS"
 echo "  LDFLAGS       = $HARDENED_LDFLAGS $LDFLAGS"
 echo "  ARFLAGS       = $ARFLAGS"
+echo "  CHARTS_LIBS   = $CHARTS_LIBS "
+echo "  CHARTS_CFLAGS = $CHARTS_CFLAGS "
 echo

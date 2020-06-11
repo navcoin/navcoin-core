@@ -87,9 +87,6 @@ Alihkan fail data ke dalam tab semasa</translation>
     </message>
     </context>
 <context>
-    <name>NavTechInit</name>
-    </context>
-<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -189,11 +186,5 @@ Alihkan fail data ke dalam tab semasa</translation>
     </context>
 <context>
     <name>navcoin-core</name>
-    </context>
-<context>
-    <name>navtechitem</name>
-    </context>
-<context>
-    <name>navtechsetup</name>
     </context>
 </TS>

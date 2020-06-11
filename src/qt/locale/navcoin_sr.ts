@@ -230,9 +230,6 @@
     </message>
 </context>
 <context>
-    <name>NavTechInit</name>
-    </context>
-<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -487,15 +484,5 @@
         <source>Done loading</source>
         <translation>Završeno učitavanje</translation>
     </message>
-    </context>
-<context>
-    <name>navtechitem</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
-    </context>
-<context>
-    <name>navtechsetup</name>
     </context>
 </TS>

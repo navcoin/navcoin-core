@@ -7,16 +7,18 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+
 #include <wallet/wallet.h>
 #include <base58.h>
-#include <consensus/cfund.h>
+#include <consensus/dao.h>
 #include <chain.h>
 #include <qt/guiutil.h>
+#include <ui_interface.h>
 
 #include <qt/communityfunddisplaydetailed.h>
 #include <qt/communityfundpage.h>
 
-CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal proposal) :
+CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CProposal proposal) :
     QWidget(parent),
     ui(new Ui::CommunityFundDisplay),
     proposal(proposal)
@@ -26,6 +28,9 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
     QFont f_title("Sans Serif", 10.5, QFont::Bold);
     QFont f_label_title("Sans Serif", 10, QFont::Bold);
     QFont f_label("Sans Serif", 10, QFont::Normal);
+
+    ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+    ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setText(tr("Abstain"));
 
     ui->title->setFont(f_title);
     ui->labelTitleDuration->setFont(f_label_title);
@@ -45,9 +50,13 @@ CommunityFundDisplay::CommunityFundDisplay(QWidget *parent, CFund::CProposal pro
 
 void CommunityFundDisplay::refresh()
 {
+    LOCK(cs_main);
+    CStateViewCache view(pcoinsTip);
+
+
     // Set labels from community fund
     ui->title->setText(QString::fromStdString(proposal.strDZeel));
-    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime())));
+    ui->labelStatus->setText(QString::fromStdString(proposal.GetState(pindexBestHeader->GetBlockTime(), view)));
 
     string nav_amount;
     nav_amount = wallet->formatDisplayAmount(proposal.nAmount);
@@ -82,31 +91,28 @@ void CommunityFundDisplay::refresh()
     flags fLastState = proposal.GetLastState();
 
     // If proposal is pending show voting cycles left
-    if (fLastState == CFund::NIL)
+    if (fLastState == DAOFlags::NIL)
     {
         std::string duration_title = "Voting Cycle: ";
-        std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(Params().GetConsensus().nCyclesProposalVoting);
+        std::string duration = std::to_string(proposal.nVotingCycle) +  " of " + std::to_string(GetConsensusParameter(Consensus::CONSENSUS_PARAM_PROPOSAL_MAX_VOTING_CYCLES, view));
         ui->labelTitleDuration->setText(QString::fromStdString(duration_title));
         ui->labelDuration->setText(QString::fromStdString(duration));
     }
 
     // If proposal is rejected, show when it was rejected
-    if (fLastState == CFund::REJECTED)
+    if (fLastState == DAOFlags::REJECTED)
     {
-        std::string expiry_title = "Rejected on: ";
         std::time_t t = static_cast<time_t>(proptime);
         std::stringstream ss;
-        char buf[48];
-        if (strftime(buf, sizeof(buf), "%c %Z", std::gmtime(&t)))
-	    ss << buf;
-        ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-        ui->labelDuration->setText(QString::fromStdString(ss.str().erase(10, 9)));
+        ss << std::put_time(std::gmtime(&t), "%c %Z");
+        ui->labelTitleDuration->setText(tr("Rejected on: "));
+        ui->labelDuration->setText(QString::fromStdString(ss.str()));
     }
 
     // If expired show when it expired
-    if (fLastState == CFund::EXPIRED || status.find("expired") != string::npos)
+    if (fLastState == DAOFlags::EXPIRED || status.find("expired") != string::npos)
     {
-        if (fLastState == CFund::EXPIRED)
+        if (fLastState == DAOFlags::EXPIRED)
         {
             std::string expiry_title = "Expired on: ";
             std::time_t t = static_cast<time_t>(proptime);
@@ -119,44 +125,53 @@ void CommunityFundDisplay::refresh()
         }
         else
         {
-            std::string expiry_title = "Expires: ";
-            std::string expiry = "At end of voting period";
-            ui->labelTitleDuration->setText(QString::fromStdString(expiry_title));
-            ui->labelDuration->setText(QString::fromStdString(expiry));
+            ui->labelTitleDuration->setText(tr("Expires: "));
+            ui->labelDuration->setText(tr("At end of voting period"));
         }
     }
 
     // Shade in yes/no buttons is user has voted
     // If the proposal is pending and not prematurely expired (ie can be voted on):
-    if (fLastState == CFund::NIL && proposal.GetState(pindexBestHeader->GetBlockTime()).find("expired") == string::npos)
+    if (fLastState == DAOFlags::NIL && proposal.GetState(pindexBestHeader->GetBlockTime(), view).find("expired") == string::npos)
     {
         // Get proposal votes list
-        CFund::CProposal prop = this->proposal;
-        auto it = std::find_if( vAddedProposalVotes.begin(), vAddedProposalVotes.end(),
-                                [&prop](const std::pair<std::string, bool>& element){ return element.first == prop.hash.ToString();} );
-        if (it != vAddedProposalVotes.end())
+        CProposal prop = this->proposal;
+        auto it = mapAddedVotes.find(proposal.hash);
+
+        if (it != mapAddedVotes.end())
         {
-            if (it->second)
+            if (it->second == 1)
             {
                 // Proposal was voted yes, shade in yes button and unshade no button
-                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_YES);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             }
-            else
+            else if (it->second == 0)
             {
                 // Proposal was noted no, shade in no button and unshade yes button
-                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
                 ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
                 ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NO);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            }
+            else if (it->second == -1)
+            {
+                // Proposal was noted abstain, shade in no button and unshade yes button
+                ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore|QDialogButtonBox::Cancel);
+                ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+                ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_ABSTAIN);
             }
         }
         else
         {
             // Proposal was not voted on, reset shades of both buttons
-            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes|QDialogButtonBox::Ignore);
             ui->buttonBoxVote->button(QDialogButtonBox::Yes)->setStyleSheet(COLOR_VOTE_NEUTRAL);
             ui->buttonBoxVote->button(QDialogButtonBox::No)->setStyleSheet(COLOR_VOTE_NEUTRAL);
+            ui->buttonBoxVote->button(QDialogButtonBox::Ignore)->setStyleSheet(COLOR_VOTE_NEUTRAL);
         }
     }
 
@@ -165,12 +180,9 @@ void CommunityFundDisplay::refresh()
         ui->labelDuration->setText(QString::fromStdString("After payment request voting"));
     }
 
-    {
-        LOCK(cs_main);
-        //hide ui voting elements on proposals which are not allowed vote states
-        if(!proposal.CanVote())
-            ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
-    }
+    //hide ui voting elements on proposals which are not allowed vote states
+    if(!proposal.CanVote(view))
+        ui->buttonBoxVote->setStandardButtons(QDialogButtonBox::NoButton);
 
     // Prevent overflow of title
     std::string title_string = proposal.strDZeel;
@@ -197,7 +209,7 @@ void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
     // Cast the vote
     bool duplicate = false;
 
-    CFund::CProposal p;
+    CProposal p;
     if (!pcoinsTip->GetProposal(uint256S(proposal.hash.ToString()), p))
     {
         return;
@@ -205,17 +217,22 @@ void CommunityFundDisplay::click_buttonBoxVote(QAbstractButton *button)
 
     if (ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::YesRole)
     {
-        CFund::VoteProposal(p, true, duplicate);
+        Vote(p.hash, 1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::NoRole)
     {
-        CFund::VoteProposal(p, false, duplicate);
+        Vote(p.hash, 0, duplicate);
+        refresh();
+    }
+    else if(ui->buttonBoxVote->standardButton(button) == QDialogButtonBox::Ignore)
+    {
+        Vote(p.hash, -1, duplicate);
         refresh();
     }
     else if(ui->buttonBoxVote->buttonRole(button) == QDialogButtonBox::RejectRole)
     {
-        CFund::RemoveVoteProposal(p.hash.ToString());
+        RemoveVote(p.hash);
         refresh();
     }
     else

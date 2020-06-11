@@ -1168,33 +1168,6 @@
     </message>
 </context>
 <context>
-    <name>NavTechInit</name>
-    <message>
-        <source>NavTech Setup</source>
-        <translation>Preparador NavTech</translation>
-    </message>
-    <message>
-        <source>NavCoin uses an unique parallel cluster of nodes called NavTech to protect the privacy of your transactions.</source>
-        <translation>NavCoin usa un clúster paralelo único de nodos llamado NavTech para proteger la privacidad de sus transacciones.</translation>
-    </message>
-    <message>
-        <source>You will find below the list of the NavCoin Foundation Servers. Feel free to modify this list to include your prefered servers:</source>
-        <translation>A continuación, encontrará la lista de los servidores de la Fundación NavCoin. Siéntase libre de modificar esta lista para incluir sus servidores preferidos:</translation>
-    </message>
-    <message>
-        <source>95.183.52.55:3000
-95.183.52.28:3000
-95.183.52.29:3000
-95.183.53.184:3000
-</source>
-        <translation>95.183.52.55:3000
-95.183.52.28:3000
-95.183.52.29:3000
-95.183.53.184:3000
-</translation>
-    </message>
-</context>
-<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -1604,10 +1577,6 @@
     <message>
         <source>Invalid payment address %1</source>
         <translation>Dirección de pago invalida %1</translation>
-    </message>
-    <message>
-        <source>URI cannot be parsed! This can be caused by an invalid NavCoin address or malformed URI parameters.</source>
-        <translation>¡URI no puede ser analizado! Esto puede ser causado por una dirección NAvTech invalida o un parámetro URI mal formado.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2306,16 +2275,8 @@
         <translation>(Tarifa inteligente no inicializado aún. Esto generalmente lleva a pocos bloques...)</translation>
     </message>
     <message>
-        <source>You don't have any NAVTech server added. </source>
-        <translation>No tiene ningún servidor NAVTech agregado.</translation>
-    </message>
-    <message>
         <source>Private payment</source>
         <translation>Pago privado</translation>
-    </message>
-    <message>
-        <source>Manage NAVTech servers</source>
-        <translation>Administre servidores NAVTech</translation>
     </message>
     <message>
         <source>Use full amount</source>
@@ -2382,10 +2343,6 @@
         <translation>Copiar cambio</translation>
     </message>
     <message>
-        <source>NAVTech server returned a different number of addresses.</source>
-        <translation>Servidor NAVtech devolvió un numero diferente de direcciones.</translation>
-    </message>
-    <message>
         <source>Something went wrong:</source>
         <translation>Algo salio mal:</translation>
     </message>
@@ -2428,14 +2385,6 @@
     <message>
         <source>The following fee will be deducted</source>
         <translation>La siguiente cuota sera deducida</translation>
-    </message>
-    <message>
-        <source>Navtech server fee:</source>
-        <translation>Cuota del servidor NavTech:</translation>
-    </message>
-    <message>
-        <source>will be deducted as Navtech fee.</source>
-        <translation>sera deducido como cuota NavTech.</translation>
     </message>
     <message>
         <source>Total Amount %1</source>
@@ -3593,10 +3542,6 @@
         <translation>&lt;category&gt; puede ser:</translation>
     </message>
     <message>
-        <source>Add a NavTech node to use for private transactions</source>
-        <translation>Agregue un nodo Navtech para usar en transacciones privadas</translation>
-    </message>
-    <message>
         <source>Adds a ntp server to use for clock syncronization</source>
         <translation>Agregue un servidor ntp para sincronización del reloj</translation>
     </message>
@@ -4329,100 +4274,6 @@
     <message>
         <source>Error</source>
         <translation>Error</translation>
-    </message>
-</context>
-<context>
-    <name>navtechitem</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulario</translation>
-    </message>
-    <message>
-        <source>Server Name</source>
-        <translation>Nombre del servidor</translation>
-    </message>
-    <message>
-        <source>127.0.0.1:3000</source>
-        <translation>127.0.0.1:3000</translation>
-    </message>
-    <message>
-        <source>Get Info</source>
-        <translation>Obtener información</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Eliminar</translation>
-    </message>
-</context>
-<context>
-    <name>navtechsetup</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialogo</translation>
-    </message>
-    <message>
-        <source>List of Navtech servers currently configured in your wallet to process private payments:</source>
-        <translation>Lista de servidores Navtech actualmente configurados en su monedero para procesar pagos privados:</translation>
-    </message>
-    <message>
-        <source>When performing a private payment, a random server from this list will be used.</source>
-        <translation>Cuando hace un pago privado , un servidor aleatorio de esta lista sera utilizado.</translation>
-    </message>
-    <message>
-        <source>Get Info</source>
-        <translation>Obtener información</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eliminar</translation>
-    </message>
-    <message>
-        <source>Server address</source>
-        <translation>Dirección de servidor</translation>
-    </message>
-    <message>
-        <source>Add new</source>
-        <translation>Añadir nuevo</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Guardar</translation>
-    </message>
-    <message>
-        <source>Remove Navtech server</source>
-        <translation>Remover servidor Navtech</translation>
-    </message>
-    <message>
-        <source>You are about to remove the following Navtech server: </source>
-        <translation>Usted esta a punto de remover el siguiente servidor Navtech:</translation>
-    </message>
-    <message>
-        <source>Are you sure?</source>
-        <translation>¿Esta seguro?</translation>
-    </message>
-    <message>
-        <source>Removed.</source>
-        <translation>Removido.</translation>
-    </message>
-    <message>
-        <source>Navtech server</source>
-        <translation>Servidor Navtech</translation>
-    </message>
-    <message>
-        <source>Address: </source>
-        <translation>Dirección:</translation>
-    </message>
-    <message>
-        <source>Min amount: </source>
-        <translation>Monto mínimo:</translation>
-    </message>
-    <message>
-        <source>Max amount: </source>
-        <translation>Monto máximo:</translation>
-    </message>
-    <message>
-        <source>Tx fee: </source>
-        <translation>Cuota de transacción:</translation>
     </message>
 </context>
 </TS>

@@ -5,7 +5,8 @@
 #ifndef NAVCOIN_QT_SPLASHSCREEN_H
 #define NAVCOIN_QT_SPLASHSCREEN_H
 
-#include <QSplashScreen>
+#include <QLabel>
+#include <QHBoxLayout>
 
 class NetworkStyle;
 
@@ -24,15 +25,20 @@ public:
     ~SplashScreen();
 
 protected:
-    void paintEvent(QPaintEvent *event);
     void closeEvent(QCloseEvent *event);
 
 public Q_SLOTS:
     /** Slot to call finish() method as it's not defined as slot */
     void slotFinish(QWidget *mainWin);
 
+    /** Get the screen scale, usefull for scaling UI elements */
+    float scale();
+
     /** Show message and progress */
-    void showMessage(const QString &message, int alignment, const QColor &color);
+    void showMessage(const QString &message, const QColor &color);
+
+    /** Update the progress */
+    void updateProgress();
 
 private:
     /** Connect core signals to splash screen */
@@ -41,9 +47,11 @@ private:
     void unsubscribeFromCoreSignals();
 
     QPixmap pixmap;
-    QString curMessage;
-    QColor curColor;
-    int curAlignment;
+    QLabel* statusLabel;
+    QWidget* splashBarInner;
+    QHBoxLayout* splashBarLayout;
+    QSize splashSize;
+    QTimer* timerProgress;
 };
 
 #endif // NAVCOIN_QT_SPLASHSCREEN_H

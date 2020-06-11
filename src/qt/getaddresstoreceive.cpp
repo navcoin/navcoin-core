@@ -7,7 +7,7 @@
 
 #include <qt/coldstakingwizard.h>
 #include <qt/getaddresstoreceive.h>
-#include <qt/ui_getaddresstoreceive.h>
+#include <qt/forms/ui_getaddresstoreceive.h>
 
 #include <stdint.h>
 
@@ -34,6 +34,8 @@ getAddressToReceive::getAddressToReceive(QWidget *parent) :
           break;
         }
     }
+
+    ui->lblAddress->setMinimumWidth(360 * GUIUtil::scale());
 
     connect(ui->requestPaymentButton,SIGNAL(clicked()),this,SLOT(showRequestPayment()));
     connect(ui->copyClipboardButton,SIGNAL(clicked()),this,SLOT(copyToClipboard()));
@@ -115,19 +117,15 @@ void getAddressToReceive::showQR()
             }
             QRcode_free(code);
 
-            QImage qrAddrImage = QImage(QR_IMAGE_SIZE, QR_IMAGE_SIZE+20, QImage::Format_RGB32);
-            qrAddrImage.fill(0xffffff);
-            QPainter painter(&qrAddrImage);
-            painter.drawImage(0, 0, qrImage.scaled(QR_IMAGE_SIZE, QR_IMAGE_SIZE));
-            QFont font = GUIUtil::fixedPitchFont();
-            font.setPixelSize(12);
-            painter.setFont(font);
-            QRect paddedRect = qrAddrImage.rect();
-            paddedRect.setHeight(QR_IMAGE_SIZE+12);
-            painter.drawText(paddedRect, Qt::AlignBottom|Qt::AlignCenter, address);
-            painter.end();
+            // Size of the qr code scaled
+            int qrSize = QR_IMAGE_SIZE * GUIUtil::scale();
 
-            ui->lblQRCode->setPixmap(QPixmap::fromImage(qrAddrImage));
+            // Set the pixmap and the fixed size
+            ui->lblQRCode->setPixmap(QPixmap::fromImage(qrImage.scaled(qrSize, qrSize)));
+            ui->lblQRCode->setMinimumSize(qrSize, qrSize);
+
+            // Add the address to the label
+            ui->lblAddress->setText(address);
         }
     }
 #endif

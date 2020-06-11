@@ -21,6 +21,12 @@
 #define BLOCK_STAKE_ENTROPY  0x02 // entropy bit for stake modifier
 #define BLOCK_STAKE_MODIFIER 0x04
 
+/**
+ * Maximum gap between node time and block time used
+ * for the "Catching up..." mode in GUI.
+ */
+static constexpr int64_t MAX_BLOCK_TIME_GAP = 90 * 60;
+
 class CBlockFileInfo
 {
 public:
@@ -45,34 +51,34 @@ public:
         READWRITE(VARINT(nTimeLast));
     }
 
-     void SetNull() {
-         nBlocks = 0;
-         nSize = 0;
-         nUndoSize = 0;
-         nHeightFirst = 0;
-         nHeightLast = 0;
-         nTimeFirst = 0;
-         nTimeLast = 0;
-     }
+    void SetNull() {
+        nBlocks = 0;
+        nSize = 0;
+        nUndoSize = 0;
+        nHeightFirst = 0;
+        nHeightLast = 0;
+        nTimeFirst = 0;
+        nTimeLast = 0;
+    }
 
-     CBlockFileInfo() {
-         SetNull();
-     }
+    CBlockFileInfo() {
+        SetNull();
+    }
 
-     std::string ToString() const;
+    std::string ToString() const;
 
-     /** update statistics (does not update nSize) */
-     void AddBlock(unsigned int nHeightIn, uint64_t nTimeIn) {
-         if (nBlocks==0 || nHeightFirst > nHeightIn)
-             nHeightFirst = nHeightIn;
-         if (nBlocks==0 || nTimeFirst > nTimeIn)
-             nTimeFirst = nTimeIn;
-         nBlocks++;
-         if (nHeightIn > nHeightLast)
-             nHeightLast = nHeightIn;
-         if (nTimeIn > nTimeLast)
-             nTimeLast = nTimeIn;
-     }
+    /** update statistics (does not update nSize) */
+    void AddBlock(unsigned int nHeightIn, uint64_t nTimeIn) {
+        if (nBlocks==0 || nHeightFirst > nHeightIn)
+            nHeightFirst = nHeightIn;
+        if (nBlocks==0 || nTimeFirst > nTimeIn)
+            nTimeFirst = nTimeIn;
+        nBlocks++;
+        if (nHeightIn > nHeightLast)
+            nHeightLast = nHeightIn;
+        if (nTimeIn > nTimeLast)
+            nTimeLast = nTimeIn;
+    }
 };
 
 struct CDiskBlockPos
@@ -144,7 +150,7 @@ enum BlockStatus: uint32_t {
 
     //! All validity bits.
     BLOCK_VALID_MASK         =   BLOCK_VALID_HEADER | BLOCK_VALID_TREE | BLOCK_VALID_TRANSACTIONS |
-                                 BLOCK_VALID_CHAIN | BLOCK_VALID_SCRIPTS | BLOCK_VALID_STAKE,
+    BLOCK_VALID_CHAIN | BLOCK_VALID_SCRIPTS | BLOCK_VALID_STAKE,
 
     BLOCK_HAVE_DATA          =    8, //! full block available in blk*.dat
     BLOCK_HAVE_UNDO          =   16, //! undo data available in rev*.dat
@@ -155,6 +161,7 @@ enum BlockStatus: uint32_t {
     BLOCK_FAILED_MASK        =   BLOCK_FAILED_VALID | BLOCK_FAILED_CHILD,
 
     BLOCK_OPT_WITNESS        =   128, //! block data in blk*.data was received with a witness-enforcing client
+    BLOCK_OPT_DAO            =   256, //! DAO data structures
 };
 
 /** The block chain is a tree shaped structure starting with the
@@ -215,18 +222,11 @@ public:
     int64_t nCFSupply;
     int64_t nCFLocked;
 
-    std::vector<std::pair<uint256, bool>> vProposalVotes;
-    std::vector<std::pair<uint256, bool>> vPaymentRequestVotes;
-
     std::string strDZeel;
 
     unsigned int nFlags;  // ppcoin: block index flags
 
     uint64_t nStakeModifier; // hash modifier for proof-of-stake
-
-    // proof-of-stake specific fields
-    COutPoint prevoutStake;
-    unsigned int nStakeTime;
 
     arith_uint256 hashProof;
 
@@ -252,16 +252,12 @@ public:
         nCFLocked = 0;
         nFlags = 0;
         nStakeModifier = 0;
-	      hashProof = arith_uint256();
-        prevoutStake.SetNull();
-        nStakeTime = 0;
+        hashProof = arith_uint256();
         nVersion       = 0;
         hashMerkleRoot = uint256();
         nTime          = 0;
         nBits          = 0;
         nNonce         = 0;
-        vProposalVotes.clear();
-        vPaymentRequestVotes.clear();
     }
 
     CBlockIndex()
@@ -287,13 +283,6 @@ public:
         if (block.IsProofOfStake())
         {
             SetProofOfStake();
-            prevoutStake = block.vtx[1].vin[0].prevout;
-            nStakeTime = block.vtx[1].nTime;
-        }
-        else
-        {
-            prevoutStake.SetNull();
-            nStakeTime = 0;
         }
 
         nVersion       = block.nVersion;
@@ -378,15 +367,14 @@ public:
 
     std::string ToString() const
     {
-        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nCFSupply=%s, nCFLocked=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
-            pprev, nFile, nHeight,
-            FormatMoney(nMint), FormatMoney(nCFSupply), FormatMoney(nCFLocked),
-            GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",
-            nStakeModifier,
-            hashProof.ToString(),
-            prevoutStake.ToString(), nStakeTime,
-            hashMerkleRoot.ToString(),
-            GetBlockHash().ToString());
+        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nCFSupply=%s, nCFLocked=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, merkle=%s, hashBlock=%s)",
+                         pprev, nFile, nHeight,
+                         FormatMoney(nMint), FormatMoney(nCFSupply), FormatMoney(nCFLocked),
+                         GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",
+                         nStakeModifier,
+                         hashProof.ToString(),
+                         hashMerkleRoot.ToString(),
+                         GetBlockHash().ToString());
     }
 
     //! Check whether this block index entry is valid up to the passed validity level.
@@ -473,10 +461,25 @@ public:
     uint256 hashPrev;
     uint256 hashNext;
 
+    std::vector<std::pair<uint256, int>> vProposalVotes;
+    std::vector<std::pair<uint256, int>> vPaymentRequestVotes;
+    std::map<uint256, bool> mapSupport;
+    std::map<uint256, uint64_t> mapConsultationVotes;
+
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+    unsigned int nStakeTime;
+
     CDiskBlockIndex() {
         hashPrev = uint256();
-	      hashNext = uint256();
+        hashNext = uint256();
         blockHash = uint256();
+        prevoutStake.SetNull();
+        nStakeTime = 0;
+        vProposalVotes.clear();
+        vPaymentRequestVotes.clear();
+        mapSupport.clear();
+        mapConsultationVotes.clear();
     }
 
     explicit CDiskBlockIndex(const CBlockIndex* pindex) : CBlockIndex(*pindex) {
@@ -523,8 +526,49 @@ public:
         READWRITE(blockHash);
         READWRITE(nCFSupply);
         READWRITE(nCFLocked);
-        READWRITE(vPaymentRequestVotes);
-        READWRITE(vProposalVotes);
+        // UPDATE if versionbits.h is modified
+        if (this->nStatus & BLOCK_OPT_DAO)
+        {
+            READWRITE(vPaymentRequestVotes);
+            READWRITE(vProposalVotes);
+        }
+        else
+        {
+            std::vector<std::pair<uint256, bool>> vProposalVotesProxy;
+            std::vector<std::pair<uint256, bool>> vPaymentRequestVotesProxy;
+            if (ser_action.ForRead())
+            {
+                READWRITE(vPaymentRequestVotesProxy);
+                READWRITE(vProposalVotesProxy);
+                for (auto& it: vProposalVotesProxy)
+                {
+                    vProposalVotes.push_back(std::make_pair(it.first, (uint64_t)it.second));
+                }
+                for (auto& it: vPaymentRequestVotesProxy)
+                {
+                    vPaymentRequestVotes.push_back(std::make_pair(it.first, (uint64_t)it.second));
+                }
+            }
+            else
+            {
+                for (auto& it: vProposalVotes)
+                {
+                    vProposalVotesProxy.push_back(std::make_pair(it.first, it.second == 1 ? true : false));
+                }
+                for (auto& it: vPaymentRequestVotes)
+                {
+                    vPaymentRequestVotesProxy.push_back(std::make_pair(it.first, it.second == 1 ? true : false));
+                }
+                READWRITE(vPaymentRequestVotesProxy);
+                READWRITE(vProposalVotesProxy);
+            }
+        }
+
+        if (this->nStatus & BLOCK_OPT_DAO)
+        {
+            READWRITE(mapSupport);
+            READWRITE(mapConsultationVotes);
+        }
     }
 
     uint256 GetBlockHash() const
@@ -548,8 +592,8 @@ public:
         std::string str = "CDiskBlockIndex(";
         str += CBlockIndex::ToString();
         str += strprintf("\n                hashBlock=%s, hashPrev=%s)",
-            GetBlockHash().ToString(),
-            hashPrev.ToString());
+                         GetBlockHash().ToString(),
+                         hashPrev.ToString());
         return str;
     }
 };
@@ -563,10 +607,10 @@ public:
     /** Returns the index entry for the genesis block of this chain, or NULL if none. */
     CBlockIndex *Genesis() const {
         return vChain.size() > 0 ? vChain[0] : NULL;
-    }
+        }
 
-    /** Returns the index entry for the tip of this chain, or NULL if none. */
-    CBlockIndex *Tip() const {
+        /** Returns the index entry for the tip of this chain, or NULL if none. */
+        CBlockIndex *Tip() const {
         return vChain.size() > 0 ? vChain[vChain.size() - 1] : NULL;
     }
 
@@ -580,7 +624,7 @@ public:
     /** Compare two chains efficiently. */
     friend bool operator==(const CChain &a, const CChain &b) {
         return a.vChain.size() == b.vChain.size() &&
-               a.vChain[a.vChain.size() - 1] == b.vChain[b.vChain.size() - 1];
+                a.vChain[a.vChain.size() - 1] == b.vChain[b.vChain.size() - 1];
     }
 
     /** Efficiently check whether a block is present in this chain. */

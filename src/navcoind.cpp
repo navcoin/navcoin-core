@@ -160,7 +160,8 @@ bool AppInit(int argc, char* argv[])
         // Set this early so that parameter interactions go to console
         InitLogging();
         InitParameterInteraction();
-        fRet = AppInit2(threadGroup, scheduler);
+        std::string wordlist;
+        fRet = AppInit2(threadGroup, scheduler, wordlist);
     }
     catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInit()");

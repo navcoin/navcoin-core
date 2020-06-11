@@ -14,7 +14,7 @@
 class NavCoinGUI;
 class ClientModel;
 class OverviewPage;
-class CommunityFundPage;
+class DaoPage;
 class PlatformStyle;
 class ReceiveCoinsDialog;
 class SendCoinsDialog;
@@ -56,8 +56,6 @@ public:
 
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 
-    void showOutOfSyncWarning(bool fShow);
-
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;
@@ -66,7 +64,7 @@ private:
     QWidget *transactionsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
-    CommunityFundPage *communityFundPage;
+    DaoPage *daoPage;
     getAddressToReceive *requestPaymentPage;
     AddressBookPage *usedSendingAddressesPage;
     AddressBookPage *usedReceivingAddressesPage;
@@ -128,23 +126,10 @@ public Q_SLOTS:
     /** User has requested more information about the out of sync state */
     void requestedSyncWarningInfo();
 
-    void setStatusTitleBlocks(QString text);
-
-    void setStatusTitleConnections(QString text);
-
-    void setStatusTitle(QString text);
-
-    void setVotingStatus(QString text);
-
-    void showStatusTitleConnections();
-    void hideStatusTitleConnections();
-    void showStatusTitleBlocks();
-    void hideStatusTitleBlocks();
-
-    void showLockStaking(bool status);
-    void setStakingStatus(QString text);
     void setStakingStats(QString day, QString week, QString month, QString year, QString all);
     void requestAddressHistory();
+
+    void onDaoEntriesChanged(int count);
 
 Q_SIGNALS:
     /** Signal that we want to show the main window */
@@ -157,6 +142,8 @@ Q_SIGNALS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
     /** Notify that the out of sync warning icon has been pressed */
     void outOfSyncWarningClicked();
+
+    void daoEntriesChanged(int count);
 
     void openAddressHistory();
 

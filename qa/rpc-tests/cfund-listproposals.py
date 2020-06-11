@@ -18,7 +18,8 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
         self.num_nodes = 1
 
     def setup_network(self, split=False):
-        self.nodes = self.setup_nodes()
+        self.nodes = []
+        self.nodes = start_nodes(self.num_nodes, self.options.tmpdir, [["-debug=dao"]])
         self.is_network_split = split
 
     def run_test(self):
@@ -122,6 +123,7 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
         # Create payment request
         payreq0 = self.nodes[0].createpaymentrequest(created_proposals["pure_yes"], 4, "pure_yes_payreq")["hash"]
         slow_gen(self.nodes[0], 1)
+        end_cycle(self.nodes[0])
 
         # Validate the payment request displays
         for proposal in self.nodes[0].listproposals():
@@ -134,16 +136,16 @@ class CommunityFundProposalsTest(NavCoinTestFramework):
 
         # Accept payment request
         self.nodes[0].paymentrequestvote(payreq0, "yes")
+        slow_gen(self.nodes[0], 1)
         end_cycle(self.nodes[0])
 
         # Validate that the request was accepted and check paid amounts
         for proposal in self.nodes[0].listproposals():
             if proposal['description'] == "pure_yes":
-                assert (float(proposal["notPaidYet"]) == 6)
-                assert (proposal["paymentRequests"][0]["hash"] == payreq0)
-                assert (proposal["paymentRequests"][0]["status"] == "accepted")
-                assert (proposal["paymentRequests"][0]["state"] == 1)
-
+                assert_equal(proposal["paymentRequests"][0]["hash"], payreq0)
+                assert_equal(proposal["paymentRequests"][0]["status"], "accepted")
+                assert_equal(proposal["paymentRequests"][0]["state"], 1)
+                assert_equal(float(proposal["notPaidYet"]), 6)
 
 if __name__ == '__main__':
     CommunityFundProposalsTest().main()

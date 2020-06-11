@@ -28,5 +28,5 @@ This fix is the main purpose of the 4.7.1 patch release, while preparing this bu
 * [`Pull Request 614`](https://github.com/navcoin/navcoin-core/pull/614) [`Commit 80323b33`](https://github.com/navcoin/navcoin-core/commit/856d57a8f944ed3382d7001a3e9a1bfd80323b33) Patch for staking redirect gui
 * [`Pull Request 615`](https://github.com/navcoin/navcoin-core/pull/615) [`Commit 9e84d40a`](https://github.com/navcoin/navcoin-core/commit/662163ad8f73081d2d6145938571ca809e84d40a) Bump version number
 
-For additional information about new features, check [https://navcoin.org/en/notices/](https://navcoin.org/en/notices/)
+For additional information about new features, check [https://navcoin.org/en/notices/](https://navcoin.org/en/notices/) 
 

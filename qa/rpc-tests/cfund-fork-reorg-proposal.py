@@ -49,7 +49,7 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         time.sleep(2) # Wait for the nodes to disconnect
 
         # Create the proposal and save the id/hash
-        proposalHex = self.nodes[0].createproposal(paymentAddress, proposalAmount, proposalDeadline, "test", 1, True)
+        proposalHex = self.nodes[0].createproposal(paymentAddress, proposalAmount, proposalDeadline, "test", 1, True)["raw"]
 
         # Broadcast on node 0
         slow_gen(self.nodes[0], 1)
@@ -144,9 +144,17 @@ class CfundForkReorgProposal(NavCoinTestFramework):
         paidBlock = self.nodes[0].getblock(self.nodes[0].getpaymentrequest(preqHash)["stateChangedOnBlock"])
         unspent = self.nodes[0].listunspent(0, 80)
 
-        assert_equal(unspent[0]['address'], paymentAddress)
-        assert_equal(unspent[0]['amount'], paymentAmount)
-        assert_equal(paidBlock['tx'][0], unspent[0]['txid'])
+        found = False
+        txid = ""
+
+        for utxo in unspent:
+            if utxo['address'] == paymentAddress and utxo['amount'] == paymentAmount:
+                found = True
+                txid = utxo['txid']
+                break
+
+        assert(found)
+        assert_equal(paidBlock['tx'][0], txid)
 
 if __name__ == '__main__':
     CfundForkReorgProposal().main()

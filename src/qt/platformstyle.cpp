@@ -13,26 +13,10 @@
 #include <QPalette>
 #include <QPixmap>
 
-static const struct {
-    const char *platformId;
-    /** Show images on push buttons */
-    const bool imagesOnButtons;
-    /** Colorize single-color icons */
-    const bool colorizeIcons;
-    /** Extra padding/spacing in transactionview */
-    const bool useExtraSpacing;
-} platform_styles[] = {
-    {"macosx", false, false, true},
-    {"windows", true, false, false},
-    /* Other: linux, unix, ... */
-    {"other", true, true, false}
-};
-static const unsigned platform_styles_count = sizeof(platform_styles)/sizeof(*platform_styles);
-
 namespace {
 /* Local functions for colorizing single-color images */
 
-void MakeSingleColorImage(QImage& img, const QColor& colorbase)
+void MakeImage(QImage& img, const QColor& colorbase)
 {
     img = img.convertToFormat(QImage::Format_ARGB32);
     for (int x = img.width(); x--; )
@@ -51,7 +35,7 @@ QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
     for(QSize sz: ico.availableSizes())
     {
         QImage img(ico.pixmap(sz).toImage());
-        MakeSingleColorImage(img, colorbase);
+        MakeImage(img, colorbase);
         new_ico.addPixmap(QPixmap::fromImage(img));
     }
     return new_ico;
@@ -60,7 +44,7 @@ QIcon ColorizeIcon(const QIcon& ico, const QColor& colorbase)
 QImage ColorizeImage(const QString& filename, const QColor& colorbase)
 {
     QImage img(filename);
-    MakeSingleColorImage(img, colorbase);
+    MakeImage(img, colorbase);
     return img;
 }
 
@@ -72,75 +56,49 @@ QIcon ColorizeIcon(const QString& filename, const QColor& colorbase)
 }
 
 
-PlatformStyle::PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing):
-    name(name),
-    imagesOnButtons(imagesOnButtons),
-    colorizeIcons(colorizeIcons),
-    useExtraSpacing(useExtraSpacing),
+PlatformStyle::PlatformStyle():
     singleColor(0,0,0),
     textColor(0,0,0)
 {
     // Determine icon highlighting color
-    if (colorizeIcons) {
-        const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
-        const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
-        const QColor colorText(QApplication::palette().color(QPalette::WindowText));
-        const int colorTextLightness = colorText.lightness();
-        QColor colorbase;
-        if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness))
-            colorbase = colorHighlightBg;
-        else
-            colorbase = colorHighlightFg;
-        singleColor = colorbase;
-    }
+    singleColor = QColor(QApplication::palette().color(QPalette::Highlight));
+
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
 }
 
-QImage PlatformStyle::SingleColorImage(const QString& filename) const
+QImage PlatformStyle::Image(const QString& filename) const
 {
-    if (!colorizeIcons)
-        return QImage(filename);
     return ColorizeImage(filename, SingleColor());
 }
 
-QIcon PlatformStyle::SingleColorIcon(const QString& filename) const
+QIcon PlatformStyle::Icon(const QString& filename) const
 {
-    if (!colorizeIcons)
-        return QIcon(filename);
     return ColorizeIcon(filename, SingleColor());
 }
 
-QIcon PlatformStyle::SingleColorIcon(const QIcon& icon) const
+QIcon PlatformStyle::Icon(const QString& filename, const QString& colorbase) const
 {
-    if (!colorizeIcons)
-        return icon;
+    return ColorizeIcon(filename, QColor(colorbase));
+}
+
+QIcon PlatformStyle::Icon(const QIcon& icon) const
+{
     return ColorizeIcon(icon, SingleColor());
 }
 
-QIcon PlatformStyle::TextColorIcon(const QString& filename) const
+QIcon PlatformStyle::IconAlt(const QString& filename) const
 {
     return ColorizeIcon(filename, TextColor());
 }
 
-QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
+QIcon PlatformStyle::IconAlt(const QIcon& icon) const
 {
     return ColorizeIcon(icon, TextColor());
 }
 
-const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
+const PlatformStyle *PlatformStyle::instantiate()
 {
-    for (unsigned x=0; x<platform_styles_count; ++x)
-    {
-        if (platformId == platform_styles[x].platformId)
-        {
-            return new PlatformStyle(
-                    platform_styles[x].platformId,
-                    platform_styles[x].imagesOnButtons,
-                    platform_styles[x].colorizeIcons,
-                    platform_styles[x].useExtraSpacing);
-        }
-    }
-    return 0;
+    return new PlatformStyle();
 }
 
