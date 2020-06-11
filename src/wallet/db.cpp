@@ -308,8 +308,6 @@ CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnClose
                 // Check if it worked
                 if (cryptRet != 0)
                     throw runtime_error(strprintf("CDB::CDB: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
-            } else {
-                info("CDB::CDB: DB_ENCRYPT disabled");
             }
 
             info("CDB::CDB: CALL DB->open");
@@ -421,6 +419,18 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
                 { // surround usage of db with extra {}
                     CDB db(strFile.c_str(), "r");
                     Db* pdbCopy = new Db(bitdb.dbenv, 0);
+
+                    // Check if bitdb is encrypted
+                    if (bitdb.IsCrypted())
+                    {
+                        info("CDB::CDB: DB_ENCRYPT enabled");
+                        // Enable encryption for the database
+                        int cryptRet = pdbCopy->set_flags(DB_ENCRYPT);
+
+                        // Check if it worked
+                        if (cryptRet != 0)
+                            throw runtime_error(strprintf("CDB::CDB: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet)));
+                    }
 
                     info("CDB::Rewrite: CALL DB->open");
                     int ret = pdbCopy->open(NULL,               // Txn pointer
