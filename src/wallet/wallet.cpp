@@ -951,10 +951,6 @@ bool CWallet::Verify()
            if (pin == "")
                 pin = uiInterface.AskForPin(_("PIN/PASS:"));
         }
-    } else {
-        // Check if it's empty
-        if (pin == "")
-            pin = uiInterface.AskForPin(_("PIN/PASS:"));
     }
 
     if (!bitdb.Open(GetDataDir(), pin))
@@ -1735,7 +1731,7 @@ CPubKey CWallet::ImportMnemonic(word_list mnemonic, dictionary lang)
 
         // write the key&metadata to the database
         if (!AddKeyPubKey(key, pubkey))
-            throw std::runtime_error("CWallet::GenerateNewKey(): AddKey failed");
+            throw std::runtime_error("CWallet::ImportMnemonic(): AddKey failed");
     }
 
     return pubkey;

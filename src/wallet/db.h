@@ -68,7 +68,7 @@ public:
     typedef std::pair<std::vector<unsigned char>, std::vector<unsigned char> > KeyValPair;
     bool Salvage(const std::string& strFile, bool fAggressive, std::vector<KeyValPair>& vResult);
 
-    bool Open(const boost::filesystem::path& path, std::string pin = "");
+    bool Open(const boost::filesystem::path& path, std::string strPin);
     void Close();
     void Flush(bool fShutdown);
     void CheckpointLSN(const std::string& strFile);
@@ -99,7 +99,7 @@ protected:
     bool fReadOnly;
     bool fFlushOnClose;
 
-    explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn = true);
+    explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn = true, std::string strPin = "");
     ~CDB() { Close(); }
 
 public:
@@ -107,7 +107,6 @@ public:
     void Close();
 
 private:
-    void Setup(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn);
     CDB(const CDB&);
     void operator=(const CDB&);
 

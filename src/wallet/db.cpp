@@ -73,7 +73,7 @@ void CDBEnv::Close()
     EnvShutdown();
 }
 
-bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string pin)
+bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string strPin)
 {
     if (fDbEnvInit)
         return true;
@@ -98,16 +98,18 @@ bool CDBEnv::Open(const boost::filesystem::path& pathIn, std::string pin)
     dbenv->log_set_config(DB_LOG_AUTO_REMOVE, 1);
 
     // Check if we got a pin
-    if (pin != "")
+    if (strPin != "")
     {
         info("CDBEnv::Open: Encryption Enabled");
 
         // Enable encryption for the envirnment
-        int cryptRet = dbenv->set_encrypt(pin.c_str(), DB_ENCRYPT_AES);
+        int cryptRet = dbenv->set_encrypt(strPin.c_str(), DB_ENCRYPT_AES);
 
         // Check if it worked
         if (cryptRet != 0)
             return error("CDBEnv::Open: Error %d enabling database encryption: %s", cryptRet, DbEnv::strerror(cryptRet));
+
+        info(dbenv->set_encrypt());
     } else {
         info("CDBEnv::Open: Encryption Disabled");
     }
@@ -260,9 +262,9 @@ void CDBEnv::CheckpointLSN(const std::string& strFile)
     dbenv->lsn_reset(strFile.c_str(), 0);
 }
 
-void CDB::Setup(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn)
+CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn, std::string strPin) : pdb(NULL), activeTxn(NULL)
 {
-    info("CDB::Setup: START");
+    info("CDB::CDB: START");
     int ret;
     fReadOnly = (!strchr(pszMode, '+') && !strchr(pszMode, 'w'));
     fFlushOnClose = fFlushOnCloseIn;
@@ -276,8 +278,8 @@ void CDB::Setup(const std::string& strFilename, const char* pszMode, bool fFlush
 
     {
         LOCK(bitdb.cs_db);
-        if (!bitdb.Open(GetDataDir()))
-            throw runtime_error("CDB::Setup: Failed to open database environment.");
+        if (!bitdb.Open(GetDataDir(), strPin))
+            throw runtime_error("CDB::CDB: Failed to open database environment.");
 
         strFile = strFilename;
         ++bitdb.mapFileUseCount[strFile];
@@ -293,7 +295,7 @@ void CDB::Setup(const std::string& strFilename, const char* pszMode, bool fFlush
                     throw runtime_error(strprintf("CDB::CDB Failed to configure for no temp file backing for database %s", strFile));
             }
 
-            info("CDB::Setup: CALL DB->open");
+            info("CDB::CDB: CALL DB->open");
             ret = pdb->open(NULL,                               // Txn pointer
                             fMockDb ? NULL : strFile.c_str(),   // Filename
                             fMockDb ? strFile.c_str() : "main", // Logical db name
@@ -329,11 +331,6 @@ void CDB::Setup(const std::string& strFilename, const char* pszMode, bool fFlush
             bitdb.mapDb[strFile] = pdb;
         }
     }
-}
-
-CDB::CDB(const std::string& strFilename, const char* pszMode, bool fFlushOnCloseIn) : pdb(NULL), activeTxn(NULL)
-{
-    Setup(strFilename, pszMode, fFlushOnCloseIn);
 }
 
 void CDB::Flush()
