@@ -1127,8 +1127,20 @@ bool BdbEncrypted(boost::filesystem::path wallet)
     // Reset our cursor
     file.seekg(8187, file.beg);
 
-    // Read data from the file and close it
+    // Read data from the file
     file.read(buffer, 5);
+
+    // Check if we have it
+    if (string(buffer) == "main")
+        return false;
+
+    // Reset our cursor for older wallet formats
+    file.seekg(16379, file.beg);
+
+    // Read data from the file
+    file.read(buffer, 5);
+
+    // Close the file
     file.close();
 
     // Check if we have it
